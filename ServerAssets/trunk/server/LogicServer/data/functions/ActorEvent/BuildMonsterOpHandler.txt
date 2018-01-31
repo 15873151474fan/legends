@@ -1,0 +1,85 @@
+﻿
+
+EventCallDispatcher.BuildMonsterOpHandler = function (sysarg, args)
+	local monsterPtr = args[1]
+	--print("in BuildMonsterOpHandler...")
+	local actorVar = Actor.getStaticVar(sysarg)
+	local hMonster = Actor.getHandle(monsterPtr)
+	local operateType = 0
+	local monsterId = Actor.getIntProperty(monsterPtr, PROP_ENTITY_ID) --获取实体id
+	local towerFootIdlist = RadishConfig.towers.towerFootIds  --读取塔基列表
+	local towerIdList = RadishConfig.towers.towerIds  --读取塔的列表
+	
+	local id = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) --获取实体id
+
+	for i = 1, table.getn(towerFootIdlist or {}) do
+		if towerFootIdlist[i] == monsterId then
+			operateType = 1
+			break
+		end
+	end
+	
+	if operateType ~= 1 then
+		for i = 1, table.getn(towerIdList or {}) do
+			if towerIdList[i] == monsterId then
+				if actorVar.towers then
+					local hMonster = Actor.getHandle(monsterPtr)
+					if actorVar.towers[hMonster] == hMonster then
+						operateType = 2
+						break
+					end
+				end
+			end
+			
+			if operateType == 2 then
+				break
+			end
+		end
+	end
+	
+	if operateType == 0 then
+		return 
+	end
+
+	--print("operateType : ",operateType)
+	if operateType == 1 then
+		local pack = DataPack.allocPacket(sysarg, 145, 22)
+		if pack ~= nil then
+			DataPack.writeInt64(pack, hMonster)
+			if not actorVar.nSoul then
+				actorVar.nSoul = 0
+			end
+			DataPack.writeInt(pack, actorVar.nSoul)
+			DataPack.flush(pack)
+		end
+	elseif operateType == 2 then
+		local pack = DataPack.allocPacket(sysarg, 145, 23)
+		if pack ~= nil then
+			--print(hMonster)
+			DataPack.writeInt64(pack, hMonster)
+			local towerLevel = 0
+			if actorVar.towerLevels then
+				towerLevel = actorVar.towerLevels[hMonster]
+				--print("towerLevels ->> : ", towerLevel)
+			end
+			
+			DataPack.writeByte(pack, towerLevel)
+			local entityId = Actor.getIntProperty(monsterPtr, PROP_ENTITY_MODELID)
+			local towerConf = RadishConfig.towers[monsterId]
+			local consumSoul = towerConf[towerLevel].nUpdateSoul
+			local returnSoul = towerConf[towerLevel].nReturn
+			--print(consumSoul)
+			DataPack.writeInt(pack, consumSoul)
+			--print(returnSoul)
+			DataPack.writeInt(pack, returnSoul)
+			--print(monsterId)
+			DataPack.writeInt(pack, monsterId)
+			local actorName = Actor.getName(sysarg)
+			--print(actorName)
+			DataPack.writeString(pack, actorName)
+			DataPack.flush(pack)
+		end
+	end		
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeBuildMonsterTalk, EventCallDispatcher.BuildMonsterOpHandler)

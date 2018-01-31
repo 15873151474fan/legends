@@ -1,0 +1,106 @@
+
+
+--#include "data\config\activityconfig\SavePillar\SavePillarConfig.txt" once
+
+
+--¹ÖÎï¹¥³Ç¿ªÊ¼
+function SavePillarStart()
+	local config = SavePillarConfig
+	if (not config) then
+		return
+	end
+
+	local dval = System.getDyanmicVar()
+	dval.SavePillarTimes = 1  --²¨´Î
+	dval.SavePillarStart = 1
+
+	local hScene = Fuben.getSceneHandleById(config.nSceenId, 0)
+	local pillarMonster = config.pillarMonster
+	if not pillarMonster then
+		return
+	end
+
+	--Ë¢ÁúÖù
+	Fuben.createOneMonsters(hScene, pillarMonster.nMonsterID, pillarMonster.posX1, pillarMonster.posX2, pillarMonster.posY, pillarMonster.nCount, pillarMonster.nLiveTime)
+
+	System.broadcastTipmsg(Lang.Activity.sp0001, ttScreenCenter+ttChatWindow)
+
+	Actor.unregScriptCallback(thisNPC, "OnFreshSiegeMosters")
+	--Ë¢¹¥³Ç¹Ö
+	local result = Actor.regScriptCallback(thisNPC, thisNPC, 0, config.perTime * 1000, config.nTotalTimes, "OnFreshSiegeMosters")
+
+end
+
+
+--¹ÖÎï¹¥³Ç½áÊø
+function SavePillarOver()
+	local dval = System.getDyanmicVar()
+	if dval.SavePillarStart == nil then
+		Actor.unregScriptCallback(thisNPC, "OnFreshSiegeMosters")
+		return
+	end
+
+	local config = SavePillarConfig
+	if not config then
+		return 
+	end
+	local hScene = Fuben.getSceneHandleById(config.nSceenId, 0)
+
+	local monsterBox = config.monsterBox
+	if not monsterBox then
+		return
+	end
+	local boxCount = monsterBox.monsters[1].boxCount
+	local nMonsterID = monsterBox.monsters[1].nMonsterID
+	local nLiveTime = monsterBox.monsters[1].nLiveTime
+	
+	for i = 1, boxCount do
+		for j = 1, 10000 do
+			local posX = 0
+			local posY = 0
+			posX = monsterBox.boxPosRange[1].posX + 
+				System.getRandomNumber( math.abs(monsterBox.boxPosRange[1].posX - monsterBox.boxPosRange[2].posX))
+			posY = monsterBox.boxPosRange[1].posY + 
+				System.getRandomNumber( math.abs(monsterBox.boxPosRange[1].posY - monsterBox.boxPosRange[2].posY))
+			local pMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)	
+			if pMonster then
+				break
+			end
+		end
+	end
+
+	Actor.unregScriptCallback(thisNPC, "OnFreshSiegeMosters")
+
+	System.broadcastTipmsg(Lang.Activity.sp0002, ttScreenCenter+ttChatWindow)
+end
+
+--Ë¢¹¥³Ç¹Ö
+function OnFreshSiegeMosters()
+	local config = SavePillarConfig
+
+	local dval = System.getDyanmicVar()
+
+	if dval.SavePillarStart == nil then
+		Actor.unregScriptCallback(thisNPC, "OnFreshSiegeMosters")
+		return
+	end
+
+	nTimes = dval.SavePillarTimes
+
+	local hScene = Fuben.getSceneHandleById(config.nSceenId, 0)
+
+	--Ë¢¹¥³Ç¹Ö
+	for i=1,table.getn(config.monsters[nTimes]) do
+		Fuben.createMonsters(hScene,
+				     config.monsters[nTimes][i].nMonsterID,
+				     config.monsters[nTimes][i].posX1,
+				     config.monsters[nTimes][i].posX2,
+				     config.monsters[nTimes][i].posY,
+				     config.monsters[nTimes][i].nCount,
+				     config.monsters[nTimes][i].nLiveTime)
+	end
+
+	System.broadcastTipmsg(string.format(Lang.Activity.sp0004, nTimes), ttScreenCenter+ttChatWindow)
+
+	dval.SavePillarTimes = nTimes + 1
+end

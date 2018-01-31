@@ -1,0 +1,37 @@
+--阵营战场引导打开可攻击目标
+{
+  maxLevel = 50,
+  --触发条件
+  triggerList =
+	{
+		{ type = 10, valueList = {183,}},      --在衡山山区、南太行山、五毒岭和阵营战场
+	},
+
+
+  --引导的步骤
+  steps =
+	{
+
+--第1步 指向npc对话框列表功能选项
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 180, dataList = {0,} },     --npc对话框不可见
+
+      },
+
+      --指向npc对话框功能选择的第二项
+      action = { type = 1, helpId = 9, data = 0, desc = Lang.GuideLang.desc68 },
+	},
+   --第2步 结束
+    {
+      condList =
+      {
+				{ type = 17,  helpId = 40, dataList = {0,} },     --不存在任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 0, data = 3, desc = Lang.GuideLang.desc20 },
+    },
+	}
+}

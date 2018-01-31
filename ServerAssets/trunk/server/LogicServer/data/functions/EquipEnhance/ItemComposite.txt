@@ -1,0 +1,131 @@
+﻿--lua script
+--翅膀合成
+
+
+--玩家开始合成, args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function OnItemComposite( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local opType = args[ptrCount+2]		--操作类型
+	local nPriClass = args[ptrCount+3]+1	--主类选项ID
+	local nSubClass = args[ptrCount+4]+1	--子类选项ID
+	local nCount = args[ptrCount+5]		--合成数量
+	local isRepCost = args[ptrCount+6]	--是否元宝替代
+	
+	
+	if nPriClass < 0 or nSubClass < 0 then return false end
+	
+	local consumeConfig = enhanceConfigMap[opType]
+	
+	local priconfig = consumeConfig[nPriClass].config
+	
+	if (priconfig == nil) then
+		System.trace("OnItemComposite error can't find priconfig, nPriClass="..nPriClass)
+		return false
+	end
+	
+	local config = priconfig[nSubClass]
+	
+	if (config == nil) then
+		System.trace("OnItemComposite error can't find subconfig, nSubClass="..nSubClass)
+		return false
+	end
+	
+	local award = config.awards[1]
+	if award.type ~= 0 or award.id <= 0 then
+		System.trace("OnItemComposite awards error！, nSubClass="..nSubClass)
+		return 
+	end
+	
+	for i = 1, nCount do 
+		--重构奖励
+		local awards = {}
+		for k, v in pairs(config.awards) do
+			local award = {type = v.type, id = v.id, count = 1, quality = v.quality, strong = v.strong, bind = 1, param = v.param}
+			table.insert(awards, award)
+		end
+		
+		--local bRes, needGrid = Awards.CheckBagGridCount(sysarg, awards)
+		-- if (bRes ~= true) then
+			-- local tipmsg= string.format(Lang.ScriptTips.mt00030) --通知用户，需要空出多少个空格 
+			-- Actor.sendTipmsg(sysarg, tipmsg,ttFlyTip)
+			-- return false
+		-- end
+		
+		local hasCount = Item.getBagEmptyGridCount(sysarg)
+		if hasCount < 1 then 
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00030), ttFlyTip)
+			return false
+		end
+		
+		
+		--重构消耗
+		local consumes = {}
+		for k, v in pairs(config.consumes) do
+			local consume = {type = v.type, id = v.id, count = v.count, quality = v.quality, strong = v.strong, param = v.param, usetype = v.usetype, duraOdds = v.duraOdds, yb = v.yb}
+			table.insert(consumes, consume)
+		end
+		
+		local result = SuccessCheck(sysarg, opType, consumes, isRepCost)
+		
+		
+		if (result ~= successCheckResult.ok) then return false end
+		
+		
+		local logstr = string.format(Lang.LogTips.l00075, award.id)
+		local result, isBind = EnhanceConsumes(sysarg, opType, consumes, isRepCost, 0, 0, logstr)
+		if (result ~= successCheckResult.ok) then return false end
+		
+		local randNum = math.random(10000)
+		local bResult = 1
+		if randNum <= config.realrate then
+			--重构奖励
+			local awards = {}
+			for k, v in pairs(config.awards) do
+				local award = {type = v.type, id = v.id, count = 1, quality = v.quality, strong = v.strong, bind = isBind, param = v.param}
+				table.insert(awards, award)
+			end
+			
+			Awards.Give(sysarg, awards, 53, logstr)
+			
+			bResult = 0
+		end
+		
+		--返回客户端处理结果
+		local pPack = DataPack.allocPacket(sysarg, 8, 8)
+		if not pPack then return end
+		DataPack.writeInt64(pPack, 0)
+		DataPack.writeByte(pPack, opType)
+		DataPack.writeByte(pPack, bResult)
+		DataPack.flush(pPack)
+		
+	end
+	
+	
+	--[[
+	--创建一个装备 
+	local quality = award.quality or 0
+	local strong = award.strong or 0
+	local bind = award.bind or isBind
+	local newItemPtr = Item.createItem(award.id, nCount, quality, strong, bind, 0)
+	if not newItemPtr then
+		System.trace("Item Composite createItem error, id = "..newItem)
+		return false
+	end
+	
+	--给玩家添加一个装备 
+	if (Item.addItem(sysarg, newItemPtr, Lang.LogTips.l00072, 88, 1) ~= 1) then
+		System.trace("Item Composite add Item error, id = "..newItem)
+		return false
+	end
+	--]]
+	
+	--返回客户端处理结果
+	--Item.sendItemProcessResult(sysarg, nil, opType, bResult)
+	
+end
+
+--获取合成的消耗,args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function GetItemCompositeConsumes(sysarg, args)
+
+	
+end

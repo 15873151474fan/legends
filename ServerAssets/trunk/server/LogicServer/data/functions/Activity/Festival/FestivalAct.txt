@@ -1,0 +1,312 @@
+
+--#include "..\..\GlobalMisc.txt" once     --全局的杂项函数
+--#include "data\config\activityconfig\Festival\WishBottle.txt" once
+
+function StartWishBottle()
+	--[[local playerList = LuaHelp.getAllActorList(WishBottleConfig.MinLevel)
+	if not playerList then
+		return
+	end
+	local randomPtr = playerList[math.random(1, #playerList)]
+	if randomPtr then
+		local curTimes = getTodayFlag(randomPtr, MyBottleCount) or 0
+		if curTimes < WishBottleConfig.MaxTimes then
+			setTodayFlag(randomPtr, MyBottleCount, curTimes + 1)
+			local myName = Actor.getName(randomPtr)
+			local wishVar = GetWishBottleVar()
+			if wishVar then
+				SetWishBottleVal(wishVar[1], wishVar[2], wishVar[3] + 1, myName)
+			else
+				local hiStr = WishBottleConfig.SayHi[math.random(1, #WishBottleConfig.SayHi)]
+				SetWishBottleVal("", hiStr, 1, myName)
+			end
+			SendMyWishBottle(randomPtr)
+			RegBottleFunc()
+		end
+	end]]
+end
+
+function GetSupItemIdByFloor(floorIdx)
+	local supId = 0
+	local floorCfg = WishBottleConfig.SpecFloor[floorIdx]
+	if floorCfg then
+		local curRate = 0
+		local randNum = math.random(1,100)
+		local rateLen = math.floor(#floorCfg/2)
+		for i = 1, rateLen, 2 do
+			curRate = curRate + floorCfg[i+1]
+			if curRate >= randNum then
+				return i
+			end
+		end
+	end
+	return supId
+end
+
+function GetWishBottleVar()
+	local sysSVar = System.getStaticVar()
+	return sysSVar.WishBottleInfo
+end
+
+function SetWishBottleVal(srcName,sayHi,floors,curName)
+	local sysSVar = System.getStaticVar()
+	local supIdx = GetSupItemIdByFloor(floors)
+	sysSVar.WishBottleInfo = {}
+	sysSVar.WishBottleInfo[1] = srcName		--名字
+	sysSVar.WishBottleInfo[2] = sayHi		--祝福
+	sysSVar.WishBottleInfo[3] = floors		--楼层
+	sysSVar.WishBottleInfo[4] = 1		--品质
+	sysSVar.WishBottleInfo[5] = System.getCurrMiniTime() + WishBottleConfig.ActSecs		--结束时间
+	sysSVar.WishBottleInfo[6] = supIdx		--奖励索引
+	sysSVar.WishBottleInfo[7] = curName	--当前所在的名字
+	if supIdx > 0 then
+		local noticeStr = string.format(Lang.ScriptTips.holiday05, curName, floors)
+		System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+	end
+end
+
+function FlushWishBottle(sysarg)
+	local wishTab = GetWishBottleVar()
+	if wishTab then
+		local myName = Actor.getName(sysarg)
+		if myName ~= wishTab[7] then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.week13, ttFlyTip)
+			return
+		end
+		local curTimes = getTodayFlag(sysarg, DayWishBottle) or 0
+		local oldLv = wishTab[4] or 1
+		if oldLv >= #WishBottleConfig.MaxQuality then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.week14, ttFlyTip)
+			return
+		end
+		if curTimes >= WishBottleConfig.FreeTimes then
+			local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+			local myBindGold = Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO)
+			if myYb + myBindGold < WishBottleConfig.FlushYb then
+				local noticeStr = string.format(Lang.ScriptTips.holiday01, WishBottleConfig.FlushYb)
+				Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+				return
+			end
+			local removeBindGold = 0
+			local removeGold = 0
+			if myBindGold > 0 then
+				if myBindGold < WishBottleConfig.FlushYb then
+					removeBindGold = myBindGold
+				else
+					removeBindGold = WishBottleConfig.FlushYb
+				end
+			end
+			removeGold = WishBottleConfig.FlushYb - removeBindGold
+			if removeBindGold > 0 then
+				Actor.changeMoney(sysarg, mtBindYuanbao, -removeBindGold, 840, Lang.LogTips.yb034)
+			end
+			if removeGold > 0 then
+				Actor.changeMoney(sysarg, mtYuanbao, -removeGold, 840, Lang.LogTips.yb034)
+			end
+		else
+			curTimes = curTimes + 1
+			setTodayFlag(sysarg, DayWishBottle, curTimes)
+		end
+		local curRate = 0
+		local randNum = math.random(1, 100)
+		local qualityCfg =WishBottleConfig.MaxQuality[oldLv]
+		for k, v in ipairs(qualityCfg) do
+			curRate = curRate + v
+			if curRate >= randNum then
+				local curLv = oldLv + k -1
+				if curLv > oldLv then
+					wishTab[4] = curLv
+				end
+				break
+			end
+		end
+		if wishTab[4] >= #WishBottleConfig.MaxQuality then
+			local noticeStr = string.format(Lang.ScriptTips.holiday02, myName)
+			System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+		end
+		local netPack = DataPack.allocPacket(sysarg, 139, 63)
+		if netPack then
+			DataPack.writeByte(netPack, curTimes)
+			DataPack.writeByte(netPack, wishTab[4])
+			DataPack.flush(netPack)
+		end
+	end
+end
+
+function SendMyWishBottle(sysarg)
+	local wishTab = GetWishBottleVar()
+	if wishTab then
+		if Actor.getName(sysarg) ~= wishTab[7] then
+			return
+		end
+		if System.getCurrMiniTime() > wishTab[5] then
+			return
+		end
+		local netPack = DataPack.allocPacket(sysarg, 139, 62)
+		if netPack then
+			local supId = 0
+			local floorLv = wishTab[3]
+			local supIdx = wishTab[6]
+			local awardCfg = AwardList[supIdx]
+			if awardCfg then
+				supId = awardCfg.id
+			end
+			DataPack.writeInt(netPack, floorLv - 1)
+			DataPack.writeString(netPack, wishTab[1])
+			local sayHiStr = wishTab[2]
+			if sayHiStr == "" then
+				sayHiStr = WishBottleConfig.SayHi[math.random(1, #WishBottleConfig.SayHi)]
+			end
+			DataPack.writeString(netPack, sayHiStr)
+			DataPack.writeByte(netPack, wishTab[4])
+			local nBaseExp = 0
+			for k, v in ipairs(WishBottleConfig.Award) do
+				if v.type == qatAddExp then
+					local expVal = Actor.getActivityExp(sysarg, v.id, v.count, 0)
+					if expVal > 0 then
+						nBaseExp = expVal
+					end
+				end
+			end
+			DataPack.writeInt(netPack, nBaseExp)
+			DataPack.writeWord(netPack, supId)
+			local curTimes = getTodayFlag(sysarg, DayWishBottle) or 0
+			if curTimes > WishBottleConfig.FreeTimes then
+				curTimes = WishBottleConfig.FreeTimes
+			end
+			DataPack.writeByte(netPack, curTimes)
+			DataPack.writeByte(netPack, WishBottleConfig.FreeTimes)
+			DataPack.writeInt(netPack, wishTab[5])
+			DataPack.flush(netPack)
+		end
+	end
+end
+
+function GetBottleRate(level)
+	return WishBottleConfig.QualityRate[level] or 1
+end
+
+function PostWishBottle(sysarg, newSayHi)
+	local wishTab = GetWishBottleVar()
+	if not wishTab then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.week15, ttFlyTip)
+		return
+	end
+	local myName = Actor.getName(sysarg)
+	if myName ~= wishTab[7] then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.week13, ttFlyTip)
+		return
+	end
+	System.filterWords(newSayHi)
+	wishTab[1] = myName
+	wishTab[2] = newSayHi
+	local rate = GetBottleRate(wishTab[4])
+	local needGirdCount = 0
+	local floorLv = wishTab[3]
+	local wardCfg = AwardList[wishTab[6]]
+	if wardCfg then
+		if wardCfg.type == 0 then
+			needGirdCount = Item.getAddItemNeedGridCount( sysarg, wardCfg.id, wardCfg.count)
+		end
+	end
+	for k, v in ipairs(WishBottleConfig.Award) do
+		if v.type == 0 then
+			needGirdCount = needGirdCount + Item.getAddItemNeedGridCount( sysarg, v.id, v.count)
+		end
+	end
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < needGirdCount then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, needGirdCount), ttFlyTip )
+		return false
+	end
+	if wardCfg then
+		wishTab[6] = 0
+		Actor.giveAward(sysarg, wardCfg.type, wardCfg.id, wardCfg.count, 0,0,0,0,840, Lang.LogTips.l00123)
+	end
+	for k, v in ipairs(WishBottleConfig.Award) do
+		if v.type == qatAddExp then
+			local expVal = Actor.getActivityExp(sysarg, v.id, v.count, 0)
+			if expVal > 0 then
+				local realExp = expVal * rate
+				Actor.addExp(sysarg, realExp, 840, 0)
+			end
+		else		
+			Actor.giveAward(sysarg, v.type, v.id, v.count * rate, 0,0,0,0,840, Lang.LogTips.l00123)
+		end
+	end
+	StartWishBottle()
+end
+
+function BeginWishBottle()
+	local gVar = System.getDyanmicVar()
+	if not gVar.BeginWishBottle then
+		StartWishBottle()
+		gVar.BeginWishBottle = true
+	end
+end
+
+function EndWishNotice()
+	System.broadcastTipmsg(Lang.ScriptTips.holiday03,ttScreenCenter + ttChatWindow)
+end
+
+function GetBottleQuality(floors)
+	for k, v in ipairs(WishBottleConfig.FloorQuality) do
+		if floors >= v.min and floors <= v.max then
+			return v.level
+		end
+	end
+	return 0
+end
+
+function EndWishBottle()
+	local sysSVar = System.getStaticVar()
+	UnregBottleFunc()
+	System.broadcastTipmsg(Lang.ScriptTips.holiday04,ttScreenCenter + ttChatWindow)
+	local floors = 1
+	if sysSVar.WishBottleInfo then
+		floors = sysSVar.WishBottleInfo[3]
+	end
+	local level = GetBottleQuality(floors)
+	local pos = WishBottleConfig.EffectArea
+	local scenePtr = Fuben.getScenePtrByName(pos[1])
+	if scenePtr then
+		local playerList = LuaHelp.getNearEntityListFromRange(scenePtr,pos[2],pos[3],pos[4],pos[5],0)
+		for k, ptr in ipairs(playerList or {}) do
+			Actor.playScrEffectCode(ptr, WishBottleConfig.PlayEffId, WishBottleConfig.LiveTime)
+			for _, areaAward in ipairs(WishBottleConfig.WorldAward) do
+				if areaAward.type == qatAddExp then
+					local expVal = Actor.getActivityExp(ptr, areaAward.id, areaAward.count, 0)
+					if expVal > 0 then
+						local realExp = expVal * math.pow(1 + areaAward.rateR, level)
+						Actor.addExp(ptr, realExp, 840, 0)
+					end
+				elseif areaAward.type == qatHonor or areaAward.type == qatBindYb then
+					local val = areaAward.count * math.pow(1+ areaAward.rateR, level)
+					Actor.giveAward(ptr, areaAward.type,areaAward.id, val,0,0,0,0,840, Lang.LogTips.l00124)
+				end
+			end
+		end
+	end
+
+	sysSVar.WishBottleInfo = nil
+
+	local gVar = System.getDyanmicVar()
+	gVar.BeginWishBottle = nil
+end
+
+function RegBottleFunc()
+	local nHandle = Fuben.getSceneHandleByName(Lang.SceneName.s00002,0)
+	local npcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00205)
+	if npcPtr then
+		Actor.unregScriptCallback(npcPtr, "StartWishBottle")
+		Actor.regScriptCallback(npcPtr, npcPtr, WishBottleConfig.ActSecs * 1000, WishBottleConfig.ActSecs * 1000, -1, "StartWishBottle")
+	end
+end
+
+function UnregBottleFunc()
+	local nHandle = Fuben.getSceneHandleByName(Lang.SceneName.s00002,0)
+	local npcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00205)
+	if npcPtr then
+		Actor.unregScriptCallback(npcPtr, "StartWishBottle")
+	end
+end

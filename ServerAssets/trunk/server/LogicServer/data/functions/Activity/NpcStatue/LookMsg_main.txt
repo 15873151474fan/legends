@@ -1,0 +1,29 @@
+﻿
+--查看离线数据
+
+function LookDataMain(sysarg)
+	local userId = Actor.getIntProperty(thisNPC, PROP_ENTITY_ID)
+	if userId > 0 then
+		local serverId = System.getServerIdByCsRank(userId)
+		if serverId > 0 then
+			System.loadUserOfflineDataCs(serverId, userId)
+		end
+	end
+	local str = ""
+	str = str.."<#BL"..Lang.Activity.a00123.."/@LookMsg, "..userId..">"
+	return str
+end
+
+function LookMsg(sysarg, userId)
+	local userId = tonumber(userId)
+	if userId <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00124, ttFlyTip)
+		return
+	end
+	
+	Actor.viewOffLineActor(sysarg, userId)
+	Actor.closeNPCDialog(sysarg)
+end
+
+
+table.insert(MainFnTable, LookDataMain)

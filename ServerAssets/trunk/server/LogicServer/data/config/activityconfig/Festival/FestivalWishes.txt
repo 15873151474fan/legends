@@ -1,0 +1,35 @@
+
+--鞭炮配置
+FestivalWishes = {
+	MinLevel = 40,	--祝愿达到最低等级
+	DayTimes = 1,	--每天次数
+	RankTop = 100,
+	MinCount = 10,		--排行中至少达到的人数才抽奖
+	MinPoint = 10,		--个人达到该值才可以抽奖
+
+	--每日祝愿奖励
+	wishAward = {
+		{type = 0, id = 1550, count = 3, quality = 0, strong = 0, bind = 1},
+	},
+
+	--鞭炮设置
+	Fires = {
+		--[数量] = {物品id,帅气/魅力值，元宝代替价格,广播特效id,秒数,是否全服播放}
+		[1] = {itemId = 1550, points = 1, YbVal = 1,EffId = 41, EffSec = 1, boToAll = false},
+		[3] = {itemId = 1551, points = 10, YbVal = 3,EffId = 41, EffSec = 1,boToAll = true, noticeStr = Lang.ScriptTips.btr127},
+	},
+	TitleId = 27,   --头衔id
+
+	--第一名奖励
+	BigLuckAward = {
+		{type = 0, id = 283, count = 1, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 355, count = 1, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 1467, count = 1, quality = 0, strong = 0, bind = 1},
+	},
+
+	--幸运抽奖奖励
+	LuckAward = {
+		{type = 0, id = 281, count = 3, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 354, count = 3, quality = 0, strong = 0, bind = 1},
+	},
+}

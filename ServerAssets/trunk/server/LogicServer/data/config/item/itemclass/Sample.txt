@@ -1,0 +1,397 @@
+﻿  --物品配置示范
+  {
+    id = 0, --物品ID，必须是唯一的
+    name ="test", --"测试物品"
+    type = 0, --物品的类型，药品、技能书、任务物品等，使用数字类型编号  118  神器 120符石 121卡牌
+    icon = 10, --物品图标图片编号,注意，商城道具的icon也表示商城道具的图标id只是大小和目录不同
+    candidateIconCount =0, --候选的图标的数目，一般为0，用于骰子，丢在地上，随机出现一个图标比如配置的图标id为 10，候选图标的个数为4，那么丢在地上的图标 为10,11,12,13,14里边选一个随机
+
+	insure = 10, --装备表示单次投保元宝数 大于0就代表可投保
+    shape = 0, --物品外观图片编号，只对具有外形的装备类物品有意义，例如衣服、武器和坐骑 (法宝外内观:shape*100+quality) (魔珠内观quality+核shape，魔珠名字=beadName[shape-1][quality-1])
+    dura = 1000, --装备耐久度，1000表示1耐久。 如果是功能道具、装备表示装备的耐久..如果是经验魔珠当前经验值=dura*(1+quality),如果是护盾表示最大盾元
+	useDurDrop = 0,	--每次使用扣除多少点的耐久(物品使用次数) 只有功能道具此项有效 且叠加项dup必须为 0 如不是扣除次数物品 此项必须为0, 如果是护盾表示伤害减免点
+    dup = 10, --叠加数量上限，默认值为0
+    colGroup = 0, --冷却组，对于使用后具有冷却时间的物品来说，相同冷却组的物品将同时进入冷却恢复状态
+    dealType = 0, --物品在商店中交易的货币类型，0为绑定货币，1为非绑定货币
+    dealPrice = 10000, --物品在商店中售出的价格，售出和购买的货币的类型通过dealType配置
+    time = 0, --物品的使用时限，单位是秒，0表示不限制使用时间。 
+    smithId = 0, --物品的精锻的配置id，如果为0表示不可精锻
+    initSmithId =0,  --装备初始化的时候产生随机属性的库的ID
+    cdTime =0, --冷却时间，单位是毫秒，如没有冷却可以不填写。
+    breakId =0,  --物品的分解的配置id，如果是0表示不可分解
+	dropBroadcast = 0,	--玩家/怪死亡爆出该是否广播,-1：一直广播，0：不广播（默认），7表示开服7天内广播。
+	openUi="33,1", --点击打开的窗口,使用窗口id,分页id,子分页id,..这样配置，使用,号分隔，子窗口的id全部从1开始编号
+	desc = "物品描述（说明）文字，可使用HTML语法",	-- 
+	extendsDesc = "",	--附加描述 用于客户端读取 (法宝用于技能描述)
+
+	--expireTime = "2013-12-30 23:59:59",	--道具到期时间  格式：2013-12-30 23:59:59
+	
+    validFbId=-1,		 -- 物品使用的有效副本ID。-1表明是不限制。对于配置了限制场景的物品，需要配置禁止交易、放入仓库等
+    validSceneId=-1,	 -- 物品使用的有效场景ID。-1表明是不限制
+    existScenes = {1,2,4,5,6}, --物品存在的有效场景集合。不在此场景列表中的物品会被删除。-1表示任何场景都可存在
+    suitId =1,      --    套装的ID,
+					--  a)如果是装备表示装备的套装ID，
+					--  b)在功能物品里表示功能物品的子分类，到时候重新定义
+					--		1:磨刀石, 2:大喇叭道具，3: 疾风令,4：gm大喇叭,5:表示能扩展背包的物品 6:vip周卡,7：vip月卡,8:VIP年卡,
+					--	9:帮派资金票，加多少资金在 staitcAttrs里配置
+
+					--    10,职业时装包(双击获得本职业时装),11，技能书 12: 新手礼包，13,英雄技能书 开出道具在 staitcAttrs里配置
+					-- 14给英雄增加熟练度的道具
+					--  c)在宝石里，suitId表示宝石的等级，比如5表示是5级宝石
+					--  d)在技能秘籍中，按2^(n-1)表示该秘籍开启的第几个效果，第1个效果是1，开启第2个效果是2，开启第3个秘籍效果是4，4个效果是8,开启1和4效果是9，以此类推                   
+					--  e)在宠物技能书里，表示的是 该技能书对应的宠物的技能的id
+					--  f)在经验玉里，为1表示是满的经验玉，0为空
+					--  g)在魂石中表示魂石等级
+					--  h)在法宝中表示技能图标ID
+					--  i)在魔珠中表示类型 0表示普通魔珠 1表示经验魔珠(经验魔珠时dura为经验值 当前经验值=dura*(1+quality))
+
+				--20 完美强化符
+				--21 元宝开启箱子道具
+				--22 玩家修改名称道具
+				--23 财神送礼道具，不同元宝开出不同的东西
+				-- 24 法宝与魔珠属性配置
+				-- 25 神石
+				-- 26 符石
+
+    showQuality =0, --最低的显示品质，有些道具不是装备，但是策划也希望给他们显示颜色，显示品质= max(实际的品质,showQuality)，默认是0
+
+    weight =0,  --物品的负重
+	
+	TalentValue = 0,	--吞噬会获得的天赋点(可以不配置，默认为0表示不能被吞噬)
+
+	runeLevel = 0,		--符石等级
+
+    --静态属性表，静态属性指物品原本具备的且不会改变的属性
+    --[[
+	1)源泉类的装备,物品类型=12或者13的
+	在物品的静态属性里配置
+		staitcAttrs =  
+		{
+
+			{type=0,value =3000},    --表示回复时间是3000毫秒每次
+
+			{type=0,value =25},      --表示每次回复的是25点
+
+			{type=0,value =123},     --表示可以用ID为123的物品灌注,如果有多个物品可以在后面继续添加,,,
+			{type=0,value =124},     --表示可以用ID为124的物品灌注
+		}
+ 
+	2)药水类物品的配置，是buff药才需要这样配置,物品类型= 103，(可以多个buff，比如2个buff，下面的要配置8行,...)
+        下面这个表示每次加3点HP,加30次，间隔为3秒，buffid=1
+		staitcAttrs =
+		{        
+			{type=11, value =3},    --type=增加的属性,value =每次添加的数值
+			
+			{type=0, value=30 },      --type=0,value= 作用次数    
+			{type=0, value=3},        --type=0,value= 间隔时间，单位是秒 
+			{type=0, value=1},        --type=0,value= buffID
+
+		}
+
+	
+    4)速回药，灌注药的配置，物品类型= 104， 可以配置多个效果
+		staitcAttrs =
+		{        
+			--表示一次性回复300点蓝
+			{type=13, value =300},    --type=增加的属性,value =添加的数值
+		}
+
+    5)帮派资金票
+		staitcAttrs =  
+		{
+			{type=0,value =100},    --使用获得100点帮派资金
+		}
+
+	6)经验玉的倍率
+		staitcAttrs =  
+		{
+			{type=2,value =2.0},    --
+		}
+
+	7)新手礼包
+		staitcAttrs =  
+        {
+
+			{type=0,value =22},   --物品1的id
+			{type=0,value =1}, --物品1的数量
+			{type=0,value =0},  --物品1是给哪个职业的,0表示全职业，1战士，2法师，3道士
+
+			{type=0,value =223},   --物品2的id
+			{type=0,value =1}, --物品2的数量
+			{type=0,value =1},  --物品2是给哪个职业的,0表示全职业，1战士，2法师，3道士
+         }
+	21) 金钱开启箱子道具
+		{
+			--需要消耗的金钱
+			{type=3,value =22},   --type表示金钱类型,value表示数量,比如300元宝的话type=3,value=300 表示需要消耗300元宝
+			
+			
+			--下面是3个1组的
+			{type=0,value =223},   --物品1的id
+			{type=0,value =1}, --物品1的数量
+			{type=0,value =0},  --物品1是给哪个职业的,0表示全职业，1战士，2法师，3道士
+
+			{type=0,value =223},   --物品2的id
+			{type=0,value =1}, --物品2的数量
+			{type=0,value =1},  --物品2是给哪个职业的,0表示全职业，1战士，2法师，3道士
+         }
+	23) 财神送礼道具，不同元宝开出不同的东西
+		{
+			
+			{type=3,value =0},   --type表示value元宝能够领取3个道具
+			
+			
+			--第1组3个道具
+			{type=0,value =223},   --物品1的id
+			{type=0,value =1}, --物品1的数量
+			{type=0,value =0},  --物品1是给哪个职业的,0表示全职业，1战士，2法师，3道士
+
+		    {type=0,value =223},   --物品2的id
+			{type=0,value =1}, --物品2的数量
+			{type=0,value =1},  --物品2是给哪个职业的,0表示全职业，1战士，2法师，3道士
+			
+			{type=0,value =223},   --物品2的id
+			{type=0,value =1}, --物品2的数量
+			{type=0,value =1},  --物品2是给哪个职业的,0表示全职业，1战士，2法师，3道士
+			
+			
+			
+			--第2组5个道具,花费188领取
+			
+			{type=5,value =188},   --type表示188元宝能够领取5个道具
+		
+			
+			{type=0,value =223},   --物品1的id
+			{type=0,value =1}, --物品1的数量
+			{type=0,value =0},  --物品1是给哪个职业的,0表示全职业，1战士，2法师，3道士
+
+		    {type=0,value =223},   --物品2的id
+			{type=0,value =1}, --物品2的数量
+			{type=0,value =1},  --物品2是给哪个职业的,0表示全职业，1战士，2法师，3道士
+			
+			{type=0,value =223},   --物品2的id
+			{type=0,value =1}, --物品2的数量
+			{type=0,value =1},  --物品2是给哪个职业的,0表示全职业，1战士，2法师，3道士
+			
+			{type=0,value =223},   --物品2的id
+			{type=0,value =1}, --物品2的数量
+			{type=0,value =1},  --物品2是给哪个职业的,0表示全职业，1战士，2法师，3道士
+			
+			{type=0,value =223},   --物品2的id
+			{type=0,value =1}, --物品2的数量
+			{type=0,value =1},  --物品2是给哪个职业的,0表示全职业，1战士，2法师，3道士
+			
+        }
+		
+	24)法宝与魔珠属性配置
+		staitcAttrs = {  
+			--属性加成 每7个配置为一组属性  1-6的value为加成的二次函数参数 [1-3]品质加成 [4-6]等级加成 
+			--属性加成公式= float((a1*星级*星级 + b1*星级 + c1)/1000) * float((a2*等级*等级 + b2*等级 + c2)/1000) * 属性值
+			{ type = 0, value = 1000, },	--a1
+			{ type = 0, value = 2000, },	--b1
+			{ type = 0, value = 3000, },	--c1
+			{ type = 0, value = 4000, },	--a2
+			{ type = 0, value = 5000, },	--b2
+			{ type = 0, value = 6000, },	--c2
+			{ type = 5, value = 100, },		--属性类型值配置
+		},
+
+	25)神石属性配置
+		staitcAttrs = {  
+			--属性加成 每7个配置为一组属性  1-6的value为加成的二次函数参数 [1-3]品质加成 [4-6]等级加成 
+			--属性加成公式= float((a1*星级*星级 + b1*星级 + c1)/1000) * float((a2*等级*等级 + b2*等级 + c2)/1000) * 属性值
+			{ type = 0, value = 1000, },	--a1
+			{ type = 0, value = 2000, },	--b1
+			{ type = 0, value = 3000, },	--c1
+			{ type = 0, value = 4000, },	--a2
+			{ type = 0, value = 5000, },	--b2
+			{ type = 0, value = 6000, },	--c2
+			{ type = 5, value = 100, },		--属性类型值配置
+		},
+    --]]
+    staitcAttrs =
+    {
+		--一个属性的配置示范，type为属性类型，value为属性值
+		{ type = 0, value = 0 },
+    },
+    
+
+    --品质属性表，不具有品质属性的物品可以不进行配置
+	
+   	--[[
+		职业时装包(双击获得本职业时装)，特殊处理！！！！，把每个职业对应的模型放这里
+		qualityAttrs =  
+		{
+			{
+				--type填职业ID，value填模型ID
+				{type=1,value =1},    --战士的时装
+				{type=2,value =1},    --法师的时装
+				{type=3,value =1},    --道士的时装
+					
+			}
+		}
+	
+		法宝技能属性配置
+		qualityAttrs = {
+			{
+				--技能配置 
+				--1-3的value为技能效果的二次函数参数 技能效果= (a*等级*等级 + b*等级 + c)/1000 * 触发效果 value
+				--4为触发效果 value
+				--5为触发概率 value/10000, 
+				--其中4、5的type为技能效果类型
+				{ type = 0, value = 100, },		--a
+				{ type = 0, value = 200, },		--b
+				{ type = 0, value = 300, },	--c type:为技能效果类型
+				{ type = 84, value = 1.0, },	--触发效果
+				{ type = 83, value = 1000, },	--触发几率 万分比
+			},
+		},
+	--]]
+    qualityAttrs =
+    {
+		--1品质的属性表
+		{
+			--一个属性的配置示范，type为属性类型，value为属性值
+			{ type = 0, value = 0 },
+		},
+		--后续品质的属性表，每个品质等级的属性值是独立的，不会增加上一个品质等级的属性
+    },
+    --强化属性表，不能进行强化或不具有强化等级的物品可以不进行配置
+    strongAttrs =
+    {
+		--强化+1的属性表
+		{
+			--一个属性的配置示范，type为属性类型，value为属性值
+			{ type = 0, value = 0 },
+		},
+		--后续强化等级的属性表，每个强化等级的属性值是独立的，不会增加上一个强化等级的属性
+    },
+   
+--能够精锻出来属性的最大值，用于客户端显示用
+    maxSmithAttrs=
+    {
+--include "../maxSmithAttr/maxSmith1.txt"
+    },
+
+
+    --物品标志配置表，所有属性默认为false，如果不为true的属性，可以不填写 
+    flags = 
+    {
+		recordLog = true,--是否记录物品流通日志
+		denyStorage = false,--是否禁止存仓库
+		autoBindOnTake = false,--是否在穿戴后自动绑定
+		autoStartTime = false,--是否在获得时即开始计算时间，如果不具有此标志则将在装备第一次被穿戴的时候开始计时
+		denyDeal = false,--是否禁止交易
+		denySell = false,--是否禁止出售到商店
+		denyDestroy = false,--是否禁止销毁
+		destroyOnOffline = false,--是否在角色下线时自动消失
+		destroyOnDie = false,--是否在角色死亡时自动消失
+		denyDropdown = false,--是否禁止在死亡时爆出
+		dieDropdown = false,--是否在角色死亡时强制爆出
+		offlineDropdown= false,--是否在角色下线时强制爆出
+		inlayable = false,--是否可打孔（打孔后才能镶嵌）
+		hideDura = false,--是否不显示耐久
+		denySplite = false,--是否禁止在物品叠加后进行拆分（通常用于带有实现限制的物品）
+		asQuestItem = false,--是否作为任务需求物品使用
+		monAlwaysDropdown= false,--是否在怪物死亡爆出时不检查杀怪者等级差而均掉落
+		hideQualityName = false,--是否隐藏装备的品质前缀文字
+		useOnPractice = false,--是否可以再操练的时候使用 
+		denyTipsAutoLine= false, --false表示tips自动换行,true表示不自动换行,比如VIP卡的提示
+		showLootTips=false,      --掉落在地上的时候是否提示玩家拾取
+		denyDropDua=false,	--装备是否死亡或攻击等时禁止扣除耐久
+		denyRepair = false,	--装备禁止修理
+		canDig=false,              --能否作为挖矿工具，挖矿的武器加下这个
+		bagSell =false,    -- 能否背包里直接出售，true表示可以背包直接出售
+		fullDel =false, --buff药，满了buff要消失，同时满了，是无法添加上buff
+		diamondAlwaysActive = false,	--忽略魂石激活条件，总是激活(装备配置)
+		denyBuffOverlay=false,  --buff物品，时间不叠加的配置true
+		skillRemoveItem = false,	--标记是否能通过技能扣除物品
+		denyHeroUse = false,		--禁止英雄使用
+		matchAllSuit =false,      --匹配所有的套装，用于稀有神器，穿上激活所有套装该部位的属性
+		notConsumeForCircleForge = false,	--转生锻造时不需要副装备
+		notShowAppear = false,	--不显示武器外观，true会隐藏角色的武器(用于特殊时装)
+		cankiss = false,			--是否拥吻道具
+		canChange = false,			--该装备是否可以转换为其他职业装备
+		useBroadcast = false,			--使用全服广播
+		useExpItem = false,				--表示经验神符
+		apportiondamage = false,		--如果有装配特殊秘籍就分摊伤害
+		dropAnyScene = false,			--配置这个标记就是所有场景会爆
+    }, 
+
+	useBroadCast = "broad",				--如果使用有广播则为广播类容，没有广播可以不配置
+
+    --物品使用条件表
+    conds = 
+    {
+		--必须到达10级或以上才能使用 如果为魂石则代表效果激活的装备等级
+		{ cond = 1, value = 10 }, 
+		--必须为value性别才能使用，0男1女
+		{ cond = 2, value = 0 },
+		--必须为value职业才能使用，0:通用、1：战士，1法师，3道士
+		{ cond = 3, value = 0 }, 
+		--结婚与否必须等于value才能使用，0表示未婚，1表示已婚
+		{ cond = 4, value = 1 }, 
+		--需要的骑术等级,value表示骑术的等级
+		{ cond = 5, value = 1 }, 
+		--需要的阵营的职位,value表示职位的id
+		{ cond = 6, value = 1 }, 
+
+		--成就点必须大于等于value
+		{ cond = 7, value = 1 }, 
+
+		--物理攻击最大值必须大于等于value
+		{ cond = 8, value = 1 },
+
+		--魔法攻击最大值必须大于等于value
+		{ cond = 9, value = 1 },  
+		--道术攻击最大值必须大于等于value
+		{ cond = 10, value = 1 }, 
+
+		--value表示职位 9表示武林盟主 10表示沙巴克的城主
+		{ cond = 11, value = 9 }, 
+
+		--战力必须到达value或以上才能使用
+		{ cond = 12, value = 0 }, 
+
+		--大于等于这个转生才能使用
+		{ cond = 13, value = 0 }, 
+
+		--小于等于这个转生才能使用
+		{ cond = 14, value = 0 },
+		  --是否是名人 
+		{ cond = 15, value = 0 },
+		
+		--英雄的最高等级大于等于这个value才能使用
+		{ cond = 16, value = 0 },
+		--英雄的最高转数大于等于这个value才能使用 
+		{ cond = 17, value = 0 },
+		--人物魂石战力
+		{ cond = 18, value = 0 },
+		--限制物品只能在此副本中使用 
+		{ cond = 19, value = 0 },
+		--限制物品只能在此场景中使用
+		{ cond = 20, value = 0 },
+		--是否需要激活武灵,value 填1，没实际意义
+		{ cond = 20, value = 0 },
+    },
+	
+	--预留配置
+	--[[
+		如果为幻武时 此配置为启灵等级模型替换配置
+		reserves =  
+		{
+			--value1启灵等级，value2模型ID
+			{value1 = 8, value2 = 48},    --
+			{value1 = 9, value2 = 49},    --
+			{value1 = 10, value2 = 50},    --
+		}
+	--]]
+	reserves =
+	{
+		--value1启灵等级，value2模型ID
+		{value1 = 8, value2 = 48},    --
+		{value1 = 9, value2 = 49},    --
+		{value1 = 10, value2 = 50},    --
+	},
+   
+  },

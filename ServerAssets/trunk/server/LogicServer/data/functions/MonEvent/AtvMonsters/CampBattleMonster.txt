@@ -1,0 +1,38 @@
+
+
+--#include "data\functions\Activity\CampBattle\CampBattleCommon.txt" once
+
+
+MonDieDispatcher.CampBattleMonstersDie = function (monster,sysarg,monId)
+	local flushState = GetFlushBossFlag()
+	if flushState == STATE_IDLE then
+		DelayFlushBoss()
+	end
+	local myCamp = Actor.getIntProperty(sysarg, PROP_ACTOR_ZY)
+	if myCamp == 0 then
+		return
+	end
+	
+	SetCampPoint(myCamp, CampBattleConfig.KillBossPoint)
+	SetActorPoint(sysarg, CampBattleConfig.KillBossPoint)
+	local nSceneId = Actor.getSceneId(sysarg)
+	local playerList = LuaHelp.getSceneActorListById(nSceneId)
+	for k, ply in ipairs(playerList or {}) do
+		local expRate = 0
+		if ply == sysarg then
+			expRate = CampBattleConfig.KillBossExpRate
+		else
+			expRate = CampBattleConfig.KillCampPlyExpRate
+		end
+		local plyCampId = Actor.getIntProperty(ply, PROP_ACTOR_ZY)
+		if plyCampId == myCamp then
+			local expVal = Actor.getActivityExp(ply, CampBattleConfig.TableIndex, expRate, CampBattleConfig.VipAddRate)
+			if expVal > 0 then
+				Actor.addExp(ply, expVal, 0, 0)
+			end
+		end
+	end
+end
+
+
+--MonDieDispatcher.register(CampBattleConfig.BossId, MonDieDispatcher.CampBattleMonstersDie)

@@ -1,0 +1,40 @@
+
+--#include "RankPointer.txt" once
+
+--重置数据
+function ResetWorshipData()
+	--重置膜拜数据
+	local sval = System.getStaticVar()
+	local data = sval.worship
+	if not data or type(data) ~= 'userdata' then
+		sval.worship = {}
+		data = sval.worship
+		for i = 1, 7 do
+			data[i] = 0
+		end
+	end
+	data[3] = data[1]
+	data[4] = data[2]
+	for i = 1, 7 do
+		if i ~= 3 and i ~= 4 then
+			data[i] = 0
+		end
+	end
+	
+	--重置个人膜拜数据
+	local RankPt = WorshipRankPt
+	if not RankPt then return nil end
+	local pRank = Ranking.getRanking(RankPt.RankName)
+	if not pRank then return nil end
+	Ranking.clearRanking(pRank)
+end
+
+--膜拜提前5分钟公告
+function BroadWorshipTips()
+	System.broadcastTipmsg(Lang.Activity.s00014,2+128)
+end
+
+--双倍膜拜开启
+function StartDoubleWorship()
+	System.broadcastTipmsg(Lang.Activity.s00015,2+128)
+end

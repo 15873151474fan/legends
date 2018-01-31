@@ -1,0 +1,381 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\Festival\SpringFestivalHorseActive.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\RankPointer.txt" once
+--#include "data\config\activityconfig\ConsumePackage\ConsumePackageConfig.txt" once
+
+--加载消费礼包数据
+function LoadConsumePackage(sysarg)
+	if not SpringFestivalHorseRankPt then return end
+
+	local consumeYB = 0
+	local lotteryCount =
+	{
+		0, 0, 0, 0, 0,
+	}
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ConsumePackageFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.ConsumePackageFile, 1000, 1, 10)
+		if not ranking then
+			return consumeYB, lotteryCount
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.ConsumePackageFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+	--[[
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		if pItem then
+			Ranking.setSub(pItem,0,"0")
+			Ranking.setSub(pItem,1,"0")
+			Ranking.setSub(pItem,2,"0")
+			Ranking.setSub(pItem,3,"0")
+			Ranking.setSub(pItem,4,"0")
+			Ranking.setSub(pItem,5,"0")
+		end
+	]]
+	else
+		consumeYB = tonumber(Ranking.getSub(pItem,0))
+
+		for i=1, table.getn(lotteryCount) do	
+			lotteryCount[i] = tonumber(Ranking.getSub(pItem,i))
+		end
+	end
+
+	return consumeYB, lotteryCount
+end
+
+--保存消费礼包数据
+function SaveConsumePackage(sysarg, consumeYB, lotteryCount)
+	if not SpringFestivalHorseRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ConsumePackageFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.ConsumePackageFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.ConsumePackageFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		Ranking.setSub(pItem,0,tostring(consumeYB))
+		for i=1, table.getn(lotteryCount) do
+			Ranking.setSub(pItem,i,tostring(lotteryCount[i]))
+		end
+	end
+end
+
+--重置春节消费礼包每天数据
+function ResetConsumePackage()
+	local config = nil
+	local activityId = 0
+	if (System.isInDateRange(unpack(SpringFestivalHorseActiveConfig.actTime)) == true) then
+		config = SpringFestivalHorseActiveConfig
+		activityId = 0
+	elseif (System.isInDateRange(unpack(ConsumePackageConfig.actTime)) == true) then
+		config = ConsumePackageConfig
+		activityId = 1
+	end
+	if (not config) or (not config.actTime) or (not config.consumePackage) then
+		return 
+	end
+	
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ConsumePackageFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	
+	local playerList = LuaHelp.getAllActorList()		
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				SendConsumePackageYB(player, 0, activityId)	--在线玩家清空消费元宝数
+			end
+		end
+	end
+end
+
+--添加消费礼包元宝数
+function OnAddConsumePackageYB(sysarg,args)
+	local nMoneyValue = args[2]
+
+	if (not nMoneyValue) or (nMoneyValue <= 0) then
+		return
+	end
+
+	local config = nil
+	local activityId = 0
+	if (System.isInDateRange(unpack(SpringFestivalHorseActiveConfig.actTime)) == true) then
+		config = SpringFestivalHorseActiveConfig
+		activityId = 0
+	elseif (System.isInDateRange(unpack(ConsumePackageConfig.actTime)) == true) then
+		config = ConsumePackageConfig
+		activityId = 1
+	end
+	if (not config) or (not config.actTime) or (not config.consumePackage) then
+		return 
+	end
+
+	local consumeYB = 0
+	local lotteryCount =
+	{
+		0, 0, 0, 0, 0,
+	}
+
+	consumeYB, lotteryCount = LoadConsumePackage(sysarg)
+
+	local newConsumeYB = consumeYB + nMoneyValue
+
+	for k, consumePackage in ipairs(config.consumePackage or {}) do
+		if (consumePackage.consume > consumeYB) and (consumePackage.consume <= newConsumeYB) then
+			lotteryCount[k] = consumePackage.lottery
+		end
+	end
+
+	SendConsumePackageYB(sysarg, newConsumeYB, activityId)
+
+	--保存消费礼包数据
+	SaveConsumePackage(sysarg, newConsumeYB, lotteryCount)
+end
+
+--获取消费礼包信息
+function OnGetConsumePackageInfo(sysarg, args)
+	local nActivityId = args[2]
+
+	local config = nil
+	if (System.isInDateRange(unpack(SpringFestivalHorseActiveConfig.actTime)) == true) then
+		config = SpringFestivalHorseActiveConfig
+	elseif (System.isInDateRange(unpack(ConsumePackageConfig.actTime)) == true) then
+		config = ConsumePackageConfig
+	end
+	if (not config) or (not config.actTime) or (not config.consumePackage) then
+		return 
+	end
+	
+	local consumeYB = 0
+	local lotteryCount =
+	{
+		0, 0, 0, 0, 0,
+	}
+
+	consumeYB, lotteryCount = LoadConsumePackage(sysarg)
+
+	SendConsumePackageInfo(sysarg, nActivityId, consumeYB, lotteryCount)
+end
+
+--下发消费礼包信息
+function SendConsumePackageInfo(sysarg, nActivityId, consumeYB, lotteryCount)
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.actTime) or (not config.consumePackage) then
+		return 
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 52, 24)
+	if (pack ~= nil) then
+		local nCount = table.getn(lotteryCount)
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeInt(pack, consumeYB)
+		DataPack.writeChar(pack, nCount)
+		for i=1, nCount do
+			local awardStatus = 0
+			if (config.consumePackage[i].consume < consumeYB) and (lotteryCount[i] <= 0) then
+				awardStatus = 1
+			end
+
+			DataPack.writeChar(pack, i)
+			DataPack.writeChar(pack, lotteryCount[i])
+			DataPack.writeChar(pack, awardStatus)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--抽奖
+function OnGetConsumePackageLottery(sysarg, args)
+	local nActivityId = args[2]
+	local nPackageId = args[3]
+	local nLotteryId = args[4]
+	
+	local config = nil
+	if (System.isInDateRange(unpack(SpringFestivalHorseActiveConfig.actTime)) == true) then
+		config = SpringFestivalHorseActiveConfig
+	elseif (System.isInDateRange(unpack(ConsumePackageConfig.actTime)) == true) then
+		config = ConsumePackageConfig
+	end
+	if (not config) or (not config.actTime) or (not config.consumePackage) then
+		return 
+	end
+
+	local consumePackage = config.consumePackage
+	if (nPackageId <= 0) or (nPackageId > table.getn(consumePackage)) then
+		return
+	end
+	
+	local consumeYB = 0
+	local lotteryCount =
+	{
+		0, 0, 0, 0, 0,
+	}
+
+	consumeYB, lotteryCount = LoadConsumePackage(sysarg)
+
+	--抽奖
+	if nLotteryId == 1 then
+		if lotteryCount[nPackageId] <= 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.cj0023, ttFlyTip)
+			return
+		end
+		
+		local indexs =
+		{
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		}
+		local tmpInfo, index = GetRandomConsumePackageInfo(consumePackage[nPackageId].lotteryAwards, 1)
+		indexs[1] = index
+		local awards = tmpInfo.awards
+		if not awards then return end
+		
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		--if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					--Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+					Dmkj.addItem(sysarg,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,false)
+				end
+			end
+
+			lotteryCount[nPackageId] = lotteryCount[nPackageId] - 1
+			SendConsumePackageLottery(sysarg, nActivityId, nPackageId, nLotteryId, lotteryCount[nPackageId], 1, indexs)
+
+			--保存消费礼包数据
+			SaveConsumePackage(sysarg, consumeYB, lotteryCount)
+		--end
+	--一键抽奖
+	elseif nLotteryId == 2 then
+		if lotteryCount[nPackageId] <= 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.cj0023, ttFlyTip)
+			return
+		end
+
+		local lastLotteryCount = lotteryCount[nPackageId]
+		
+	--[[
+		local bagEmptyGridCount = Item.getBagEmptyGridCount(sysarg)
+		if lastLotteryCount > bagEmptyGridCount then
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cj0024, bagEmptyGridCount), ttFlyTip)
+			return
+		end
+	]]
+		local indexs =
+		{
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		}
+
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		for j=1, lastLotteryCount do
+			local tmpInfo = GetRandomConsumePackageInfo(consumePackage[nPackageId].lotteryAwards, 1)
+			local awards = tmpInfo.awards
+			if not awards then return end
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					--Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+					Dmkj.addItem(sysarg,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,false)
+					--indexs[j] = awards[i].id
+				end
+			end
+			indexs[j] = tmpInfo.id
+		end
+
+		lotteryCount[nPackageId] = 0
+		SendConsumePackageLottery(sysarg, nActivityId, nPackageId, nLotteryId, lotteryCount[nPackageId], lastLotteryCount, indexs)
+
+		--保存消费礼包数据
+		SaveConsumePackage(sysarg, consumeYB, lotteryCount)
+	end
+end
+
+--根据概率获取值
+function GetRandomConsumePackageInfo(infoTable, minVal)
+	local maxVal = 0
+	for k, v in ipairs(infoTable or {}) do
+		maxVal = maxVal + v.rate
+	end
+
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local index = 0
+	local tmpValue = 0
+	for k, v in ipairs(infoTable or {}) do
+		tmpValue = tmpValue + v.rate
+		if tmpValue >= randVal then
+			result = v
+			index = k
+			break
+		end
+	end
+	return result, index
+end
+
+--下发抽奖结果
+function SendConsumePackageLottery(sysarg, nActivityId, nPackageId, nLotteryId, lastLotteryCount, awardCount, indexs)
+	local pack = DataPack.allocPacket(sysarg, 52, 25)
+	if (pack ~= nil) then
+		local awardStatus = 0
+		if (lastLotteryCount <= 0) then
+			awardStatus = 1
+		end
+
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeChar(pack, nPackageId)
+		DataPack.writeChar(pack, nLotteryId)
+		DataPack.writeChar(pack, lastLotteryCount)
+		DataPack.writeChar(pack, awardCount)
+		for i=1, awardCount do
+			DataPack.writeShort(pack, indexs[i])
+		end
+		DataPack.writeChar(pack, awardStatus)
+		DataPack.flush(pack)
+	end
+end
+
+--下发消费礼包元宝数
+function SendConsumePackageYB(sysarg, consumeYB, activityId)
+	local pack = DataPack.allocPacket(sysarg, 52, 29)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, activityId)
+		DataPack.writeInt(pack, consumeYB)
+		DataPack.flush(pack)
+	end
+end

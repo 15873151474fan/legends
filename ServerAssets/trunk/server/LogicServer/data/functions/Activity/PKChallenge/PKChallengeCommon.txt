@@ -1,0 +1,312 @@
+
+--#include "data\config\activityconfig\PKChallenge\PKChallengeConfig.txt" once
+
+--开始，15分钟倒计时
+
+local fnResetPkScene = ""
+local fnGetExp = ""   --函数名用来取消回调
+local fnNoticeTime = ""
+local fn30Sec = nil
+local boIsCooldown = false
+
+--开始接受报名
+function StartAcceptJoin()	
+	fnResetPkScene = "OverAcceptJoin"
+	fnGetExp = "GetHeroExps"   --函数名用来取消回调
+	fnNoticeTime = "NoticeOverHeroBattle"
+
+	local handleScene = Fuben.getSceneHandleById( PKChallengeConfig.ReadySceneId, 0)
+	Fuben.setSceneTime(handleScene, PKChallengeConfig.AcceptJoinTime)
+	Actor.regScriptCallback(thisNPC, thisNPC, PKChallengeConfig.AcceptJoinTime*1000, 0, 1, fnResetPkScene)
+	Actor.regScriptCallback(thisNPC, thisNPC, (PKChallengeConfig.AcceptJoinTime - PKChallengeConfig.CountDown)*1000, 0, 1, "onCountDown")
+	ClearPlayerCount()
+	boIsCooldown = false
+end
+
+--30秒倒计时
+function onCountDown()
+	local handleScene = Fuben.getSceneHandleById( PKChallengeConfig.ReadySceneId, 0)
+	Fuben.sendCountDown(handleScene, PKChallengeConfig.CountDown)	--客户端显示30s的倒计时特效
+end
+
+--移动场景
+function MovePlayers( srcSceneId, descSceneId, pos, initTime )
+	local sceneName = Fuben.getSceneNameById(descSceneId)
+	local playerList = LuaHelp.getSceneActorListById(srcSceneId)
+	for k, ply in ipairs(playerList or {}) do
+		if not Actor.isDeath(ply) then
+			if initTime then
+				Actor.initActivityWind(ply, Lang.Activity.w00041, initTime, Lang.Activity.w00044, Lang.Activity.w00043, #playerList)
+			end
+			local x = math.random(pos[1], pos[2])
+			local y = math.random(pos[3], pos[4])
+			System.telportSceneByName(ply, sceneName, x, y)
+		end
+	end
+end
+
+--每隔几秒增加的经验
+function GetExpPerSecs( sceneId, tabIdx, normalRate, vipRate )
+	local playerList = LuaHelp.getSceneActorListById(sceneId)
+	for k, ply in ipairs(playerList or {}) do
+		if not Actor.isDeath(ply) then
+			local expVal = Actor.getActivityExp(ply, tabIdx, normalRate, vipRate)
+			if expVal then
+				Actor.addExp(ply, expVal, 0, 0)
+			end
+		end
+	end
+	if not boIsCooldown then
+		CheckScenePlayers(sceneId)
+	end
+end
+
+--停止接受报名
+function OverAcceptJoin()
+	MovePlayers(PKChallengeConfig.ReadySceneId, PKChallengeConfig.HeroSceneId, PKChallengeConfig.HeroPos, PKChallengeConfig.HeroBattleTime)
+	StartHeroBattle()
+end
+
+--开始英雄战场
+function StartHeroBattle()
+	fnResetPkScene = "OverHeroBattle"
+	Actor.regScriptCallback(thisNPC, thisNPC, PKChallengeConfig.HeroBattleTime*1000, 0, 1, fnResetPkScene)
+	Actor.regScriptCallback(thisNPC, thisNPC, (PKChallengeConfig.HeroBattleTime-60)*1000, 0, 1, fnNoticeTime)
+	Actor.regScriptCallback(thisNPC, thisNPC, PKChallengeConfig.GetExpSecs* 1000,  PKChallengeConfig.GetExpSecs* 1000, -1, fnGetExp)
+end
+
+--英雄战场获取经验
+function GetHeroExps()
+	GetExpPerSecs(PKChallengeConfig.HeroSceneId, PKChallengeConfig.HeroExpIndex, PKChallengeConfig.HeroExpRate, PKChallengeConfig.HeroExpVipRate)
+end
+
+--停止英雄战场
+function OverHeroBattle()
+	Actor.unregScriptCallback(thisNPC, fnGetExp)
+	boIsCooldown = false
+	if not CheckLastOneToFinal(PKChallengeConfig.HeroSceneId) then
+		MovePlayers(PKChallengeConfig.HeroSceneId,PKChallengeConfig.PromotedSceneId, PKChallengeConfig.PromotPos, PKChallengeConfig.PromotedBattleTime)
+		StartPromotedBattle()
+	end
+end
+
+--开始晋级战场
+function StartPromotedBattle()
+	fnResetPkScene = "OverPromotedBattle"
+	fnGetExp = "GetPromotedExps"
+	fnNoticeTime = "NoticeOverPromotedBattle"
+	Actor.regScriptCallback(thisNPC, thisNPC, PKChallengeConfig.PromotedBattleTime*1000, 0, 1, fnResetPkScene)
+	Actor.regScriptCallback(thisNPC, thisNPC, (PKChallengeConfig.PromotedBattleTime-60)*1000, 0, 1, fnNoticeTime)
+	Actor.regScriptCallback(thisNPC, thisNPC, PKChallengeConfig.GetExpSecs* 1000,  PKChallengeConfig.GetExpSecs* 1000, -1, fnGetExp)
+end
+
+--晋级战场获取经验
+function GetPromotedExps()
+	GetExpPerSecs(PKChallengeConfig.PromotedSceneId, PKChallengeConfig.PromotExpIndex, PKChallengeConfig.PromotExpRate, PKChallengeConfig.PromotExpVipRate)
+end
+
+function NoticeOverHeroBattle()
+	local hScene = Fuben.getSceneHandleById(PKChallengeConfig.HeroSceneId, 0)
+	Fuben.sendMsgToScene(hScene,Lang.Activity.w00067, ttScreenCenter+ttChatWindow)
+	--fn30Sec = "SendSceneCountDown"
+	--Actor.regScriptCallback(thisNPC, thisNPC, 30000, 0, 1, fn30Sec,PKChallengeConfig.HeroSceneId)
+end
+
+function NoticeOverPromotedBattle()
+	local hScene = Fuben.getSceneHandleById(PKChallengeConfig.PromotedSceneId, 0)
+	Fuben.sendMsgToScene(hScene,Lang.Activity.w00068, ttScreenCenter+ttChatWindow)
+	--fn30Sec = "SendSceneCountDown"
+	--Actor.regScriptCallback(thisNPC, thisNPC, 30000, 0, 1, fn30Sec,PKChallengeConfig.PromotedSceneId)
+	
+end
+
+function NoticeOverFinalBattle()
+	local hScene = Fuben.getSceneHandleById(PKChallengeConfig.FinalSceneId, 0)
+	Fuben.sendMsgToScene(hScene, Lang.Activity.w00069, ttScreenCenter+ttChatWindow)
+	--fn30Sec = "SendSceneCountDown"
+	--Actor.regScriptCallback(thisNPC, thisNPC, 30000, 0, 1, fn30Sec,PKChallengeConfig.FinalSceneId)
+end
+
+function NoticeOverPKChallenge()
+	System.broadcastTipmsg(Lang.Activity.w00070, ttScreenCenter+ttChatWindow)	
+end
+
+--停止晋级战场
+function OverPromotedBattle()
+	Actor.unregScriptCallback(thisNPC, fnGetExp)
+	boIsCooldown = false
+	if not CheckLastOneToFinal(PKChallengeConfig.PromotedSceneId) then
+		MovePlayers(PKChallengeConfig.PromotedSceneId, PKChallengeConfig.FinalSceneId, PKChallengeConfig.FinalPos,PKChallengeConfig.FinalBattleTime)
+		StartFinalBattle()
+	end
+end
+
+--开始决赛
+function StartFinalBattle()
+	fnResetPkScene = "OverFinalBattle"
+	fnGetExp = "GetFinalExps"
+	fnNoticeTime = "NoticeOverFinalBattle"
+	Actor.regScriptCallback(thisNPC, thisNPC, PKChallengeConfig.FinalBattleTime*1000, 0, 1, fnResetPkScene)
+	Actor.regScriptCallback(thisNPC, thisNPC, (PKChallengeConfig.FinalBattleTime-60)*1000, 0, 1, fnNoticeTime)
+	Actor.regScriptCallback(thisNPC, thisNPC, PKChallengeConfig.GetExpSecs* 1000,  PKChallengeConfig.GetExpSecs* 1000, -1, fnGetExp)
+end
+
+
+--决赛中得到经验
+function GetFinalExps()
+	GetExpPerSecs(PKChallengeConfig.FinalSceneId, PKChallengeConfig.FinalExpIndex, PKChallengeConfig.FinalExpRate, PKChallengeConfig.FinalExpVipRate)
+end
+
+--检查场景人数
+function GetSceneLivePlayers( sceneId )
+	local count = 0
+	local playerList = LuaHelp.getSceneActorListById(sceneId)
+	for k, ply in ipairs(playerList or {}) do
+		if not Actor.isDeath(ply) then
+			count = count + 1
+		end
+	end
+	return count
+end
+
+--在回调给经验时检查人数
+function CheckScenePlayers( sceneId )
+	local curPlayers = GetSceneLivePlayers(sceneId)
+	if curPlayers == 1 then
+		boIsCooldown = true
+		Actor.unregScriptCallback(thisNPC, fnResetPkScene)
+		Actor.unregScriptCallback(thisNPC, fnGetExp)	--取消经验回调
+		Actor.unregScriptCallback(thisNPC, fnNoticeTime)
+		--SendSceneCountDown(thisNPC, sceneId)
+		Actor.regScriptCallback(thisNPC, thisNPC, 30000, 0, 1, "GoFinalScene",sceneId)
+		return true
+	end
+	return false
+end
+
+function GoFinalScene(npcPtr, sceneId)
+	MovePlayers(sceneId, PKChallengeConfig.WinSceneId, PKChallengeConfig.WinPos, PKChallengeConfig.WinSceneTime)
+	StartWinScene()
+end
+
+function CheckLastOneToFinal( sceneId )
+	local curPlayers = GetSceneLivePlayers(sceneId)
+	if curPlayers == 1 then
+		Actor.unregScriptCallback(thisNPC, fnResetPkScene)
+		Actor.unregScriptCallback(thisNPC, fnGetExp)	--取消经验回调
+		Actor.unregScriptCallback(thisNPC, fnNoticeTime)
+		GoFinalScene(nil, sceneId)
+		return true
+	end
+	return false
+end
+
+--结束决赛
+function OverFinalBattle()
+	Actor.unregScriptCallback(thisNPC, fnGetExp)
+	boIsCooldown = nil
+	if not CheckLastOneToFinal(PKChallengeConfig.FinalSceneId) then
+		ExitFromScene(PKChallengeConfig.FinalSceneId)
+		NoticeOverPKChallenge()
+	end
+end
+
+function ClearPlayerCount()
+	local dVar = System.getDyanmicVar()
+	dVar.pkChallengeCnt = nil
+end
+
+function AddEnterPlayerCount()
+	local dVar = System.getDyanmicVar()
+	dVar.pkChallengeCnt = GetEnterPlayerCount() + 1
+end
+
+function GetEnterPlayerCount()
+	local dVar = System.getDyanmicVar()
+	return dVar.pkChallengeCnt or 0
+end
+
+--开始进入抢宝
+function StartWinScene()
+	Actor.regScriptCallback(thisNPC, thisNPC, PKChallengeConfig.WinSceneTime*1000, 0, 1, "OverWinScene")
+	local plyCount = GetEnterPlayerCount()
+	if plyCount > 0 then
+		local hScene = Fuben.getSceneHandleById(PKChallengeConfig.WinSceneId, 0)
+		local oneCount = math.ceil(plyCount / #PKChallengeConfig.BossPos)
+		for idx, pos in ipairs(PKChallengeConfig.BossPos) do
+			if oneCount > plyCount then
+				oneCount = plyCount
+			else
+				plyCount = plyCount - oneCount
+			end
+			Fuben.createMonsters(hScene, PKChallengeConfig.BossId, pos[1], pos[2], pos[3], oneCount, PKChallengeConfig.WinSceneTime)
+		end
+	end
+end
+
+
+--结束掏宝
+function OverWinScene()
+	ExitFromScene(PKChallengeConfig.WinSceneId)
+	NoticeOverPKChallenge()
+end
+
+
+--退出到进入点
+function ExitFromScene(srcSceneId)
+	local playerList = LuaHelp.getSceneActorListById(srcSceneId)
+	for k, ply in ipairs(playerList or {}) do
+		ExitPKScene( ply, true )
+	end
+end
+
+function ExitPKScene( sysarg, boAll)
+	if not boAll then
+		local handleScene = Actor.getSceneHandle(sysarg)
+		if handleScene > 0 then
+			local playerCount = Fuben.getScenePlayerCount(handleScene)
+			Fuben.broadSceneActProgress(Actor.getSceneId(sysarg), 0, playerCount - 1)
+		end
+	end
+	Actor.closeActivityWind( sysarg )
+	local x = math.random(PKChallengeConfig.ExitPos[1], PKChallengeConfig.ExitPos[2])
+	local y = math.random(PKChallengeConfig.ExitPos[3], PKChallengeConfig.ExitPos[4])
+	System.telportScene( sysarg, PKChallengeConfig.ExitSceneId, x, y)
+end
+
+function IsInPkChallengeScene( sysarg )
+	local curSceneId = Actor.getSceneId(sysarg)
+	for k, id in ipairs(PKChallengeConfig.Scenes) do
+		if id == curSceneId then
+			return true
+		end
+	end
+	return false
+end
+
+function OnPKChallengePlyDeath( sysarg, killerPtr )
+	if IsInPkChallengeScene(sysarg) then
+		Actor.sendCountdown( sysarg, 0)
+	end
+end
+
+function doClearPkData( sysarg )
+	local handleScene = Actor.getSceneHandle(sysarg)
+	if handleScene > 0 then
+		local playerCount = Fuben.getScenePlayerCount(handleScene)
+		playerCount = playerCount -1
+		if playerCount < 0 then
+			playerCount = 0
+		end
+		Fuben.broadSceneActProgress(Actor.getSceneId(sysarg), 0, playerCount)
+	end
+	Actor.closeActivityWind( sysarg )
+end
+
+function SendSceneCountDown( npcPtr, sceneId )
+	fn30Sec = nil
+	local playerList = LuaHelp.getSceneActorListById(sceneId)
+	for k, plyPtr in ipairs(playerList or {}) do
+		Actor.sendCountdown( plyPtr, PKChallengeConfig.CountDown )
+	end
+end

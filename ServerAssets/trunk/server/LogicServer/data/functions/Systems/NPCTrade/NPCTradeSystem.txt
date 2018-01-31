@@ -1,0 +1,396 @@
+﻿--NPC商店子子系统消息处理实现 
+
+--#include "data\config\store\NPCStore.txt" once
+--#include "data\config\store\RenownShopConfig.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+local PriceRatio = 10 --购买价格为出售价格的PriceRatio倍
+
+local NPCTradeImplement = 
+{
+	--购买
+	NPCTradeBuy = function ( sysarg, args )
+	  local buyitemid = args[1]  --购买的物品ID
+	  local amount = args[2] --物品的数目 
+	  local npdId =  args[3] --npcID
+	  if ( Actor.canAddItem( sysarg, buyitemid, amount ) == false ) then
+		  Actor.sendTipmsg( sysarg,Lang.ScriptTips.n00006,ttTipmsgWindow )
+	   	return
+	  end
+	  local state = 0
+	  local dprice = Item.getItemPropertyById( buyitemid, Item.ipItemDealMoneyCount )
+	  
+	  local dprice = dprice*PriceRatio
+	  
+	  --如果是随身背包的话，需要额外的比例 
+	  --if(npdId ==0) then
+	  --  dprice = dprice * 1.5  
+	  --end
+		
+	  --判断购买的物品是否出售
+	  --local nConfig = NPCStoreConfig[npdId+1]
+	  local nConfig = nil
+	 table.foreachi( NPCStore, function( i, v ) if ( v.npcid == npdId ) then nConfig = v end end )
+		
+	  if nConfig == nil then return end
+	  local bIsExist = false
+	  local len_c_pack = table.getn(nConfig)
+	  for i = 1, len_c_pack do
+		  local s = nConfig[i]
+		  local silen = table.getn(s.items)
+		  for x = 1, silen do
+			 if buyitemid == s.items[x] then
+				bIsExist = true
+				break
+			end
+		  end
+	  end
+
+	  if bIsExist == false then 
+			print("err store not exist!")
+			return 
+	  end
+	  
+	  local totalCount =   dprice * amount 
+	  
+	  local dtype = Item.getItemPropertyById( buyitemid, Item.ipItemDealMoneyType )
+    --  print(string.format("Item : %d , dtype : %d",buyitemid,dtype))
+    --  print(string.format("Item : %d , Tabletype : %d",buyitemid,moneyTypeMap[dtype]))
+  	  local itemname = Item.getItemName(buyitemid)
+		if moneyTypeMap[dtype] == PROP_ACTOR_BIND_COIN then
+		  -- print("is : PROP_ACTOR_BIND_COIN ")
+		   if(Actor.getIntProperty(sysarg,PROP_ACTOR_BIND_COIN) < totalCount ) then
+	         Actor.sendTipmsg( sysarg, Lang.ScriptTips.n00007,ttTipmsgWindow )
+				  return
+           else
+             if (Actor.changeMoney( sysarg, dtype, -totalCount ,103,itemname) ==false )  then
+               return
+             end   
+		   end
+		end
+	
+	  if(moneyTypeMap[dtype] == PROP_ACTOR_COIN )  then
+            --print("is : PROP_ACTOR_COIN")
+			if ( Actor.getIntProperty( sysarg, PROP_ACTOR_COIN ) < totalCount ) then
+			  Actor.sendTipmsg( sysarg, Lang.ScriptTips.n00007,ttTipmsgWindow )
+			  return
+	    else
+	       if (Actor.changeMoney( sysarg, dtype, -totalCount ,103,itemname) ==false )  then
+            return false
+         end 
+			end
+		end
+	   Actor.addItem( sysarg, buyitemid, 0, 0, amount ,1,0,itemname,7)
+	   Actor.triggerQuestEvent( sysarg, 127, 50091, 1 )    --购买任务一个物品就可完成
+	end ,
+	
+-------------------------------------------------------------------------------------------------
+	--售卖
+	NPCTradeSell = function ( sysarg, args )
+	  local sellitemptr = Item.getBagItemPtrByGuid( sysarg, args[1] )
+	  if(sellitemptr ==nil) then return end   --找不到这件物品 
+	  
+	  local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	  local itemid =Item.getItemProperty( sysarg, sellitemptr, Item.ipItemID, 0 )
+	  if ( Item.getItemPropertyById( itemid, Item.ipItemDenySell ) == 1 ) then
+		  return
+	  end
+	  local dprice = Item.getItemPropertyById( itemid, Item.ipItemDealMoneyCount )
+	  local itemtype = Item.getItemProperty( sysarg, sellitemptr, Item.ipItemType, 0 )
+	  
+	  if itemtype == Item.itMine then	--矿物特殊处理
+		local dua = Item.getItemProperty(sysarg, sellitemptr, Item.ipItemDua, 0)
+		local maxdua = Item.getItemProperty(sysarg, sellitemptr, Item.ipItemDuaMax, 0)
+		dprice = math.ceil(dprice * (dua/maxdua))
+	  end
+	  local dtype = Item.getItemPropertyById( itemid, Item.ipItemDealMoneyType )
+
+	  local amount = Item.getItemProperty( sysarg, sellitemptr, Item.ipItemCount, 0 )
+	 
+    --卖出
+	  local removeresult = Item.removeItem( sysarg, sellitemptr, amount, "Npc sell.", 8, false )
+
+	  local itemname = Item.getItemName(itemid)
+	  local gainresult = Actor.changeMoney( sysarg, dtype, dprice*amount ,105,itemname)
+		
+	  if removeresult then
+	  	local sellresult = Item.addSellItem(sysarg,sellitemptr,amount)
+	  end
+	  --发一个数据包告诉客户端成功卖出一件物品 
+	  local npack = DataPack.allocPacket(sysarg,133,4)  --申请一个数据包
+	  if (npack == nil) then
+		  return
+	  end
+	  DataPack.writeUint64(npack,args[1])
+	  DataPack.flush(npack)
+	end,
+
+  ---------------------------------------------------------------------------------
+	--购回
+	NPCTradeRepurchase = function ( sysarg, args )
+		local ritemguid = args[1] --购回的物品GUID
+		local npdId  = args[2]    --回购的NPCid 
+		local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+
+		--购回的物品指针
+		local ritemptr = Item.getSellItem(sysarg,ritemguid)
+		if ritemptr == nil then return end
+		local ritemid = Item.getItemProperty( sysarg, ritemptr, Item.ipItemID, 0 )
+		local dprice = Item.getItemProperty( sysarg, ritemptr, Item.ipItemDealMoneyCount, 0 )
+
+		local itemtype = Item.getItemProperty( sysarg, ritemptr, Item.ipItemType, 0 )
+		if itemtype == Item.itMine then	--矿物特殊处理
+		local dua = Item.getItemProperty(sysarg, ritemptr, Item.ipItemDua, 0)
+		local maxdua = Item.getItemProperty(sysarg, ritemptr, Item.ipItemDuaMax, 0)
+		dprice = math.ceil(dprice * (dua/maxdua))
+		end
+
+		local dprice = dprice
+	  
+    	local amount = Item.getItemProperty(sysarg,ritemptr,Item.ipItemCount,0)
+	  	local dtype = Item.getItemProperty( sysarg, ritemptr, Item.ipItemDealMoneyType, 0 )
+
+	  	if ( Actor.canAddItem( sysarg, ritemid, amount ) == false ) then
+		  	Actor.sendTipmsg( sysarg, Lang.ScriptTips.n00006,ttTipmsgWindow )
+		  	return
+	  	end
+
+	  	local bagCount = Item.getBagEmptyGridCount(sysarg)
+	  	if bagCount < 1 then
+	     	Actor.sendTipmsg( sysarg, Lang.ScriptTips.n00006,ttTipmsgWindow )
+	     	return
+	  	end
+	  	local totalCount = dprice * amount --这里防止玩家出现问题，在随身的背包里回购的价格必须是普通价格的2.5倍
+    	local itemname = Item.getItemName(ritemid) 
+
+  		if moneyTypeMap[dtype] == PROP_ACTOR_BIND_COIN then
+		   	if(Actor.consumeCoin(sysarg,totalCount,103,itemname) ==false ) then
+	        	Actor.sendTipmsg( sysarg, Lang.ScriptTips.n00007,ttDialog )
+				return
+		   	end
+		end
+
+	  	if(moneyTypeMap[dtype] == PROP_ACTOR_COIN )  then
+			if ( Actor.getIntProperty( sysarg, PROP_ACTOR_COIN ) < totalCount ) then
+			  	Actor.sendTipmsg( sysarg, Lang.ScriptTips.n00007,ttDialog )
+			  	return
+	    	elseif (Actor.changeMoney( sysarg, dtype, -totalCount ,103,itemname) ==false )  then
+            	return false
+			end
+		end
+		
+		
+	local addresult = Item.addItem(sysarg,ritemptr,"back buy",7,amount)
+		
+    if addresult then 
+		if itemtype == Item.itSeal then
+			Item.setItemProperty(sysarg, ritemptr, Item.ipItemHole3Item, 0) --清除玉玺的强化锋利值
+		else
+			Item.setItemProperty(sysarg, ritemptr, Item.ipItemSharp, 0) --清除装备的锋利值
+		end
+      Item.delSellItem(sysarg,ritemptr)
+    end 
+   
+	  local npack = DataPack.allocPacket(sysarg,133,5)  --申请一个数据包
+	  if (npack == nil) then return end
+	  DataPack.writeUint64(npack,ritemguid)
+	  DataPack.flush(npack)
+	  
+	end,
+	
+---------------------------------------------------------------------------------
+	--购买声望的物品 
+	NPCTradeRenownchase = function ( sysarg, args )
+    local itemID = args[1] --购回的物品GUID
+	local itemCount=  args[2]
+	local itemQuality =  args[3]
+	local itemStrong =  args[4]
+	local GroupId = args[5]
+	local consumeItem =	args[6]	--消费的物品ID
+	
+	local sellconfig = nil
+	  
+	
+    local spidName = System.getSystemDef("SPID") --获取配置 	
+	--3层遍历，找到那个物品 
+	local classCount =    table.getn(RenwnShopConfig)
+	local Group = 0
+	local subGroupId = 0
+	for i=1,classCount do
+		if(sellconfig ~= nil) then break end
+		if RenwnShopConfig[i].id == GroupId then
+			Group = i
+			local config =   RenwnShopConfig[i].secClasses
+			local subClassCount = table.getn(config)
+			for j=1,  subClassCount do
+				if(sellconfig ~= nil)  then break end
+				local items =  config[j].items
+				local itemCount = table.getn(items) 
+				for k=1, itemCount do
+					if (items[k].itemID == itemID and items[k].strong == itemStrong and  items[k].quality == itemQuality) then
+						subGroupId = j
+						local index = 0
+						for l = 1, table.getn(items[k].price) do
+							if (items[k].price[l].spid == "*" ) then
+								index = l
+							end
+							if (items[k].price[l].spid == spidName ) then
+								index = l
+								break
+							end
+						end
+						local consumeItemId = 0
+						if items[k].price[index].id then
+							consumeItemId = items[k].price[index].id
+						end
+						if consumeItemId == consumeItem then
+							sellconfig = items[k]
+							break
+						end
+					end
+				end
+			end
+		end
+    end
+   
+    if(sellconfig == nil ) then
+      return  false
+    end 
+	
+	if (not sellconfig.count) then
+		sellconfig.count = 1
+	end
+	
+	--背包不够
+    local nGridCount= Item.getBagEmptyGridCount(sysarg)
+    local nNeedGrid = Item.getAddItemNeedGridCount(sysarg,itemID,itemCount*sellconfig.count,itemQuality, itemStrong)
+    if(nNeedGrid > nGridCount) then
+        local tipmsg= string.format(Lang.ScriptTips.x00074,nNeedGrid) --通知用户，需要空出多少个空格
+        Actor.sendTipmsg( sysarg, tipmsg,ttDialog )
+        return
+    end
+    
+   
+    local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+    if (level < sellconfig.buyLevel)  then return false end  --如果等级不够的话，就不能购买
+    local priceCount =  table.getn( sellconfig.price) --获取价格列表 
+   
+    local isBind =0
+	local index = 0
+	for i = 1, priceCount do
+		if (sellconfig.price[i].spid == "*" ) then
+			index = i
+		end
+		if (sellconfig.price[i].spid == spidName ) then
+			index = i
+			break
+		end
+	end
+	if index <= 0 then return false end
+ 	if(sellconfig.price[index].bind) then
+		isBind =1
+	end
+	local  dtype = sellconfig.price[index].type --货币的类型 
+	local  nTotal =  sellconfig.price[index].price * itemCount 
+	local nCurrent = Actor.getIntProperty( sysarg, moneyTypeMap[dtype] )
+	if( nCurrent < nTotal ) then return false end
+	local nItemId = sellconfig.price[index].id
+	local nCount = sellconfig.price[index].count
+	local boNotice = sellconfig.notice
+
+
+	local nItemConsumeCount = 0 
+
+	if nItemId ~= nil and nItemId > 0 then
+		nItemConsumeCount = nCount * itemCount 
+		if Actor.getItemCount(sysarg, nItemId, -1, -1, -1) < nItemConsumeCount then
+			Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00130,Item.getItemName(nItemId)),ttDialog )
+			return false
+		end
+	end
+	if(dtype>=0 and dtype <=3 ) then
+		Actor.changeMoney(sysarg,dtype,nTotal,144, Lang.LogTips.yb025) 
+	else
+		Actor.giveAward(sysarg,12,0,-1* nTotal,0, 0, 1, 0,601,  Item.getItemName(itemID) )
+	end
+	local removeFlag =true
+	if nItemId ~= nil and nItemId > 0 then
+		if Actor.removeItem(sysarg, nItemId, nItemConsumeCount, -1, -1, -1, "renown buy item", 63) < nItemConsumeCount then
+			return false
+		end	
+	end
+
+
+	--创建一个装备 
+	local newItemPtr = 	Item.createItem(itemID,1,itemStrong, itemQuality, isBind, 0)
+
+	--给玩家添加一个装备 
+	if( Item.addItem(sysarg,newItemPtr, "renown buy item",63,itemCount*sellconfig.count) >= itemCount*sellconfig.count ) then
+		if nItemId ~= nil and nItemId > 0 and boNotice ~= nil and boNotice == true then
+			local username = Actor.getName(sysarg)
+			local itemTipsName1 = Item.getItemLinkMsg(nItemId,nil)
+			local itemTipsName2 = Item.getItemLinkMsg(itemID,newItemPtr)
+			local tips = string.format(Lang.ScriptTips.x00195, username, Group-1, subGroupId-1, nItemConsumeCount, itemTipsName1, itemCount, itemTipsName2)
+			System.broadcastTipmsg(tips, ttChatWindow)
+		end
+	end
+
+
+	-- if Item.addItem(sysarg,newItemPtr,itemQuality,itemStrong,itemCount,isBind,0,"renown buy item",63 ) >= itemCount then
+
+	-- end
+ 
+    
+  end,
+}   
+
+
+
+--处理NPC交易
+NPCTradeImplement.main = function ( sysarg, sysitemid, msgid, arg ) 
+  --从商店购买东西
+  if(msgid ==1) then  
+      local buyitemid = DataPack.readWord(arg)  --购买的物品ID
+		  local amount = DataPack.readWord(arg)      --物品的数量 
+		  local npcId =  DataPack.readWord(arg)      --NPC的ID，0表示是背包商店 
+		  NPCTradeImplement.NPCTradeBuy( sysarg, {buyitemid, amount,npcId} )
+      return
+  end
+  
+	--购买声望的物品
+	if(msgid ==2) then  
+		local buyitemid = DataPack.readWord(arg)  --购买的物品ID
+		local amount = DataPack.readWord(arg)     --购买的物品的数量
+		local nQuality =   DataPack.readByte(arg)     --购买的物品的数量
+		local nStrong =   DataPack.readByte(arg)     --购买的物品的数量
+		local nGroupId = DataPack.readByte(arg)		--购买的物品组ID
+		local consumeItem = DataPack.readShort(arg)  --消费的物品ID
+
+		NPCTradeImplement.NPCTradeRenownchase( sysarg, {buyitemid, amount,nQuality, nStrong, nGroupId, consumeItem} )
+		return
+	end
+  
+  --请求背包商店(随身商店)购买的物品的列表
+  if(msgid ==3) then
+    NPCTradeInfoToClient( sysarg, 0 )
+    return
+  end
+  
+  --出售物品给商店 
+  if(msgid ==4) then
+      local sellitemguid = DataPack.readUint64(arg)  --出售的的物品GUID
+		  NPCTradeImplement.NPCTradeSell( sysarg, {sellitemguid} ) --出售给商店 
+      return
+  end
+ 
+   --从商店回购 
+   if(msgid ==5) then
+      local ritemguid = DataPack.readUint64(arg)  --回购的的物品GUID
+	    local npcId = DataPack.readWord(arg)     --购买的物品的数量
+		   
+		  NPCTradeImplement.NPCTradeRepurchase( sysarg, {ritemguid,npcId} )
+		  return 
+  end
+end 
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.npcTradeSystem, NPCTradeImplement.main)

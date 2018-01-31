@@ -1,0 +1,26 @@
+--类似开箱子的道具，按怪物的掉落爆出物品
+
+--添加配置
+--[[
+--扩展宠物的槽位
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表，如果单独调用的话，这里是需要背包格子的数量 
+--]]
+function EnlargePetSlotFunc(sysarg,itemidx,itemPtr,ItemTable)  
+  local grid =  ItemTable.gridCount           --不合法的配置 
+  if(grid== nil or grid <0) then return end
+  if( Pet.enlargePetSlot(sysarg,grid) ) then
+     Actor.removeItemByPtr(sysarg,itemPtr,1,true," enlarge pet slot",5)      --删除一个物品
+  end
+end
+
+function EnlargePetSlotInit(sysarg)
+  for i = 1,table.getn(EnlargePetSlotItem) do
+    local x = EnlargePetSlotItem[i]
+    GlobalItemFn[x.item_id] = { func = EnlargePetSlotFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable,EnlargePetSlotInit )

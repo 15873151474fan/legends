@@ -1,0 +1,119 @@
+﻿--沙城战杀敌榜排行
+--#include "..\..\..\language\LangCode.txt" once
+
+SbkKillRankConfig = 
+{
+	SbkLianXuKillNum = "SbkContinuousKillRank",		--保存的文件名
+	SbkLianXuKillNumFile = "SbkContinuousKillRank.txt",	
+
+	killLev = 53,				--杀敌的等级小于50的不计杀敌榜
+	levRang = 10,				--等级比自己低10级以上玩家不计数
+	
+	--连杀的提示
+	killTips = 
+	{
+		{killCount = 2, strTips = Lang.GuildLang.lz0001,},					--连斩3人
+		{killCount = 4, strTips = Lang.GuildLang.lz0002,},					--连斩4人
+		{killCount = 6, strTips = Lang.GuildLang.lz0003,},					--连斩6人及以上
+	},
+	
+	rangNum = 10,			--获取前10的排名
+
+	getAwardTime = {21,24},		--领取奖励的时间21点到24点间
+	
+	--沙城战斩敌奖励
+	sbkAwards = 
+	{
+		--第一名奖励
+		{
+			rangAward = {1,1},		--奖励名次的区间
+			awards = 
+			{
+				{type = 0, id = 742, count = 1, strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 926, count = 1, strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 929, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+		},
+		
+		--第二名奖励
+		{
+			rangAward = {2,2},		--奖励名次的区间
+			awards =
+			{
+				{type = 0, id = 741, count = 1, strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 925, count = 2, strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 928, count = 2, strong = 0, quality = 0, bind = 1},
+			},
+		},
+		
+		--第3-6名奖励
+		{
+			rangAward = {3,6},		--奖励名次的区间
+			awards =
+			{
+				{type = 0, id = 740, count = 1, strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 925, count = 1, strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 928, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+		},
+		
+		--第7-10名奖励
+		{
+			rangAward = {7,10},		--奖励名次的区间
+			awards =
+			{
+				{type = 0, id = 924, count = 10, strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 927, count = 10, strong = 0, quality = 0, bind = 1},
+			},
+		},
+	},
+
+	--跨服沙城战斩敌奖励  （可以先不配置，这期不做)
+	--[[CrossSbkAwards = 
+	{
+		--第一名奖励
+		{
+			rangAward = {1,1},		--奖励名次的区间
+			awards = 
+			{
+				{type = 20, id = 2, count = 4000,quality = 0, strong = 0, bind = 1},
+				{type = 34, id = 0, count = 10000,quality = 0, strong = 0, bind = 1},
+				{type = 0, id = 2111, count = 15, strong = 0, quality = 0, bind = 1},
+			},
+		},
+
+		--第二名奖励
+		{
+			rangAward = {2,2},		--奖励名次的区间
+			awards = 
+			{
+				{type = 20, id = 2, count = 3500,quality = 0, strong = 0, bind = 1},
+				{type = 34, id = 0, count = 8500,quality = 0, strong = 0, bind = 1},
+				{type = 0, id = 2111, count = 12, strong = 0, quality = 0, bind = 1},
+			},		
+		},
+		
+		--第三名奖励
+		{
+			rangAward = {3,3},		--奖励名次的区间
+			awards = 
+			{
+				{type = 20, id = 2, count = 3000,quality = 0, strong = 0, bind = 1},
+				{type = 34, id = 0, count = 7000,quality = 0, strong = 0, bind = 1},
+				{type = 0, id = 2111, count = 10, strong = 0, quality = 0, bind = 1},
+			},		
+		},
+		
+		--四到十名的奖励
+		{
+			rangAward = {4,10},		--奖励名次的区间
+			awards = 
+			{
+				{type = 20, id = 2, count = 2500,quality = 0, strong = 0, bind = 1},
+				{type = 34, id = 0, count = 5000,quality = 0, strong = 0, bind = 1},
+				{type = 0, id = 2111, count = 8, strong = 0, quality = 0, bind = 1},
+			},		
+		},
+	},]]
+
+}

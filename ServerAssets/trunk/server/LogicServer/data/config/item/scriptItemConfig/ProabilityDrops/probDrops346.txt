@@ -1,0 +1,13 @@
+﻿drops=
+{
+    { group = 0, type = 0, id = 1019, count = 1, bind = 1, },
+    { group = 0, type = 0, id = 1083, count = 1, bind = 1, },
+    { group = 0, type = 0, id = 1037, count = 5, bind = 1, },
+    { group = 0, type = 0, id = 1119, count = 1, bind = 1, },
+    { group = 0, type = 0, id = 748, count = 2, job = 1, bind = 1, },
+    { group = 0, type = 0, id = 758, count = 2, job = 2, bind = 1, },
+    { group = 0, type = 0, id = 768, count = 2, job = 3, bind = 1, },
+
+
+
+}

@@ -1,0 +1,110 @@
+
+--降魔篇副本配置
+DemonsConfig = {
+	MissDuan = {		--段小姐
+		PlayerId = 749,		--怪的id
+		LiveTime = 7200,	--生存期
+		Pos = {
+			{79,93},		--第一个场景中，随机选一个坐标
+		},
+	},
+	DuanPet = {			--	段小姐2	
+		PetId = 751,		--宠物ID
+		PetAi = 197,		--AI
+		LiveTime = 7200,	--生存期
+	},
+	TreasurePet = {		--寻宝猎魔人
+		Yb = {3, 10},
+		PetId = 752,
+		PetAi = 197,
+		MaxCount = 5,
+		LiveTime = 7200,
+	},
+	FreeMedicine = {	--免费丹药
+				{type = 0, id = 1772, count = 1, quliaty = 0, strong = 0, bind = 0},
+		{type = 0, id = 1773, count = 1, quliaty = 0, strong = 0, bind = 0},
+		{type = 0, id = 1774, count = 1, quliaty = 0, strong = 0, bind = 0},
+		{type = 0, id = 1775, count = 1, quliaty = 0, strong = 0, bind = 0},
+	},
+	KillMstPlayer = {   --招募一个猎魔人
+		Coin = 80000,
+		PlayerId = 750,
+		LiveTime = 7200,	--生存期
+		Pos = {
+			{68,90},
+			{72,85},
+			{77,81},
+			{73,95},
+			{84,90},
+			{81,85},
+			{77,99},
+			{82,100},
+			{87,101},
+			{90,98},
+		},
+	},
+	BuyMedicine = {     --购买丹药
+		Yb = {3, 10},
+		Items = {
+			{type = 0, id = 1772, count = 1, quliaty = 0, strong = 0, bind = 0, tips = Lang.ScriptTips.danyao01},
+			{type = 0, id = 1773, count = 1, quliaty = 0, strong = 0, bind = 0, tips = Lang.ScriptTips.danyao02},
+			{type = 0, id = 1774, count = 1, quliaty = 0, strong = 0, bind = 0, tips = Lang.ScriptTips.danyao03},
+			{type = 0, id = 1775, count = 1, quliaty = 0, strong = 0, bind = 0, tips = Lang.ScriptTips.danyao04},
+		},
+	},
+
+	CallElitePlayer = { --招募一个精英猎魔人
+		Yb = {3,10},		--金钱类型，需要的元宝
+		MaxCount = 5,
+		PlayerId = 754,
+		LiveTime = 7200,	--生存期
+		Pos = {
+			[159] = {
+				{68,78},		--中间场景第1个位置
+				{80,77},
+				{83,67},
+				{73,58},
+				{65,67},
+			},
+			[160] = {
+				{70,62},		--最后一个场景第1个位置
+				{75,62},
+				{80,62},
+				{72,66},
+				{78,66},
+			},
+		},
+	},
+	CallBuddha =  {   --宝召唤如来
+		Yb = {3, 888},
+		PlayerId = 765,
+		LiveTime = 7200,	--生存期
+		Pos = { 75, 46 },
+	},
+
+	--采集怪死后得buff
+	MonsDiedBuff = {
+		buffType= 29, value=0, buffGroup= 85,times =1,interval= 7, timeOverlay =true,buffName = Lang.Activity.szfb0003,
+	},
+
+	--BOSS死亡打开传送点
+	BossDiedOpenTel = {
+		[120] = {88,98},	--【场景id】= 要打开的传送点坐标(一定要与场景中配置一样)
+		[159] = {64,57},	
+	},
+	BossList = {
+		[120] = {
+			bossId = 762,
+			telPos = {159,121,69},
+		},
+		[159] = {
+			bossId = 763,
+			telPos = {160, 38, 60},
+		},
+	},
+	
+	sceneIdList = 
+	{
+		120,159,160,
+	},
+}

@@ -1,0 +1,99 @@
+﻿--#include "data\functions\FuBenNpcFunc\JinBiFuben\JinBiFubenConfig.txt" once
+--#include "data\functions\FuBenNpcFunc\JinBiFuben\JinBiFubenCommon.txt" once
+
+--进入金币副本进行的处理 
+function OnEnterJinBiFuben(sysarg, fbHandle, fubenId)
+   JinBiFubenDataClear(sysarg)
+   JinBiFubenDataInit(sysarg)
+   --以上为数据的初始化 
+   local Monster = JinBiFubenConfig.Monster[1]
+   local sceneId = Actor.getSceneId(sysarg)
+   local hScene = Fuben.getSceneHandleById( sceneId, fbHandle)
+   for i = 1, #Monster do
+       Fuben.createMonsters(hScene, Monster[i].nMonsterID, Monster[i].posX, Monster[i].posX1, Monster[i].posY, Monster[i].nCount, Monster[i].nLiveTime)
+   end
+   local HuoBaMonster = JinBiFubenConfig.HuoBaMonster[1]
+   for i = 1, #HuoBaMonster do
+       Fuben.createMonsters(hScene, HuoBaMonster[i].nMonsterID, HuoBaMonster[i].posX, HuoBaMonster[i].posX1, HuoBaMonster[i].posY, HuoBaMonster[i].nCount, HuoBaMonster[i].nLiveTime)
+   end
+   --发送客户端面板相关显示信息
+   SendJinBiFubenClientUi(sysarg, 1, #JinBiFubenConfig.Monster, 0)
+end    
+
+--客户端请求领取副本奖励
+function ClientAskJinBifubenAward(sysarg, packet)   
+   --print("ClientAskJinBifubenAward") 
+   --local FubenId = DataPack.readByte(packet)
+   JinBiFubenDataInit(sysarg)
+   local sVar = Actor.getDyanmicVar(sysarg)
+   local JinBiFubenFloorNumber = sVar.JinBiFubenFloorNumber
+   local JinBiFubenPassFloorNumber = sVar.JinBiFubenPassFloorNumber
+   --print("JinBiFubenFloorNumber"..JinBiFubenFloorNumber ..",JinBiFubenPassFloorNumber"..JinBiFubenPassFloorNumber)
+   if JinBiFubenFloorNumber ~= JinBiFubenPassFloorNumber then
+      Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben054,JinBiFubenFloorNumber), ttFlyTip)
+	  return
+   end
+   sVar.JinBiFubenPassFloorNumber = nil
+   --Var.KillJinBiFubenMonsterNumber = nil
+   --给奖励
+   local itemData = JinBiFubenConfig.Award[JinBiFubenFloorNumber]
+   for i = 1, #itemData do
+  	   if itemData[i] ~= nil then
+          Actor.giveAward(sysarg,itemData[i].type,itemData[i].id,itemData[i].count,itemData[i].quality,itemData[i].strong,itemData[i].bind,0,973,Lang.Activity.mgq0008, -1)
+       end
+   end
+   if JinBiFubenFloorNumber < #JinBiFubenConfig.Monster then
+      SendJinBiFubenClientUi(sysarg, JinBiFubenFloorNumber, #JinBiFubenConfig.Monster, 2)
+      Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben055, ttFlyTip)
+   else
+      SendJinBiFubenClientUi(sysarg, JinBiFubenFloorNumber, #JinBiFubenConfig.Monster, 0)
+      Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben056, ttFlyTip)
+   end
+end  
+
+--客户端请求进入下一层
+function ClientAskJinBiFubenNextFloor(sysarg, packet)
+  JinBiFubenDataInit(sysarg)
+  local sVar = Actor.getDyanmicVar(sysarg)
+  --local KillJinBiFubenMonsterNumber = sVar.KillJinBiFubenMonsterNumber
+  local JinBiFubenFloorNumber = sVar.JinBiFubenFloorNumber
+  local Tb = JinBiFubenConfig.Monster[JinBiFubenFloorNumber]
+  local fhadle = Actor.getFubenHandle( sysarg)
+  local hScene = Fuben.getSceneHandleById(JinBiFubenConfig.nScence, fhadle)
+  for i=1,table.getn(Tb) do
+      if Fuben.getLiveMonsterCount(hScene,Tb[i].nMonsterID) > 0 then
+         Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben057,JinBiFubenFloorNumber), ttFlyTip)
+	     return
+      end
+  end
+  if JinBiFubenFloorNumber >= #JinBiFubenConfig.Monster then
+     Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben058, ttFlyTip)
+     return
+  end 
+
+  
+  --sVar.KillJinBiFubenMonsterNumber = nil
+  Fuben.ClearSceneHandle(Actor.getScenePtr(sysarg))
+  sVar.JinBiFubenFloorNumber = sVar.JinBiFubenFloorNumber + 1
+  local JinBiFubenFloorNumber = sVar.JinBiFubenFloorNumber
+  local fbHandle = Actor.getFubenHandle( sysarg ) 
+  local Monster = JinBiFubenConfig.Monster[JinBiFubenFloorNumber]
+  local sceneId = Actor.getSceneId(sysarg)            
+  local hScene = Fuben.getSceneHandleById( sceneId, fbHandle)
+  local fbPtr = Actor.getFubenPrt(sysarg) 
+  Fuben.setFbTime( fbPtr, JinBiFubenConfig.AddSceneTime)--设置副本时间 
+  --Fuben.clearMonster(hScene, JinBiFubenConfig.HuoBaMonsterId)--清除火把怪 
+  for i = 1, #Monster do
+      Fuben.createMonsters(hScene, Monster[i].nMonsterID, Monster[i].posX, Monster[i].posX1, Monster[i].posY, Monster[i].nCount, Monster[i].nLiveTime)
+  end
+  local HuoBaMonster = JinBiFubenConfig.HuoBaMonster[JinBiFubenFloorNumber]
+  for i = 1, #HuoBaMonster do
+      Fuben.createMonsters(hScene, HuoBaMonster[i].nMonsterID, HuoBaMonster[i].posX, HuoBaMonster[i].posX1, HuoBaMonster[i].posY, HuoBaMonster[i].nCount, HuoBaMonster[i].nLiveTime)
+  end
+  --做一下场景置换，带感
+  Actor.enterScene( sysarg, 2, 188, 182)
+  Actor.enterFuBen(sysarg,fbHandle,-1,-1,-1)
+  Actor.delBuff(sysarg,JinBiFubenConfig.buffType, JinBiFubenConfig.buffGroup)
+    --发送客户端面板相关显示信息
+  SendJinBiFubenClientUi(sysarg, sVar.JinBiFubenFloorNumber, #JinBiFubenConfig.Monster, 0)
+end

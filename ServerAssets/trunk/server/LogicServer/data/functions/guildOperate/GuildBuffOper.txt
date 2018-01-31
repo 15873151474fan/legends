@@ -1,0 +1,153 @@
+--lua script
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\guild\GuildBuff.txt" once 
+--#include "GuildOnTimeFuc.txt" once	--测试用
+
+--开启光环
+function OnOpenGuildBuffOp(sysarg,args)
+	local nId = args[2]
+
+	if nId == nil then return end
+
+	local nNum = table.getn(GuildBuff.buffList)
+
+	if (nId > nNum) or (nId < 1) then return end
+
+	local gCoin = Actor.getGuildCoin(sysarg)
+
+	if gCoin < GuildBuff.buffList[nId].needGuildCoin then
+		--local tipmsg= string.format(Lang.GuildLang.x00074,nNeedGrid) --通知用户，需要空出多少个空格
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00050,ttFlyTip )
+		return
+	end
+	
+	local nPos = Actor.getGuildPos(sysarg)
+	if nPos ~= 2 and nPos~= 3 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00109,ttFlyTip )
+		return
+	end
+
+	Actor.changeGuildCoin(sysarg,-GuildBuff.buffList[nId].needGuildCoin)	--扣除行会资金
+	
+	local ItemTable = GuildBuff.buffList[nId].buffAre
+
+	--添加行会buff
+	Actor.addGuildBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup, ItemTable.value, ItemTable.times, ItemTable.interval, ItemTable.buffName, ItemTable.timeOverlay)
+
+	Actor.sendGuildMsg(sysarg,0,string.format(Lang.GuildLang.b00013,ItemTable.buffName),2+128)
+end
+
+--下发语音聊天频道信息
+function OnSendGuildChannelInfo(sysarg,args)
+	local nIndex = args[2]
+	
+	local nCount = table.getn(GuildConfig.guildChat)
+	
+	if nCount <= 0 then return end
+
+	local pack = DataPack.allocPacket(sysarg, 10, 46)
+
+	if (pack ~= nil) then
+		DataPack.writeInt(pack,nCount)
+
+		for i=1,nCount do
+			local tmpIndex = 1
+			if (nIndex > 0) and (nIndex < table.getn(GuildConfig.guildChat[i].DownloadAddressD or {})) then
+				tmpIndex = nIndex + 1
+			end
+
+			DataPack.writeChar(pack,GuildConfig.guildChat[i].gType)
+			DataPack.writeString(pack,GuildConfig.guildChat[i].chatName)
+			DataPack.writeString(pack,GuildConfig.guildChat[i].DownloadAddressD[tmpIndex])
+			DataPack.writeString(pack,GuildConfig.guildChat[i].LickAddress[tmpIndex])
+		end
+
+		DataPack.flush(pack)
+	end
+
+end
+
+--下发沙巴克基本信息
+function OnSendSbkMsgInfo(sysarg,args)
+	--if Guild.getSbkCityOwner()<= 0 then return end
+
+	local nCount = table.getn(GuildSiegeConfig.AwardSbkPostion)
+
+	if nCount <= 0 then return end
+
+	local pack = DataPack.allocPacket(sysarg, 10, 51)
+
+	if (pack ~= nil) then
+		DataPack.writeInt(pack,nCount)
+
+		for i=1,nCount do
+			DataPack.writeChar(pack,i)
+			local nName = System.getSbkPostionName(i)
+
+			if nName == nil then
+				nName = ""
+			end
+
+			DataPack.writeString(pack,nName)
+			DataPack.writeInt(pack,GuildSiegeConfig.AwardSbkPostion[i].itemNum)
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--获取沙巴克福利
+function OnGetSbkWeal(sysarg,args)
+	local nSbkPos = args[2]
+	
+	local nCount = table.getn(GuildSiegeConfig.AwardSbkPostion)
+	if nSbkPos > 0 and nSbkPos <=  nCount then
+
+		local avar = Actor.getStaticVar(sysarg)
+
+		if avar.mygetSbkWealState == nil then
+			avar.mygetSbkWealState = 0
+		end
+
+		if avar.mygetSbkWealState == 1 then
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00079,ttFlyTip )
+			return
+		end
+		
+		local var = System.getStaticVar()
+		
+		if var.getSbkWealState == nil then
+			var.getSbkWealState = {}
+		end
+
+		if var.getSbkWealState[nSbkPos] == nil then
+			var.getSbkWealState[nSbkPos] = 0
+		end 
+		
+		if var.getSbkWealState[nSbkPos] == 1 then
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00078,ttFlyTip )
+			return
+		end
+
+		local itemID = GuildSiegeConfig.AwardSbkPostion[nSbkPos].itemId
+		local itemQuality = 0
+		local itemStrong = 0
+		local itemCount =GuildSiegeConfig.AwardSbkPostion[nSbkPos].itemNum
+		local itemName = Item.getItemName(itemID) or ""
+		local itemBind = GuildSiegeConfig.AwardSbkPostion[nSbkPos].itemBind
+
+		--背包不够
+		local nGridCount= Item.getBagEmptyGridCount(sysarg)
+		local nNeedGrid = Item.getAddItemNeedGridCount(sysarg,itemID,itemCount,itemQuality, itemStrong)
+		if(nNeedGrid > nGridCount) then
+			local tipmsg= string.format(Lang.ScriptTips.x00074,nNeedGrid) --通知用户，需要空出多少个空格
+			Actor.sendTipmsg( sysarg, tipmsg,ttFlyTip )
+			return
+		end
+		
+		var.getSbkWealState[nSbkPos] = 1
+		avar.mygetSbkWealState = 1
+		Actor.addItem(sysarg,itemID,itemQuality,itemStrong,itemCount,itemBind)
+	end
+end
+

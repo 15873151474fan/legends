@@ -1,0 +1,560 @@
+--lua script
+--驯兽擂台
+
+--#include "data\functions\Activity\Common\Misc.txt" once
+--#include "data\config\activityconfig\NanJiangGuDi\XunShouLeiTaiConfig.txt" once
+
+--活动开启
+function XunShouLeiTaiStart()
+	local SysVar = System.getDyanmicVar()
+	SysVar.XunShouFlag = true
+	local sceneId = XunShouLeiTaiConfig.sceneId
+	local hScene = Fuben.getSceneHandleById(sceneId, 0)
+	if not hScene then return end
+	local pos = XunShouLeiTaiConfig.bossPos
+	local bossId = XunShouLeiTaiConfig.bossId
+	local liveTime = XunShouLeiTaiConfig.liveTime
+	for i=1, 3 do
+		local pMonster = Fuben.createMonster(hScene, bossId[i], pos[i].x,pos[i].y,liveTime)
+	end
+	System.broadcastTipmsg(Lang.Activity.njgd045, 128+2) --公告
+end
+
+--进入地图
+function XunShouBrushBoss(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 103)
+	if pack then
+		DataPack.writeByte(pack, 1)
+		DataPack.flush(pack)
+	end
+	local title = Lang.Activity.njgd043
+	local content = Lang.Activity.njgd042
+
+	local todayTime = System.getToday()
+	local curTime = System.getCurrMiniTime()
+
+	local actTimeRange = XunShouLeiTaiConfig.actTime1
+	if System.isInTimeRange(unpack(XunShouLeiTaiConfig.actTime1)) == true then
+		actTimeRange = XunShouLeiTaiConfig.actTime1
+	elseif System.isInTimeRange(unpack(XunShouLeiTaiConfig.actTime2)) == true then
+		actTimeRange = XunShouLeiTaiConfig.actTime2
+	end
+
+	local startTime = todayTime + ((actTimeRange[1] * 60 + actTimeRange[2]) * 60 + actTimeRange[3])
+	local endTime = todayTime + ((actTimeRange[4] * 60 + actTimeRange[5]) * 60 + actTimeRange[6])
+
+	if curTime < startTime or curTime > endTime then
+		return
+	end
+
+	local remTime = endTime-curTime
+	local pack = DataPack.allocPacket(sysarg, 26, 21)
+	if pack then
+		DataPack.writeString(pack, title)
+		DataPack.writeUInt(pack, remTime)
+		DataPack.writeByte(pack, 0)
+		DataPack.writeString(pack, content)
+		DataPack.flush(pack)
+	end
+
+end
+
+--查看前10名玩家与奖励
+function XunShouLeiTaiActOver(sysarg)
+	local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	if ranking then
+		local name = {}
+		local point = {}
+		for i=1, 10 do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				name[i] = Ranking.getSub(item, 0)
+				point[i]= Ranking.getPoint(item)
+			end
+		end
+		--发送给前端显示
+		local pack = DataPack.allocPacket(sysarg, 145, 104)
+		if not pack then return end
+		DataPack.writeByte(pack, #name)
+		for i=1, #name do
+			DataPack.writeString(pack, name[i])
+			DataPack.writeInt(pack, point[i])
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--查看查看单个BOSS情况
+function ReqXunShouBossInfo(sysarg, bossId)
+	local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	if ranking then
+		local index = 1
+		if bossId == XunShouLeiTaiConfig.bossId[1] then
+			index = 1
+		elseif bossId == XunShouLeiTaiConfig.bossId[2] then
+			index = 2
+		elseif bossId == XunShouLeiTaiConfig.bossId[3] then
+			index = 3
+		end
+
+		local name = {}
+		local point = {}
+		local nowBoss = {}
+		for i=1, 10 do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				name[i] = Ranking.getSub(item, 0)
+				point[i]= Ranking.getPoint(item)
+				nowBoss[i] = Ranking.getSub(item, index)
+			end
+		end
+		
+		local myPoint = 0
+		local myNowBoss = 0
+		local myRank = 0
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		myRank = Ranking.getItemIndexFromId(ranking, nActorId)+1
+		if item then
+			myPoint = Ranking.getPoint(item)
+			myNowBoss = Ranking.getSub(item, index)
+		end
+		--发送给前端显示
+		local pack = DataPack.allocPacket(sysarg, 145, 102)
+		if not pack then return end
+		DataPack.writeByte(pack, #name)
+		for i=1, #name do
+			DataPack.writeString(pack, name[i])
+			DataPack.writeInt(pack, point[i])
+			DataPack.writeInt(pack, nowBoss[i])
+		end
+		DataPack.writeByte(pack, myRank)
+		DataPack.writeInt(pack, myPoint)
+		DataPack.writeInt(pack, myNowBoss)
+		DataPack.writeWord(pack, bossId)
+		DataPack.flush(pack)	
+	end
+end
+
+--驯兽擂台登录处理
+function XunShouLeiTaiLoginHandle(sysarg)
+	local sceneId = XunShouLeiTaiConfig.sceneId
+	local hSceneNow = Actor.getSceneHandle(sysarg)
+	local hSceneXun = Fuben.getSceneHandleById(sceneId, 0)
+	if hSceneNow == hSceneXun then
+		-- 判断战力
+		local nBattle = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+		local needVal = XunShouLeiTaiConfig.needVal
+		if nBattle < needVal then
+			Actor.enterScene(sysarg, XunShouLeiTaiConfig.outSceneId, XunShouLeiTaiConfig.outX, XunShouLeiTaiConfig.outY)
+			return
+		end
+
+		local SysVar = System.getDyanmicVar()
+		if not SysVar.XunShouFlag then
+			Actor.enterScene(sysarg, XunShouLeiTaiConfig.outSceneId, XunShouLeiTaiConfig.outX, XunShouLeiTaiConfig.outY)
+		else
+			XunShouBrushBoss(sysarg)
+			local buffType = XunShouLeiTaiConfig.buffs[1].buffType
+			local buffGroup = XunShouLeiTaiConfig.buffs[1].buffGroup
+			local ret = Actor.hasBuff(sysarg, buffType, buffGroup)
+			if ret then
+				local t =  Actor.getBuffRemainTime(sysarg, buffType, buffGroup)
+				Actor.addEffect(sysarg, 277, 6, t*1000)
+			end
+			SaveXunShouAward(sysarg, 6, 0)
+			local bossindex = XunShouIsGetAward(sysarg, 5) or 0
+			if bossindex ~= 0 then
+				local bossID = 1546
+				if bossindex == 1 then
+					bossID = XunShouLeiTaiConfig.bossId[1] 
+				elseif bossindex == 2 then
+					bossID = XunShouLeiTaiConfig.bossId[2] 
+				elseif bossindex == 3 then
+					bossID = XunShouLeiTaiConfig.bossId[3] 
+				end
+				ReqXunShouBossInfo(sysarg, bossID)
+			end
+		end
+	end
+end
+
+--玩家下线掉线处理
+function XunShouLeiTaiLogoutHandle(sysarg)
+	local SysVar = System.getDyanmicVar()
+	if SysVar.XunShouFlag then
+		local curTime = System.getCurrMiniTime()
+		local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+		if ranking then
+			local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+			local item = Ranking.getItemPtrFromId(ranking, nActorId)
+			if item then
+				Ranking.setSub(item, 6, curTime) --6字段 保存下线时间
+			else
+				item = Ranking.addItem(ranking, nActorId, 0)
+				Ranking.setSub(item, 6, curTime)
+			end
+		end
+	end
+end
+
+--一分钟检测一下玩家是否在线
+function XunShouOnTimer()
+	local curTime = System.getCurrMiniTime()
+	local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	if ranking then
+		local num = Ranking.getRankItemCount(ranking)
+		for i=1, num do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				local leave = Ranking.getSub(item, 6)
+				leave = tonumber(leave)
+				if leave then
+					if leave > 0 then
+						if curTime - leave > XunShouLeiTaiConfig.offlineTime then
+							local id = Ranking.getId(item)
+							Ranking.removeId(ranking, id)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+
+--活动结束退出
+function XunShouAwardActEnd()
+	local SysVar = System.getDyanmicVar()
+	SysVar.XunShouFlag = nil
+	local sceneId = XunShouLeiTaiConfig.sceneId
+	local playerList = LuaHelp.getSceneActorListById(sceneId)	--获取场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player then
+				local effType = XunShouLeiTaiConfig.buffs[1].effectType
+				local effID = XunShouLeiTaiConfig.buffs[1].effectId
+				Actor.delEffect(player, effID, effType)
+				local buffType = XunShouLeiTaiConfig.buffs[1].buffType
+				local buffGroup = XunShouLeiTaiConfig.buffs[1].buffGroup
+				local ret = Actor.hasBuff(player, buffType, buffGroup)
+				if ret then
+					Actor.delBuff(player, buffType, buffGroup)
+				end
+				Actor.enterScene(player, XunShouLeiTaiConfig.outSceneId, XunShouLeiTaiConfig.outX, XunShouLeiTaiConfig.outY)
+				local pack = DataPack.allocPacket(player, 145, 103)
+				if pack then
+					DataPack.writeByte(pack, 2)
+					DataPack.flush(pack)
+				end
+			end
+		end
+	end
+	
+	--清除BOSS
+	local hScene = Fuben.getSceneHandleById(sceneId, 0)
+	if not hScene then return end
+	local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)
+	if monsterList ~= nil then
+		for j = 1, #monsterList do
+			local monster = monsterList[j]
+			if monster then			
+				local monHandle = Actor.getHandle(monster)
+				local nMonID = Actor.getIntProperty(monster, PROP_ENTITY_ID)
+				if nMonID == XunShouLeiTaiConfig.bossId[1] then
+					DeleLiveBossHurt(1)
+				elseif nMonID == XunShouLeiTaiConfig.bossId[2] then
+					DeleLiveBossHurt(2)
+				elseif nMonID == XunShouLeiTaiConfig.bossId[3] then
+					DeleLiveBossHurt(3)
+				end
+				Fuben.clearMonster(monHandle)
+			end
+		end
+	end
+end
+
+--活动结束删除活着的BOSS累计伤害
+function DeleLiveBossHurt(bossindex)
+	local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	if ranking then
+		local idTab = {}
+		local num = Ranking.getRankItemCount(ranking)
+		for i=1, num do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				local nActorId = Ranking.getId(item)
+				idTab[i] = nActorId
+			end
+		end
+		for k,v in ipairs(idTab) do
+			if v then
+				local itemPtr = Ranking.getItemPtrFromId(ranking, v)
+				local ret = Ranking.getSub(itemPtr, bossindex)
+				ret = tonumber(ret) or 0
+				Ranking.updateItem(ranking, v, -ret)
+				local point = Ranking.getPoint(itemPtr) or 0
+				point = tonumber(point)
+				if point then
+					if point == 0 or point < 0 then
+						Ranking.removeId(ranking, v)
+					end
+				end
+			end
+		end	
+	end
+end
+
+--请求领奖
+function ReqGetXunShouAward(sysarg)
+	local SysVar = System.getDyanmicVar()
+	if SysVar.XunShouFlag then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd038, ttFlyTip)
+		return
+	end
+	--判断名次
+	local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	local rank = -1
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		rank = Ranking.getItemIndexFromId(ranking, nActorId)
+		if rank >9 or rank == -1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.njgd023, ttFlyTip)
+			return
+		end
+	end
+	--判断已领
+	local isget = XunShouIsGetAward(sysarg, 4)
+	if isget == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd024, ttFlyTip)
+		return
+	end
+	if rank >9 or rank == -1 then return end
+	
+	--判断背包
+	local needbag = XunShouLeiTaiConfig[1].actiList[rank+1].exValue or 0
+	local nGridCount = Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if needbag > nGridCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+		return
+	end
+	--保存数据
+	SaveXunShouAward(sysarg, 4, 1)
+	--给奖励
+	for k,v in ipairs(XunShouLeiTaiConfig[1].actiList[rank+1].awards) do
+		local newItem = Item.createItem(v.id, v.count, 0, 0, v.bind, 0)
+		if not newItem then
+			return false
+		end
+
+		if (Item.addItem(sysarg, newItem, Lang.LogTips.ssy001, 977, v.count) ~= v.count) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+			return false
+		end
+	end
+	Actor.sendTipmsg(sysarg, Lang.Activity.njgd044, ttFlyTip)
+end
+
+--定时处理，提前五分钟清排
+function ClearXunShouLeiTaiFile()
+	System.broadcastTipmsg(Lang.Activity.njgd028, 128+2) --公告
+	local xsltPtr = Ranking.getRanking( Lang.Rank.XunShouLeiTaiFile )
+	if xsltPtr then
+		Ranking.clearRanking(xsltPtr)
+	end
+end
+
+--购买道具
+function XunShouLeiTaiShop(sysarg, index)
+	index = tonumber(index)
+	--判断空格
+	local needGrid = XunShouLeiTaiConfig.subMenu[index].needCount
+	local id = XunShouLeiTaiConfig.subMenu[index].awards[1].id
+	local bind = XunShouLeiTaiConfig.subMenu[index].awards[1].bind
+	local count = XunShouLeiTaiConfig.subMenu[index].awards[1].count
+	--判断背包空格
+	local nGridCount= Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if nGridCount < needGrid then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0213, ttFlyTip)
+		return
+	end
+	--扣除材料
+	local consumetype = XunShouLeiTaiConfig.subMenu[index].consumes[1].type
+	local consumenum = XunShouLeiTaiConfig.subMenu[index].consumes[1].count
+	if consumetype == 15 then --元宝
+        if Actor.changeMoney(sysarg, mtYuanbao, -consumenum, 977, Lang.LogTips.xslt001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0214, ttFlyTip)
+			return
+		end
+	elseif consumetype == 6 then --金币
+	   	if Actor.changeMoney(sysarg, mtCoin, -consumenum, 977, Lang.LogTips.xslt001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0215, ttFlyTip)
+			return
+		end
+	elseif consumetype == 7 then --绑定元宝（礼券）
+		if Actor.changeMoney(sysarg, mtBindYuanbao, -consumenum, 977, Lang.LogTips.xslt001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0216, ttFlyTip)
+			return
+		end
+    end
+	--发放物品
+	local newItem = Item.createItem(id, count, 0, 0, bind, 0)
+	if not newItem then
+		return false
+	end
+	local ss = Item.addItem(sysarg, newItem, Lang.LogTips.xslt002, 977, count)
+	Actor.sendTipmsg(sysarg, Lang.Activity.njgd034, ttFlyTip) --1-4 购买
+	
+end
+
+--boss死亡处理
+function OnXunShouLeiTaiBossDie(monster, sysarg, monId)
+	local sceneId = Actor.getSceneId(sysarg)
+	if sceneId ~= XunShouLeiTaiConfig.sceneId then return end
+
+	local bossName = Actor.getName(monster)
+	local actorName = Actor.getName(sysarg)
+	System.broadcastTipmsg(string.format(Lang.Activity.njgd036, actorName, bossName), 128+2)
+end
+
+--boss被攻击处理
+function OnXunShouAttacked(monster, sysarg, monId, damage)
+	local sceneId = Actor.getSceneId(sysarg)
+	if sceneId ~= XunShouLeiTaiConfig.sceneId then return end
+
+	local types = Actor.getEntityType(sysarg)
+	if types ~= 0 then return end --判断类型，排除英雄，宠物等等
+	if monId == XunShouLeiTaiConfig.bossId[1] then
+		SaveXunShouLeiTaiInfo(sysarg, 1, damage)
+	elseif monId == XunShouLeiTaiConfig.bossId[2] then
+		SaveXunShouLeiTaiInfo(sysarg, 2, damage)
+	elseif monId == XunShouLeiTaiConfig.bossId[3] then
+		SaveXunShouLeiTaiInfo(sysarg, 3, damage)
+	end
+end
+
+--玩家死亡处理
+function XunShouActorDie(sysarg)
+	local sceneId = Actor.getSceneId(sysarg)
+	if sceneId ~= XunShouLeiTaiConfig.sceneId then return end
+
+	local SysVar = System.getDyanmicVar()
+	if SysVar.XunShouFlag then
+		local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+		if ranking then
+			local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+			Ranking.removeId(ranking, nActorId)
+		end
+	end
+end
+
+--使用道具
+function UseGoldCard(sysarg, buffid)
+	for k,v in ipairs(XunShouLeiTaiConfig.buffs) do
+		--判断当前特效是否存在
+		local ret = Actor.hasBuff(sysarg, v.buffType, v.buffGroup)
+		if ret then
+			Actor.sendTipmsg(sysarg, Lang.Activity.njgd035, ttFlyTip)
+			return
+		else
+			--判断道具够不够
+			if Actor.getItemCount(sysarg, buffid) < 1 then
+				Actor.sendTipmsg(sysarg, Lang.Activity.njgd001, ttFlyTip)		
+				return
+			end
+			--扣除道具
+			Actor.removeItem(sysarg, buffid, 1, -1,-1,-1, Lang.LogTips.xslt003, 977)
+			--添加特效
+			Actor.addBuff(sysarg, v.buffType, v.buffGroup, v.value, v.times, v.interval, v.buffName, v.timeOverlay, 0, 0, v.effectType,v.effectId)
+		end
+	end
+end
+
+--保存领奖数据 和上线时间清零
+function SaveXunShouAward(sysarg, subid, value)
+	local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			Ranking.setSub(item, subid, value)
+		end
+	end
+end
+
+--保存伤害数据
+function SaveXunShouLeiTaiInfo(sysarg, subid, value)
+	local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local ret = Ranking.getSub(item, subid)
+			ret = tonumber(ret) or 0
+			Ranking.setSub(item, subid, ret+value)
+			local id = Ranking.getSub(item, 5)
+			id = tonumber(id)
+			if id ~= subid then
+				Ranking.setSub(item, 5, subid) --保存最后一个BOSS序号
+			end
+			Ranking.updateItem(ranking, nActorId, value)
+		else
+			local myName = Actor.getName(sysarg)
+			item = Ranking.addItem(ranking, nActorId, value)
+			Ranking.setSub(item, 0, myName)
+			Ranking.setSub(item, 5, subid) --保存最后一个BOSS序号
+			Ranking.setSub(item, subid, value)
+		end
+	end
+end
+
+
+--读取数据
+function XunShouIsGetAward(sysarg, index)
+	local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			local res = Ranking.getSub(itemPtr, index)--4字段表示领取 5表示bossid
+			res = tonumber(res)
+			if res then
+				return res
+			end
+		end
+	end
+	return 0
+end
+
+
+--离开
+function XunShouQuit(sysarg)
+	local effType = XunShouLeiTaiConfig.buffs[1].effectType
+	local effID = XunShouLeiTaiConfig.buffs[1].effectId
+	Actor.delEffect(sysarg, effID, effType)
+	local buffType = XunShouLeiTaiConfig.buffs[1].buffType
+	local buffGroup = XunShouLeiTaiConfig.buffs[1].buffGroup
+	local ret = Actor.hasBuff(sysarg, buffType, buffGroup)
+	if ret then
+		Actor.delBuff(sysarg, buffType, buffGroup)
+	end
+	
+	--清空排名
+	local SysVar = System.getDyanmicVar()
+	if SysVar.XunShouFlag then
+		local ranking = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+		if ranking then
+			local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+			Ranking.removeId(ranking, nActorId)
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 103)
+	if pack then
+		DataPack.writeByte(pack, 2)
+		DataPack.flush(pack)
+	end
+end
+
+

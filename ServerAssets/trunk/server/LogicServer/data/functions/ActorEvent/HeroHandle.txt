@@ -1,0 +1,66 @@
+﻿--lua script
+--处理宠物消耗相关的操作
+
+--lua script
+--处理宠物消耗相关的操作
+
+
+--#include "data\config\hero\HeroCircle.txt" once --宠物的转生配置 
+--#include "data\config\hero\HeroSkill.txt" once --宠物技能配置 
+--#include "data\config\hero\HeroSkillLevelupConsume.txt" once --宠物技能等级升级的消耗
+
+
+
+--#include "data\functions\HeroOperate\OperateFunctioins.txt" once --公告的函数
+--#include "data\functions\HeroOperate\HeroCircle.txt" once --宠物转生
+--#include "data\functions\HeroOperate\HeroLearnSkill.txt" once --宠物技能等级升级
+--#include "data\functions\HeroOperate\HeroRefine.txt" once --英雄炼化 
+
+
+
+HeroOpFuncList = {}
+
+EventCallDispatcher.HandlerHeroOp = function (sysarg, args)
+  if args[1] == nil then return end   --第1个参数  1：表示强化消耗 2：表示洗资质消耗 3：表示转生消耗  11:表示强化 12：表示洗资质 13：表示转生 22: 英雄炼化
+  local func = HeroOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+
+
+
+--转生消耗 
+HeroOpFuncList[3] = function (sysarg,args)  
+  getHeroCircleConsume( sysarg, args )
+end
+
+
+
+--获取宠物技能升级的消耗 
+HeroOpFuncList[5] = function (sysarg,args)
+  sendHeroSkillLevelConsume( sysarg, args )
+end
+
+
+
+--转生
+HeroOpFuncList[13] = function (sysarg,args)
+  onHeroCircle( sysarg, args )
+end
+
+
+--宠物的技能升级
+HeroOpFuncList[20] = function (sysarg,args)
+	--设置附体属性
+	OnHeroLearnSkill(sysarg, args)
+end
+
+--英雄炼化
+HeroOpFuncList[22] = function (sysarg,args)
+	OnHeroRefine(sysarg, args)
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeHero, EventCallDispatcher.HandlerHeroOp)

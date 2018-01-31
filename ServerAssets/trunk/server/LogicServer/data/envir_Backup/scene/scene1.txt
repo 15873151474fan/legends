@@ -1,0 +1,75 @@
+﻿--东疆村
+{
+	scenceid = 1,
+	scencename = Lang.SceneName.s00001,
+	mapfilename = "1Dongjiangcun",
+	minlevel = 1,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "",
+	musicInterval = 60,
+	worldmapPosx = 743,
+	worldmapPosy = 354,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 200,
+	sceneHeight = 200,
+	posx = 174,
+	posy = 188,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00001, range = {10,10,20,20,60,50}, center = { 133,104},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 1, value = {} },
+					{ type = 19, value = {} },
+					{ type = 87, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00001, range = {220,60,220,197,74,197,75,60}, center = { 125,116},
+			attri = {
+					{ type = 1, value = {} },
+					{ type = 39, value = {} },
+					{ type = 46, value = {159,136} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh1.txt"
+	},
+	magicPassPoints = {1,2,56,32}, --可以魔法穿透的障碍点的列表，比如小的石头，是可以魔法穿透的，这里是x1,y1,x2,y2,...这种格式
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00009, posx = 123, posy = 128, script = "data/script/XinShouCun/TieJiang.txt", modelid = 72,icon = 72,funcId = 5, classId = 0 },
+		{ name = Lang.EntityName.n00042, posx = 163, posy = 119, script = "data/script/XinShouCun/YaoDianZhangGui.txt", modelid = 78,icon = 78,funcId = 7, classId = 0 },
+		{ name = Lang.EntityName.n00028, posx = 157, posy = 108, script = "data/script/XinShouCun/ZaHuoShang.txt", modelid = 79,icon = 79,funcId = 9, classId = 0 },
+		{ name = Lang.EntityName.n00011, posx = 128, posy = 124, script = "data/script/XinShouCun/ShouShiDianZhangGui.txt", modelid = 88,icon = 88,funcId = 4, classId = 0 },
+		{ name = Lang.EntityName.n00010, posx = 155, posy = 95, script = "data/script/XinShouCun/FuZhuangDianZhangGui.txt", modelid = 56,icon = 56,funcId = 4, classId = 0 },
+		{ name = Lang.EntityName.n00012, posx = 143, posy = 158, script = "data/script/XinShouCun/ShuDianLaoBan.txt", modelid = 86,icon = 86,funcId = 10, classId = 0 },
+		{ name = Lang.EntityName.n00013, posx = 126, posy = 142, script = "data/script/XinShouCun/CangKuGuanLiYuan.txt", modelid = 95,icon = 95,funcId = 2, classId = 0 },
+		{ name = Lang.EntityName.n00005, posx = 168, posy = 123, script = "data/script/XinShouCun/cunzhang.txt", modelid = 1,icon = 1,funcId = 11, classId = 0 },
+		{ name = Lang.EntityName.n00006, posx = 117, posy = 74, script = "data/script/XinShouCun/dieer.txt", modelid = 91,icon = 91,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00007, posx = 57, posy = 60, script = "data/script/XinShouCun/bianfangjun.txt", modelid = 12,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00105, posx = 139, posy = 102, script = "data/script/XinShouCun/ZhangTuFu.txt", modelid = 14,icon = 14,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00113, posx = 111, posy = 48, script = "data/script/XinShouCun/ZhangTianShi.txt", modelid = 111,icon = 111,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00114, posx = 87, posy = 58, script = "data/script/XinShouCun/TianShiDiZi.txt", modelid = 11,icon = 11,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00158, posx = 154, posy = 154, script = "data/script/MengZhongTuCheng/ChuanSongShi.txt", modelid = 141,icon = 12,funcId = 3, classId = 0 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 100, posy = 45, toSceneid = 2, toPosx = 141, toPosy =  418, modelid = 50000, name = Lang.SceneName.s00002, dist = 1, mapHide = false },  --东疆村→王城
+		{ posx = 163, posy = 64, toSceneid = 139, toPosx = 119, toPosy =  90, modelid = 50000, name = Lang.SceneName.s00139, dist = 1, mapHide = true },  --东疆村→美女村
+		{ posx = 140, posy = 49, toSceneid = 140, toPosx = 99, toPosy =  119, modelid = 50000, name = Lang.SceneName.s00140, dist = 1, mapHide = true },  --东疆村→仙侠村
+
+	},
+},

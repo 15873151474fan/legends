@@ -1,0 +1,60 @@
+﻿--lua script
+--活动：沙巴克镖车
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\guild\SbkBiaoChe.txt" once
+
+--提前5分钟播报
+function BroadSbkBiaoChePre()
+	local nGuildId = System.getSbkGuildId()
+	if nGuildId > 0 then
+		System.broadcastTipmsg(Lang.Activity.g00024, ttScreenCenter + 128)
+		System.broadcastTipmsg(Lang.Activity.g00024, ttScreenCenter + 128)
+		System.broadcastTipmsg(Lang.Activity.g00024, ttScreenCenter + 128)
+		System.broadcastTipmsg(Lang.Activity.g00024, ttScreenCenter + 128)
+		System.broadcastTipmsg(Lang.Activity.g00024, ttScreenCenter + 128)
+		System.sendGuildMsg(nGuildId,0,Lang.Activity.g00023,ttScreenCenter + 128)
+	end
+end
+
+--皇后镖车开始运送
+function StartSbkBiaoChe()
+	local dVar = System.getDyanmicVar()
+	local nGuildId = System.getSbkGuildId()
+	if nGuildId > 0 then
+		local sceneHandle = Fuben.getSceneHandleById(SbkDartConfig.Src.nSceneid,0)
+		local monster = Fuben.createMonster(sceneHandle, SbkDartConfig.DartHorse.id, SbkDartConfig.DartHorse.x, SbkDartConfig.DartHorse.y, SbkDartConfig.DartHorse.livetime)
+		if monster ~= nil then
+			Actor.setMonsterName(sysarg,string.format(Lang.Activity.g00045,System.getGuildName(nGuildId)))
+			dVar.startSbkDartFlag = 1		--开始皇后镖车
+			Actor.setNpcGuildId(monster,nGuildId)
+			dVar.sbkMonster = Actor.getHandle(monster)
+
+			System.broadcastTipmsg(Lang.Activity.g00025, ttScreenCenter + 128)
+			System.broadcastTipmsg(Lang.Activity.g00025, ttScreenCenter + 128)
+			System.broadcastTipmsg(Lang.Activity.g00025, ttScreenCenter + 128)
+			System.broadcastTipmsg(Lang.Activity.g00025, ttScreenCenter + 128)
+			System.broadcastTipmsg(Lang.Activity.g00025, ttScreenCenter + 128)
+			System.sendGuildMsg(nGuildId,0,Lang.Activity.g00026,ttScreenCenter + 128)
+						
+			Actor.unregScriptCallback(thisNPC, "OnSbkDartExpired")
+			Actor.regScriptCallback(thisNPC, thisNPC, SbkDartConfig.lastTime * 1000, 10000, 1, "OnSbkDartExpired")
+
+		end
+	end
+end
+
+--运送时间到
+function OnSbkDartExpired()
+	local dVar = System.getDyanmicVar()
+	dVar.startSbkDartFlag = 0
+	if dVar.sbkMonster == nil then return end
+
+	local nMonster = Actor.getEntity(dVar.sbkMonster)
+	if dVar.sbkMonster ~= nil and dVar.sbkMonster > 0 then
+		Fuben.clearMonster(dVar.sbkMonster, false)
+	end
+	dVar.sbkMonster = nil
+
+	Actor.unregScriptCallback(thisNPC, "OnSbkDartExpired")
+end

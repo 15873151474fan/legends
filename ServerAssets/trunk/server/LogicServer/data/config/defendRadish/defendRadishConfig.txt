@@ -1,0 +1,184 @@
+﻿--逐魔之路副本
+--#include "..\..\language\LangCode.txt"
+TowerConfig={
+	fbID = 17, --副本ID？
+	mapID = 48,--地图ID？
+	minLevel = 55,--进入等级
+	circle = 0,--进入转生等级
+	enterMaxCount = 2,--每日可进入次数
+	maxMonsterCount = 16,--最多可以可召唤怪物数量
+	timeLimit = 1800,--时间限制1800秒
+	enterExplain = Lang.defendRadish.ta201,--进入说明
+	enterCondition = Lang.defendRadish.ta202,--进入条件
+	resultStatistics = Lang.defendRadish.ta203,--结果统计
+	npcInfo = Lang.defendRadish.ta204,
+	--暂时先这样 简单点
+	getExpPower = {
+		{
+			power = 1, --免费领取
+			consumesTyep = 0,--消耗类型    类型的话走questAward吧
+			consumesValue = 0,--消耗数量
+			btnCaption = Lang.defendRadish.ta101,--按钮字
+		},
+		{
+			power = 2, --2倍领取
+			consumesTyep = 5,--消耗类型
+			consumesValue = 1000000,--消耗数量
+			btnCaption = Lang.defendRadish.ta102,
+		},
+		{
+			power = 3, --3倍领取
+			consumesTyep = 15,--消耗类型
+			consumesValue = 400,--消耗数量
+			btnCaption = Lang.defendRadish.ta103,
+		},
+		{
+			power = 5, --5倍领取
+			consumesTyep = 15,--消耗类型
+			consumesValue = 550,--消耗数量
+			btnCaption = Lang.defendRadish.ta104,
+		},
+		{
+			power = 8, --8倍领取
+			consumesTyep = 15,--消耗类型
+			consumesValue = 800,--消耗数量
+			btnCaption = Lang.defendRadish.ta105,
+		},
+    }, 
+	monsterInfo ={
+		{
+			--弓箭守卫
+			attackRange = 320,--怪物攻击范围 椭圆或者圆半径
+			monsterID = 459,--召唤的怪物ID
+			consumes = {--召唤需要的消耗  就一个！！！
+				{
+					type = 0, 
+					id = 1217, 
+					count = 1,
+				},
+			},
+			btnName = 200,--client\lang\zh-cn\interface\btn\btndown对应的按钮
+			tips = Lang.defendRadish.ta301,--对应tips
+			replaceType = 5,--消耗货币类型
+			replaceValue = 50000,--数量
+		},
+		{
+			--冰霜守卫
+			attackRange = 320,--椭圆或者圆半径	
+			monsterID = 460,
+			consumes = {
+				{
+					type = 0, 
+					id = 1218, 
+					count = 1,
+				},
+			},
+			btnName = 201,
+			tips = Lang.defendRadish.ta302,
+			replaceType = 7,--消耗货币类型
+			replaceValue = 500,--数量
+		},
+		{
+			--焰舞守卫
+			attackRange = 320,--椭圆或者圆半径	
+			monsterID = 461,
+			consumes = {
+				{
+					type = 0, 
+					id = 1219, 
+					count = 1,
+				},
+			},
+			btnName = 202,
+			tips = Lang.defendRadish.ta303,
+			replaceType = 15,--消耗货币类型
+			replaceValue = 100,--数量
+		},
+		{
+			--魔导守卫
+			attackRange = 320,--椭圆或者圆半径	
+			monsterID = 462,
+			consumes = {
+				{
+					type = 0, 
+					id = 1220, 
+					count = 1,
+				},
+			},
+			btnName = 203,
+			tips = Lang.defendRadish.ta304,
+			replaceType = 15,--消耗货币类型
+			replaceValue = 200,--数量
+		},
+		{
+			--真龙守卫
+			attackRange = 320,--椭圆或者圆半径	
+			monsterID = 463,
+			consumes = {
+				{
+					type = 0, 
+					id = 1221, 
+					count = 1,
+				},
+			},
+			btnName = 204,
+			tips = Lang.defendRadish.ta305,
+			replaceType = 15,--消耗货币类型
+			replaceValue = 300,--数量
+		},
+	},
+
+
+
+	--旧
+	baseInfo={
+		{
+			id=497,
+			handId=209,--塔ID
+			name=Lang.defendRadish.name001,--塔名字
+			needJp=750,--需要值
+			needHh=1,--需要行会等级？
+			maxLevel=3,--最高等级
+			info=Lang.defendRadish.ta0001,--建造说明
+			updataExplain={--升级面板说明
+			Lang.defendRadish.ta0001,
+			Lang.defendRadish.ta0002,
+			Lang.defendRadish.ta0003,
+			},
+			needYb={--元宝代替
+			75,  --建造所需要的元宝
+			75,  --升第一级需要元宝
+			195,  --第二级
+			300,  --.....
+			7,
+			7,
+			},
+
+		},
+		{
+			id=499,
+			handId=329,
+			name=Lang.defendRadish.name003,
+			needJp=600,
+			needHh=1,
+			maxLevel=5,
+			info=Lang.defendRadish.ta00021,
+			updataExplain={
+			Lang.defendRadish.ta00021,
+			Lang.defendRadish.ta00022,
+			Lang.defendRadish.ta00023,
+			Lang.defendRadish.ta00024,
+			Lang.defendRadish.ta00025,
+			},
+			needYb={
+			60,  --建造所需要的元宝
+			60,  --升第一级需要元宝
+			120,  --第二级
+			180,  --.....
+			240,
+			300,
+			},
+
+		},
+	},
+}

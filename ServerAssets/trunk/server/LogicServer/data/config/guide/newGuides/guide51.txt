@@ -1,0 +1,167 @@
+﻿--完美装备（指引玩家强化装备）
+{
+  maxLevel = 50,
+  guidePlace = 1,
+  triggerList =
+	{
+		{ type = 1, valueList = {71,}},      --这个任务在做
+	},
+
+
+  --引导的步骤
+  steps =
+	{
+    --第1步 指向导航锻铸按钮
+		{
+			condList =
+			{
+				{ type = 7,  helpId = 0, dataList = {71,} },    --任务进行中
+				{ type = 2,  helpId = 120, dataList = {0,} },    --强化界面没打开
+			},
+
+			action = { type = 1, helpId = 8, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc18 },
+		},
+
+
+    --第2步 指向强化导航按钮
+		{
+			condList =
+			{
+				{ type = 7,  helpId = 0, dataList = {71,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 4,  helpId = 121, dataList = {2,} },      --导航没有选中第2项（强化页面） 
+			},
+
+			action = { type = 2, helpId = 121, data = 2, pointerValue = 1, desc = Lang.GuideLang.desc19 },
+		},
+
+    --第3步 判断身上是否有穿好装备(没有就指向背包)
+		{
+			condList =
+			{
+				{ type = 7,  helpId = 0, dataList = {71,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {2,} },      --导航选中第2项（强化页面）
+				{ type = 3,  helpId = 122, dataList = {1,} },      --物品导航栏选中第一项（身上装备） 
+				{ type = 22,  helpId = 0, dataList = {4,19,34,} },    --身上没有这些物品  **
+			},
+
+      --引导玩家点击物品导航栏 的 背包物品
+			action = { type = 2, helpId = 122, data = 2, pointerValue = 1, desc = Lang.GuideLang.desc20 },
+		},
+
+    --第4步 判断身上是否有穿好装备（有就直接点击物品了）
+		{
+			condList =
+			{
+				{ type = 7,  helpId = 0, dataList = {71,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {2,} },      --导航选中第2项（强化页面）
+				{ type = 3,  helpId = 122, dataList = {1,} },      --物品导航栏选中第一项（身上装备） 
+				{ type = 21,  helpId = 0, dataList = {4,19,34,} },    --身上有这些物品  **
+				{ type = 10,  helpId = 126, dataList = {0,} },      --强化cell没数据
+			},
+
+      --引导玩家直接点击 身上装备 的物品
+			action = { type = 10, helpId = 123, data = {4,19,34,}, pointerValue = 1, desc = Lang.GuideLang.desc21 },
+		},
+
+     --第5步 指向背包物品中的装备
+		{
+			condList =
+			{
+				{ type = 7,  helpId = 0, dataList = {71,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },    --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {2,} },    --导航选中第2项（强化页面）
+				{ type = 3,  helpId = 122, dataList = {2,} },    --物品导航栏选中第二项（背包装备） 
+				{ type = 13,  helpId = 120, dataList = {4,19,34,} },  --背包有这些物品
+				{ type = 10,  helpId = 126, dataList = {0,} },   --强化cell没数据
+			},
+
+      --引导玩家直接点击 背包物品 的装备
+			action = { type = 10, helpId = 124, data = {4,19,34,}, pointerValue = 1, desc = Lang.GuideLang.desc21 },
+		},
+
+    --第6步 点强化按钮
+		{
+      condList =
+			{
+				{ type = 7,  helpId = 0, dataList = {71,} },   --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },   --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {2,} },   --导航选中第2项（强化页面）
+				{ type = 5,  helpId = 0, dataList = {71,} },   --存在任务
+				{ type = 9,  helpId = 126, dataList = {0,} },   --强化cell有数据
+			},
+
+      --引导玩家点击
+			action = { type = 1, helpId = 125, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc22 },
+		},
+
+    --第7步 指向关闭
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 120, dataList = {0,} },   --强化窗口可见
+				{ type = 5,  helpId = 0, dataList = {71,} },   --存在任务
+				{ type = 8,  helpId = 0, dataList = {71,} },   --任务完成
+      },
+
+      --无内容
+      action = { type = 4, helpId = 120, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc9 },
+    },
+    
+    --第4步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 4,  helpId = 51, dataList = {1,} },		--任务追踪面板没有选中第一项
+				{ type = 5,  helpId = 0, dataList = {71,} },			--存在任务
+				{ type = 8,  helpId = 0, dataList = {71,} },			--任务完成 
+      },
+
+      action = { type = 2, helpId = 51, data = 1, pointerValue = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项
+    },
+
+    --第5步 指任务连接（NPC，交任务）
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 5,  helpId = 0, dataList = {71,} },			--存在任务
+				{ type = 8,  helpId = 40, dataList = {71,} },		--任务完成
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 71, data = Lang.GuideLang.name14, pointerValue = 1, desc = Lang.GuideLang.desc2 ,offX=-20,offY=0 },
+    },
+
+    --第6步 指向npc对话框 完成任务按钮
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },	  --npc对话框可见
+				{ type = 5,  helpId = 0, dataList = {71,} },			--存在任务
+				{ type = 19, helpId = 40, dataList = {Lang.GuideLang.name14,} },     --指定NPC
+				{ type = 8,  helpId = 0, dataList = {71,} },			--任务完成
+      },
+
+      --指向NPC对话框的完成按钮
+      action = { type = 1, helpId = 41, data = 0, rot = 180, pointerValue = 1, desc = Lang.GuideLang.desc3 },
+    },
+
+    --第8步 结束
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 120, dataList = {0,} },    --强化窗口不可见
+				{ type = 12,  helpId = 0, dataList = {71,} },    --不存在任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

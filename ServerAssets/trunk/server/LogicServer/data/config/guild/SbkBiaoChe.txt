@@ -1,0 +1,49 @@
+--沙皇镖车  配置
+	
+SbkDartConfig = 
+{
+	lastTime = 3600,		--押镖持续时间 单位秒
+
+	Dest =     --目的地
+	{
+	    -- x、y为目标npc 所在坐标，destsceneid为目标场景，destnpcname为目标NPC名称
+		nSceneid = 8, x = 113, y = 45, destnpcname = Lang.EntityName.n00090,
+	},
+	
+	Src =     --开始
+	{
+	    --xy为
+		nSceneid = 8, x = 92, y = 42, snpcname = Lang.EntityName.n00090,
+	},
+
+	--镖车配置
+	DartHorse =
+	{
+		id = 310,				--镖车id
+		livetime = 3600,			--存活的时间
+		monName = Lang.EntityName.m00355,	--镖车名字
+		x = 340,
+		y = 246,
+	},
+
+	--押镖成功的奖励
+         successAwards = 
+	 {
+		--{type = 20, id = 1, count = 1000, quality = -1, strong = -1, bind = 1, param = 0},
+		{type = 21, id = 0, count = 20000, quality = -1, strong = -1, bind = 1, param = 0},
+	 },
+
+	 --劫镖获得的奖励
+	 onLootAwards = 
+	 {
+		--{type = 20, id = 1, count = 300, quality = -1, strong = -1, bind = 1, param = 0},
+	 },
+
+	 actorNumAward =				--根据押镖人数给奖励
+	{
+
+	},
+
+	awardJieBiaoRate = 1,				--劫镖人的奖励的倍率
+	AwardGuildCoin = 1000000,			--额外奖励的行会资金
+}

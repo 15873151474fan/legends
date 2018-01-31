@@ -1,0 +1,65 @@
+--周末狩猎
+
+HuntingConfig = {
+	RankCount = 20,		--最多算多少排名
+	ActiveTimes = 3600,	--活动进行一小时
+	StopEnterSecs = 300,	--五分钟后不能进
+	MinLevel = 40,		--进入活动最小等级
+	KillMonsPoint = 1,	--杀死怪得到积分
+	KillBossPoint = 5,	--杀死BOSS积分
+	KillPlyPoint = 5,	--杀死玩家得到积分
+	ExitPos = {
+		sceneId = 2,
+		x1 = 222, x2 = 228,
+		y1 = 244, y2 = 246,
+	},
+	SceneIds =
+	{
+		{	--第一个场景信息
+			sceneId = 141, x1 = 57, x2 = 81, y1 = 64, y2 = 93,
+			passPoint = 0,		--通过的积分
+			initPoint = 0,		--初始积分
+			tips = Lang.Activity.week03,  --右边提示信息
+		},
+		{	--第二个场景信息
+			sceneId = 142, x1 = 29, x2 = 47, y1 = 31, y2 = 48,
+			passPoint = 10,		--通过的积分
+			initPoint = 5,		--初始积分
+			tips = Lang.Activity.week04,
+		},
+		{	--第三个场景信息
+			sceneId = 143, x1 = 29, x2 = 41, y1 = 33, y2 = 46,
+			passPoint = 10,		--通过的积分
+			initPoint = 5,		--初始积分
+			tips = Lang.Activity.week05,  --右边提示信息
+		},
+		{	--第四个场景信息
+			sceneId = 144, x1 = 33, x2 = 58, y1 = 43, y2 = 68,
+			passPoint = 15,		--通过的积分
+			initPoint = 0,		--初始积分
+			tips = Lang.Activity.week06,  --右边提示信息
+		},
+	},
+	--哪些小怪杀死会得积分
+	MonsIds = {647,648,665,666,667,668},
+	--哪些Boss杀死会得积分
+	BossIds = {649},
+	Award = {
+		{
+			{type = 0, id = 1474, count = 1, strong = 0, qulity = 0, bind = 1},  --第一名的奖励
+			{type = 21, id = 0, count = 50000, strong = 0, qulity = 0, bind = 0},  --第一名的荣誉奖励
+		},
+		{
+			{type = 0, id = 1475, count = 1, strong = 0, qulity = 0, bind = 1},  --第二名的奖励
+			{type = 21, id = 0, count = 35000, strong = 0, qulity = 0, bind = 0},  --第二名的荣誉奖励
+		},
+		{
+			{type = 0, id = 1476, count = 1, strong = 0, qulity = 0, bind = 1},  --第三名的奖励
+			{type = 21, id = 0, count = 24500, strong = 0, qulity = 0, bind = 0},  --第三名的荣誉奖励
+		},
+	},
+	NormalAward = {
+		{type = 21, id = 0, count = 17150, strong = 0, qulity = 0, bind = 0},  --第四名后的荣誉奖励
+		{type = 0, id = 830, count = 3, strong = 0, qulity = 0, bind = 1},
+	},
+}

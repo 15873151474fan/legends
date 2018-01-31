@@ -1,0 +1,119 @@
+
+--#include "HookMapCommon.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+function EnterHookMap_Main(sysarg)
+	local enterBtn = ""
+	local exitBtn = ""
+	local mapMan = ""
+	local closeBtn = ""
+	local sceneName = Actor.getSceneName(sysarg, 0, 0)
+	if sceneName == Lang.SceneName.s00008 then
+		enterBtn = string.format("\\<#BL%s/@EnterHookMapDispter>",Lang.ScriptTips.hook003 )
+		mapMan = string.format("\\<#BL%s/@MapInfo>", Lang.ScriptTips.hook009)
+	else
+		exitBtn = string.format("%s\\<#BL%s/@ChangeMap>", Lang.Activity.a00004, Lang.ScriptTips.hook011)
+		closeBtn = string.format("\\<#BL%s/@CloseWnd>", Lang.ScriptTips.hook015)
+	end
+	local str = Lang.ScriptTips.hook016
+	local dlgStr = string.format("%s\\<#BL%s/@BuyTimesByGold>\\<#BL%s/@BuyTimesByBindGold>%s%s%s%s",
+		enterBtn,Lang.ScriptTips.hook004,Lang.ScriptTips.hook005, exitBtn, mapMan,str,closeBtn)
+
+	dlgStr = dlgStr.."<#BL"..Lang.ScriptTips.hook016.."/@OnBuyHookItem>"
+	return dlgStr
+end
+
+--¹ºÂò¹Ò»úµØÍ¼
+function OnBuyHookItem(sysarg)
+	Actor.openDialogs(sysarg,diBuyAnItem,tostring(1076))
+end
+
+function MapInfo( sysarg )
+	return Lang.ScriptTips.hook010 .. Lang.ScriptTips.back001
+end
+
+function ChangeMap( sysarg )
+	local dlgStr = ""
+	local nowSceneName = Actor.getSceneName(sysarg, 0, 0)
+	for k, sceneName in ipairs(HookMapConfig.ShowSceneName) do
+		local realSceneName = HookMapConfig.SceneNames[k]
+		if nowSceneName ~= realSceneName then
+			local countFlag = ""
+			local handleScene = Fuben.getSceneHandleByName(realSceneName, 0) 
+			local playerCount = Fuben.getScenePlayerCount(handleScene)
+			if playerCount >= HookMapConfig.HotPlayerCount then
+				countFlag = Lang.ScriptTips.hook013
+			end
+			dlgStr = string.format("%s\\<#BL%s%s/@GoMap,%d>", dlgStr, sceneName, countFlag, k)
+		end
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function GoMap( sysarg, mapIdx )
+	mapIdx = tonumber(mapIdx)
+	local sceneName = HookMapConfig.SceneNames[mapIdx]
+	if sceneName then
+		local x = math.random(HookMapConfig.PosArea[1], HookMapConfig.PosArea[2])
+		local y = math.random(HookMapConfig.PosArea[3], HookMapConfig.PosArea[4])
+		System.telportSceneByName( sysarg, sceneName, x, y)
+		local mapTime = Actor.getBuffRemainTime(sysarg, HookMapConfig.buff.buffType, HookMapConfig.buff.groupId)
+		Actor.initActivityWind(sysarg, Lang.Activity.map0001, mapTime, Lang.Activity.map0002)
+	end
+end
+
+function CloseWnd( sysarg )
+	Actor.closeNPCDialog( sysarg)
+	Actor.startSingWnd(sysarg,14,3000,Lang.ScriptTips.sc00000,false,true,false)
+end
+
+function EnterHookMapDispter(sysarg)
+	local dlgStr = ""
+	for k, sceneName in ipairs(HookMapConfig.SceneNames) do
+		local countFlag = ""
+		local handleScene = Fuben.getSceneHandleByName(sceneName, 0) 
+		local playerCount = Fuben.getScenePlayerCount(handleScene)
+		if playerCount >= HookMapConfig.HotPlayerCount then
+			countFlag = Lang.ScriptTips.hook013
+		end
+		local showName = HookMapConfig.ShowSceneName[k]
+		dlgStr = string.format("%s\\<#BL%s%s/@EnterHookMapFunc,%d>", dlgStr, showName,countFlag, k)
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function EnterHookMapFunc( sysarg, mapIdx )
+	mapIdx = tonumber(mapIdx)
+	local sceneName = HookMapConfig.SceneNames[mapIdx]
+	if not sceneName then
+		return
+	end
+	if not Actor.checkActorLevel(sysarg, HookMapConfig.MinLevel, 0) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.hook002, HookMapConfig.MinLevel), ttFlyTip)
+		return
+	end
+	local boResult = false
+	local v = HookMapConfig.buff
+	if Actor.hasBuff(sysarg, v.buffType, v.groupId) then
+		boResult = true
+		if not IsTodayGetBuff( sysarg ) then
+			Actor.addBuff( sysarg, v.buffType, v.groupId, v.value, v.times, v.interval, v.buffName, v.timeOverlay)
+			SetTodayGetBuff(sysarg)
+		end
+	end
+	if not boResult then
+		if IsTodayGetBuff( sysarg ) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.hook007, ttFlyTip)
+			return
+		end
+		Actor.addBuff( sysarg, v.buffType, v.groupId, v.value, v.times, v.interval, v.buffName, v.timeOverlay)
+		SetTodayGetBuff(sysarg)
+	end
+	local mapTime = Actor.getBuffRemainTime(sysarg, v.buffType, v.groupId)
+	local x = math.random(HookMapConfig.PosArea[1], HookMapConfig.PosArea[2])
+	local y = math.random(HookMapConfig.PosArea[3], HookMapConfig.PosArea[4])
+	System.telportSceneByName( sysarg, sceneName, x, y)
+	Actor.initActivityWind(sysarg, Lang.Activity.map0001, mapTime, Lang.Activity.map0002)
+end
+
+table.insert(MainFnTable, EnterHookMap_Main)

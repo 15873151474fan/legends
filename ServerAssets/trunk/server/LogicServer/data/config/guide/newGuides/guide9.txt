@@ -1,0 +1,51 @@
+--领取武器 张春风   (追踪面板的引导)
+{
+  maxLevel = 10,
+  triggerList =
+  {
+		{ type = 1, valueList = {1702,}},      --有这个任务
+  } ,
+  
+
+  --引导的步骤 
+  steps = 
+  {
+    --第1步 指向 任务追踪 导航
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },       --任务追踪面板可见
+				{ type = 15,  helpId = 51, dataList = {1,} },      --任务追踪面板没有选中第一项
+				{ type = 16,  helpId = 40, dataList = {1702,} },   --存在任务
+      },
+      
+      --指向任务追踪面板第一项
+     action = { type = 2, helpId = 51, data = 1, desc = Lang.GuideLang.desc6},  
+    },
+
+    --第2步 指向 任务追踪 人名连接
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },     --任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },     --任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+				{ type = 16,  helpId = 40, dataList = {1702,} }, --存在任务
+      },
+      
+      --指向任务寻路连接
+     action = { type = 5, helpId = 1702, data = Lang.GuideLang.name15, desc = Lang.GuideLang.desc12},
+    },
+
+    --第3步 结束
+    {
+      condList = 
+      {
+				{ type = 17,  helpId = 40, dataList = {1702,} }, --不存在任务
+      },
+      
+      --指向任务寻路连接
+     action = { type = 5, helpId = 1702, data = 0, desc = Lang.GuideLang.desc12},
+    },
+ }
+}

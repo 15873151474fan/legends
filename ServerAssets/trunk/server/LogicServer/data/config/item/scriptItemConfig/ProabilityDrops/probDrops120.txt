@@ -1,0 +1,5 @@
+﻿	-- = 120，金刚强化玉
+drops=
+{
+	{ id=869,count=1, propability=1, strong=10,bind=0,group=0},
+}

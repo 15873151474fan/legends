@@ -1,0 +1,44 @@
+﻿--lua script
+{
+	id = 163,			-- 南斗真相
+	parentid = 162,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name163,
+	content = Lang.Quest.desc163,
+
+	prom = { type = 0, scene = Lang.SceneName.s00025, npc = Lang.EntityName.n00384 },
+	comp = { type = 0, scene = Lang.SceneName.s00025, npc = Lang.EntityName.n00384 },
+	target = {
+		{
+			type = 0, id = 92, count = 20, rewardId = 0,useList = false,
+			location = {
+				sceneid = 25, x= 51,y = 75,entityName = Lang.EntityName.m92,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 270311257, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 80000, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk1631,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk1631,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip1631,
+	},
+	PassMsTip = {
+	},
+},

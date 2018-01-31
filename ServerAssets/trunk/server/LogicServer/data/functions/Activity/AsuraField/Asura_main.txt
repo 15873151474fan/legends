@@ -1,0 +1,18 @@
+--lua script
+--修罗场
+
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "AutoRun.txt" once --时间执行
+--#include "RankInit.txt" once	--排行榜初始化
+--#include "Asura_common.txt" once
+
+function Asura_Main(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.xl0001.."/@EnterAsura>"  --<进入修罗场>
+	str = str.."\\<#BL"..Lang.Activity.xl0002.."/@GetAsuraAward>"  --<领取活动奖励>
+	str = str.."\\<#BL"..Lang.Activity.xl0003.."/@AboutAsura>"  --<详情>
+	str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<离开>
+	return str
+end
+
+table.insert(MainFnTable, Asura_Main)

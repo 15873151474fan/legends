@@ -1,0 +1,711 @@
+﻿
+--事件列表
+TrigEvents = {
+	{	--事件ID 1   杀怪
+		type = 0, id = 662, count = 1,x1 = 175,x2=190,y=205,liveTime=3600, firstStr = Lang.ScriptTips.holiday07,noticeStr = Lang.ScriptTips.blesstree83,			--刷一个怪ID为id的怪,生存期是count秒
+	},
+	{	--事件ID 2   杀怪
+		type = 0, id = 663, count = 1,x1 = 175,x2=190,y=205,liveTime=3600, firstStr = Lang.ScriptTips.holiday07,noticeStr = Lang.ScriptTips.blesstree83,			--刷一个怪ID为id的怪,生存期是count秒
+	},
+	{	--事件ID 3   杀怪
+		type = 0, id = 664, count = 6,x1 = 175,x2=190,y=205,liveTime=3600, firstStr = Lang.ScriptTips.holiday07,noticeStr = Lang.ScriptTips.blesstree83,			--刷一个怪ID为id的怪,生存期是count秒
+	},
+	
+	{	--事件ID 4   播放特效
+		type = 1, id = 3, count = 1000,liveTime=20, firstStr = Lang.ScriptTips.holiday06,noticeStr = Lang.ScriptTips.blesstree82,			--播放ID为1的特效（比如金钱雨），持续时间为count秒
+	},
+	{	--事件ID 5   杀怪
+		type = 0, id = 669, count = 38,x1 = 175,x2= 190,y=205,liveTime=3600, firstStr = Lang.ScriptTips.holiday07,noticeStr = Lang.ScriptTips.blesstree83,			--刷一个怪ID为id的怪,生存期是count秒
+	},
+	
+}
+
+BlessSelfAward = {
+	--奖励ID1
+	--{type = 0, id = 100, count = 1, noticeStr = Lang.ScriptTips.blesstree84},    --10倍经验神符
+	--奖励ID2
+	--{type = 15, id = 0, count = 10, noticeStr = Lang.ScriptTips.blesstree84},
+	--奖励ID3
+	--{type  = 0, id = 101, count = 1, noticeStr = Lang.ScriptTips.blesstree84},
+	--奖励ID4
+	--{type = 6, id = 0, count = 1, noticeStr = Lang.ScriptTips.blesstree84}, 
+}
+
+FireworkConfig = {
+	MaxRankCount = 100,		--最大排行数
+	Minlevel = 40,			--最小等级
+	NpcRadius = 30,			--npc半径内放烟花有效
+	ExpRate = 2,			--指定时间支持经验倍数
+
+	GiveExpCount = 100,		--每天每人放烟花给经验的数量
+	
+	BlessPoint = 1,			--每放一次烟花得到的祈福值
+
+	BaseExpTabId = 3,		--经验库ID
+	BaseExpRate = 30,		--经验库比率
+
+	NpcSceneId = 8,						--npc所在的场景
+	NpcName = Lang.EntityName.n00211,	--npc名字
+	
+	BuffBaseRate = 0.2,		--buff的起始值
+	AddExpTIme = 86400,
+
+	LaterSecs = 120,		--惊喜延长秒数
+	EffectArea = {Lang.SceneName.s00008, 109,169,156,203},		--雪花 平分礼券区域
+
+	startTime = {9,29},						--活动开始时间9月17
+	endTime = {10,10},						--结束日期
+
+	InitModelId = 154,
+	TreeLevels = {
+		Lang.ScriptTips.blesstree75,
+		Lang.ScriptTips.blesstree76,
+		Lang.ScriptTips.blesstree77,
+		Lang.ScriptTips.blesstree78,
+		Lang.ScriptTips.blesstree79,
+	},
+	--升级，祈福值达到就升
+	BlessEvent = {
+		[1] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[38] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[88] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[138] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[188] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[268] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[333] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[388] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			
+		},
+		[438] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[568] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[666] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[999] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[1111] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[1288] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[1388] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[1688] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[1888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[2222] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[2388] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[2688] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[2888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[3333] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[3688] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			
+		},
+		[3888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[4488] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[4888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			
+		},
+		[5555] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[5888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			
+		},
+		[6666] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[6688] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[7777] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[7888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[8388] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			
+		},
+		[8688] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[9999] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[11111] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[13888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[18888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[22222] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[28888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[28888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[33333] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[33888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[38888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[43888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[48888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[53888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[55555] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[58888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[63888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[66666] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[68888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[73888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[77777] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[83888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[86888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[88888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[93888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[98888] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[99999] = {
+			
+			specTrigRate = {			--特殊触发
+				2,25,5,45,4,5,1,15,3,10,
+			 },
+			 
+		},
+		[500] = {
+			modelId = 155,			--升级，改模型
+			level = 2,				--1级
+			specTrigRate = {			--特殊触发
+			 },
+			 
+		},
+		[1000] = {
+			modelId = 156,			--升级，改模型
+			level = 3,				--2级
+			specTrigRate = {			--特殊触发
+			 },
+			 
+		},
+		[2000] = {
+			modelId = 157,			--升级，改模型
+			level = 4,				--3级
+			specTrigRate = {			--特殊触发
+			 },
+			 
+		},
+		[3000] = {
+			modelId = 158,			--升级，改模型
+			level = 5,				--4级
+			specTrigRate = {			--特殊触发
+			 },
+			 
+		},
+	},
+
+	--昨日排行奖励
+	MinPointAward = 10,
+	YestodayRankAward = {
+		{	--第一名
+			{type = 20, id = 2, count = 3000},
+			{type = 21, id = 0, count = 15000},
+		},
+		{
+			{type = 20, id = 2, count = 2500},
+			{type = 21, id = 0, count = 9465},
+		},
+		{
+			{type = 20, id = 2, count = 2000},
+			{type = 21, id = 0, count = 5972},
+		},
+	},
+	--第四名之后的奖励
+	AfterFourRanking = {
+		{
+			min = 4, max = 10,
+			awards  = {
+				{type = 20, id = 2, count = 1500},
+				{type = 21, id = 0, count = 3768},
+			},
+		},
+
+		{
+			min = 11, max = 30,
+			awards  = {
+			{type = 20, id = 2, count = 1000},
+			{type = 21, id = 0, count = 2377},
+			},
+		},
+		{
+			min = 31, max = 100,
+			awards  = {
+			{type = 20, id = 2, count = 500},
+			{type = 21, id = 0, count = 1500},
+			},
+		},
+	},
+
+
+	--祝福值
+	ExtraAward = {
+		[100] = {1,20,2,10,3,10,4,12},
+	    [200] = {1,20,2,10,3,10,4,12},
+	    [300] = {1,20,2,10,3,10,4,12},
+	    [400] = {1,20,2,10,3,10,4,12},
+	    [500] = {1,20,2,10,3,10,4,12},
+	},
+
+	--兑换
+	ExchangeWord = {
+		--真字兑换  1
+		{
+			words = {1484},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree86,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--烈兑换  2
+		{
+			words = {1485},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree93,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--火兑换  3
+		{
+			words = {1486},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree94,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--战兑换  4
+		{
+			words = {1487},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree95,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--神兑换  5
+		{
+			words = {1488},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree96,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--恭兑换 6
+		{
+			words = {1489},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree97,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--喜兑换 7
+		{
+			words = {1490},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree98,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--发兑换 8
+		{
+			words = {1491},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree99,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--财兑换 9
+		{
+			words = {1492},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = Lang.ScriptTips.blesstree100,
+			awards = {
+				{type = 20, id = 1,count = 3},
+			},
+		},
+		--烈火战神兑换  10
+		{
+			words = {1485,1486,1487,1488},		--兑换的字
+			count = 4,						--上面只要有一个就可以兑换
+			needYb = 10,
+			noItemNotice = Lang.ScriptTips.blesstree87,
+			awards = {
+				{type = 0, id = 1480,count = 1},
+			},
+		},
+		--真烈火战神兑换  11
+		{
+			words = {1484,1485,1486,1487,1488},		--兑换的字
+			count = 5,						--上面只要有一个就可以兑换
+			needYb = 0,
+			noItemNotice = string.format("%s、%s", Lang.ScriptTips.blesstree86,Lang.ScriptTips.blesstree87),
+			awards = {
+				{type = 0, id = 1481,count = 1},
+			},
+		},
+		--恭喜发财兑换  12
+		{
+			words = {1489,1490,1491,1492},		--兑换的字
+			count = 4,						--上面只要有一个就可以兑换
+			needYb = 20,
+			noItemNotice = Lang.ScriptTips.blesstree88,
+			awards = {
+				{type = 0, id = 1482,count = 1},
+			},
+		},
+		--真字+元宝兑换  13
+		{
+			words = {1484},		--兑换的字
+			count = 1,						--上面只要有一个就可以兑换
+			needYb = 50,
+			noItemNotice = Lang.ScriptTips.blesstree86,
+			awards = {
+				{type = 0, id = 1481,count = 1},
+			},
+		},
+	},
+}

@@ -1,0 +1,20 @@
+--#include "data\functions\Activity\SpringFestivalSheep\EveBoss.txt" once
+--#include "data\config\activityconfig\SpringFestivalSheep\EveBossConfig.txt" once
+
+--除夕夺宝活动
+
+--boss死亡处理
+MonDieDispatcher.EveBossDie = function (monster,sysarg,monId)
+	OnEveBossDie(monster, sysarg, monId)
+end
+--boss受攻击处理
+MonAttackedDispatcher.EveBossAttacked = function (monster, sysarg, monId, damage)
+	OnEveBossAttacked(monster, sysarg, monId, damage)
+end
+
+
+--注册boss死亡、被攻击
+--MonDieDispatcher.register(EveBossConfig.bossId, MonDieDispatcher.EveBossDie)
+--MonAttackedDispatcher.register(EveBossConfig.bossId, MonAttackedDispatcher.EveBossAttacked)
+
+

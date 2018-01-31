@@ -1,0 +1,18 @@
+﻿
+--#include "data\config\activityconfig\VipBoss\Config.txt" once	--
+
+function MonDieDispatcher.OnKillVipBoss(pMonster, pKiller, monId)
+	--print("OnKillVipBoss:"..monId)
+	if not pMonster or not pKiller then return end
+	
+	local dval = System.getDyanmicVar()
+	dval.VipBossStart = nil
+	
+	local sval = System.getStaticVar()
+	sval.VipBossHit = 1
+	
+	System.broadcastTipmsg(Lang.Activity.vb0017, ttScreenCenter+ttChatWindow)
+end
+
+
+--MonDieDispatcher.register(VipBossConfig.boss.mid, MonDieDispatcher.OnKillVipBoss)

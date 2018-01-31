@@ -1,0 +1,160 @@
+--交互系统消息处理实现 
+
+--#include "data\language\LangCode.txt" once
+
+LocalDT.InteractiveData = 
+{      
+  LEVEL = 40,
+}
+ 
+local InteractiveImplement =
+{ 
+	--玩家点击拜师按钮执行的函数
+	MasterFunc = function (sysarg,Handle)
+		local Handle = tonumber(Handle)
+		--print("Handle:"..Handle)
+		local Applevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL) --获取玩家的等级
+		local ActorPtr = Actor.getEntity(Handle)
+		local Maslevel = Actor.getIntProperty(ActorPtr,PROP_CREATURE_LEVEL) --获取玩家的等级
+		local masterid = Actor.getIntProperty(ActorPtr,PROP_ENTITY_ID)   --获取所选玩家的ID
+		
+		if ActorPtr == nil then print("------------") end
+		if not Actor.isInSameScreen(sysarg,ActorPtr) then    --判断所选的玩家是否在同屏中
+		  Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00001,ttDialog)        --输出你所选的玩家不在附近，无法拜师
+		  return
+	  end
+	  
+		if Applevel >= LocalDT.InteractiveData.LEVEL then
+				local str = string.format(Lang.ScriptTips.m00002,LocalDT.InteractiveData.LEVEL)
+		   Actor.sendTipmsg(sysarg,str,ttDialog)					--输出你已经超过四十级了，不能拜师。
+		   return
+	  else 
+	  		if Maslevel < LocalDT.InteractiveData.LEVEL then
+	  			local str = string.format(Lang.ScriptTips.m00003,LocalDT.InteractiveData.LEVEL)
+		   		Actor.sendTipmsg(sysarg,str,ttDialog)      --输出你所拜师的玩家还没有收徒弟的资格。要四十级以上才能收徒
+	  		  return
+	  		end
+	  end
+	  
+	  if Actor.getRelationShip(sysarg,masterid) == rsBrother then
+ 		   Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00004,ttDialog)        --输出你所拜师的玩家是你的结拜兄弟不能申请拜师
+	     return
+    end
+	    
+    if Actor.getRelationShip(sysarg,masterid) == rsMerried  then
+      Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00005,ttDialog)        --输出你所拜师的玩家是你的伴侣不能申请拜师
+      return
+    end
+	  local MasterId =  Actor.getMasterId(sysarg)
+	  if MasterId == 0 then
+	    if  Actor.getApprenticeCount(ActorPtr) > 2 then
+	        Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00006,ttDialog)       --你所拜师的玩家徒弟已满。
+	        return
+	    else 
+	        --向目标发送申请拜师的信息
+	       local name = Actor.getName(sysarg)
+	       local str = string.format(Lang.ScriptTips.m00036,name)
+	       local mHandle = Actor.getHandle(sysarg)
+	    	  Actor.messageBox(sysarg,0,masterid,str,
+	      ""..Lang.ScriptTips.m00037.."/AcceptFunc,"..mHandle..",1", ""..Lang.ScriptTips.m00038.."/RefuseMasterFunc,"..mHandle.."",NULL)		
+      end
+	  else
+      Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00007,ttDialog)      --你已经有了师父，不能再拜师了！
+      return
+    end
+	   
+	end, 
+
+	--玩家点击收徒按钮时执行的函数
+	ApprenticeFunc = function (sysarg,Handle)
+	    
+	  local Maslevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL) --获取玩家的等级
+		local ActorPtr = Actor.getEntity(Handle)
+		--if ActorPtr == nil then print("------------") end
+		local Applevel = Actor.getIntProperty(ActorPtr,PROP_CREATURE_LEVEL) --获取玩家的等级
+		local apprenticeid = Actor.getIntProperty(ActorPtr,PROP_ENTITY_ID)   --获取所选玩家的ID
+		
+		if not Actor.isInSameScreen(sysarg,ActorPtr) then    --判断所选的玩家是否在同屏中
+				Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00011,ttDialog)        --输出你所选的玩家不在附近，无法拜师
+	  		  return
+	  end
+	  
+		if Maslevel < LocalDT.InteractiveData.LEVEL then
+				local str = string.format(Lang.ScriptTips.m00012,LocalDT.InteractiveData.LEVEL)
+		   Actor.sendTipmsg(sysarg,Lang.str,ttDialog)					--输出你还没达到四十级了，不能收徒。
+		   return
+	  else 
+	  	if Applevel >= LocalDT.InteractiveData.LEVEL then
+	  		local str = string.format(Lang.ScriptTips.m00013,LocalDT.InteractiveData.LEVEL,LocalDT.InteractiveData.LEVEL)
+		   	Actor.sendTipmsg(sysarg,str,ttDialog)	       --输出你所要收徒的玩家已经超过四十级。要四十级以下才能收其为徒
+	  		return
+	  	end
+	  end
+	  
+	  if Actor.getRelationShip(sysarg,apprenticeid) == rsBrother then
+	    Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00014,ttDialog)        --输出你所拜师的玩家是你的结拜兄弟不能申请拜师
+	  	return
+	  end
+	    
+	   if Actor.getRelationShip(sysarg,apprenticeid) == rsMerried  then
+	        Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00015,ttDialog)        --输出你所拜师的玩家是你的伴侣不能申请拜师
+	  		  return
+	   end
+	  local MasterId =  Actor.getMasterId(ActorPtr)
+	  if MasterId == 0 then
+	    if  Actor.getApprenticeCount(sysarg) > 2 then
+	        Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00016,ttDialog)       --你的徒弟人数已满。
+	        return
+	    else 
+	        --向目标发送申请拜师的信息
+	        local name = Actor.getName(sysarg)
+	        local str = string.format(Lang.ScriptTips.m00039,name)
+	        local aHandle = Actor.getHandle(sysarg)
+	    	  Actor.messageBox(sysarg,0,apprenticeid,str,
+	                         ""..Lang.ScriptTips.m00037.."/AcceptFunc,"..aHandle..",2",""..Lang.ScriptTips.m00038.."/RefuseMasterFunc,"..aHandle.."",NULL)		
+	     end
+	   else
+	       Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00017,ttDialog)      --你所选的玩家已经有了师父，不能再拜师了！
+	       return
+	   end
+	   
+	end, 
+}    
+
+function AcceptFunc(sysarg,Handle,state)
+	  local Handle = tonumber(Handle)
+    local ActorPtr = Actor.getEntity(Handle)
+    if ActorPtr == nil then
+	    return
+	  end
+	  local state = tonumber(state)
+	  if state == 1 then
+	    Actor.master(sysarg,ActorPtr)
+	    Actor.addApprentice(ActorPtr,sysarg)
+	    Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00008,ttDialog)
+	  elseif state == 2 then
+	    Actor.addApprentice(sysarg,ActorPtr)
+	    Actor.master(ActorPtr,sysarg)
+	    Actor.sendTipmsg(sysarg,Lang.ScriptTips.m00009,ttDialog)
+	  end
+end
+
+function RefuseMasterFunc(sysarg,Handle)
+  local Handle = tonumber(Handle)
+  local ActorPtr = Actor.getEntity(Handle)
+  Actor.sendTipmsg(ActorPtr,Lang.ScriptTips.m00010,ttDialog)    --对方拒绝你的请求，请另选他人！
+end
+
+InteractiveImplement.main = function (sysarg, systemid, msgid, packet)
+	if msgid == 1 then
+		local Handle = DataPack.readUint64(packet)
+		local type = tonumber(DataPack.readByte(packet))
+		if type == 0 then
+      InteractiveImplement.MasterFunc(sysarg,Handle)
+		elseif type == 1 then
+	    InteractiveImplement.ApprenticeFunc(sysarg,Handle)
+		end
+	end
+end
+     
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.interactiveSystem, InteractiveImplement.main)

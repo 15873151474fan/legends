@@ -1,0 +1,152 @@
+﻿--在线送元宝奖励实现
+
+--#include "data\language\LangCode.txt" once
+--#include "TimeMoneyReward_Const.txt" once
+
+local TimeMoneyRewardImplement =
+{
+  --接收客户端请求，发送领奖信息客户端 
+  sendClientRewardMsg = function(sysarg)
+    if LocalDT.TimeMoneyRewardConst ~= nil then timeReward = LocalDT.TimeMoneyRewardConst else return end
+    local time = System.getCurrMiniTime()       --获取当前的mini时间，单位秒
+    local var = Actor.getStaticVar( sysarg )
+    local timeMoneyReward = var.timeMoneyReward	   --在线领取绑定元宝静态变量
+    --如果不存在领取绑定元宝在线数据，则初始化
+	  if ( timeMoneyReward == nil ) then
+			var.timeMoneyReward = {}
+		  timeMoneyReward = var.timeMoneyReward
+			timeMoneyReward[1] = 0  --在线累计时间
+			timeMoneyReward[2] = 0  --在线累计金钱
+		  timeMoneyReward[3] = time  --记录登录初始时间
+		  timeMoneyReward[4] = 0  --记录领取累计时间
+		  timeMoneyReward[5] = time  --记录时间用于判断隔天
+	  end
+    --计算当前累计时间
+    if (time - timeMoneyReward[3]) <= 0 then
+      timeMoneyReward[1] = 0  --在线累计时间
+      timeMoneyReward[2] = 0  --在线累计金钱
+      timeMoneyReward[3] = time  --记录登录初始时间
+      timeMoneyReward[4] = 0  --记录领取累计时间
+      timeMoneyReward[5] = time  --记录时间用于判断隔天 
+	  else
+      timeMoneyReward[1] = tonumber(time - timeMoneyReward[3])
+	  end
+	   
+	  --计算当前累计金钱
+	  if timeMoneyReward[2] == nil then
+      timeMoneyReward[2] = 0
+    else
+      timeMoneyReward[2] = (math.floor(timeMoneyReward[1]/timeReward.REWARDTIME))*timeReward.REWARDMONEY
+    end
+    --服务端返回在线信息
+	  local npack = DataPack.allocPacket(sysarg,138,2)  --申请一个数据包
+	  if (npack == nil) then
+			print("npack:nil")
+			return
+	  end
+	  --print("npacksend:"..timeReward.REWARDLIMITTIME)
+	  --print("npacksend:"..timeReward.REWARDMONEY)
+	  --print("npacksend:"..timeMoneyReward[4])
+	  --print("npacksend:"..timeMoneyReward[1])
+    DataPack.writeUInt(npack,timeReward.REWARDLIMITTIME)    --一天能换取元宝的总时间
+    DataPack.writeUInt(npack,timeReward.REWARDMONEY)    --单位时间能换取的元宝数
+	  DataPack.writeUInt(npack,timeMoneyReward[4])    --已换取元宝的时间
+	  DataPack.writeUInt(npack,timeMoneyReward[1])  --累计未换取元宝的时间
+	  DataPack.writeUInt(npack,timeReward.REWARDTIME)    --每次领取元宝所需时间间隔数
+	  DataPack.flush(npack)   --发送数据包 
+  end,
+
+	--客户端申请领取送元宝奖励
+	getOnlineMoneyReward = function(sysarg)
+	  if LocalDT.TimeMoneyRewardConst ~= nil then timeReward = LocalDT.TimeMoneyRewardConst else return end
+		local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+	  if ( level < timeReward.REWARDLIMLEVEL[1] ) or ( level > timeReward.REWARDLIMLEVEL[2] ) then --领取最低等级限制
+      Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00070,ttDialog )
+      return
+    end
+    
+    local time = System.getCurrMiniTime()       --获取当前的mini时间，单位秒
+    local var = Actor.getStaticVar( sysarg )
+    local timeMoneyReward = var.timeMoneyReward	   --在线领取绑定元宝静态变量
+    --如果不存在领取绑定元宝在线数据，则初始化
+	  if ( timeMoneyReward == nil ) then
+			var.timeMoneyReward = {}
+		  timeMoneyReward = var.timeMoneyReward
+			timeMoneyReward[1] = 0  --在线累计时间
+			timeMoneyReward[2] = 0  --在线累计金钱
+		  timeMoneyReward[3] = time  --记录初始时间
+		  timeMoneyReward[4] = 0  --记录领取累计时间
+		  timeMoneyReward[5] = time  --记录时间用于判断隔天
+	  end
+	  --print("timeMoneyReward[4]1:"..timeMoneyReward[4])
+    if ( timeMoneyReward[4] >= timeReward.REWARDLIMITTIME ) then --领取累计总时间限制
+      local str = string.format(Lang.ScriptTips.x00075,timeReward.REWARDLIMITTIME/3600)
+      Actor.sendTipmsg( sysarg,str,ttDialog )
+      return
+    end
+
+    --计算当前累计时间
+    if (time - timeMoneyReward[3]) <= 0 then
+      timeMoneyReward[1] = 0	--如果现在时间少于前一次领取时间，累积时间置零
+      timeMoneyReward[2] = 0  --在线累计金钱
+      timeMoneyReward[3] = time  --记录登录初始时间
+      timeMoneyReward[4] = 0  --记录领取累计时间
+      timeMoneyReward[5] = time  --记录时间用于判断隔天
+	  else
+      timeMoneyReward[1] = tonumber(time - timeMoneyReward[3])	--如果现在时间大于前一次领取时间，累积时间=当前时间-前一次记录时间
+	  end
+	  if timeMoneyReward[1]+timeMoneyReward[4] >= timeReward.REWARDLIMITTIME then
+      timeMoneyReward[1] = timeReward.REWARDLIMITTIME-timeMoneyReward[4]
+	  end
+	  --获取领取奖励时间
+	  local orderTime = math.floor(timeMoneyReward[1]/timeReward.REWARDTIME)
+
+	  --计算当前累计金钱
+	  if orderTime <= 0 then
+      timeMoneyReward[2] = 0
+      Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00071,ttDialog )
+      return
+    else 
+      timeMoneyReward[1] = timeMoneyReward[1] - orderTime*timeReward.REWARDTIME	--剩余的累积时间
+			--print(orderTime*timeReward.REWARDTIME)
+      timeMoneyReward[2] = 0	--剩余的金钱置零
+      timeMoneyReward[3] = time-timeMoneyReward[1]	--记录领取时间
+			if timeMoneyReward[4] == 0 then
+				Actor.triggerAchieveEvent(sysarg, 49, 1, 0, 0)	--触发成就事件
+			else
+				Actor.triggerAchieveEvent(sysarg, 49, 2, 0, 0)	--触发成就事件
+			end
+      timeMoneyReward[4] = timeMoneyReward[4]+orderTime*timeReward.REWARDTIME	--记录领取累计时间 
+      
+      ---给予奖励 
+			local rewardMoney = (orderTime)*timeReward.REWARDMONEY
+      Actor.changeMoney( sysarg, mtBindYuanbao, rewardMoney,137,Lang.LogTips.l00047)
+			
+			local str = string.format(Lang.ScriptTips.x00072, rewardMoney)
+			Actor.sendTipmsg( sysarg,str,ttDialog )
+	  end
+	  --print("timeMoneyReward[4]:"..timeMoneyReward[4]) 
+    --服务端返回在线信息
+	  local npack = DataPack.allocPacket(sysarg,138,3)  --申请一个数据包
+	  if (npack == nil) then
+			--print("npack:nil")
+			return
+	  end
+	  --print("orderTime:"..orderTime)
+	  DataPack.writeByte(npack,orderTime)    --换取元宝的单位时间
+	  DataPack.flush(npack)   --发送数据包
+	end,
+}
+
+
+--在线送元宝消息分配
+TimeMoneyRewardImplement.MessageAssign = function (sysarg, systemid, msgid, packet)
+  --print("msgid:"..msgid)
+  if msgid == 2 then     --消息号为2 客户端点击"送元宝"按钮
+    TimeMoneyRewardImplement.sendClientRewardMsg(sysarg)
+  elseif msgid == 3 then  --消息号为3 客户端点击"领取奖励"按钮
+    TimeMoneyRewardImplement.getOnlineMoneyReward(sysarg)
+  end
+end
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.timeRewardSystem, TimeMoneyRewardImplement.MessageAssign)

@@ -1,0 +1,31 @@
+﻿--lua script
+
+--#include "data\config\item\NormalItemDatas.txt" once
+
+--使用硫磺物品合成火药包 
+function compositePowderFunc(sysarg,itemidx,itemPtr,ItemTable)
+   if ItemTable == nil then return end
+   if not Actor.canAddItem(sysarg,ItemTable.newitem_id,1) then 
+     Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00027,ttDialog)
+     return
+   end
+   
+   if Actor.getItemCount(sysarg,ItemTable.item_id) < ItemTable.count then 
+     Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00026,ttDialog) 
+   else 
+     Actor.addItem(sysarg,ItemTable.newitem_id,0,0,1,0,0,"",1)
+     if ItemTable.needDelete == true then 
+      Actor.removeItem(sysarg,ItemTable.item_id,ItemTable.count,-1,-1,-1,"",5)
+     end
+     Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00028,ttDialog)
+   end 
+end
+
+function  compositePowderItemsInit(sysarg)
+  for i = 1,table.getn(SulfurItems) do
+	local x = SulfurItems[i]
+	GlobalItemFn[x.item_id] = { func = compositePowderFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable,compositePowderItemsInit)

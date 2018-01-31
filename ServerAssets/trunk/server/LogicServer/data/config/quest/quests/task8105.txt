@@ -1,0 +1,51 @@
+﻿--lua script
+{
+	id = 8105,			-- 巾帼女将
+	parentid = 0,type = 8,multiAward = 0,level = 0,circle = 0,entrust = 9,speedYb = 0,star = 0,guideId = 0,timelimit = 0,interval = 86400,maxcount = 3,
+	cangiveup = false,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	showTimerBox = false,
+	doubleYB = false,
+	randomTarget = false,
+	name = Lang.Quest.name8105,
+	content = Lang.Quest.desc8105,
+
+	prom = { type = 0, scene = Lang.SceneName.s00021, npc = Lang.EntityName.n00040 },
+	comp = { type = 0, scene = Lang.SceneName.s00021, npc = Lang.EntityName.n00040 },
+	target = {
+		{
+			type = 127, id = 50036, count = 1, rewardId = 0,useList = false, data = Lang.Quest.data81050,
+			location = {
+				sceneid = 8, x= 0,y = 0,entityName = Lang.EntityName.n00032,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 60, count = 51 },
+		{ type = 7, id = 8104, count = 8105 },
+	},
+	awards = {
+		{
+			{ type = 6, id = 1, count = 75000, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 21, id = 72, count = 300, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 855, count = 1, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 2142, count = 1, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk81051,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk81051,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip81051,
+	},
+	PassMsTip = {
+	},
+	PromCheck = "CheckInTeam",
+	PromCheckArg = {
+	},
+},

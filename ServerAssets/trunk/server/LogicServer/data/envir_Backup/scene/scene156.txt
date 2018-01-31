@@ -1,0 +1,71 @@
+﻿--天下第一四层
+{
+	scenceid = 156,
+	scencename = Lang.SceneName.s00156,
+	mapfilename = "150KuaFuLeiTai",
+	minlevel = 30,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "leitai.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 156,
+	sceneHeight = 152,
+	sceneType=1,
+	sceneNotice = Lang.SceneName.s50011,
+
+	seckillId = 5,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+	area =
+	{
+		{ name = Lang.SceneName.s00156, range = { 10,10,20,20,60,50}, center = { 79,79},attri = {
+{type=3,value = {}},
+--{ type = 2,  value = {1,1,0,10,360,-400,0,} },	--扣血buff
+{type=76,value = {68,-1,62,64}},	--删除炸弹效果
+{type=20,value = {}},
+{type=21,value = {}},
+{type=6,value = {}},
+{type=44,value = {}},
+{type = 34,  value = {316,318,822,386,387,388,389,391,392,394,2272,2273,2274}},
+{ type = 23,  value = {1,2,3,4} },
+{ type = 30,  value = {1,2,3,4} },
+{type=56,value = {}},{type=80,value = {}},{type=89,value = {}},	--死亡不掉落物品，不可交易物品，不可丢弃物品
+{type=45,value = {}}, --限制坐骑
+{ type = 33,  value = {10,56,57,58} },	--限制使用技能：必杀技、空间转移
+{type=50,value = {4}},	--强制全体模式
+{type=3,value = {}},	--PK不加PK值
+--蒙面效果
+{ type = 88,  value = {54,49} },
+{type=73,value = {}},
+{type=74,value = {}},
+{type=75,value = {}},
+
+}},
+},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00215, posx = 56 , posy = 58,script= "data/script/KuaFuTianXiaDiYi/HuoDongShiZhe.txt",modelid=98,icon = 1,funcId= 0,},
+
+	},
+
+  teleport =
+  {
+
+  },
+
+},

@@ -1,0 +1,42 @@
+﻿--门派NPC功能限制
+
+SchoolForScene = 
+{
+  --华山派
+  [1] =                    
+  {
+    sceneId = 1,           --门派总部所处场景ID 
+    schoolId = 1,         --门派ID 
+  },
+  --水月宫
+  [2] =                          
+  {                       
+    sceneId = 14,
+    schoolId = 2,
+  },
+  --少林派
+  [3] =
+  {
+    sceneId = 12,
+    schoolId = 3,
+  },
+  --御神流
+  [4] =
+  {
+    sceneId = 19,
+    schoolId = 4,
+  },
+}
+
+function checkSchoolFunctionLimitWithNpc(sysarg)
+  local str = Lang.TaskTalk.n00007
+  local sceneId = Actor.getSceneId(sysarg)
+  local school = Actor.getMenPai( sysarg )
+  local i
+  for i=1, #SchoolForScene do
+    if SchoolForScene[i].sceneId == sceneId and SchoolForScene[i].schoolId == school then
+      return true, ""
+    end
+  end
+  return false, str
+end

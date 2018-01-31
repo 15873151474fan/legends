@@ -1,0 +1,19 @@
+﻿--lua script
+--活动 排行榜名单初始化
+
+--#include "RankPointer.txt" once
+
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function PasswordRanking_Init(npcobj)
+	Rank.Init(PasswordRankPt.RankName, PasswordRankPt.RankFile, PasswordRankPt.RankColumn, PasswordRankPt.ClinetShowCount, PasswordRankPt.ClientShow)
+end
+
+function PasswordRanking_Fina(npcobj)
+	--Ranking.removeRanking(PasswordRankPt.RankName)
+	Rank.Fina(PasswordRankPt.RankName, PasswordRankPt.RankFile)
+end
+
+table.insert(InitFnTable,PasswordRanking_Init)
+table.insert(FinaFnTable,PasswordRanking_Fina)

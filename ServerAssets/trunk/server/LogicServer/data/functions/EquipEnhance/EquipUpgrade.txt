@@ -1,0 +1,507 @@
+﻿
+
+--装备合成
+function EquipUpGrade(sysarg, args)
+	local itemPtr = args[2]--三合一装备1 
+	local itemPtr1 = args[3]--三合一装备2
+	local itemPtr2 = args[4]--三合一装备3
+	if (not itemPtr) or (not itemPtr1) or (not itemPtr2)then
+		return false
+	end          
+	local itemGuid = Item.getItemGuid(itemPtr)
+	local equipPtr, itemPos, heroId = Item.getEquipItemPtr(sysarg, itemGuid, 0, 0, 0)
+	if equipPtr ~= itemPtr or itemPos == 0 then return end
+	
+	local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0) 
+	local nItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0 )
+	local nItemId1 = Item.getItemProperty( sysarg, itemPtr1, Item.ipItemID, 0 )
+	local nItemId2 = Item.getItemProperty( sysarg, itemPtr2, Item.ipItemID, 0 )
+	local nItemType = Item.getItemProperty( sysarg, itemPtr, Item.ipItemType, 0)
+	local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	local nLuck = Item.getItemProperty( sysarg, itemPtr, Item.ipItemLuck, 0 )
+	local itemName = Item.getItemName(nItemId)
+	--物品正确性检测
+    if (nItemId1 ~= nItemId) or (nItemId2 ~= nItemId) then
+    	local itemStr = string.format(Lang.ScriptTips.zf038, Item.getItemName(id))
+	    Actor.sendTipmsg(sysarg, itemStr, ttFlyTip)
+	    return
+    end 
+	--最低等级检测 
+	if EquipUpgradeConf.minItLv > nLevel then
+		if nItemType == BaseTypes.itemTypes.itMeterial then
+		else
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf014, EquipUpgradeConf.minItLv), ttFlyTip)
+			return --最小等级30
+		end
+	end
+	--最高级检测 
+	--print("EquipUpGradenLevel:"..nLevel)
+	local GradeCfg = GetGradeConfig(nItemType, nLevel, nItemId)
+	if not GradeCfg then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf015, ttFlyTip)
+		return 
+	end
+	--print("EquipUpGrade:"..nItemId)
+	--检测是否有下级升级类型 
+	local newItemId = GetNewItemIdBySrcId(GradeCfg, nItemId)
+	if not newItemId then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf016, ttFlyTip)
+		return
+	end
+	--print("EquipUpGrade:"..nItemId)
+	--判断是否为升级类型 
+	if EquipUpgradeConf.notGradeTypes[nItemType] then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf017, ttFlyTip)
+		return false --该类型不能升级
+	end
+	--print("EquipUpGrade:"..nItemId)
+	if GradeCfg.strongLv and nItemStrong < GradeCfg.strongLv then
+		return false
+	end	
+	local propTab = {}
+	local TmepCount = 0
+	for idx, tab in ipairs(GradeCfg.stuff) do
+		if tab.usetype == Any_Silver then			
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_BIND_COIN )
+			if myCoin < tab.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf018, tab.count), ttFlyTip)
+				return
+			end
+		end
+	end
+
+	--判断背包不足 
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	local needGrid = Item.getAddItemNeedGridCount(sysarg, newItemId, 1)
+	if bagIdxs < needGrid then
+		local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+		Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+		return
+	end
+	
+	--属性保留
+	local authTimes = Item.getItemProperty( sysarg, itemPtr, Item.ipItemForgeTimes, 0 )
+	propTab[Item.ipItemForgeTimes] = authTimes
+	for authIdx, authVar in ipairs(AuthValTab) do
+	    if authIdx < #AuthValTab then 
+		   local tempVal = Item.getItemProperty( sysarg, itemPtr, authVar, 0)
+		   propTab[authVar] = tempVal
+		end
+	end
+	local initSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+
+	--删除旧主装备 
+	local isItemInBag = true
+	if Actor.removeItemByPtr(sysarg, itemPtr, 1, true, Lang.LogTips.l00107, 92) == 0 then
+		if Item.removeEquip(sysarg, itemPtr, Lang.LogTips.l00107, 92, true) == 0 then
+			return
+		end
+		isItemInBag = false
+	end
+	--删除旧副装备1
+	if Actor.removeItemByPtr(sysarg, itemPtr1, 1, true, Lang.LogTips.l00107, 92) == 0 then
+		if Item.removeEquip(sysarg, itemPtr1, Lang.LogTips.l00107, 92, true) == 0 then
+			return
+		end
+	end
+	--删除旧副装备2
+	if Actor.removeItemByPtr(sysarg, itemPtr2, 1, true, Lang.LogTips.l00107, 92) == 0 then
+		if Item.removeEquip(sysarg, itemPtr2, Lang.LogTips.l00107, 92, true) == 0 then
+			return
+		end
+	end
+	
+	--扣钱和物品
+	for idx, tab in ipairs(GradeCfg.stuff) do
+		if tab.usetype == Any_Silver then
+			if not Actor.changeMoney(sysarg, mtBindCoin, -tab.count, 131, Lang.LogTips.l00070) then
+				return
+			end
+		end
+	end
+	local newItemPtr = Item.createItem(newItemId, 1, 0, 0)
+	if newItemPtr then
+		Item.addItem(sysarg, newItemPtr, Lang.LogTips.l00070, 93)
+		if initSmith > 0 then
+			Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, initSmith)
+		end
+		if not isItemInBag then
+			Item.equipItem(sysarg, newItemPtr, heroId)
+		end
+		--随机或者保留极品属性 
+		if initSmith == 0 then
+			Item.initEquipBaseAttr(sysarg, newItemPtr, bawEquipUpgrade)
+			local newInitSmith = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, 0)
+			if newInitSmith > 0 then
+				local noticeStr = string.format(Lang.ScriptTips.q00097, Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+				System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+			end
+		end
+		--保留鉴定次数 
+		for propId, propVal in pairs(propTab) do
+			Item.setItemProperty( sysarg, newItemPtr, propId, propVal)
+		end 
+		
+				--随机卓越属性
+		local A,B,C,D = Item.GetEquipZuoYueSZAttr(sysarg,newItemPtr,0)
+		Item.ApplyZuoYueSZAttr(sysarg,true)
+		
+        --合成完毕全服播报
+       	local nNewItemId = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemID, 0 )
+      	local ItemName = Item.getItemName( nNewItemId )
+		if ItemName then
+			local str2 = string.format(Lang.ScriptTips.q00100,Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+			System.broadcastTipmsg(str2,ttScreenCenter+ttChatWindow)
+		end 
+		if nItemStrong > 0 then--保留强化等级 
+		   Item.setItemProperty(sysarg, newItemPtr, Item.ipItemStrong, nItemStrong)  
+		end
+		if nLuck > 0 then
+		   Item.setItemProperty( sysarg, newItemPtr, Item.ipItemLuck, nLuck)
+		end
+		--[[if Actor.hasQuest(sysarg, 112) then--进入护龙深潭给指引
+		   local nItemId = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemID, 0 )
+		   Item.setItemProperty(sysarg, newItemPtr, Item.ipItemBind, 1)
+        end]]
+       	--local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0)
+        Actor.triggerQuestEvent(sysarg, 37, 1, 2)  --任务
+	end
+	SendEquipOptResult(sysarg, itemGuid, itEquipUpgrade, 0)
+	return true
+end
+
+
+
+--读取升级消耗
+function EquipGradeConsume( sysarg, args )	
+	local ptrCount = args[1]
+	local itemPtr = args[2]
+	--print("没有这个id")
+	if not itemPtr then
+		return
+	end
+	--print("没有这个id")
+	local opType = args[ptrCount+2]		--操作类型
+	local nQuality = Item.getItemProperty( sysarg, itemPtr, Item.ipItemQuality, 0 )
+	local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0) 
+	local nItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0 )
+	local nItemType = Item.getItemProperty( sysarg, itemPtr, Item.ipItemType, 0)
+	--print(nItemType, nLevel, nItemId)
+	local gradeCfg = GetGradeConfig(nItemType, nLevel, nItemId)
+	if not gradeCfg then
+		return false
+	end
+	--print("没有这个id"..nItemId)
+	--print("没有这个id"..nItemId)
+	local newItemId = GetNewItemIdBySrcId(gradeCfg, nItemId)
+	if not newItemId then
+		--print("没有这个id")
+		return
+	end
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, #gradeCfg.stuff )	
+	for k, curTab in ipairs(gradeCfg.stuff) do
+		DataPack.writeByte(netPack,curTab.type)
+		local id = (curTab.id >= 0 ) and curTab.id or nItemId
+		--print("EquipGradeConsume:"..id)
+		DataPack.writeInt(netPack, id)
+		local itemCount = curTab.count
+		--print(itemCount)
+		DataPack.writeInt(netPack, itemCount)
+		--print(curTab.type)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+
+	DataPack.writeInt(netPack, newItemId)
+	DataPack.writeInt(netPack, gradeCfg.strongLv or 0)
+	DataPack.flush(netPack)
+end
+
+
+function GetGradeConfig( itemType, level, itemId )
+	for k, cfg in ipairs(DecorationUpgrade) do
+		for _, itId in ipairs(cfg.sourceEquips) do
+			if itId == itemId then
+				return cfg
+			end
+		end
+	end
+	for idx, cfg in ipairs(EquipUpgradeConfig) do
+	    for ndx, Infondx in ipairs(cfg.sourceEquips) do
+	        if Infondx == itemId then
+	            return cfg
+	        end
+	    end
+	end
+	return nil
+end
+
+function GetNewItemIdBySrcId( cfgTab, itemId )
+	local index = -1
+	for idx, itId in ipairs(cfgTab.sourceEquips) do
+	    --print("GetNewItemIdBySrcId:"..itId)
+		if itId == itemId then
+			index = idx
+		end
+	end
+	if index ~= -1 then
+		return cfgTab.targetEquips[index]
+	end
+	return nil
+end
+
+
+EventCallDispatcher.handlerGetUpgradeConfig = function( sysarg, args )
+	local tabItems = {}
+	for idx, tab in ipairs(EquipUpgradeConfig) do
+		for _, itId in ipairs(tab.sourceEquips) do
+			table.insert(tabItems, itId)
+		end
+	end
+	for _, cfg in ipairs(DecorationUpgrade) do
+		for idx, itId in ipairs(cfg.sourceEquips) do
+			table.insert(tabItems, itId)		
+		end
+	end
+	local netPack = DataPack.allocPacket(sysarg, 8, 19)
+	DataPack.writeByte(netPack, EquipStrongCond.minItLv)			--强化最低等级
+	DataPack.writeByte(netPack, EquipAuthCond.minItLv)				--鉴定最低等级
+	local nSize = #tabItems
+	DataPack.writeInt(netPack, nSize)
+	for _, itId in ipairs(tabItems) do
+		DataPack.writeInt(netPack, itId)
+	end
+	DataPack.writeByte(netPack, EquipStrongCond.MinStrongSharp)
+	local sharpLen = #EquipStrongCond.MaxSharp
+	DataPack.writeByte(netPack, sharpLen)
+	for k, sharpVal in ipairs(EquipStrongCond.MaxSharp) do
+		DataPack.writeByte(netPack, sharpVal)
+	end
+	--转生的
+	local circleTb = {}
+	for k, v in ipairs(CircleEquipUpgradeConfig) do
+		for idx, iId in ipairs(v.sourceEquips) do
+			table.insert(circleTb, iId)
+		end
+	end
+	DataPack.writeInt(netPack, #circleTb)
+	for _, itId in ipairs(circleTb) do
+		DataPack.writeInt(netPack, itId)
+	end
+	
+	--幻武锋利值配置
+	DataPack.writeByte(netPack, WeaponExtendStrongCond.MinStrongSharp)	--出现锋利值最低等级
+	local sharpLen = #WeaponExtendStrongCond.MaxSharp	--每个等级对应最大锋利值
+	DataPack.writeByte(netPack, sharpLen)
+	for k, sharpVal in ipairs(WeaponExtendStrongCond.MaxSharp) do
+		DataPack.writeWord(netPack, sharpVal)
+	end
+	
+	DataPack.flush(netPack)
+end
+
+function GetCircleUpgradeCfg(itemId )
+	for k, v in ipairs(CircleEquipUpgradeConfig) do
+		for idx, iId in ipairs(v.sourceEquips) do
+			if iId == itemId then
+				return v, v.targetEquips[idx]
+			end
+		end
+	end
+	return nil
+end
+
+function CircleEquipUpgradeConsumes(sysarg, args)
+	local ptrCount = args[1]
+	local itemPtr = args[2]
+	if not itemPtr then
+		return
+	end
+	local opType = args[ptrCount+2]		--操作类型
+
+	local nQuality = Item.getItemProperty( sysarg, itemPtr, Item.ipItemQuality, 0 )
+	local nItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0 )
+	local itemType = Item.getItemProperty( sysarg, itemPtr, Item.ipItemType, 0 )
+	local circleGradeCfg, newEquipId = GetCircleUpgradeCfg(nItemId)
+	if not circleGradeCfg then
+		return
+	end
+	--local nQuality = Item.getItemProperty( sysarg, itemPtr, Item.ipItemQuality, 0 )
+	--if nQuality <= 0 then
+	   --return
+    --end
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, #circleGradeCfg.stuff)	
+	for k, curTab in ipairs(circleGradeCfg.stuff) do
+		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack, curTab.id)
+		local itemCount = curTab.count
+		if curTab.usetype == Any_Stuff then
+		   --DataPack.writeInt(netPack, curTab.yb) 	
+		end  
+		DataPack.writeInt(netPack, itemCount)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	DataPack.writeInt(netPack, newEquipId)
+	--local partAdjust = circleGradeCfg.class[itemType]/100
+	--local blessMax = circleGradeCfg.blessingMax[nQuality] / partAdjust
+
+	DataPack.writeInt(netPack, 0)
+	DataPack.flush(netPack)
+	--print("CircleEquipUpgradeConsumes")
+end
+
+function CircleEquipUpgrade(sysarg, args)
+	local optResult = 2		--默认失败
+	local itemPtr = args[2]
+	local useGold = args[5]
+	if not itemPtr then
+		return false
+	end
+	local itemGuid = Item.getItemGuid(itemPtr)
+	local equipPtr, itemPos, heroId = Item.getEquipItemPtr(sysarg, itemGuid, 0, 0, 0)
+	
+	--print("ipItemActorReLevel:"..(Item.ipItemActorReLevel))
+	local nReLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorReLevel, 0)
+	--print("nReLevel:"..nReLevel)
+	local nItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0 )
+	local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	local initSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+	local nLuck = Item.getItemProperty( sysarg, itemPtr, Item.ipItemLuck, 0 )
+	--local nQuality = Item.getItemProperty( sysarg, itemPtr, Item.ipItemQuality, 0 )
+	--if nQuality <= 0 then
+	   --return
+    --end
+	local circleGradeCfg, newItemId = GetCircleUpgradeCfg(nItemId)
+	if not circleGradeCfg then
+		SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+		return
+	end
+	local needAllYuanbao = 0
+	for idx, tab in ipairs(circleGradeCfg.stuff) do
+		if tab.usetype == Any_Silver then			
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_BIND_COIN )
+			if myCoin < tab.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf018, tab.count), ttFlyTip)
+				SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+				return
+			end
+		elseif tab.usetype == Any_Stuff then
+			local itemCount = Actor.getItemCount(sysarg, tab.id)
+			if itemCount < tab.count then
+				if useGold <= 0  then
+					Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf020,Item.getItemName(tab.id)), ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+					return
+				end
+				if not tab.yb or tab.yb == 0 then
+					local itemStr = string.format(Lang.ScriptTips.zf038, Item.getItemName(tab.id))
+					Actor.sendTipmsg(sysarg, itemStr, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - itemCount)
+				needAllYuanbao = needAllYuanbao + needGoldCount
+			end
+		end
+	end
+	--判断元宝够不够	
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	if myGold < needAllYuanbao then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf019, needAllYuanbao), ttFlyTip)
+		SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+		return
+	end
+	--判断背包空间不足 
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	local needGrid = Item.getAddItemNeedGridCount(sysarg, newItemId, 1)
+	if bagIdxs < needGrid then
+		local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+		Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+		SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+		return
+	end
+	--删除旧物品
+	local isItemInBag = true
+	if Actor.removeItemByPtr(sysarg, itemPtr, 1, true, Lang.LogTips.l00107, 92) == 0 then
+		if Item.removeEquip(sysarg, itemPtr, Lang.LogTips.l00107, 92, true) == 0 then
+			return
+		end
+		isItemInBag = false
+	end
+	--扣钱和物品
+	for idx, tab in ipairs(circleGradeCfg.stuff) do
+		if tab.usetype == Any_Silver then
+			if not Actor.changeMoney(sysarg, mtBindCoin, -tab.count, 131, Lang.LogTips.l00070) then
+				SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+				return
+			end
+		elseif tab.usetype == Any_Stuff then
+			local remCount = Actor.removeItem(sysarg, tab.id, tab.count, -1, -1, -1, string.format(Lang.LogTips.l00163,Item.getItemName(tab.id)), 92)
+			if remCount < tab.count then
+				if useGold == 0 then
+					SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - remCount)
+				if not Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 92, Lang.LogTips.l00070) then
+					SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+					return
+				end
+			end
+		end
+	end
+
+	--鉴定属性保留
+	local propTab = {}
+	local authTimes = Item.getItemProperty( sysarg, itemPtr, Item.ipItemForgeTimes, 0 )
+	propTab[Item.ipItemForgeTimes] = authTimes
+	for authIdx, authVar in ipairs(AuthValTab) do
+	    if authIdx < #AuthValTab then
+		   local tempVal = Item.getItemProperty( sysarg, itemPtr, authVar, 0)
+		   propTab[authVar] = tempVal
+		end
+	end
+	local newItemPtr = Item.createItem(newItemId, 1, 0, 0)
+	if newItemPtr then
+		Item.addItem(sysarg, newItemPtr, Lang.LogTips.l00070, 93)
+		if not isItemInBag then
+			Item.equipItem(sysarg, newItemPtr, heroId)
+		end
+		if initSmith > 0 then --保留极品属性 
+			Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, initSmith)
+		end
+		--随机获取极品属性 
+		if initSmith == 0 then
+    	   Item.initEquipBaseAttr(sysarg, newItemPtr, bawEquipUpgrade)
+		   local newInitSmith = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, 0)
+	       if newInitSmith > 0 then
+			   local noticeStr = string.format(Lang.ScriptTips.q00097, Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+			   System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+		   end
+        end
+		--鉴定属性保留
+		for propId, propVal in pairs(propTab) do
+			Item.setItemProperty( sysarg, newItemPtr, propId, propVal)
+		end
+						--随机卓越属性
+		local A,B,C,D = Item.GetEquipZuoYueSZAttr(sysarg,newItemPtr,0)
+		Item.ApplyZuoYueSZAttr(sysarg,true)
+        --升级完毕全服播报
+       	local nNewItemId = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemID, 0 )
+      	local ItemName = Item.getItemName( nNewItemId )
+		if ItemName then
+			local str2 = string.format(Lang.ScriptTips.q00101,Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+			System.broadcastTipmsg(str2,ttScreenCenter+ttChatWindow)
+		end
+		if nItemStrong > 0 then--保留强化等级
+		   Item.setItemProperty(sysarg, newItemPtr, Item.ipItemStrong, nItemStrong)
+		end
+		if nLuck > 0 then --保留幸运 
+		   Item.setItemProperty( sysarg, newItemPtr, Item.ipItemLuck, nLuck)
+		end
+	end
+	SendEquipOptResult(sysarg, itemGuid, itCircleUpgrade, optResult )
+end

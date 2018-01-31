@@ -1,0 +1,41 @@
+--降魔战场（定时额外奖励）
+{
+	--活动的名字
+	name =Lang.ActivityName.name00070,
+	--活动的描述
+	desc=Lang.ActivityName.desc00073,
+	--时间的描述,如果是20:30-21:05这样的就不需要记录到语言包，如果是"全天"就需要记录到语言包
+	timeDesc = "19:00-21:00",
+	level = 55, --活动的等级
+	circle = 0, --转数
+	icon = 48,
+	type = 1,  --1是今日活动 2 是每日必做
+	index =0,  --第1场
+	mainAwardDesc = Lang.ActivityName.mainAward030,    --主要奖励
+	--活动的开启时间
+	openTimes=
+	{
+		{
+			months={}, 
+			days ={},
+			weeks={0,1,2,3,5,6},
+			minutes= 
+			{
+				"19:00-21:00",
+			}
+		},
+	},
+	awards=
+	{
+		{type=2,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励经验  
+		{type=21,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励荣誉
+		{type=35,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励战勋
+	},
+	npc=
+	{
+		{
+			--sceneId=1,name=Lang.EntityName.n00005,
+			--conds = { },
+		},
+	},
+},

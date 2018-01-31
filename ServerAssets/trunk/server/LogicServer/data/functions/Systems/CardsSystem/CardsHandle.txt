@@ -1,0 +1,119 @@
+--lua script
+--凌云宝阁
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\Cards\UseCardsItem.txt" once
+--#include "data\config\Cards\UpCardQuality.txt" once
+--#include "data\config\Cards\CardsExchange.txt" once
+--#include "data\functions\Systems\CardsSystem\CardsUpgrade.txt" once
+--#include "data\functions\Systems\CardsSystem\CardsWar.txt" once
+
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "CardsCommon.txt" once
+
+--[[
+local   cCardsAcitivatingOp = 1,		--卡牌激活
+local   cUpCardsExpOp = 2,				--升品提升经验
+local   cUpCardQuality = 3,				--提升品质
+local	cCardExchangeOp = 4,			--卡牌兑换
+local   cCardsCombineOp = 5,			--卡牌合成
+local	cCardsUpgradeOp = 6,			--卡牌升级
+local	cGetCardsFormationOp = 7,		--请求对战卡牌
+local	cOpeCardsFormationOp = 8,		--操作对战卡牌
+local	cGetCardsWarInfoOp = 9,			--请求卡牌对战信息
+local	cStartCardsWarOp = 10,			--进入战场
+local	cClearCardsWarTimeOp = 11,		--清除挑战倒计时
+local	cBuyCardsWarTimesOp = 12,		--购买次数
+local	cGetCardsWarHourAwardsOp = 13,		--请求领奖
+local	cGetCardsWarWeekAwardsOp = 14,		--领取一周奖励
+local	cSetFormationCardLevelOp = 15,		--设置阵型卡牌等级
+--]]
+
+CardsOpFuncList = {}
+
+EventCallDispatcher.HandlerCardsOp = function (sysarg, args)
+ --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = CardsOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--卡牌激活
+CardsOpFuncList[1] = function (sysarg,args)
+	OnAcitivatingCardsOp(sysarg,args)
+end
+
+--升品提升经验
+CardsOpFuncList[2] = function (sysarg,args)
+	OnUpCardsAddExp(sysarg,args)
+end
+
+--升品提升经验
+CardsOpFuncList[3] = function (sysarg,args)
+	OnUpCardQualityOp(sysarg,args)
+end
+
+--卡牌兑换
+CardsOpFuncList[4] = function (sysarg,args)
+	OnCardsExchange(sysarg,args)
+end
+
+--卡牌合成
+CardsOpFuncList[5] = function (sysarg,args)
+	OnCardsCombineOp(sysarg,args)
+end
+
+--卡牌升级
+CardsOpFuncList[6] = function (sysarg,args)
+	OnCardsUpgradeOp(sysarg,args)
+end
+
+--请求对战卡牌阵型
+CardsOpFuncList[7] = function (sysarg,args)
+	OnGetCardsFormationOp(sysarg,args)
+end
+
+--操作对战卡牌
+CardsOpFuncList[8] = function (sysarg,args)
+	OnOpeCardsFormationOp(sysarg,args)
+end
+
+--请求卡牌对战信息
+CardsOpFuncList[9] = function (sysarg,args)
+	OnGetCardsWarInfoOp(sysarg,args)
+end
+
+--进入战场
+CardsOpFuncList[10] = function (sysarg,args)
+	OnStartCardsWarOp(sysarg,args)
+end
+
+--清除挑战倒计时
+CardsOpFuncList[11] = function (sysarg,args)
+	OnClearCardsWarTimeOp(sysarg,args)
+end
+
+--购买次数
+CardsOpFuncList[12] = function (sysarg,args)
+	OnBuyCardsWarTimesOp(sysarg,args)
+end
+
+--请求领奖
+CardsOpFuncList[13] = function (sysarg,args)
+	OnGetCardsWarHourAwardsOp(sysarg,args)
+end
+
+--领取一周奖励
+CardsOpFuncList[14] = function (sysarg,args)
+	OnGetCardsWarWeekAwardsOp(sysarg,args)
+end
+
+--设置阵型卡牌等级
+CardsOpFuncList[15] = function (sysarg,args)
+	OnSetFormationCardLevelOp(sysarg,args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeCardsOp, EventCallDispatcher.HandlerCardsOp)
+

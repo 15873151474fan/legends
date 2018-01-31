@@ -1,0 +1,126 @@
+--#include "data\config\activityconfig\GodArm\GodArmItem.txt" once 
+--#include "data\config\activityconfig\GodArm\GodPowerItem.txt" once 
+--#include "data\config\activityconfig\GodArm\GodArmConfig.txt" once 
+--#include "data\config\activityconfig\GodArm\GodArmUpLevel.txt" once 
+
+
+--使用神臂物品
+function OnUseGodArmItem(sysarg,itemidx,itemPtr,ItemTable)
+	if System.isCommonServer() == true then return end
+
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+
+	if Actor.getGodArmItemId(sysarg) > 0 then	--已有神臂
+		Actor.sendTipmsg( sysarg,Lang.Activity.sb0005,ttFlyTip )
+		return
+	end
+	
+	if Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use GodArmitem",5) == 1 then
+		Actor.onTakeOnGodArm(sysarg,ItemTable.item_id,ItemTable.nLeftTime)		--装配
+	end
+end
+
+--神臂物品初始化
+function UseGodArmItemInit(sysarg)
+	local config = GodArmConfig.GodArmItemConfig
+	if not config then return end
+
+	for i = 1,table.getn(config) do
+		local x = config[i]
+		GlobalItemFn[x.item_id] = { func = OnUseGodArmItem, params = x }
+	end
+end
+
+--使用元灵石
+function OnUseGodArmPowerItem(sysarg,itemidx,itemPtr,ItemTable)
+	if System.isCommonServer() == true then return end
+
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+
+	if Actor.canUseGodArmGodPower(sysarg) == 0 then
+		if Actor.getGodArmItemId(sysarg) <= 0 then			--没有神臂
+			Actor.sendTipmsg(sysarg, Lang.Activity.sb0006, ttFlyTip)
+		end
+
+		return 
+	end
+
+	local nCanUseItem = 0
+	local nUseCount = Actor.addGodArmValueOneKey(sysarg,ItemTable.nValue,1)
+	if nUseCount > 0 then
+		nCanUseItem = 1
+		Actor.removeItem(sysarg,ItemTable.item_id,nUseCount,-1,-1,-1,"use GodPoweritem",5)
+	end
+
+	if nCanUseItem == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0007, ttFlyTip)
+		return
+	end
+
+	Actor.sendUpGodArmLevMsg(sysarg)
+end
+
+--神力结晶使用初始化
+function UseGodArmPowerItemInit(sysarg)
+	local config = GodArmUpLevConfig.GodArmJieItemConfig
+	if not config then return end
+
+	for i = 1,table.getn(config) do
+		local x = config[i]
+		GlobalItemFn[x.item_id] = { func = OnUseGodArmPowerItem, params = x }
+	end
+end
+
+--心法升级
+function OnUseUpSavvyLevelItem(sysarg,itemidx,itemPtr,ItemTable)
+	if System.isCommonServer() == true then return end
+
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+
+	if Actor.canUseSavvyGodPower(sysarg) == 0 then
+		if Actor.getGodArmItemId(sysarg) <= 0 then			--没有神臂
+			Actor.sendTipmsg(sysarg, Lang.Activity.sb0006, ttFlyTip)
+		end
+
+		return 
+	end
+
+	local nCanUseItem = 0
+	local nUseCount = Actor.addSavvyValueOneKey(sysarg,ItemTable.nValue,1)
+	if nUseCount > 0 then
+		nCanUseItem = 1
+		Actor.removeItem(sysarg,ItemTable.item_id,nUseCount,-1,-1,-1,"use Savvyitem",5)
+	end
+
+	if (nCanUseItem == 0) and (nUseCount == 0) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0012, ttFlyTip)
+		return
+	end
+
+	Actor.sendUpSavvyLevMsg(sysarg)
+end
+
+--心法升级初始化
+function UseSavvyUpSavvyLevelInit(sysarg)
+	local config = GodArmConfig.savvyItemConfig.upLevelItems
+	if not config then return end
+
+	for i = 1,table.getn(config) do
+		local x = config[i]
+		GlobalItemFn[x.item_id] = { func = OnUseUpSavvyLevelItem, params = x }
+	end
+end
+
+table.insert(InitFnTable,UseGodArmItemInit)
+table.insert(InitFnTable,UseGodArmPowerItemInit)
+table.insert(InitFnTable,UseSavvyUpSavvyLevelInit)
+

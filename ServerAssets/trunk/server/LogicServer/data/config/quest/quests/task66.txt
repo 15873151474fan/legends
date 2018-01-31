@@ -1,0 +1,44 @@
+﻿--lua script
+{
+	id = 66,			-- 帮助侍女
+	parentid = 65,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name66,
+	content = Lang.Quest.desc66,
+
+	prom = { type = 0, scene = Lang.SceneName.s00011, npc = Lang.EntityName.n00364 },
+	comp = { type = 0, scene = Lang.SceneName.s00011, npc = Lang.EntityName.n00364 },
+	target = {
+		{
+			type = 0, id = 42, count = 5, rewardId = 0,useList = false,
+			location = {
+				sceneid = 11, x= 65,y = 71,entityName = Lang.EntityName.m42,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 453429, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 25500, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk661,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk661,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip661,
+	},
+	PassMsTip = {
+	},
+},

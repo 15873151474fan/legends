@@ -1,0 +1,40 @@
+--#include "data\config\activityconfig\IdentifyActivity\IdentifyActivityConfig.txt" once
+
+MonDieDispatcher.Mon195Die = function(monster,sysarg,monId)
+	local dVal = System.getDyanmicVar()
+	if dVal.StartIdentifyFlag == nil then
+		dVal.StartIdentifyFlag = 0
+	end
+	
+	--print("StartIdentifyFlag:"..dVal.StartIdentifyFlag)
+	if dVal.StartIdentifyFlag == 0 then return end
+	
+	if dVal.FreshIdentifyTimes == nil then
+		dVal.FreshIdentifyTimes = 1
+	end
+	
+	--if dVal.FreshIdentifyTimes >= table.getn(IdentifyActivityConfig.monsters) then return end
+	
+	local nCount = table.getn(IdentifyActivityConfig.monsters[1])
+	local tmpMonster = IdentifyActivityConfig.monsters[1]
+	local hScene = Fuben.getSceneHandleById(IdentifyActivityConfig.nSceenId, 0)
+	
+	for i=1,table.getn(IdentifyActivityConfig.monsters[1]) do
+		--print("MonsterId:"..IdentifyActivityConfig.monsters[1][i].nMonsterID)
+		--print("MonDieDispatcher:"..Fuben.getLiveMonsterCount(hScene,IdentifyActivityConfig.monsters[1][i].nMonsterID))
+		if Fuben.getLiveMonsterCount(hScene,IdentifyActivityConfig.monsters[1][i].nMonsterID) > 0 then
+			return
+		end
+	end
+
+	dVal.FreshIdentifyTimes = dVal.FreshIdentifyTimes + 1
+	local nTimes = 1 
+	for i=1,table.getn(IdentifyActivityConfig.monsters[nTimes]) do
+		Fuben.createMonsters(hScene, IdentifyActivityConfig.monsters[nTimes][i].nMonsterID, IdentifyActivityConfig.monsters[nTimes][i].posX1, IdentifyActivityConfig.monsters[nTimes][i].posX2, IdentifyActivityConfig.monsters[nTimes][i].posY, IdentifyActivityConfig.monsters[nTimes][i].nCount, IdentifyActivityConfig.monsters[nTimes][i].nLiveTime)
+	end
+
+	System.broadcastTipmsg(Lang.Activity.t00032,2+128)
+end
+
+--MonDieDispatcher.register(195, MonDieDispatcher.Mon195Die )
+--MonDieDispatcher.register(196, MonDieDispatcher.Mon195Die )

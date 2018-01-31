@@ -1,0 +1,20 @@
+--lua script
+--争霸管理员
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\WuLinZhengBa\WuLinZhengBa.txt" once
+--#include "WuLinZhengBa_Common.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+
+function WuLinManager_Main(sysarg)
+	local str = ""
+	
+	str = str..Lang.Activity.a00061
+	str = str.."\\<#BL"..Lang.Activity.a00062.."/@OnBeTheChief>"
+	str = str.."\\<#BL"..Lang.Activity.a00063.."/@OnLeftActivity>"
+	return str
+end
+
+table.insert(MainFnTable, WuLinManager_Main)
+

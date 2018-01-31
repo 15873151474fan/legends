@@ -1,0 +1,695 @@
+
+--充值促销系统 
+PaySales = 
+{
+
+--坐骑促销
+	--[[
+	{
+		id = 1,				--id标识 这个也是客户端按钮ID 需要通知客户端添加
+		
+		--时间只能使用其中之一 同个ID 不能重叠 
+		--同时必须在scripttimer中配置 开始时间
+		--{ month={},day={},week={},hour={0},minute ={0},openserverdays={3},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "PaySalesStart"}, --开始时间
+		openDay = {3, 4},		--开服时间段 	--如果此项配置为nil 则使用 combineDay 时间段
+		combineDay = {1, 2},	--合服服时间段 	--如果此项配置为nil 则使用 (openTime) 时间段
+		openTime = {2012,9,24,10,0,0, 2012,9,26,10,0,0},	--开启开始-结束时间
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 995,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00100,x = 51,y = 62},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标
+			{name = 00101,x = 177,y = 239},
+			{name = 00102,x = 142,y = 227},
+			{name = 00103,x = 63,y = 248},
+			{name = 00104,x = 428,y = 26},
+			{name = 00105,x = 111,y = 0},
+		},
+		awards = 
+		{
+			{type = 0, id = 971, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1044, count = 5},					
+			{type = 0, id = 731, count = 10},
+			{type = 0, id = 918, count = 1},	
+			{type = 0, id = 626, count = 5},				
+			{type = 0, id = 383, count = 5},		
+			{type = 0, id = 379, count = 10},		
+
+			
+		},
+	},
+	--]]
+	
+	
+	{
+		id = 1,				--id标识
+		
+		openDay = {3, 4},		--开服时间段 	--如果此项配置为nil 则使用 combineDay 时间段2012-11-19
+
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 995,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00100,x = 51,y = 62},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标
+			{name = 00101,x = 177,y = 239},
+			{name = 00102,x = 142,y = 227},
+			{name = 00103,x = 63,y = 248},
+			{name = 00104,x = 428,y = 26},
+			{name = 00105,x = 111,y = 0},
+		},
+		awards = 
+		{
+			{type = 0, id = 971, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1044, count = 5},					
+			{type = 0, id = 731, count = 10},
+			{type = 0, id = 918, count = 1},	
+			{type = 0, id = 626, count = 5},				
+			{type = 0, id = 383, count = 5},		
+			{type = 0, id = 379, count = 10},		
+
+			
+		},
+	},
+	--魂石促销
+	{
+		id = 2,				--id标识
+		
+		openDay = {5, 6},		--开服时间段 	--如果此项配置为nil 则使用 (beginTime - overTime) 时间段
+
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 996,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00200,x = 51,y = 62},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00202,x = 142,y = 227},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00204,x = 428,y = 26},--主题原画
+			{name = 00201,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+
+			
+			{type = 0, id = 800, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 906, count = 3},		
+			{type = 0, id = 779, count = 1},
+			{type = 0, id = 789, count = 1},	
+			{type = 0, id = 809, count = 1},				
+			{type = 0, id = 383, count = 5},		
+			{type = 0, id = 379, count = 10},		
+
+		},
+	},
+	
+	
+		--英雄促销
+	{
+		id = 3,				--id标识
+		
+		openDay = {7, 8},		--开服时间段 	--如果此项配置为nil 则使用 (beginTime - overTime) 时间段
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 997,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00300,x = 51,y = 62},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00302,x = 142,y = 227},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00304,x = 428,y = 26},--主题原画
+			{name = 00301,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 920, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1066, count = 3},					
+			{type = 0, id = 830, count = 3},
+			{type = 0, id = 832, count = 5},	
+			{type = 0, id = 1004, count = 1},				
+			{type = 0, id = 383, count = 5},		
+			{type = 0, id = 379, count = 10},		
+
+		
+		},
+	},
+	
+	
+	
+		--合服促销
+	{
+		id = 4,				--id标识
+		
+		combineDay = {1, 2},	--合服服时间段 	--如果此项配置为nil 则使用 (openTime) 时间段
+		
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 1179,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00400,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00302,x = 133,y = 227},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00404,x = 451,y = -43},--主题原画
+			{name = 00401,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 1037, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 282, count = 4},					
+			{type = 0, id = 1172, count = 5},
+			{type = 0, id = 731, count = 20},	
+			{type = 0, id = 1076, count = 1},				
+			{type = 0, id = 799, count = 1},		
+			{type = 0, id = 830, count = 5},		
+
+		
+		},
+	},
+		--圣诞促销
+	{
+		id = 5,				--id标识
+		
+		openTime = {2012,12,24,0,0,0, 2012,12,25,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 1432,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00500,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00502,x = 155,y = 256},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00504,x = 425,y = 22},--主题原画
+			{name = 00501,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 1385, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1037, count = 3},					
+			{type = 0, id = 1119, count = 1},
+			{type = 0, id = 283, count = 4},	
+			{type = 0, id = 1402, count = 2},				
+			{type = 0, id = 1362, count = 5},		
+			{type = 0, id = 910, count = 10},		
+
+		
+		},
+	},
+			--元旦促销
+	{
+		id = 6,				--id标识
+		
+		openTime = {2012,12,31,0,0,0, 2013,1,31,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 1433,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00600,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00601,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 1402, count = 6},	--领取礼包必须为第一个
+			{type = 0, id = 1121, count = 1},					
+			{type = 0, id = 283, count = 8},
+			{type = 0, id = 1037, count = 5},	
+			{type = 0, id = 1362, count = 10},				
+			{type = 0, id = 1172, count = 10},		
+			{type = 0, id = 910, count = 10},		
+
+		
+		},
+	},
+	--五一促销
+	{
+		id = 7,				--id标识
+		
+		openTime = {2013,5,1,0,0,0, 2013,5,31,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 1959,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00700,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00701,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 1715, count = 1,quality = 3},	--领取礼包必须为第一个
+			{type = 0, id = 1402, count = 2},					
+			{type = 0, id = 1756, count = 10},
+			{type = 0, id = 1121, count = 1},	
+			{type = 0, id = 1037, count = 2},						
+			{type = 0, id = 1922, count = 1, job = 1},
+			{type = 0, id = 1924, count = 1, job = 2},
+			{type = 0, id = 1926, count = 1, job = 3},
+			{type = 0, id = 910, count = 10},		
+		},
+	},
+	--七月促销
+	{
+		id = 8,				--id标识
+		
+		openTime = {2013,7,1,0,0,0, 2013,7,20,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2133,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 1823, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1920, count = 2},					
+			{type = 0, id = 1402, count = 5},
+			{type = 0, id = 982, count = 1,job = 1},
+			{type = 0, id = 983, count = 1,job = 2},
+			{type = 0, id = 984, count = 1,job = 3},
+			{type = 0, id = 2111, count = 30},						
+			{type = 0, id = 1990, count = 30},
+			{type = 0, id = 910, count = 10},		
+		},
+	},
+	--八月促销
+	{
+		id = 9,				--id标识
+		
+		openTime = {2013,8,1,0,0,0, 2013,8,12,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2241,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2032, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1933, count = 1},					
+			{type = 0, id = 1402, count = 5},
+			{type = 0, id = 750, count = 1,job = 1},
+			{type = 0, id = 760, count = 1,job = 2},
+			{type = 0, id = 770, count = 1,job = 3},
+			{type = 0, id = 1172, count = 20},						
+			{type = 0, id = 1990, count = 30},
+			{type = 0, id = 910, count = 10},		
+		},
+	},
+	--七夕促销
+	{
+		id = 10,				--id标识
+		
+		openTime = {2013,8,13,0,0,0, 2013,8,20,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2256,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2052, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1543, count = 1},					
+			{type = 0, id = 1544, count = 1},
+			{type = 0, id = 1402, count = 5},	
+			{type = 0, id = 2111, count = 50},						
+			{type = 0, id = 1990, count = 50},
+			{type = 0, id = 362, count = 1},		
+		},
+	},
+
+		--九月促销
+	{
+		id = 11,				--id标识
+		
+		openTime = {2013,9,1,0,0,0, 2013,9,10,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2302,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 1944, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1920, count = 1},					
+			{type = 0, id = 1402, count = 10},
+			{type = 0, id = 2140, count = 15},	
+			{type = 0, id = 2141, count = 15},						
+			{type = 0, id = 2142, count = 15},
+			{type = 0, id = 1986, count = 5},		
+		},
+	},
+
+		--中秋礼包
+	{
+		id = 12,				--id标识
+		
+		openTime = {2013,9,17,0,0,0, 2013,9,22,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 2424,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2467, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 2106, count = 1},					
+			{type = 0, id = 1402, count = 5},
+			{type = 0, id = 750, count = 1,job = 1},
+			{type = 0, id = 760, count = 1,job = 2},
+			{type = 0, id = 770, count = 1,job = 3},
+			{type = 0, id = 1990, count = 20},						
+			{type = 0, id = 1021, count = 5},
+			{type = 0, id = 2291, count = 9},		
+		},
+	},
+
+		--国庆礼包
+	{
+		id = 13,				--id标识
+		
+		openTime = {2013,10,1,0,0,0, 2013,10,10,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2425,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2466, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1944, count = 1},					
+			{type = 0, id = 1946, count = 1},
+			{type = 0, id = 1402, count = 10},	
+			{type = 0, id = 2111, count = 30},						
+			{type = 0, id = 1987, count = 5},
+			{type = 0, id = 1986, count = 9},		
+		},
+	},
+
+		--神都礼包
+	{
+		id = 14,				--id标识
+		
+		openTime = {2013,10,25,0,0,0, 2013,10,31,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 2578,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2564, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 1920, count = 1},					
+			{type = 0, id = 1402, count = 5},
+			{type = 0, id = 2558, count = 30},	
+			{type = 0, id = 2563, count = 10},						
+			{type = 0, id = 1987, count = 5},
+			{type = 0, id = 1986, count = 9},		
+		},
+	},
+
+	--岁末礼包
+	{
+		id = 15,				--id标识
+		
+		openTime = {2013,12,1,0,0,0, 2013,12,7,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 2692,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2630, count = 1, strong = 15},	--领取礼包必须为第一个
+			{type = 0, id = 2673, count = 1},					
+			{type = 0, id = 1920, count = 1},
+			{type = 0, id = 1402, count = 5},	
+			{type = 0, id = 2690, count = 1,job = 1},
+			{type = 0, id = 2689, count = 1,job = 2},
+			{type = 0, id = 2588, count = 1,job = 3},						
+			{type = 0, id = 2563, count = 10},
+			{type = 0, id = 2291, count = 9},		
+		},
+	},
+
+	--圣诞礼包
+	{
+		id = 16,				--id标识
+		
+		openTime = {2013,12,24,0,0,0, 2013,12,26,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2775,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2630, count = 1, strong = 15},	--领取礼包必须为第一个
+			{type = 0, id = 2662, count = 1},					
+			{type = 0, id = 1920, count = 1},
+			{type = 0, id = 1037, count = 10},	
+			{type = 0, id = 2781, count = 1,job = 1},
+			{type = 0, id = 2782, count = 1,job = 2},
+			{type = 0, id = 2783, count = 1,job = 3},						
+			{type = 0, id = 1083, count = 1},
+			{type = 0, id = 2563, count = 20},
+					
+		},
+	},
+	
+	--元旦礼包
+	{
+		id = 17,				--id标识
+		
+		openTime = {2013,12,31,0,0,0, 2014,1,2,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2776,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2632, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 2673, count = 1},
+			{type = 0, id = 2136, count = 3},
+			{type = 0, id = 1037, count = 20},
+			{type = 0, id = 2603, count = 30},	
+			{type = 0, id = 2781, count = 1,job = 1},
+			{type = 0, id = 2782, count = 1,job = 2},
+			{type = 0, id = 2783, count = 1,job = 3},						
+			{type = 0, id = 1083, count = 1},			
+		},
+	},
+
+	--寒冬礼包
+	{
+		id = 18,				--id标识
+		
+		openTime = {2014,1,17,0,0,0, 2014,1,19,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2869,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2136, count = 3},	--领取礼包必须为第一个
+			{type = 0, id = 799, count = 1},
+			{type = 0, id = 1037, count = 10},
+			{type = 0, id = 1083, count = 1},
+			{type = 0, id = 2603, count = 20},	
+			{type = 0, id = 2784, count = 1,job = 1},
+			{type = 0, id = 2791, count = 1,job = 2},
+			{type = 0, id = 2796, count = 1,job = 3},
+			{type = 0, id = 2781, count = 1,job = 1},
+			{type = 0, id = 2782, count = 1,job = 2},
+			{type = 0, id = 2783, count = 1,job = 3},						
+		},
+	},
+
+	--新春礼包
+	{
+		id = 19,				--id标识
+		
+		openTime = {2014,1,30,0,0,0, 2014,2,3,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 2888,		--目标元宝数
+		awardItemId = 2870,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00106,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2801, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 2673, count = 1},
+			{type = 0, id = 1037, count = 10},
+			{type = 0, id = 1981, count = 10},
+			{type = 0, id = 1983, count = 10},	
+			{type = 0, id = 2583, count = 1,job = 1},
+			{type = 0, id = 2586, count = 1,job = 2},
+			{type = 0, id = 2634, count = 1,job = 3},						
+			{type = 0, id = 1083, count = 2},			
+		},
+	},
+
+	--雨水礼包
+	{
+		id = 20,				--id标识
+		
+		openTime = {2014,2,18,0,0,0, 2014,2,20,23,59,59},	--开启开始-结束时间
+		
+		
+		goalCount = 1888,		--目标元宝数
+		awardItemId = 2871,			--礼包ID
+		
+		imageList = 
+		{
+			{name = 00900,x = 58,y = 69},	--name:图片编号 x:图片摆放x坐标 y:图片摆放y坐标--文字
+			{name = 00101,x = 177,y = 239},--奖励框标题
+			{name = 00602,x = 155,y = 261},--重点奖励的原画
+			{name = 00103,x = 63,y = 248},--奖励框
+			{name = 00604,x = 427,y = 40},--主题原画
+			{name = 00801,x = 111,y = 0},--大标题
+		},
+		awards = 
+		{
+			{type = 0, id = 2500, count = 1},	--领取礼包必须为第一个
+			{type = 0, id = 2032, count = 1},
+			{type = 0, id = 2662, count = 1},
+			{type = 0, id = 1037, count = 5},
+			{type = 0, id = 1987, count = 10},	
+			{type = 0, id = 2781, count = 1,job = 1},
+			{type = 0, id = 2782, count = 1,job = 2},
+			{type = 0, id = 2783, count = 1,job = 3},						
+			{type = 0, id = 1083, count = 1},			
+		},
+	},
+}

@@ -1,0 +1,66 @@
+﻿
+
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+WDYBRankPt =
+{
+	RankName = "WithDrawYuanBaoPerDay",
+	RankFile = "WithDrawYuanBaoPerDay.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+	},	
+	ClinetShowCount = 0,
+	ClientShow = 0,
+}
+
+function OnAchieveWithDrawYuanBao(sysarg, nYuanBao)
+	local pRanking = Ranking.getRanking(WDYBRankPt.RankName)
+	if not pRanking then return end
+	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+	if not pRankItem then
+		pRankItem = Ranking.addItem(pRanking, nActorId, nYuanBao)
+	else
+		pRankItem = Ranking.updateItem(pRanking, nActorId, nYuanBao)
+	end
+	
+	local nNowPoint = Ranking.getPoint(pRankItem)
+	if nNowPoint >= 1000 then
+		if Actor.isAchieveFinished(sysarg, 257) == false then
+			Actor.triggerAchieveEvent(sysarg, 95, nNowPoint)
+		end
+	end	
+end
+
+ --清空操作 是从 dmkjhandle.txt 内调用的 因为寻宝的库 每天0点会刷新 
+function ClearWithDrawYuanBaoRank()
+    --print("清空每日提取元宝排行榜")
+	local pRanking = Ranking.getRanking(WDYBRankPt.RankName)
+    if pRanking then 
+      --print("WithDrawYuanBaoPerDay cleared")
+	  Ranking.clearRanking(pRanking)
+    end
+	
+    pRanking = Ranking.getRanking("EVDReciveRecord")
+    if pRanking then 
+      --print("EVDReciveRecord cleared")
+	  Ranking.clearRanking(pRanking)
+    end
+end
+
+
+
+
+
+function WDYBRanking_Init(npcobj)
+	local config = WDYBRankPt	--提取元宝
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function WDYBRanking_Fina(npcobj)
+	local config = WDYBRankPt	--提取元宝
+	Rank.Fina(config.RankName, config.RankFile)
+end
+
+table.insert(InitFnTable,WDYBRanking_Init)
+table.insert(FinaFnTable,WDYBRanking_Fina)

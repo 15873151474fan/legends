@@ -1,0 +1,744 @@
+﻿--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\ride\AllRideConfig.txt" once
+--#include "data\config\ride\RideGameConfig.txt" once
+
+--坐骑进阶
+function OnUpRideLevelOp(sysarg,args)
+--print("OnUpRideLevelOp:")
+	local nType = args[2]
+	local nLevel = Actor.getRideOrder(sysarg)
+	local nStar = Actor.getRideStarIndex(sysarg)
+
+	if RideGameConfig.rideRankConfig[nLevel+1] == nil then return end
+	--if (nLevel + 1) == table.getn(RideGameConfig.rideRankConfig) and nStar == 10 then
+	local nCurLevel = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)
+	local nCurExp = Actor.getIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP)
+	if CheckRideMaxLevel(nCurLevel, nCurExp) then
+		Actor.sendTipmsg( sysarg, Lang.Gem.t00040,ttFlyTip)
+		return 
+	end
+
+	if CheckRideAwake(sysarg, nCurLevel, nCurExp) ~= false then
+		return
+	end
+
+	local nIndex = 0
+	if nLevel==0 then	--0阶0星
+		nIndex = nStar + 1
+	else
+		nIndex = nStar
+	end
+
+	if RideGameConfig.rideRankConfig[nLevel+1].starOrder[nIndex] == nil then return end
+
+	local nRideConfig = RideGameConfig.rideRankConfig[nLevel+1].starOrder[nIndex]
+    --print("nCurLevel:"..nCurLevel)
+    if nCurLevel  >= RideGameConfig.RideMaxLevel then
+		Actor.sendTipmsg( sysarg,Lang.Gem.t00048,ttFlyTip )
+		return
+    end 
+    --print("OnUpRideLevelOp:"..nType)
+	if nType == 1 then		--草料提升
+		OnUpByGrassOp(sysarg,nRideConfig,RideGameConfig.rideRankConfig[nLevel+1].exprate)
+	elseif nType == 2 then		--元宝提升
+		OnUpLevelByYbOp(sysarg,nRideConfig,RideGameConfig.rideRankConfig[nLevel+1].exprate)
+	elseif nType == 3 then		--一键提升
+		OnekeyUpRideLevel(sysarg)
+	end
+end
+
+--草料提升
+function OnUpByGrassOp(sysarg,nRideConfig,exprate)
+	if nRideConfig == nil then return end
+	
+	local svar = Actor.getStaticVar(sysarg)
+
+	if svar.UpByHonourTimes == nil then
+		svar.UpByHonourTimes = 0
+	end
+
+    local ItemId1Number = Actor.getItemCount(sysarg, RideGameConfig.ItemId1)
+    if ItemId1Number < nRideConfig.UpLevelType[1].value then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Gem.t00031,nRideConfig.UpLevelType[1].value),ttFlyTip)
+ 	    return
+ 	end
+
+    Actor.removeItem(sysarg, RideGameConfig.ItemId1, nRideConfig.UpLevelType[1].value, -1,-1,-1, Lang.Gem.t00057, 197)
+	--[[local nHonour = Actor.getIntProperty(sysarg,PROP_ACTOR_HONOUR)
+	if nHonour < nRideConfig.UpLevelType[1].value then 
+		Actor.sendTipmsg( sysarg, string.format(Lang.Gem.t00031,nRideConfig.UpLevelType[1].value),ttFlyTip)
+		return
+	end--]]
+
+	Actor.giveAward(sysarg,21,0,-nRideConfig.UpLevelType[1].value,0,0,0)
+
+	local addExp = nRideConfig.UpLevelType[1].AwardExp
+	
+	svar.UpByHonourTimes = svar.UpByHonourTimes + 1
+
+	if svar.UpByHonourTimes > nRideConfig.UpLevelType[1].minAwardTimes[1] then
+		local nRandNum = System.getRandomNumber(10000)
+		if nRandNum < nRideConfig.UpLevelType[1].minAwardTimes[2] then
+			local pack = DataPack.allocPacket(sysarg, 42, 2)
+			if (pack ~= nil) then
+				DataPack.writeChar(pack, 1)
+				DataPack.flush(pack)
+			end
+
+			addExp = addExp * exprate
+			svar.UpByHonourTimes = 0
+		end
+	end
+
+
+	AddRideExp(sysarg,addExp,nRideConfig)
+	--Actor.triggerQuestEvent(sysarg, 127, 50100, 1 )
+	Actor.onThanksConsumeEvent(sysarg,1,1)
+end
+
+--元宝提升
+function OnUpLevelByYbOp(sysarg,nRideConfig,exprate)
+	if nRideConfig == nil then return end
+	
+	local svar = Actor.getStaticVar(sysarg)
+
+	if svar.UpLevelByHonourTimes == nil then
+		svar.UpLevelByHonourTimes = 0
+	end
+
+	--local itemPtr = Item.getBagItemPtrById(sysarg,nRideConfig.UpLevelType[3].value)
+
+	--if itemPtr then		--背包有快马鞭
+		--Item.removeItem(sysarg,itemPtr,1,"",5)
+	--else
+		local myYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+		if myYb < nRideConfig.UpLevelType[2].value then
+			Actor.sendTipmsg( sysarg, string.format(Lang.Gem.t00033,nRideConfig.UpLevelType[2].value),ttFlyTip)
+			return
+		end
+
+		Actor.giveAward(sysarg,15,0,-nRideConfig.UpLevelType[2].value,0,0,0,0,162,Lang.Gem.t00034)
+	--end
+
+	local addExp = nRideConfig.UpLevelType[2].AwardExp
+	svar.UpLevelByHonourTimes = svar.UpLevelByHonourTimes + 1
+
+	if svar.UpLevelByHonourTimes > nRideConfig.UpLevelType[2].minAwardTimes[1] or svar.UpLevelByHonourTimes > nRideConfig.UpLevelType[2].maxAwardTimes[1] then
+		local nRandNum = System.getRandomNumber(10000)
+		
+		local nType = 0
+		if nRandNum < nRideConfig.UpLevelType[2].maxAwardTimes[2] and svar.UpLevelByHonourTimes > nRideConfig.UpLevelType[2].maxAwardTimes[1] then
+			local maxExp = nRideConfig.needExp
+			local curExp = Actor.getIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP)
+			addExp = maxExp - curExp
+
+			nType = 2
+		elseif nRandNum < nRideConfig.UpLevelType[2].minAwardTimes[2] and svar.UpLevelByHonourTimes > nRideConfig.UpLevelType[2].minAwardTimes[1] then
+			addExp = addExp * exprate
+			nType = 1
+		end
+
+		if nType > 0 then
+			local pack = DataPack.allocPacket(sysarg, 42, 2)
+			if (pack ~= nil) then
+				DataPack.writeChar(pack, nType)
+				DataPack.flush(pack)
+			end
+			svar.UpLevelByHonourTimes = 0
+		end
+	end
+
+    --print("OnUpRideLevelOp:")
+	AddRideExp(sysarg,addExp,nRideConfig)
+	--Actor.triggerQuestEvent(sysarg, 127, 50100, 1 )
+	Actor.onThanksConsumeEvent(sysarg,1,1)
+end
+
+
+--给坐骑加经验
+function AddRideExp(sysarg,nValue,nRideConfig)
+	if nValue <= 0 then return end
+	
+	local maxExp = nRideConfig.needExp
+	local curExp = Actor.getIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP)
+	
+	local nOldOrder = Actor.getRideOrder(sysarg)  
+    local nOldStar  = Actor.getRideStarIndex(sysarg)  
+	local nOldLevel = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)	
+	if nValue + curExp >= maxExp then
+		local nOrder = Actor.getRideOrder(sysarg)
+		local nStar = Actor.getRideStarIndex(sysarg)
+		
+		--print(nOrder)
+		--print(nStar)
+		
+		local bMaxLevel = false
+		local curValue = nValue + curExp
+		local bAwake = false
+		while curValue >= maxExp do
+			local nLevel = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)
+			
+			if CheckRideAwake(sysarg, nLevel, curValue) ~= false then
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,maxExp)
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_AWAKE,0)
+				bAwake = true
+				break
+			end
+			
+			if CheckRideMaxLevel(nLevel, curValue) then
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,maxExp)
+				bMaxLevel = true
+				break
+			end
+			
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL,nLevel+1)
+			TriggerRideLevel(sysarg)
+            local nLevel = Actor.getRideOrder(sysarg)
+            if (nLevel + 1) >= #RideGameConfig.rideRankConfig then
+              Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP, 0)
+		      return
+            end
+			
+			local nIndex = Actor.getRideOrder(sysarg)
+			local nStarIndex = Actor.getRideStarIndex(sysarg)
+			local tmpConfig = RideGameConfig.rideRankConfig[nIndex+1].starOrder[nStarIndex]
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,nValue + curExp - maxExp)
+			curValue = nValue + curExp - maxExp
+			maxExp = tmpConfig.needExp
+		end
+		
+		if bMaxLevel ~= true and bAwake ~= true and nStar == 10 then
+			Actor.sendTipmsg( sysarg, Lang.Gem.t00041,ttFlyTip)
+		end
+
+		local svar = Actor.getStaticVar(sysarg)
+		svar.UpLevelByHonourTimes = nil
+		svar.UpByHonourTimes = nil
+		Actor.collectOperate(sysarg,0)
+	else
+		Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,nValue + curExp)
+	end
+
+	Actor.sendTipmsg( sysarg, string.format(Lang.Gem.t00032,nValue),ttFlyTip)
+	local nNewOrder = Actor.getRideOrder(sysarg)
+    local nNewStar  = Actor.getRideStarIndex(sysarg)
+    --print("AddRideExp:"..nNewStar)
+	if (nNewOrder > nOldOrder) or ( nNewStar > nOldStar) then
+		local rideName = System.getRideNameByLevel(Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL))
+		if rideName then
+			local str2 = string.format(Lang.GuildLang.m00165,Actor.getName(sysarg), nNewOrder,nNewStar,rideName)
+			System.broadcastTipmsg(str2,2+128)
+		end
+	end
+end
+
+--一键提升(增加修改，优先消耗马鞭) 
+function OnekeyUpRideLevel(sysarg)
+	if Actor.isVip(sysarg) == false then
+		Actor.sendTipmsg( sysarg, Lang.Gem.t00044,ttFlyTip)
+		return
+	end
+
+	local myYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+	if myYb < RideGameConfig.oneKeyNeedYb then
+		Actor.sendTipmsg( sysarg, Lang.Gem.t00046,ttFlyTip)
+		return
+	end
+
+	local nOldOrder = Actor.getRideOrder(sysarg)
+    local nOldStar  = Actor.getRideStarIndex(sysarg)
+	Actor.giveAward(sysarg,15,0,-RideGameConfig.oneKeyNeedYb,0,0,0,0,162,Lang.Gem.t00045)
+	
+	local resultLev = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)			--坐骑一键提升后的等级
+	local resultExp = Actor.getIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP)			--坐骑一键提升后的经验
+	local totalExp = 0			--坐骑一键提升总共获得经验
+	local minTimes = 0			--小惊喜的次数
+	local maxTimes = 0			--大惊喜的次数 
+
+	local nLevel = Actor.getRideOrder(sysarg)
+	local nStar = Actor.getRideStarIndex(sysarg)
+
+	local nRideLevel = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)
+
+	--if (nLevel + 1) == table.getn(RideGameConfig.rideRankConfig) and nStar == 10 then
+	if CheckRideMaxLevel(resultLev, resultExp) then
+		Actor.sendTipmsg( sysarg, Lang.Gem.t00040,ttFlyTip)
+		return 
+	end 
+
+	local svar = Actor.getStaticVar(sysarg)
+
+	if svar.UpLevelByHonourTimes == nil then
+		svar.UpLevelByHonourTimes = 0
+	end
+	
+	local bAwake = false
+	for i=0,RideGameConfig.oneKeyUpTimes do
+		nLevel =GetRideOderByLevel(nRideLevel)
+		nStar = GetRideStarByLevel(nRideLevel)
+		
+		if RideGameConfig.rideRankConfig[nLevel+1] == nil then 
+			break
+		end
+		
+		local nCurExp = Actor.getIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP)			--坐骑一键提升后的经验
+		--if (nLevel + 1) == table.getn(RideGameConfig.rideRankConfig) and nStar == 10 then
+		if CheckRideMaxLevel(nRideLevel, nCurExp) then
+			break 
+		end 
+
+		local nIndex = 0
+		if nLevel==0 then	--0阶0星
+			nIndex = nStar + 1
+		else
+			nIndex = nStar
+		end
+
+		if RideGameConfig.rideRankConfig[nLevel+1].starOrder[nIndex] == nil then 
+			break
+		end
+		
+		local nRideConfig = RideGameConfig.rideRankConfig[nLevel+1].starOrder[nIndex]
+		local addExp = nRideConfig.UpLevelType[2].AwardExp
+
+		svar.UpLevelByHonourTimes = svar.UpLevelByHonourTimes + 1
+		if svar.UpLevelByHonourTimes > nRideConfig.UpLevelType[2].minAwardTimes[1] or svar.UpLevelByHonourTimes > nRideConfig.UpLevelType[2].maxAwardTimes[1] then
+			local nRandNum = System.getRandomNumber(10000)
+			
+			local nType = 0
+			if nRandNum < nRideConfig.UpLevelType[2].maxAwardTimes[2] and svar.UpLevelByHonourTimes > nRideConfig.UpLevelType[2].maxAwardTimes[1] then
+				local maxExp = nRideConfig.needExp
+				local curExp = resultExp
+				addExp = maxExp - curExp
+				maxTimes = maxTimes + 1
+				nType = 2
+			elseif nRandNum < nRideConfig.UpLevelType[2].minAwardTimes[2] and svar.UpLevelByHonourTimes > nRideConfig.UpLevelType[2].minAwardTimes[1] then
+				addExp = addExp * RideGameConfig.rideRankConfig[nLevel+1].exprate
+				nType = 1
+				minTimes = minTimes + 1
+			end
+
+			if nType > 0 then
+				svar.UpLevelByHonourTimes = 0
+			end
+		end
+
+		local maxRideExp = nRideConfig.needExp
+
+		
+		if addExp + resultExp >= maxRideExp then			
+			local curValue = addExp + resultExp
+			
+			while curValue >= maxRideExp do
+				
+				if CheckRideAwake(sysarg, nRideLevel, curValue) ~= false then
+					
+					Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_AWAKE,0)
+					bAwake = true
+					break
+				end
+				
+				if CheckRideMaxLevel(nRideLevel, curValue) then
+					
+					local nRideIndex = GetRideOderByLevel(nRideLevel)
+					local nStarIndex = GetRideStarByLevel(nRideLevel)
+					local tmpConfig = RideGameConfig.rideRankConfig[nRideIndex+1].starOrder[nStarIndex]
+					curValue = tmpConfig.needExp
+					
+					Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,tmpConfig.needExp)
+					break
+				end
+				
+				nRideLevel = nRideLevel + 1
+				
+				local nRideIndex = GetRideOderByLevel(nRideLevel)
+				local nStarIndex = GetRideStarByLevel(nRideLevel)
+				
+				local tmpConfig = RideGameConfig.rideRankConfig[nRideIndex+1].starOrder[nStarIndex]
+				curValue = curValue - maxRideExp
+				if tmpConfig then
+					maxRideExp = tmpConfig.needExp
+				end
+				
+				
+				
+				--[[
+				if (nLevel + 1) == table.getn(RideGameConfig.rideRankConfig) and nStar == 9 then
+					resultExp = maxRideExp
+					break
+				else
+					local nRideIndex = GetRideOderByLevel(nRideLevel)
+					local nStarIndex = GetRideStarByLevel(nRideLevel)
+					local tmpConfig = RideGameConfig.rideRankConfig[nRideIndex+1].starOrder[nStarIndex]
+					curValue = curValue - maxRideExp
+					if tmpConfig then
+						maxRideExp = tmpConfig.needExp
+					end
+				end 
+				--]]
+			end
+
+			resultExp = curValue
+			totalExp = totalExp + addExp
+
+			svar.UpLevelByHonourTimes = 0
+			svar.UpByHonourTimes = 0
+			
+			if bAwake ~= false then
+				resultExp = maxRideExp
+				break
+			end
+		else
+			totalExp = totalExp + addExp
+			resultExp = resultExp + addExp
+		end
+	end
+	
+	local nOldLevel = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)	
+	if nRideLevel > nOldLevel then
+		System.sendCommonLog(903,0,"",nOldLevel,nRideLevel)
+	end
+
+	Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL,nRideLevel)
+	TriggerRideLevel(sysarg)
+	
+	Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,resultExp)
+    --[[local nLevel = Actor.getRideOrder(sysarg)
+    if (nLevel + 1) >= #RideGameConfig.rideRankConfig then
+        Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP, 0)
+		return
+    end]]
+	
+	OnNewActivityRideLevUp(sysarg)
+
+	local RateExp = 0
+	local nRateCount = RideGameConfig.oneKeyRate[2]
+	if nRateCount > 0 then
+		local nRateRandNum = System.getRandomNumber(nRateCount) + 1
+		if nRateRandNum > nRateCount then
+			nRateRandNum = nRateCount
+		end
+		
+		if nRateRandNum <= 0 then
+			nRateRandNum =  RideGameConfig.oneKeyRate[1]
+		end
+		
+		RateExp = math.floor(totalExp * nRateRandNum / 100)
+	end
+	
+	if bAwake ~= true then
+		local pack = DataPack.allocPacket(sysarg, 42, 3)
+		if (pack ~= nil) then
+			DataPack.writeInt(pack, totalExp)
+			DataPack.writeInt(pack, minTimes)
+			DataPack.writeInt(pack, maxTimes)
+			DataPack.writeInt(pack, RateExp)
+			DataPack.flush(pack)
+		end
+	end
+	
+	if nRideLevel ~= nOldLevel then
+		Actor.collectOperate(sysarg,0)
+	end
+
+	local nNewOrder = Actor.getRideOrder(sysarg)
+    local nNewStar  = Actor.getRideStarIndex(sysarg)
+	if (nNewOrder > nOldOrder) or ( nNewStar > nOldStar) then
+		local rideName = System.getRideNameByLevel(Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL))
+		if rideName then
+			local str2 = string.format(Lang.GuildLang.m00165,Actor.getName(sysarg), nNewOrder,nNewStar,rideName)
+			System.broadcastTipmsg(str2,2+128)
+		end
+	end
+	--Actor.triggerQuestEvent(sysarg, 127, 50100, 1 )
+	Actor.onThanksConsumeEvent(sysarg,1,RideGameConfig.oneKeyUpTimes) 
+end
+
+--[[给坐骑加经验
+function OnRideAddExp(nValue)
+---print("OnRideAddExp:")
+	local nOrder = Actor.getRideOrder(sysarg)
+	local nStar = Actor.getRideStarIndex(sysarg)
+
+	
+	if RideGameConfig.rideRankConfig[nOrder+1] == nil then 
+		return
+	end
+
+	--if (nOrder + 1) == table.getn(RideGameConfig.rideRankConfig) and nStar == 10 then
+	local nCurLevel = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)
+	local nCurExp = Actor.getIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP)
+	if CheckRideMaxLevel(nCurLevel, nCurExp) then
+		return 
+	end 
+
+	local nIndex = 0
+	if nOrder==0 then	--0阶0星
+		nIndex = nStar + 1
+	else
+		nIndex = nStar
+	end
+
+	if RideGameConfig.rideRankConfig[nLevel+1].starOrder[nIndex] == nil then 
+		return
+	end
+	
+	local nRideConfig = RideGameConfig.rideRankConfig[nLevel+1].starOrder[nIndex]
+	local maxExp = nRideConfig.needExp
+	local curExp = Actor.getIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP)
+
+	if nValue + curExp >= maxExp then
+		local nLevel = Actor.getRideOrder(sysarg)
+		local curStar = Actor.getRideStarIndex(sysarg)
+		
+		local bAwake = false
+		local curValue = nValue + curExp
+		while curValue >= maxExp do
+			local tmpLevel = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)
+			
+			if CheckRideAwake(sysarg, tmpLevel, curValue) ~= false then
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,maxExp)
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_AWAKE,0)
+				bAwake = true
+				break
+			end
+			
+			if CheckRideMaxLevel(tmpLevel, curValue) then
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,maxExp)
+				break
+			end
+			--print("OnRideAddExp:")
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL,tmpLevel+1)
+			local nIndex = Actor.getRideOrder(sysarg)
+			local nStarIndex = Actor.getRideStarIndex(sysarg)
+			local tmpConfig = RideGameConfig.rideRankConfig[nIndex+1].starOrder[nStarIndex]
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,nValue + curExp - maxExp)
+			curValue = nValue + curExp - maxExp
+			maxExp = tmpConfig.needExp
+		end
+	else
+		Actor.setUIntProperty(sysarg,PROP_ACTOR_MOUNT_EXP,nValue + curExp)
+	end
+
+end]]
+
+--坐骑升星或者升阶任务回调 
+function TriggerRideLevel(sysarg)
+  local nOrder = Actor.getRideOrder(sysarg)
+  local nStar = Actor.getRideStarIndex(sysarg)
+  local Level = nOrder*100 + nStar 
+  --print("TriggerRideLevel:"..Level)
+  Actor.triggerQuestEvent(sysarg, 44, Level, 0)  --任务 
+  --Actor.triggerAchieveEvent( sysarg,98,nOrder,nStar,0,0)--成就 
+end
+
+--获得阶
+function GetRideOderByLevel(nLevel)
+	local nResult = 0
+	if nLevel==0 then
+		nResult = 0
+	else
+		nResult = math.floor((nLevel-1)/10)
+	end
+
+	return nResult
+end
+
+--获得星
+function GetRideStarByLevel(nLevel)
+	local nResult = 0
+	if nLevel==0 then
+		nResult = 0
+		return nResult
+	elseif nLevel>0 and (nLevel % 10) == 0 then
+		nResult =  10
+
+		return nResult
+	end
+
+	nResult =  (nLevel % 10)
+
+	return nResult
+end
+
+function CheckRideMaxLevel(nCurLevel, nCurExp)
+	--print("CheckRideMaxLevel"..nCurLevel)
+	local config = RideGameConfig.rideRankConfig
+	local nOrder = GetRideOderByLevel(nCurLevel)
+	local nStarIndex = GetRideStarByLevel(nCurLevel)
+	--print(nOrder)
+	--print(nStarIndex)
+	if config[nOrder+1].starOrder[nStarIndex] == nil then return false end
+	local maxExp = config[nOrder+1].starOrder[nStarIndex].needExp
+	--最大坐骑等级修改 
+	if (nOrder + 1) >= (table.getn(config) + 1) 
+	and nStarIndex >= table.getn(config[nOrder+1].starOrder) 
+	and nCurExp >= maxExp then
+		return true
+	end
+	
+	return false
+end
+
+function CheckRideAwake(sysarg, nLevel, nCurExp)
+	--print("CheckRideAwake")
+	local config = RideGameConfig.rideRankConfig
+	local nOrder = GetRideOderByLevel(nLevel)
+	if nLevel >= RideGameConfig.awakeLevel and (nOrder+1) <= table.getn(config) and config[nOrder+1].awake then
+		local nStarIndex = GetRideStarByLevel(nLevel)
+		if config[nOrder+1].starOrder[nStarIndex] == nil then return false end
+		
+		local maxExp = config[nOrder+1].starOrder[nStarIndex].needExp
+		--print(nStarIndex)
+		--print(nCurExp)
+		--print(maxExp)
+		
+		if nStarIndex >= table.getn(config[nOrder+1].starOrder) and nCurExp >= maxExp and config[nOrder+1].awake.maxValue > 0 and config[nOrder+1].awake.canAwake then
+			
+			--print("RideAwake")
+			return true
+		end
+	end
+	
+	return false
+end
+
+
+
+
+
+--坐骑觉醒
+function OnRideAwakeOp(sysarg,args)
+	--print("OnRideAwakeOp")
+	local nType = args[2]
+	
+	local nLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_RIDE_LEVEL)
+	local nCurExp = Actor.getIntProperty(sysarg, PROP_ACTOR_MOUNT_EXP)
+	if CheckRideAwake(sysarg, nLevel, nCurExp) ~= true then
+		return
+	end
+	
+	local nOrder = Actor.getRideOrder(sysarg)
+	local nStar = Actor.getRideStarIndex(sysarg)
+	
+	
+	local config = RideGameConfig.rideRankConfig[nOrder+1].awake
+	
+	if not config then return end
+	
+	local svar = Actor.getStaticVar(sysarg)
+	local rideAwakeCount = svar.rideAwakeCount
+	if not rideAwakeCount then 
+		rideAwakeCount = 0
+	end
+	if rideAwakeCount >= RideGameConfig.awakeCount then
+		SendRideAwakeResult(sysarg, 0)
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00051, ttFlyTip)
+		return
+	end
+	
+	local nCurValue = Actor.getIntProperty(sysarg, PROP_ACTOR_RIDE_AWAKE)
+	--print(nCurValue)
+	if (nOrder+1) >= table.getn(RideGameConfig.rideRankConfig) and nStar >= table.getn(RideGameConfig.rideRankConfig[nOrder+1].starOrder) then
+		if nCurValue >= config.maxValue then 
+			SendRideAwakeResult(sysarg, 0)
+			Actor.sendTipmsg(sysarg, Lang.Gem.t00052, ttFlyTip)
+			return 
+		end
+	end
+	
+	local nIndex = 0
+	for k, v in ipairs(config.range) do
+		if nCurValue >= v.value then
+			nIndex = k
+		else
+			break
+		end
+	end
+	
+	--print(nIndex)
+	local rangeConfig = config.range[nIndex]
+	
+	if not rangeConfig then return end
+	
+	if Actor.isDealing(sysarg) or Actor.isDeath(sysarg) then
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00053, ttFlyTip)
+		SendRideAwakeResult(sysarg, 0)
+		return
+	end
+	
+	if Consumes.CheckAndRemove(sysarg, rangeConfig.consumes, 919, Lang.LogTips.l00182) ~= true then
+		SendRideAwakeResult(sysarg, 0)
+		return
+	end
+	
+	local RandRate = math.random(10000)
+	--print(RandRate)
+	local rate, addValue = 0
+	for k, v in ipairs(rangeConfig.addValue) do
+		rate = rate + v.rate
+		if rate >= RandRate then
+			addValue = v.value
+			break
+		end
+	end
+	
+	local awakeValue = nCurValue + addValue
+	
+	Actor.sendTipmsg(sysarg, string.format(Lang.Gem.t00054, addValue), ttFlyTip)
+	
+	--满了升级
+	if awakeValue >= config.maxValue then
+		
+		
+		--如果满阶满星
+		if (nOrder+1) >= table.getn(RideGameConfig.rideRankConfig) and nStar >= table.getn(RideGameConfig.rideRankConfig[nOrder+1].starOrder) then
+			awakeValue = config.maxValue
+		else
+			awakeValue = 0
+			Actor.setUIntProperty(sysarg, PROP_ACTOR_MOUNT_EXP, 0)
+			Actor.setUIntProperty(sysarg, PROP_ACTOR_RIDE_LEVEL, (nLevel+1))
+			
+			Actor.sendTipmsg(sysarg, string.format(Lang.Gem.t00050, nOrder+1), ttFlyTip)
+			
+			System.broadcastTipmsg(string.format(Lang.Gem.t00055, Actor.getName(sysarg),nOrder+1), ttScreenCenter)
+		end
+		
+		SendRideAwakeResult(sysarg, 0)
+	else
+		SendRideAwakeResult(sysarg, 1)
+	end
+	
+	svar.rideAwakeCount = rideAwakeCount + 1
+	
+	Actor.setUIntProperty(sysarg, PROP_ACTOR_RIDE_AWAKE, awakeValue)
+	
+	Actor.onThanksConsumeEvent(sysarg,1,1)
+
+	--print(awakeValue)
+	--刷新属性
+	local newIndex = 0
+	for k, v in ipairs(config.range) do
+		if awakeValue >= v.value then
+			newIndex = k
+		else
+			break
+		end
+	end
+	if newIndex ~= nIndex then
+		--print("collectOperate")
+		Actor.collectOperate(sysarg,0)
+	end
+	
+	
+end
+
+function SendRideAwakeResult(sysarg, result)
+	local pack = DataPack.allocPacket(sysarg, 42, 7)
+	if not pack then return end
+	DataPack.writeByte(pack, result)
+	DataPack.flush(pack)
+end

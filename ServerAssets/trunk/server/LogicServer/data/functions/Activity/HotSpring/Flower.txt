@@ -1,0 +1,91 @@
+﻿
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+function HandUpPearl_Main(sysarg)
+	local config = HotSpringConfig
+	if (not config) then return "" end
+	local str = ""
+	local dvar = System.getDyanmicVar()
+	
+	if Actor.getSceneId(sysarg) == config.actArea.sid and dvar.hotSpring == 1 then
+		local dvar = System.getDyanmicVar()
+		local pearlCount = dvar.pearlCount or 0
+		local pearl = config.flower.pearl
+		local name = Item.getItemName(pearl.id)
+		str = str..string.format(Lang.Activity.a00185, name, pearlCount)
+		str = str.."\\<#BL"..string.format(Lang.Activity.a00186, name).."/@HandUpPearl>"  --<上交珍珠>
+	end
+	return str
+end
+
+function HandUpPearl(sysarg)
+	local config = HotSpringConfig
+	local pearl = config.flower.pearl
+	local count = Actor.getItemCount(sysarg, pearl.id)
+	local name = Item.getItemName(pearl.id)
+	if count <= 0 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00187, name), ttFlyTip)
+		return
+	end
+	
+	--奖励
+	local awards = {}
+	for k, v in ipairs(config.flower.handupAwards) do
+		local atype = v.type
+		local acount = v.count * count
+		if v.type == 20 then
+			atype = 2
+			acount = Actor.getActivityExp(sysarg, v.id, v.count, v.quality) * count
+		end
+		
+		local award = {type = atype, id = v.id, count = acount, quality = v.quality}
+		table.insert(awards, award)
+	end
+	
+	
+	if Awards.CheckBagGridCount(sysarg, awards) ~= true then 
+		return
+	end
+	
+	if Actor.removeItem(sysarg, pearl.id, count) >= count then
+		local dvar = System.getDyanmicVar()
+		local pearlCount = dvar.pearlCount
+		if not pearlCount then
+			pearlCount = 0
+		end
+		pearlCount = pearlCount + count
+		if pearlCount >= pearl.count then
+			pearlCount = pearlCount - pearl.count
+			PlayFlowerEffect(sysarg)
+		end
+		dvar.pearlCount = pearlCount
+		
+		Awards.Give(sysarg, awards, 205, Lang.LogTips.l00092)
+	end
+	
+	Actor.sendTipmsg(sysarg, Lang.Activity.a00188, ttFlyTip)
+	Actor.closeNPCDialog(sysarg)
+end
+
+--天女散花
+function PlayFlowerEffect()
+	local config = HotSpringConfig
+	local playerList = LuaHelp.getSceneActorListById(config.actArea.sid)  --获取某场景玩家对象列表
+	if not playerList then return end
+	for i = 1, #playerList do
+		local player = playerList[i]
+		if player then
+			--播放全屏特效
+			local effect = config.flower.effect
+			Actor.playScrEffectCode(player,effect.nEffId,effect.nSec)
+			--奖励
+			local awards = config.flower.awards
+			Awards.Give(player, awards, 205, Lang.LogTips.l00092)
+		end
+	end
+	local hScene = Fuben.getSceneHandleById(config.actArea.sid, 0)
+	Fuben.sendMsgToScene(hScene, Lang.Activity.a00189, ttScreenCenter)
+	
+end
+
+table.insert(MainFnTable, HandUpPearl_Main)

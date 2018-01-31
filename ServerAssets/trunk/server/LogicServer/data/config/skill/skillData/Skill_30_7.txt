@@ -1,0 +1,63 @@
+--弓箭手守卫攻击玩家百分比扣血技能
+{
+
+	actions=
+	{
+		{act=0,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0, rate=0,value=10},
+						{mj=0,timeParam=1,type=47,delay=0, id=1,rate=-400},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=40,keepTime=500,delay=0,always=false},	
+					},
+				},
+			},
+		},
+		
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=33,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=500,
+
+},

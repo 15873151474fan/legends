@@ -1,0 +1,269 @@
+--lua script
+--新开服活动通用处理
+
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\NewActivity\NewActivityConfig.txt" once		-- 配置文件
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--玩家升级后的操作
+function OnNewActivityLevelUp(sysarg)
+	if System.getOpenNewActivityState() == 0 then return end
+	
+	local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	local myCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	
+	local nIndex = 0
+	local nConfig = NewActivityConfig.AllActivity[1]
+	for i=1,table.getn(nConfig.awardList) do
+		if myCircle == nConfig.awardList[i].ncircle and myLevel == nConfig.awardList[i].nValue then
+			nIndex = i
+			break
+		end
+	end
+	
+	if nIndex > 0 then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+
+		local pRanking = Ranking.getRanking(NewActivityConfig.activityReault)
+		if pRanking then
+			local ncount = 0
+			local nItem = Ranking.getItemPtrFromId(pRanking,1)
+			if nItem then
+				ncount = tonumber(Ranking.getSub(nItem,nIndex-1)) or 0
+				if ncount == nil then
+					ncount = 0
+				end
+				if ncount >= nConfig.awardList[nIndex].nTotal then
+					return
+				end
+			end
+
+			local RankNameList = Ranking.getRanking(nConfig.ActivityName)
+			if RankNameList then
+				local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+				if pItem == nil then
+					pItem = Ranking.addItem(RankNameList,nActorId,nIndex)
+				end
+
+				if pItem then
+					Ranking.setItem(RankNameList,nActorId,nIndex)
+					Ranking.setSub(pItem,0,Actor.getName(sysarg))
+					Ranking.setSub(pItem,nIndex,tostring(1))		--0 没奖励  1 有奖励还没领取 2 已领取奖励
+					SendNewActivityAward(sysarg,1,nIndex)
+					ncount = ncount + 1
+					Ranking.setSub(nItem,nIndex-1,ncount)
+				end
+			end
+		end
+	end
+end
+
+--坐骑升级后的处理
+function OnNewActivityRideLevUp(sysarg)
+	if System.getOpenNewActivityState() == 0 then return end
+
+	local nRideLev = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)	
+
+	local nIndex = 0
+	local nConfig = NewActivityConfig.AllActivity[2]
+	for i=1,table.getn(nConfig.awardList) do
+		if nRideLev >= nConfig.awardList[i].nValue then
+			nIndex = i
+		end
+	end
+
+	if nIndex > 0 then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+
+		local pRanking = Ranking.getRanking(NewActivityConfig.activityReault)
+		if pRanking then
+			local ncount = 0
+			local nItem = Ranking.getItemPtrFromId(pRanking,2)
+			if nItem then
+				ncount = tonumber(Ranking.getSub(nItem,nIndex-1)) or 0
+				if ncount >= nConfig.awardList[nIndex].nTotal then
+					return
+				end
+			end
+
+			local RankNameList = Ranking.getRanking(nConfig.ActivityName)
+			if RankNameList then
+				local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+				if pItem == nil then
+					pItem = Ranking.addItem(RankNameList,nActorId,nIndex)
+				end
+
+				if pItem then
+					local nTimes = tonumber(Ranking.getSub(pItem,nIndex)) or 0
+					if nTimes == nil then
+						nTimes = 0
+					end
+					if nTimes > 0 then
+						return
+					end
+
+					Ranking.setItem(RankNameList,nActorId,nIndex)
+					Ranking.setSub(pItem,0,Actor.getName(sysarg))
+					Ranking.setSub(pItem,nIndex,tostring(1))		--0 没奖励  1 有奖励还没领取 2 已领取奖励
+					SendNewActivityAward(sysarg,2,nIndex)
+					ncount = ncount + 1
+					Ranking.setSub(nItem,nIndex-1,ncount)
+				end
+			end
+		end
+	end
+end
+
+--触发新开服活动 (英雄竞技、魂石竞技) 
+function OnNewActivityEventOp(sysarg,args)
+	local nType = args[2]
+	if nType == 2 then
+		OnNewActivityRideLevUp(sysarg)
+		return
+	end
+	if nType ~= 3 and nType ~= 4 then return end
+	
+	if System.getOpenNewActivityState() == 0 then return end
+
+	local nValue = args[3]
+	local nCircle = args[4]
+
+	local nIndex = 0
+	local nConfig = NewActivityConfig.AllActivity[nType]
+	for i=1,table.getn(nConfig.awardList) do
+		if nCircle == nConfig.awardList[i].ncircle and nValue >= nConfig.awardList[i].nValue then
+			nIndex = i
+		end
+	end
+	
+	--print("OnNewActivityEventOp:"..nIndex)
+	if nIndex > 0 then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+
+		local pRanking = Ranking.getRanking(NewActivityConfig.activityReault)
+		if pRanking then
+			local ncount = 0
+			local nItem = Ranking.getItemPtrFromId(pRanking,nType)
+			if nItem then
+				ncount = tonumber(Ranking.getSub(nItem,nIndex-1)) or 0
+				if ncount >= nConfig.awardList[nIndex].nTotal then
+					return
+				end
+			end
+
+			local RankNameList = Ranking.getRanking(nConfig.ActivityName)
+			if RankNameList then
+				local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+				if pItem == nil then
+					pItem = Ranking.addItem(RankNameList,nActorId,nIndex)
+				end
+
+				if pItem then
+					local nTimes = tonumber(Ranking.getSub(pItem,nIndex)) or 0
+					if nTimes == nil then
+						nTimes = 0
+					end
+					if nTimes > 0 then
+						return
+					end
+
+					Ranking.setItem(RankNameList,nActorId,nIndex)
+					Ranking.setSub(pItem,0,Actor.getName(sysarg))
+					Ranking.setSub(pItem,nIndex,tostring(1))		--0 没奖励  1 有奖励还没领取 2 已领取奖励
+					SendNewActivityAward(sysarg,nType,nIndex)
+					ncount = ncount + 1
+					Ranking.setSub(nItem,nIndex-1,ncount)
+				end
+			end
+		end
+	end
+
+end
+
+--发放新活动奖励
+function SendNewActivityAward(sysarg,nType,nIndex)
+	local npack = DataPack.allocPacket(sysarg,26, 46)
+	if npack == nil then return end
+	DataPack.writeInt(npack,1)
+	DataPack.writeByte(npack,nType)
+	DataPack.writeByte(npack,nIndex)
+	DataPack.flush(npack)
+end
+
+--领取新开服活动奖励
+function OnGetNewActivityAwardOp(sysarg,args)
+	local nType = args[2]
+	local nIndex = args[3]
+
+	local nConfig = NewActivityConfig.AllActivity[nType]
+	if nConfig == nil then return end
+
+	local nAwardConfig = nConfig.awardList[nIndex]
+	if nAwardConfig == nil then return end
+	
+	local RankNameList = Ranking.getRanking(nConfig.ActivityName)
+	local pItem = nil
+	if RankNameList then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+		if pItem then
+			if Ranking.getSub(pItem,nIndex) == 2 then
+				--print("get awards again")
+				return
+			end
+		end
+	end
+
+	local nJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	if Awards.CheckBagGridCount(sysarg,nAwardConfig.awards) then
+		for i=1,table.getn(nAwardConfig.awards) do
+			if nAwardConfig.awards[i].job == nil or nAwardConfig.awards[i].job == nJob then
+				Actor.giveAward(sysarg,nAwardConfig.awards[i].type,nAwardConfig.awards[i].id,nAwardConfig.awards[i].count,nAwardConfig.awards[i].quality,nAwardConfig.awards[i].strong,nAwardConfig.awards[i].bind,0,817,Lang.Activity.new07)
+			end
+		end
+
+		--Awards.Give(sysarg,nAwardConfig.awards,817,Lang.Activity.new07)
+		if pItem then
+			Ranking.setSub(pItem,nIndex,tostring(2))
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.new06, ttFlyTip)
+	end
+end
+
+--积分排行榜初始化
+function NewActivityRankInit()
+	for j=1,table.getn(NewActivityConfig.AllActivity) do
+		local RankNameList = Ranking.getRanking(NewActivityConfig.AllActivity[j].ActivityName)		--通过排行名称获取排行对象
+		if RankNameList == nil then							--没有排行对象则创建并加载数据
+			RankNameList = Ranking.add(NewActivityConfig.AllActivity[j].ActivityName,1000,0)		--创建排行榜
+			if RankNameList ~= nil then
+				local isLoad = Ranking.load(RankNameList,NewActivityConfig.AllActivity[j].ActivityNameFile)
+				
+				if isLoad == false then
+					for i=1,8 do
+						Ranking.addColumn(RankNameList,"value"..i)
+					end
+				end
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function NewActivityRankFinality()
+	for i=1,table.getn(NewActivityConfig.AllActivity) do
+		local ranking = Ranking.getRanking(NewActivityConfig.AllActivity[i].ActivityName)
+		if ranking then
+			Ranking.save(ranking,NewActivityConfig.AllActivity[i].ActivityNameFile)
+		end
+	end
+
+	local pRanking = Ranking.getRanking(NewActivityConfig.activityReault)
+	if pRanking then
+		Ranking.save(pRanking,NewActivityConfig.activityReaultFile)
+	end
+end
+
+table.insert(InitFnTable,NewActivityRankInit)
+table.insert(FinaFnTable,NewActivityRankFinality)

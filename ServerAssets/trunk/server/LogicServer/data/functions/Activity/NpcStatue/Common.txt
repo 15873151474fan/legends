@@ -1,0 +1,72 @@
+﻿
+--#include "RankPointer.txt" once
+--#include "data\config\activityconfig\NpcStatue\Config.txt" once	--活动配置
+
+
+--判断常规条件
+function CheckCondition(sysarg, config)
+	if not config then return false end
+	
+	if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true  then 
+		local tips = string.format(Lang.Activity.a00125, config.limitLevel)
+		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+		return false
+	end
+	
+	return true
+end
+
+
+--获取膜拜数据
+function GetWorshipData()
+	local sval = System.getStaticVar()
+	local data = sval.worship
+	if not data or type(data) ~= 'userdata' then
+		--data = {0,0,0,0,0,0,0}	--1当前膜拜次数 2当前鄙视次数 3昨天膜拜次数 4昨天鄙视次数 5是否已开启BUFF 6是否已领取奖励 7悬赏剩余绑定元宝
+		sval.worship = {}
+		data = sval.worship
+		for i = 1, 7 do
+			data[i] = 0
+		end
+	end
+	
+	return data
+end
+
+--[[
+--获取个人膜拜数据
+function GetActorWorshipData(sysarg)
+	local sval = Actor.getStaticVar(sysarg)
+	local data = sval.worship
+	if not data or type(data) ~= 'userdata' then
+		--sval.worship = {0,0,0,0}	--1金钱膜拜次数 2元宝膜拜次数 3金钱鄙视次数 4昨天鄙视次数
+		sval.worship = {}
+		data = sval.worship
+		for i = 1, 4 do
+			data[i] = 0
+		end
+	end
+	
+	return data
+end
+
+--]]
+
+--获取个人膜拜数据
+function GetActorWorshipData(sysarg)
+	local RankPt = WorshipRankPt
+	if not RankPt then return nil end
+	local pRank = Ranking.getRanking(RankPt.RankName)
+	if not pRank then return nil end
+	
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	if not pItem then 
+		pItem = Ranking.addItem(pRank, userId, 0)
+		for i = 0, 3 do
+			Ranking.setSub(pItem, i, 0)
+		end
+	end
+	
+	return pItem
+end

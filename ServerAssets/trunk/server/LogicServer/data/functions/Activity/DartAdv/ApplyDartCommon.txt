@@ -1,0 +1,644 @@
+﻿--lua script
+--活动：押镖活动通用处理
+
+--#include "data\config\activityconfig\Dart\DartAdvConfig.txt"  once  --基本设置
+
+-- @brief: 押镖活动时间到
+function OnActorDartAdvExpired(sysarg)	
+	OnActorDartAdvFailed(sysarg, DartAdvConfig.DartSetup.CampDartFailExpired)
+end
+
+--开始护送
+--[[
+    函数名称：StartGuildDartAdv
+    函数描述：创建镖车
+    参数 sysarg 的描述：
+    参数 type 的描述：是否随机选择 1随机 0不随 不随机默认选1 
+ ]]
+
+function StartApplyActorDartAdv(sysarg, type)
+	if CheckDartAdvTime(sysarg) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.da0030, ttFlyTip)
+		return 
+	end
+	local dvar = Actor.getDyanmicVar(sysarg)
+	local sVar = Actor.getStaticVar(sysarg)
+	
+	if sVar.ActorDartAdvType == nil or sVar.ActorDartAdvType == 0 then
+		sVar.ActorDartAdvType = 1
+	end
+
+	local idx = sVar.ActorDartAdvType
+	if type == 1 then 	
+		-- 随机选一个镖车
+		local randCnt = System.getRandomNumber(100)  -- 返回[0-100]的随机数	
+		for i=1, table.getn(DartAdvConfig.DartHorse[idx].freshRate) do
+			if (randCnt < DartAdvConfig.DartHorse[idx].freshRate[i]) then
+				idx = i
+				break
+			end		
+		end
+	end
+
+	local monsterInfo = DartAdvConfig.DartHorse[idx]    --给予一档的镖车
+	sVar.ActorDartAdvType = idx
+
+	if monsterInfo ~= nil then
+		local monster = sVar.ActorDartAdvMonster or 0
+		if monster > 0 then
+		  --通知客户端清除怪物信息 
+			local pack = DataPack.allocPacket(sysarg, 139, 13)
+			DataPack.writeInt64(pack, monster)
+			DataPack.flush(pack)
+			Fuben.clearMonster(monster, false)
+		end
+
+		local bool = Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟
+
+		--发送客户端打开更换镖车界面
+		SendToClentActorChangeSlaveAdv(sysarg, idx,0)
+	end
+end
+
+function StartDartAdvToDest(sysarg,packet)
+	if CheckDartAdvTime(sysarg) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.da0030, ttFlyTip)
+		return 
+	end
+	local dvar = Actor.getDyanmicVar(sysarg)
+	local sVar = Actor.getStaticVar(sysarg)
+
+	local idx = sVar.ActorDartAdvType
+	local monsterInfo = DartAdvConfig.DartHorse[idx]    --给予一档的镖车
+
+	if monsterInfo ~= nil then
+		local monster = sVar.ActorDartAdvMonster or 0
+		if monster > 0 then
+		  --通知客户端清除怪物信息 
+			local pack = DataPack.allocPacket(sysarg, 139, 13)
+			DataPack.writeInt64(pack, monster)
+			DataPack.flush(pack)
+			Fuben.clearMonster(monster, false)
+		end
+
+		local bool = Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟
+		local x, y = Actor.getEntityPosition(sysarg, 0, 0)		--获取实体X Y坐标
+		monster = Actor.createMonster(sysarg, monsterInfo.id, DartAdvConfig.Src.x, DartAdvConfig.Src.y, 0)	
+
+		if (monster ~= nil) then
+			local monsterName = string.format("%s(%s)",monsterInfo.monName,Actor.getName(sysarg))
+			Actor.setMonsterName(monster,monsterName)
+			
+			
+			sVar.ActorDartAdvStatus = DartAdvConfig.DartSetup.CampDartStatusAccept
+			sVar.ActorApplyDartAdvTimes = sVar.ActorApplyDartAdvTimes + 1
+			
+			Actor.triggerAchieveEvent(sysarg,44,18,sVar.ActorApplyDartAdvTimes)		--护送美女的成就
+			--[[
+			Actor.onTakeOffRide(sysarg)
+			Actor.followActor(monster, sysarg, 3, 30, true) --跟随某个玩家
+			Actor.setEntityTelByOwnderAttr(monster, true)   --设置实体是否跟着归属者传送
+			Actor.setEntityLazyFollow(monster, true)        --设置实体是否惰性跟随
+			Actor.setDenyAttackedByActor(monster, true)     --设置实体是否不可被玩家攻击
+			--]]
+			Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟 
+			
+			Actor.setDieRefreshHpPro(monster,1000000)	--设置复活血量 用于死亡自动复活
+			
+			local Effect = DartAdvConfig.InsureEffect
+			if Effect and sVar.DartAdvInsureType == 2 then
+				Actor.addEffect(monster, Effect.effectId, Effect.effectType, -1)
+			end
+			
+			--护镖时间计算
+			sVar.ActorDartAdvTime = System.getCurrMiniTime() --开始护镖时间
+			sVar.ActorDartAdvDelayTime = DartAdvConfig.DartSetup.actionTime
+
+			local pack = DataPack.allocPacket(sysarg, 145, 3)
+			if (pack ~= nil) then
+				DataPack.writeInt64(pack, Actor.getHandle(monster))				--下属句柄
+				DataPack.writeString(pack, Actor.getName(monster))				-- 下属名称							
+				--DataPack.writeInt(pack, Actor.getIntProperty(monster, PROP_ENTITY_MODELID))	-- 下属模型Id
+				DataPack.writeInt(pack, idx)
+				DataPack.writeInt(pack, DartAdvConfig.Dest.destsceneid)			--目标点场景ID
+				DataPack.writeString(pack, DartAdvConfig.Dest.destnpcname)			--目标NPC名称
+
+				DataPack.writeInt(pack, sVar.ActorDartAdvDelayTime)  --活动时间（秒为单位）
+				
+				DataPack.writeString(pack, DartAdvConfig.ActiveName)
+				
+				DataPack.flush(pack)
+
+			end
+
+			-- 保存开始护镖时间、怪物指针和接镖NPC、目标NPC名称和目标NPC所在场景Id 奖励倍率
+			local time = System.getCurrMiniTime()
+			sVar.ActorDartAdvMonster = Actor.getHandle(monster) --怪物句柄
+
+			--dvar.ActorDartAdvdestnpcname = DartAdvConfig.Dest.destnpcname  --目标NPC名称
+			--dvar.ActorDartAdvdestsceneid = DartAdvConfig.Dest.destsceneid  --目标点场景ID
+			dvar.ActorDartAdvName = Actor.getName(monster)	--怪物名称
+
+			-- 处理护镖超时
+			Actor.unregScriptCallback(sysarg, "OnActorDartAdvExpired")
+			Actor.regScriptCallback(sysarg, thisNPC, sVar.ActorDartAdvDelayTime*1000, 10000, 1, "OnActorDartAdvExpired")
+		
+			local bVip = Actor.isVip(sysarg)
+					
+			local maxTimes = 0
+			if(bVip == true) then
+				maxTimes = DartAdvConfig.VipOpenTimes
+			else
+				maxTimes = DartAdvConfig.OpenTimes
+			end
+
+			SendActorLeftDartAdvTimes(sysarg,maxTimes-sVar.ActorApplyDartAdvTimes)
+
+			--Actor.setDartFlag(sysarg,true)
+			if DartAdvConfig.AddBuff then
+				Actor.addBuff(sysarg,DartAdvConfig.AddBuff[1].buffType,DartAdvConfig.AddBuff[1].buffGroup,DartAdvConfig.AddBuff[1].value,
+				DartAdvConfig.AddBuff[1].times,DartAdvConfig.AddBuff[1].interval,DartAdvConfig.AddBuff[1].buffName)
+			end
+		end
+	end
+end
+
+--发送下属
+function SendActorDartAdvInfo(sysarg,monsterId)
+	local dVar = Actor.getStaticVar(sysarg)
+	local svar = Actor.getDyanmicVar(sysarg)
+	local dest = DartAdvConfig.Dest  --目标 信息
+
+	if svar.ActorDartAdvName == nil or dVar.ActorDartAdvMonster == nil then
+		return
+	end
+
+	if dest ~= nil then
+	    		--Actor.regScriptCallback(monster, nil, 15000, 15000, -1, "OnCheckFollowDist")
+				-- 发消息通知客户端设置归属。消息内容：归属怪物句柄、是否有目标点、[目标场景id、目标npc名称]				
+		local pack = DataPack.allocPacket(sysarg, 139, 12)
+		if (pack ~= nil) then
+			DataPack.writeInt64(pack,dVar.ActorDartAdvMonster)    --下属句柄
+			DataPack.writeString(pack,svar.ActorDartAdvName)		-- 下属名称							
+			DataPack.writeInt(pack, monsterId)			-- 下属模型Id
+			DataPack.writeChar(pack, 1)                            --消息中是否有目标点信息 1表示后面紧跟着目标点信息 0表示后面无目标点信息
+			DataPack.writeInt(pack, dest.destsceneid)       --目标点场景ID
+			DataPack.writeString(pack, dest.destnpcname)    --目标NPC名称
+			DataPack.flush(pack)
+		end
+	end
+
+end
+
+--移除下属
+function DeleteActorDartAdvInfo(sysarg)
+	local svar = Actor.getStaticVar(sysarg)
+
+	if svar.ActorDartAdvMonster == nil then
+		return
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 139, 13)
+	if (pack ~= nil) then
+		DataPack.writeInt64(pack,svar.ActorDartAdvMonster)    --下属句柄
+		DataPack.flush(pack)
+	end
+
+end
+
+--发送客户端打开更换镖车界面  nIndex 第几档
+function SendToClentActorChangeSlaveAdv(sysarg, nIndex,nType)
+	if not sysarg then return end
+	local var = Actor.getStaticVar(sysarg)
+				
+	if var.ActorApplyDartAdvTimes == nil then
+		var.ActorApplyDartAdvTimes = 0
+	end
+
+	--vip类型
+	local bVip = Actor.isVip(sysarg)
+					
+	local zNum = 0
+	local maxTimes = 0
+	if (bVip == true) then
+		zNum = DartAdvConfig.FreshFreeVipTimes
+		maxTimes = DartAdvConfig.VipOpenTimes
+		lootTimes = DartAdvConfig.VipLootTimes
+	else
+		zNum = DartAdvConfig.FreshFreeTimes
+		maxTimes = DartAdvConfig.OpenTimes
+		lootTimes = DartAdvConfig.LootTimes
+	end
+
+	if var.DartAdvFreshFreeTimes == nil then
+		var.DartAdvFreshFreeTimes = 0
+	end
+	if var.DartAdvLootTimes == nil then
+		var.DartAdvLootTimes = 0
+	end
+	
+	local DartHorse = DartAdvConfig.DartHorse[nIndex]
+	
+	local awards = GetDartAdvRealAwards(sysarg, DartHorse)
+	
+	if not awards then return end
+	
+	local pack = DataPack.allocPacket(sysarg,145,4) --分配一个数据包
+	if (pack~=nil) then
+		DataPack.writeByte(pack, 1)	--拉镖类型 0个人拉镖 1高级运镖
+		DataPack.writeByte(pack,nType) 
+		DataPack.writeInt(pack,nIndex)
+		local monsterName = DartHorse.monName
+		if var.DartAdvBeLoot == 1 then
+			monsterName = DartAdvConfig.BeLootDart.monName
+		end
+		DataPack.writeString(pack,monsterName)
+		
+		local leftTimes = var.DartAdvFreshFreeTimes
+		if var.DartAdvFreshFreeTimes > zNum then
+			leftTimes = zNum
+		end
+		DataPack.writeByte(pack,leftTimes)
+		DataPack.writeByte(pack,zNum) 
+
+		DataPack.writeByte(pack,maxTimes)  --运镖的总次数
+		DataPack.writeByte(pack,var.ActorApplyDartAdvTimes)  --次数
+		
+		local nCount = table.getn(awards)
+		if var.ThisDartAdvFreshAward == 1 then
+			nCount = nCount + table.getn(DartHorse.AwardsMore)
+		end
+
+		DataPack.writeInt(pack,nCount)
+
+		for i = 1, table.getn(awards) do
+			DataPack.writeInt(pack, awards[i].type)
+			DataPack.writeInt(pack, awards[i].id)
+			local nCount = awards[i].count
+			if awards[i].type == 20 then
+				nCount = Actor.getActivityExp(sysarg,awards[i].id,awards[i].count,awards[i].quality)
+			end
+			DataPack.writeInt(pack, nCount)
+		end
+		
+		if var.ThisDartAdvFreshAward == 1 then
+			for i = 1, table.getn(DartHorse.AwardsMore) do
+				DataPack.writeInt(pack, DartHorse.AwardsMore[i].type)
+				DataPack.writeInt(pack, DartHorse.AwardsMore[i].id)
+				local nCount = DartHorse.AwardsMore[i].count
+				if DartHorse.AwardsMore[i].type == 20 then
+					nCount = Actor.getActivityExp(sysarg,DartHorse.AwardsMore[i].id,DartHorse.AwardsMore[i].count,DartHorse.AwardsMore[i].quality)
+				end
+				DataPack.writeInt(pack, nCount)
+			end
+		end
+		
+		DataPack.writeInt(pack,DartAdvConfig.Dest.destsceneid)
+		DataPack.writeString(pack,DartAdvConfig.Dest.destnpcname)
+
+		local nHour,nMinu,nSec = System.getTime(0,0,0)
+		local nAwardIndex = 0
+		if System.isInTimeRange(unpack(DartAdvConfig.DoubleAwardTime)) == true then
+			nAwardIndex = 1
+		end
+		
+		DataPack.writeByte(pack,nAwardIndex)
+		
+		DataPack.writeByte(pack,var.DartAdvLootTimes)	--劫镖次数
+		DataPack.writeByte(pack,lootTimes)	--总劫镖次数
+		
+		DataPack.flush(pack) --向客户端发送
+	end
+end
+
+function GetDartAdvRealAwards(sysarg, DartHorse)
+	local awards = nil
+	local DepositCoin = 0
+	local sVar = Actor.getStaticVar(sysarg)
+	if sVar.DartAdvInsureType == 1 then	--如果没有投保了
+		if sVar.DartAdvBeLoot == 1 then	--被劫了
+			awards = DartHorse.UnInsureAwards.BeLoot
+			DepositCoin = DartHorse.UnInsureAwards.DepositCoin.BeLoot
+		else
+			awards = DartHorse.UnInsureAwards.UnLoot
+			DepositCoin = DartHorse.UnInsureAwards.DepositCoin.UnLoot
+		end
+	elseif sVar.DartAdvInsureType == 2 then	--如果投保了
+		if sVar.DartAdvBeLoot == 1 then	--被劫了
+			awards = DartHorse.InsureAwards.BeLoot
+			DepositCoin = DartHorse.InsureAwards.DepositCoin.BeLoot
+		else
+			awards = DartHorse.InsureAwards.UnLoot
+			DepositCoin = DartHorse.InsureAwards.DepositCoin.UnLoot
+		end
+	end 
+	
+	return awards, DepositCoin
+end
+
+--[[
+    函数描述：发送给客户端活动剩余时间
+    参数 sysarg 的描述：
+    参数 awardcoin 的描述：奖励金钱
+]]
+function SendActorDartAdvLeftTimeAndAward(sysarg, nIndex)
+	local DartHorse = DartAdvConfig.DartHorse[nIndex]
+	if DartHorse == nil then return end
+	
+	local awards = GetDartAdvRealAwards(sysarg, DartHorse)
+	
+	if not awards then return end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 5)
+	if (pack ~= nil) then	
+		if  sVar.ActorDartAdvDelayTime == nil then
+			sVar.ActorDartAdvDelayTime = DartAdvConfig.DartSetup.actionTime
+		end
+		DataPack.writeInt(pack, sVar.ActorDartAdvDelayTime)  --活动时间（秒为单位）
+		DataPack.writeInt(pack,table.getn(awards))
+
+		for i = 1, table.getn(awards) do
+			DataPack.writeInt(pack, awards[i].type)
+			local nCount = awards[i].count
+			if awards[i].type == 20 then
+				nCount = Actor.getActivityExp(sysarg,awards[i].id,awards[i].count,awards[i].quality)
+			end
+			DataPack.writeInt(pack, nCount)
+		end
+		DataPack.flush(pack)  		
+	end
+end
+
+-- @brief: 护送失败处理处理。怪物死亡、超时、距离太远等
+function OnActorDartAdvFailed(sysarg, reason)
+	reason = reason or DartAdvConfig.DartSetup.CampDartFailUnknown
+
+	local svar = Actor.getDyanmicVar(sysarg)
+	-- 如果已经接镖，失败了需要删除镖车	
+	local bDelayRemove = false
+
+	DeleteActorDartAdvInfo(sysarg)
+	ResetActorDartAdvInfo(sysarg, bDelayRemove)
+
+	Actor.sendTipmsg(sysarg, Lang.Activity.da0006, ttScreenCenter)
+end
+
+-- @brief: 重置护送相关的数据
+function ResetActorDartAdvInfo(sysarg, bDelayRemove)
+	if (bDelayRemove == nil) then bDelayRemove=false end
+
+	local dVar = Actor.getDyanmicVar(sysarg)
+	local sVar = Actor.getStaticVar(sysarg)
+
+	if (sVar.ActorDartAdvMonster ~= nil and sVar.ActorDartAdvMonster ~= 0) then
+		if bDelayRemove == false then
+			Fuben.clearMonster(sVar.ActorDartAdvMonster,bDelayRemove)
+		end
+		local pack = DataPack.allocPacket(sysarg, 139, 13)
+		DataPack.writeInt64(pack, sVar.ActorDartAdvMonster)		
+		DataPack.flush(pack)		
+	end
+
+	Actor.unregScriptCallback(sysarg, "OnActorDartAdvExpired")
+		
+	dVar.ActorDartAdvacceptNpc = 0
+	dVar.ActorDartAdvdestnpcname = ""
+	dVar.ActorDartAdvdestsceneid = -1
+	dVar.ThisDartAdvFreshTimes = 0
+	sVar.ThisDartAdvFreshAward = 0
+
+	sVar.ActorDartAdvDelayTime = 0
+	sVar.ActorDartAdvMonster = 0	
+	sVar.ActorDartAdvStatus = 0
+	sVar.ActorDartAdvType = 0
+	sVar.ActorDartAdvTime = 0
+	sVar.DartAdvInsureType = nil	--镖车投保
+	sVar.DartAdvBeLoot = nil		--镖车被劫
+
+	--Actor.setDartFlag(sysarg,false)
+	SendClientDartAdvFinish(sysarg)
+
+	if DartAdvConfig.AddBuff and Actor.hasBuff(sysarg,DartAdvConfig.AddBuff[1].buffType,DartAdvConfig.AddBuff[1].buffGroup) then
+		Actor.delBuff(sysarg,DartAdvConfig.AddBuff[1].buffType,DartAdvConfig.AddBuff[1].buffGroup)
+	end
+end
+
+--更新个人镖车
+function ActorChangeSlaveAdv(sysarg,packet)
+	if CheckDartAdvTime(sysarg) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.da0030, ttFlyTip)
+		return 
+	end
+	
+	local freshType = DataPack.readByte(packet)
+	local DartAdvType = DataPack.readByte(packet)
+
+	local sVar = Actor.getStaticVar(sysarg)
+	local dVar = Actor.getDyanmicVar(sysarg)
+	--[[
+		if (sVar.ActorDartAdvMonster == nil or sVar.ActorDartAdvMonster == 0) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.da0011, ttFlyTip)
+			return
+		end
+
+		local ACtorDartAdvMon = Actor.getEntity(sVar.ActorDartAdvMonster)	
+		local monPosX, monPosY = Actor.getEntityPosition(ACtorDartAdvMon, 0, 0)
+		local selfPosX, selfPosY = Actor.getEntityPosition(sysarg, 0, 0)
+		local succFollowDist = DartAdvConfig.DartSetup.succFollowDist
+		if (math.abs(monPosX-selfPosX) > succFollowDist or math.abs(monPosY-selfPosY) > succFollowDist) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.da0012, ttFlyTip)
+			return
+		end
+	]]
+	
+	local nResult = 1
+	if sVar.ActorDartAdvType == nil then
+		sVar.ActorDartAdvType = 1
+	end
+
+	if DartAdvType <= sVar.ActorDartAdvType and freshType == 2 then
+		return 
+	end
+	
+	if sVar.ActorDartAdvType >= 5 then
+		return
+	end
+
+	if FreshDartAdvConsume(sysarg) == true then
+		local idx = sVar.ActorDartAdvType
+
+		-- 随机选一个镖车
+		local randCnt = System.getRandomNumber(100)  -- 返回[0-100]的随机数	
+		for i=1, table.getn(DartAdvConfig.DartHorse[idx].freshRate) do
+			if (randCnt < DartAdvConfig.DartHorse[idx].freshRate[i]) then
+				idx = i
+				break
+			end		
+		end
+		
+		if freshType == 2 and idx > DartAdvType then
+			idx = DartAdvType
+		end
+		sVar.ActorDartAdvType = idx
+		
+		local bVip = Actor.isVip(sysarg)		
+		local zNum = 0
+		if(bVip == true) then
+			zNum = DartAdvConfig.FreshFreeVipTimes
+		else
+			zNum = DartAdvConfig.FreshFreeTimes
+		end
+
+		if sVar.DartAdvFreshFreeTimes == nil then
+			sVar.DartAdvFreshFreeTimes = 0
+		end
+		sVar.DartAdvFreshFreeTimes = sVar.DartAdvFreshFreeTimes + 1
+
+		if sVar.DartAdvFreshFreeTimes > zNum then		--最大免费刷新次数
+			sVar.DartAdvFreshFreeTimes = zNum
+		end
+		
+		if dVar.ThisDartAdvFreshTimes == nil then
+			dVar.ThisDartAdvFreshTimes = 0
+		end
+		if sVar.ThisDartAdvFreshAward == nil then
+			sVar.ThisDartAdvFreshAward = 0
+		end
+
+		dVar.ThisDartAdvFreshTimes = dVar.ThisDartAdvFreshTimes + 1
+		
+		local userName = Actor.getName(sysarg)
+		if dVar.ThisDartAdvFreshTimes >= DartAdvConfig.FreshTimes and sVar.ThisDartAdvFreshAward == 0 then
+			local randNum = System.getRandomNumber(100)  -- 返回[0-100]的随机数
+			if randNum < DartAdvConfig.AwardRate then
+				dVar.ThisDartAdvFreshTimes = 0
+				sVar.ThisDartAdvFreshAward = 1
+				System.broadcastTipmsg(string.format(Lang.Activity.da0015,userName), ttScreenCenter)
+				System.broadcastTipmsg(string.format(Lang.Activity.da0016,userName,userName), 128)
+			end
+		end
+		
+		StartApplyActorDartAdv(sysarg,0)
+
+		if idx == 5 then
+			System.broadcastTipmsg(string.format(Lang.Activity.da0017,userName),ttScreenCenter)
+			System.broadcastTipmsg(string.format(Lang.Activity.da0018,userName,userName), 128)
+		end
+
+		if idx == DartAdvType then
+			nResult = 2
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.da0014, ttFlyTip)
+		nResult = 3
+	end
+
+	if freshType == 1 and nResult == 3 then				--刷新一次
+		local pack = DataPack.allocPacket(sysarg, 145, 6)
+		if (pack ~= nil) then
+			DataPack.writeByte(pack, 1)
+			DataPack.writeByte(pack, nResult)
+			DataPack.flush(pack)  			
+		end
+	elseif freshType == 2 then			--自动刷新
+		local pack = DataPack.allocPacket(sysarg, 145, 6)
+		if (pack ~= nil) then
+			DataPack.writeByte(pack, 1)
+			DataPack.writeByte(pack, nResult)
+			DataPack.flush(pack)  		
+		end
+	end
+end
+
+--刷新镖车的消耗
+function FreshDartAdvConsume(sysarg)
+	local var = Actor.getStaticVar(sysarg)
+
+	--vip类型
+	local bVip = Actor.isVip(sysarg)
+					
+	local zNum = 0
+	if(bVip == true) then
+		zNum = DartAdvConfig.FreshFreeVipTimes
+	else
+		zNum = DartAdvConfig.FreshFreeTimes
+	end
+
+	if var.DartAdvFreshFreeTimes == nil then
+		var.DartAdvFreshFreeTimes = 0
+	end
+	
+	if var.DartAdvFreshFreeTimes < zNum then		--免费次数足够
+		return true
+	end
+
+	if Actor.getItemCount(sysarg, DartAdvConfig.FreshNeedItem, -1, -1, -1) >= 1 then
+		if Actor.removeItem(sysarg, DartAdvConfig.FreshNeedItem, 1, -1, -1, -1, Lang.LogTips.l00176, 917) >= 1 then
+			return true
+		end
+	end
+
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO) >= DartAdvConfig.FreshNeedCoupons then
+		if Actor.changeMoney(sysarg, 2, -DartAdvConfig.FreshNeedCoupons, 917,  Lang.LogTips.l00176) == true then
+			return true
+		end
+	end
+
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO) >= DartAdvConfig.FreshNeedYb then
+		if Actor.changeMoney(sysarg, 3, -DartAdvConfig.FreshNeedYb, 917,  Lang.LogTips.l00176) == true then
+			return true
+		end
+	end
+
+	return false
+end
+
+--继续护送
+function GoonApplyDartAdv(sysarg)
+	local nHandle = Fuben.getSceneHandleById(DartAdvConfig.Src.sid,0)
+	Actor.enterFuBen(sysarg,nHandle,DartAdvConfig.Src.sid,DartAdvConfig.Src.x,DartAdvConfig.Src.y)
+end
+
+--取消
+function CancleApply(sysarg)
+	return
+end
+
+--通知客户端完成镖车运送
+function SendClientDartAdvFinish(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 7)
+	DataPack.writeByte(pack, 1)		
+	DataPack.flush(pack)		
+end
+
+--下发剩余押镖的次数
+function SendActorLeftDartAdvTimes(sysarg,leftTimes)
+	if leftTimes < 0 then
+		leftTimes = 0
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 8)
+	DataPack.writeInt(pack, leftTimes)		
+	DataPack.flush(pack)		
+end
+
+--提示任务可做
+function OpenGuideUi( sysarg )
+	local netPack = DataPack.allocPacket(sysarg, 139, 53)
+	if netPack then
+		DataPack.flush(netPack)
+	end
+end
+
+function CheckDartAdvTime(sysarg)
+	if not DartAdvConfig.OpenTime then return true end
+	for k, v in ipairs(DartAdvConfig.OpenTime) do
+		if System.isInTimeRange(unpack(v)) == true then
+			return true
+		end
+	end
+	
+	return false
+end
+
+

@@ -1,0 +1,51 @@
+﻿--祖玛寺庙三层
+{
+	scenceid = 19,
+	scencename = Lang.SceneName.s00019,
+	mapfilename = "19PanShenSiMiaoSanCeng",
+	minlevel = 33,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "zumashimiao.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 275,
+	sceneHeight = 275,
+	posx = 55,
+	posy = 227,
+
+	area =
+	{
+		{ name = Lang.SceneName.s00019, range = { 10,10,20,20,60,50}, center = { 55,227},attri = {{type=18,value = {}},{type=19,value = {}},}},	--默认配置场景
+
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh19.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+
+
+	},
+
+  teleport =
+  {
+		--传送点设置
+		{ posx = 47, posy = 232,toSceneid = 18,toPosx = 177, toPosy = 39,modelid = 50000,name = Lang.SceneName.s00018 },  --祖玛寺庙三层→祖玛寺庙二层
+		{ posx = 232, posy = 84,toSceneid = 20,toPosx = 43, toPosy = 226,modelid = 50000,name = Lang.SceneName.s00020 },  --祖玛寺庙三层→祖玛寺庙四层
+
+  },
+
+},

@@ -1,0 +1,277 @@
+﻿--#include "data\config\activityconfig\OpenServerBless\OpenServerBlessConfig.txt" once --开服祈福活动配置
+--#include "data\config\property\LevelUpExp.txt" once --升级所需经验
+BlessNet = {}
+
+local BLESS_FREE = 1
+local BLESS_MONEY = 2
+
+-- 获取祈福数据
+local function getBlessData( sysarg )
+    local Svar = Actor.getStaticVar(sysarg)
+    local Bless = Svar.Bless
+    if not Bless then
+        Svar.Bless = {}
+        Bless = Svar.Bless
+        Bless.freeCount = 0 -- 免费次数
+        Bless.moneyCount = 0 -- 货币次数
+        -- Bless.extraCount = 0 -- 额外次数
+    end
+    return Bless
+end
+
+-- 重置祈福活动数据
+local function reSetBless( sysarg )
+    local Bless = getBlessData(sysarg)
+    Bless.freeCount = 0 -- 免费次数
+    Bless.moneyCount = 0 -- 货币次数
+    -- Bless.extraCount = 0, -- 额外次数
+end
+
+-- 次数添加
+local function addCount( Bless, blessType)
+    if blessType == BLESS_FREE then
+        Bless.freeCount = Bless.freeCount + 1
+    elseif blessType == BLESS_MONEY then
+        Bless.moneyCount = Bless.moneyCount + 1
+    end
+end 
+
+-- 删除祈福数据
+local function delBlessData( sysarg )
+    local Svar = Actor.getStaticVar(sysarg)
+    Svar.Bless = nil
+end 
+
+function OpenServerBless( sysarg, packet )
+    local nDays = System.getDaysSinceOpenServer()
+    if nDays >= OpenServerBlessConfig.nEndDays then -- 活动结束
+        delBlessData(sysarg)
+        return
+    end
+
+    local nds = DataPack.readByte(packet)
+    -- print(" OpenServerBless nds:" .. nds)
+    if nds == 1 then -- 祈福活动面板
+        BlessNet.BlessInfo(sysarg) 
+    elseif nds == 2 then  --免费祈福
+        BlessNet.FreeBlessAsk(sysarg)
+    elseif nds == 3 then --元宝祈福
+        BlessNet.MoneyBlessAsk(sysarg)
+    end
+end
+
+-- 新的一天到来
+function BlessNet.newDayArrive( sysarg )
+    local nDays = System.getDaysSinceOpenServer()
+    if nDays >= OpenServerBlessConfig.nEndDays then -- 活动结束
+        delBlessData(sysarg)
+        return
+    end
+    reSetBless( sysarg )
+end
+
+--[[ 逻辑处理
+***
+***
+***
+]]
+
+-- 根据次数和类型取经验数据
+local function getTb(sysarg, Bless, blessType)
+    local count = 1
+    if blessType == BLESS_FREE then
+        count = count + Bless.freeCount
+        return OpenServerBlessConfig.FressBless[count]
+    end
+
+    if blessType ~= BLESS_MONEY then return end
+    local nCurLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+    return OpenServerBlessConfig.MoneyBless[nCurLevel]
+end 
+
+-- 获取经验
+local function getBlessExp(sysarg, Bless, blessType)
+    local exp = 0
+    local Tb = getTb(sysarg, Bless, blessType)
+    if not Tb then return exp end
+
+    if Tb.type ~= 20 then
+        exp = Tb.count
+    else
+        exp = Actor.getActivityExp(sysarg, Tb.id, Tb.count, 0)
+    end
+
+    return exp
+end
+
+local function getAddLv(sysarg , exp)
+    local nCurLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+    local lv = 0
+    if nCurLevel >= #LevelUpExp then
+        return lv 
+    end
+
+    local nCurExp = Actor.getActorCurExp(sysarg)
+    local nAddExp = nCurExp + exp
+    local expMax
+
+    for i=nCurLevel, #LevelUpExp do
+        expMax = LevelUpExp[i]
+        if nAddExp >= expMax then
+            nAddExp = nAddExp - expMax
+            lv = lv + 1
+        end
+    end
+
+    return lv
+end 
+
+-- 是否满足领取条件
+local function isNeedCond(sysarg, Bless, bFlag) 
+    local nCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+    local nLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+
+    -- 不满足最低等级
+    for i,v in ipairs(OpenServerBlessConfig.nMinLevel) do
+        if nCircle < v.circle and nLevel < v.level then
+            if bFlag == nil then
+                Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse007, ttFlyTip)
+            end
+            return false
+        end
+    end
+
+    -- -- 超过最高等级 --客户端处理了
+    for i,v in ipairs(OpenServerBlessConfig.nMaxLevel) do
+        if nCircle == v.circle and nLevel == v.level then
+            if bFlag == nil then
+                Actor.sendTipmsg(sysarg, Lang.ScriptTips.KaiFuBless009, ttFlyTip)
+            end
+            return false
+        end
+    end
+
+    return true
+end
+
+-- 祈福面板信息
+local function SendBlessInfo( sysarg, type, exp, lv, 
+        retCount, needCount, blessTimes, timesCount)
+
+    local pack = DataPack.allocPacket(sysarg, 145, 116)
+
+    DataPack.writeInt(pack, type) -- 1表示免费祈福，2表示元宝祈福 
+    DataPack.writeUint64(pack, exp)  -- 获得的经验
+    DataPack.writeInt(pack, lv)   -- 提升多少等级
+    DataPack.writeInt(pack, retCount) -- 返回多少元宝
+    DataPack.writeInt(pack, needCount) -- 花费的元宝数
+    DataPack.writeInt(pack, blessTimes) -- 祈福次数
+    DataPack.writeByte(pack, OpenServerBlessConfig.nEndDays) -- 结束天数
+    DataPack.writeByte(pack, timesCount) -- 结束天数
+    DataPack.flush(pack) 
+
+end
+
+function BlessNet.BlessInfo(sysarg)
+    local Bless = getBlessData(sysarg)
+    local blessType = BLESS_FREE
+    local blessCount = Bless.freeCount
+    local timesCount = #(OpenServerBlessConfig.FressBless)
+
+    if Bless.freeCount >= #(OpenServerBlessConfig.FressBless) then
+        blessType = BLESS_MONEY
+        blessCount = Bless.moneyCount
+        timesCount = OpenServerBlessConfig.MaxCount
+    end
+
+    local exp = getBlessExp(sysarg, Bless, blessType)
+    local lv = getAddLv(sysarg , exp)
+    local retCount = 0
+    local needCount = 0
+
+    local Tb = getTb(sysarg, Bless, blessType)
+
+    if Tb and blessType ~= BLESS_FREE then
+        retCount = Tb.retExtraNum -- 啊达说返回这个基数，再改要发才了
+        needCount = Tb.GlodCount
+    end
+
+    SendBlessInfo(sysarg, blessType, exp, lv, 
+        retCount, needCount, blessCount, timesCount)
+end
+
+-- 免费领取
+function BlessNet.FreeBlessAsk(sysarg)
+    local Bless = getBlessData(sysarg)
+    if isNeedCond(sysarg, Bless) == false then
+        return
+    end
+
+    local Tb = getTb(sysarg, Bless, BLESS_FREE)
+    if not Tb then
+        Actor.sendTipmsg(sysarg, Lang.Activity.KaiFuBless001, ttFlyTip)
+        return
+    end
+
+    Actor.giveAward(sysarg,Tb.type, Tb.id, Tb.count,0,0,0,0,995,"get FreeBless Exp")
+    Actor.sendTipmsg(sysarg, Lang.Activity.KaiFuBless002, ttFlyTip)
+    addCount( Bless, BLESS_FREE )
+    BlessNet.BlessInfo(sysarg)
+end
+
+-- 货币领取
+function BlessNet.MoneyBlessAsk(sysarg)
+    local Bless = getBlessData(sysarg)
+    if isNeedCond(sysarg, Bless) == false then
+        return
+    end
+
+    local Tb = getTb(sysarg, Bless, BLESS_MONEY)
+    if not Tb or Bless.moneyCount >= OpenServerBlessConfig.MaxCount then
+        Actor.sendTipmsg(sysarg, Lang.Activity.KaiFuBless003, ttFlyTip)
+        return
+    end
+
+    if not Actor.changeMoney(sysarg, Tb.mType, -Tb.GlodCount, 995, Lang.Activity.KaiFuBless005) then
+        Actor.sendTipmsg(sysarg, Lang.Activity.KaiFuBless006, ttFlyTip)
+        return 
+    end
+
+    local E = 100 -- 随机的最大概率期望值
+    Actor.giveAward(sysarg,Tb.type, Tb.id, Tb.count,0,0,0,0,995,"get GoldBless Exp")
+    local x = math.random(Tb.retPro, E)
+    if x >= E then
+        Actor.changeMoney(sysarg, Tb.mType, Tb.retNum, 995, Lang.Activity.KaiFuBless005)
+        Actor.sendTipmsg(sysarg, string.format(Lang.Activity.KaiFuBless007, Tb.retNum), ttFlyTip)
+    end
+
+    -- 额外返回的元宝
+    local Extra = math.floor(Tb.retExtraNum * math.random(Tb.retExtraPro[1], Tb.retExtraPro[2]) / E)
+    if Extra > 0 then
+        Actor.changeMoney(sysarg, Tb.mType, Extra, 995, Lang.Activity.KaiFuBless005)
+        System.broadcastTipmsg(string.format(Lang.Activity.KaiFuBless008, Actor.getName(sysarg), Extra), 2+128)
+    end
+
+    addCount(Bless, BLESS_MONEY)
+    BlessNet.BlessInfo(sysarg)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeNewDayArrive, BlessNet.newDayArrive)
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--告诉客户端是否显示祈福面板
+function TalkClientShowBlessUi(sysarg)
+  local Ndx = 1
+  local nDays = System.getDaysSinceOpenServer()
+  if nDays >= OpenServerBlessConfig.nEndDays then
+     Ndx = 0
+  end
+ 
+  local pack = DataPack.allocPacket(sysarg, 145, 118)
+  DataPack.writeByte(pack, Ndx) --0为关闭,1为开启  
+  DataPack.flush(pack)
+end

@@ -1,0 +1,30 @@
+﻿--[[
+--按照概率和掉落的配置,id表示物品的id
+--count表示物品的数量,
+--strong 强化等级,如果是小于0的表示0-n随机
+-- quality 品质如果是小于0的表示0-n随机 ,比如-3表示0到3之间随机
+-- strongMin 表示最小的强化等级, 如果配置了，那么随出了一个物品的强化低于这个值将设置为这个值，这个不配置就是0
+-- qualityMin:表示最小的品质等级
+--propability概率，概率的数字越大的话掉的物品的概率越高
+--bind绑定的标记
+--group是分组的id，类似怪物的爆率的配置
+--sex表示玩家的性别，男的是0，女的是1，如果男女通用就是-1
+--job表示玩家的职业,2华山 4水月 7御神 8忍者 0表示没有职业限制
+--]]
+
+drops=
+{
+{ id=94,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--偃月
+{ id=96,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--圣灵战甲（女）
+{ id=97,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炼狱头盔
+{ id=98,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炼狱项链
+{ id=99,count=2, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炼狱手镯
+{ id=100,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炼狱腰带
+{ id=101,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炼狱血靴
+{ id=102,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--嗜魂石
+{ id=103,count=2, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炼狱戒指
+{ id=104,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--
+
+
+
+}

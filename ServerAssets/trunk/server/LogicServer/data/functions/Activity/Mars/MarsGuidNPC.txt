@@ -1,0 +1,172 @@
+﻿--[[File:MarsGuidNPC.txt]]
+-- 战神闯关指引大使
+--#include "MarsCommon.txt" once
+
+-- 主菜单
+function MarsGuidNPC_Main(sysarg)
+	local strDlg = Lang.Activity.lfg0015;
+	strDlg = strDlg .. GetGameGirdNum(sysarg, 0);
+	
+	local rightTime = false; -- 是否在开放时间
+	for _, v in pairs(MarsCfg.OpenTime) do
+		if System.isInTimeRange(unpack(v)) then
+			rightTime = true;
+			break;
+		end
+	end
+	
+	if rightTime then
+	--if System.getServerCombineTime() < System.getCurrMiniTime() then -- 合服才开, 没合服时间是0的
+	if System.getDaysSinceCombineServer() > 0 then
+		local fubenId = MarsCfg.EquipMars.FubenId;
+		local fubenCfg = FuBen[fubenId]
+		local fbdata = fubenCfg;
+		local leftTimes = GetEnterFubenTimes( sysarg, fubenId );
+		local totalTimes = FubenCountConfig[fubenCfg.groupId];
+	
+		local groupid = fbdata.groupId
+		local circleVal = fbdata.circle or 0
+		--进入单人副本模式
+		if fbdata.minPlayCount == 1 and fbdata.maxPlayCount == 1 then
+		if Actor.checkActorLevel(sysarg, fbdata.minLevel, circleVal) then			
+			strDlg = string.format("%s\\<#BL%s/@EnterEquipMarsMenu>", strDlg, string.format(Lang.Activity.lfg0002, (totalTimes - leftTimes), totalTimes ));
+		end
+		end
+	end
+	local fubenId = MarsCfg.ExpMars.FubenId;
+	local fubenCfg = FuBen[fubenId]
+	local fbdata = fubenCfg;
+	local leftTimes = GetEnterFubenTimes( sysarg, fubenId );
+	local totalTimes = FubenCountConfig[fubenCfg.groupId]; 
+	
+	local groupid = fbdata.groupId
+	local circleVal = fbdata.circle or 0
+	--进入单人副本模式
+	if fbdata.minPlayCount == 1 and fbdata.maxPlayCount == 1 then
+	if Actor.checkActorLevel(sysarg, fbdata.minLevel, circleVal) then
+		strDlg = string.format("%s\\<#BL%s/@EnterExpMarsMenu>", strDlg, string.format(Lang.Activity.lfg0003, (totalTimes - leftTimes), totalTimes ));
+	end
+	end	
+	-- 
+	strDlg = string.format("%s\\<#BL%s/@GetFreeLHL>", strDlg, string.format(Lang.Activity.lfg0050,MarsCfg.FreeLHLs));
+	end -- if rightTime
+	
+	-- 重置副本次数
+	--strDlg = string.format("%s\\<#BL%s/@ResetDayFubenTimes>", strDlg, Lang.Activity.lfg0033);
+	
+	strDlg = string.format("%s\\<#BL%s/@exit>", strDlg, Lang.Activity.lfg0004);
+	
+	return strDlg;
+end
+
+function GetFreeLHL(sysarg)
+	local actorVar = Actor.getStaticVar(sysarg);
+	local now = System.getCurrMiniTime();
+	if actorVar.LastGetLHLTime and System.isSameDay(now, actorVar.LastGetLHLTime) then 
+		Actor.sendTipmsg( sysarg, Lang.Activity.lfg0051, ttFlyTip );
+	elseif not Actor.checkActorLevel(sysarg, unpack(MarsCfg.Level)) then
+		Actor.sendTipmsg( sysarg, Lang.Activity.lfg0052, ttFlyTip );
+	else
+		actorVar.GameGird = (actorVar.GameGird or 0) + MarsCfg.FreeLHLs; 
+		actorVar.LastGetLHLTime = now;
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.lfg0050,MarsCfg.FreeLHLs), ttFlyTip );
+	end
+	return main(sysarg);
+end
+
+-- 进入装备战神闯关
+function EnterEquipMarsMenu(sysarg)
+	local strDlg = Lang.Activity.lfg0014;
+	strDlg = string.format("%s\\<#BL%s/@EnterEquipMars>", strDlg, Lang.Activity.lfg0008);	
+	return strDlg .. Lang.ScriptTips.back001;	
+end
+
+function EnterEquipMars(sysarg)
+--[[	
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.EnterEquipMarsTimes = actorVar.EnterEquipMarsTimes or 0;
+	-- 判断当日的
+	if actorVar.EnterEquipMarsTimes >= MarsCfg.EquipMars.EnterEquipMarsTimes then
+		Actor.sendTipmsg( sysarg, Lang.Activity.lfg0009, ttFlyTip );
+		return;
+	end
+	
+	if not checkActorLevel(sysarg, MarsCfg.EquipMars.MinLevel, MarsCfg.EquipMars.Circle)  then
+		Actor.sendTipmsg( sysarg, Lang.Activity.lfg0010, ttFlyTip );
+		return;
+	end
+	
+	actorVar.EnterEquipMarsTimes = actorVar.EnterEquipMarsTimes + 1;
+	--]]
+	if not CheckLfgFuben(sysarg, MarsCfg.EquipMars.FubenId) then return; end
+	-- 是否拥有足够的战神令	
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.GameGird = actorVar.GameGird or 0; 
+	local value = actorVar.GameGird;
+	if checkEnterFbTimes( sysarg, MarsCfg.EquipMars.FubenId ) then
+		if MarsCfg.EquipMars.SubGameGirdCount and value >= MarsCfg.EquipMars.SubGameGirdCount then
+			actorVar.GameGird = value - MarsCfg.EquipMars.SubGameGirdCount;
+		else		
+			Actor.sendTipmsg( sysarg,Lang.Activity.lfg0038,ttFlyTip )
+			return;
+		end
+	else
+		Actor.sendTipmsg( sysarg,Lang.Activity.lfg0041,ttFlyTip );		
+		return;
+	end
+	-- 进入副本
+	-- print("进入装备战神闯关副本");
+	readyEnterFB(sysarg, MarsCfg.EquipMars.FubenId);
+	-- print("MarsCfg.EquipMars.AlertCout = " .. MarsCfg.EquipMars.AlertCout)
+	if value < MarsCfg.EquipMars.AlertCout then		
+		-- 提醒
+		local btns = {};
+		for i = 1,3 do
+			table.insert(btns,string.format("%s/OneKeyBuyGameGird,%d", string.format(Lang.Activity.lfg0036, MarsCfg.EquipMars.GameGird[i].nCount) , i) );
+		end		
+		local h = Actor.getHandle(thisNPC);
+		Actor.messageBox(sysarg, h, 0,Lang.Activity.lfg0035, btns[1], btns[2], string.format("%s/OnCancleButton", Lang.Activity.t00166)); --, (MarsCfg.EquipMars.GameGirdInterval-5) * 1000
+		--bModalMessageBox = true;
+	end
+	
+	RegisteTimers(sysarg);
+	CreateMonstersTimer(sysarg);
+	-- 在面板显示
+	UpdateEquipActivityBoard(sysarg);
+	-- 计时
+end
+
+-- 进入经验战神闯关 菜单
+function EnterExpMarsMenu(sysarg)
+	local strDlg = "";
+	for k, v in pairs(MarsCfg.ExpMars.EnterConsume)do
+		strDlg = string.format("%s\\<#BL%s/@EnterExpMars,%d>", strDlg, string.format(v.tips,unpack(v.count)), k);
+	end
+	
+	return strDlg .. Lang.ScriptTips.back001;	
+end
+
+-- 进入经验战神闯关
+function EnterExpMars(sysarg, nType)
+	-- print("进入经验战神闯关副本" .. nType);
+	if not CanEnterFuben( sysarg, sysarg ) then return; end
+	if not CheckLfgFuben(sysarg, MarsCfg.ExpMars.FubenId) then return; end
+	-- 支付
+	if not Defray(sysarg, 3, nType) then return end;
+	RealEnterExpMarsFromgGuideNPC(sysarg);
+end
+
+--
+function RealEnterExpMarsFromgGuideNPC(sysarg )
+	-- 进入经验副本
+	readyEnterFB(sysarg, MarsCfg.ExpMars.FubenId);
+	
+	local pFuben = Actor.getFubenPrt(sysarg);
+	--Fuben.setFubenProgressListVal(pFuben, 0, 1); -- 当前处于第几层
+	-- print("进入经验战神闯关 副本名称 =" .. Fuben.getFubenNameByPtr(pFuben));
+	EnterOneGrade(sysarg, 1);
+	Actor.sendTipmsg( sysarg, Lang.Activity.lfg0039, ttFlyTip );
+end
+
+table.insert(MainFnTable, MarsGuidNPC_Main);
+--]]]

@@ -1,0 +1,96 @@
+--#include "..\..\language\LangCode.txt"
+--卡牌技能,buffer
+CardSkillConfig=
+{
+
+	--卡牌技能
+	cardSkills=
+	{
+		
+		--id:技能Id 
+		--name:名称		
+		--code:技能特效编码 (0:特效编码和技能Id一样 -1:不用特效)
+		--touchMS:触发时间{触发时间1(毫秒),触发时间2(毫秒),}
+		--interval:播放每帧周期时间 interval:160 毫秒
+		--desc:技能描述
+		--posType: 布局方式 0:水平垂直居中 1:脚底中间
+		--type:技能类型(0:普通 1:冻结 2:飞行)
+		--delaySec:延时X秒
+		--cycle 播放效果循环多少次(复用周期动画)
+		--moveType 0:默认移动(贴到目标玩家身上) 1:向目标玩家飞行
+		--moveMS 技能移动时,从始点到终点的飞行时长(毫秒);
+		--hurtId 伤害Id->对应技能 伤害效果
+		--skillActionImgCode 0:默认普通攻击动作 技能动作(对应的动作资源Id)
+		--dieId 死亡特效Id
+		--{id=1,name=Lang.Activity.card0001,code=56,touchMS={640},interval=100,desc=Lang.Activity.ylsz0024,readySkillCode=1001},  --增加攻击力 --闪电之链攻击特效（普攻）
+		{id=1,name=Lang.Activity.ylsz0024,code=5001,touchMS={560},interval=120,moveType=1,moveSkillId=4001,readySkillCode=3001},--混乱之箭
+		{id=2,name=Lang.Activity.ylsz0024,code=5002,touchMS={560},interval=120,moveType=1,moveSkillId=4002,readySkillCode=3002},--凤凰冲击
+		--{id=2,name=Lang.Activity.card0002,code=54,touchMS={740},interval=120,readySkillCode=1001},  --中毒		
+		{id=3,name=Lang.Activity.card0003,code=-1,touchMS={960},interval=120,readySkillCode=3003},  --回血
+		{id=4,name=Lang.Activity.ylsz0024,code=5004,touchMS={560},interval=120,moveType=1,moveSkillId=4004,readySkillCode=3004},--攻击无效
+		--{id=4,name=Lang.Activity.card0004,code=214,touchMS={560},interval=120,posType=1,readySkillCode=1001},  --攻击无效		
+		{id=5,name=Lang.Activity.ylsz0024,code=10001,touchMS={560},interval=120,moveType=1,moveSkillId=1002,readySkillCode=1002},--测试
+		
+		--伤害效果
+		{id=1001,name=Lang.Activity.ylsz0024,code=52,interval=120},--冥火暴击
+		{id=1002,name=Lang.Activity.ylsz0024,code=23,interval=120},--死亡缠绕
+		{id=1003,name=Lang.Activity.ylsz0024,code=97,interval=120},--死亡缠绕
+		{id=1004,name=Lang.Activity.ylsz0024,code=22,interval=120},--普通技能
+
+		--箭的特效(全套1)
+		{id=3001,name=Lang.Activity.ylsz0024,interval=120},--准备技能(准备放箭)		
+		{id=4001,name=Lang.Activity.ylsz0024,interval=120,moveMS=1100},--箭		
+		{id=5001,name=Lang.Activity.ylsz0024,interval=120},--受伤特效
+
+		--箭的特效(全套2)
+		{id=3002,name=Lang.Activity.ylsz0024,interval=120},--准备技能(准备放箭)
+		{id=4002,name=Lang.Activity.ylsz0024,interval=120,moveMS=1100},--箭	
+		{id=5002,name=Lang.Activity.ylsz0024,interval=120},--受伤特效
+
+		--回血
+		{id=3003,name=Lang.Activity.ylsz0024,interval=200},--准备技能
+
+		--箭的特效(全套2)
+		{id=3004,name=Lang.Activity.ylsz0024,interval=120},--准备技能(准备放箭)
+		{id=4004,name=Lang.Activity.ylsz0024,interval=120,moveMS=1100},--箭	
+		{id=5004,name=Lang.Activity.ylsz0024,interval=120},--受伤特效
+
+
+		--普攻特效(全套1)
+		{id=6001,name=Lang.Activity.ylsz0024,interval=120},--准备技能(准备放箭)
+		{id=7001,name=Lang.Activity.ylsz0024,interval=120,moveMS=350},--箭	
+		{id=8001,name=Lang.Activity.ylsz0024,interval=120},--受伤特效 1100
+
+		--普通技能
+		{id=12001,name=Lang.Activity.ylsz0024,code=13,touchMS={560},interval=120,dieId=13001},
+		--普通技能
+		--{id=12002,name=Lang.Activity.ylsz0024,code=13,touchMS={560},interval=120,readySkillCode=1004},
+
+		{id=12002,name=Lang.Activity.ylsz0024,code=8001,touchMS={560},interval=120,moveType=1,moveMS=350,moveSkillId=7001,readySkillCode=6001},--凤凰冲击
+
+		--死亡特效
+		{id=13001,name=Lang.Activity.ylsz0024,code=10002,touchMS={560},interval=200},
+	},
+
+	--卡牌buffer
+	buffers=
+	{
+		--id
+		--name:名称 
+		--code:buffer特效编码     
+		--touchMS:触发时间{触发时间1(毫秒),触发时间2(毫秒),}
+		--interval:播放每帧周期时间 interval:160 毫秒
+		--desc:技能描述
+		--posType: 布局方式 0:水平垂直居中 1:脚底中间
+		--type:buffer类型(0:普通 1:冻结 2:中毒 3:回血 4:攻击无效)
+		--delaySec:延时X秒 0:buffer随服务器发移除，就移除
+		
+		{id=1,name=Lang.Activity.card0001,code=10001,type=1,interval=100,desc=Lang.Activity.ylsz0024}, --增加攻击力 buffer
+		{id=2,name=Lang.Activity.card0002,code=145,type=2,interval=100}, --中毒 buffer
+		{id=3,name=Lang.Activity.card0003,code=150,type=3,interval=100},  --回血 buffer
+		{id=4,name=Lang.Activity.card0004,code=175,type=4,interval=100}, --攻击无效 buffer
+		{id=5,name=Lang.Activity.card0005,code=144,interval=100},  --测试
+	},
+
+}
+

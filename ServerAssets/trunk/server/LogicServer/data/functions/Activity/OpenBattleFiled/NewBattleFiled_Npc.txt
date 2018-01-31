@@ -1,0 +1,33 @@
+--开服战场里的npc对话
+--lua script
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\OpenBattleField\OpenBattleConfig.txt" once
+
+--跟npc对话
+function NewBattleFiledNpc_main(sysarg)
+	local str = ""
+
+	str = str.."\\<#BL"..Lang.Activity.ob0013.."/@OnEnterFeiledOP>"			--进入战场
+
+	return str
+end
+
+--进入战场
+function OnEnterFeiledOP(sysarg)
+	local dVal = Actor.getDyanmicVar(sysarg)
+	if dVal.nLastEnterFeiledTime == nil then
+		dVal.nLastEnterFeiledTime = 0
+	end
+
+	local nCurTime = System.getCurrMiniTime()
+	if nCurTime < dVal.nLastEnterFeiledTime then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ob0014,OpenBattleConfig.enterCd), ttFlyTip)
+		return
+	end
+	
+	Actor.enterScene(sysarg,OpenBattleConfig.nSceneId,OpenBattleConfig.battlePos[1],OpenBattleConfig.battlePos[2],OpenBattleConfig.battlePos[3],OpenBattleConfig.battlePos[4])
+
+end
+
+table.insert(MainFnTable, NewBattleFiledNpc_main)

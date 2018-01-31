@@ -1,0 +1,161 @@
+--冥王远程平砍
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=6,keepTime=500,delay=0,always=false},
+						{type=4,mj=0,id=7,keepTime=400,delay=500,always=false},							
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+						{cond = 30,value =650},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=70},--技能说话
+						--{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=6,keepTime=500,delay=0,always=false},
+						{type=4,mj=0,id=7,keepTime=400,delay=500,always=false},							
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+						{cond = 30,value =651},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=70},--技能说话
+						--{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=6,keepTime=500,delay=0,always=false},
+						{type=4,mj=0,id=7,keepTime=400,delay=500,always=false},							
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+						{cond = 30,value =653},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=70},--技能说话
+						--{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=6,keepTime=500,delay=0,always=false},
+						{type=4,mj=0,id=7,keepTime=400,delay=500,always=false},							
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=19,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=500,
+
+},

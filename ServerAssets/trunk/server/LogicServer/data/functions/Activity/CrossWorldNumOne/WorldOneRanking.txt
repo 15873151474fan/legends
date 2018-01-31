@@ -1,0 +1,49 @@
+--天下第一初始化
+--lua script
+--#include "data\config\activityconfig\CrossGuildSbk\CrossWorldNumOne.txt" once
+--#include "data\functions\Activity\CrossServerSbk\CrossCommon.txt" once
+
+--跨服天下第一战神的保存
+function CrossWolrdOneRankInit()
+	local RankNameList = Ranking.getRanking(CrossWorldOneConfig.WorldOneRankName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(CrossWorldOneConfig.WorldOneRankName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,CrossWorldOneConfig.WordOneFile)
+			
+			if isLoad == false then
+				for i=1, 11 do
+					Ranking.addColumn(RankNameList,"value")		--添加一个标题列  
+				end
+			end
+
+			InitWorldOneNpcStatus()
+		end
+	end
+end
+
+--在跨服记录是否第一次进入擂台
+function CrossWolrdScoreRankInit()
+	if System.isCommonServer() == false then			--如果是公共服
+		return
+	end
+
+	local RankNameList = Ranking.getRanking(CrossWorldOneConfig.CrossWorldRankName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(CrossWorldOneConfig.CrossWorldRankName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,CrossWorldOneConfig.CrossWorldRankFile)
+			
+			if isLoad == false then
+				for i=1, 9 do
+					Ranking.addColumn(RankNameList,"value")		--添加一个标题列  
+				end
+			end
+		end
+	end
+
+	InitCrossSbkWall()
+end
+
+table.insert(InitFnTable,CrossWolrdOneRankInit)
+table.insert(InitFnTable,CrossWolrdScoreRankInit)

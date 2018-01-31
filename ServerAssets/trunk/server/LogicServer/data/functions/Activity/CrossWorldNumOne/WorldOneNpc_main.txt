@@ -1,0 +1,35 @@
+--#include "data\language\LangCode.txt" once
+
+--天下第一城主对话
+function CrossServerAward_Main(sysarg)
+	local RankNameList = Ranking.getRanking("CrossWorldOne")
+	
+	local nUseId = 0
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+		if pItem then
+			nUseId = Ranking.getId(pItem)
+		end
+	end
+
+	local str = ""
+	
+	if nUseId > 0 then
+		str = str.."<#BL"..Lang.Activity.a00123.."/@LookCrossWorldMsg, "..nUseId..">"		--查看装备
+	end
+
+	return str
+end
+
+--查看装备
+function LookCrossWorldMsg(sysarg, userId)
+	local userId = tonumber(userId)
+	if userId <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00124, ttFlyTip)
+		return
+	end
+	
+	Actor.viewOffLineActor(sysarg, userId)
+end
+
+table.insert(MainFnTable, CrossServerAward_Main)

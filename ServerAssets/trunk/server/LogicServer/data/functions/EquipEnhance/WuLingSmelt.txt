@@ -1,0 +1,185 @@
+﻿
+
+--武灵灵石熔炼
+function OnWuLingSmelt(sysarg, args)
+    --print("OnWuLingSmelt") 
+	local itemPtr1 = args[2]--三合一装备1
+	local itemPtr2 = args[3]--三合一装备2
+	local itemPtr3 = args[4]--三合一装备3
+	if (not itemPtr1) or (not itemPtr2) or (not itemPtr3)then
+		return false
+	end
+    local nItemId1 = Item.getItemProperty( sysarg, itemPtr1, Item.ipItemID, 0 )
+	local nItemId2 = Item.getItemProperty( sysarg, itemPtr2, Item.ipItemID, 0 )
+	local nItemId3 = Item.getItemProperty( sysarg, itemPtr3, Item.ipItemID, 0 )
+	
+	local nGrade = GetSmeltGradeById( nItemId1 )
+		--print("OnWuLingSmeltnGrade"..nGrade)
+	if (GetSmeltGradeById( nItemId1 ) == 0) or (GetSmeltGradeById( nItemId2 ) == 0) or (GetSmeltGradeById( nItemId3 ) == 0) then--物品不存在表中
+        Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf040b, ttFlyTip)
+	    return
+	end
+	if (GetSmeltGradeById( nItemId1 ) ~= GetSmeltGradeById( nItemId2 )) or  (GetSmeltGradeById( nItemId2 ) ~= GetSmeltGradeById( nItemId3 )) then --等级不同 
+        Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf040c, ttFlyTip)
+	    return
+	end
+	--材料不足 
+	for idx, tab in ipairs(WuLingSmeltConfig[nGrade].stuff) do
+	--print("OnWuLingSmeltnGradeusetype"..(tab.usetype))
+		--print("OnWuLingSmeltnGradeusetype"..(Any_Silver))
+		if tab.usetype == Any_Silver then
+		--print("OnWuLingSmeltnGrade"..nGrade)
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_BIND_COIN )
+			if myCoin < tab.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf018a, tab.count), ttFlyTip)
+				return
+			end
+		elseif tab.usetype == Any_Stuff then
+			local itemCount = Actor.getItemCount(sysarg, tab.id)
+			if itemCount < tab.count then
+				local itemStr = string.format(Lang.ScriptTips.zf039a, Item.getItemName(tab.id))
+				Actor.sendTipmsg(sysarg, itemStr, ttFlyTip)
+		     	return
+			end
+		end
+	end
+	
+	--扣钱和物品
+	for idx, tab in ipairs(WuLingSmeltConfig[nGrade].stuff) do
+		if tab.usetype == Any_Silver then
+			if not Actor.changeMoney(sysarg, mtBindCoin, -tab.count, 131, Lang.LogTips.l00070a) then
+				return
+			end
+			local itemStr = string.format(Lang.ScriptTips.zf502, tab.count)
+			Actor.sendTipmsg(sysarg, itemStr, ttFlyTip)
+		elseif tab.usetype == Any_Stuff then
+			local remCount = Actor.removeItem(sysarg, tab.id, tab.count, -1, -1, -1, string.format(Lang.LogTips.l00163a,Item.getItemName(tab.id)), 92)
+			if remCount < tab.count then
+			   return
+			end
+		end
+	end
+	
+	local Rate = WuLingSmeltConfig[nGrade].Rate
+	--print("OnWuLingSmeltnGradeRate"..Rate)
+	local RandomValue = math.random(10000) 
+	if RandomValue <= Rate then --熔炼成功
+	   if Actor.removeItemByPtr(sysarg, itemPtr1, 1, true, Lang.LogTips.l00107a, 92) == 0 then
+			return
+  	   end
+	   if Actor.removeItemByPtr(sysarg, itemPtr2, 1, true, Lang.LogTips.l00107a, 92) == 0 then
+			return
+  	   end
+	   if Actor.removeItemByPtr(sysarg, itemPtr3, 1, true, Lang.LogTips.l00107a, 92) == 0 then
+			return
+  	   end
+   	   --权重空间
+       local RandomValues = math.random(10000)
+       --print("RandomValues:".. RandomValues)
+       local Tb = WuLingSmeltConfig[nGrade].Weight
+       local random = 0
+       for i = 1, (#Tb - 1) do
+           if RandomValues > Tb[i] and RandomValues <= Tb[i+1]  then
+              random = i
+              break
+           end
+       end 	 
+       --print("random:".. random)  
+       if random == 0 then return end
+  	   if nGrade < table.getn(WuLingSmeltConfig) then
+  	      nGrade = nGrade + 1
+  	   end
+
+  	   local NewItemId = WuLingSmeltConfig[nGrade].RandomItemId[random]
+       local newItemPtr = Item.createItem(NewItemId, 1, 0, 0)   
+       if newItemPtr then 
+          Item.addItem(sysarg, newItemPtr, Lang.LogTips.l00070, 93)
+          local ItemName = Item.getItemName( NewItemId )
+          Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.q00099a, ItemName), ttFlyTip)  
+          local pack = DataPack.allocPacket(sysarg, 8, 37)
+          DataPack.writeInt(pack, NewItemId)
+          DataPack.flush(pack)
+       end    
+	else
+	--熔炼失败 
+	  local random = math.random(3) + 1
+	  if random == 1 then
+	     Actor.removeItemByPtr(sysarg, itemPtr1, 1, true, Lang.LogTips.l00107a, 92)
+	     local ItemName = Item.getItemName( nItemId1 )
+         Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.q00099b, ItemName), ttFlyTip)
+      elseif random == 2 then
+         Actor.removeItemByPtr(sysarg, itemPtr2, 1, true, Lang.LogTips.l00107a, 92)
+ 	     local ItemName = Item.getItemName( nItemId2 )
+         Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.q00099b, ItemName), ttFlyTip)
+      else
+         Actor.removeItemByPtr(sysarg, itemPtr3, 1, true, Lang.LogTips.l00107a, 92)
+ 	     local ItemName = Item.getItemName( nItemId3 )
+         Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.q00099b, ItemName), ttFlyTip)
+      end 
+      local pack = DataPack.allocPacket(sysarg, 8, 37)
+      DataPack.writeInt(pack, 0)
+      DataPack.flush(pack)
+      
+	end
+	return true
+end
+
+--通过物品id得到其熔炼的等级数 
+function GetSmeltGradeById( ItemId )
+  for k, curTab in ipairs(WuLingSmeltConfig) do
+      for j, ItemIds in ipairs(curTab.RandomItemId) do
+          if ItemIds == ItemId then
+             return k
+          end    
+      end
+  end
+  return 0
+end
+
+
+
+function GetOnWuLingSmeltConsumes(sysarg, args)
+    --print("GetOnWuLingSmeltConsumes")
+	local ptrCount = args[1]
+	local itemPtr1 = args[2]
+	local itemPtr2 = args[3]
+	local itemPtr3 = args[4]
+	if (not itemPtr1) or (not itemPtr2) or (not itemPtr3)then
+		return false
+	end
+	
+    local nItemId1 = Item.getItemProperty( sysarg, itemPtr1, Item.ipItemID, 0 )
+	local nItemId2 = Item.getItemProperty( sysarg, itemPtr2, Item.ipItemID, 0 )
+	local nItemId3 = Item.getItemProperty( sysarg, itemPtr3, Item.ipItemID, 0 )
+    --print("GetOnWuLingSmeltConsumes"..nItemId1..","..nItemId2..","..nItemId3)
+	local nGrade = GetSmeltGradeById( nItemId1 )
+	if (GetSmeltGradeById( nItemId1 ) == 0) or (GetSmeltGradeById( nItemId2 ) == 0) or (GetSmeltGradeById( nItemId3 ) == 0) then--物品不存在表中
+        Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf040b, ttFlyTip)
+	    return
+	end
+	if (GetSmeltGradeById( nItemId1 ) ~= GetSmeltGradeById( nItemId2 )) or  (GetSmeltGradeById( nItemId2 ) ~= GetSmeltGradeById( nItemId3 )) then --等级不同
+        Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf040c, ttFlyTip)
+	    return
+	end
+	
+	local opType = args[ptrCount+2]		--操作类型
+	if nGrade <= 0 or nGrade > table.getn(WuLingSmeltConfig) then return end
+	local Tb = WuLingSmeltConfig[nGrade]
+    if not Tb then return end
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, table.getn(Tb.stuff))
+	for k, curTab in ipairs(Tb.stuff) do
+		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack, curTab.id)
+		--print("GetOnWuLingSmeltConsumes".. (curTab.id))
+		local itemCount = curTab.count
+		if curTab.usetype == Any_Stuff then
+		   DataPack.writeInt(netPack, curTab.yb)
+		end
+		DataPack.writeInt(netPack, itemCount)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	DataPack.flush(netPack)
+	--print("CircleEquipUpgradeConsumes")
+end

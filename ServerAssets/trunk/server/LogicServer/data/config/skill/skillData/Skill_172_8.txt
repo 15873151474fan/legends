@@ -1,0 +1,74 @@
+-- 采集宝箱 喊话
+{
+
+	actions=
+	{
+		{act=0,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+	actRange=
+	{		
+	
+	--招怪
+	  {
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,	
+		  
+
+		  acts=
+		   {
+			{
+
+			 conds=
+			 {
+
+				--{cond = 1,value =1},
+			  {cond = 3,value =1},
+			  {cond = 11,value =500},
+			  --{cond = 22,value =74},
+			  --{cond = 16,value =139,param = 78},
+			  --{cond = 22,value =70},
+			  --{cond = 57,value =14},
+			 },
+			 results=
+			 {
+			  --{mj=0,timeParam=1,delay=0,type=3,rate=20000,value=0},
+			  --{mj=0,timeParam=1,type=10},
+			  --招怪1 
+			  --{mj=0,timeParam=1,type=17,id=1077,buffType=1,value=1,intervalvt=0},
+			  --招怪2
+			  {mj=0,timeParam=1,type=24,buffType=4,value=2,id=160},
+			 },
+			 specialEffects=
+			 {
+			  
+			  --{type=6,mj=0,id=149,keepTime=5000,delay=100,always=false},
+			 },
+			},
+		},
+	  },
+	   },
+
+		trainConds=
+		{
+
+		},
+		
+		spellConds=
+	{
+		{cond=13,value=15,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+	--攻击速度
+
+},

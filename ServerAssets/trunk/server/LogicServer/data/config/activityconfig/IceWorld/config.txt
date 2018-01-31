@@ -1,0 +1,182 @@
+﻿
+--冰原结界
+IceWorldConfig = 
+{
+	actTime = 1800,	--整个副本时间
+	
+	npcName = Lang.EntityName.n00286,	--副本里的NPC名字 用于注册定时刷怪
+	
+	angel = {mid = 1114, x = 76, y = 74, count = 1, liveTime = 1800},	--女神刷出配置
+	
+	diceInterval = 10,	--从进攻怪到刷骰子的时间（秒）
+	dice = 
+	{
+		call = 	--NPC召唤骰子
+		{
+			{type = 15, id = 0, count = 5, pos = {x = 71, y = 74},},	--第一个 type:消耗类型 id:0 count:消耗数量 pos:刷的坐标x y
+			{type = 15, id = 0, count = 20, pos = {x = 81, y = 74},},	--第二个
+		},
+		liveTime = 300,		--骰子生存时间
+		mid = {1098, 1099, 1100, 1101, 1102, 1103},	--五个骰子怪物ID
+		modelId = {80, 81, 82, 83, 84, 85},	--五个骰子石像模型id
+		pos =				--5个骰子刷的坐标
+		{
+			{x = 71, y = 78},
+			{x = 73, y = 78},
+			{x = 75, y = 78},
+			{x = 77, y = 78},
+			{x = 79, y = 78},
+			{x = 81, y = 78},
+		},
+	},
+	
+	buyDiceInterval = 30,	--可召唤骰子时间（秒）
+	mobInterval = 30,		--从刷骰子到刷怪物时间（秒）
+	regMonster = {1104,1105,1106,1107,1108,1109,1110,1111,1112,1113},	--注册怪物死亡的怪物ID 刷出来的进攻怪物必须加到这里 用于注册怪死亡的处理
+	mob =	--刷怪物组合
+	{
+		{	--第一组固定为默认组合
+			rate = 1,	--倍数 用于提示
+			tips = Lang.Activity.iw0012,	--说明 用于提示 （请移到语言包）
+			combine = 	--组合 如果数值不一样 必须是由小到大的组合
+			{
+			},
+			monster = --刷怪
+			{
+				{mid = 1104, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1104, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1104, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1104, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+
+		{
+			rate = 2,
+			tips = Lang.Activity.iw0013,
+			combine = 
+			{
+				"11","22","33","44","55","66",
+			},
+			monster = 
+			{
+				{mid = 1105, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1105, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1105, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1105, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+						
+		{
+			rate = 3,
+			tips = Lang.Activity.iw0014,
+			combine = 
+			{
+				"123","234","345","456",
+			},
+			monster = 
+			{
+				{mid = 1106, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1106, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1106, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1106, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+				
+		{
+			rate = 3,
+			tips = Lang.Activity.iw0015,
+			combine = 
+			{
+				"111","222","333","444","555","666",
+			},
+			monster = 
+			{
+				{mid = 1106, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1106, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1106, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1106, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+		
+		{
+			rate = 4,
+			tips = Lang.Activity.iw0016,
+			combine = 
+			{
+				"1234","2345","3456",
+			},
+			monster = 
+			{
+				{mid = 1107, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1107, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1107, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1107, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+		
+		{
+			rate = 5,
+			tips = Lang.Activity.iw0017,
+			combine = 
+			{
+				"1111","2222","3333","4444","5555","6666",
+			},
+			monster = 
+			{
+				{mid = 1108, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1108, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1108, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1108, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+		
+		{
+			rate = 6,
+			tips = Lang.Activity.iw0018,
+			combine = 
+			{
+				"12345","23456",
+			},
+			monster = 
+			{
+				{mid = 1109, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1109, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1109, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1109, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+		
+		{
+			rate = 7,
+			tips = Lang.Activity.iw0019,
+			combine = 
+			{
+				"22222","33333","44444","55555","66666",
+			},
+			monster = 
+			{
+				{mid = 1111, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1111, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1111, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1111, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+		
+		{
+			rate = 10,
+			tips = Lang.Activity.iw0020,
+			combine = 
+			{
+				"11111",
+			},
+			monster = 
+			{
+				{mid = 1113, x1 = 66, y1 = 86, x2 = 69, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1113, x1 = 82, y1 = 86, x2 = 85, y2 = 88, count = 10, liveTime = 1800},
+				{mid = 1113, x1 = 80, y1 = 61, x2 = 83, y2 = 63, count = 10, liveTime = 1800},
+				{mid = 1113, x1 = 68, y1 = 62, x2 = 71, y2 = 64, count = 10, liveTime = 1800},
+			},
+		},
+	},
+	
+}

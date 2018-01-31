@@ -1,0 +1,448 @@
+--lua script
+
+--#include "data\config\activityconfig\CrossSendFlowers\CsSendFlowers.txt" once
+
+
+--跨服送花
+
+--魅力值变化处理
+function CsSfChangeCharm(sysarg, val) 
+	local temp = System.checkCsSfTime()
+	if System.checkCsSfTime() ~= 1 then
+		return 
+	end
+	--[[
+	if System.isInTimeRange(unpack(CsSendFlowersConfig.actTime)) ~= true then 
+		return 
+	end
+	--]]
+	
+	local totalRankName = ""
+	local rankName = ""
+	local accRankName = ""
+
+	local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX) 
+	local nType = 0
+	if sex == 0 then
+		rankName = "TdCsSfHandLocalSome.txt"					--今天本服帅气榜
+		accRankName = "TdCsSfHandSome.txt"						--今天跨服帅气送花榜
+		totalRankName = "TdAccCsSfHandSome.txt"					--跨服累计帅气送花榜
+		nType = 2
+	elseif sex == 1 then
+		rankName = "TdCsSfLocalCharm.txt"						--今天本服魅力榜
+		accRankName = "TdCsSfCharm.txt"							--今天跨服魅力送花榜
+		totalRankName = "TdAccCsSfCharm.txt"					--跨服累计魅力送花榜
+		nType = 1
+	else
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local name = Actor.getName(sysarg)
+	local serverId = System.getServerId()
+
+	-- 今日榜
+	local TdCsSfPtr = Ranking.getRanking(rankName)
+	if TdCsSfPtr then
+		local curItem = Ranking.getItemPtrFromId(TdCsSfPtr, actorId)
+		local nIndex = 0
+		local curCharm = 0
+		if curItem then
+			curCharm = Ranking.getPoint(curItem)
+			nIndex = GetAwardsIndexByValue(curCharm)
+		end
+
+		System.addToFlowersRankFile(sysarg,rankName,val)		--添加到文件
+		
+		local nCurIndex = GetAwardsIndexByValue(curCharm + val)
+		if nCurIndex > nIndex then			--不同奖励区间发奖励
+			for awardIndex = nIndex + 1, nCurIndex do 
+				local val = CsSendFlowersConfig.charmAward[awardIndex].indexs
+				System.addOfflineMsg(actorId, 54, string.format(Lang.Activity.yx0021,val) , 0, 1, awardIndex, 4)
+			end
+		end
+	end
+	
+	System.addToFlowersRankFile(sysarg,accRankName,val)		--今日累积榜
+	System.addToFlowersRankFile(sysarg,totalRankName,val)	--总的榜
+
+	System.sendOneFlowerRankToAll(rankName,nType,actorId,val)		--发送数据给其它服
+	System.sendOneFlowerRankToAll(totalRankName,nType+2,actorId,val)		--发送数据给其它服 ----
+	
+end
+
+--获取索引
+function GetAwardsIndexByValue(nValue)
+	local nIndex = 0
+	for i=1,table.getn(CsSendFlowersConfig.charmAward) do
+		if nValue >= CsSendFlowersConfig.charmAward[i].indexs then
+			nIndex = i
+		end
+	end
+
+	return nIndex
+end
+
+--发送跨服送花奖励榜给客户端
+function OnSendFlowersAward(sysarg, args)  
+	local nType = args[2]
+	local rankName = "" 
+	if nType == 1 then
+		rankName =  "LastCsSfCharm.txt"
+	elseif nType == 2 then
+		rankName =  "LastCsSfHandSome.txt"
+		--rankName =  "LastCsSfCharm.txt"
+	elseif nType == 3 then
+		rankName =  "TdAccCsSfCharm.txt"
+	elseif nType == 4 then
+		rankName =  "TdAccCsSfHandSome.txt"
+	end
+	
+	local rankingPtr = Ranking.getRanking(rankName)
+	if rankingPtr then
+		local count = GetSendAwardRankNum(nType, CsSendFlowersConfig.rankedNum) --Ranking.getRankItemCount(rankingPtr)
+		
+		if count > 0 then
+			if count > CsSendFlowersConfig.rankedNum then
+				count = CsSendFlowersConfig.rankedNum
+			end
+
+			local pack = DataPack.allocPacket(sysarg, 46, 26)
+			if pack == nil then
+				return
+			end
+			DataPack.writeByte(pack, nType)
+			DataPack.writeByte(pack, count)
+			for i = 1, count do 
+				local rankItemPtr = Ranking.getItemPtrByIndex(rankingPtr, i-1)
+				if rankItemPtr then
+					DataPack.writeString(pack, Ranking.getSub(rankItemPtr, 0)) 
+					DataPack.writeInt(pack, tonumber(Ranking.getSub(rankItemPtr, 2)))  
+				end
+			end
+
+			DataPack.flush(pack)
+		end
+	end
+end
+
+--领取跨服送花奖励
+function OnGetSendFlowersAward(sysarg, args)  
+	--print("OnGetSendFlowersAward ")
+	local nType = args[2]
+	local nParam = args[3] 
+	
+	
+	local awardTable = nil 
+	local awardIndex = 0
+	local tipMsg = ""
+	if nType == 1 then  --每日达成奖励 nParam为奖励的索引
+		awardTable = CsSendFlowersConfig.charmAward 
+		awardIndex = nParam
+		tipMsg = Lang.LogTips.yx0006
+	elseif nType == 2 then --每日排行奖励 nParam为排名索引
+		awardTable = CsSendFlowersConfig.dayAward
+		awardIndex = nParam
+		tipMsg = Lang.LogTips.yx0007
+	elseif nType == 3 then --累积排行奖励 nParam为排名索引
+		awardTable = CsSendFlowersConfig.accAward
+		awardIndex = nParam
+		tipMsg = Lang.LogTips.yx0008
+	end
+	
+	local nConfig = nil
+	if nType == 1 then
+		nConfig = awardTable[awardIndex].awards
+	elseif nType == 2 or nType == 3 then
+		nConfig = awardTable.allAwards[awardIndex].awards 
+	end
+	 
+	if nConfig == nil then return end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX) 
+	
+	if Awards.CheckBagGridCount(sysarg, nConfig) then		--背包够不够 
+		for k, itemInfo in ipairs(nConfig) do 
+			if (not itemInfo.job or itemInfo.job == -1 or itemInfo.job == myJob) and (not itemInfo.sex or itemInfo.sex == -1 or itemInfo.sex == mySex) then
+				Actor.giveAward(sysarg, itemInfo.type, itemInfo.id, itemInfo.count, itemInfo.quality, itemInfo.strong, itemInfo.bind, 0, 944, tipMsg)
+			end
+		end
+	end
+end
+
+--向公共服发送送花榜
+function OnSendFlowersRank() 
+	--[[
+	if System.isStartCommonServer() ~= true then
+		return 
+	end	
+	
+	if System.checkCsSfTime() == 1 then
+		--for i = 1, 2 do  --1今日魅力,2今日帅气,3今日累积魅力,4今日累积帅气
+		for i = 1, 4 do  --1今日魅力,2今日帅气,3今日累积魅力,4今日累积帅气
+			local count = GetSendRankNum(i, CsSendFlowersConfig.rankedNum)
+			if count > 0 then
+				System.sendSendFlowersRank(i, count)  --今日魅力
+			end
+		end
+	end
+	--]]
+	
+end 
+
+--获取上榜的个数
+function GetSendRankNum(nType, maxCount)
+	local rankName = ""
+	local minVal = 0
+	local count = 0
+	if nType == 1 then
+		rankName =  "TdCsSfLocalCharm.txt"
+		minVal = CsSendFlowersConfig.dayAward.minVal
+	elseif nType == 2 then
+		rankName =  "TdCsSfHandLocalSome.txt"
+		minVal = CsSendFlowersConfig.dayAward.minVal
+	--
+	elseif nType == 3 then
+		rankName =  "TdAccCsSfCharm.txt"
+		minVal = CsSendFlowersConfig.accAward.minVal
+	elseif nType == 4 then
+		rankName =  "TdAccCsSfHandSome.txt"
+		minVal = CsSendFlowersConfig.accAward.minVal
+		
+	end
+	
+	local rankingPtr = Ranking.getRanking(rankName)
+	if rankingPtr then
+		local rankcount = Ranking.getRankItemCount(rankingPtr)
+		for i = 1, rankcount do 
+			local rankItemPtr = Ranking.getItemPtrByIndex(rankingPtr, i-1)
+			if rankItemPtr then
+				if Ranking.getPoint(rankItemPtr) < minVal then
+					break
+				end
+				count = count + 1
+				if count >= maxCount then
+					break
+				end
+			end
+		end
+	end
+	return count
+end
+
+--获取奖励榜上榜个数
+function GetSendAwardRankNum(nType, maxCount)
+	local rankName = ""
+	local minVal = 0
+	local count = 0
+	if nType == 1 then
+		rankName =  "LastCsSfCharm.txt"
+		minVal = CsSendFlowersConfig.dayAward.minVal
+	elseif nType == 2 then
+		rankName =  "LastCsSfHandSome.txt"
+		minVal = CsSendFlowersConfig.dayAward.minVal
+	elseif nType == 3 then
+		rankName =  "TdAccCsSfCharm.txt"
+		minVal = CsSendFlowersConfig.accAward.minVal
+	elseif nType == 4 then
+		rankName =  "TdAccCsSfHandSome.txt"
+		minVal = CsSendFlowersConfig.accAward.minVal
+	end
+	
+	local rankingPtr = Ranking.getRanking(rankName)
+	if rankingPtr then
+		local rankcount = Ranking.getRankItemCount(rankingPtr)
+		for i = 1, rankcount do 
+			local rankItemPtr = Ranking.getItemPtrByIndex(rankingPtr, i-1)
+			if rankItemPtr then
+				if Ranking.getPoint(rankItemPtr) < minVal then
+					break
+				end
+				count = count + 1
+				if count >= maxCount then
+					break
+				end
+			end
+		end
+	end
+	return count
+end
+
+--发送送花奖励榜
+function OnCsSendFlowersAward()
+	local timeType = System.checkCsSfTime() 
+	if timeType == 1 then --活动时间内
+		System.sendSfAwardRank(1, CsSendFlowersConfig.rankedNum, CsSendFlowersConfig.dayAward.minVal)
+		System.sendSfAwardRank(2, CsSendFlowersConfig.rankedNum, CsSendFlowersConfig.dayAward.minVal)
+
+		--System.sendSfAwardRank(3, CsSendFlowersConfig.rankedNum, 1)
+		--System.sendSfAwardRank(4, CsSendFlowersConfig.rankedNum, 1)
+	else
+		return
+	end
+
+	local rankingPtr = Ranking.getRanking("TdCsSfHandLocalSome.txt")
+	if rankingPtr then
+		Ranking.clearRanking(rankingPtr)
+	end
+
+	local pRanking = Ranking.getRanking("TdCsSfLocalCharm.txt")
+	if pRanking then
+		Ranking.clearRanking(pRanking)
+	end
+
+	local mRanking = Ranking.getRanking("TdCsSfHandSome.txt")
+	if mRanking then
+		local lastmRank = Ranking.getRanking("LastCsSfHandSome.txt")
+		if lastmRank then
+			Ranking.clearRanking(lastmRank)
+			for i=1,CsSendFlowersConfig.rankedNum do
+				local pItem = Ranking.getItemPtrByIndex(mRanking, i-1)
+				if pItem then
+					local pLastItem = Ranking.addItem(lastmRank,Ranking.getId(pItem),Ranking.getPoint(pItem))
+					if pLastItem then
+						Ranking.setSub(pLastItem,0,Ranking.getSub(pItem,0))
+						Ranking.setSub(pLastItem,2,Ranking.getSub(pItem,2))
+					end
+				end
+			end
+		end
+
+		Ranking.clearRanking(mRanking)
+	end
+
+	local nRanking = Ranking.getRanking("TdCsSfCharm.txt")
+	if nRanking then
+			local lastnRank = Ranking.getRanking("LastCsSfCharm.txt")
+		if lastnRank then
+			Ranking.clearRanking(lastnRank)
+			for i=1,CsSendFlowersConfig.rankedNum do
+				local pItem = Ranking.getItemPtrByIndex(nRanking, i-1)
+				if pItem then
+					local pLastItem = Ranking.addItem(lastnRank,Ranking.getId(pItem),Ranking.getPoint(pItem))
+					if pLastItem then
+						Ranking.setSub(pLastItem,0,Ranking.getSub(pItem,0))
+						Ranking.setSub(pLastItem,2,Ranking.getSub(pItem,2))
+					end
+				end
+			end
+		end
+		Ranking.clearRanking(nRanking)
+	end
+end
+
+--开启活动
+function OnOpenSendFlowers()
+	System.setOpenCsSendFlowers(CsSendFlowersConfig.actStartTime, CsSendFlowersConfig.actDay)
+end
+
+--发送累计排行给客户端
+function OnSendTotalFlowersRank(sysarg, args)
+	local nType = args[2]
+	--local nCount = args[3]
+	--local nPage = args[4]
+	
+	local pRanking = nil
+	local pLocalRanking = nil
+	if nType == 1 then
+		pRanking = Ranking.getRanking("TdAccCsSfHandSome.txt")
+		pLocalRanking = Ranking.getRanking("TdCsSfHandLocalSome.txt")				--今天本服帅气榜
+	else
+		pRanking = Ranking.getRanking("TdAccCsSfCharm.txt")
+		pLocalRanking = Ranking.getRanking("TdCsSfLocalCharm.txt")					--今天本服魅力榜
+	end
+
+	if pRanking then
+		local nCount = 10
+		local nCurCount = Ranking.getRankItemCount(pRanking)
+		if nCurCount < 10 then
+			nCount = nCurCount
+		end
+			
+		local pack = DataPack.allocPacket(sysarg, 46, 25)
+		if pack == nil then
+			return 
+		end
+		
+		local accCharm = 0
+		local accRank = 0
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local mItem = Ranking.getItemPtrFromId(pRanking, actorId)
+		if mItem then
+			accCharm = Ranking.getPoint(mItem)
+			accRank = Ranking.getIndexFromPtr(mItem) + 1
+			if accRank < 0 or accRank > 100 then
+				accRank = 0
+			end
+		end
+		DataPack.writeInt(pack,accCharm)
+		DataPack.writeInt(pack,accRank)
+		
+		local mLocalItem = Ranking.getItemPtrFromId(pLocalRanking, actorId)
+		local mCharm = 0
+		if mLocalItem then
+			mCharm = Ranking.getPoint(mLocalItem)
+		end
+		
+		DataPack.writeInt(pack,mCharm)
+		DataPack.writeByte(pack,nType)
+		--DataPack.writeInt(pack,nPage)
+		DataPack.writeInt(pack,nCount)
+		
+		--print("OnSendTotalFlowersRank:"..nCount)
+		for i=1,nCount do
+			local pItem = Ranking.getItemPtrByIndex(pRanking, i-1)
+			if pItem then
+				DataPack.writeByte(pack,i)
+				--print("OnSendTotalFlowersRank:"..i)
+				DataPack.writeUInt(pack,Ranking.getId(pItem))
+				DataPack.writeInt(pack,Ranking.getPoint(pItem))
+				DataPack.writeString(pack, Ranking.getSub(pItem, 0))
+
+				DataPack.writeInt(pack, tonumber(Ranking.getSub(pItem, 3)))
+				DataPack.writeByte(pack,tonumber(Ranking.getSub(pItem, 1)))
+				DataPack.writeInt(pack, tonumber(Ranking.getSub(pItem, 2)))
+
+				DataPack.writeInt(pack, tonumber(Ranking.getSub(pItem, 4)))
+				DataPack.writeInt(pack, tonumber(Ranking.getSub(pItem, 5)))
+				DataPack.writeInt(pack, tonumber(Ranking.getSub(pItem, 6)))
+			end
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+function OnCheckCanSendFlowers(sysarg, args)
+	local beSenderId = args[5]
+	local flag = true
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	if actorId == beSenderId then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0064, ttFlyTip)
+		flag = false
+	end
+	
+	if flag == true then
+		local val = System.checkCsSfTime()
+		
+		if System.checkCsSfTime() ~= 1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.yx0065, ttFlyTip)
+			flag = false
+		end
+	end
+	
+	
+	local pack = DataPack.allocPacket(sysarg, 46, 28)
+	if pack == nil then
+		return
+	end
+	
+	if flag == true then
+		DataPack.writeChar(pack, 0)
+	else
+		DataPack.writeChar(pack, -1)
+	end
+	DataPack.flush(pack)
+end

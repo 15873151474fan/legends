@@ -1,0 +1,119 @@
+
+{
+	--技能的三个动作的播放顺序
+	--act动作编号effect施法特效编号
+	actions=
+	{
+		{act=1,effect=0,}
+
+	},
+	
+	desc=Lang.Skill.s209L1Desc,--技能的描述
+	
+	iconID=1,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+			rangeType=3,		
+			rangeCenter=1,			
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value = 1},
+						{cond = 48,value = 1566},
+					},
+					--针对目标的实际作用,
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=200,rate=12000,value=3000,interval=8000},
+						{mj=0,timeParam=1,type=1,delay=200,buffType=56,id=45,rate=0,value=1,interval=5,vt=0,effectType=6,effectId=297 },
+						{mj=0,timeParam=1,type=1,delay=200,buffType=139,id=84,rate=0,value=5000,interval=10,vt=0},
+					},
+					specialEffects=
+					{
+						--{type=3,mj=0,id=274,keepTime=400,delay=200,always=false},
+						{type=4,mj=0,id=192,keepTime=400,delay=300,always=false},
+					},
+				},
+			},
+		}, 
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=0,
+			rangeCenter=0,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 6,value =1},
+						{cond = 48,value = 1567},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=238}, 
+						{mj=0,timeParam=4,type=1,delay=0, buffType=62,id=64,rate=0,value=244,level=5,interval=5,effectType =6,effectId =149},
+					},
+					specialEffects=
+					{
+						--{type=3,mj=0,id=119,keepTime=300,delay=100,always=false},
+						{type=4,mj=0,id=155,keepTime=400,delay=300,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+			rangeType=3,		
+			rangeCenter=1,			
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value = 1},
+						{cond = 48,value = 1568},
+					},
+					--针对目标的实际作用,
+					results=
+					{
+						{mj=0,timeParam=1,type=34,value=1},
+						{mj=0,timeParam=1,type=3,delay=200,rate=8000,value=0},
+						{mj=0,timeParam=1,type=1,delay=200,buffType=139,id=84,rate=0,value=8000,interval=10,vt=0},
+					},
+					specialEffects=
+					{
+						--{type=3,mj=0,id=274,keepTime=400,delay=200,always=false},
+						{type=4,mj=0,id=331,keepTime=400,delay=200,always=false},
+					},
+				},
+			},
+		}, 	
+		
+	},
+	 spellConds=
+	{
+		{cond=13,value=13,consume=false},
+	},
+	singTime=0,	
+	cooldownTime=20000,
+        
+
+
+},

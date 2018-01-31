@@ -1,0 +1,78 @@
+--神灯密室通用处理
+--#include "data\config\activityconfig\MagicLight\MagicLightConfig.txt" once
+
+--进入神灯密室初始化处理
+function OnEnterInitMagicLight(sysarg, fbHandle, fubenId)		
+	
+end
+
+
+--初始化点亮神灯个数
+function InitMagicLightStatus(sysarg)
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)												
+		sVal.lightStatus = MagicLightConfig.strLightStatus
+		sVal.lightStatus = {}
+		for idx = 1, MagicLightConfig.nAmountOfLight do
+			sVal.lightStatus[idx] = 0
+		end
+	end
+end
+	
+
+
+--大boss死亡
+function BigBossTreasure(sysarg,nIndex)
+	local nBossIndex = 0
+	if nIndex <= 0 then 
+		nBossIndex = 1
+	end
+	
+	if nIndex >= table.getn(MagicLightConfig.nBossId) then
+		nBossIndex = 1
+	end
+
+	if nBossIndex == 0 then
+		nBossIndex = nIndex + 1
+	end
+	local isPlatBoss = MagicLightConfig.nBossId[nIndex].isPlatBoss
+	if isPlatBoss == false then
+		return 
+	end		
+	--减少高台boss计数	
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)												
+		sVal.BossCount = sVal.BossCount - 1		
+	end				
+end
+
+
+--守卫死亡
+function  GuardDie(sysarg,monster)
+	local guardNum = Actor.getDyanmicValue(monster)
+ 	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)												
+			sVal.guardStatus[guardNum] = 0
+	end
+end
+
+--标记神灯标志
+function MarkMagicLight(sysarg,index,flag)
+	idx = tonumber(index)
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)
+		if sVal.lightStatus == nil then
+			sVal.lightStatus = {}
+		end
+		sVal.lightStatus[idx] = flag
+	end
+end
+
+
+
+
+

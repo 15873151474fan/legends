@@ -1,0 +1,99 @@
+--lua script
+--#include "data\language\LangCode.txt" once
+--#include "data\config\guild\GuildBiaoChe.txt"  once  --基本设置 
+--#include "data\functions\Activity\DartAdv\DartDie.txt" once	--高级镖车
+--#include "data\functions\Activity\Common\Awards.txt"
+
+function OnDartBeLoot(pMonster, nModleId, nActType)
+	if pMonster == nil then return end
+	if nActType == 1 then
+		OnDartAdvBeLoot(pMonster, nModleId)
+	else
+		OnGuildBiaoCheRobed(pMonster,nModleId)
+	end
+end
+
+--行会镖车被劫
+function OnGuildBiaoCheRobed(sysarg,nModleId)
+	local dVar = System.getDyanmicVar()
+	local nGuildId = Actor.getNpcGuildId(sysarg)
+
+	if dVar.BeJieBiaoFalg == nil then
+		dVar.BeJieBiaoFalg = {}
+	end
+	if dVar.BeJieBiaoFalg[nGuildId] == nil then		--被劫镖了
+		dVar.BeJieBiaoFalg[nGuildId] = 0
+	end
+
+	dVar.BeJieBiaoFalg[nGuildId] = 1
+
+	if nModleId == nil then return end
+	if nModleId ~= GuildDartConst.beLootDart.modleId then return end
+
+	local nHandle = Actor.getKillHandle(sysarg)
+	local pKill = Actor.getEntity(nHandle)			--杀怪着
+	if pKill == nil then return end
+
+	local gName = Actor.getName(sysarg)
+	local kName = Actor.getName(pKill)
+	
+	Actor.setMonsterProperty(sysarg,3,GuildDartConst.beLootDart.modleId)
+	Actor.setDenyAttackedByActor(sysarg,true)
+	Actor.setMonsterName(sysarg,string.format(Lang.Activity.g00032,System.getGuildName(nGuildId)))
+	Actor.changeEntityName(sysarg,gName)
+
+	Actor.monsterRealDropItemExp(pKill,sysarg)
+	
+	local nActorId =Actor.getIntProperty( pKill, PROP_ENTITY_ID )  
+
+	local playerList = LuaHelp.getVisiActorList(sysarg)		--给劫镖的奖励
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local gId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				
+				if gId ~= nGuildId then
+					local aId =Actor.getIntProperty( player, PROP_ENTITY_ID ) 
+					
+					--if aId == nActorId then		--击杀着给的奖励倍率
+						--for k=1,table.getn(GuildDartConst.onLootAwards) do
+						--	GuildDartConst.onLootAwards[k].count = GuildDartConst.onLootAwards[k].count * GuildDartConst.awardJieBiaoRate
+						--end
+					--end
+
+					if Awards.CheckBagGridCount(player,GuildDartConst.onLootAwards) then
+						Awards.Give(player,GuildDartConst.onLootAwards,822,"Guild DartRobed")
+					end
+				end
+			end
+		end
+	end
+
+	System.broadcastTipmsg(string.format(Lang.Activity.g00027, kName,gName), ttScreenCenter)
+	System.broadcastTipmsg(string.format(Lang.Activity.g00028, kName,gName,kName), 128)
+end
+
+--行会镖车处理
+function OnGuildDartExpriedOp(nValue)
+	local nGuildId = tonumber(nValue)
+
+	local dVar = System.getDyanmicVar()
+
+	local dartMonster = System.getGuildDartHandle(nGuildId)
+	local nMonster = Actor.getEntity(dartMonster)
+	
+	if nMonster ~= nil then
+		Fuben.clearMonster(dartMonster, false)
+		if (dartMonster ~= nil and dartMonster ~= 0) then
+			local pack = DataPack.allocPacket(sysarg, 139, 13)
+			DataPack.writeInt64(pack, dartMonster)		
+			DataPack.flush(pack)		
+		end
+	end
+	
+	--Actor.unregScriptCallback(sysarg, "OnGuildDartExpired")
+	dVar.StartGuildDart[nGuildId] = nil
+	System.setGuildDartHandle(nGuildId,0)
+	System.setGuildExipredTime(nGuildId,0)
+end

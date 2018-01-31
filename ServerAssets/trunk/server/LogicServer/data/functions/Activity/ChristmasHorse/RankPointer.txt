@@ -1,0 +1,73 @@
+﻿-- 圣诞活动文件
+ChristmasHorseActRankPt =
+{
+	--转盘物品列表
+	ChrHorseTurntableListPt =
+	{
+		File = "ChrHorseTurntableList.txt",		
+--[[
+		id 物品库序号*物品库最大数量+物品序号
+		point 预留
+		0~4 预留 
+]]
+	},
+	
+	--转盘物品参数，第一行存全服参数（包括全服消费元宝，奖金池）
+	ChrHorseTurntableParamPt =
+	{
+		File = "ChrHorseTurntableParam.txt",	 	
+--[[
+		id 库序号  		(全服参数用最大库序号+1作为id)
+		point 预留 
+		0 当前起始元宝  (全服参数中该字段是全服消费元宝)
+		1 元宝间隔		(全服参数中该字段是奖金池元宝)
+		2~4 预留
+]]
+	},
+	
+	--玩家转盘活动参数
+	ChrHorseTurntableInfoPt =
+	{
+		File = "ChrHorseTurntableInfo.txt",	 	
+--[[
+		id 玩家id
+		point 玩家积分，需要排名时用
+		0~11  转盘数据物品序号，按照序号对应相应的库的物品序号
+		12 玩家名称，需要时用，先预留
+		13 玩家消费元宝
+]]
+	},
+	
+	--老虎机物品参数，第一行存全服参数（包括全服消费元宝）
+	ChrLuckDrawParamPt =
+	{
+		File = "ChrLuckDrawParam.txt",	 	
+--[[
+		id 物品库序号*物品库最大数量+物品序号  	(全服参数用最大库序号+1作为id)
+		point 预留 
+		0 当前起始元宝  (全服参数中该字段是全服消费元宝)
+		1 元宝间隔		
+		2~4 预留
+]]
+	},
+	
+	--玩家老虎机活动参数
+	ChrLuckDrawInfoPt =
+	{
+		File = "ChrLuckDrawInfo.txt",	 	
+--[[
+		id 玩家id
+		point 玩家积分，需要排名时用
+		0~2  转盘数据物品序号，按照序号对应相应的库的物品序号
+		3 玩家名称，需要时用，先预留
+		4 玩家消费元宝
+		5 免费抽奖次数
+		6 抽奖状态 1可以领奖，0或者空表示可以抽奖
+		7~14 预留
+]]
+	},
+	
+	
+	
+	
+}

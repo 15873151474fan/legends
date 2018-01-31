@@ -1,0 +1,49 @@
+﻿
+--#include "data\functions\Systems\Miscs\VIPLevelSystemCommon.txt" once --vip等级公共处理
+SevenDayLogin = { 177, 178, 179, 180, 181, 182, 183,}  --七天登录的ID号 
+EventCallDispatcher.ActorFinishAchieveFunc = function (sysarg,arg)
+	if arg == nil then return end                                           
+	local Achieveid = arg[1]
+	if Achieveid == 9 then                              --如果是完成第一次跳跃的话就判断他有没有跳跃这个任务。有就给他完成
+		if Actor.hasQuest(sysarg,780) then 
+			Actor.setQuestValue(sysarg,780,30010,1)
+		end
+	end
+
+	--[[if Achieveid == 151 then --100点活跃度成就,增加vip会员的成长度 
+		if Actor.isVip(sysarg) then	
+			local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+			if vipLevel > 0 then
+				local config = VIPLevelConfig[vipLevel]
+				if config then
+					local growValue = config.achieveAddValue or 0
+					if growValue > 0 then 
+						local newVipLevel = AddVipGrowValue(sysarg, vipLevel, growValue)
+						if newVipLevel > vipLevel then
+							UpdateVipLevelInfo(sysarg, true) 
+						end
+					end
+				end
+			end
+		end
+	end]]
+end
+
+--成就奖励回调 
+EventCallDispatcher.ActorFinishAchieveAward = function (sysarg, arg)
+	if arg == nil then return end
+	local Achieveid = arg[1]
+	if Achieveid == 141 then --首充播报 
+	   System.broadcastTipmsg(string.format(Lang.AchieveName.tips001,Actor.getName(sysarg)),2+128)
+	end
+	for ndx, Achieveinfo in pairs(SevenDayLogin) do
+	    if Achieveid == Achieveinfo then
+ 	       System.broadcastTipmsg(string.format(Lang.AchieveName.tips002, Actor.getName(sysarg), ndx),2+128)
+ 	       break
+        end 
+    end 
+	
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeActorFinishAchieve, EventCallDispatcher.ActorFinishAchieveFunc)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeAchieveGetAward, EventCallDispatcher.ActorFinishAchieveAward)

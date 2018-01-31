@@ -1,0 +1,104 @@
+
+--足迹提品
+--args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function FootPrintUpgradeQuality(sysarg, args)
+	local config = FootPrintUpgradeQualityConfig 
+	local ret = 0
+	if not config then
+		return 
+	end
+	
+	local itemCount = args[1]
+	local mergCount = 1
+	local opType = args[1+itemCount+1]
+	if args[1+itemCount+2] ~= nil then
+		mergCount = args[1+itemCount+2]   --合成个数
+		if mergCount <= 0 then
+			return 
+		end
+	end
+	
+	local destItemId = 0
+	local srcItemId = 0
+	local needCount = 0
+	local needMagic = 0
+	local needCoin = 0
+
+	local itemPtr = args[2]
+	local itemId = Item.getItemProperty(sysarg,itemPtr, 0)
+	for k, v in ipairs(config) do 
+		if v.srcItemId == itemId then
+			destItemId = v.destItemId
+			srcItemId = v.srcItemId
+			needCount = v.count
+			needMagic = v.magic
+			needCoin = v.coin
+			break
+		end
+	end
+		
+	if destItemId == 0 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpq005, ttFlyTip) 
+		return  
+	end
+	
+	if itemCount < needCount * mergCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpq001, ttFlyTip) 
+		return 
+	else
+		for i = 1, itemCount do 
+			local itemPtr = args[1+i]
+			local itemId = Item.getItemId(itemPtr)
+			if itemId ~= srcItemId then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpq001, ttFlyTip)
+				return 
+			end
+		end
+	end
+	
+	if Actor.checkConsume(sysarg, 6, 0, needCoin * mergCount) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpq002, ttFlyTip)
+		return 
+	end
+	
+	if Actor.checkConsume(sysarg, 34, 0, needMagic * mergCount) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpq003, ttFlyTip)
+		return 
+	end
+		
+	if Item.getBagEmptyGridCount(sysarg) < mergCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpq004, ttFlyTip)
+		return 
+	end
+	
+	for i = 1, needCount * mergCount do  
+		local itemPtr = args[1 + i]
+		if Item.removeEquip(sysarg, itemPtr, Lang.LogTips.l00214, 871, true) == 0 then
+			Item.removeItem(sysarg, itemPtr, 1, Lang.LogTips.l00214, 871)
+		end
+	end
+	
+	Actor.removeConsume(sysarg, 6, 0, needCoin * mergCount, -1, -1, -1, 0, 871, Lang.LogTips.l00215)
+	
+	Actor.removeConsume(sysarg, 34, 0, needMagic)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local name = Actor.getName(sysarg)
+	System.sendCommonLog(871, actorId, name, 0, needMagic * mergCount, 0, " ",Lang.LogTips.l00216)
+	
+	Actor.giveAward(sysarg, 0, destItemId, mergCount, 0, 0, 1, 0, 871, Lang.LogTips.l00217)
+	
+	--SendEquipOptResult(sysarg, 0, 23, ret)  
+	local pack = DataPack.allocPacket(sysarg, 8, 8) 
+	if pack ~= nil then
+		DataPack.writeInt64(pack, 0)
+		DataPack.writeByte(pack, opType)
+		DataPack.writeByte(pack, ret)
+		DataPack.flush(pack)
+	end
+
+end
+
+
+
+
+

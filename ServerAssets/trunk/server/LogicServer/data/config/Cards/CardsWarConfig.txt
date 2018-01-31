@@ -1,0 +1,130 @@
+--#include "..\..\language\LangCode.txt"
+--卡牌对战配置
+
+CardsWarConfig = 
+{
+	maxCardWarCount = 5,	--对战最大卡牌数
+	freeTimes = 10,		--免费次数
+	addTimes = 10,		--可增加次数
+	canChallengeTop = 3,	--可挑战榜首canChallengeTop名
+
+	--增加次数消耗
+	addTimesConsumes =
+	{
+		{type=15, count = 40},
+	},
+
+	challengePlayerCount = 10,	--可挑战玩家数
+	challengeCD = 10 * 60,		--挑战CD(秒)
+	
+	--清除挑战CD消耗
+	challengeCDConsumes =
+	{
+		{type=15, count = 10},
+	},
+
+	--挑战奖励
+	challengeAwards =
+	{
+		--失败
+		{
+			awards =
+			{
+				
+				{ type = 20, id =2, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--胜利
+		{
+			awards =
+			{
+				{ type = 20, id =2, count = 50, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+	},
+
+	--小时排行奖励
+	hourRankAwards =
+	{
+		--第一名
+		{
+			awards =
+			{
+				{ type = 20, id = 2, count = 200, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 21, id = 0, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+
+			},
+		},
+		--第二名
+		{
+			awards =
+			{
+				{ type = 20, id = 2, count = 180, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 21, id = 0, count = 450, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+
+			},
+		},
+		--第三名
+		{
+			awards =
+			{
+				{ type = 20, id = 2, count = 160, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 21, id = 0, count = 400, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+
+			},
+		},
+		--第四名
+		{
+			awards =
+			{
+				{ type = 20, id = 2, count = 140, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 21, id = 0, count = 350, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+
+			},
+		},
+		--第五名
+		{
+			awards =
+			{
+				{ type = 20, id = 2, count = 120, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 21, id = 0, count = 300, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+
+			},
+		},
+	},
+	
+	--一周排行奖励
+	weekRankAwards =
+	{
+		--第一名
+		{
+			offlineMsg = Lang.Activity.kp0048,		--离线消息
+			offlineNeedBagCount = 0,			--离线奖励需要背包空格数
+
+			awards =
+			{
+				{ type = 44, id = 0, count = 6, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--第二名
+		{
+			offlineMsg = Lang.Activity.kp0049,		--离线消息
+			offlineNeedBagCount = 0,			--离线奖励需要背包空格数
+
+			awards =
+			{
+				{ type = 44, id = 0, count = 4, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--第三名
+		{
+			offlineMsg = Lang.Activity.kp0050,		--离线消息
+			offlineNeedBagCount = 0,			--离线奖励需要背包空格数
+
+			awards =
+			{
+				{ type = 44, id = 0, count = 2, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+	},
+}

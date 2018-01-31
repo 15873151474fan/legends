@@ -1,0 +1,50 @@
+--lua script
+--千服活动配置
+--#include "data\language\LangCode.txt" once   --语言包
+QianFuConfig  ={
+	--神级boss降临配置
+	SuperBossConfig = 
+	{
+		tsActId = 1, --千服活动编号
+		BroadCastTime =  1,  --公告间隔时间(分钟)
+		broadTimes    = 5,   --公告提醒多少次
+		nSceenId =  8, --刷怪场景ID	土城
+		--神级boss中的怪物配置
+		monsters =
+		{
+			--大魔尊
+			{nMonsterID = 1176, posX = 190,  posY = 207, nLiveTime = 1800,},	--BOSS			
+			--精英怪
+			{nMonsterID = 1178, nLiveTime = 1800,},	--小怪
+			--普通怪
+			{nMonsterID = 1177, nLiveTime = 1800,},			
+		},
+		specialmonCount = 10,   --精英怪只数
+		normalMonCount = 30,	--普通怪只数
+		--普通怪和精英怪刷怪区范围
+		monsterRange = 
+		{
+			{posX = 176 ,posY = 196,},
+			{posX = 200 ,posY = 208,},					
+		},		
+	},
+	--怪兽宝箱配置
+	MonsterBoxConfig = 
+	{
+		BroadCastTime =  1,  --公告间隔时间(分钟)
+		broadTimes    = 5,   --公告提醒多少次
+		tsActId = 2, --千服活动编号
+		nSceenId =  8, --刷怪场景ID 土城
+		--宝箱怪物配置，宝箱个数BoxCount,
+		monsters =
+		{				
+			{nMonsterID = 1181, BoxCount = 30, nLiveTime = 1800,},	--宝箱怪物
+		},		
+		--刷出宝箱坐标范围
+		BoxPosRange = 
+		{
+			{posX = 92 ,posY = 78 ,},
+			{posX = 445,posY = 360,},
+		},		
+	},
+}

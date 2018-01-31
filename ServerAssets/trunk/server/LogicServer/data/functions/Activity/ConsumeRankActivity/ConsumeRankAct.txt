@@ -1,0 +1,321 @@
+--lua script
+
+--#include "data\config\activityconfig\ConsumeRankActivity\ConsumeRankFileConfig.txt" once 
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "data\functions\Activity\Common\Misc.txt" once 
+
+--消费排名活动，共用的
+
+--根据序号获取配置
+function GetConsumeRankConfig(idx) 
+	for k, config in ipairs(ConsumeRankFileConfig or {}) do 
+		if config.idx == idx then
+			return config
+		end
+	end
+	return nil
+end
+
+--消费统计
+function OnConsumeRankActivity(sysarg, nYuanBao) 
+	for k, config in ipairs(ConsumeRankFileConfig or {}) do 
+			local openFlag = false
+			if config.isBackOpen and config.isBackOpen == 1 then --后台开启
+				if config.idx == 1 then 
+					if System.getSheepHundredActFlag(2) == true and System.isShowSheepHundredAct() ~= true then
+						openFlag = true
+					end
+					 
+				end
+			else --判断是否为默认开启
+				if config.actTime and System.isInDateRange(unpack(config.actTime)) == true then
+					openFlag = true
+				end
+			end 
+			
+			if openFlag == true then
+				local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+				local actorName = Actor.getName(sysarg)
+				if config.dayConsumeFile then --更新今日消费
+					local dayConsumePtr = Ranking.getRanking(config.dayConsumeFile)
+					if dayConsumePtr then
+						local consumeItemPtr = Ranking.getItemPtrFromId(dayConsumePtr, actorId)
+						if not consumeItemPtr then
+							consumeItemPtr = Ranking.addItem(dayConsumePtr, actorId, nYuanBao)
+							if consumeItemPtr then
+								Ranking.setSub(consumeItemPtr, 0, actorName)
+							end
+						else
+							Ranking.updateItem(dayConsumePtr, actorId, nYuanBao)
+						end
+					end
+				end
+				
+				if config.accConsumeFile then --更新累计消费
+					local accConsumePtr = Ranking.getRanking(config.accConsumeFile)
+					if accConsumePtr then
+						local consumeItemPtr = Ranking.getItemPtrFromId( accConsumePtr, actorId)
+						if not consumeItemPtr then
+							consumeItemPtr = Ranking.addItem(accConsumePtr, actorId, nYuanBao)
+							if consumeItemPtr then
+								Ranking.setSub(consumeItemPtr, 0, actorName)
+							end
+						else
+							Ranking.updateItem(accConsumePtr, actorId, nYuanBao)
+						end
+					end
+				end
+			end
+			
+	end
+	
+end
+
+--零点发奖励, nType 1为今日奖励，2为累计奖励;  needClear是否需要清除, idx 活动序号
+function OnGiveConsumeRankAward(nType, needClear, idx)
+	local config = GetConsumeRankConfig(idx)
+	if not config then
+		return 
+	end
+	
+	if nType ~= 1 and nType ~= 2 then
+		return 
+	end	
+	
+	local consumeIdTab, consumeNameTab = GetConsumeRankBeforeTen(nType, config)
+	
+	local title = ""
+	if nType == 1 then
+		title = config.dayAwards.awardTips
+	else
+		title = config.accAwards.awardTips
+	end
+	
+	for i = 1, table.getn(consumeIdTab) do 
+		local awardIdx, needBagCount = GetConsumeRankAwardIdx(nType, i, config)
+
+		if awardIdx > 0 then
+			local str = string.format(title, i)
+			System.addOfflineMsg(consumeIdTab[i], 71, str, 0, idx, nType ,awardIdx, needBagCount) 
+		end
+	end
+	
+	if needClear == true then
+		local rankPtr = nil
+		if nType == 1 then
+			rankPtr = Ranking.getRanking(config.dayConsumeFile)
+		else
+			rankPtr = Ranking.getRanking(config.accConsumeFile)
+		end
+		
+		if rankPtr then
+			Ranking.clearRanking(rankPtr)
+		end
+	end
+
+end
+
+--领取奖励
+function OnGetConsumeRankAward(sysarg, args) 
+	local nActIdx = args[2]
+	local nType = args[3]
+	local nAwardIdx = args[4]
+
+	local config = GetConsumeRankConfig(nActIdx)
+	if not config then
+		return 
+	end
+	
+	if nType ~= 1 and nType ~= 2 then
+		return 
+	end
+	
+	local awards = {} 
+	local logTip = ""
+	if nType == 1 then
+		awards = config.dayAwards
+		logTip = config.dayAwards.logTips
+	else
+		awards = config.accAwards
+		logTip = config.accAwards.logTips
+	end
+	
+	if nAwardIdx > 0 and nAwardIdx <= table.getn(awards) then
+		local awardList = awards[nAwardIdx].awardList
+		local ret = Awards.CheckBagGridCount(sysarg, awardList) 
+		if ret == true then
+			Awards.Give(sysarg, awardList, 985, logTip)
+		end
+	end
+
+end
+
+--客户端请求消费排行信息
+function ReqConsumeRankInfo(sysarg, packet)
+	local idx = DataPack.readByte(packet)
+	local config = GetConsumeRankConfig(idx)
+	if not config then
+		return 
+	end
+	
+	local openFlag = false
+	if config.isBackOpen and config.isBackOpen == 1 then --后台开启
+		if config.idx == 1 then 
+			if System.getSheepHundredActFlag(2) == true then
+				openFlag = true
+			end			 
+		end
+	else --判断是否为默认开启
+		if config.actTime and System.isInDateRange(unpack(config.actTime)) == true then
+			openFlag = true
+		end 
+	end
+	
+	if openFlag == false then
+		return 
+	end
+	
+	local nType = DataPack.readByte(packet)
+	if nType ~= 1 and nType ~= 2 then
+		return 
+	end
+	
+	local consumeIdTab, consumeNameTab = GetConsumeRankBeforeTen(nType, config)
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local myRank = 0
+	for i = 1, table.getn(consumeIdTab) do 
+		if actorId == consumeIdTab[i] then
+			myRank = i 
+			break
+		end
+	end
+	local myPoint = GetMyConsumeInAct(actorId, nType, config)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 129)
+	if not pack then
+		return 
+	end
+	
+	DataPack.writeByte(pack, config.idx)
+	DataPack.writeByte(pack, nType)
+	DataPack.writeByte(pack, myRank)
+	DataPack.writeUInt(pack, myPoint)
+	DataPack.writeByte(pack, table.getn(consumeNameTab)) 
+	
+	for i = 1, table.getn(consumeNameTab) do 
+		DataPack.writeString(pack, consumeNameTab[i])
+	end
+	
+	DataPack.flush(pack)
+	
+end
+
+
+--获取前面10名，nType 1为今日奖励，2为累计奖励
+function GetConsumeRankBeforeTen(nType, config)
+	local resultIdTab = {}
+	local resultNameTab = {}
+	local rankPtr = nil
+	local rankConsume = 0
+	if nType == 1 then
+		rankPtr = Ranking.getRanking(config.dayConsumeFile)
+		rankConsume = config.dayConsume
+	else
+		rankPtr = Ranking.getRanking(config.accConsumeFile) 
+		rankConsume = config.accConsume
+	end
+	
+	if rankPtr then
+		local itemCount = Ranking.getRankItemCount(rankPtr)
+		if itemCount > 10 then
+			itemCount = 10
+		end
+	
+		for i = 1, itemCount do 
+			local itemPtr = Ranking.getItemPtrByIndex(rankPtr, i-1)
+			if itemPtr then
+				local id = Ranking.getId(itemPtr)
+				local point = Ranking.getPoint(itemPtr)
+				local name = Ranking.getSub(itemPtr, 0)
+				if point >= rankConsume then
+					table.insert(resultIdTab, id)
+					table.insert(resultNameTab, name)
+				end
+			end
+		end
+	end
+	
+	return resultIdTab, resultNameTab
+
+end
+
+--获取自己的消费
+function GetMyConsumeInAct(actorId, nType, config)
+	local rankPtr = nil
+	local myPoint = 0
+	if nType == 1 then
+		rankPtr = Ranking.getRanking(config.dayConsumeFile)
+	else
+		rankPtr = Ranking.getRanking(config.accConsumeFile)  
+	end
+	
+	if rankPtr then
+		local itemPtr = Ranking.getItemPtrFromId(rankPtr, actorId)
+		if itemPtr then
+			myPoint = Ranking.getPoint(itemPtr)
+		end
+	end
+	
+	return myPoint
+	
+end
+
+--获取奖励序号
+function GetConsumeRankAwardIdx(nType, rankIdx, config)
+	local awardIdx = 0
+	local needBagCount = 0
+	local awards = nil
+	
+	if nType == 1 then
+		awards = config.dayAwards
+	else
+		awards = config.accAwards 
+	end
+	
+	if awards then
+		for k, v in ipairs(awards.awardIndexs or {}) do
+			if rankIdx >= v.beginVal and  rankIdx <= v.endVal then
+				awardIdx = k
+				break
+			end
+		end
+	end
+	
+	local needBagCount = 0
+	if rankIdx > 0 and rankIdx <= table.getn(awards) then
+		needBagCount = awards[rankIdx].needBagCount
+	end
+	
+	return awardIdx, needBagCount
+	
+end
+
+--清除消费排名数据 
+function ClearConsumeRankData(idx)
+	local config = GetConsumeRankConfig(idx)
+	if not config then
+		return 
+	end
+	
+	local dayConsumePtr = Ranking.getRanking(config.dayConsumeFile)	
+	if dayConsumePtr then
+		Ranking.clearRanking(dayConsumePtr)
+	end
+	
+	local accConsumePtr = Ranking.getRanking(config.accConsumeFile)	
+	if accConsumePtr then
+		Ranking.clearRanking(accConsumePtr)
+	end
+	
+end

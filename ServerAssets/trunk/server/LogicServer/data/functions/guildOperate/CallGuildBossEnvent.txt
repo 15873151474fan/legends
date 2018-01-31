@@ -1,0 +1,159 @@
+--lua script
+--召唤斗魂功能
+--#include "data\language\LangCode.txt" once
+--#include "data\config\guild\GuildBossScreen.txt"  once  --基本设置 
+---#include "data\config\task\LuoYangBattleConfig.txt" once
+
+--#include "data\config\guild\CallGuildBossConfig.txt" once		--帮派斗魂
+
+--#include "GuildBossCommon.txt" once
+
+function CallGuildBossOp(sysarg, args)
+	local str = string.format(Lang.GuildLang.z00039,CallGuildBossConfig.needGuildCoin,CallGuildBossConfig.needGuildGx)
+	Actor.messageBox(sysarg,0,0,str,Lang.GuildLang.z00040.."/SetGuildBossOp",Lang.GuildLang.z00041.."/GiveupGuildBossOp",NULL)
+end
+
+function SetGuildBossOp( sysarg )
+	--local bType = args[2]
+	
+	local nPos = Actor.getGuildPos(sysarg)
+	
+	if(nPos ~= 3 and nPos ~= 2)	then	--只有帮主才能开启
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.z00033, ttDialog)
+		return
+	end
+	
+	--是否在洛阳战场
+	local sceneId = Actor.getSceneId(sysarg)  --获取当前场景ID
+
+	-- if sceneId ~= LuoYangBattleConfig.SceneId then
+		-- Actor.sendTipmsg(sysarg, Lang.GuildLang.z00044, ttDialog)
+		-- return
+	-- end
+	
+	local sysSVar = System.getStaticVar()
+	if sysSVar.luoyangBattle == nil then
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.z00043, ttDialog)
+		return
+	end
+
+	local newbScore = Actor.getBossScore(sysarg)
+	local bLev = 0 --GetGuildBossLev(sysarg,newbScore)
+
+	if bLev < 1 then		--boss等级不够
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.z00034, ttDialog)
+		return 
+	end
+
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+	--已开启斗魂副本
+	if fhadle > 0 then
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.z00035, ttDialog)
+		return 
+	end
+	--不使用斗魂护符
+
+	local bFlag = Actor.getGuildBossCallFlag(sysarg)
+	
+	--斗魂已经召唤出来了
+	if bFlag == true then
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.z00038, ttDialog)
+		return
+	end
+
+	local nGuildCoin = Actor.getGuildCoin(sysarg)
+
+	if nGuildCoin < CallGuildBossConfig.needGuildCoin then		--帮派资金不够
+		Actor.sendTipmsg(sysarg, string.format(Lang.GuildLang.z00036, CallGuildBossConfig.needGuildCoin ), ttDialog)
+		return
+	end
+
+	local nGx = Actor.getGuildGx(sysarg)
+	if nGx < CallGuildBossConfig.needGuildGx then		--帮派贡献不够
+		Actor.sendTipmsg(sysarg, string.format(Lang.GuildLang.z00037, CallGuildBossConfig.needGuildGx ), ttDialog)
+		return
+	end
+
+	local mType = Actor.getBossType(sysarg)
+		
+	--mType = 1
+	if mType <= 0 or mType > 2 then
+		return
+	end
+
+	if bLev > 5 then
+		return 
+	end
+
+	local svar = Actor.getDyanmicVar(sysarg)
+
+	local monsterInfo = CallGuildBossConfig.monsters[mType][bLev]
+	if monsterInfo ~= nil then	
+		local x, y = Actor.getEntityPosition(sysarg, 0, 0)
+		local monster = svar.GuildBossMonster
+		if monster ~= nil then
+		  --通知客户端清除怪物信息 
+			local pack = DataPack.allocPacket(sysarg, 139, 13)
+			DataPack.writeInt64(pack, monster)
+			DataPack.flush(pack)
+			Fuben.clearMonster(monster, false)
+		end
+		local bool = Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟
+		monster = Actor.createMonster(sysarg, monsterInfo.nMonsterID, x, y, 0)	
+		if (monster ~= nil) then
+			Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟 
+
+			svar.GuildBossMonster = Actor.getHandle(monster) --怪物句柄
+
+			Actor.setGuildCoin(sysarg,-CallGuildBossConfig.needGuildCoin)	--扣除帮派资金
+			Actor.setGuildGx(sysarg,nGx-CallGuildBossConfig.needGuildGx)	--扣除帮派贡献
+
+			Actor.setCallGuildBossFlag(sysarg,true)
+
+			local campId = Actor.getCampId(sysarg)
+
+			Actor.followActor(monster, sysarg, 1, 30, true) --跟随某个玩家
+			Actor.setEntityTelByOwnderAttr(monster, true)   --设置实体是否跟着归属者传送
+			Actor.setEntityLazyFollow(monster, true)        --设置实体是否惰性跟随
+			Actor.setDenyAttackedByActor(monster, false)     --设置实体是否不可被玩家攻击
+			Actor.setDenyBeAttack(monster,false)
+			Actor.setEntityTelByOwnerWhenNonePortal(monster, true)		--置玩家不是通过传送门传送时是否，怪物下属是否跟着一起传送
+
+			Actor.setEntityCanAttackMonster(monster, true)	--可以攻击怪物
+			Actor.setCampId(monster,campId)
+
+			local gName = Actor.getGuildName(sysarg)
+			local str2 = string.format(Lang.GuildLang.z00045, gName,monsterInfo.nMasterName)
+			Actor.changeEntityName(monster,str2)
+			--print("monsterInfo.nMasterName"..monsterInfo.nMasterName)
+			--print("monsterInfo.str2"..str2)
+			local campName = Camp.getCampName(Actor.getCamp(sysarg))
+			System.broadcastTipmsg(string.format(Lang.GuildLang.z00046, campName, gName, monsterInfo.nMasterName), ttScreenCenter)
+		end
+	end
+
+end
+
+function GiveupGuildBossOp( sysarg )
+	return nil
+end
+
+--回收斗魂
+function CleanGuildBossOp(sysarg)
+	local bFlag = Actor.getCallGuildBossFlag(sysarg)
+
+	if bFlag == false then return end
+
+	local svar = Actor.getDyanmicVar(sysarg)
+	local monster = svar.GuildBossMonster
+	if monster ~= nil then
+	  --通知客户端清除怪物信息 
+		local pack = DataPack.allocPacket(sysarg, 139, 13)
+		DataPack.writeInt64(pack, monster)
+		DataPack.flush(pack)
+		Fuben.clearMonster(monster, false)
+	end
+	svar.GuildBossMonster = nil
+
+	Actor.setCallGuildBossFlag(sysarg,false)
+end

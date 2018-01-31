@@ -1,0 +1,46 @@
+﻿--[[ 世界BOSS系统与客户端通信的单元文件 李昀]]
+
+--#include "data\functions\Systems\BossSystem\WorldBoss\WorldBossMain.txt" once
+
+--处理世界BOSS的消息 
+WorldBossCCTable = {}
+--收到世界BOSS系统的消息处理 
+function WorldBossMainHandle(sysarg,packet)
+  local ID = DataPack.readByte(packet)
+  --print("WorldBossMainHandle : ".. ID)
+  local Handle = WorldBossCCTable[ID]
+  if Handle ~= nil then
+   Handle(sysarg,packet)  
+  end
+end
+
+--查询某个BOSS的信息 
+WorldBossCCTable[1] = function(sysarg,packet)
+  local BossID = DataPack.readWord(packet)  
+  local gVar = GetWorldBossDyanmicVar(BossID)
+ 
+  --确定是否存活 
+  local btAlive = 0
+  if gVar.Alive ~= nil then
+    btAlive = gVar.Alive   
+  end
+  
+  
+  
+  local NextMobTime = WorldBossImp.GetNextMobTime(BossID)
+  
+  local Boss = WorldBossConfig[BossID]
+  local MaxExp = 0
+  local GrowLevel = 0
+  local Exp = 0
+  MaxExp,GrowLevel,Exp = System.getMonsterGrowInfo(Boss.MonID,GrowLevel,Exp)
+  
+  local Data = DataPack.allocPacket( sysarg,BaseTypes.SystemId.BossSystem , SubWorldBossCC)
+  DataPack.writeByte(Data,1) --协议ID
+  DataPack.writeWord(Data,BossID) --BOSSID
+  DataPack.writeByte(Data,btAlive) --是否存活
+  DataPack.writeWord(Data,GrowLevel)  --当前成长等级
+  DataPack.writeUInt( Data,NextMobTime) --下次刷新时间 
+  DataPack.flush(Data)
+  BossPrint(string.format("客户端查询世界BOSS 信息 : %d , 是否存活: %d ,成长等级:%d" , BossID , btAlive ,GrowLevel ))
+end

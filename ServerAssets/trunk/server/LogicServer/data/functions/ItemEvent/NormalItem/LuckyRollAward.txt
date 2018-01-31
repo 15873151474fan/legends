@@ -1,0 +1,78 @@
+--lua script
+
+--#include "data\functions\Systems\Archive\LuckyRollAwardCommon.txt" once
+
+--[[
+    函数名称：LuckyRollAward
+    函数描述：点击打开 滚轮抽奖 
+    参数 sysarg 的描述：
+    参数 itemidx 的描述：
+    参数 itemPtr 的描述：
+    参数 ItemTable 的描述：
+]]
+function LuckyRollAward(sysarg,itemidx,itemPtr,ItemTable)
+  --通知客户端
+  --140 成就系统子系统 1
+  if ItemTable.item_id == itemidx then
+    --获取玩家目前有多少个空格子，如果格子不够，就返回
+	  local count = Item.getBagEmptyGridCount(sysarg)
+	  local needGridCount=1
+	  if( type( ItemTable ) == 'number' ) then
+	    needGridCount = ItemTable
+	  else
+	    needGridCount = ItemTable.needMinBagGrid
+	  end
+	  if needGridCount and count < needGridCount then
+	    local tipMsg = string.format(Lang.ScriptTips.x00090,needGridCount)
+	    Actor.sendTipmsg( sysarg,tipMsg,ttDialog )
+	    return false
+	  end
+	  
+	  --检测魔珠背包
+	local count = MagicItem.getMagicBagEmptyGridCount(sysarg)
+	local needGridCount= ItemTable.checkMagicBeadBag or 0   --需要背包格子的数量 
+	
+	if count < needGridCount then
+		local tipMsg = string.format(Lang.ScriptTips.magic020,needGridCount)
+		Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip );
+		return false
+	end
+	
+    --幸运滚轮抽奖进行标识
+    if Actor.getRTIntValue(sysarg,GETLUCKYROLLAWARDING) == 1 then return end
+		Actor.setRTIntValue(sysarg,GETLUCKYROLLAWARDING,1)
+		--幸运转轮 抽奖逻辑处理
+		LuckyRollAwardFunc(sysarg,itemidx,ItemTable)
+
+  end
+end
+
+
+
+--[[
+    函数名称：LuckyRollAwardInit
+    函数描述：幸运转轮初始化 
+    参数 sysarg 的描述：
+]]
+function LuckyRollAwardInit(sysarg)
+  for i = 1,table.getn(LuckyRollAwardItemConfig) do
+		local x = LuckyRollAwardItemConfig[i]
+		--如果只执行爆率的话，那么就注册调用函数
+		if(x.onlyDoRoll) then
+		  GlobalItemFn[x.item_id] = { func = LuckyRollAward,params =x }
+		end
+		for i = 1, table.getn(x.dropName) do
+		  --在初始化的时候全部装载进来 ,避免后期临时去加载
+			local dropName = DROPNAME.."_"..tostring(x.item_id).."_"..i
+			local boxdrop = System.getObjectVar(dropName)
+			if (not boxdrop) then
+				boxdrop = CBoxDropMgr:getSingleton():createBoxDrop(dropName)  -- 这里会返回一个宝箱掉落对象(CBoxDrop)
+			end
+			if (boxdrop) then
+				boxdrop:load(x.dropName[i])
+			end
+		end
+	end
+end
+
+table.insert(InitFnTable,LuckyRollAwardInit)

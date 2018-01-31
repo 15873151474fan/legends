@@ -1,0 +1,46 @@
+﻿--lua script
+{
+	id = 100,			-- 禀报结果
+	parentid = 99,type = 0,level = 52,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name100,
+	content = Lang.Quest.desc100,
+
+	prom = { type = 0, scene = Lang.SceneName.s00015, npc = Lang.EntityName.n00379 },
+	comp = { type = 0, scene = Lang.SceneName.s00015, npc = Lang.EntityName.n00379 },
+	target = {
+
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+		{ type = 3, id = 1, count = 450 },
+		{ type = 3, id = 453, count = 0 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 10929152, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 42500, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 821, count = 5, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk1001,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk1001,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip1001,
+	},
+	PassMsTip = {
+	},
+	PromCallBack = "OnPromEnterFuben",
+	PromCallBackArg = {
+		 20,
+	},
+},

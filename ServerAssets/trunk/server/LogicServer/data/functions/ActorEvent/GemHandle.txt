@@ -1,0 +1,60 @@
+﻿--lua script
+--处理宝物相关的操作
+
+--#include "data\config\quest\GemQuest.txt" once --任务相关的配置
+
+local GemOpId = 
+{  
+	enGemEquip 	= 1,
+	enGemRide 	= 2,
+}
+
+GemOpFuncList = {}
+
+EventCallDispatcher.HandlerGemOp = function (sysarg, args)
+  if args[1] == nil then return end   --第1个参数  1：表示强化消耗 2：表示洗资质消耗 3：表示转生消耗  11:表示强化 12：表示洗资质 13：表示转生
+  local func = GemOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--装备 
+GemOpFuncList[GemOpId.enGemEquip] = function (sysarg,args)
+	--完成相关的任务
+	for i = 1, #GemTakeOnEquestData do
+		local qData = GemTakeOnEquestData[i]
+		if qData then
+			Actor.setQuestValue(sysarg, qData.qid, qData.tid, qData.count)
+		end
+	end
+end
+
+GemOpFuncList[GemOpId.enGemRide] = function (sysarg, args)	
+	-- 战斗状态上坐骑	
+  if (Actor.hasState(sysarg, esStateBattle)) then  	
+  	Actor.sendTipmsg(sysarg, Lang.ScriptTips.x00144, ttTipmsgWindow)
+  	return
+  end
+  Actor.mount(sysarg, false)
+  --[[	
+	local result = false
+	local postint,result = Actor.postEntityScriptDelayMsg(sysarg, 2000, result, 10)
+	if not result then 
+ 		return 
+	end
+	local npack = DataPack.allocPacket(sysarg,139,4)
+	if npack == nil then return end
+	DataPack.writeInt(npack,postint)
+	DataPack.writeInt(npack,2000)
+	DataPack.writeByte(npack,0)
+	DataPack.writeByte(npack,1)
+	DataPack.writeString(npack,Lang.Gem.t00023)	
+	DataPack.flush(npack)
+	--]]
+	Actor.startSingWnd(sysarg,10,2000,Lang.Gem.t00023,true,true,false)
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeGem, EventCallDispatcher.HandlerGemOp)
+

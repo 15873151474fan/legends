@@ -1,0 +1,147 @@
+﻿--lua script
+--本脚本实现了死亡后选择复活模式的功能
+--先执行OnKillByActor 再执行defaultHandlerPlayerDie
+
+--#include "data\functions\ExpandFunc\ActorReliveCommon.txt" once
+--#include "data\config\pk\PVPQuest.txt" once 
+--#include "data\functions\guildOperate\SbkKillRank.txt" once
+--#include "data\functions\Activity\Arena\Arena_common.txt" once
+--#include "data\functions\Activity\CampBattle\CampBattleCommon.txt" once
+--#include "data\functions\Activity\PKChallenge\PKChallengeCommon.txt" once
+--#include "data\functions\Activity\CorpsBattle\CorpsBattleCommon.txt" once
+--#include "data\functions\Activity\WeekEnd\HuntingCommon.txt" once
+--#include "data\functions\Activity\CrossWorldNumOne\CrossWorldOneCommon.txt" once
+--#include "data\functions\Activity\OpenBattleFiled\OpenBattleCommon.txt" once
+--#include "data\functions\Activity\CrossMatches\CrossMatchesCommon.txt" once 
+--#include "data\functions\Activity\AsuraField\Asura_common.txt" once
+--#include "data\functions\Activity\HongMengRealm\NpcStoreHandle.txt" once
+--#include "data\functions\Activity\NanJiangGuDi\NanJiangGuDi.txt" once  --驯兽擂台
+--#include "data\functions\Activity\SpringFestivalSheep\EveBoss.txt" once  --除夕夺宝
+
+-- 判断杀人者是否是玩家
+-- incself: 杀人者是否可以是自己。如果为true，杀人者是自己也返回true；否则返回false
+EventCallDispatcher.IsKillerActor = function (sysarg, killer, incself)	
+	incself = incself or false
+	local entity_type = Actor.getEntityType(killer)	
+	if (entity_type ~= 0) then
+		return false
+	end
+	
+	if ((not incself) and (sysarg == killer)) then		
+		return false		
+	end
+	return true
+end
+
+
+--[[
+    函数名称：EventCallDispatcher.OnKillByActor
+    函数描述：玩家被玩家杀死调用
+    参数 sysarg 的描述：  被杀玩家对象指针 
+    参数 killer 的描述：杀死该玩家的对象的指针
+    参数 ... 的描述：
+]]
+EventCallDispatcher.OnKillByActor = function (sysarg, killer)
+	--[[
+	if (not sysarg or not killer) then return end 
+	if (not EventCallDispatcher.IsKillerActor(sysarg, killer[1])) then 
+		print("----killed by non actor-----")
+		return 
+	end
+	--]]
+	local killerPtr = killer[1]
+	if not killerPtr or not sysarg then return end 
+	
+	local svar = Actor.getStaticVar(sysarg)
+	local data = svar.killerData	--被击杀者记录被杀信息
+	if not data then 
+		svar.killerData = {}
+		data = svar.killerData
+	end	
+	local entity_type = Actor.getEntityType(killerPtr)
+	if entity_type == 0 then
+		data[1] = Actor.getIntProperty(killerPtr, PROP_CREATURE_LEVEL)	--击杀者等级
+		data[2] = Actor.getCampId(killerPtr)	--击杀者阵营ID
+		data[3] = Actor.getName(killerPtr)	--击杀者名字
+		data[6] = entity_type --击杀者类型
+		if sysarg ~= killerPtr then	
+			AwardScoreKillActor(sysarg,killerPtr)
+			CampBattleActorDeath(sysarg, killerPtr)			--阵营战场
+			OnPKChallengePlyDeath( sysarg, killerPtr )		--Pk挑战
+			OnKilledInHunting(sysarg, killerPtr)			--狩猎大会
+			
+			ActorKillOtherGetScore(sysarg,killerPtr)		--战队竞技
+			OnKillBYActorInSbkOp(sysarg,killerPtr)			--沙城战时被杀
+			
+			OnKillByActorInOpenBattle(sysarg,killerPtr)     --开服战场被杀
+
+			if System.isCommonServer() == true then			--如果是公共服 天下第一战场
+				OnKillInCrossWorld(sysarg,killerPtr)
+				OnKillInCrossBattleField(sysarg,killerPtr)
+				OnKillInCrossMatches(sysarg,killerPtr)		--跨服联赛被杀 
+			end
+
+			OnKillByActorInAsuraFeild(sysarg, killerPtr)		--修罗场
+
+			local sceneId = Actor.getSceneId(killerPtr)
+			local questEventId = PVPQuest[sceneId]
+			if questEventId then
+				if Actor.getCampId(killerPtr) ~= Actor.getCampId(sysarg) then
+					Actor.triggerQuestEvent(killerPtr, 127, questEventId, 1)
+				end
+			end
+		end
+	elseif entity_type == 1 then
+		data[3] = Actor.getName(killerPtr)	--击杀者名字
+		data[6] = entity_type  --击杀者类型
+		
+		OnKillByMonInAsuraFeild(sysarg, killerPtr)			--修罗场
+	else
+		data[6] = 2  --击杀者类型 其他类型
+	end
+end
+
+--[[
+    函数名称：EventCallDispatcher.defaultHandlerPlayerDie
+    函数描述：角色死亡调用
+    参数 sysarg 的描述：杀死该玩家的对象的指针
+    参数 ... 的描述：
+]]
+EventCallDispatcher.defaultHandlerPlayerDie = function (sysarg, arg)
+	XunShouActorDie(sysarg)--驯兽擂台玩家死亡处理
+	EveBossActorDie(sysarg)--羊年春节除夕夺宝玩家死亡处理
+
+	if OnKilledInCrossWorld(sysarg) == true then		--在天下第一场景被杀
+		return
+	end
+
+	--判断玩家是否在擂台 没有则返回0
+	local ChallengeId = Actor.getChallenge(sysarg)
+	if (ChallengeId ~= 0) then 
+		local Status = ChallengeFun.getChallengeStatus(ChallengeId)
+		if (Status == csReady or Status == csFight or Status == csEnd) then 
+			OnKillPlayerChallenge( sysarg, arg, ChallengeId ) 
+		else
+			Actor.setReliveTimeOut(sysarg,ReliveConfig.reliveTime)
+			OpenReliveDialog(sysarg, ReliveConfig.reliveTime)
+		end
+	else
+		--CleanGuildBossOp(sysarg)
+		Actor.setReliveTimeOut(sysarg,ReliveConfig.reliveTime)
+		-- if Actor.hasMapAreaAttri(sysarg,44) then		--要判断是否禁止原地复活
+			-- safeResurrection(sysarg)	--直接安全复活
+		-- else
+			-- OpenReliveDialog(sysarg, ReliveConfig.reliveTime)
+		-- end
+		OpenReliveDialog(sysarg, ReliveConfig.reliveTime)
+	end
+	
+	CloseHmrShopInDeath(sysarg)
+	
+end
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeOnActorBeKilled, EventCallDispatcher.OnKillByActor)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeOnActorDeath, EventCallDispatcher.defaultHandlerPlayerDie)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeReliveTimeOut, safeResurrection)

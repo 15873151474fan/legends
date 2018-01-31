@@ -1,0 +1,46 @@
+  {
+	--勇闯龙坛
+		fbid = 1 ,fbname = Lang.FubenName.fname0001,fbDesc = Lang.FubenName.fdesc0001,minLevel = 35,circle = 0, minPlayCount = 1,maxPlayCount = 1000,type = 0,fbTime = 1800,showType = 1,
+		mainAwardDesc = Lang.ActivityName.mainAward002,    --主要奖励
+		icon = 60,--副本图标 
+		
+		--seckillId = 16,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+		
+	--[[
+        奖励的类型的配置
+				qatEquipment=0,//0、装备，道具
+				qatXiuwei = 1,	//1、修为
+				qatExp = 2,	//2、角色经验值
+				qatGuildContribution = 3,	//3、帮派贡献值
+				qatZYContribution = 4,//4、阵营贡献
+				qatBindMoney = 5,	//5、绑定银两
+				qatMoney = 6,	//6、银两
+				qatLiJin = 7,	//7、礼金
+				qatTitle = 8,	//8、称谓
+				qatSkill = 9,	//9奖励技能
+				qatZhanhun = 10,	//10奖励战魂
+
+	  127：自定义奖励，id必须为nil，count必须为nil，data为奖励描述字符串，用于客户端显示。自定义奖励的给予是通过脚本完成的；
+        ]]
+		awards=
+		{
+			{type=2,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励经验  				
+		},
+
+	   --因为需要不同条件下的npc不同，比如阵营不同，需要的npc不同，门派不同，npc不同，这里设置不同的条件，npc不填写客户端使用-表示没有
+           --如果没有条件conds ={}就行了，否则填写条件，条件支持多个条件的与
+	   --condType 表示条件的类型
+	        --1表示是阵营,values表示阵营的id列表,1 无忌，2逍遥， 3日月，比如无忌和逍遥就用{1,2}
+	        --2表示是门派,values表示门派的id列表,1华山,2水月宫, 3少林,4御神流
+                --3表示职业,values表示职业的id列表,  1剑宗,2 气宗,3 灵华,4司命,5易筋,6洗髓,7 剑士,8忍者
+                --4表示等级区间,values表示起始的等级到结束等级，比如{10,20}表示10到20级
+                --5表示时间区间，values表示起始的时间点到结束的时间点,{11,12}表示11:00到12:00
+            --
+	   --sceneId 表示场景的id
+	   --name表示npc的名字
+        npc=
+       {
+	    --王城皇宫 行会活动大使
+            {sceneId=3,name=Lang.EntityName.n00124,conds={}},
+        },
+  },

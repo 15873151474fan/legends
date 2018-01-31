@@ -1,0 +1,717 @@
+﻿--#include "data\language\LangCode.txt"
+
+-- 中秋祝福
+BroadcastItem =
+{
+  {
+    item_id = 2116,            -- 物品Id
+    text =
+    {
+         Lang.ScriptTips.zf001,
+         Lang.ScriptTips.zf002,
+         Lang.ScriptTips.zf003,
+         Lang.ScriptTips.zf004,
+         Lang.ScriptTips.zf005,
+         Lang.ScriptTips.zf006,
+         Lang.ScriptTips.zf007,
+         Lang.ScriptTips.zf008,
+    }
+  }
+}
+
+--[[   --更改实现方式 磨刀石转移到文件UseRepairItem.txt
+--成就礼盒和磨刀石物品
+ChengjiuAndRepairItems = {
+	
+}
+
+
+
+--封测登录礼盒
+FengCeRewardItems = {
+	
+}
+]]
+--使用物品可以添加给玩家任务
+AddTaskItems = {
+	
+	
+}
+
+--在指定场景使用物品完成任务
+UseTaskItems = {
+
+
+
+}
+
+RapidEffectItems = {
+	
+
+}
+
+--修复耐久物品
+RepairItems = 
+{
+	{item_id = 748, needDelete = true},	--匠神油
+}
+
+ChuanSongItems =
+{
+	--type:回城卷轴的类型，1、为按城市回城：2、按不同门派回城
+	--SceneName:场景的名称，按城市回城用的
+	--pos_x,pos_y :场景默认的传送点
+	--needDelete : 是否需要删除物品
+  --DelayType: 读进度条的类型
+
+	--{item_id = 626,type = 1,sceneName=2 DelayType = 1,needDelete = true},
+	--{item_id = 627,type = 1,sceneName=4 DelayType = 1,needDelete = true},
+}
+
+--复活石的配置
+ResurrectionItems =
+{
+	--item_id:  物品的ID
+	
+}
+
+--减少杀戮值物品的配置
+ReduceKillValueItems =
+{
+}
+
+DeleteBuffItems = 
+{
+	--{item_id = 1002, buffType= aHpAdd, buffGroup= 0,needDelete =true},
+}
+
+
+DeputyLearnItems = 
+{
+	--{item_id = 22, deputy = 1, value = 4, needDelete = true, groupItems = {172,}, },
+}
+
+--双倍经验药品
+DoubleExpItems =
+{
+	--{item_id = 1440, value = 2, needDelete = true },
+}
+--新手奖励的礼包
+PresentItems = 
+{
+	--item_id : 新手礼包的ID，即功能物品的ID
+	--rewardsID : 功能物品ID对应该的奖励礼包ID，这个在RewardConfig.txt配置。
+	--needDelete : 是否需要删除。
+
+--{item_id = 1, rewardsID = 1, needDelete =true},
+
+}
+
+--恢复体力药品
+PhysicalItems = 
+{
+
+	--{item_id = 1004, value = 10, needDetele = true},
+}
+
+--副本挑战书
+AddFubenCountItems = 
+{
+  --{item_id = 1567,type = 1,needDelete =true,},
+	
+}
+
+--地牢钥匙碎片一、二、三、四
+DungeonKeyDebrisItems = 
+{
+}
+--硫磺，用于合成火药包的
+SulfurItems =
+{
+}
+--火药包
+PowderPacketItem =
+{
+
+	--{item_id = 1598,monsterid = 415,pos = 1,x1 = 35,x2 = 39,y = 19,liveTime = 5, usesceneid = 92,DelayType = 3,needDelete = true}
+}
+
+--扩展背包的物品的配置
+EnlargeBagItem =
+{
+  {item_id = 615,gridCount =1},
+  
+}
+
+--扩展背包的槽位的道具
+EnlargePetSlotItem =
+{
+  --{item_id = 615,gridCount =1},
+}
+
+-- VIP充值物品
+VIPChargeItem =
+{
+	-- item_id: 物品Id
+	-- vipType: 对应的VIP类型。 1：银 2：黄金 3：至尊
+	-- time: 延长VIP有效时间。以天为单位
+	-- tip:标记是否给提示
+	--storeId：商城购买的id
+	-- temp: 是否为临时体验卡。对于临时体验卡，不能替换其他vip卡
+	
+}
+
+-- 宝物灵力功能物品
+GemSpriteStrenItem =
+{
+	-- item_id: 物品Id
+	-- val: 增加的宝物灵力值
+	
+}
+
+-- 宝物功能道具（使用后创建一个宝物）
+GemFuncItem =
+{
+	-- item_id: 物品Id
+	-- gemId:  宝物Id
+	-- gemGrade: 宝物档次
+	-- gemLevel: 宝物等级
+	-- gemQuality: 宝物品质
+	-- gemSprite: 宝物灵性
+		--Attack: 	攻击灵性
+		--Defence: 	防御灵性
+		--Agility: 	敏捷灵性
+		--HP: 			霸体灵性
+	-- gemSmith: 宝物开光次数
+	-- isLimit: 是否为限时宝物 是则true
+	
+	--{ item_id=1972, gemId=1, gemGrade=1,gemSprite = {Attack = 20, Defence = 20, Agility = 20, HP = 20},},
+	
+}
+
+-- 宝物经验功能道具（使用后增加宝物经验）
+GemExpFuncItem =
+{
+	-- item_id: 物品Id
+	-- exp: 增加的经验值
+	--{ item_id = 2093, exp = 1000, },
+}
+
+-- 宝物等级提升功能道具
+GemUpLevelFunItem = 
+{
+	-- item_id: 物品Id
+	-- dest_level: 目标等级
+	-- min_grade: 使用此物品的档次需求
+	--{ item_id = 2125, dest_level = 20, min_grade = 1,},
+}
+
+--添加实体特效和buff，场景特效的物品作用
+--  item_id物品的ID
+EffectItemFuncItem=
+{
+
+	--[[   例子，不要删除 
+	{ 
+	
+	item_id = 2125,
+	
+	--实体特效，跟人走的特效
+	entityEffects=
+	{ 
+	    -- effectId 特效的ID ,是特效的配置文件里的ID
+	    -- effectType 特效的类型 无效果=0,挥洒=1,投掷=2,飞行=3,爆炸=4,脚下持续=5,持续=6
+	    -- durTime 持续时间，单位ms
+	    --nDelayTime 延迟多长时间生效，单位ms
+	   --{effectId = 1441, effectType = 5, durTime=1, nDelayTime=0},
+	}, 
+	
+	--场景特效，不跟人走的特效
+	sceneEffects=
+	{ 
+	    -- effectId 特效的ID ,是特效的配置文件里的ID
+	    -- effectType 特效的类型 无效果=0,挥洒=1,投掷=2,飞行=3,爆炸=4,脚下持续=5,持续=6
+	    -- durTime 持续时间，单位ms
+	    --nDelayTime 延迟多长时间生效，单位ms
+	    --x 表示相 对于玩家的位置x
+	    --y 表示相对于玩家的位置y
+	   {effectId = 1441, effectType = 5, durTime=1, nDelayTime=0,x=0,y=0},
+	}, 
+	
+	--buff列表
+	buffs=
+	{
+	    --buffType buff的类型
+	    --buffGroup buff的分组
+	    --value     buff的数值
+	    --times    buff的作用次数
+	    --interval 作用间隔，单位秒 
+	    --timeOverlay =true 时间是否叠加 
+	   {buffType = 7,buffGroup=1,value=1.0, times=1, interval=1,timeOverlay =true},
+	}
+	},
+--]]
+
+--[[
+烟花列表
+普通婚宴烟花
+豪华婚宴烟花
+师恩海重
+兄弟情谊
+兄弟给力
+情意绵绵
+众志成城
+生日快乐
+节日烟花
+朋友你好
+欢迎挑战
+不给力啊
+
+--]]
+
+--婚宴烟花
+        {
+		item_id = 399,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50052, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+		},
+	},
+
+--豪华婚宴烟花
+        {
+		item_id = 400,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50053, effectType =5, durTime=10000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=10000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50057, effectType =4, durTime=10000, nDelayTime=100,x=3,y=-4},
+			{effectId = 50058, effectType =4, durTime=10000, nDelayTime=100,x=-1,y=-7}, 
+			{effectId = 50058, effectType =4, durTime=10000, nDelayTime=100,x=1,y=-7}, 
+		},
+	},
+
+--师恩海重
+        {
+		item_id = 401,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50068, effectType =5, durTime=10000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50058, effectType =4, durTime=10000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50058, effectType =4, durTime=10000, nDelayTime=100,x=3,y=-4}, 
+		},
+	},
+
+--兄弟情谊
+        {
+		item_id = 402,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50061, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50058, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+		},
+	},
+
+--兄弟给力 
+        {
+		item_id = 403,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50060, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50058, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+		},
+	},
+
+--爱的表白
+        { 
+		item_id = 404,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50062, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50058, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+		},
+	},
+
+--众志成城
+        {
+		item_id = 405,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50059, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50058, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+		},
+	},
+	
+--生日快乐
+        { 
+		item_id = 406,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50066, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50058, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+		},
+	},
+
+--节日烟花 
+        {
+		item_id = 407,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50058, effectType =4, durTime=3000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50057, effectType =5, durTime=3000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=3000, nDelayTime=100,x=3,y=-4},
+		},
+	},
+	
+--朋友你好 
+        {
+		item_id = 408,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50071, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50058, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+		},
+	},
+	
+--欢迎挑战
+        {		
+                item_id = 409,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50054, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4},
+			{effectId = 50058, effectType =4, durTime=3000, nDelayTime=100,x=-3,y=-4},
+		},
+	},
+
+--不给力啊 
+	{
+		item_id = 410,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50055, effectType =5, durTime=3000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50057, effectType =4, durTime=3000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50058, effectType =4, durTime=3000, nDelayTime=100,x=3,y=-4},
+		},
+	},
+
+}
+
+--添加实体特效，场景特效的物品作用
+--  item_id物品的ID
+EffectItemItem=
+{
+	--庆典礼炮 
+	{
+		item_id = 2592,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50076, effectType =4, durTime=1800, nDelayTime=100,x=0,y=-4},
+		},
+	},
+	--庆典烟花
+	{
+		item_id = 3146,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50074, effectType =4, durTime=600, nDelayTime=100,x=-2,y=0},
+			{effectId = 50074, effectType =4, durTime=600, nDelayTime=100,x=2,y=0},
+			{effectId = 50058, effectType =4, durTime=1800, nDelayTime=600,x=-3,y=-4},
+			{effectId = 50057, effectType =5, durTime=1800, nDelayTime=600,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=1800, nDelayTime=600,x=3,y=-4},
+		},
+	},
+	--庆典烟花
+	{
+		item_id = 3259,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50074, effectType =4, durTime=600, nDelayTime=100,x=-2,y=0},
+			{effectId = 50074, effectType =4, durTime=600, nDelayTime=100,x=2,y=0},
+			{effectId = 50058, effectType =4, durTime=1800, nDelayTime=600,x=-3,y=-4},
+			{effectId = 50057, effectType =5, durTime=1800, nDelayTime=600,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=1800, nDelayTime=600,x=3,y=-4},
+		},
+	},
+	--庆典烟花
+	{
+		item_id = 3297,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50074, effectType =4, durTime=600, nDelayTime=100,x=-2,y=0},
+			{effectId = 50074, effectType =4, durTime=600, nDelayTime=100,x=2,y=0},
+			{effectId = 50058, effectType =4, durTime=1800, nDelayTime=600,x=-3,y=-4},
+			{effectId = 50057, effectType =5, durTime=1800, nDelayTime=600,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=1800, nDelayTime=600,x=3,y=-4},
+		},
+	},
+	--迎春礼炮 
+        {
+		item_id = 3380,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50058, effectType =4, durTime=3000, nDelayTime=100,x=-3,y=-4},
+			{effectId = 50057, effectType =5, durTime=3000, nDelayTime=100,x=0,y=-4},
+			{effectId = 50057, effectType =4, durTime=3000, nDelayTime=100,x=3,y=-4},
+		},
+	},
+}
+
+--添加实体特效，场景特效的物品作用
+--  item_id物品的ID
+EffectItemSaluteItem=
+{
+--喜庆鞭炮
+	{
+		item_id = 2875,
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50074, effectType =4, durTime=600, nDelayTime=100,x=2,y=0},
+		},
+	},
+}
+
+--行会集结令
+CampCallItem = 
+{
+	{item_id = 620,needDelete = true},
+}
+
+CallFlagMsgers = {
+	--{item_id = 2369, map_item_id = 2370, monid = 601, fbId = 26, pos = { 41, 15,78,19}, needDelete = true},
+	--{item_id = 2370, map_item_id = 2369, monid = 601, fbId = 26, pos = { 41, 15,78,19}, needDelete = true},
+}
+
+--传奇摊位牌
+EnlargeStallGridItem = 
+{
+	{item_id = 749, enlargeGrid = 1, needDelete = true},
+}
+
+
+--祝福油
+nMaxBlessValue = 20 --武器可加最大祝福值
+
+BlessOil = {
+	{
+		item_id = 745, 
+		blessVal = 1,	--祝福油增量或减量
+		--分别是将升级到的等级:1,2,3,4
+		succRate = {	10000,	1594,	598,	435,	273,	228,	222,	217,	213	},
+		noChgRate = {	0,	7971,	8967,	9130,	9292,	9337,	9343,	9348,	9353	},
+		failRate = {	0,	435,	435,	435,	435,	435,	435,	435,	435	},
+
+		maxLv = 0,
+
+	},
+	
+	{
+		item_id = 746, 
+		blessVal = 1,	--祝福油增量或减量
+		--分别是将升级到的等级:1,2,3,4
+		succRate = 		{10000,10000,10000,10000,10000,10000,10000,10000,10000},
+		noChgRate = {0,0,0,0,0,0,0,0,0},
+		failRate = 	{0,0,0,0,0,0,0,0,0},
+		maxLv = 7,
+	},
+
+
+	{
+		item_id = 2121, 
+		blessVal = 1,	--祝福油增量或减量
+		--分别是将升级到的等级:1,2,3,4
+		succRate = 		{10000,10000,10000,10000,10000,10000,10000,10000,10000,10000},
+		noChgRate = {0,0,0,0,0,0,0,0,0,0},
+		failRate = {0,0,0,0,0,0,0,0,0,0},
+		maxLv = 10,
+	},
+}
+
+--回城券
+--type类型：
+--1传送到指定场景坐标,SceneId,x,y属性有效
+--2传送本场景随机坐标
+--3传送到上一次的安全区
+BackToCity = {
+--盟重回城卷
+	{item_id = 627, type = 1, SceneId = 4, x = 95, y = 167,},
+--比奇回城卷
+	{item_id = 626, type = 1, SceneId = 2, x = 199, y = 209,},
+--回城卷
+	{item_id = 1788, type = 3, SceneId = 0, x = 0, y = 0,},
+--超级回城卷
+	{item_id = 628, type = 3, SceneId = 0, x = 0, y = 0,},
+--随机传送卷
+	{item_id = 631, type = 2, SceneId = 0, x = 0, y = 0,},
+--超级随机传送卷
+	{item_id = 629, type = 2, SceneId = 0, x = 0, y = 0,},
+}
+
+RosePack = {
+	--{item_id = 3999, destId = 3996, destCount = 9},
+	--{item_id = 3998, destId = 3996, destCount = 9},
+}
+
+NewBieGuildeBook = {
+	{item_id = 684, needDelete = false},
+}
+
+--通过物品接受任务
+ItemAcceptQuest = {
+	
+}
+
+ItemBuildPet = {
+	{item_id = 930, count = 20, petId = {537}, movieId = {4}, petLevel = 1,aiId = {101}, liveTime = 600},
+	{item_id = 931, count = 20, petId = {538}, movieId = {5}, petLevel = 1,aiId = {102}, liveTime = 600},
+	{item_id = 932, count = 20, petId = {479,480,}, movieId = {6,7,8,9},petLevel = 1, aiId = {103,104,105,106}, liveTime = 600},		--481,482 是衰神、穷神，新年期间屏蔽掉，吉利些.
+
+}
+
+--使用物品得到一个buff
+UseGetBuff = {
+	{ item_id = 1772,
+		buffs = {
+			{buffType = 70,buffGroup=83,value=0, times=1, interval=1200,timeOverlay =true,buffName=Lang.Activity.szfb0002},
+			
+		},
+	},
+	{ item_id = 1774,
+		buffs = {
+			{buffType = 21,buffGroup=79,value=50000.0, times=1, interval=8,timeOverlay =true,buffName=Lang.Activity.szfb0001},
+			{buffType = 23,buffGroup=80,value=50000.0, times=1, interval=8,timeOverlay =true,buffName=Lang.Activity.szfb0001},
+			{buffType = 25,buffGroup=81,value=50000.0, times=1, interval=8,timeOverlay =true,buffName=Lang.Activity.szfb0001},
+			{buffType = 27,buffGroup=82,value=50000.0, times=1, interval=8,timeOverlay =true,buffName=Lang.Activity.szfb0001},
+		},
+	},
+}
+
+--使用物品会放一个技能
+UsedUseSkill = {
+	{ item_id = 1773, skillId = 162, skillLevel = 4},
+	{ item_id = 1775, skillId = 162, skillLevel = 5},
+}
+
+--盾元符
+ShieldItem = 
+{
+	{item_id = 2448, value = 5000,},
+	{item_id = 2288, value = 10000,},
+	{item_id = 2294, value = 100000,},
+	{item_id = 2295, value = 1000000,},
+}
+
+--真爱之心
+LoveHeartTab = 
+{
+	--{item_id = 2277, value = 5000,},
+	{item_id = 2277,},
+}
+
+--潜能果
+PotentialFruitTab = 
+{
+	--{item_id = 2277, value = 5000,},
+	{item_id = 2817,},
+}
+
+--倒福
+ReversedLuckTab = 
+{
+	--{item_id = 2277, value = 5000,},
+	{item_id = 2829, actTime = {2014, 2, 1, 0, 0, 0,  2014, 2, 10, 23, 59, 59}},
+	{item_id = 3148, actTime = {2014, 9, 26, 0, 0, 0,  2014, 10, 10, 23, 59, 59}},
+}
+
+--开门利是
+RedEnvelopeTab = 
+{
+	--{item_id = 2277, value = 5000,},
+	{item_id = 2876,},
+}
+
+--隐龙秘宝
+HiddenDragonTab = 
+{
+	--{item_id = 2277, value = 5000,},
+	{item_id = 2913,},
+}
+
+--收集鸿蒙元气物品的配置
+CollectHMVigourTab = 
+{
+	--item_id: 道具ID
+	--collectRange: 收集范围
+	--collectMonCount: 收集怪物数，为-1时表示范围内所有怪
+	--collectRate: 增加鸿蒙元气值倍率
+	--收集鸿蒙元气值为(采集怪物元气 * collectRate * 范围内怪物数)
+	{
+		item_id = 2911,
+		collectRange = 3,
+		collectMonCount = 1,
+		collectRate = 10,
+		
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50075, effectType =4, durTime=600, nDelayTime=100,x=0,y=0},
+		},
+	},
+	{
+		item_id = 3290,
+		collectRange = 7,
+		collectMonCount = -1,
+		collectRate = 10,
+		
+		entityEffects={},
+		sceneEffects=
+		{
+			{effectId = 50075, effectType =4, durTime=600, nDelayTime=100,x=0,y=0},
+		},
+	},
+}
+
+HuLongShenTanEffectConfig = {
+{effectId = 50107, effectType =5, durTime=10000, nDelayTime=500, x=-10, y=7},
+{effectId = 50108, effectType =5, durTime=10000, nDelayTime=500, x=-8, y=7},
+}
+
+--驱魔圣水
+AsuraTab =
+{
+	--{item_id = 2277, value = 5000,},
+	{item_id = 2961,},
+}
+
+--鸿蒙金蚕王
+UpgradeHMRealmTab =
+{
+	--{item_id = 2277, value = 5000,},
+	{item_id = 3397,},
+}

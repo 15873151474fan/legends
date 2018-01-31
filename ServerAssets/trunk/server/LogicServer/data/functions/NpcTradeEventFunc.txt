@@ -1,0 +1,295 @@
+﻿--lua script
+--Do something about npc trade
+
+--#include "GlobalDefine.txt" once
+--#include "data\config\store\NPCStore.txt" once
+--#include "data\functions\Systems\FlowerSystem\RoseCommon.txt" once
+--#include "data\envir\FubenCountConfig.txt" once
+
+
+--获得NPC买卖数据并发给客户端
+function NPCTradeInfoToClient( sysarg, args )
+  local npcid = tonumber( args )
+  local sellconfig = nil
+  table.foreachi( NPCStore, function( i, v ) if ( v.npcid == npcid ) then sellconfig = v end end )
+  if ( sellconfig == nil ) then
+	--print("---Npc sell config empty."..npcid)
+	return
+  end
+
+  --print("---Npc sell get list."..npcid)
+  --133 NPC交易子系统 3
+  local npack = DataPack.allocPacket(sysarg,133,3)  --申请一个数据包
+  if (npack == nil) then
+  	--print("npack:nil")
+	 return
+  end
+
+  local len_c_pack = table.getn(sellconfig)
+  DataPack.writeChar(npack,len_c_pack)
+  for i = 1, len_c_pack do
+		local s = sellconfig[i]
+		DataPack.writeString(npack,s.selltip)
+		local silen = table.getn(s.items)
+		DataPack.writeByte(npack,silen)
+		for x = 1, silen do
+			DataPack.writeWord(npack,s.items[x])
+		end
+  end
+  DataPack.writeChar(npack,npcid)
+  DataPack.flush(npack)
+  --发送回购品数据
+  --local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+
+
+end
+
+function BuyMonsterAssist( sysarg )
+	local fubenId = Actor.getFubenId(sysarg)
+	if fubenId <= 0 then return "" end
+	local normalStr = string.format(Lang.ScriptTips.c000074, MonsterAssists.Buy[fubenId][1][2])
+	local specStr = string.format(Lang.ScriptTips.c000075, MonsterAssists.Buy[fubenId][2][2])
+	local dlgStr = string.format("%s\\<#BL%s/@BuyAssistFunc,1>", Lang.ScriptTips.c000085, normalStr)
+	dlgStr = string.format("%s\\<#BL%s/@BuyAssistFunc,2>", dlgStr, specStr)
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function BuyAssistFunc( sysarg, assistType )
+	local fubenId = Actor.getFubenId(sysarg)
+	if fubenId <= 0 then return end
+	assistType = tonumber(assistType)
+	local buyTab = MonsterAssists.Buy[fubenId][assistType]
+	local fbPtr = Actor.getFubenPrt( sysarg )
+	if fbPtr then
+		local dVar = Fuben.getDyanmicVar(fbPtr)
+		if not dVar.BuyFBAssist then
+			dVar.BuyFBAssist = {}
+		end
+		local buyTimes = dVar.BuyFBAssist[assistType] or 0
+		if buyTimes >= buyTab[3] then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.pataNotice015, ttFlyTip)
+			return
+		end
+		
+		local posCfg = MonsterAssists.Fubens[fubenId]
+		if not posCfg then
+			return
+		end
+		local moneyType = buyTab[1]
+		local moneyCount = buyTab[2]
+		local myMoney = Actor.getIntProperty(sysarg, moneyTypeMap[moneyType])
+		if myMoney < moneyCount then
+			local notceStr = string.format(Lang.ScriptTips.pataNotice016, moneyTypeName[moneyType])
+			Actor.sendTipmsg(sysarg, notceStr, ttFlyTip)
+			return
+		end
+		local randIdx = math.random(1, #posCfg)
+		local x = math.random(posCfg[randIdx][1], posCfg[randIdx][2])
+		local y = math.random(posCfg[randIdx][3], posCfg[randIdx][4])
+		if Actor.changeMoney(sysarg, moneyType, -moneyCount, 20, Lang.LogTips.yb003) then
+			dVar.BuyFBAssist[assistType] = buyTimes + 1
+			local hScene = Actor.getSceneHandle(sysarg)
+			Fuben.createMonster(hScene, buyTab[4], x, y, Fuben.getFbTime(pbPtr))
+			local notceStr = string.format(Lang.ScriptTips.fuben034, buyTimes + 1)
+			Actor.sendTipmsg(sysarg, notceStr, ttFlyTip)
+		end
+	end
+end
+
+
+function CallMonsters( sysarg )
+	local fubenId = Actor.getFubenId(sysarg)
+	local callInfo = CallMonstersMap[fubenId]
+	if callInfo then
+		local fbPtr = Actor.getFubenPrt( sysarg )
+		local dVar = Fuben.getDyanmicVar(fbPtr)
+		local hScene = Actor.getSceneHandle(sysarg)
+		if dVar.CallFbMonsterId then
+			local noticeStr = Lang.ScriptTips.pataNotice012
+			if Fuben.getLiveMonsterCount(hScene, dVar.CallFbMonsterId) == 0 then
+				noticeStr = Lang.ScriptTips.pataNotice013
+			end
+			Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+			return
+		end
+		if Actor.getItemCount(sysarg, callInfo.ItemId, -1, -1, -1) < callInfo.ItemCount then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.pataNotice014, ttFlyTip)
+			return
+		end
+		local monsId = callInfo.monsterIds[math.random(1, #callInfo.monsterIds)]
+		if Actor.removeItem(sysarg, callInfo.ItemId, callInfo.ItemCount, -1,-1,-1, Lang.ScriptTips.l00127, 2) > 0 then
+			local x = math.random(callInfo.pos[1],callInfo.pos[2])
+			local y = math.random(callInfo.pos[3],callInfo.pos[4])
+			Fuben.createMonster(hScene, monsId, x, y,  Fuben.getFbTime(fbPtr))
+			dVar.CallFbMonsterId = monsId
+		end
+	end
+end
+
+function CallBloodSeekerMonster( sysarg )
+	local fubenId = Actor.getFubenId(sysarg)
+	local callCfg = CallBloodSeeker[fubenId]
+	if callCfg then
+		local hScene = Actor.getSceneHandle(sysarg)
+		local fbPtr = Actor.getFubenPrt( sysarg )
+		local dVar = Fuben.getDyanmicVar(fbPtr)
+		if dVar.BloodSeeker then
+			local noticeStr = Lang.ScriptTips.pataNotice018
+			if Fuben.getLiveMonsterCount(hScene, callCfg.MonsterId) == 0 then
+				noticeStr = Lang.ScriptTips.pataNotice019
+			end
+			Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+			return
+		end
+		local itemCount = Actor.getItemCount(sysarg, callCfg.ItemId, -1,-1,-1)
+		if itemCount < callCfg.ItemCount then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.pataNotice017, ttFlyTip)
+			return
+		end
+		if Actor.removeItem(sysarg, callCfg.ItemId, callCfg.ItemCount, -1,-1,-1, Lang.LogTips.l00128, 5) then
+			local x = math.random(callCfg.Pos[1], callCfg.Pos[2])
+			local y = math.random(callCfg.Pos[3], callCfg.Pos[4])
+			Fuben.createMonster(hScene, callCfg.MonsterId, x, y, Fuben.getFbTime(fbPtr))
+			dVar.BloodSeeker = callCfg.MonsterId
+		end
+	end
+end
+
+function CallDragonKing( sysarg )
+	local fubenId = Actor.getFubenId(sysarg)
+	local info = CallDragonKingMap[fubenId]
+	if info then
+		local fbPtr = Actor.getFubenPrt( sysarg )
+		local hScene = Actor.getSceneHandle(sysarg)
+		local dVar = Fuben.getDyanmicVar(fbPtr)
+		if dVar.DragonKing then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben026, ttFlyTip)
+			return
+		end
+		local itemId = info.ItemInfo[1]
+		local needItemCount = info.ItemInfo[2]
+		local myItemCount = Actor.getItemCount( sysarg, itemId )
+		if myItemCount < needItemCount then
+			local itemName = Item.getItemName(itemId)
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben025, needItemCount, itemName), ttFlyTip)
+			return
+		end
+		if Actor.removeItem(sysarg, itemId, needItemCount, -1,-1,-1, Lang.LogTips.rmIt001, 815) == needItemCount then
+			dVar.DragonKing = true
+			Fuben.createMonster(hScene, info.KingId, info.Pos[1], info.Pos[2], Fuben.getFbTime(fbPtr))
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben041, ttFlyTip)
+		end
+	end
+end
+
+function MessKillDragonHuWei(sysarg)
+  local fubenId = Actor.getFubenId(sysarg)
+  local info = CallDragonKingMap[fubenId].HuWeiMonsterInfo
+  if not info then
+     return 
+  end
+  --print("MessKillDragonHuWei:"..fubenId)
+  local noticeStr = string.format(Lang.ScriptTips.c000076f, info.PayGold)
+  local ensureStr = string.format("%s/KillDragonHuWei", Lang.ScriptTips.c000076g)
+  local canelFunc = string.format("%s/Cancel", Lang.ScriptTips.c000076h)
+  Actor.messageBox(sysarg, Actor.getHandle(thisNPC),0, noticeStr, ensureStr, canelFunc,NULL)
+end
+
+function KillDragonHuWei(sysarg)
+	local fubenId = Actor.getFubenId(sysarg)
+	local info = CallDragonKingMap[fubenId].HuWeiMonsterInfo
+	if info then
+         local fhadle = Actor.getFubenHandle( sysarg)
+         local hScene = Fuben.getSceneHandleById(info.nSceneId, fhadle)
+         local MonsterCount = 0
+         for i, j in pairs(info.MonsterId) do
+           --print("GuildSosMonsterDie:"..j)
+           if Fuben.getLiveMonsterCount(hScene,j) > 0 then
+              MonsterCount = MonsterCount + 1    --检查该层是否有这种怪物存在
+	       end
+         end
+         if MonsterCount <= 0 then
+	        Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000076b, ttFlyTip) 
+            return     
+         end 
+         local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+         if myGold < info.PayGold then
+            Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000076c, info.PayGold), 130)
+            return
+         end
+         if not Actor.changeMoney(sysarg, mtYuanbao, -info.PayGold, 997, Lang.ScriptTips.c000076d) then
+            return
+         end
+         for i, j in pairs(info.MonsterId) do   
+             Fuben.clearMonster(hScene, j)--清除水龙王守卫 
+         end
+	     local sceneName, x, y = Actor.getSceneName(sysarg, 0, 0)
+	     --print("KillDragonHuWeix:"..x.."y:"..y) 
+	     for MonsterId, MonsterInfo in pairs(info.EffectConfig)  do
+             for k = 1, #MonsterInfo do
+                 --print("KillDragonHuWei3")
+		         Actor.addSceneEffect(sysarg, MonsterInfo[k].effectId, MonsterInfo[k].effectType,
+                 MonsterInfo[k].durTime, MonsterInfo[k].nDelayTime,
+                 MonsterInfo[k].x - x, MonsterInfo[k].y - y )
+                 --print("KillDragonHuWeiInto"..(x - MonsterInfo[k].x).."y:"..(y - MonsterInfo[k].y))
+             end
+         end
+         Fuben.sendMsgToScene(hScene,Lang.ScriptTips.c000076e,2+128)
+	end
+end
+
+-- 添加一键回血回蓝菜单选项 curStr 当前已有选项
+function AddOneKeySetFullHpMpOption(sysarg, curStr)	
+	-- 计算一键加血加蓝金币：玩家等级×1000+转生次数×15000
+	local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL);
+	local circle = Actor.getIntProperty(sysarg,PROP_ACTOR_CIRCLE);
+	local needCoin = (circle+1)*level*1000 + circle*10000;
+	return string.format(curStr .. Lang.Talk.t02498, needCoin, needCoin);
+end
+
+-- 一键回血回蓝
+function OneKeySetFullHpMp(sysarg, needCoin)
+	needCoin = tonumber(needCoin) or 0;
+	-- 检测：
+	-- 1.	玩家的生命值和魔法值是否已满，是则提示：你的生命值和魔法值已满
+	local hp = Actor.isHpFull(sysarg);
+	local mp = Actor.isMpFull(sysarg);
+	if hp and mp then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.hm000001, ttFlyTip);
+		return;
+	end
+	-- 2.	玩家的绑定金币是否充足，不足则提示：绑定金币不足
+	if needCoin > 0 then
+		-- 获取玩家金币数量
+		local nCoin =  Actor.getIntProperty(sysarg,PROP_ACTOR_BIND_COIN)
+		if nCoin < needCoin then
+			Actor.sendTipmsg( sysarg,Lang.ScriptTips.zf065,ttFlyTip )
+			return false
+		end
+	end
+	-- 3.	是否在30秒内连续使用，是则提示：30秒内只能使用1次
+	local userVar = Actor.getStaticVar(sysarg);
+	if not userVar then return end;
+	local now = System.getCurrMiniTime();
+	local notUsed = (nil == userVar.lastUseFullHpMpTime); -- true 表示第一次使用	
+	if (not notUsed) and (now - userVar.lastUseFullHpMpTime < 600) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.time00001, ttFlyTip);
+		return ;
+	end
+	-- 条件符合，将扣除一定的金币把玩家的血和蓝都补满	
+	if needCoin > 0 then
+		if not Actor.changeMoney(sysarg, mtBindCoin, -needCoin, 35, Lang.LogTips.coin00002) then
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.coin00001, ttFlyTip);
+			return
+		end
+	end
+	
+	userVar.lastUseFullHpMpTime = now; --print("now " .. now);
+	local full = function(sysarg, curProId,maxProId,changeFun)
+		local curPro = Actor.getIntProperty(sysarg,curProId);
+		local maxPro = Actor.getIntProperty(sysarg,maxProId);
+		changeFun(sysarg, maxPro - curPro);
+	end
+	full(sysarg, PROP_CREATURE_HP,PROP_CREATURE_MAXHP,Actor.changeHp);
+	full(sysarg, PROP_CREATURE_MP,PROP_CREATURE_MAXMP,Actor.changeMp);
+end

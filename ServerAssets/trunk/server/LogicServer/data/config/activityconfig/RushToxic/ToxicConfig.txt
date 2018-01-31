@@ -1,0 +1,287 @@
+﻿--勇闯龙坛
+ToxicConfig =
+{
+	limitLev = 50,		--进入限制等级
+	FubId = 15,		--副本的id
+	EnterScreen= 46,		--进入场景id
+
+	nLimitLevel = 50,		--进入的最低等级
+
+	nMapX = 74,		--进入场景坐标X
+	nMapY = 79,		--进入场景坐标Y
+
+	LastTime = 1800,	--副本持续的时间
+
+	freeTimes = 0,	--进入的免费次数:不再免费
+	needCoin = 500000,	--开启需要的行会资金
+	AddCoin = 500000,	--每次开启递增的行会资金
+	
+	ExitSceenId = 3,	--退出副本的id
+	eMapX = 26,		--退出的x坐标
+	eMapY = 35,		--退出的y坐标
+
+	maxTimes = 2,		--每天开启的最大次数
+
+	minNum = 30,		--至少击杀30只怪,才上当天排行榜
+
+	mosterCount = {81,81,81}, --每波怪物的总数量每波减少约5个 原：{25,37,49,61,73,75,87,87,101,113}
+
+	nRate = 10,			--每增加一人增加的比率
+	nMaxRate = 200,		--增加的最大比率
+
+	--刷怪
+	monsters =
+	{
+
+		--第一波
+		{
+			{nMonsterID = 167, posX1 = 44, posX2 = 44,  posY = 44, nCount = 1, nLiveTime = 1800, exp = 9552170, GuildGx = 100, },--GuildGx行会贡献，和经验的加成比率一样，随人数增加增加 
+			{nMonsterID = 166, posX1 = 28, posX2 = 37,  posY = 61, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 166, posX1 = 23, posX2 = 46,  posY = 56, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 166, posX1 = 18, posX2 = 48,  posY = 49, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 166, posX1 = 25, posX2 = 57,  posY = 44, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 166, posX1 = 30, posX2 = 61,  posY = 38, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 166, posX1 = 38, posX2 = 63,  posY = 30, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 166, posX1 = 45, posX2 = 59,  posY = 24, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 166, posX1 = 44, posX2 = 50,  posY = 16, nCount = 10, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+
+		},
+
+		--第二波
+		{
+			{nMonsterID = 169, posX1 = 44, posX2 = 44,  posY = 44, nCount = 1, nLiveTime = 1800, exp = 13373050, GuildGx = 200,},
+			{nMonsterID = 168, posX1 = 28, posX2 = 37,  posY = 61, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 168, posX1 = 23, posX2 = 46,  posY = 56, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 168, posX1 = 18, posX2 = 48,  posY = 49, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 168, posX1 = 25, posX2 = 57,  posY = 44, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 168, posX1 = 30, posX2 = 61,  posY = 38, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 168, posX1 = 38, posX2 = 63,  posY = 30, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 168, posX1 = 45, posX2 = 59,  posY = 24, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 168, posX1 = 44, posX2 = 50,  posY = 16, nCount = 10, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+
+		},
+
+		--第三波
+		{
+			{nMonsterID = 171, posX1 = 44, posX2 = 44,  posY = 44, nCount = 1, nLiveTime = 1800, exp = 15283490, GuildGx = 300,},
+			{nMonsterID = 170, posX1 = 28, posX2 = 37,  posY = 61, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 170, posX1 = 23, posX2 = 46,  posY = 56, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 170, posX1 = 18, posX2 = 48,  posY = 49, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 170, posX1 = 25, posX2 = 57,  posY = 44, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 170, posX1 = 30, posX2 = 61,  posY = 38, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 170, posX1 = 38, posX2 = 63,  posY = 30, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 170, posX1 = 45, posX2 = 59,  posY = 24, nCount = 10, nLiveTime = 1800,},
+			{nMonsterID = 170, posX1 = 44, posX2 = 50,  posY = 16, nCount = 10, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			--{nMonsterID = 166, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+
+		},
+
+		--第四波
+		--[[{
+			{nMonsterID = 203, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800, exp = 4003816,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 204, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+
+		},]]
+
+		--第五波
+		--[[{
+			{nMonsterID = 205, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800, exp = 5222369,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 206, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+		},]]
+
+		--第六波
+		--[[{
+			{nMonsterID = 207, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800, exp = 6789079,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+
+		},]]
+
+		--第七波
+		--[[{
+			{nMonsterID = 209, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800, exp = 10966974,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 210, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+
+		},]]
+
+		--第八波
+		--[[{
+			{nMonsterID = 211, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800, exp = 13373498,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155 ,nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 212, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+
+		},]]
+
+		--第九波
+		--[[{
+			{nMonsterID = 213, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800, exp = 17517047,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 2, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 214, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+
+		},]]
+
+		--第十波
+		--[[{
+			{nMonsterID = 215, posX1 = 153, posX2 = 159,  posY = 155, nCount = 1, nLiveTime = 1800, exp = 26286862,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 3, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 216, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 5, nLiveTime = 1800,},
+			{nMonsterID = 208, posX1 = 153, posX2 = 159,  posY = 155, nCount = 4, nLiveTime = 1800,},
+
+		},]]
+	},
+
+	--周排行榜第一名行会获得奖励
+	GuildCoin = 500000,		--行会资金
+	awards=
+	{
+		--荣誉
+		{ type = 21, id = 0, count = 30000, strong = 0, quality = 0, bind = 1 },
+	},
+}

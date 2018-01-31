@@ -1,0 +1,115 @@
+﻿--lua script
+--活动 排行榜名单初始化
+
+--#include "data\config\TasksConfig.inc" once --活动开启状态设置
+--#include "data\functions\ExpandFunc\TaskCommonFunc.txt"	once	--活动通用函数
+
+	--#include "data\functions\Tasks\HolyFlameDefend\HolyFlamePointer.txt" once --排行榜 计分器变量定义	圣火保卫战
+	--#include "data\functions\Tasks\WuLinZhengBa\RankPointer.txt" once --排行榜	武林争霸赛
+	--#include "data\functions\Tasks\AthleticsPoint\RankPointer.txt" once --排行榜	竞技积分
+	--#include "data\functions\Tasks\FestivalTasks\PrayTree\RankPointer.txt" once --排行榜 祈福树
+	--#include "data\functions\Tasks\CrossServerTasks\CrossServerSingle\RankPointer.txt" --跨服个人赛
+
+function TaskRanking_Init(npcobj)
+	--判断活动是否开启
+	--圣火保卫战
+	if TasksConfig ~= nil and TasksConfig.HolyFlameDefend == true then 	--圣火保卫战
+		local tbColumn = {{Lang.TaskTalk.t00590, 0},{Lang.TaskTalk.t00591, 0}}	--排行榜列标题表
+		RankingInit(HolyFlameRankName, HolyFlameRankFile, tbColumn, 1000, 0)
+	end
+	
+	--武林争霸赛
+	if TasksConfig ~= nil and TasksConfig.WuLinZhengBa == true then 	--武林争霸赛
+		local RankPointer = WuLinZhengBaRankPointer
+		local tbColumn = RankPointer.RankColumn	--排行榜列标题表
+		RankingInit(RankPointer.RankName, RankPointer.RankFile, tbColumn, RankPointer.ClinetShowCount, RankPointer.ClientShow)
+	end
+	
+	--竞技积分
+	if TasksConfig ~= nil and TasksConfig.AthleticsPoint == true then 	--竞技积分 本周排行
+		local RankPointer = AthleticsPointRankPointer.now
+		local tbColumn = RankPointer.RankColumn	--排行榜列标题表
+		RankingInit(RankPointer.RankName, RankPointer.RankFile, tbColumn, RankPointer.ClinetShowCount, RankPointer.ClientShow)
+	
+		local RankPointer = AthleticsPointRankPointer.old
+		local tbColumn = RankPointer.RankColumn	--排行榜列标题表
+		RankingInit(RankPointer.RankName, RankPointer.RankFile, tbColumn, RankPointer.ClinetShowCount, RankPointer.ClientShow)
+	end
+	----
+	--祈福树
+	if TasksConfig ~= nil and TasksConfig.PrayTree == true then 	--竞技积分 本周排行
+		local RankTable = PrayTreeRankPointer
+		for i=1, table.getn(RankTable) do
+			local RankPointer = RankTable[i]
+			local tbColumn = RankPointer.RankColumn	--排行榜列标题表
+			RankingInit(RankPointer.RankName, RankPointer.RankFile, tbColumn, RankPointer.ClinetShowCount, RankPointer.ClientShow)
+		end
+		
+	end
+	----
+	--跨服个人赛
+	if TasksConfig ~= nil and TasksConfig.CrossServerSingle == true then 	--跨服个人赛
+		local RankPointer = CrossServerSingleRankPointer
+		local tbColumn = RankPointer.RankColumn	--排行榜列标题表
+		RankingInit(RankPointer.RankName, RankPointer.RankFile, tbColumn, RankPointer.ClinetShowCount, RankPointer.ClientShow)
+	end
+	------
+end
+
+function TaskRanking_Fina(npcobj)
+	--判断活动是否开启
+	--圣火保卫战
+	if TasksConfig ~= nil and TasksConfig.HolyFlameDefend == true then	--圣火保卫战
+		RankingFina(HolyFlameRankName, HolyFlameRankFile)
+	end
+  
+	--武林争霸赛
+	if TasksConfig ~= nil and TasksConfig.WuLinZhengBa == true then	--武林争霸赛
+		local RankPointer = WuLinZhengBaRankPointer
+		RankingFina(RankPointer.RankName, RankPointer.RankFile)
+	end
+	
+	--竞技积分
+	if TasksConfig ~= nil and TasksConfig.AthleticsPoint == true then 	--竞技积分 本周排行
+		local RankPointer = AthleticsPointRankPointer.now
+		RankingFina(RankPointer.RankName, RankPointer.RankFile)
+		
+		local RankPointer = AthleticsPointRankPointer.old
+		RankingFina(RankPointer.RankName, RankPointer.RankFile)
+	end
+	
+	--祈福树
+	if TasksConfig ~= nil and TasksConfig.PrayTree == true then 	--祈福树排行
+		local RankTable = PrayTreeRankPointer
+		for i=1, table.getn(RankTable) do
+			local RankPointer = RankTable[i]
+			RankingFina(RankPointer.RankName, RankPointer.RankFile)
+		end
+	end
+	----
+	--跨服个人赛
+	if TasksConfig ~= nil and TasksConfig.CrossServerSingle == true then	--跨服个人赛
+		local RankPointer = CrossServerSingleRankPointer
+		RankingFina(RankPointer.RankName, RankPointer.RankFile)
+	end
+	-----------
+
+end
+
+table.insert(InitFnTable,TaskRanking_Init)
+table.insert(FinaFnTable,TaskRanking_Fina)
+
+--[[
+	--排行榜初始化函数
+	--sRankName:排行榜的名称
+	--sRankFile:排行榜保存文件
+	--tbColumn:排行榜列 表 tbColumn = {{column0, 1}, {column1, 0}, {column2, 0}, ...} ，{column列名, 是否客户端显示}
+	--nMax:发给客户端最多的行数
+	--boDisplay:是否在客户端显示，默认是0，不显示，1显示
+	function RankingInit(sRankName, sRankFile, tbColumn, nMax, boDisplay)
+	
+	--排行榜销毁函数
+	--sRankName:排行榜的名称
+	--sRankFile:排行榜保存文件
+	function RankingFina(sRankName, sRankFile)
+--]]

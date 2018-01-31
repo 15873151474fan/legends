@@ -1,0 +1,23 @@
+﻿--lua script
+-- 宝物补充灵力
+--#include "GemCommon.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+
+
+GemSystemImpl.GemUpSSHandler = function (sysarg, msgid, packet)		
+	local gemSlotIdx 				= DataPack.readInt(packet)		-- 宝物槽位号	
+	local gemItemPtr 				= Actor.getGemItemBySlot(sysarg, gemSlotIdx)
+	if (not gemItemPtr) then	return	end
+	
+	--检测是否为限时宝物
+	if GemItem.isLimitTimeGem(gemItemPtr) then return end
+		
+	local reqItemId = GemSpriteStrenItem[1].item_id
+	local upVal 		= GemSpriteStrenItem[1].val
+	GemUpSS(sysarg, gemItemPtr, upVal, reqItemId)
+end
+
+
+
+GemSystemImpl.registerMsgHandler(8, GemSystemImpl.GemUpSSHandler)
+

@@ -1,0 +1,810 @@
+﻿--lua script
+ --#include "../SpaceCopys/SpaceChallenge.txt" once
+ --#include "../SpaceCopys/ChallengeBroadTipmsg.txt" once
+local CHALLENGEREST = 40               --休息时间
+local CHALLENGEREADY = 20              --准备时间
+local SINGLETIME = 60                 --单人擂台时间
+local TEAMTIME = 180                   --队伍擂台时间
+local SINGLELIMIT = 25                 --单人擂台个数上限
+local TEAMLIMIT = 25                   --队伍擂台个数上限
+local ENDTIME = 10                     --退出擂台时间
+
+
+-------------------------------------------------------------------------------------------------------
+--打擂台[擂台ID] 25
+EventCallDispatcher.handlerFightChallenge = function (sysarg,args)
+	local challengeId = args[1]
+	--print("challendeId:"..challengeId)
+	local type = ChallengeFun.getChallengeType(challengeId)
+	--print("type:"..type)
+	if type == ctNoType then return end
+	if type == ctSingle then
+		if not ( System.isInTimeRange(13,00,00,16,00,00) or System.isInTimeRange(21,00,00,23,59,59)) then
+	    Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00014,ttDialog)
+	    return
+    end
+
+    --判断是否已有擂台
+		local isChallengeId = Actor.getChallenge(sysarg)
+		if isChallengeId ~= 0 then
+		 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00012,ttDialog)
+		 	return
+		end
+
+    --判断摆擂台者是否在线或满人
+	  local playCount = ChallengeFun.getPlayCount(challengeId)
+	  --print("playCount:"..playCount)
+	  if playCount == 0 then
+	  	 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00019,ttDialog)
+	  	 	return
+	  elseif playCount == 2 then
+	      Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00019,ttDialog)
+	      return
+  	end
+
+	  local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+	  if level < 25 then
+		  Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00002,ttDialog)
+		  return
+  	end
+	  local TeamId = Actor.getTeamId(sysarg)
+	  if TeamId ~= 0 then
+	  	Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00011,ttDialog)
+	  	return
+	  end
+	  --加入擂台
+		if Actor.challenge(sysarg,challengeId) then
+		  Actor.setChallenge(sysarg,challengeId)
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00017,ttTipmsgWindow)
+			Actor.closeNPCDialog( sysarg )
+			local aptr = ChallengeFun.getChallenger(challengeId,1)
+	  	local bptr = ChallengeFun.getChallenger(challengeId,2)
+
+	  	local NPChandle = Actor.getNpc(sysarg)
+			if aptr == sysarg then 
+			   Actor.sendAllChallengeList(aptr,ctSingle)
+		   	 Actor.messageBox(bptr,NPChandle,0,Lang.ScriptTips.t00035,""..Lang.ScriptTips.t00063.."/ChallengeCuangSong",""..Lang.ScriptTips.t00064.."/cencelChuanSong",NULL)
+      elseif bptr == sysarg then
+      
+        Actor.sendAllChallengeList(bptr,ctSingle)
+        Actor.messageBox(aptr,NPChandle,0,Lang.ScriptTips.t00035,""..Lang.ScriptTips.t00063.."/ChallengeCuangSong",""..Lang.ScriptTips.t00064.."/cencelChuanSong",NULL)
+			end
+			
+			 --判断是否在擂台时间内，不是则清除所有擂台数据
+      if not ( System.isInTimeRange(13,00,00,16,00,00) or System.isInTimeRange(21,00,00,23,59,59)) then
+         --print("time not ture")
+        local SFight = ChallengeFun.getFighting(ctSingle)
+			  if SFight == 0 then
+			    ChallengeFun.clearAllChallenge(ctSingle)
+			  end
+        return
+      end
+      
+			local nextid = ChallengeFun.getNextChallenge(ctSingle)
+		  if nextid ~= 0 then
+		  	ChallengeFun.setChallengeNextTime(nextid,csRest,CHALLENGEREST)
+		  	--通知客户端，显示什么状态和剩余时间 
+
+		  	
+		  	local next_aptr = ChallengeFun.getChallenger(nextid,1)
+		  	local next_bptr = ChallengeFun.getChallenger(nextid,2)
+       	local next_aName = Actor.getName(next_aptr)
+	  	  local next_bName = Actor.getName(next_bptr)
+	  	  if next_aName == nil then next_aName = " " end
+	  	  if next_bName == nil then next_bName = " " end
+	  	  local str = string.format(Lang.ScriptTips.t00037,next_aName,next_bName)         --发送全服公告
+	     	System.broadcastTipmsg(str,ttScreenCenter)
+        local npack = DataPack.allocPacket(next_aptr,29,6)
+		  	if npack == nil then return end
+		  	DataPack.writeByte(npack,2)
+		  	DataPack.writeInt(npack,CHALLENGEREST)
+		  	DataPack.flush(npack)
+        local npack = DataPack.allocPacket(next_bptr,29,6)
+		  	if npack == nil then return end
+		  	DataPack.writeByte(npack,2)
+		  	DataPack.writeInt(npack,CHALLENGEREST)
+		  	DataPack.flush(npack)
+		  	
+        Actor.sendTipmsg(next_aptr,Lang.ScriptTips.t00022,ttDialog)
+		  	Actor.sendTipmsg(next_bptr,Lang.ScriptTips.t00022,ttDialog)
+	  		--Actor.sendAllChallengeList(next_aptr,ctSingle)
+			  --Actor.sendAllChallengeList(next_bptr,ctSingle)
+		  end
+		end
+	elseif type == ctTeam then
+		if not ( System.isInTimeRange(13,00,00,16,00,00) or System.isInTimeRange(21,00,00,23,59,59)) then
+	    Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00014,ttDialog)
+	    return
+    end
+
+	   --判断是否已有擂台
+		local isChallengeId = Actor.getChallenge(sysarg)
+		if isChallengeId ~= 0 then
+		 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00012,ttDialog)
+		 	return
+	  end
+
+
+	  --判断摆擂台者是否在线或满人
+	  local playCount = ChallengeFun.getPlayCount(challengeId)
+	  --print("playCount:"..playCount)
+	  if playCount == 0 then
+	  	 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00019,ttDialog)
+	  	 	return
+	  elseif playCount == 2 then
+	      Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00019,ttDialog)
+	      return
+	  end
+
+		local teamid = Actor.getTeamId(sysarg)
+		--print("teamid:"..teamid)
+	  if teamid == 0 then
+	 		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00005,ttDialog)
+			return
+		end
+	  local CapPtr = TeamFun.getTeamCaptain(teamid)
+		if sysarg ~= CapPtr then      --判断是否为队长
+			--print("---Challenge not team Leader.")
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00005,ttDialog)
+			return
+	 	end
+
+	 	local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+		local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+		local t_len = table.getn(TeamMemb)
+		local Limit = ChallengeFun.getChallengeLimit(challengeId)
+		if  t_len < Limit then
+		   Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00025,ttDialog)
+		   return
+    end
+		if ( t_len < 2 ) then
+			--print("---Challenge team member lack.")
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00006,ttDialog)
+			return
+		end
+		local levelTable = {}	--队伍成员等级表 方便高低等级比较
+		local idTable = {}
+		for i = 1, t_len do
+			local aptr = TeamMemb[i]
+			local aid = Actor.getIntProperty( aptr, PROP_ENTITY_ID )
+			if aptr ~= CapPtr  then
+			  table.insert( idTable, aid )
+			end
+			local memberlevel = Actor.getIntProperty( aptr, PROP_CREATURE_LEVEL )
+
+			if memberlevel < 25 then 													 --等级不够
+				Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00007,ttDialog)
+				return
+			end
+
+			if math.abs( memberlevel - level ) > 3  then
+				--print("---Member level not that."..level)
+				Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00008,ttDialog)
+				return
+		  end
+			table.insert( levelTable, memberlevel )
+		end
+		--print("t_len:"..t_len)
+		table.sort( levelTable )
+		if ( levelTable[t_len] - levelTable[1] > 3 ) then
+			--print("---Challenge team level max over.")                 --玩家之间等级相差不在3级内
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00008,ttDialog)
+			return
+		end
+		--求得队伍的平均等级
+
+  	--加入到擂台中
+  	if Actor.challenge(sysarg,challengeId) then
+			TeamFun.setChallenge(teamid,challengeId)
+			local NPChandle = Actor.getNpc(sysarg)
+			
+			Actor.closeNPCDialog(sysarg)
+			local aTeamPtr = ChallengeFun.getChallenger(challengeId,1)
+		 	local bTeamPtr = ChallengeFun.getChallenger(challengeId,2)
+		 	local aPtr = TeamFun.getTeamCaptain(aTeamPtr)
+		 	local bPtr = TeamFun.getTeamCaptain(bTeamPtr)
+ 	 	  local aMember = LuaHelp.getTeamMemberList(aPtr)
+	 	  local bMember = LuaHelp.getTeamMemberList(bPtr)
+			local actorMemb = LuaHelp.getTeamMemberList(sysarg)
+			for i=1,#actorMemb do
+			  if actorMemb[i] ~= nil then
+          Actor.sendTipmsg(actorMemb[i],Lang.ScriptTips.t00017,ttTipmsgWindow)
+        end
+      end
+      if aPtr == sysarg then
+        Actor.sendAllChallengeList(aPtr,ctTeam)
+			  for i = 1 ,#idTable do
+	  		 Actor.messageBox(sysarg,NPChandle,idTable[i],Lang.ScriptTips.t00016,""..Lang.ScriptTips.t00063.."/ChallengeCuangSong",""..Lang.ScriptTips.t00064.."/cencelChuanSong",NULL)
+	  	  end
+	  	  for i = 1 ,#bMember do
+	  	    if  bMember[i] ~= nil then
+	  	       local bid = Actor.getIntProperty( bMember[i], PROP_ENTITY_ID ) 
+	  	       Actor.messageBox(bMember[i],NPChandle,0,Lang.ScriptTips.t00036,""..Lang.ScriptTips.t00063.."/ChallengeCuangSong",""..Lang.ScriptTips.t00064.."/cencelChuanSong",NULL)
+  	      end
+ 	      end
+      else
+        Actor.sendAllChallengeList(bPtr,ctTeam)
+ 			  for i = 1 ,#idTable do
+	  		 Actor.messageBox(sysarg,NPChandle,idTable[i],Lang.ScriptTips.t00016,""..Lang.ScriptTips.t00063.."/ChallengeCuangSong",""..Lang.ScriptTips.t00064.."/cencelChuanSong",NULL)
+	  	  end
+	  	  for i = 1 ,#aMember do
+	  	    if  bMember[i] ~= nil then
+	  	       local bid = Actor.getIntProperty( aMember[i], PROP_ENTITY_ID )
+	  	       Actor.messageBox(aMember[i],NPChandle,0,Lang.ScriptTips.t00036,""..Lang.ScriptTips.t00063.."/ChallengeCuangSong",""..Lang.ScriptTips.t00064.."/cencelChuanSong",NULL)
+  	      end
+ 	      end
+ 	    end
+      --判断是否在擂台时间内，不是则清除擂台数据 
+      if not ( System.isInTimeRange(13,00,00,16,00,00) or System.isInTimeRange(21,00,00,23,59,59)) then
+        local TFight = ChallengeFun.getFighting(ctTeam)
+        if TFight == 0 then
+			    ChallengeFun.clearAllChallenge(ctTeam)
+			  end
+        return
+      end
+      
+		  local nextid = ChallengeFun.getNextChallenge(ctTeam)
+		  --print("nextid:"..nextid)
+			if nextid ~= 0 then
+			  ChallengeFun.setChallengeNextTime(nextid ,csRest,CHALLENGEREST)
+        
+
+		  	
+			  local next_aTeamPtr = ChallengeFun.getChallenger(nextid,1)
+			 	local next_bTeamPtr = ChallengeFun.getChallenger(nextid,2)
+			 	local next_aPtr = TeamFun.getTeamCaptain(next_aTeamPtr)
+			 	local next_bPtr = TeamFun.getTeamCaptain(next_bTeamPtr)
+			 	local next_aMember = LuaHelp.getTeamMemberList(next_aPtr)
+			 	local next_bMember = LuaHelp.getTeamMemberList(next_bPtr)
+ 	      
+        local next_aName = Actor.getName(next_aPtr)
+	  	  local next_bName = Actor.getName(next_bPtr)
+	  	  if next_aName == nil then next_aName = " " end
+	  	  if next_bName == nil then next_bName = " " end
+	  	  local str = string.format(Lang.ScriptTips.t00038,next_aName,next_bName)         --发送全服公告
+	     	System.broadcastTipmsg(str,ttScreenCenter)
+			 	
+			 	if next_aMember == nil then  end
+			 	if next_bMember == nil then  end
+        for i = 1,#next_aMember do
+          if next_aMember[i] ~= nil then 
+		        local npack = DataPack.allocPacket(next_aMember[i],29,6)
+				  	if npack == nil then return end
+				  	DataPack.writeByte(npack,2)
+				  	DataPack.writeInt(npack,CHALLENGEREST)
+				  	DataPack.flush(npack)
+			 	  end
+	 	    end
+        for i = 1,#next_bMember do
+          if next_bMember[i] ~= nil then
+		        local npack = DataPack.allocPacket(next_bMember[i],29,6)
+				  	if npack == nil then return end
+				  	DataPack.writeByte(npack,2)
+				  	DataPack.writeInt(npack,CHALLENGEREST)
+				  	DataPack.flush(npack)
+			 	  end
+	 	    end
+		 		Actor.sendAllChallengeList(next_aPtr,ctTeam)
+			  Actor.sendAllChallengeList(next_bPtr,ctTeam)
+			 	for i=1,#next_aMember do
+			  	Actor.sendTipmsg(next_aMember[i],Lang.ScriptTips.t00023,ttDialog)
+			  end
+			  for i=1,#next_bMember do
+			  	Actor.sendTipmsg(next_bMember[i],Lang.ScriptTips.t00023,ttDialog)
+			  end
+
+			end
+  	end
+ 	end
+end
+
+---------------------------------------------------------------------------------------------
+
+
+--#include "data\functions\Tasks\WuLinZhengBa\CommonFunc.txt" once --武林争霸通用函数
+
+--擂台战时间到 [擂台ID]
+EventCallDispatcher.handlerChallengeStateChange = function (sysarg,arg)
+	
+	local ChallengeId = arg[1]
+	--print("ChallengeId:"..ChallengeId)
+	local Status = ChallengeFun.getChallengeStatus(ChallengeId)
+	--print("Status:"..Status)
+	local Type = ChallengeFun.getChallengeType(ChallengeId)
+	--print("Type:"..Type)
+	
+	local SubType = ChallengeFun.getChallengeSubType(ChallengeId)
+	--print("SubType:"..SubType)
+	
+	if (Status == csNoChallenge or Status == csWait) then return end
+
+	if Type == ctSingle then
+		if SubType == cstWuLinZhengBa then	--武林争霸赛处理
+			WuLinZhengBaStateChange(ChallengeId)
+		elseif SubType == cstNomal then	--常规擂台处理
+			local aPtr = ChallengeFun.getChallenger(ChallengeId,1)
+			local bPtr = ChallengeFun.getChallenger(ChallengeId,2)
+			local aName = Actor.getName(aPtr)
+			local bName = Actor.getName(bPtr)
+			if aName == nil then aName = " " end
+			if bName == nil then bName = " " end
+		
+			local playcount = ChallengeFun.getPlayCount(ChallengeId)
+			--print("playcount:"..playcount)
+			if Status == csRest then              --当前为休息状态
+				ChallengeFun.setChallengeNextTime(ChallengeId,csReady,CHALLENGEREADY)
+				ChallengeFun.onChallengeStartOrEnd(ChallengeId,true)
+				if aPtr ~= nil then 
+					local npack = DataPack.allocPacket(aPtr,29,6)
+					if npack == nil then return end
+					DataPack.writeByte(npack,4)
+					DataPack.writeInt(npack,CHALLENGEREADY)
+					DataPack.flush(npack)
+				end
+				if bPtr ~= nil then 
+					local npack = DataPack.allocPacket(bPtr,29,6)
+					if npack == nil then return end
+					DataPack.writeByte(npack,4)
+					DataPack.writeInt(npack,CHALLENGEREADY)
+					DataPack.flush(npack)
+				end
+		  
+				System.telportSceneByName(aPtr,Lang.SceneName.s00089,50,13)   --把擂台对应的玩家传送到擂台上
+				Actor.addState(aPtr,13)	--设置成擂台状态
+				System.telportSceneByName(bPtr,Lang.SceneName.s00089,42,13)
+				Actor.addState(bPtr,13)	--设置成擂台状态
+				Actor.triggerAchieveEvent(aPtr,12,0,0,0)
+				Actor.triggerAchieveEvent(bPtr,12,0,0,0)
+				local str = string.format(Lang.ScriptTips.t00037,aName,bName)         --发送全服公告
+				System.broadcastTipmsg(str,ttScreenCenter)
+			elseif Status == csReady then         --当前为准备状态
+			--print("Status is csReady")
+				--判断双方是否还在线
+				if playcount == 1 then 
+					if (aPtr == nil and bPtr ~= nil ) then 
+						--print("aPtr is nil ")
+						winChallenge(bPtr)
+						OnChallengeResult(bPtr,bPtr,aPtr,Type)
+						Actor.triggerAchieveEvent(bPtr,13,0,0,0)
+			  
+						local str = string.format(Lang.ScriptTips.t00039,bName)         --发送全服公告
+						System.broadcastTipmsg(str,ttScreenCenter) 
+					elseif (aPtr ~= nil and bPtr == nil) then 
+						--print("bPtr is nil ")
+						winChallenge(aPtr)
+						OnChallengeResult(aPtr,aPtr,bPtr,Type)
+						Actor.triggerAchieveEvent(aPtr,13,0,0,0)  
+						local str = string.format(Lang.ScriptTips.t00039,aName)         --发送全服公告
+						System.broadcastTipmsg(str,ttScreenCenter)  
+					end
+					ChallengeFun.setChallengeNextTime(ChallengeId,csEnd,ENDTIME)
+					if aPtr ~= nil then 
+						local npack = DataPack.allocPacket(aPtr,29,6)                      --返回给客户端显示状态和剩余时间 
+						if npack == nil then return end
+						DataPack.writeByte(npack,5)
+						DataPack.writeInt(npack,ENDTIME)
+						DataPack.flush(npack)
+					end
+					if bPtr ~= nil then 
+						local npack = DataPack.allocPacket(bPtr,29,6)
+						if npack == nil then return end
+						DataPack.writeByte(npack,5)
+						DataPack.writeInt(npack,ENDTIME)
+						DataPack.flush(npack)
+					end
+				elseif playcount == 0 then 
+					ChallengeFun.deleteChallenge(ChallengeId)       --删除该擂台
+				elseif playcount == 2 then 
+					ChallengeFun.setChallengeNextTime(ChallengeId,csFight,SINGLETIME)
+			
+					local npack = DataPack.allocPacket(aPtr,29,6)              --返回给客户端显示状态和剩余时间
+					if npack == nil then return end
+					DataPack.writeByte(npack,3)
+					DataPack.writeInt(npack,SINGLETIME)
+					DataPack.flush(npack)
+					local npack = DataPack.allocPacket(bPtr,29,6)
+					if npack == nil then return end
+					DataPack.writeByte(npack,3)
+					DataPack.writeInt(npack,SINGLETIME)
+					DataPack.flush(npack)
+			 
+				end
+			elseif Status == csFight then
+				--print("Status is csFight !")
+				local actlevel = Actor.getIntProperty( aPtr, PROP_CREATURE_LEVEL )
+				local job = Actor.getIntProperty( aPtr, PROP_ACTOR_VOCATION )
+				local name = Actor.getName( aPtr )
+				local guild = Actor.getIntProperty( aPtr, PROP_ACTOR_GUILD_ID )
+				local guildname = System.getGuildName(guild)
+				local wincontinue = Actor.getIntProperty( aPtr, PROP_ACTOR_DURVICTIMES)
+				local win = Actor.getIntProperty( aPtr,PROP_ACTOR_LTVICWEEK)
+				local zhanhun = 1
+				if name == nil then name = " " end
+				if guildname == nil then guildname = " " end
+				--失败玩家的信息
+				local dactlevel = Actor.getIntProperty( bPtr, PROP_CREATURE_LEVEL )
+				local djob = Actor.getIntProperty( bPtr, PROP_ACTOR_VOCATION )
+				local dname = Actor.getName( bPtr )
+				local dguild = Actor.getIntProperty( bPtr, PROP_ACTOR_GUILD_ID )
+				local dguildname = System.getGuildName(dguild)
+				local dwincontinue = Actor.getIntProperty( bPtr, PROP_ACTOR_DURVICTIMES)
+				local dwin = Actor.getIntProperty( bPtr,PROP_ACTOR_LTVICWEEK)
+				local dzhanhun = 1
+				if dname == nil then dname = " " end
+				if dguildname == nil then dguildname = " " end
+				local actorPtr = {aPtr,bPtr}
+			  
+				for i=1,#actorPtr do
+					local npack = DataPack.allocPacket(actorPtr[i],29,4)  --申请一个数据包
+					if npack == nil then return end
+					DataPack.writeByte(npack,1)          --表示平局
+					DataPack.writeWord(npack,1)
+					DataPack.writeByte(npack,actlevel)
+					DataPack.writeByte(npack,job)
+					DataPack.writeWord(npack,win)
+					DataPack.writeWord(npack,wincontinue)
+					DataPack.writeInt(npack,zhanhun)
+					DataPack.writeString(npack,name)
+					DataPack.writeString(npack,guildname)
+
+					DataPack.writeWord(npack,1)
+					DataPack.writeByte(npack,dactlevel)
+					DataPack.writeByte(npack,djob)
+					DataPack.writeWord(npack,dwin)
+					DataPack.writeWord(npack,dwincontinue)
+					DataPack.writeInt(npack,dzhanhun)
+					DataPack.writeString(npack,dname)
+					DataPack.writeString(npack,dguildname)
+
+					DataPack.flush(npack)
+				end
+			  
+				local azhanhun = Actor.getIntProperty( aPtr, PROP_ACTOR_ZHANHUN)
+				Actor.setUIntProperty(aPtr,PROP_ACTOR_ZHANHUN,azhanhun+1)
+				local bzhanhun = Actor.getIntProperty( bPtr, PROP_ACTOR_ZHANHUN)
+				Actor.setUIntProperty(bPtr,PROP_ACTOR_ZHANHUN,bzhanhun+1)
+	  
+				local str = string.format(Lang.ScriptTips.t00041,name,dname)         --发送全服公告
+				System.broadcastTipmsg(str,ttScreenCenter)
+		 
+				ChallengeFun.setChallengeNextTime(ChallengeId,csEnd,ENDTIME)
+				if aPtr ~= nil then 
+					local npack = DataPack.allocPacket(aPtr,29,6)
+					if npack == nil then return end
+					DataPack.writeByte(npack,5)
+					DataPack.writeInt(npack,ENDTIME)
+					DataPack.flush(npack)
+					Actor.sendTipmsg(aPtr,Lang.ScriptTips.t00050,ttScreenCenter)     --获得的奖励
+				end
+				if bPtr ~= nil then 
+					local npack = DataPack.allocPacket(bPtr,29,6)
+					if npack == nil then return end
+					DataPack.writeByte(npack,5)
+					DataPack.writeInt(npack,ENDTIME)
+					DataPack.flush(npack)
+					Actor.sendTipmsg(bPtr,Lang.ScriptTips.t00050,ttScreenCenter)     --获得的奖励
+				end
+			
+			elseif Status ==  csEnd then
+				--print("Status is csEnd!")
+				ChallengeFun.onChallengeStartOrEnd(ChallengeId,false)
+				Actor.exitChallenge(aPtr)
+				Actor.exitChallenge(bPtr)
+				Actor.setChallenge(aPtr,0)
+				Actor.setChallenge(bPtr,0)
+				ChallengeFun.deleteChallenge(ChallengeId)       --删除该擂台
+				OnEnterChallenge(aPtr,1)
+				OnEnterChallenge(bPtr,1)
+
+				--判断是否在擂台时间内，不是则清除所有擂台数据
+				if not ( System.isInTimeRange(13,00,00,16,00,00) or System.isInTimeRange(21,00,00,23,59,59)) then
+					--print("time not ture")
+					local SFight = ChallengeFun.getFighting(ctSingle)
+					if SFight == 0 then
+						ChallengeFun.clearAllChallenge(ctSingle)
+					end
+					return
+				end 
+				local nextid = ChallengeFun.getNextChallenge(ctSingle)
+				if nextid ~= 0 then
+					ChallengeFun.setChallengeNextTime(nextid,csRest,CHALLENGEREST)	 
+					local next_aptr = ChallengeFun.getChallenger(nextid,1)
+					local next_bptr = ChallengeFun.getChallenger(nextid,2)
+					local npack = DataPack.allocPacket(next_aptr,29,6)
+					if npack == nil then return end
+					DataPack.writeByte(npack,2)
+					DataPack.writeInt(npack,CHALLENGEREST)
+					DataPack.flush(npack)
+				  
+					local npack = DataPack.allocPacket(next_bptr,29,6)
+					if npack == nil then return end
+					DataPack.writeByte(npack,2)
+					DataPack.writeInt(npack,CHALLENGEREST)
+					DataPack.flush(npack)
+				  
+					Actor.sendTipmsg(next_aptr,Lang.ScriptTips.t00022,ttDialog)
+					Actor.sendTipmsg(next_bptr,Lang.ScriptTips.t00022,ttDialog)
+				end
+			end
+		end
+	elseif (Type == ctTeam) then
+		if SubType == cstNomal then	--常规擂台处理
+			--print("Type is ctTeam!!")
+			local aTeamPtr = ChallengeFun.getChallenger(ChallengeId,1)
+			local bTeamPtr = ChallengeFun.getChallenger(ChallengeId,2)
+			local playcount = ChallengeFun.getPlayCount(ChallengeId)
+			local aPtr = TeamFun.getTeamCaptain(aTeamPtr)
+			local bPtr = TeamFun.getTeamCaptain(bTeamPtr)
+			local aTeamMemb = LuaHelp.getTeamMemberList(aPtr)
+			local bTeamMemb = LuaHelp.getTeamMemberList(bPtr)
+			local aName = Actor.getName(aPtr)
+			local bName = Actor.getName(bPtr)
+			if aName == nil then aName = " " end
+			if bName == nil then bName = " " end
+			if aTeamMemb == nil then aTeamMemb = {} end
+			if bTeamMemb == nil then bTeamMemb = {} end
+			--print("aTeamMemb:"..table.getn(aTeamMemb))
+			--print("bTeamMemb:"..table.getn(bTeamMemb))
+
+			if Status == csRest then
+				ChallengeFun.setChallengeNextTime(ChallengeId,csReady,CHALLENGEREADY)
+				ChallengeFun.onChallengeStartOrEnd(ChallengeId,true)
+				for i=1,#aTeamMemb do
+					if aTeamMemb[i] ~= nil then 
+						local npack = DataPack.allocPacket(aTeamMemb[i],29,6)
+						if npack == nil then return end
+						DataPack.writeByte(npack,4)
+						DataPack.writeInt(npack,CHALLENGEREADY)
+						DataPack.flush(npack)
+					end
+				end
+				for i=1,#bTeamMemb do
+					if bTeamMemb[i] ~= nil then 
+						local npack = DataPack.allocPacket(bTeamMemb[i],29,6)
+						if npack == nil then return end
+						DataPack.writeByte(npack,4)
+						DataPack.writeInt(npack,CHALLENGEREADY)
+						DataPack.flush(npack)
+					end
+				end
+
+				--把双方队员都传送到擂台上
+				if aTeamMemb ~= nil then
+					for i=1,#aTeamMemb do
+						System.telportSceneByName(aTeamMemb[i],Lang.SceneName.s00089,75,13)
+						Actor.addState(aTeamMemb[i],13)	--设置成擂台状态
+					end
+				end
+				if bTeamMemb ~= nil then
+
+					for i=1,#bTeamMemb do
+						System.telportSceneByName(bTeamMemb[i],Lang.SceneName.s00089,83,13)
+						Actor.addState(bTeamMemb[i],13)	--设置成擂台状态
+					end
+				end
+			elseif Status == csReady then
+				--print("Team Status is csReady!!")
+				if playcount == 0 then 
+					ChallengeFun.deleteChallenge(ChallengeId)       --删除该擂台
+				elseif playcount == 1 then 
+					if (aPtr == nil and bPtr ~= nil) then 
+						for i = 1,#bTeamMemb do
+							winChallenge(bTeamMemb[i])
+							OnChallengeResult(bTeamMemb[i],bPtr,aPtr,Type)
+							local str = string.format(Lang.ScriptTips.t00040,bName)         --发送全服公告
+							System.broadcastTipmsg(str,ttScreenCenter)
+						end
+					elseif (aPtr ~=nil and bPtr == nil) then 
+						for i = 1,#aTeamMemb do
+							winChallenge(aTeamMemb[i])
+							OnChallengeResult(aTeamMemb[i],aPtr,bPtr,Type)
+							local str = string.format(Lang.ScriptTips.t00040,aName)         --发送全服公告
+							System.broadcastTipmsg(str,ttScreenCenter)
+						end
+					end
+					ChallengeFun.setChallengeNextTime(ChallengeId,csEnd,ENDTIME)
+					for i=1,#aTeamMemb do
+						if aTeamMemb[i] ~= nil then
+							local npack = DataPack.allocPacket(aTeamMemb[i],29,6)
+							if npack == nil then return end
+							DataPack.writeByte(npack,5)
+							DataPack.writeInt(npack,ENDTIME)
+							DataPack.flush(npack)
+						end
+					end
+					for i=1,#bTeamMemb do
+						if bTeamMemb[i] ~= nil then 
+							local npack = DataPack.allocPacket(bTeamMemb[i],29,6)
+							if npack == nil then return end
+							DataPack.writeByte(npack,5)
+							DataPack.writeInt(npack,ENDTIME)
+							DataPack.flush(npack)
+						end
+					end
+			  
+				elseif playcount == 2 then  
+					ChallengeFun.setChallengeNextTime(ChallengeId,csFight,TEAMTIME)
+					for i=1,#aTeamMemb do
+						if aTeamMemb[i] ~= nil then 
+							local npack = DataPack.allocPacket(aTeamMemb[i],29,6)
+							if npack == nil then return end
+							DataPack.writeByte(npack,3)
+							DataPack.writeInt(npack,TEAMTIME)
+							DataPack.flush(npack)
+						end
+					end
+					for i=1,#bTeamMemb do
+						if bTeamMemb[i] ~= nil then 
+							local npack = DataPack.allocPacket(bTeamMemb[i],29,6)
+							if npack == nil then return end
+							DataPack.writeByte(npack,3)
+							DataPack.writeInt(npack,TEAMTIME)
+							DataPack.flush(npack)
+						end
+					end
+				end
+			elseif Status == csFight then
+				--print("Team Status is csFight!!")
+				--队伍擂台
+				
+				local allMemb = {} 
+				--if aTeamMemb == nil then return end
+				for i = 1,#aTeamMemb do
+					table.insert(allMemb,aTeamMemb[i])
+				end
+				for i = 1,#bTeamMemb do
+					table.insert(allMemb,bTeamMemb[i])
+				end
+				for i = 1 ,#allMemb do
+					local npack = DataPack.allocPacket(allMemb[i],29,4)  --申请一个数据包
+					--print("i:"..i)
+					if npack == nil then return end
+					DataPack.writeByte(npack,1)    --表示平局
+					local winMembcount = table.getn(aTeamMemb)
+					--print("winMembcount:"..winMembcount)
+					DataPack.writeWord(npack,winMembcount)
+					for i = 1,#aTeamMemb do
+								  --玩家的信息
+						local actlevel = Actor.getIntProperty( aTeamMemb[i], PROP_CREATURE_LEVEL )
+						local job = Actor.getIntProperty( aTeamMemb[i], PROP_ACTOR_VOCATION )
+						local name = Actor.getName( aTeamMemb[i] )
+						local guild = Actor.getIntProperty( aTeamMemb[i], PROP_ACTOR_GUILD_ID )
+						local guildname = System.getGuildName(guild)
+						local wincontinue = Actor.getIntProperty( aTeamMemb[i], PROP_ACTOR_DURVICTIMES)
+						local win = Actor.getIntProperty( aTeamMemb[i],PROP_ACTOR_LTVICWEEK)
+						local zhanhun = 1
+		
+						DataPack.writeByte(npack,actlevel)
+						DataPack.writeByte(npack,job)
+						DataPack.writeWord(npack,win)
+						DataPack.writeWord(npack,wincontinue)
+						DataPack.writeInt(npack,zhanhun)
+						DataPack.writeString(npack,name)
+						DataPack.writeString(npack,guildname)
+		
+					end
+		
+					local membcount = table.getn(bTeamMemb)
+					DataPack.writeWord(npack,membcount)
+					for i = 1,#bTeamMemb do
+						 --玩家的信息
+						local dactlevel = Actor.getIntProperty( bTeamMemb[i], PROP_CREATURE_LEVEL )
+						local djob = Actor.getIntProperty( bTeamMemb[i], PROP_ACTOR_VOCATION )
+						local dname = Actor.getName( bTeamMemb[i] )
+						local dguild = Actor.getIntProperty( bTeamMemb[i], PROP_ACTOR_GUILD_ID )
+						local dguildname = System.getGuildName(dguild)
+						local dwincontinue = Actor.getIntProperty( bTeamMemb[i], PROP_ACTOR_DURVICTIMES)
+						local dwin = Actor.getIntProperty( bTeamMemb[i],PROP_ACTOR_LTVICWEEK)
+						local dzhanhun = 1
+			
+						DataPack.writeByte(npack,dactlevel)
+						DataPack.writeByte(npack,djob)
+						DataPack.writeWord(npack,dwin)
+						DataPack.writeWord(npack,dwincontinue)
+						DataPack.writeInt(npack,dzhanhun)
+						DataPack.writeString(npack,dname)
+						DataPack.writeString(npack,dguildname)
+		
+					end
+					DataPack.flush(npack)
+				end
+				local str = string.format(Lang.ScriptTips.t00043,aName,bName)         --发送全服公告
+				System.broadcastTipmsg(str,ttScreenCenter)
+				ChallengeFun.setChallengeNextTime(ChallengeId,csEnd,ENDTIME)
+				for i=1,#aTeamMemb do
+					if aTeamMemb[i] ~= nil then 
+						local npack = DataPack.allocPacket(aTeamMemb[i],29,6)
+						if npack == nil then return end
+						DataPack.writeByte(npack,5)
+						DataPack.writeInt(npack,ENDTIME)
+						DataPack.flush(npack)
+						--local azhanhun = Actor.getIntProperty( aTeamMemb[i], PROP_ACTOR_ZHANHUN)      
+						--Actor.setUIntProperty(aTeamMemb[i],PROP_ACTOR_ZHANHUN,azhanhun+1)
+						--Actor.sendTipmsg(aTeamMemb[i],Lang.ScriptTips.t00050,ttScreenCenter)     --获得的奖励
+					end
+				end
+				for i=1,#bTeamMemb do
+					if bTeamMemb[i] ~= nil then 
+					local npack = DataPack.allocPacket(bTeamMemb[i],29,6)
+					if npack == nil then return end
+					DataPack.writeByte(npack,5)
+					DataPack.writeInt(npack,ENDTIME)
+					DataPack.flush(npack)
+					--local bzhanhun = Actor.getIntProperty( bTeamMemb[i], PROP_ACTOR_ZHANHUN)
+					--Actor.setUIntProperty(bTeamMemb[i],PROP_ACTOR_ZHANHUN,bzhanhun+1)
+					--Actor.sendTipmsg(bTeamMemb[i],Lang.ScriptTips.t00050,ttScreenCenter)     --获得的奖励
+				end
+			end
+			elseif Status == csEnd then
+				--print("Team Status is csEnd!!")
+				ChallengeFun.onChallengeStartOrEnd(ChallengeId,false)
+				local aTeamId = Actor.getTeamId(aPtr)
+				local bTeamId = Actor.getTeamId(bPtr)
+				Actor.exitChallenge(aPtr)
+				Actor.exitChallenge(aPtr)
+				TeamFun.setChallenge(aTeamId,0)
+				TeamFun.setChallenge(aTeamId,0)
+				if aTeamMemb == nil then  aTeamMemb = {} end
+				if bTeamMemb == nil then  bTeamMemb = {} end
+				--print("aTeamMemb:"..table.getn(aTeamMemb))
+				--print("bTeamMemb:"..table.getn(bTeamMemb))
+
+				for i=1,#aTeamMemb do
+					Actor.exitChallenge(aTeamMemb[i])
+					OnEnterChallenge(aTeamMemb[i] ,2)
+				end
+				for i=1,#bTeamMemb do
+					Actor.exitChallenge(bTeamMemb[i])
+					OnEnterChallenge(bTeamMemb[i] ,2)
+				end
+				ChallengeFun.deleteChallenge(ChallengeId)       --删除该擂台
+
+				if not ( System.isInTimeRange(13,00,00,16,00,00) or System.isInTimeRange(21,00,00,23,59,59)) then
+					local TFight = ChallengeFun.getFighting(ctTeam)
+					if TFight == 0 then
+						ChallengeFun.clearAllChallenge(ctTeam)
+					end
+					return
+				end
+				local nextid = ChallengeFun.getNextChallenge(ctTeam)
+				--print("nextid:"..nextid)
+				if nextid ~= 0 then
+					ChallengeFun.setChallengeNextTime(nextid,csRest,CHALLENGEREST)
+
+				
+					local next_aTeamPtr = ChallengeFun.getChallenger(nextid,1)
+					local next_bTeamPtr = ChallengeFun.getChallenger(nextid,2)
+					local next_aPtr = TeamFun.getTeamCaptain(next_aTeamPtr)
+					local next_bPtr = TeamFun.getTeamCaptain(next_bTeamPtr)
+					local next_aTeamMember = LuaHelp.getTeamMemberList( next_aPtr )
+					local next_bTeamMember = LuaHelp.getTeamMemberList( next_bPtr )
+					for i=1,#next_aTeamMember do
+						if next_aTeamMember[i] ~= nil then 
+							Actor.sendTipmsg(next_aTeamMember[i],Lang.ScriptTips.t00023,ttDialog)
+							local npack = DataPack.allocPacket(next_aTeamMember[i],29,6)
+							if npack == nil then return end
+							DataPack.writeByte(npack,2)
+							DataPack.writeInt(npack,CHALLENGEREST)
+							DataPack.flush(npack)
+						end
+					end
+					for i=1,#next_bTeamMember do
+						if next_bTeamMember[i] ~= nil then
+							Actor.sendTipmsg(next_bTeamMember[i],Lang.ScriptTips.t00023,ttDialog)
+							local npack = DataPack.allocPacket(next_bTeamMember[i],29,6)
+							if npack == nil then return end
+							DataPack.writeByte(npack,2)
+							DataPack.writeInt(npack,CHALLENGEREST)
+							DataPack.flush(npack)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+-----------------------------------------------------------------------------------
+                                                  
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeChallenge, EventCallDispatcher.handlerFightChallenge)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeChallengeStatusChange, EventCallDispatcher.handlerChallengeStateChange)

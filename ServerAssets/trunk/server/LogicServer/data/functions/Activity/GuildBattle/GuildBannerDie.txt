@@ -1,0 +1,19 @@
+--lua script
+
+--#include "data\language\LangCode.txt" once   --ÓïÑÔ°ü
+--#include "data\config\activityconfig\GuildBattle\GuildBattleConfig.txt" once
+--#include "GuildBattleCommon.txt" once
+--#include "data\functions\Activity\CrossBattlefield\CrossQizhiDie.txt" once
+
+MonDieDispatcher.Mon159Die = function(monster,sysarg,monId)
+	OccupyBanne(sysarg,monster)
+end
+
+MonDieDispatcher.Mon885Die = function(monster,sysarg,monId)
+	if System.isCommonServer() == true then
+		OnCrossQizhiDieOP(sysarg,monster)
+	end
+end
+
+--MonDieDispatcher.register(159, MonDieDispatcher.Mon159Die )
+--MonDieDispatcher.register(885, MonDieDispatcher.Mon885Die )

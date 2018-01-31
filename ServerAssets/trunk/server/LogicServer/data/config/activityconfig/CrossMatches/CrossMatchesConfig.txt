@@ -1,0 +1,374 @@
+--#include "data\language\LangCode.txt" once   --语言包
+
+CrossMatchesConfig =    
+{
+	actDay = 6,	--活动持续时间
+	
+	minLevel = 65,		--最小等级
+	maxMember = 3, 		--战队成员最大数量 
+	maxBetTimes = 5,	--最大下注次数
+	betAwardRate = {bet = 1, ret = 2},--投注倍率 ,bet下注，ret赔
+	initPoint = 100,  	--初始积分
+	smfubenId = 72,   	--跨服海选副本id
+	smSceneId = 221,	--跨服海选场景id
+	
+	cmSceneId = 219, 		--跨服龙虎榜场景id
+	enterCmPosX = 105,		--非参赛玩家进入的位置配置  
+	enterCmPosY = 162,		--非参赛玩家进入的位置配置
+	
+	
+	enterComSeneId = 147,	 --进入的跨服土城场景id
+	enterComPosx = 148,
+	enterComPosY = 180,
+	
+	enterSeneId = 8,	 --进入的普通服土城场景id
+	enterPosx = 148,
+	enterPosY = 180,
+
+	exitSceneId = 219,	--玩家退出公共场景的id   
+	exitPosX = 105,		--玩家退出的公共场景坐标
+	exitPosY = 162, 	--玩家退出的公共场景坐标
+	
+	activityTime = 300,	 --5分钟	
+	beginPkTime = 30,  
+	timeRange = {22,0,0, 22,30,0},  --淘汰赛活动开始时间，结束时间
+	selectTimeRange = {18,0,0, 23,59,59}, --海选赛活动开始时间，结束时间
+	enterTimeRange = {21,50,0, 22,30,0}, --进入时间
+	
+	selectMatchCount = 8,  --海选赛匹配队伍数目 
+	secondMatchCount = 4,  --海选赛匹配队伍数目 
+	enterSelectMatches =   --海选赛参队员进入副本场景 
+	{
+		{ posX = 23, posY = 28,},
+		{ posX = 37, posY = 32,},
+	},
+	
+	selectMatchesMonstors =  --海选赛裁判怪
+	{
+		{ id = 1249, posX = 31, posY = 31, liveTime = 30 },
+	},
+	
+	selectRetPoint =  --海选赛结果积分 
+	{
+		
+		--胜利队伍大于失败队伍获得的积分
+		{  
+			{beginVal = 0.5, endVal = -1, point = 1},
+			{beginVal = 0.45, endVal = 0.5, point = 2},
+			{beginVal = 0.40, endVal = 0.45, point = 4},
+			{beginVal = 0.35, endVal = 0.40, point = 6},
+			{beginVal = 0.30, endVal = 0.35, point = 8},
+			{beginVal = 0.25, endVal = 0.30, point = 10},
+			{beginVal = 0.20, endVal = 0.25, point = 12},
+			{beginVal = 0.15, endVal = 0.20, point = 14},
+			{beginVal = 0.10, endVal = 0.15, point = 16},
+			{beginVal = 0.06, endVal = 0.10, point = 18},
+			{beginVal = 0, endVal = 0.05, point = 20},
+		},
+		--胜利队伍小于失败队伍获得的积分
+		{
+			{beginVal = 0, endVal = 0.05, point = 20},
+			{beginVal = 0.06, endVal = 0.10, point = 21},
+			{beginVal = 0.10, endVal = 0.15, point = 22},
+			{beginVal = 0.15, endVal = 0.20, point = 23},
+			{beginVal = 0.20, endVal = 0.25, point = 24},
+			{beginVal = 0.25, endVal = 0.30, point = 25},
+			{beginVal = 0.30, endVal = 0.35, point = 26},
+			{beginVal = 0.35, endVal = 0.40, point = 27},
+			{beginVal = 0.40, endVal = 0.45, point = 28},
+			{beginVal = 0.45, endVal = 0.5, point = 29},
+			{beginVal = 0.5, endVal = -1, point = 30},
+		},
+		
+	},
+	
+	selectMatchesRewards = --参加了10场以上比赛，且积分达到一定数量的战队都可获得奖励。
+	{
+		rank = 100, --前100名
+		joinTimes = 10,  --参加次数 
+		point = 200,	--积分
+		awardIndexs = --奖励序号
+		{
+			[1] = {beginValue = 1, endValue = 1}, -- 1名
+			[2] = {beginValue = 2, endValue = 3},--  2~3名
+			[3] = {beginValue = 4, endValue = 10},--  4~10名
+			[4] = {beginValue = 11, endValue = 32},-- 11-32名奖励
+			[5] = {beginValue = 33, endValue = 100},--33-100名奖励
+		},
+		{    --第一名奖励
+			{type = 0, id = 2753, count = 1, strong = 0, quality = 0, bind = 1},
+		}, 
+		{	--第2-3名奖励
+			{type = 0, id = 2754, count = 1, strong = 0, quality = 0, bind = 1},
+		},
+		{	--第4-10名奖励
+			{type = 0, id = 2755, count = 1, strong = 0, quality = 0, bind = 1},
+		},			
+		{	--第11-32名奖励
+			{type = 0, id = 2756, count = 1, strong = 0, quality = 0, bind = 1},
+		},				
+		{	--第33-100名奖励
+			{type = 0, id = 2757, count = 1, strong = 0, quality = 0, bind = 1},
+		},			
+	},
+	
+	
+	matchesTypeTab = {16,8,4,2},--淘汰赛类型列表 16强，8强，4强，2强 
+	
+	dragonMatchesNumTab = {1,9,5,13,7,15,11,3,4,12,8,16,6,14,10,2}, --龙榜16强分组序号表
+	tigerMatchesNumTab = {17,25,21,29,23,31,27,19,20,28,24,32,22,30,26,18}, --虎榜16强分组序号表
+	
+	enterCrossMatches = 
+	{
+		--龙榜赛场景
+		{
+			--16 to 8 {8个场地}
+			{
+				--进入x坐标，进入y坐标，monster裁判怪配置
+				{
+					{ posX = 108, posY = 93,},
+					{ posX = 122, posY = 97,},
+				 	monster = { id = 1249, posX = 115, posY = 94, liveTime = 30 },
+				},
+				{
+					{ posX = 140, posY = 171,},
+					{ posX = 155, posY = 175,},
+					monster = { id = 1249, posX = 147, posY = 173, liveTime = 30 },
+				},
+				{
+					{ posX = 162, posY = 148, },
+					{ posX = 177, posY = 152, },
+					monster = { id = 1249, posX = 170, posY = 150, liveTime = 30 },
+				},
+				{
+					{ posX = 85, posY = 115, },
+					{ posX = 100, posY = 119, },
+					monster = { id = 1249, posX = 93, posY = 117, liveTime = 30 },
+				},
+				{
+					{ posX = 62, posY = 138, },
+					{ posX = 77, posY = 142, },
+					monster = { id = 1249, posX = 70, posY = 140, liveTime = 30 },
+				},
+				{
+					{ posX = 130, posY = 69, },
+					{ posX = 146, posY = 73, },
+					monster = { id = 1249, posX = 138, posY = 71, liveTime = 30 },
+				},
+				{
+					{ posX = 184, posY = 125, },
+					{ posX = 200, posY = 129, },
+					monster = { id = 1249, posX = 192, posY = 127, liveTime = 30 },
+				},
+				{
+					{ posX = 117, posY = 194, },
+					{ posX = 132, posY = 198, },
+					monster = { id = 1249, posX = 124, posY = 196, liveTime = 30 },
+				},
+			},
+			--8  to 4 {4个场地}
+			{
+				{
+					{ posX = 108, posY = 93,},
+					{ posX = 122, posY = 97,},
+				 	monster = { id = 1249, posX = 115, posY = 94, liveTime = 30 },
+				},
+				{
+					{ posX = 140, posY = 171,},
+					{ posX = 155, posY = 175,},
+					monster = { id = 1249, posX = 147, posY = 173, liveTime = 30 },
+				},
+				{
+					{ posX = 162, posY = 148, },
+					{ posX = 177, posY = 152, },
+					monster = { id = 1249, posX = 170, posY = 150, liveTime = 30 },
+				},
+				{
+					{ posX = 85, posY = 115, },
+					{ posX = 100, posY = 119, },
+					monster = { id = 1249, posX = 93, posY = 117, liveTime = 30 },
+				},
+			},
+			--4 to 2 {2个场地}
+			{
+				{
+					{ posX = 108, posY = 93,},
+					{ posX = 122, posY = 97,},
+				 	monster = { id = 1249, posX = 115, posY = 94, liveTime = 30 },
+				},
+				{
+					{ posX = 140, posY = 171,},
+					{ posX = 155, posY = 175,},
+					monster = { id = 1249, posX = 147, posY = 173, liveTime = 30 },
+				},
+			},
+			--2 to 1 {1个场地}
+			{
+				{
+					{ posX = 124, posY = 132,},
+					{ posX = 138, posY = 136,},
+				 	monster = { id = 1249, posX = 131, posY = 133, liveTime = 30 },
+				},  
+			},
+		},
+		
+		--虎榜赛场景
+		{
+			--16 to 8 {8个场地} 
+			{
+				--进入x坐标，进入y坐标，monster裁判怪配置 
+				{
+					{ posX = 143, posY = 221,},
+					{ posX = 158, posY = 225,},
+				 	monster = { id = 1249, posX = 151, posY = 223, liveTime = 30 },
+				}, 
+				{
+					{ posX = 166, posY = 197,},
+					{ posX = 181, posY = 201,},
+				 	monster = { id = 1249, posX = 173, posY = 199, liveTime = 30 },
+				},
+				{
+					{ posX = 188, posY = 175,},
+					{ posX = 203, posY = 179,},
+				 	monster = { id = 1249, posX = 196, posY = 177, liveTime = 30 },
+				},
+				{
+					{ posX = 211, posY = 151,},
+					{ posX = 226, posY = 155,},
+				 	monster = { id = 1249, posX = 219, posY = 153, liveTime = 30 },
+				},
+				{
+					{ posX = 105, posY = 43,},
+					{ posX = 120, posY = 46,},
+				 	monster = { id = 1249, posX = 112, posY = 44, liveTime = 30 },
+				},
+				{
+					{ posX = 82, posY = 66,},
+					{ posX = 96, posY = 70,},
+				 	monster = { id = 1249, posX = 89, posY = 67, liveTime = 30 },
+				},
+				{
+					{ posX = 59, posY = 88,},
+					{ posX = 74, posY = 92,},
+				 	monster = { id = 1249, posX = 67, posY = 90, liveTime = 30 },
+				},
+				{
+					{ posX = 36, posY = 111,},
+					{ posX = 52, posY = 155,},
+				 	monster = { id = 1249, posX = 44, posY = 114, liveTime = 30 },
+				},
+			},
+			--8  to 4 {4个场地}
+			{
+				{
+					{ posX = 62, posY = 138, },
+					{ posX = 77, posY = 142, },
+					monster = { id = 1249, posX = 70, posY = 140, liveTime = 30 },
+				},
+				{
+					{ posX = 130, posY = 69, },
+					{ posX = 146, posY = 73, },
+					monster = { id = 1249, posX = 138, posY = 71, liveTime = 30 },
+				},
+				{
+					{ posX = 184, posY = 125, },
+					{ posX = 200, posY = 129, },
+					monster = { id = 1249, posX = 192, posY = 127, liveTime = 30 },
+				},
+				{
+					{ posX = 117, posY = 194, },
+					{ posX = 132, posY = 198, },
+					monster = { id = 1249, posX = 124, posY = 196, liveTime = 30 },
+				},
+			},
+			--4 to 2 {2个场地}
+			{
+				{
+					{ posX = 162, posY = 148, },
+					{ posX = 177, posY = 152, },
+					monster = { id = 1249, posX = 170, posY = 150, liveTime = 30 },
+				},
+				{
+					{ posX = 85, posY = 115, },
+					{ posX = 100, posY = 119, },
+					monster = { id = 1249, posX = 93, posY = 117, liveTime = 30 },
+				},
+			},
+			--2 to 1 {1个场地}
+			{
+				{
+					{ posX = 108, posY = 93,},
+					{ posX = 122, posY = 97,},
+				 	monster = { id = 1249, posX = 115, posY = 94, liveTime = 30 },
+				},
+			},
+		},
+	},
+	
+	--参赛选手退出
+	exitCrossMatches =  
+	{
+		posX = 105, posY = 162,
+	},
+	
+	crossMatchesAwards = 
+	{
+		--龙榜赛奖励
+		{
+			--16强礼包
+			{	
+				{type = 0, id = 2762, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			--8强礼包
+			{
+				{type = 0, id = 2761, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			--4强礼包
+			{
+				{type = 0, id = 2760, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			--亚军礼包
+			{
+				{type = 0, id = 2759, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			--冠军礼包
+			{
+				{type = 0, id = 2758, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			
+		},
+		
+		--虎榜赛奖励
+		{
+			--16强礼包 
+			{	
+				{type = 0, id = 2767, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			--8强礼包
+			{
+				{type = 0, id = 2766, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			--4强礼包
+			{
+				{type = 0, id = 2765, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			--亚军礼包
+			{
+				{type = 0, id = 2764, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+			--冠军礼包
+			{
+				{type = 0, id = 2763, count = 1, strong = 0, quality = 0, bind = 1},
+			},
+		},
+	},
+	
+	--裁判buff
+	judgeBuff = 
+	{ 
+		{ buffType = 67, value = 1, buffGroup = -1, times = 1, interval = 30, timeOverlay = true, buffName = Lang.Skill.vip5tlb, },
+	},
+	
+	
+	
+}

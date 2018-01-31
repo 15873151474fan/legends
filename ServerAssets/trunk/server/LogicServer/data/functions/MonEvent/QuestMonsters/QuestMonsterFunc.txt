@@ -1,0 +1,37 @@
+﻿--lua script
+--副本怪物通用的死亡处理函数，一般来说，所有以杀怪为目的的副本的怪物都注册成这个函数即可，包括boss和小怪
+--这里会判断副本的通关条件是否已经杀死要求的boss或小怪
+
+--
+--#include "data\config\quest\QuestMonster.txt" once
+
+MonDieDispatcher.QuestDieFunc = function (monster,sysarg,monId)
+	local questlist = MonsterForQuest[monId]
+	if questlist == nil then return end
+	local actorList = LuaHelp.getVisiActorList(monster)
+	for k, ptr in ipairs(actorList or {}) do
+		if sysarg ~= ptr then		--自己是杀死这个怪的，不能再计算
+			for j, qid in ipairs(questlist) do
+				Actor.addQuestValue(ptr, qid, monId,1)
+			end
+		end
+	end
+end
+
+MonDieDispatcher.ShareHitQuestDieFunc = function (monster,sysarg,monId)
+	local questList = ShareHitMonsterForQuest[monId]
+	if not questList then
+		return
+	end
+	local actorList = LuaHelp.getVisiActorList(monster)
+	if actorList then
+		for i = 1, #actorList do
+			local actorPtr = actorList[i]
+			if Actor.getTargetId(actorPtr) == monId then
+				for idx, questId in ipairs( questList ) do
+					Actor.addQuestValue(actorPtr, questId, monId, 1)
+				end
+			end
+		end
+	end
+end

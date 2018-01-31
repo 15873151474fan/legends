@@ -1,0 +1,199 @@
+--[[File:warriorArena.txt]]
+
+--勇士角斗场的配置
+
+warriorArenaConfig = 
+{
+	actTime = {14,30,0,15,0,0},
+	minLevel = 30,		--进入角斗场的最低等级
+	nSceenId = 37,		--角斗场的场景id
+	nPosX = {66,78},		--场景内x的最大值
+	nPosY = {59,81},		--场景内y的最大值
+
+	exitSceenId = 2,	--退出角斗场的场景id
+	ePosX = {208,218},	--退出的场景坐标x范围
+	ePosY = {222,236},	--退出的场景坐标y范围
+
+	nTime = 60000,		--BOSS在15分钟后才被打死，则1分钟后再刷出第二只BOSS. 单位毫秒
+	activityTime = 1 * 30 * 60,	--活动的时间 单位秒
+
+	LoopExp = { type = 20, id = 2, count = 20, strong = 0, quality = 0, bind = 0 },	--每过20秒给经验
+	loopTime = 20000,			--20秒
+
+	ArenaMonsters =
+	{
+		{nMonsterID = 118, posX1 = 62, posX2 = 84,  posY = 66, nCount = 1, nLiveTime = 0,},	--角斗之王1
+		{nMonsterID = 119, posX1 = 76, posX2 = 84,  posY = 66, nCount = 1, nLiveTime = 0,},	--角斗之王2
+		{nMonsterID = 120, posX1 = 70, posX2 = 79,  posY = 71, nCount = 1, nLiveTime = 0,},	--角斗之王3
+	},
+	BUFFs = {
+		-- 杀死采集怪，1 ~ 10 层BUFF
+		-- 类型        buff的值       分组       作用的次数  作用的间隔，单位秒 时间是否叠加    名字 
+		{buffType= 68, value=1000, buffGroup= 106,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=2000, buffGroup= 107,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=3000, buffGroup= 108,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=4000, buffGroup= 109,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=5000, buffGroup= 110,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=6000, buffGroup= 111,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=7000, buffGroup= 112,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=8000, buffGroup= 113,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=9000, buffGroup= 114,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+		{buffType= 68, value=10000, buffGroup= 115,times =1,interval= 30, timeOverlay =true,buffName = Lang.Activity.a00029a,},
+	};
+	-- 1074 额外加的buff
+	OtherBuffs = {
+		--击杀其他玩家获双倍积分
+		{buffType= 143, value=2, buffGroup= 116,times =1,interval= 30, timeOverlay =false,buffName = Lang.Activity.a00029a,},
+		--增加技能伤害
+		{buffType= 68, value=10000, buffGroup= 117,times =1,interval= 30, timeOverlay =false,buffName = Lang.Activity.a00029a,},
+	};
+	--定时炸弹自爆
+	-- 类型        buff的值       分组       作用的次数  作用的间隔，单位秒 时间是否叠加    名字 
+	SuicideBomber =	{buffType= 62, value=53, buffGroup= 64,times =1,interval= 30, timeOverlay =false,buffName = Lang.Activity.a00030a, param=3, effectType = 6, effectId = 123},
+	-- 炸弹爆炸技能       技能Id			等级
+	SuicideBomberSkill = {skillId = 53; skillLevel = 4};
+	BuySuicideBomberNeedCoin = 100000; -- 购买自爆炸弹需要金币
+	BuyBomCD = 30,		--购买cd时间
+	Score = {
+		10,		--击杀小怪获得10点积分
+		200,	--击杀boss获得积分
+		1,		-- 击杀采集怪获得积分
+	};
+	killActorPoint = 80,		--击杀一个玩家获得玩家的20%积分
+
+	minPoint = 5,			--当玩家积分少于5时击杀不给积分
+	-- 随机给积分
+	RandScoreConfig ={
+		Start = 2;-- 第2分钟开始
+		Period = 5;	-- 随机给积分的周期，单位：分钟
+		PlayerNum = 3;	-- 随机给多少名玩家
+		Score = 50;		-- 给多少分
+	};
+	--[[
+		qatEquipment=0,             //物品或者装备
+		qatXiuwei = 1,	            //修为
+		qatExp = 2,                	//角色经验值
+		qatGuildContribution = 3,	//帮派贡献值
+		qatZYContribution = 4,		//阵营贡献
+		qatBindMoney = 5,           //绑定银两
+		qatMoney = 6,	            //银两
+		qatBindYb = 7,	            //绑定元宝
+		qatTitle = 8,	            //称谓
+		qatSkill = 9,	            //技能
+		qatZhanhun = 10,	        //战魂
+		qatAchievePoint =11,        //成就点
+		qatRenown=12,                //声望
+		qatPet =13,                  //奖励宠物
+		qatActivity = 14,			//奖励活跃度
+		qatYuanbao =15,              //元宝
+		qatGuildFr = 16,			//繁荣度
+		qatGuildYs = 17,			//玥石	
+		qatXPVal=18,				// XP值	
+		qatCombatScore = 19,		//竞技积分
+		qatAddExp = 20,				//按经验配置表加经验 id:奖励库ID count:普通加成率 quality:vip加成率 加成率使用以1000为基数的整形 即n/1000
+		qatHonor = 21,				//荣誉
+	]]
+	
+	--积分排名的奖励
+	actorRank = 
+	{
+		{
+			rankInterval = {1,1},		--排名区间
+			--奖励
+			awards=
+			{
+				--经验 
+				{ type = 20, id = 2, count = 1800, strong = 0, quality = 0, bind = 1 },		--积分第一名领取的奖励物品
+				--金币
+				{ type = 6, id = 0, count = 500000, strong = 0, quality = 0, bind = 1 },	
+				--荣誉
+				{ type = 21, id = 0, count = 12000, strong = 0, quality = 0, bind = 1 },	 
+			},
+		},
+
+		{
+			rankInterval = {2,2},		--排名区间
+			--奖励
+			awards=
+			{
+				--经验
+				{ type = 20, id = 2, count = 1400, strong = 0, quality = 0, bind = 1 },		--积分第一名领取的奖励物品
+				--金币
+				{ type = 6, id = 0, count = 350000, strong = 0, quality = 0, bind = 1 },
+				--荣誉
+				{ type = 21, id = 0, count = 10200, strong = 0, quality = 0, bind = 1 },		
+			},
+		},
+
+		{
+			rankInterval = {3,3},		--排名区间
+			--奖励
+			awards=
+			{
+				--经验
+				{ type = 20, id = 2, count = 1200, strong = 0, quality = 0, bind = 1 },		
+				--金币
+				{ type = 6, id = 0, count = 245000, strong = 0, quality = 0, bind = 1 },
+				--荣誉
+				{ type = 21, id = 0, count = 8670, strong = 0, quality = 0, bind = 1 },	
+			},
+		},
+
+		{
+			rankInterval = {4,10},		--排名区间
+
+			--奖励
+			awards=
+			{
+				--经验
+				{ type = 20, id = 2, count = 900, strong = 0, quality = 0, bind = 1 },		
+				--金币
+				{ type = 6, id = 0, count = 171500, strong = 0, quality = 0, bind = 1 },
+				--荣誉
+				{ type = 21, id = 0, count = 7370, strong = 0, quality = 0, bind = 1 },	
+        	
+			},
+		},
+		{
+			rankInterval = {11,20},		--排名区间
+
+			--奖励
+			awards=
+			{
+				--经验
+				{ type = 20, id = 2, count = 700, strong = 0, quality = 0, bind = 1 },
+				--金币
+				{ type = 6, id = 0, count = 120000, strong = 0, quality = 0, bind = 1 },
+				--荣誉
+				{ type = 21, id = 0, count = 6265, strong = 0, quality = 0, bind = 1 },	
+
+			},
+		},
+		{
+			rankInterval = {21,50},		--排名区间
+
+			--奖励
+			awards=
+			{
+				--经验
+				{ type = 20, id = 2, count = 600, strong = 0, quality = 0, bind = 1 },
+				--荣誉
+				{ type = 21, id = 0, count = 5325, strong = 0, quality = 0, bind = 1 },	
+
+
+
+			},
+		},
+		{
+			rankInterval = {51,10000},		--排名区间
+
+			--奖励
+			awards=
+			{
+				--经验
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1 },
+
+			},
+		},
+	},
+}

@@ -1,0 +1,159 @@
+--lua script
+--用户使用修为封存宝盒的处理
+
+--点击使用宝盒，发送进度条特效，在这个过程用户可以取消，如果进度条完成，将会回调use_XiuweiBox函数
+local xiuweiBoxCount = 50000		--每个修为宝盒封存的修为数量
+
+function startUseXiuweiBox( sysarg,itemId,itemPtr,useItemTbl )
+
+	if Actor.getItemCount(sysarg,itemId) < 1 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00007,ttDialog)
+		return
+	end
+	
+	--检查有没有 古木
+	if Actor.getItemCount(sysarg,useItemTbl.extentItem.itemId) < useItemTbl.extentItem.count then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00006,ttDialog)
+		return
+	end
+
+	local xw = Actor.getIntProperty(sysarg,PROP_ACTOR_XIUWEI)
+	local maxxw = Actor.getIntProperty(sysarg,PROP_ACTOR_MAX_XIUWEI)
+	if xw + xiuweiBoxCount > maxxw  then
+		local str = string.format(Lang.ScriptTips.i00012,xw,maxxw-xiuweiBoxCount)
+		Actor.sendTipmsg(sysarg,str,ttDialog)
+		return
+	end
+	
+	--检查次数够了没有
+	local var = Actor.getStaticVar(sysarg)
+	if var.xiuweiBoxTime ~= nil and var.xiuweiBoxTime >= 10 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00008,ttDialog)
+		return
+	end
+	--[[
+	local postint,result = Actor.postEntityScriptDelayMsg(sysarg,3000,result,6,itemId)	--6对应ScriptDelayConfig的定义
+	if not result then 
+ 		return 
+	end
+	local npack = DataPack.allocPacket(sysarg,139,4)
+	if npack == nil then return end
+	DataPack.writeInt(npack,postint)
+	DataPack.writeInt(npack,3000)
+	DataPack.writeByte(npack,1)
+	DataPack.writeByte(npack,1)
+	DataPack.writeString(npack,Lang.ScriptTips.i00003)	
+	DataPack.flush(npack)
+	--]]
+	Actor.startSingWnd(sysarg,6,3000,Lang.ScriptTips.i00003,true,true,false,itemId)
+end
+
+--使用修为封存道具
+function changeUseXiuweiBoxConfirm(sysarg,itemId,itemPtr,useItemTbl)
+	local xw = Actor.getIntProperty(sysarg,PROP_ACTOR_XIUWEI)
+	if xw < useItemTbl.xiuwei then
+		local str = string.format(Lang.ScriptTips.i00009,useItemTbl.xiuwei,useItemTbl.xiuwei)
+		Actor.sendTipmsg(sysarg,str,ttDialog)
+		return
+	end
+	
+	Actor.messageBox(sysarg,0,0,Lang.ScriptTips.i00010,Lang.ScriptTips.x00076.."/changeUseXiuweiBox,"..itemId,Lang.ScriptTips.x00077.."/cancelFunction",NULL)
+end
+
+--确认使用修为封存道具
+function changeUseXiuweiBox(sysarg)
+	local itemid = 1750
+	local xw = Actor.getIntProperty(sysarg,PROP_ACTOR_XIUWEI)
+	if xw < xiuweiBoxCount then
+		local str = string.format(Lang.ScriptTips.i00009,xiuweiBoxCount,xiuweiBoxCount)
+		Actor.sendTipmsg(sysarg,str,ttDialog)
+		return
+	end
+	
+	if Actor.getItemCount(sysarg,itemid) < 1 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00011,ttDialog)
+		return
+	end
+	Actor.removeItem(sysarg,itemid,1)
+	Actor.addItem(sysarg,1751,0,0,1,0,0,"xiuwei Item change")
+	Actor.changeXiuwei(sysarg,-xiuweiBoxCount)
+end
+
+
+xiuweiBoxTable = { 
+	{
+		func = startUseXiuweiBox,
+		param = {
+			item_id = 1751,	--修为封存宝器（满）
+			xiuwei = xiuweiBoxCount,	--增加5000修为
+			extentItem =
+			{
+				itemId = 1752,	--需要1个摄取古木
+				count = 1,
+			},
+		},
+	},
+	{
+		func = changeUseXiuweiBoxConfirm,
+		param = {
+			item_id = 1750,	--修为封存宝器
+			xiuwei = xiuweiBoxCount,	--需要5000修为
+		},
+	},
+}
+
+
+--使用宝盒的回调函数
+function use_XiuweiBox( sysarg, arg)
+	local itemId = arg[2]
+
+	if Actor.getItemCount(sysarg,itemId) < 1 then
+		Actor.sendTipmsgWithId(sysarg,Lang.ScriptTips.i00007,ttDialog)
+		return
+	end
+	--检查有没有 古木
+	if Actor.getItemCount(sysarg,xiuweiBoxTable[1].param.extentItem.itemId) < 1 then
+		Actor.sendTipmsgWithId(sysarg,Lang.ScriptTips.i00006,ttDialog)
+		return
+	end
+	
+	local xw = Actor.getIntProperty(sysarg,PROP_ACTOR_XIUWEI)
+	local maxxw = Actor.getIntProperty(sysarg,PROP_ACTOR_MAX_XIUWEI)
+	if xw + xiuweiBoxCount > maxxw  then
+		local str = string.format(Lang.ScriptTips.i00012,xw,maxxw-xiuweiBoxCount)
+		Actor.sendTipmsg(sysarg,str,ttDialog)
+		return
+	end
+	
+	--检查次数够了没有
+	local var = Actor.getStaticVar(sysarg)
+	if var.xiuweiBoxTime ~= nil and var.xiuweiBoxTime >= 10 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00008,ttDialog)
+		return
+	else
+		if var.xiuweiBoxTime == nil then
+			var.xiuweiBoxTime = 1
+		else
+			var.xiuweiBoxTime = var.xiuweiBoxTime + 1
+		end
+	end
+	
+	--删除对应物品后增加修为
+	Actor.removeItem(sysarg,itemId,1)
+	Actor.removeItem(sysarg,xiuweiBoxTable[1].param.extentItem.itemId,xiuweiBoxTable[1].param.extentItem.count)
+	Actor.changeXiuwei(sysarg,xiuweiBoxTable[1].param.xiuwei)
+	
+end
+
+
+
+function XiuweiBox_Init(npcobj)
+	for i = 1, table.getn(xiuweiBoxTable) do
+		local x = xiuweiBoxTable[i]
+		GlobalItemFn[x.param.item_id] = { func = x.func, params = x.param }
+	end
+end
+
+table.insert( InitFnTable, XiuweiBox_Init )
+table.insert(LocalDT.ScriptDelayConfig[6],use_XiuweiBox)			--6对应ScriptDelayConfig的定义
+

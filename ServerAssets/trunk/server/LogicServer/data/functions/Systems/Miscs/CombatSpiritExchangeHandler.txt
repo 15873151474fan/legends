@@ -1,0 +1,216 @@
+--战魂值兑换脚本
+
+
+--#include "data\language\LangCode.txt" once
+--#include "data\functions\GlobalDefine.txt" once
+--#include "data\config\misc\CombatSpiritExchange.txt" once
+
+
+-- 获取每天可兑换的最大战魂值，vip有加成效果（提高50%）
+function GetMaxExtCSValue (sysarg)
+	--local baseVal = CombatSpiritExchange.MaxExtCSEveryData
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)	
+	local baseVal = CombatSpiritExchange.CSExchangeUpLmt[level] or 0		
+	local isVip = Actor.isVip(sysarg)
+	if (isVip) then
+		return baseVal * 1.5
+	end
+	return baseVal
+end
+
+-- 下发当日的兑换战魂值信息给客户端，包括：当日已经兑换的战魂值、当日可兑换的战魂值上限
+function SendCSExtInfoToClient(sysarg)
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- local extVal = svar.ExtCSValToday or 0
+	-- local maxExt = GetMaxExtCSValue(sysarg)		
+	-- local pack = DataPack.allocPacket(sysarg, 139, 33)	
+	-- DataPack.writeInt(pack, maxExt - extVal)
+	-- DataPack.writeInt(pack, maxExt)
+	-- DataPack.flush(pack)	
+end
+
+
+-- 增加每日已经兑换的战魂值
+MiscsImplement.AddCSExtValEveryData = function (sysarg, value)
+	-- if (value == 0) then return end
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- if (svar.ExtCSValToday == nil) then
+	-- 	svar.ExtCSValToday = 0
+	-- end
+	-- svar.ExtCSValToday = svar.ExtCSValToday + value		
+	-- SendCSExtInfoToClient(sysarg)
+end
+
+-- 战魂兑换检测。对于兑换经验来说，需要检测是否达到上限；对于兑换物品来说不需要检测上限
+MiscsImplement.CheckCombatSpiritExt = function (sysarg, curCSVal, extval, needCheckUpLmt)
+	-- -- 检测当前战魂值是否比要兑换的战魂值多
+	-- if (curCSVal < extval) then
+	-- 	print("not enough zhanhun")
+	-- 	return false
+	-- end
+	
+	-- -- 当日兑换战魂值上限检测	
+	-- if (needCheckUpLmt) then
+	-- 	local svar = Actor.getStaticVar(sysarg)
+	-- 	if (svar.ExtCSValToday == nil) then
+	-- 		svar.ExtCSValToday = 0
+	-- 	end
+		
+	-- 	if (svar.ExtCSValToday + extval > GetMaxExtCSValue(sysarg)) then
+	-- 		Actor.sendTipmsg(sysarg, Lang.Misc.m000490, ttDialog)
+	-- 		return false
+	-- 	end
+	-- end	
+	
+	-- -- 剩余战魂值要大于存量战魂值
+	-- if (curCSVal - extval < CombatSpiritExchange.DepositCS) then
+	-- 	local tip = string.format(Lang.Misc.m000488, CombatSpiritExchange.DepositCS)
+	-- 	Actor.sendTipmsg(sysarg, tip, ttTipmsgWindow)
+	-- 	return false
+	-- end
+	
+	-- return true
+end
+
+
+-- 战魂值兑换经验
+-- @extval: 要兑换的战魂值
+MiscsImplement.CS2ExpHandler = function (sysarg, extval) 
+	if (extval <= 0) then return end
+	
+	local curCSVal = Actor.getIntProperty(sysarg, PROP_ACTOR_ZHANHUN)	
+	if (not MiscsImplement.CheckCombatSpiritExt(sysarg, curCSVal, extval, true)) then
+		return
+	end	
+	
+	local exp_rate = CombatSpiritExchange.CSExchangeList.ExpEx.rate
+	local exp_add = exp_rate * extval
+	if (exp_add <= 0) then return end
+	-- 扣除战魂值
+	
+	if (not Actor.giveAward(sysarg, qatZhanhun, 0,0-extval, 0, 0, 1, extval,606, "script")) then
+		print("combat spirit exchange, deduct combat spirit val failed")
+		return
+	end	
+
+	if (not Actor.giveAward(sysarg, qatExp,0, exp_add, 0, 0, 1, exp_add,606, "script")) then
+		print("combat spirit exchange, add exp failed")
+		return
+	end
+	MiscsImplement.AddCSExtValEveryData(sysarg, extval)
+end
+
+-- 战魂值兑换物品
+-- @extval: 要兑换的战魂值
+-- @extid: 对应于CombatSpiritConfig.CSExchangeList.ItemEx.Items表里头的索引，从1开始
+MiscsImplement.CS2ItemHandler = function (sysarg, extval, extid)
+	if (extval <= 0 or extid <= 0) then 
+		print("invalid extval or extid in CS2Item")
+		return 
+	end
+	
+	local curCSVal = Actor.getIntProperty(sysarg, PROP_ACTOR_ZHANHUN)
+	if (not MiscsImplement.CheckCombatSpiritExt(sysarg, curCSVal, extval, false)) then
+		return
+	end
+	
+	local ext_items_cfg = CombatSpiritExchange.CSExchangeList.ItemEx.Items	
+	if (ext_items_cfg == nil or extid > table.getn(ext_items_cfg)) then
+		return
+	end
+	
+	local ext_cfg = ext_items_cfg[extid]
+	local reqLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+    if (reqLevel < ext_cfg.buyLevel) then 
+    	local tip = string.format(Lang.Misc.m000489, ext_cfg.buyLevel)
+    	Actor.sendTipmsg(sysarg, tip, ttTipmsgWindow)
+    	return 
+    end
+        
+    local spidName = System .getSystemDef("SPID")
+    local priceCount = table.getn(ext_cfg.price)
+    local price_cfg = nil
+    for i=1, priceCount do
+    	if(ext_cfg.price[i].spid == "*" or ext_cfg.price[i].spid == spidName ) then
+    		price_cfg = ext_cfg.price[i]
+    		break
+    	end
+    end
+    
+    if (not price_cfg) then
+    	return
+    end
+    
+    local isBind = 0
+    if (price_cfg.bind) then
+    	isBind =1
+	end	
+	
+	if (price_cfg.price <= 0) then return end	
+	local itemCount = math.floor(extval / price_cfg.price)
+	if (itemCount <=0) then return end    
+	local dtype = price_cfg.type
+	local curPropVal = Actor.getIntProperty(sysarg, moneyTypeMap[dtype])  -- 当前属性值	
+	if (curPropVal < extval) then 
+		print("not enough prop val")
+		return false 
+	end
+	
+	--背包不够
+    local nGridCount= Item.getBagEmptyGridCount(sysarg)
+    local nNeedGrid = Item.getAddItemNeedGridCount(sysarg, ext_cfg.itemID, itemCount, ext_cfg.quality, ext_cfg.strong)    
+    if(nNeedGrid > nGridCount) then
+        local tipmsg= string.format(Lang.ScriptTips.x00074, nNeedGrid) --通知用户，需要空出多少个空格
+        Actor.sendTipmsg( sysarg, tipmsg, ttDialog )
+        return
+    end
+	
+	-- 兑换消耗
+	local consume_itemId = price_cfg.id
+	local consume_itemCount = price_cfg.count
+	if consume_itemId ~= nil and consume_itemId > 0 then
+	  if Actor.getItemCount(sysarg, consume_itemId, -1, -1, -1) < consume_itemCount then
+	      Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00130,Item.getItemName(consume_itemId)), ttDialog )
+	      return
+	  end
+	end	
+	
+	-- 兑换消耗战魂值
+	if (dtype >= 0 and dtype <= 3 ) then
+	    Actor.changeMoney(sysarg, dtype, nTotal, 606, Lang.LogTips.yb023) 
+	else
+	    Actor.giveAward(sysarg, qatZhanhun, 0,-1* extval, 0, 0, 1, 0, 606, "script")	    
+	end
+	-- 兑换消耗道具物品
+	if consume_itemId ~= nil and consume_itemId > 0 then
+		if Actor.removeItem(sysarg, consume_itemId, consume_itemCount, -1, -1, -1, "CombatSpiritExt", 80) < consume_itemCount then
+			return false
+		end	
+	end
+	Actor.addItem(sysarg, ext_cfg.itemID , ext_cfg.quality, ext_cfg.strong, itemCount, isBind, 0, "renown buy item", 81)
+end
+
+-- 客户群请求兑换战魂值处理
+-- extype: 兑换类型。1：兑换经验  2：兑换物品
+-- extid: 兑换类型内部id。兑换经验不用；对于兑换物品，标记兑换的是那个物品的兑换配置
+MiscsImplement.CSExchangeHandler = function (sysarg, msgid, packet)
+	if packet == nil then return end
+	local extype = DataPack.readInt(packet)
+	local extid = DataPack.readInt(packet)
+	local extval = DataPack.readInt(packet)
+	
+	if (extype == 1) then
+		MiscsImplement.CS2ExpHandler(sysarg, extval)
+	elseif (extype == 2) then
+		MiscsImplement.CS2ItemHandler(sysarg, extval, extid)
+	end
+end
+
+-- 客户端请求当日战魂值兑换信息
+MiscsImplement.ReqCSExchangeInfoHandler = function (sysarg, msgid, packet)	
+	SendCSExtInfoToClient(sysarg)
+end
+
+MiscsImplement.registerMsgHandler(33, MiscsImplement.CSExchangeHandler)
+MiscsImplement.registerMsgHandler(34, MiscsImplement.ReqCSExchangeInfoHandler)
+

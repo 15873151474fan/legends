@@ -1,0 +1,122 @@
+﻿--万马草原
+{
+	scenceid = 75,
+	scencename = Lang.SceneName.s00075,
+	mapfilename = "75WanMaCaoYuan",
+	minlevel = 35,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "liehuobeijian01.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 340,
+	sceneHeight = 352,
+	sceneType=2,
+	
+	seckillId = 4,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+	area =
+	{
+		{ name = Lang.SceneName.s00075, range = { 10,10,20,20,60,50}, center = { 150,143},
+			attri ={
+					{ type = 6,  value = {} },
+					{ type = 21,  value = {} },
+					{ type = 18,  value = {} },
+					{ type = 33,  value = {22,23,56,57,58} },
+					{ type = 26,  value = {} },
+					{ type = 84,  value = {} },
+					{ type = 85,  value = {} },
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{ type = 34,  value = {392,394,316,317,318,386,389,391,822,823} },
+				},
+		},
+
+		{ name = Lang.SceneName.s00075, range = { 118,150,143,121,169,151,140,181}, center = { 145,148},attri = {{type=1,value = {}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },{ type = 34,  value = {392,394,316,317,318,386,389,391,822,823} },{type=46,value = {}},}},	--默认配置场景
+		
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh75.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+
+	},
+
+  teleport =
+  {
+        { posx = 309, posy =  118,toSceneid =  83,toPosx =  224, toPosy = 289,modelid = 50000,name = Lang.SceneName.s00083 },  --万马草原→赤焰峡谷
+  },
+  landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		 --安全区的路灯
+    {posx1=164,posy1=138,posx2=164,posy2=138,modelid=3,xinterval=1,yinterval=1},  
+		{posx1=162,posy1=136,posx2=162,posy2=136,modelid=3,xinterval=1,yinterval=1},
+		{posx1=160,posy1=134,posx2=160,posy2=134,modelid=3,xinterval=1,yinterval=1},
+		{posx1=158,posy1=132,posx2=158,posy2=132,modelid=3,xinterval=1,yinterval=1},
+		{posx1=156,posy1=130,posx2=156,posy2=130,modelid=3,xinterval=1,yinterval=1},
+
+     --路标 
+		{posx1=160,posy1=132,posx2=160,posy2=132,modelid=18,xinterval=1,yinterval=1},
+		{posx1=162,posy1=130,posx2=162,posy2=130,modelid=18,xinterval=1,yinterval=1},
+		{posx1=169,posy1=115,posx2=169,posy2=115,modelid=17,xinterval=1,yinterval=1},
+		{posx1=164,posy1=96,posx2=164,posy2=96,modelid=24,xinterval=1,yinterval=1},
+		{posx1=130,posy1=100,posx2=130,posy2=100,modelid=22,xinterval=1,yinterval=1},
+		{posx1=104,posy1=156,posx2=104,posy2=156,modelid=21,xinterval=1,yinterval=1},
+		{posx1=167,posy1=182,posx2=167,posy2=182,modelid=18,xinterval=1,yinterval=1},
+		{posx1=192,posy1=118,posx2=192,posy2=118,modelid=17,xinterval=1,yinterval=1},
+		{posx1=150,posy1=62,posx2=150,posy2=62,modelid=23,xinterval=1,yinterval=1},
+		{posx1=80,posy1=116,posx2=80,posy2=116,modelid=22,xinterval=1,yinterval=1},
+		{posx1=70,posy1=174,posx2=70,posy2=174,modelid=21,xinterval=1,yinterval=1},
+		--{posx1=229,posy1=154,posx2=229,posy2=154,modelid=17,xinterval=1,yinterval=1},
+		{posx1=216,posy1=56,posx2=216,posy2=56,modelid=24,xinterval=1,yinterval=1},
+		{posx1=194,posy1=36,posx2=194,posy2=36,modelid=24,xinterval=1,yinterval=1},
+		{posx1=176,posy1=30,posx2=176,posy2=30,modelid=23,xinterval=1,yinterval=1},
+		{posx1=142,posy1=34,posx2=142,posy2=34,modelid=23,xinterval=1,yinterval=1},
+		{posx1=106,posy1=48,posx2=106,posy2=48,modelid=22,xinterval=1,yinterval=1},
+		{posx1=78,posy1=66,posx2=78,posy2=66,modelid=22,xinterval=1,yinterval=1},
+		{posx1=60,posy1=90,posx2=60,posy2=90,modelid=22,xinterval=1,yinterval=1},
+		{posx1=38,posy1=138,posx2=38,posy2=138,modelid=21,xinterval=1,yinterval=1},
+		{posx1=30,posy1=186,posx2=30,posy2=186,modelid=21,xinterval=1,yinterval=1},
+		{posx1=30,posy1=190,posx2=30,posy2=190,modelid=21,xinterval=1,yinterval=1},
+		{posx1=278,posy1=154,posx2=278,posy2=154,modelid=18,xinterval=1,yinterval=1},
+		{posx1=301,posy1=126,posx2=301,posy2=126,modelid=18,xinterval=1,yinterval=1},
+		{posx1=307,posy1=120,posx2=307,posy2=120,modelid=18,xinterval=1,yinterval=1},
+		{posx1=126,posy1=192,posx2=126,posy2=192,modelid=19,xinterval=1,yinterval=1},
+		{posx1=190,posy1=150,posx2=190,posy2=150,modelid=17,xinterval=1,yinterval=1},
+		{posx1=198,posy1=98,posx2=198,posy2=98,modelid=17,xinterval=1,yinterval=1},
+		{posx1=176,posy1=66,posx2=176,posy2=66,modelid=23,xinterval=1,yinterval=1},
+		{posx1=76,posy1=216,posx2=76,posy2=216,modelid=20,xinterval=1,yinterval=1},
+		{posx1=106,posy1=248,posx2=106,posy2=248,modelid=19,xinterval=1,yinterval=1},
+		{posx1=146,posy1=250,posx2=146,posy2=250,modelid=19,xinterval=1,yinterval=1},
+		{posx1=184,posy1=242,posx2=184,posy2=242,modelid=18,xinterval=1,yinterval=1},
+		{posx1=240,posy1=220,posx2=240,posy2=220,modelid=18,xinterval=1,yinterval=1},
+		{posx1=220,posy1=188,posx2=220,posy2=188,modelid=17,xinterval=1,yinterval=1},
+		{posx1=228,posy1=150,posx2=228,posy2=150,modelid=17,xinterval=1,yinterval=1},
+		{posx1=226,posy1=78,posx2=226,posy2=78,modelid=24,xinterval=1,yinterval=1},
+		{posx1=204,posy1=42,posx2=204,posy2=42,modelid=24,xinterval=1,yinterval=1},
+		{posx1=43,posy1=248,posx2=43,posy2=248,modelid=20,xinterval=1,yinterval=1},
+		{posx1=81,posy1=290,posx2=81,posy2=290,modelid=20,xinterval=1,yinterval=1},
+		{posx1=119,posy1=306,posx2=119,posy2=306,modelid=19,xinterval=1,yinterval=1},
+		{posx1=187,posy1=278,posx2=187,posy2=278,modelid=18,xinterval=1,yinterval=1},
+		{posx1=217,posy1=246,posx2=217,posy2=246,modelid=18,xinterval=1,yinterval=1},
+		{posx1=239,posy1=210,posx2=239,posy2=210,modelid=18,xinterval=1,yinterval=1},
+		{posx1=261,posy1=170,posx2=261,posy2=170,modelid=18,xinterval=1,yinterval=1},
+		{posx1=154,posy1=140,posx2=154,posy2=140,modelid=18,xinterval=1,yinterval=1},
+		{posx1=156,posy1=138,posx2=156,posy2=138,modelid=18,xinterval=1,yinterval=1},
+
+ },
+},

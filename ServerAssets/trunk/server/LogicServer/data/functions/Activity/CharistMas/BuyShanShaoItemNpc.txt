@@ -1,0 +1,133 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\christmas\christmasServer\charistmas4.txt" once
+--#include "data\config\activityconfig\Festival\LanternFestival.txt" once
+--神兽活动指引人
+
+function BuyShanShaoItemNpc_Main(sysarg)
+	local dlgStr = ""
+
+	--[[
+	local str = string.format(Lang.Activity.cr0023,christBossAttackCity.nNeedCoin)
+	dlgStr = string.format("%s<#BL%s/@BuyShanShaoItemOP,1>", dlgStr, str)
+	
+	local str1 = string.format(Lang.Activity.cr0024,christBossAttackCity.nNeedYb)
+	dlgStr = string.format("%s<#BL%s/@BuyShanShaoItemOP,2>", dlgStr, str1)
+
+	dlgStr = string.format("%s<#BL%s/@BuyShanShaoItemDes>", dlgStr, Lang.Activity.cr0025)
+	]]
+
+	local config = LanternFestivalConfig
+	if not config then return dlgStr end
+
+	local goblinGift = config.goblinGift
+	if not goblinGift then return end
+
+	if System.isInDateRange(unpack(config.actTime)) == true then
+		dlgStr = string.format("%s<#BL%s/@BuySparkBomb,1>", dlgStr, string.format(Lang.Activity.yx0037, goblinGift.buySmallSparkBombItems[1].needCoin))
+		dlgStr = string.format("%s<#BL%s/@BuySparkBomb,2>", dlgStr, string.format(Lang.Activity.yx0038, goblinGift.buyBigSparkBombItems[1].needYB))
+		dlgStr = string.format("%s<#BL%s/@AboutGoblinGift>", dlgStr, Lang.Activity.yx0039)
+	end
+	
+	return dlgStr
+end
+
+function BuyShanShaoItemOP(sysarg,nIndex)
+	local index = tonumber(nIndex)
+
+	if index == 1 then		--购买金币
+		local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+		if nCoin < christBossAttackCity.nNeedCoin then		--金币不够
+			Actor.sendTipmsg(sysarg, Lang.Activity.cr0027, ttFlyTip)
+			return
+		end
+		
+		if Actor.changeMoney(sysarg,1,-christBossAttackCity.nNeedCoin,942,Lang.Activity.cr0029) == true then
+			Actor.addItem(sysarg,christBossAttackCity.nSmallItem,0,0,1,0,0,Lang.Activity.cr0029,942)
+		end
+
+	elseif index == 2 then
+		local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+		if nYb < christBossAttackCity.nNeedYb then		
+			Actor.sendTipmsg(sysarg, Lang.Activity.cr0028, ttFlyTip)
+			return
+		end
+
+		if Actor.changeMoney(sysarg,3,-christBossAttackCity.nNeedYb,942,Lang.Activity.cr0029) == true then
+			Actor.addItem(sysarg,christBossAttackCity.nBigItem,0,0,1,0,0,Lang.Activity.cr0029,942)
+		end
+
+	end
+end
+
+--购买火花弹
+function BuySparkBomb(sysarg,nIndex)
+	local index = tonumber(nIndex)
+
+	local config = LanternFestivalConfig
+	if not config then return end
+
+	local goblinGift = config.goblinGift
+	if not goblinGift then return end
+
+	if System.isInDateRange(unpack(config.actTime)) ~= true then
+		return
+	end
+
+	local buyItems  = nil
+	if index == 1 then
+		buyItems = goblinGift.buySmallSparkBombItems
+	elseif index == 2 then
+		buyItems = goblinGift.buyBigSparkBombItems
+	end
+	if not buyItems then return end
+
+	local awards =
+	{
+		{type=0, id=buyItems[1].id, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+	}
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		if index == 1 then
+			local nCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+			if nCoin < buyItems[1].needCoin then
+				Actor.sendTipmsg(sysarg, Lang.Activity.yx0041, ttFlyTip)
+				return
+			end
+			
+			--消耗
+			Actor.changeMoney(sysarg,1,-buyItems[1].needCoin,944,Lang.LogTips.yx0012)
+		elseif index == 2 then
+			local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+			if nGold < buyItems[1].needYB then
+				Actor.sendTipmsg(sysarg, Lang.Activity.yx0042, ttFlyTip)
+				return
+			end
+			
+			--消耗
+			Actor.changeMoney(sysarg,3,-buyItems[1].needYB,944,Lang.LogTips.yx0012)
+		end
+
+		for i=1,table.getn(awards) do
+			Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,944,Lang.LogTips.yx0012)
+		end
+	end
+end
+
+--妖精的礼物活动描述
+function AboutGoblinGift(sysarg)
+	local str = Lang.Activity.yx0040
+	str = str.."<#BL"..Lang.Activity.g00008.."/@main>"
+	return str
+end
+
+--活动描述
+function BuyShanShaoItemDes(sysarg)
+	local str = Lang.Activity.cr0026
+	str = str.."<#BL"..Lang.Activity.g00008.."/@main>"
+	return str
+end
+
+table.insert(MainFnTable, BuyShanShaoItemNpc_Main)
+

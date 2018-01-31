@@ -1,0 +1,61 @@
+﻿{
+	id = 664,
+	name = Lang.Quest.q01323,
+	parentid = 663,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q01324,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00035,  
+    npc = Lang.EntityName.n00120,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00035, 
+	npc = Lang.EntityName.n00120,
+  },
+
+  target =
+  { 
+      { type = 1, id = 7330, count = 5,location={ sceneid=35,entityName=Lang.EntityName.m00307} },  -- 采集5棵雪莲
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 143261,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 18794,  bind = true, job = 0, sex = -1, group=0 },
+ },
+  --任务条件表
+  conds =
+  {
+        { type = 0, id = 0,count = 30 }, 
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t02274,
+
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t02275,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t02276,
+  }, 
+  
+ --用于完成任务后的从背包里删除任务物品
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {733, 5}, 
+  
+},                             

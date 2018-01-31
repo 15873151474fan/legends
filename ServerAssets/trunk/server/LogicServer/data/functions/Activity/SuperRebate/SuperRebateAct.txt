@@ -1,0 +1,63 @@
+﻿
+--lua script 
+--#include "data\config\activityconfig\SuperRebate\SuperRebateConfig.txt" once
+--#include "data\functions\Activity\SuperRebate\SuperRebate.txt" once
+
+--scriptTimer开启活动
+function OpenSuperRebate()
+	System.setSuperRebateStartDate(SuperRebateConfig.actStartTime, SuperRebateConfig.actDay)
+end
+
+--登陆处理
+function SuperRebateHandle(sysarg)	
+	local remainTime = System.getSuperRebateRemainTime()-60
+	if System.getSuperRebateFlag() == 1 and remainTime > 0 then
+		SendSuperRebateOpenFlag(sysarg, 1)
+		SendLoginRebateFlag(sysarg)
+	else
+		if System.isInDateRange(unpack(SuperRebateConfig.actTime)) == true then
+			System.setSuperRebateStartDate(SuperRebateConfig.actStartTime, SuperRebateConfig.actDay)
+		end
+	end
+end
+
+--新的一天处理
+function SuperRebateNewDayArrive(sysarg)
+	if System.getSuperRebateFlag() == 1 then
+		local activityTime = {}
+		for k, v in ipairs(SuperRebateConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[9] = activityTime[3]
+		activityTime[8] = activityTime[2]
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendSuperRebateOpenFlag(sysarg, 1)	
+		end
+		
+		--刷一下屏
+		ReqSuperRebate(sysarg)
+	else
+		local activityTime = {}
+		for k, v in ipairs(SuperRebateConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[2] = activityTime[8]
+		activityTime[3] = activityTime[9] + 1--结束后一天 0点
+		activityTime[9] = activityTime[9] + 1--结束后一天23点59
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendSuperRebateOpenFlag(sysarg, 0)
+		end
+	end
+end
+
+function SendSuperRebateOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 66)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end

@@ -1,0 +1,87 @@
+﻿--[[
+    计分器测试单元 
+]] 
+
+
+--[[
+    函数名称：scoreRecorderTestEntry
+    函数描述：计分器测试入口 
+    参数 sysarg 的描述：
+]]
+function scoreRecorderTestEntry(sysarg)
+  return "<#BL创建计分器/@@createNewRecorder>\\<#BL修改计分值/@chgScore>\\<#BL删除计分器/@@rmScoreRecorder>\\" 
+end 
+
+function createNewRecorder(sysarg, name)
+  if System.getObjectVarPtr(name) then
+    return "同名对象已经存在！\\<#BL返回/@scoreRecorderTestEntry>"
+  end 
+  
+  --创建计分器 
+  local sr = ScoreRecorder.create( name )
+  if not sr then
+    Actor.sendTipmsg( sysarg, "创建计分器失败", ttTipmsgWindow )
+  end
+  --[[
+    通过System.setObjectVarPtr将计分器保存到系统中，这需要显示对计分器增加引用计数  
+  ]] 
+  ScoreRecorder.addRef( sr )
+  System.setObjectVarPtr( name, sr )
+  --将玩家的阵营加入到计分器的通知列表中 
+  ScoreRecorder.joinCamp( sr, Camp.GetCamp(sysarg) )   
+  ScoreRecorder.incScore( sr, "计分项1", 100 )
+  ScoreRecorder.incScore( sr, "计分项2", 200 )
+  Actor.closeNPCDialog( sysarg ) 
+end
+
+local chgs_RecorderName = ""
+local chgs_ItemName = ""
+local chgs_ItemValue = 0
+
+function chgScore(sysarg)
+  return "计分器名称：<"..chgs_RecorderName.."> <修改/@@chgScoreName>\\"
+    .. "计分项名称：<"..chgs_ItemName.."> <修改/@@chgScoreItemName>\\"
+    .. "增加计分值：<"..chgs_ItemValue.."> <修改/@@chgScoreItemValue>\\"
+    .. "<#BL改变！/@changScoreValue>\\<#BL返回/@scoreRecorderTestEntry>" 
+end
+
+
+function chgScoreName(sysarg, value)
+  chgs_RecorderName = value
+  return chgScore(sysarg) 
+end
+
+function chgScoreItemName(sysarg, value)
+  chgs_ItemName = value
+  return chgScore(sysarg)
+end
+
+function chgScoreItemValue(sysarg, value)
+  chgs_ItemValue = value
+  return chgScore(sysarg)
+end
+
+function changScoreValue(sysarg)
+  local sr = System.getObjectVarPtr(chgs_RecorderName)
+  if not sr then
+    return "不存在此计分器！\\<#BL返回/@chgScore>"  
+  end
+  return "当前分值为："..ScoreRecorder.incScore( sr, chgs_ItemName, chgs_ItemValue )
+    .. "<#BL返回/@chgScore>"
+end  
+
+function rmScoreRecorder(sysarg, value)
+  local sr = System.getObjectVarPtr(value)
+  if not sr then
+    return "不存在此计分器！\\<#BL返回/@scoreRecorderTestEntry>"
+  end
+  --停止计分器 
+  ScoreRecorder.stop( sr )
+  --从全局指针变量中移除 
+  System.setObjectVarPtr( value, nil )
+  ScoreRecorder.release( sr )     --解除添加到System.Objects列表的引用 
+  ScoreRecorder.release( sr )     --这个引用源自创建的时候  
+  return "完成！\\<#BL返回/@scoreRecorderTestEntry>"
+end
+
+table.insert(MainFnTable,  scoreRecorderTestEntry)

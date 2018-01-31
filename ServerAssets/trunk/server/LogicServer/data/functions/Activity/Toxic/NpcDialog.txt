@@ -1,0 +1,21 @@
+--lua script
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\RushToxic\ToxicConfig.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+--龙影潭指引人对话
+function ToxicNpcDialog(sysarg)
+	local str = ""
+	str = str..Lang.Activity.a00004
+	str = str.."\\<#BL"..Lang.Activity.t00037.."/@ExitToxicFuben>"		
+	
+	return str
+end
+
+function ExitToxicFuben(sysarg)
+	Actor.closeActivityWind(sysarg)
+	local nHandle = Fuben.getSceneHandleById(ToxicConfig.ExitSceenId,0)
+	Actor.enterFuBen(sysarg,nHandle,ToxicConfig.ExitSceenId,ToxicConfig.eMapX,ToxicConfig.eMapY)
+end
+
+table.insert(MainFnTable,ToxicNpcDialog)

@@ -1,0 +1,208 @@
+--天下第一配置
+CrossWorldOneConfig =
+{
+	WorldOneRankName = "CrossWorldOne",		--跨服天下第一
+	WordOneFile = "CrossWorldOne.txt",		--跨服天下第一
+
+	CrossWorldRankName = "CrossWorldScoreRank",		--跨服的保存的文件名
+	CrossWorldRankFile = "CrossWorldScoreRank.txt",		--跨服的保存的文件名
+
+	allTime = 60 * 60,				--持续时间
+
+	needCoin = 0,				--每次进入需要的金币,修改为0，原来为 10000
+
+	NumOneSceneId = 153,		--天下第一战场的场景id
+	--enterRange = {136,104,2,2},		--进入比赛区的坐标
+
+	--templeRange = {125,114,2,2},		--进入比赛区的坐标
+
+	NumOneMinBattle = 3500,			--天下第一进入的最低战力
+	NumOneMinLev = 0,				--天下第一进入的最低等级：原50
+
+	killActorBroad = {10,20,30,40,50},			--击杀人数播报
+
+	AwardItemId = { type = 0, id = 1435, count = 1, strong = 0, quality = 0, bind = 1 },				--天下第一印玺id
+	nTitleId = 16,					--天下第一头衔id
+
+	AwardYb = 1000,					--活动结束后第一擂台的奖励
+	nYbRate =
+	{	--元宝的对应百分比 (场景人数，百分比)
+		{100,50},
+		{150,55},
+		{200,60},
+		{250,65},
+		{300,70},
+		{350,75},
+		{400,80},
+		{450,90},
+		{500,100},
+	},
+	--各擂台配置
+	LTSceneConfig =
+	{
+		--第一擂台
+		{
+			nSceneId = 153,					--擂台的场景id
+			enterRange = {79,79,15,15},		--进入的坐标
+			nKillNum = 0,
+
+			nTime = 120,						--发奖励间隔 单位秒
+			--经验和荣誉
+			Awards=
+			{
+				{ type = 20, id = 2, count = 480, strong = 0, quality = 0, bind = 0 },
+				{ type = 21, id = 0, count = 4000, strong = 0, quality = 0, bind = 0 },
+				{ type = 35, id = 0, count = 120, strong = 0, quality = 0, bind = 0 },
+			},
+
+			nBindYb = 0,						--礼券
+			nRate =
+			{	--礼券的对应百分比 (场景人数以内，奖励的值)
+{ 1, 150, },
+{ 2, 125, },
+{ 3, 100, },
+{ 4, 90, },
+{ 6, 80, },
+{ 8, 70, },
+{ 10, 60, },
+{ 13, 50, },
+{ 16, 45, },
+{ 20, 40, },
+{ 24, 35, },
+{ 30, 30, },
+{ 35, 28, },
+{ 40, 26, },
+{ 45, 24, },
+{ 50, 22, },
+{ 60, 20, },
+{ 70, 18, },
+{ 80, 16, },
+{ 100, 14, },
+{ 125, 12, },
+{ 150, 10, },
+{ 175, 8, },
+{ 200, 6, },
+{ 250, 4, },
+{ 300, 2, },
+			},
+		},
+
+		--第二擂台
+		{
+			nSceneId = 154,
+			enterRange = {66,66,10,10},		--进入的坐标
+			nKillNum = 1,			--需要增加的人数才升到上一层，原来为2，统一改为1
+
+			nTime = 100,						--发奖励建给 单位秒
+			--经验和荣誉
+			Awards=
+			{
+				{ type = 20, id = 2, count = 334, strong = 0, quality = 0, bind = 0 },
+				{ type = 21, id = 0, count = 2500, strong = 0, quality = 0, bind = 0 },
+				{ type = 35, id = 0, count = 80, strong = 0, quality = 0, bind = 0 },
+			},
+
+			nBindYb = 0,						--礼券
+			nRate =
+			{	--礼券的对应百分比 (场景人数，百分比)
+{ 1, 50, },
+{ 2, 40, },
+{ 3, 35, },
+{ 4, 30, },
+{ 6, 25, },
+{ 8, 22, },
+{ 10, 20, },
+{ 13, 19, },
+{ 16, 18, },
+{ 20, 17, },
+{ 24, 16, },
+{ 30, 15, },
+{ 35, 14, },
+{ 40, 13, },
+{ 45, 12, },
+{ 50, 11, },
+{ 60, 10, },
+{ 70, 9, },
+{ 80, 8, },
+{ 100, 7, },
+{ 125, 6, },
+{ 150, 5, },
+{ 175, 4, },
+{ 200, 3, },
+{ 250, 2, },
+{ 300, 1, },
+			},
+		},
+
+		--第三擂台
+		{
+			nSceneId = 155,
+			enterRange = {66,66,10,10},		--进入的坐标
+			nKillNum = 1,			--需要增加的人数才升到上一层，原来为3，统一改为1
+
+			nTime = 80,						--发奖励建给 单位秒
+			--经验和荣誉
+			Awards=
+			{
+				{ type = 20, id = 2, count = 226, strong = 0, quality = 0, bind = 0 },
+				{ type = 21, id = 0, count = 1200, strong = 0, quality = 0, bind = 0 },
+				{ type = 35, id = 0, count = 52, strong = 0, quality = 0, bind = 0 },
+			},
+
+			nBindYb = 0,						--礼券
+			nRate =
+			{	--礼券的对应百分比 (场景人数，百分比)
+				{1,0},
+			},
+
+		},
+
+		--第四擂台
+		{
+			nSceneId = 156,
+			enterRange = {90,90,10,10},		--进入的坐标
+			nKillNum = 1,			--需要增加的人数才升到上一层，原来为4，统一改为1
+
+			nTime = 60,						--发奖励建给 单位秒
+			--经验和荣誉
+			Awards=
+			{
+				{ type = 20, id = 2, count = 150, strong = 0, quality = 0, bind = 0 },
+				{ type = 35, id = 0, count = 33, strong = 0, quality = 0, bind = 0 },
+			},
+
+			nBindYb = 0,						--礼券
+			nRate =
+			{	--礼券的对应百分比 (场景人数，百分比)
+				{1,0},
+			},
+		},
+
+		--第五擂台
+		{
+			nSceneId = 157,
+			enterRange = {90,90,10,10},		--进入的坐标
+			nKillNum = 1,			--需要增加的人数才升到上一层，原来为5，统一改为1
+
+			nTime = 40,						--发奖励建给 单位秒
+			--经验和荣誉
+			Awards=
+			{
+				{ type = 20, id = 2, count = 93, strong = 0, quality = 0, bind = 0 },
+				{ type = 35, id = 0, count = 16, strong = 0, quality = 0, bind = 0 },
+			},
+
+			nBindYb = 0,						--礼券
+			nRate =
+			{	--礼券的对应百分比 (场景人数，百分比)
+				{1,0},
+			},
+		},
+	},
+
+
+	outSceneId = 147,		--退出的场景id
+	outX = 148,				--退出的场景的坐标x
+	outY = 180,				--退出的场景坐标Y
+}
+

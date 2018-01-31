@@ -1,0 +1,9 @@
+
+
+MoveInitAttrConfig = {
+	minLevel = 40,
+	ClearInitAttrItemId = 1466,
+	stuff = {
+		{type = 0,id=1467,count=1,usetype=1,yb= 488},
+	},
+}

@@ -1,0 +1,528 @@
+﻿--lua script
+--处理法宝系统相关的操作
+
+--#include "data\config\item\MagicItem.txt" once --
+
+
+MagicItemOpId = 
+{
+	enUpgrade = 1,		--注入经验
+	enBreakDown = 2,		--法宝分解
+	enGetHuntData = 3,	--获取猎魔数据
+	enHunting = 4,		--进行猎魔
+	enUpgradeStars = 5, --升星
+}
+
+MagicItemOpFuncList = {}
+
+EventCallDispatcher.HandlerMagicItemOp = function (sysarg, args)
+	--print("HandlerMagicItemOp================"..args[1])
+	if args[1] == nil then return end   --
+	local func = MagicItemOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args)
+	end
+end
+
+
+--刷新物品
+MagicItemOpFuncList[MagicItemOpId.enUpgrade] = function (sysarg,args)
+	local type = args[2]	--注入类型
+	
+	local config = MagicItems
+	if not config then return end
+	
+	local item = MagicItem.getMagicItem(sysarg)
+	if item == nil then return end
+	
+	local needExp = MagicItem.canAddMagicExp(sysarg, item, true);
+	if needExp == 0 then return end
+	
+	local addValue = 0
+	local hasValue = Actor.getIntProperty(sysarg, PROP_ACTOR_MAGICPOWER)
+	if type == 1 then
+		addValue = config.magicUpgrade
+	else
+		addValue = hasValue
+	end
+	
+	if needExp < addValue then
+		addValue = needExp
+	end
+	
+	if addValue <= 0 or addValue > hasValue then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic001, ttFlyTip)
+		return
+	end
+	
+	local result = Actor.changeMagicPower(sysarg, -addValue)
+	
+	if result then
+		MagicItem.changeMagicExp(sysarg, item, addValue)
+		
+		local npack = DataPack.allocPacket(sysarg,48,5)
+		if npack == nil then return end
+		DataPack.writeByte(npack,1)
+		DataPack.flush(npack)
+	end
+	
+end
+
+MagicItemOpFuncList[MagicItemOpId.enBreakDown] = function (sysarg,args)
+
+	
+	local item = MagicItem.getMagicItem(sysarg)
+	if item == nil then return end
+	local nAddExp = CalcMagicItemBreadDownExp(sysarg)
+	if nAddExp <= 0 then return end
+	local nQuality = Item.getItemProperty(sysarg, item, Item.ipItemQuality, 0)
+	
+	local sAskMsg = string.format(Lang.ScriptTips.magic006, nQuality,Item.getItemLinkMsg(Item.getItemId(item),item), nAddExp)
+	Actor.messageBox(sysarg,0,0,sAskMsg,Lang.ScriptTips.mt00004.."/OnMagicItemBreadDown",Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+function OnMagicItemBreadDown(sysarg)
+	local nAddExp = CalcMagicItemBreadDownExp(sysarg)
+	if nAddExp <= 0 then return end
+	
+	if(true) then
+		--修复了分解不消失法宝的bug，修复完以后这个可以删除
+		local item = MagicItem.getMagicItem(sysarg)
+		if item == nil then return end
+		local nExp = MagicItem.getMagicExp(sysarg, item)
+		MagicItem.setMagicExp(sysarg,item,nExp,false)
+	end
+	
+	
+	if MagicItem.removeMagicItem(sysarg, 867, Lang.LogTips.l00162) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic007, ttFlyTip)
+		return
+	end
+	
+	Actor.giveAward(sysarg, 34, 0, nAddExp, 0, 0, 0, 0, 867, Lang.LogTips.l00162)
+	
+	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.magic008, nAddExp), ttFlyTip)
+end
+
+
+function Cancel()
+
+end
+
+function CalcMagicItemBreadDownExp(sysarg)
+	local config = MagicItems
+	if not config then return 0 end
+	
+	local item = MagicItem.getMagicItem(sysarg)
+	if item == nil then return 0 end
+	
+	local nQuality = Item.getItemProperty(sysarg, item, Item.ipItemQuality, 0)
+	
+	local nParam = config.breakDownExp[nQuality] or 0
+	
+	local nExp = MagicItem.getMagicAllExp(sysarg, item)
+	
+	local nAddExp = math.floor(nExp * config.breakRate/10000 + nParam)
+	
+	return nAddExp
+end
+
+MagicItemOpFuncList[MagicItemOpId.enGetHuntData] = function (sysarg,args)
+	--当前的点亮状态
+	local svar = Actor.getStaticVar(sysarg)
+	local magicBeadHunt = svar.magicBeadHunt
+	if magicBeadHunt == nil or magicBeadHunt < 1 then
+		magicBeadHunt = 1	--默认第一个点亮
+	end
+	local npack = DataPack.allocPacket(sysarg,48,12)
+	if npack == nil then return end
+	DataPack.writeByte(npack, magicBeadHunt)
+	DataPack.flush(npack)
+end
+
+--猎魔
+MagicItemOpFuncList[MagicItemOpId.enHunting] = function (sysarg,args)
+	local id = args[2]	--猎魔人id
+	local type = args[3]	--猎魔类型
+	local isReplace = args[4]	--是否元宝替代
+	
+	
+	local configs = MagicItems.huntingBead
+	if not configs then return end
+	
+	local config = nil
+	for k, v in pairs(configs) do
+		if v.id == id then
+			config = v
+		end
+	end
+	
+	--当前的点亮状态
+	local svar = Actor.getStaticVar(sysarg)
+	local magicBeadHunt = svar.magicBeadHunt
+	if magicBeadHunt == nil or magicBeadHunt < 1 then
+		magicBeadHunt = 1	--默认第一个点亮
+	end
+	
+	local nowHunt = magicBeadHunt
+	
+	if config == nil then 
+		SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+		return 
+	end
+	
+	local bitPos = id-1
+	
+	if type == 2 then	--如果是猎魔召唤
+		if config.directCall and config.directCall > 0 then
+			local nYuanBao = Actor.getMoneyCount(sysarg, mtYuanbao)
+			if nYuanBao < config.directCall then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic023, ttFlyTip)
+				SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+				return 
+			end
+
+		else
+			SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+			return 
+		end
+	else
+		--是否已点亮
+		local isHunt = System.getIntBit(magicBeadHunt, bitPos)
+		if isHunt ~= 1 then 
+			SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+			return 
+		end
+		
+		--是否够灵力
+		local hasValue = Actor.getIntProperty(sysarg, PROP_ACTOR_MAGICPOWER)
+		if hasValue < config.consume then
+			--是否有元宝
+			if isReplace == 1 then
+				local nYuanBao = Actor.getMoneyCount(sysarg, mtYuanbao)
+				if nYuanBao < config.yuanbao then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic022, ttFlyTip)
+					SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+					return 
+				end
+			else
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic003, ttFlyTip)
+				SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+				return
+			end
+		end
+	end
+	
+	--是否可以抽珠子
+	--需要roll一个物品
+	local dropName = "magicbeaddrop_"..tostring(id) --按名字索引的
+	local drop = System.getObjectVar(dropName)
+	if (not drop) then
+		System.trace(" getObjectVar is nil magicbeaddrop_"..id)
+		SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+		return
+	end
+	
+	
+	local needBag = 0
+	local items = drop:proabilityDrop(sysarg)
+	if (items.itemCount > 0) then
+		for i = items.itemCount - 1, 0, -1 do
+			local result = Actor.canGiveAward(sysarg, 
+				items.itemList[i].btAwardType,
+				items.itemList[i].wItemId, 
+				items.itemList[i].btCount,
+				items.itemList[i].btQuality,
+				items.itemList[i].btStrong,
+				items.itemList[i].btBind,
+				true)
+			needBag = needBag + items.itemList[i].btCount
+			if not result then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic002, ttFlyTip)
+				SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+				return false
+			end
+		end
+	end
+	
+	--背包
+	local bagCount = MagicItem.getMagicBagEmptyGridCount(sysarg)
+	if needBag > bagCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic002, ttFlyTip)
+		SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+		return
+	end
+	
+	if type == 2 then	--如果是猎魔召唤
+		if config.directCall and config.directCall > 0 then
+			local nYuanBao = Actor.getMoneyCount(sysarg, mtYuanbao)
+			if nYuanBao < config.directCall then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic023, ttFlyTip)
+				SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+				return 
+			end
+			
+			if not Actor.changeMoney(sysarg, mtYuanbao, -config.directCall, 863, Lang.LogTips.l00178) then
+				SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+				return
+			end
+		else
+			SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+			return 
+		end
+	
+	else
+		--扣灵力
+		local result = Actor.changeMagicPower(sysarg, -config.consume)
+		if result ~= true then
+			if isReplace == 1 then
+				result = Actor.changeMoney(sysarg, mtYuanbao, -config.yuanbao, 863, Lang.LogTips.l00179)
+			end
+			
+			if result ~= true then
+				SendMagicBeadHuntingResult(sysarg, nowHunt, 0, type)
+				return
+			end
+		end
+		
+		--熄灭当前的
+		if bitPos ~= 0 then
+			nowHunt = System.setIntBit(magicBeadHunt, bitPos, false)
+		end
+	end
+	
+	--抽珠子
+	if (items.itemCount > 0) then
+		for i = 0, items.itemCount -1 do
+			if (items.itemList[i].btAwardType == 33) then 
+				local itemPtr = Item.createItem(items.itemList[i].wItemId, 
+												items.itemList[i].btCount, 
+												items.itemList[i].btStrong,
+												items.itemList[i].btQuality,
+												items.itemList[i].btBind,
+												items.itemList[i].nTime)
+				if (itemPtr) then
+					if MagicItem.addBeadItem(sysarg, itemPtr, "roll", 863) > 0 then
+						local name = Item.getItemLinkMsg(items.itemList[i].wItemId,itemPtr)
+					
+						local count = items.itemList[i].btCount
+						
+						Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.magic004, count, name), ttFlyTip)
+						
+						if(items.itemList[i].btAuxParam ==1 and items.itemList[i].btQuality >= MagicItems.huntingNotice)  then  
+							local tipMsg = string.format(Lang.ScriptTips.magic005,Actor.getName(sysarg),count,name)   --要全服广播
+							System.broadcastTipmsg(tipMsg,ttScreenCenter+ttChatWindow)
+						end
+					end
+					
+				end
+			else
+				Actor.giveAward(sysarg,
+					items.itemList[i].btAwardType,
+					items.itemList[i].wItemId, 
+					items.itemList[i].btCount,
+					items.itemList[i].btQuality,
+					items.itemList[i].btStrong,
+					items.itemList[i].btBind,
+					items.itemList[i].nTime,
+					863, "roll")  
+				
+				--公告
+			
+			end
+		end
+	end
+	
+	--点亮更高级
+	local props = 0
+	local randNum = math.random(10000)
+	for k, v in pairs(config.probs) do
+		props = props + v.prob
+		if randNum <= props then
+			nowHunt = System.setIntBit(nowHunt, v.id-1, true)
+			break
+		end
+	end
+	
+	--
+	svar.magicBeadHunt = nowHunt
+	
+	SendMagicBeadHuntingResult(sysarg, nowHunt, 1, type)
+	Actor.onThanksConsumeEvent(sysarg,2,1)
+end
+
+--下发猎魔结果
+function SendMagicBeadHuntingResult(sysarg, hunt, result, type)
+	local npack = DataPack.allocPacket(sysarg,48,13)
+	if npack == nil then return end
+	
+	DataPack.writeByte(npack, hunt)
+	DataPack.writeByte(npack, result)
+	DataPack.writeByte(npack, type)
+	DataPack.flush(npack)
+end
+
+--获取魔珠名字
+function GetMagicBeadName(itemId, quality)
+	local beadName = MagicItems.beadName
+	local name = Item.getItemName(itemId)
+	if not beadName then 
+		return name
+	end
+	
+	local shape = Item.getItemPropertyById(itemId, Item.ipItemShape)
+	if (shape < 1 or shape > table.getn(beadName)) then
+		return name
+	end
+	
+	if (quality < 1 or quality > table.getn(beadName[shape])) then
+		return name
+	end
+	
+	return beadName[shape][quality]
+end
+
+
+
+--初始化按概率综合爆物品 
+function InitMagicBeadDrop(sysarg)
+	local config = MagicItems.huntingBead
+	if not config then return end
+	--在初始化的时候全部装载进来 ,避免后期临时去加载
+	for k, v in pairs(config) do
+		local dropName = "magicbeaddrop_"..tostring(v.id)
+		local boxdrop = System.getObjectVar(dropName)
+		if (not boxdrop) then
+			boxdrop = CBoxDropMgr:getSingleton():createBoxDrop(dropName)  -- 这里会返回一个宝箱掉落对象(CBoxDrop)
+		end
+		if (boxdrop) then
+			boxdrop:load(v.dropName) -- 加载文件里面的物品
+		end
+	end
+
+end
+
+
+--法宝升星
+--args = {subSysId,物品指针数量,[指针1],[指针2],..,[参数1]，[参数2],...}
+MagicItemOpFuncList[MagicItemOpId.enUpgradeStars] = function (sysarg,args)
+	local itemCount = args[2]
+	
+	if itemCount <= 0 then
+		return 
+	end
+	
+	local itemId = args[2+itemCount+1] 
+	local stars = args[2+itemCount+2] + 1
+	local flag = -1
+	local config = MagicItems.talismanUpgradeStars
+
+	if table.getn(config) < stars - 1 then
+		return 
+	end
+	
+	local needStarlv = 0
+	local needCount = 0
+	local needMagic = 0
+	local needCoin = 0
+	local needItems = nil
+	
+	for k, v in ipairs(config) do 
+		if v.desStarLv == stars then
+			needStarlv = v.srcStarLv
+			needCount = v.count
+			needMagic = v.magic
+			needCoin = v.coin
+			needItems = v.items
+			break
+		end
+	end
+	
+	if needStarlv == 0 then
+		return 
+	end
+		
+	if itemCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic024, ttFlyTip) 
+		return 
+	else
+		for i = 1, itemCount do 
+			local itemPtr = args[2 + i]
+			local curItemId = Item.getItemProperty(sysarg,itemPtr, 0) 
+			local star = Item.getItemProperty(sysarg,itemPtr, 3)
+			if curItemId ~= itemId or star ~= needStarlv then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic024, ttFlyTip)
+				return 
+			end
+		end
+		
+	end
+	
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_MAGICPOWER) < needMagic then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic025, ttFlyTip)
+		return 
+	end
+	
+	if Actor.checkConsume(sysarg, 6, 0, needCoin) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic026, ttFlyTip)
+		return 
+	end
+	
+	if needItems ~= nil then
+		for k, v in ipairs(needItems or {}) do 
+			if Actor.checkConsume(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind) ~= true then
+				local itemName = Item.getAwardDesc(v.type, v.id)
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.magic028, itemName), ttFlyTip)
+				return
+			end
+		end
+	end
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic027, ttFlyTip)
+		return 
+	else
+		local newStronglvl = 0
+		for i = 1, itemCount do 
+			local itemPtr = args[2 + i]
+			local lvl = Item.getItemProperty(sysarg,itemPtr, 2)
+			if lvl > newStronglvl then
+				newStronglvl = lvl
+			end
+			if MagicItem.getMagicItem(sysarg) == itemPtr then
+				MagicItem.removeMagicItem(sysarg, 945, Lang.LogTips.l00210)
+			else
+				Actor.removeItemByPtr(sysarg, itemPtr,1,true, Lang.LogTips.l00210, 945)
+			end
+		end
+		
+		Actor.removeConsume(sysarg, 34, 0, needMagic)	
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local name = Actor.getName(sysarg)
+		System.sendCommonLog(945, actorId, name, 0, needMagic, 0, " ",Lang.LogTips.l00211)
+		
+		Actor.removeConsume(sysarg, 6, 0, needCoin, -1, -1, -1, 0, 945, Lang.LogTips.l00212)
+		
+		if needItems ~= nil then
+			for k, v in ipairs(needItems or {}) do 
+				Actor.removeConsume(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 945, Lang.LogTips.l00224)
+			end
+		end
+		
+		Actor.giveAward(sysarg, 0, itemId, 1, stars, newStronglvl, 1, 0, 945, Lang.LogTips.l00213)
+		
+		flag = 0
+	end
+	
+	
+	local pack = DataPack.allocPacket(sysarg, 48, 15)
+	if pack ~= nil then
+		DataPack.writeChar(pack, flag) 
+		DataPack.flush(pack)
+	end
+
+end
+
+table.insert(InitFnTable,InitMagicBeadDrop)
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeMagicItem, EventCallDispatcher.HandlerMagicItemOp)

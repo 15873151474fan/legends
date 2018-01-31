@@ -1,0 +1,55 @@
+
+
+PKChallengeConfig = {
+	CountDown	= 30,					--倒计时30秒
+	MinLevel	= 40,					--进入等级
+	Coin = 50000,							--进入需要金钱
+	Gold = 10,							--进入需要元宝
+	ReadySceneId = 55,					--等待的安全区场景id
+	ReadyPos = { 39,46,68,74},
+	AcceptJoinTime = 2*60,				--2分钟
+	GetExpSecs = 20,					--隔多久获取一次经验
+
+	ExitSceneId = 8,					--退出战场时的场景id
+	ExitPos = {139,155,174,185},		--退出战场时的坐标
+
+	HeroSceneId = 55,					--英雄战场id
+	HeroPos = {55,79,35,59},
+	HeroExpIndex = 2,					--英雄战场经验表
+	HeroExpRate = 30,					--经验机率
+	HeroExpVipRate = 0,					--vip加成
+	HeroBattleTime = 15*60,				--英雄战场待续时间
+
+	PromotedSceneId = 56,				----晋级战场id
+	PromotPos = {26,42,25,41},
+	PromotExpIndex = 2,					--晋级战场经验表
+	PromotExpRate = 40,					--晋级战场普通加成
+	PromotExpVipRate = 0,				--晋级战场vip加成
+	PromotedBattleTime = 10*60,			--晋级战场
+
+	FinalSceneId = 57,					--决赛战场
+	FinalPos = {11,19,14,20},
+	FinalExpIndex = 2,					--决赛经验指定的表
+	FinalExpRate = 50,					--普通加成
+	FinalExpVipRate = 0,				--vip加成
+	FinalBattleTime = 5*60,				--决赛战场
+
+	WinSceneId = 58,					--抢宝场景id
+	WinPos = {23, 36, 93, 109},
+	WinSceneTime = 60,					--抢宝场景时间
+	Scenes = {55,56,57,58},				--pk挑战中所有的场景
+
+	BossId = 186,						--怪id
+	BossPos = {
+		{32,46, 95},			--怪的坐标x1,x2,y
+		{50,62, 82},
+		{66,82, 68},
+		{88,112, 52},
+		{96,128, 32},
+	},
+	TableIndex = 3,						--指定经验表
+	ExpRate = 20,						--经验加成
+	VipAddRate = 0,						--vip加成
+	GiveYuanbao = 10,					--杀死怪给的元宝数
+	GiveCoin = 50000,						--杀死怪给的金钱数
+}

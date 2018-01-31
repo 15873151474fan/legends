@@ -1,0 +1,58 @@
+--lua script
+
+--#include "data\config\activityconfig\Festival\LanternFestival.txt" once
+
+function LanternFestival_main(sysarg)
+	local str = ""
+
+	str = str.."\\<#BL"..Lang.Activity.yx0003.."/@GetLoverGift>"
+	str = str.."\\<#BL"..Lang.Activity.yx0052.."/@LanternIntroduce>"  
+	str = str..Lang.Activity.yx0026
+	return str
+
+end
+
+--领取情人节礼盒
+function GetLoverGift(sysarg)
+	local loveGiftCfg = LanternFestivalConfig.loverGift
+	if Actor.checkActorLevel(sysarg, loveGiftCfg.level) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0004,loveGiftCfg.level), ttFlyTip) 
+		return 
+	end
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local lanternRankPtr = Ranking.getRanking(Lang.Rank.LanternName)
+	if lanternRankPtr then
+		local lanternItemPtr = Ranking.getItemPtrFromId(lanternRankPtr, actorId)
+		if lanternItemPtr == nil then
+			lanternItemPtr = Ranking.addItem(lanternRankPtr, actorId, 0)
+		end
+		
+		if lanternItemPtr then
+			local giftFlag = tonumber(Ranking.getSub(lanternItemPtr, 0))
+			if giftFlag == 1 then
+				Actor.sendTipmsg(sysarg, Lang.Activity.yx0005, ttFlyTip) 
+				return 
+			end
+			
+			local giftInfo = loveGiftCfg.gift
+			
+			if Item.getBagEmptyGridCount(sysarg) < giftInfo.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0006, giftInfo.count), ttFlyTip)
+				return 
+			end
+			
+			Actor.giveAward(sysarg, giftInfo.type, giftInfo.id, giftInfo.count, giftInfo.quality, giftInfo.strong, giftInfo.bind, 0, 944, Lang.LogTips.yx0003) 
+		
+			Ranking.setSub(lanternItemPtr, 0, 1)
+		end
+		
+	end
+end
+
+function LanternIntroduce(sysarg)
+	local str = ""
+	str = Lang.Activity.yx0053
+	str = str..Lang.Activity.yx0026
+	return str
+end
+

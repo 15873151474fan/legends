@@ -1,0 +1,191 @@
+﻿--[[File:ExpRune.txt]]   
+--经验神符兑换功能
+--#include "data\functions\ExpandFunc\Container.txt" once 
+---#include "data\config\NpcMiscCfg\ExpRuneCfg.txt" once 配置文件   
+--#include "..\..\config\NpcMiscCfg\ExpRuneCfg.txt" once 配置文件  
+
+function ExpRuneMainOption(sysarg)
+	return Lang.Talk.t02499;
+end
+
+function ExpRuneOptions(sysarg)
+	local str = Lang.Talk.t02506;
+	for k, v in pairs(ExpRuneCfg.Options) do
+		str = str .. string.format(v.tip, v.destMultiple, v.srcCount, v.srcMultiple, v.needCoin, v.times);
+		if k ~= #ExpRuneCfg.Options then str = str .. ";\\" else str = str .. "。\\" end;
+	end	
+	-- local aVar = Actor.getDyanmicVar();
+	-- aVar.ExpRuneConverts = {[k] = {lastTime,totalTimes},};
+	-- 改用排行榜存储
+	local rank = Ranking.getRanking(ExpRuneCfg.RankName) 	
+	--print("读取兑换次数");
+	if rank then
+	--print("读取成功");
+		local id = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		--print("id = " .. id);	
+		local item = Ranking.getItemPtrFromId(rank,id)
+		if not item then
+			item = Ranking.addItem(rank, id, 0);
+			if not item then --print("item is nil"); 
+			return str end;
+			local curTime = System.getCurrMiniTime();
+			for i = 0, #ExpRuneCfg.Options - 1 do
+				Ranking.setSub(item, i*2 + 0, tostring(curTime));			
+				Ranking.setSub(item, i*2 + 1, tostring(0));
+			end
+			Ranking.save(rank, ExpRuneCfg.RankName);
+		end
+		--print("添加菜单");	
+		for k, v in pairs(ExpRuneCfg.Options) do		
+			str = str .. string.format(v.menu, v.destMultiple, v.times - tonumber(Ranking.getSub(item, (k-1)*2 + 1)) , v.id);
+		end
+	end
+	str = str .. Lang.ScriptTips.back001; -- 返回
+	return str;
+	--]]
+end
+
+function ExpRuneDoConvert( sysarg, convertId) 
+	convertId = tonumber(convertId);
+	--print("convertId = " .. convertId);
+	local findCfgById = function(e, id)
+		return e.id == id;
+	end;
+	local b, k = Container.FindIf(ExpRuneCfg.Options, findCfgById, convertId);
+	if not b then return end;
+	local cfg = ExpRuneCfg.Options[k]; -- 配置项
+	if not cfg then return end;
+	--local lackTip = string.format(Lang.ScriptTips.lz000008,cfg.destMultiple, cfg.srcCount, cfg.srcMultiple, cfg.needCoin);
+	local lackTip = Lang.ScriptTips.lz000008 .. cfg.destMultiple .. Lang.ScriptTips.lz000009 .. cfg.srcCount .. Lang.ScriptTips.lz000010 .. cfg.srcMultiple .. Lang.ScriptTips.lz000011 .. cfg.needCoin .. Lang.ScriptTips.lz000012;
+	-- 检测：
+	-- 1.	玩家背包中是否有对应的灵珠，没有则提示：背包中缺少%d
+	local srcItName = Item.getItemName(cfg.srcId)
+	local destItName = Item.getItemName(cfg.destId)
+	local nBindFlag = -1;
+	local srcItemCount = Actor.getItemCount( sysarg, cfg.srcId, -1, -1, nBindFlag)
+	if srcItemCount < cfg.srcCount then
+		nBindFlag = 1
+		local bindItemCount = Actor.getItemCount( sysarg, cfg.srcId, -1, -1, nBindFlag)
+		if bindItemCount < cfg.srcCount then
+			--local noticeStr = string.format(Lang.ScriptTips.c000056, srcItName)
+			Actor.sendTipmsg(sysarg,lackTip, ttFlyTip)
+			return
+		end
+	end
+	-- 2.	玩家的背包空间是否充足，不足则提示：背包空间不足，无法分解
+	local bagIdxs = Item.getBagEmptyGridCount(sysarg)
+	local needGrid = Item.getAddItemNeedGridCount( sysarg, cfg.destId, cfg.destCount, -1, -1, nBindFlag)
+	if bagIdxs < needGrid then
+		local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+		Actor.sendTipmsg(sysarg,noticeStr, ttFlyTip)
+		return
+	end
+	-- 检查次数
+	local rank = Ranking.getRanking(ExpRuneCfg.RankName) 	
+	--print("读取兑换次数");
+	if rank then
+	--print("读取成功");
+		local id = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		--print("id = " .. id);	
+		local item = Ranking.getItemPtrFromId(rank,id);
+		if item then 
+			local lastTime = tonumber(Ranking.getSub(item, (convertId-1)*2 + 0)); --上次兑换时间
+			local total = tonumber(Ranking.getSub(item, (convertId-1)*2 + 1)); -- 一天兑换次数
+			--print("兑换次数" .. total);
+			local curTime = System.getCurrMiniTime();
+			if System.isSameDay(lastTime, curTime) then
+				if cfg.times <= total then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.lz000013 .. cfg.destMultiple .. Lang.ScriptTips.lz000014, ttFlyTip);
+					return;
+				end
+			else
+				total = 0; -- 不是同一天 就重置次数
+			end
+			-- 3.	玩家金币是否充足，不足则提示：每次分解需要1万金币
+			if cfg.needCoin > 0 then
+				local nCoin =  Actor.getIntProperty(sysarg,PROP_ACTOR_COIN);
+				if nCoin < cfg.needCoin then
+					--string.format(cfg.debitedCoinFailed, cfg.needCoin)
+					Actor.sendTipmsg(sysarg, lackTip, ttFlyTip);
+					return
+				end
+			end
+			if cfg.needCoin > 0 then
+				if not Actor.changeMoney(sysarg, mtCoin, -cfg.needCoin, 35, Lang.LogTips.coin00001) then
+					--string.format(cfg.debitedCoinFailed, cfg.needCoin)
+					Actor.sendTipmsg(sysarg, lackTip, ttFlyTip);
+					return
+				end
+			end
+			Ranking.setSub(item, (convertId-1)*2 + 0, tostring(curTime)) --更新时间
+			Ranking.setSub(item, (convertId-1)*2 + 1, tostring(total + 1)) --更新兑换次数
+			Ranking.save(ranking, RankName);
+		end
+	end
+	
+	-- 执行兑换
+	if Actor.removeItem( sysarg, cfg.srcId, cfg.srcCount, -1, -1, nBindFlag, Lang.ScriptTips.lz000001, 5) > 0 then
+		Actor.addItem( sysarg, cfg.destId, 0, 0, cfg.destCount, 1);
+		local noticeStr = string.format(Lang.ScriptTips.c000058, destItName);
+		Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip);
+		return ExpRuneOptions(sysarg); -- 刷新菜单
+	end	
+	--]]
+end
+
+function InitExpRune()
+	local RankName = ExpRuneCfg.RankName;
+	local ranking = Ranking.getRanking( RankName )
+	if not ranking then
+		ranking = Ranking.add( RankName, 10, 1,10); 
+		if not ranking then print("InitExpRune ranking is nil"); 
+		end
+		if ranking then			
+			if not Ranking.load(ranking, RankName.. ".txt") then
+				Ranking.addColumn(ranking, "lastTime1") ;--print("第一项的时间");
+				Ranking.addColumn(ranking, "total1")    -- 第一项的次数
+				Ranking.addColumn(ranking, "lastTime2") 
+				Ranking.addColumn(ranking, "total2")    
+				Ranking.addColumn(ranking, "lastTime3") 
+				Ranking.addColumn(ranking, "total3")    
+				Ranking.addColumn(ranking, "lastTime4") 
+				Ranking.addColumn(ranking, "total4")   				  
+				Ranking.addColumn(ranking, "lastTime5") 
+				Ranking.addColumn(ranking, "total5") 				
+			end
+			Ranking.addRef( ranking );--print("Ranking.addRef( ranking )添加引用");
+		end
+		--print("begin Ranking.save(ranking, RankName)");
+		Ranking.save(ranking, RankName)
+	end
+end
+
+-- 兑换次数清零
+function ClearExpRuneData()
+	local RankName = ExpRuneCfg.RankName;
+	local ranking = Ranking.getRanking( RankName )
+	if ranking then
+		--[[ 代码无法主动更新客户端NPC对话框的数据，顾去掉
+		local nCount = Ranking.getRankItemCount(ranking);
+		for i = 0, nCount - 1 do
+			local rankItem = Ranking.getItemFromIndex(ranking, i);
+			if rankItem then
+				local id = Ranking.getId(rankItem);
+				if id then
+					local sysarg = System.getEntityPtrByActorID(id);
+					if sysarg then 
+						print("ExpRuneOptions(sysarg); ");
+						ExpRuneOptions(sysarg); 
+					else
+						print("获取玩家指针失败 id = " .. id);
+					end
+				end
+			end
+		end --]]
+		Ranking.clearRanking(ranking);
+	end 
+end
+
+
+table.insert(InitFnTable,InitExpRune)
+table.insert(MainFnTable,ExpRuneMainOption)

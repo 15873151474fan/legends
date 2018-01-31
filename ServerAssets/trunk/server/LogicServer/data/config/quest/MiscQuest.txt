@@ -1,0 +1,116 @@
+﻿--lua script
+--本文件是用于实现杂七杂八的任务类型
+
+--副本通关判断的任务配置，其实其他任务配置表的格式都差不多
+FbFinishQuest = 
+{
+	--这里配置的意思是：当完成任意一次的副本通关，则可完成以下各任务
+	--{qid = 1234, id = 40001,count=1},	--qid是任务id，id和count对应任务目标配置的id和count字段
+	
+}
+
+--副本通关评价到特等
+FbAwardQuest = 
+{
+	{qid = 8044, id = 31049,count=1},
+}
+
+--完成一次阵营押镖任务,跟副本通关任务配置一样
+CampDartQuest = 
+{
+	{qid = 8046, id = 31051,count=1},
+}
+
+--完成一次阵营刺探任务
+CampSpyQuest = 
+{
+	{qid = 8045, id = 31050,count=1},
+}
+
+--击杀敌对阵营守卫
+DefendMonQuest = 
+{
+	{qid = 8051, id = 31052,count=1},
+}
+
+--击杀阵营首领
+ZyBossQuest = 
+{
+	{qid = 8052, id = 31053,count=1},
+}
+
+--击杀野外BOSS判断
+KillBossQuest = 
+{
+	{qid = 8053, id = 31054,count=1},
+}
+
+--赠送鲜花
+FlowerQuest = 
+{
+	{qid = 8055, id = 31055,count=1},
+}
+
+--得到鲜花
+GetFlowerQuest = 
+{
+	{qid = 8056, id = 31056,count=1},
+}
+
+--challenge擂台胜利
+WinChallenge = 
+{
+	{qid = 8057, id = 31057,count=1},	
+}
+
+
+--完成任务后播放特效,比如烟花
+-- effectId 特效的ID ,是特效的配置文件里的ID
+-- effectType 特效的类型 无效果=0,挥洒=1,投掷=2,飞行=3,爆炸=4,脚下持续=5,持续=6
+-- durTime 持续时间，单位ms
+--nDelayTime 延迟多长时间生效，单位ms
+--x 表示相 对于玩家的位置x
+--y 表示相对于玩家的位置y
+
+QstFinEffect = {
+	{	--特效一
+		{effectId = 50060, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+		{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+		{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+	},
+	{	--特效二
+		{effectId = 50059, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+		{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=-3,y=-4},
+		{effectId = 50057, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4}, 
+	},
+	{	--特效三
+		{effectId = 50058, effectType =5, durTime=5000, nDelayTime=100,x=0,y=-4},
+		{effectId = 50054, effectType =4, durTime=5000, nDelayTime=100,x=3,y=-4},
+		{effectId = 50057, effectType =4, durTime=3000, nDelayTime=100,x=-3,y=-4},
+	},
+}
+
+--下载登陆器任务
+DownloadLauncherInfo = {
+	questId = 800,		--根据这个任务是否完成来决定是否提示
+	NoticeLv = {13,23,33,43},
+}
+
+--第二天时，需要删除以前接的任务
+NewDayRemoveQuests = {
+	8051,8052,8053,8054,8055,8056,8057,8058,8059,8060,8061,8062
+}
+
+--第一次进游戏时，根据场景来决定接任务
+--配置：[场景id] = 任务ID,
+FirstEnterQuestMap = {
+	[1] = 1,	--边界村
+	[138] = 1,	--边界村副本
+	[139] = 450,	--美女村
+	[145] = 450,	--美女村副本
+	[140] = 453,	--仙侠村
+	[146] = 453,	--仙侠村副本
+	[71] = 458,	 --云烟水村 
+	[170] = 458,	--云烟水村副本
+
+}

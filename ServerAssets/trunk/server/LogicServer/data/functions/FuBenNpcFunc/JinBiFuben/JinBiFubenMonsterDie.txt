@@ -1,0 +1,32 @@
+﻿--#include "data\functions\FuBenNpcFunc\JinBiFuben\JinBiFubenConfig.txt" once
+--#include "data\functions\FuBenNpcFunc\JinBiFuben\JinBiFubenCommon.txt" once
+
+--打boss死亡
+MonDieDispatcher.JinBiFuben = function(monster,sysarg,monId)
+    --print("MonDieDispatcher:")
+    JinBiFubenDataInit(sysarg)
+    local sVar = Actor.getDyanmicVar(sysarg)
+    local ActorcurFbId = Actor.getFubenId(sysarg)
+    local MonstercurFbId = Actor.getFubenId(monster)
+    --sVar.KillJinBiFubenMonsterNumber = sVar.KillJinBiFubenMonsterNumber + 1
+    local JinBiFubenFloorNumber = sVar.JinBiFubenFloorNumber
+    local Tb = JinBiFubenConfig.Monster[JinBiFubenFloorNumber]
+    local fhadle = Actor.getFubenHandle( sysarg)
+    local hScene = Fuben.getSceneHandleById(JinBiFubenConfig.nScence, fhadle)
+    for i=1,table.getn(Tb) do
+	    if Fuben.getLiveMonsterCount(hScene,Tb[i].nMonsterID) > 0 then
+	       return
+	    end                                       
+    end
+    --print("MonDieDispatcherfloor:"..JinBiFubenFloorNumber)
+    sVar.JinBiFubenPassFloorNumber = sVar.JinBiFubenFloorNumber 
+    SendJinBiFubenClientUi(sysarg, JinBiFubenFloorNumber, #JinBiFubenConfig.Monster, 1)
+    --显示领取奖励 
+    --print("JinBiFuben:curFbId"..ActorcurFbId.."MonstercurFbId:"..MonstercurFbId)
+	--FiveBigBossTreasure(sysarg,1)
+end       
+
+for ndx, monsterId in pairs(JinBiFubenConfig.MonsterDieId) do
+    --print("JinBiFubenConfig:"..monsterId)
+	MonDieDispatcher.register(monsterId, MonDieDispatcher.JinBiFuben)
+end

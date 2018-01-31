@@ -1,0 +1,179 @@
+﻿
+--#include "data\config\Cards\CardsUpgrade.txt" once
+--#include "data\functions\Systems\CardsSystem\CardsWar.txt" once
+
+--卡牌升级
+function OnCardsUpgradeOp(sysarg, args)
+	local nType = args[2]
+	local nCards = args[3]
+	local nIndex = args[4]
+
+	if shieldCardsWar then
+		return
+	end
+
+	if nType == 0 then	--卡牌升星
+		CardUpgradeStar(sysarg, nType, nCards, nIndex)
+	elseif nType == 1 then	--卡牌升级
+		CardUpgradeLevel(sysarg, nType, nCards, nIndex)
+	end
+end
+
+--卡牌升星
+function CardUpgradeStar(sysarg, nType, nCards, nIndex)
+	local config = CardUpgradeConfig
+	if not config then return end
+
+	local nStar = Actor.getCardStar(sysarg, nCards, nIndex)
+
+	if nStar <= 0 then
+		return
+	end
+
+	if nStar + 1 > config.maxStar then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0025, ttFlyTip)
+		return
+	end
+
+	for k, consume in ipairs(config.upStarconsumes or {}) do
+		if consume.type == 0 then
+			local count = Actor.getItemCount(sysarg, consume.id)
+			if count < consume.count then
+				Actor.sendTipmsg(sysarg, Lang.Activity.kp0026, ttFlyTip)
+				return
+			end
+		end
+	end
+	
+	for k, consume in ipairs(config.upStarconsumes or {}) do
+		if consume.type == 0 then
+			Actor.removeItem(sysarg,consume.id,consume.count)
+		end
+	end
+
+	nStar = nStar + 1
+
+	Actor.setCardStar(sysarg, nCards, nIndex, nStar)
+
+	SendCardsUpgradeResult(sysarg, nType, nCards, nIndex)
+
+	Actor.sendTipmsg(sysarg, Lang.Activity.kp0037, ttFlyTip)
+end
+
+--卡牌升级
+function CardUpgradeLevel(sysarg, nType, nCards, nIndex)
+	local config = CardUpgradeConfig
+	if not config then return end
+
+	local nStar = Actor.getCardStar(sysarg, nCards, nIndex)
+	local nLevel = Actor.getCardLevel(sysarg, nCards, nIndex)
+	local nLuckyValue = Actor.getCardLuckyValue(sysarg, nCards, nIndex)
+
+	if (nLevel <= 0) or nLevel >= config.maxLevel then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0027, ttFlyTip)
+		return
+	end
+
+	limitLevel = 0
+	for k, v in ipairs(config.limitStar or {}) do
+		if nStar == v.star then
+			limitLevel = v.level
+			break
+		end
+	end
+
+	if nLevel >= limitLevel then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0028, ttFlyTip)
+		return
+	end
+
+	local needExp = math.floor(config.expParam1+config.expParam2*nLevel+config.expParam3*math.pow(nLevel,2)+config.expParam4*math.pow(nLevel,3))
+
+	local addExp = 0
+
+	local myCardPoint = Actor.getIntProperty(sysarg, PROP_ACTOR_CARDSHUN)
+	local myCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+
+	for k, consume in ipairs(config.upLevelconsumes or {}) do
+		if consume.type == 6 then
+			if myCoin < consume.count then
+				Actor.sendTipmsg(sysarg, Lang.Activity.kp0029, ttFlyTip)
+				return
+			end
+			local canAddExp = math.floor(myCoin / consume.count)
+			if addExp == 0 then
+				addExp = canAddExp
+			elseif addExp > canAddExp then
+				addExp = canAddExp
+			end
+		elseif consume.type == 43 then
+			if myCardPoint < consume.count then
+				Actor.sendTipmsg(sysarg, Lang.Activity.kp0030, ttFlyTip)
+				return
+			end
+			local canAddExp = math.floor(myCardPoint / consume.count)
+			if addExp == 0 then
+				addExp = canAddExp
+			elseif addExp > canAddExp then
+				addExp = canAddExp
+			end
+		end
+	end
+
+	if addExp > needExp - nLuckyValue then
+		addExp = needExp - nLuckyValue
+	end
+	
+	--扣费
+	for k, consume in ipairs(config.upLevelconsumes or {}) do
+		if consume.type == 6 then
+			Actor.changeMoney(sysarg,1,-consume.count*addExp,101,Lang.Activity.kp0031)
+		elseif consume.type == 43 then
+			Actor.giveAward(sysarg, consume.type, consume.id, -consume.count*addExp, 0, 0, 1)
+		end
+	end
+
+	nLuckyValue = nLuckyValue + addExp
+	if nLuckyValue >= needExp then
+		nLuckyValue = 0
+		nLevel = nLevel + 1
+
+		Actor.setCardLevel(sysarg, nCards, nIndex, nLevel)
+
+		local name, tmpTable = LoadCardsWar(sysarg)
+		for i = 0, 1 do
+			for j = 1, CardsWarConfig.maxCardWarCount do
+				local tmpCards, tmpIndex = GetCardsInfo(i, tmpTable, j)
+				if (tmpCards == 0) or (tmpIndex == 0) then
+					break
+				end
+				--已出战的卡牌调整等级
+				if (tmpCards == nCards) and (tmpIndex == nIndex) then
+					SetCardsLevel(i, tmpTable, j, nLevel)
+					SaveCardsWar(sysarg, tmpTable)
+					break
+				end
+			end
+		end
+	end
+
+	Actor.setCardLuckyValue(sysarg, nCards, nIndex, nLuckyValue)
+
+	SendCardsUpgradeResult(sysarg, nType, nCards, nIndex)
+end
+
+--下发卡牌升级
+function SendCardsUpgradeResult(sysarg, nType, nCards, nIndex)
+	local pack = DataPack.allocPacket(sysarg, 56, 9)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nType)
+		DataPack.writeChar(pack, nCards)
+		DataPack.writeChar(pack, nIndex)
+		DataPack.writeChar(pack, Actor.getCardStar(sysarg, nCards, nIndex))
+		DataPack.writeChar(pack, Actor.getCardLevel(sysarg, nCards, nIndex))
+		DataPack.writeShort(pack, Actor.getCardLuckyValue(sysarg, nCards, nIndex))
+
+		DataPack.flush(pack)
+	end
+end
+

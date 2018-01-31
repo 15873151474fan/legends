@@ -1,0 +1,121 @@
+--千服活动神级BOSS降临
+--#include "data\config\activityconfig\QianFuConfig\QianFuConfig.txt" once
+
+--神级BOSS开启
+function SuperBossStart()
+	local SuperBossConfig = QianFuConfig.SuperBossConfig
+	if not SuperBossConfig then
+		return 
+	end
+	local tsActId = SuperBossConfig.tsActId
+	if not System.isOpenThousandActById(tsActId) then
+		return 
+	end
+	local str = Lang.Activity.qf0001
+	local hScene = Fuben.getSceneHandleById(SuperBossConfig.nSceenId, 0)
+
+	--大魔尊
+	local pMonster = Fuben.createMonster(hScene, 
+		SuperBossConfig.monsters[1].nMonsterID,
+		SuperBossConfig.monsters[1].posX, 
+		SuperBossConfig.monsters[1].posY,
+		SuperBossConfig.monsters[1].nLiveTime)
+	--精英怪
+	local startX = SuperBossConfig.monsterRange[1].posX
+	local startY = SuperBossConfig.monsterRange[1].posY
+	local endX =  SuperBossConfig.monsterRange[2].posX
+	local endY =  SuperBossConfig.monsterRange[2].posY
+	
+	local specialCount = SuperBossConfig.specialmonCount
+	local nLiveTime = SuperBossConfig.monsters[2].nLiveTime
+	local temCount = 0
+	for i = 1, 10000 do 
+		if temCount == specialCount then
+			break
+		end
+		local posX = startX + System.getRandomNumber(endX - startX) + 1
+		local posY = startY + System.getRandomNumber(endY - startY) + 1
+		local nMonsterID = SuperBossConfig.monsters[2].nMonsterID
+		local nLiveTime = SuperBossConfig.monsters[2].nLiveTime
+		local pMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)
+		if pMonster then
+			temCount = temCount + 1
+			
+		end		
+	end
+
+	local normalMonCount = SuperBossConfig.normalMonCount
+	temCount = 0
+	--普通怪
+	for i = 1, 10000 do
+		if temCount == normalMonCount then
+			break
+		end
+		local posX = startX + System.getRandomNumber(endX - startX) + 1
+		local posY = startY + System.getRandomNumber(endY - startY) + 1
+		local nMonsterID = SuperBossConfig.monsters[3].nMonsterID
+		local nLiveTime = SuperBossConfig.monsters[3].nLiveTime
+		Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)
+		if pMonster then
+			temCount = temCount + 1
+		end
+	end 
+	System.broadcastTipmsg(str,2+128)
+	Actor.regScriptCallback(thisNPC, thisNPC, 3*1000, SuperBossConfig.BroadCastTime*60*1000, SuperBossConfig.broadTimes, "BroadSuperboss")
+end
+
+--刷出怪兽宝箱
+function MonsterTreasureBox()
+	local MonsterBoxConfig = QianFuConfig.MonsterBoxConfig
+	if not MonsterBoxConfig then
+		return 
+	end
+	local tsActId = MonsterBoxConfig.tsActId
+	if not System.isOpenThousandActById(tsActId) then
+		return 
+	end
+	local str = Lang.Activity.qf0002
+	local hScene = Fuben.getSceneHandleById(MonsterBoxConfig.nSceenId, 0)
+	local boxCount = MonsterBoxConfig.monsters[1].BoxCount
+	local nMonsterID = MonsterBoxConfig.monsters[1].nMonsterID
+	local nLiveTime = MonsterBoxConfig.monsters[1].nLiveTime
+	local account = 1
+	
+	for i = 1, boxCount do
+		local nflag = 0
+		for j = 1, 10000 do 
+			local posX = 0
+			local posY = 0
+			posX = MonsterBoxConfig.BoxPosRange[1].posX + 
+				System.getRandomNumber( math.abs(MonsterBoxConfig.BoxPosRange[1].posX - MonsterBoxConfig.BoxPosRange[2].posX))
+			posY = MonsterBoxConfig.BoxPosRange[1].posY + 
+				System.getRandomNumber( math.abs(MonsterBoxConfig.BoxPosRange[1].posY - MonsterBoxConfig.BoxPosRange[2].posY))
+			local pMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)	
+			if pMonster then
+				break
+			end
+		end
+	end
+	System.broadcastTipmsg(str,2+128)
+	Actor.regScriptCallback(thisNPC, thisNPC, 3*1000, MonsterBoxConfig.BroadCastTime*60*1000, MonsterBoxConfig.broadTimes, "BroadMonsterBox")
+end
+
+--("通告神级boss")
+function  BroadSuperboss(sysarg)
+	local str = Lang.Activity.qf0001
+	System.broadcastTipmsg(str,2)	
+end
+
+--通告怪兽宝箱
+function  BroadMonsterBox(sysarg)
+	local str = Lang.Activity.qf0002
+	System.broadcastTipmsg(str,2)	
+end
+
+
+
+
+
+
+
+

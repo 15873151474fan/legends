@@ -1,0 +1,64 @@
+﻿-- 阵营盟主NPC修改宣言脚本处理逻辑
+
+-- 修改盟主NPC宣言交互处理函数
+function ModifyNpcDeclarationMain(sysarg)
+	local camp = Actor.getCamp(sysarg)
+	if (not camp) then return "" end 
+	local str = ""
+	-- 判断是否是盟主
+	local kingActorId = 0
+	local kingName, kingActorId = Camp.getKingInfo(camp, kingActorId, 0)
+	--判断是否有盟主，如果没有盟主，就显示默认对白
+	if kingName == nil then
+		local rand = System.getRandomNumber(table.getn(NpcDialogue))
+  	return NpcDialogue[rand +1].say
+	end
+	--判断是否有盟主声明
+	--获取阵营盟主宣言
+	local dec = Camp.getCampKingDeclaration(camp)
+	if dec == nil then
+		str = str..Lang.ScriptTips.c00041
+	else
+		str = str.."<(c0xFFFF8040)"..dec..">\\"
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	if (kingActorId == actorId) then
+		--str = str.."<#BL"..Lang.ScriptTips.c00040.."/@@ModifyNpcDeclaration>"
+		str = str.."<#BL"..Lang.ScriptTips.c00040.."/@ModifyCampDeclaration>"
+	end
+	return str
+end
+
+
+--[[
+    函数名称：ModifyNpcDeclaration
+    函数描述：更改盟主宣言
+    参数 sysarg 的描述：
+    参数 dec 的描述：
+]]
+function ModifyNpcDeclaration(sysarg, dec)
+  if dec == "" then return end
+  local camp = Actor.getCamp(sysarg)
+  if camp == nil then return end
+  Camp.setCampKingDeclaration(camp, dec)
+  return Lang.ScriptTips.c00043 
+end
+
+
+--[[
+    函数名称：ModifyCampDeclaration
+    函数描述：更改盟主宣言 请求客户端 
+    参数 sysarg 的描述：
+]]
+function ModifyCampDeclaration(sysarg)
+  local pack = DataPack.allocPacket(sysarg, 139, 23)
+  if pack == nil then return end
+	DataPack.writeString(pack, Lang.ScriptTips.c00044)
+	DataPack.writeUInt(pack, 50)
+	DataPack.writeString(pack, Lang.ScriptTips.c00045)
+	DataPack.flush(pack)
+	Actor.closeNPCDialog( sysarg )
+end
+
+table.insert(MainFnTable, ModifyNpcDeclarationMain)

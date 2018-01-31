@@ -1,0 +1,368 @@
+--圣诞元旦处理
+--#include "data\config\christmas\christmasServer\charistmasEgg.txt" once
+
+--开启活动
+function OpenChristmasActivity()
+	local playerList = LuaHelp.getAllActorList()		
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local npack = DataPack.allocPacket(player, 50, 18)
+				if not npack then return false end
+				DataPack.writeByte(npack, 1)
+				DataPack.flush(npack)
+
+				OnNewDayClearChrist(player)
+			end
+		end
+	end
+
+end
+
+--关闭活动
+function CloseChristmasActivity()
+	local playerList = LuaHelp.getAllActorList()		
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				--print("CloseChristmasActivity")
+				local npack = DataPack.allocPacket(player, 50, 18)
+				if not npack then return false end
+				DataPack.writeByte(npack, 0)
+				DataPack.flush(npack)
+
+				OnNewDayClearChrist(player)
+			end
+		end
+	end
+end
+
+--发送点亮圣诞信息
+function OnSendLightUpChristData(sysarg,args)
+	if IsChristmasDate() == false then return end
+
+	Actor.onSendLightUpChristData(sysarg)
+end
+
+--判断是否在圣诞活动期间
+function IsChristmasDate()
+	local nYear,nMon,nDate = System.getDate(0,0,0)
+	
+	if nMon == detailConfig.startTime[1] and nDate >= detailConfig.startTime[2] then
+		return false
+	end
+
+	if nMon == detailConfig.endTime[1] and nDate <= detailConfig.endTime[2] then
+		return false
+	end
+
+	return false
+end
+
+--登陆发送接任务
+function OnAccpetRoleOnlogin(sysarg,nStars,nLevel)
+	local nYear,nMon,nDate = System.getDate(0,0,0)
+	if IsChristmasDate() == false then return end
+	if nMon == 12 or (nMon == 1 and nDate < 12) then
+		local npack = DataPack.allocPacket(sysarg, 50, 18)
+		if not npack then return false end
+		DataPack.writeByte(npack, 1)
+		DataPack.flush(npack)
+	end
+	
+	local nCircle = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local myLev = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	if myLev < 50 and nCircle < 1 then return end
+	
+	if nLevel <= 0 then 
+		nLevel = 1
+	end
+	
+	--print("OnAccpetRoleOnlogin:"..nStars..","..nLevel)
+	--OnAcceptNewQuest(sysarg,nStars,nLevel)
+	local nConfig = detailConfig.light.missionsConfig[nStars]
+	if nConfig == nil then return end
+	if nConfig.missions[nLevel] == nil then return end
+
+	local nQuestId = nConfig.missions[nLevel].missionId
+
+	if Actor.hasQuest(sysarg,nQuestId) == false then
+		--Actor.addQuest(sysarg,nQuestId)
+	end
+
+	Actor.addToChristRank(sysarg,nStars,nLevel)
+end
+
+--接新的任务
+function OnAcceptNewQuest(sysarg,nStars,nLevel)
+	local nIndex = nStars
+	if nLevel >= table.getn(detailConfig.light.missionsConfig[nStars].missions) then
+		if nStars == table.getn(detailConfig.light.missionsConfig) then
+			local nMaxLev = table.getn(detailConfig.light.missionsConfig[nStars].missions)
+			Actor.addToChristRank(sysarg,nIndex,nMaxLev + 1)
+			return
+		else
+			nIndex = nIndex + 1
+			nLevel = 1
+		end
+	else
+		nLevel = nLevel + 1
+	end
+	local nConfig = detailConfig.light.missionsConfig[nIndex]
+	if nConfig == nil then return end
+	
+	if nConfig.missions[nLevel] == nil then return end
+
+	local nQuestId = nConfig.missions[nLevel].missionId
+	
+	if Actor.hasQuest(sysarg,nQuestId) == false then
+		--Actor.addQuest(sysarg,nQuestId)
+	end
+
+	Actor.addToChristRank(sysarg,nIndex,nLevel)
+end
+
+--完成圣诞任务
+function OnFinishChristMas(sysarg,args)
+	if IsChristmasDate() == false then return end
+	local nStars = args[2]
+	local nLevel = args[3]
+	local nQId = args[4]
+
+	--nQId = 8067
+	
+	--print("OnFinishChristMas:"..nStars..","..nLevel..","..nQId)
+	local nIndex = nStars
+
+	local nConfig = detailConfig.light.missionsConfig[nIndex]
+	if nConfig == nil then return end
+	if nLevel <= 0 then
+		nLevel = 1
+	end
+	local nQuestId = nConfig.missions[nLevel].missionId
+	if nQuestId ~= nQId then return end
+
+	OnAcceptNewQuest(sysarg,nIndex,nLevel)
+
+	Actor.onSendLightUpChristData(sysarg)
+end
+
+--领取层的奖励
+function OnGetCengAward(sysarg,args)
+	local nStars = args[2]
+	local nLevel = args[3]
+	local nCurStars = args[4]
+	
+	if nLevel <= table.getn(detailConfig.light.missionsConfig[nStars].missions) then
+		nStars = nStars - 1
+	end
+
+	if nCurStars > nStars then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cr0001, ttFlyTip)
+		return
+	end
+
+	local nConfig = detailConfig.light.awardsConfig[nCurStars]
+	if nConfig == nil then return end
+	
+	local pRank = Ranking.getRanking("LightUpChristmas.txt")
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	if pRank then
+		local pItem = Ranking.getItemPtrFromId( pRank, nActorId )
+		if pItem then
+			local nState = tonumber(Ranking.getSub(pItem,1)) or 0
+			--print("nState:"..nState)
+			if tonumber(Ranking.getSub(pItem,1)) ~= nil and tonumber(Ranking.getSub(pItem,1)) >= nCurStars then	
+				Actor.sendTipmsg(sysarg, Lang.Activity.cr0037, ttFlyTip)
+				return
+			end
+		end
+	end
+
+	if Awards.CheckBagGridCount(sysarg,nConfig.awards) == true then
+		Awards.Give(sysarg,nConfig.awards,942,Lang.Activity.cr0002,0)
+
+		if pRank then
+			local item = Ranking.getItemPtrFromId( pRank, nActorId )
+			if item then
+				Ranking.setSub(item,1,tostring(nCurStars))
+			end
+		end
+
+		local npack = DataPack.allocPacket(sysarg,50,16)  --申请一个数据包
+		if npack == nil then return end
+		DataPack.writeByte(npack,nCurStars)
+		DataPack.flush(npack)
+
+	end
+end
+
+--设置砸金蛋排行
+function OnChristmasEggOp(sysarg,args)
+	local nItemId = args[2]
+	local nCount = args[3]
+	
+	if nCount <= 0 then return end
+	
+	if System.isInDateRange(unpack(christmasEgg.timeRang)) == false then return end
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local pRanking = Ranking.getRanking("christmasEggRank.txt")
+	if pRanking then
+		local pItem = Ranking.getItemPtrFromId( pRanking, nActorId )
+		if pItem == nil then
+			pItem = Ranking.addItem(pRanking,nActorId,nCount)
+		else
+			Ranking.updateItem(pRanking,nActorId,nCount)
+		end
+
+		if pItem then
+			Ranking.setSub(pItem,0,Actor.getName(sysarg))
+		end
+	end
+
+	local nRanking = Ranking.getRanking("AllChristmasEggRank.txt")
+	if nRanking then
+		local pItem = Ranking.getItemPtrFromId( nRanking, nActorId )
+		if pItem == nil then
+			pItem = Ranking.addItem(nRanking,nActorId,nCount)
+		else
+			Ranking.updateItem(nRanking,nActorId,nCount)
+		end
+
+		if pItem then
+			Ranking.setSub(pItem,0,Actor.getName(sysarg))
+		end
+	end
+end
+
+--每天清除点亮圣诞任务
+function ClearLightChristmas()
+	local pRanking = Ranking.getRanking("LightUpChristmas.txt")
+	if pRanking then
+		Ranking.clearRanking(pRanking)
+		
+		--print("ClearLightChristmas")
+		local playerList = LuaHelp.getAllActorList()		
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					for i=1,table.getn(detailConfig.light.missionsConfig) do
+						local nConfig = detailConfig.light.missionsConfig[i]
+						if nConfig then
+							for j=1,table.getn(nConfig.missions) do
+								if Actor.hasQuest(player,nConfig.missions[j].missionId) == true then
+									Actor.giveupQuest(player,nConfig.missions[j].missionId,true)
+								end
+							end
+						end
+					end
+
+					--OnAccpetRoleOnlogin(player,1,1)
+
+					--Actor.onSendLightUpChristData(player)
+				end
+			end
+		end
+	end
+end
+
+--每天结算砸金蛋奖励
+function AccountChristmasEgg()
+	local nCount = table.getn(christmasEgg.LastDayAward)
+	local pRanking = Ranking.getRanking("christmasEggRank.txt")
+	if pRanking then
+		local nRanking = Ranking.getRanking("christmasEggLastRank.txt")
+		if nRanking then
+			Ranking.clearRanking(nRanking)
+			for i=1,nCount do
+				local pItem = Ranking.getItemFromIndex( pRanking, i-1 )
+				if pItem then
+					--print("AccountChristmasEgg")
+					if Ranking.getPoint(pItem) >= christmasEgg.perDayNum then
+						if nRanking then
+							local nItem = Ranking.addItem(nRanking,Ranking.getId(pItem),Ranking.getPoint(pItem))
+							if nItem then
+								Ranking.setSub(nItem,0,Ranking.getSub(pItem,0))
+							end
+						end
+
+						System.sendChristEggAward(1,Ranking.getId(pItem),i)
+					end
+				end
+			end
+		end
+
+		Ranking.clearRanking(pRanking)
+	end
+
+	ClearLightChristmas()
+end
+
+--结算总砸蛋奖励
+function AccountAllChristmasEgg()
+	local nCount = table.getn(christmasEgg.TotalDayAward)
+	local pRanking = Ranking.getRanking("AllChristmasEggRank.txt")
+	if pRanking then		
+		for i=1,nCount do
+			local pItem = Ranking.getItemFromIndex( pRanking, i-1 )
+			if pItem then
+				if Ranking.getPoint(pItem) >= christmasEgg.lastMinNum then
+					System.sendChristEggAward(2,Ranking.getId(pItem),i)
+				end
+				--local nItem = Ranking.addItem(nRanking,Ranking.getId(pItem),Ranking.getPoint(pItem))
+			end
+		end
+
+		--Ranking.clearRanking(pRanking)
+	end
+end
+
+--领取砸蛋奖励
+function GetChristmasEggAward(sysarg,args)
+	local nType = args[2]
+	local nIndex = args[3]
+	
+	local str = Lang.Activity.cr0018
+	local nConfig = christmasEgg.LastDayAward[nIndex]
+	if nType == 2 then
+		nConfig = christmasEgg.TotalDayAward[nIndex]
+		str = Lang.Activity.cr0019
+	end
+
+	if nConfig == nil then return end
+
+	if Awards.CheckBagGridCount(sysarg,nConfig.awards) == true then
+		Awards.Give(sysarg,nConfig.awards,942,str,0)
+	end
+
+end
+
+
+--换天清点亮圣诞数据
+function OnNewDayClearChrist(sysarg)
+	--print("OnNewDayClearChrist")
+	--if IsChristmasDate() == false then return end
+
+	for i=1,table.getn(detailConfig.light.missionsConfig) do
+		local nConfig = detailConfig.light.missionsConfig[i]
+		if nConfig then
+			for j=1,table.getn(nConfig.missions) do
+				if Actor.hasQuest(sysarg,nConfig.missions[j].missionId) == true then
+					--print("OnNewDayClearChrist"..nConfig.missions[j].missionId)
+					Actor.giveupQuest(sysarg,nConfig.missions[j].missionId,true)					--需要强制放弃
+				end
+			end
+		end
+	end
+
+	--OnAccpetRoleOnlogin(sysarg,1,1)
+end
+
+function OnSendChristmasEggAward(sysarg,args)
+	Actor.sendChristmasEggRank(sysarg,christmasEgg.perDayNum,christmasEgg.lastMinNum)
+end
+

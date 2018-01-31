@@ -1,0 +1,36 @@
+--lua script
+
+--元宝消费报名第一的奖励配置
+
+ConsumeConfig = 
+{
+		--[[
+		qatEquipment=0,             //物品或者装备
+		qatXiuwei = 1,	            //修为
+		qatExp = 2,                	//角色经验值
+		qatGuildContribution = 3,	//帮派贡献值
+		qatZYContribution = 4,		//阵营贡献
+		qatBindMoney = 5,           //绑定银两
+		qatMoney = 6,	            //银两
+		qatBindYb = 7,	            //绑定元宝
+		qatTitle = 8,	            //称谓
+		qatSkill = 9,	            //技能
+		qatZhanhun = 10,	        //战魂
+		qatAchievePoint =11,        //成就点
+		qatRenown=12,                //声望
+		qatPet =13,                  //奖励宠物
+		qatActivity = 14,			//奖励活跃度
+		qatYuanbao =15,              //元宝
+		qatGuildFr = 16,			//繁荣度
+		qatGuildYs = 17,			//玥石	
+		qatXPVal=18,				// XP值	
+		qatCombatScore = 19,		//竞技积分
+		qatAddExp = 20,				//按经验配置表加经验 id:奖励库ID count:普通加成率 quality:vip加成率 加成率使用以1000为基数的整形 即n/1000
+		qatHonor = 21,				//荣誉
+	]]
+	nRate = 10,		--奖励的10%100
+	awards = 
+	{
+		{ type = 15, id = 0, count = 10, strong = 0, quality = 0, bind = 1 },
+	},
+}

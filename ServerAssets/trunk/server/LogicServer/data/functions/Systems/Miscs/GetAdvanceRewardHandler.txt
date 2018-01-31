@@ -1,0 +1,179 @@
+﻿--lua script
+---#include "data/config/guide/SystemNotifyConfig.txt" once 系统预告
+
+--因Int只能保存32位整形变量 因此现在ID为32个
+--点击领取系统预告奖励 
+MiscsImplement.getSystemAdvanceReward = 
+{
+--[[
+  --检测是否可领奖 
+	checkSystemAdvanceReward = function (sysarg,id)
+		if id == nil then return end
+		local id = tonumber(id)
+		if id <= 0 or id > 32 then return 0 end	--因Int只能保存32位整形变量 因此现在ID为32个
+		local config = SystemNotifyConfig
+		if config == nil then return 0 end
+		--local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+		local index = nil
+		table.foreachi(config, function( i, v )  if (v.id == id) then index = i end end) --判断是否与本地一致 
+		--table.foreachi(config, function( i, v )  if (v.openLevel == id) then index = i end end) --判断是否与本地一致 
+		--print(index)
+		if index == nil then return 0 end
+		local rewards = [index].awards
+		if rewards == nil then return 0 end
+		--判断是否已经领取奖励 
+		local var = Actor.getStaticVar(sysarg)
+
+		--获取玩家的职业和性别 
+		local sex =Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+		local job =Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION )
+
+		if var.systemNotifyData == nil then
+			var.systemNotifyData = 0
+		end
+		local setAward = var.systemNotifyData
+		--处理旧数据
+		if var.getSystemAdvanceReward ~= nil then
+			for i=1, #config do
+				if var.getSystemAdvanceReward[i] == 1 then
+					setAward = System.setIntBit(setAward, tonumber(i-1), true)
+					var.systemNotifyData = setAward
+					var.getSystemAdvanceReward[i] = nil
+				end 
+			end
+			var.getSystemAdvanceReward = nil
+		end
+		---
+		if System.getIntBit(setAward, (config[index].id-1)) == 1 then
+			Actor.sendTipmsg(sysarg, Lang.TaskTalk.n00024, ttTipmsgWindow)
+			return 0
+		end
+		-- 
+		---获得物品需求包袱空余数
+		local i 
+		local nItemCount = 0
+		for i=1, #rewards do
+			local reward = rewards[i]
+			if reward.type == 0 then  --只有符合本职业和本性别的才需要计算背包格子 
+				if((reward.sex==nil or reward.sex < 0 or reward.sex == sex) and (reward.job == nil or reward.job <= 0 or reward.job == job)) then
+					nItemCount = nItemCount + Item.getAddItemNeedGridCount(sysarg,reward.id,reward.count,reward.quality,reward.strong,reward.bind)  --
+				end
+			end
+		end
+		local nGridCount= Item.getBagEmptyGridCount(sysarg)    --获得玩家有多少个格子
+		if nItemCount > nGridCount then 
+			local str = string.format(Lang.ScriptTips.f00016,nItemCount)   --判断包袱是否足够 
+			Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+			return 0
+		end
+		----
+		--- 
+		--var.getSystemAdvanceReward[index] = 1            -- 领取奖励标志 
+		setAward = System.setIntBit(setAward, (config[index].id-1), true)
+		if setAward <= 0 then return end 
+		var.systemNotifyData = setAward
+		---给予系统预告奖励 
+		local j
+		for j=1, #rewards do
+			local reward = rewards[j]
+			--满足条件的才添加 
+			if reward.type == 0  then                   --加道具
+				if((reward.sex==nil or reward.sex < 0 or reward.sex == sex) and (reward.job == nil or reward.job <= 0 or reward.job == job)) then
+					Actor.addItem(sysarg,reward.id,reward.quality,reward.strong,reward.count,reward.bind,0,config[index].systemName,55)
+				end
+			elseif reward.type == 1  then               --加修为
+				Actor.changeXiuwei(sysarg,reward.count)  
+			elseif reward.type == 2 then               --加角色经验值
+				Actor.addExp(sysarg,reward.count,0,0)
+			elseif reward.type == 3 then               --加帮派贡献值
+				local guildExp = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILDEXP)
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_GUILDEXP,guildExp+reward.count)
+			elseif reward.type == 4 then               --加阵营贡献
+				local zyCont = Actor.getIntProperty(sysarg,PROP_ACTOR_ZYCONT)
+				Actor.setUIntProperty(sysarg,4,zyCont+reward.count)
+			elseif reward.type == 5 then               --加绑定银两
+				Actor.changeMoney(sysarg,mtBindCoin,reward.count,135,config[index].systemName)
+			elseif reward.type == 6 then               --加银两
+				Actor.changeMoney(sysarg,mtCoin,reward.count,135,config[index].systemName)
+			elseif reward.type == 7 then               --加礼金
+				Actor.changeMoney(sysarg,mtBindYuanbao,reward.count,135,config[index].systemName)
+			elseif reward.type == 8 then               --加称谓
+				local bHasTitle = Actor.HasTitle(sysarg,reward.id)
+				if bHasTitle == false then
+				    print("bHasTitle:"..(reward.id))
+					Actor.GiveTitle(sysarg,reward.id)
+				end
+			elseif reward.type == 9 then               --加技能
+				if Actor.getSkillProperty(sysarg,reward.id,1) ~= nil then
+					Actor.learnSkill(sysarg,reward.id,1) 
+				end
+			elseif reward.type == 10 then              --加战魂
+				local zhanHun = Actor.getIntProperty(sysarg,PROP_ACTOR_ZHANHUN)
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_ZHANHUN,zhanHun+reward.count)
+			end
+		end
+		---成功返回 
+		return 1
+	end,
+	--]]
+	
+	--预告信息处理 
+	OnSytemNotifyHandler = function (sysarg, msgid, packet)
+		-- print("OnSytemNotifyHandler")
+		if packet == nil then return end
+		local id = DataPack.readByte(packet)      --读取数据包 取得领取时的等级
+		-- print(id)
+		if id <= 0 or id > 32 then return 0 end	--因Int只能保存32位整形变量 因此现在ID为32个
+		
+		local var = Actor.getStaticVar(sysarg)
+		if var.systemNotifyData == nil then
+			var.systemNotifyData = 0
+		end
+		local data = System.setIntBit(var.systemNotifyData, (id-1), true)
+		if data <= 0 then return end 
+		var.systemNotifyData = data
+		
+		local npack = DataPack.allocPacket(sysarg, 139, 19)
+		if not npack then return end
+		DataPack.writeUInt(npack, var.systemNotifyData)
+		-- print(var.systemNotifyData)
+		DataPack.flush(npack)
+		
+		--[[
+		local fn = MiscsImplement.getSystemAdvanceReward.checkSystemAdvanceReward
+		if fn == nil then return end
+		local result = fn(sysarg,id)
+		if result == 1 then
+			local var = Actor.getStaticVar(sysarg)
+			local npack = DataPack.allocPacket(sysarg,139,18)  --申请一个数据包
+			if not npack then return end
+			DataPack.writeByte(npack,result)                   --领奖结果 
+			DataPack.flush(npack)
+		else
+			local npack = DataPack.allocPacket(sysarg,139,18)  --申请一个数据包
+			if not npack then return end
+			DataPack.writeInt(npack,0)                        --领奖结果
+			DataPack.flush(npack)
+		end
+		--]]
+	end,
+	
+	--返回客户端请求获取领奖信息 
+	GetSystemNotifyData = function (sysarg, msgid, packet)
+		-- print("GetSystemNotifyData")
+		
+		local var = Actor.getStaticVar(sysarg)
+		if var.systemNotifyData == nil then
+			var.systemNotifyData = 0
+		end
+		
+		local npack = DataPack.allocPacket(sysarg, 139, 19)
+		if not npack then return end
+		DataPack.writeUInt(npack, var.systemNotifyData)
+		-- print(var.systemNotifyData)
+		DataPack.flush(npack)
+	end,
+}
+
+MiscsImplement.registerMsgHandler(14,MiscsImplement.getSystemAdvanceReward.OnSytemNotifyHandler)
+MiscsImplement.registerMsgHandler(15,MiscsImplement.getSystemAdvanceReward.GetSystemNotifyData)

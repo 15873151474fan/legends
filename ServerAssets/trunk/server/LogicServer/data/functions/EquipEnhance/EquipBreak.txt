@@ -1,0 +1,128 @@
+﻿--lua script
+
+--装备分解
+function OnEquipBreak( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local itemPtr = args[2]				--源操作装备指针
+	local opType = args[ptrCount+2]		--操作类型
+
+	--从物品身上取得类型
+
+	--如果物品是绑定的，那么分解出来的物品也是绑定的
+	--分解出来的物品的列表
+	local equipQuality = Item.getItemProperty(sysarg, itemPtr, Item.ipItemQuality, 0)   --品质
+	local equipStrong = Item.getItemProperty(sysarg, itemPtr, Item.ipItemStrong, 0)    --强化
+	local bind = Item.getItemProperty(sysarg, itemPtr, Item.ipItemBind, 0)        --绑定
+
+	--装备可能有各种绑定的参数，这里如果是绑定的话就是1 
+	if (bind ~= 0) then
+		bind =1
+	end
+	
+	--获取装备的分解的ID 
+	local nBreakId = Item.getItemProperty(sysarg, itemPtr, Item.ipItemBreakId, 0)
+	
+	local canBreak =true --能否分解 
+	if (nBreakId == 0 or nBreakId > table.getn(ItemBreakConfig))  then
+		canBreak = false
+	else
+		local itemType = Item.getItemProperty(sysarg, itemPtr, Item.ipItemType, 0)
+		
+		--是装备，需要判断是否是1品以上 
+		if (itemType < Item.itWeapon or itemType >= Item.itEquipMax) then
+			canBreak = false
+		end
+		
+		if itemType == Item.itWeaponExtend then
+			canBreak = false
+		end
+	end
+	--不能分解 
+	if (canBreak == false) then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.q00016,ttFlyTip )
+		return
+	end
+
+	local breakConfig = ItemBreakConfig[nBreakId]
+	if (breakConfig == nil) then
+	   return false
+	end
+
+	local itemList ={} --产生的物品的列表 
+	local configCount = table.getn(breakConfig) --获取配置的物品的长度
+	for i=1,  configCount do
+		local prop = System.getRandomNumber(100)--取一个随机数
+		if (breakConfig[i].prob  >= prop) then --如果命中，那么就添加物品,否则不添加物品 
+			local itemId    =    breakConfig[i].itemID
+			local itemCount =    breakConfig[i].minCount  --最少需要产生多少个
+			
+			--如果数量需要随机的话，那么在[minCount,maxCount] 随机一个数 
+			if(breakConfig[i].maxCount > breakConfig[i].minCount) then 
+				itemCount = itemCount + System.getRandomNumber(breakConfig[i].maxCount - breakConfig[i].minCount +1)
+			end  
+			--print("base count="..itemCount)
+			
+			--计算品质的加成，如果超过最大的话，那么算最大的，比如最大配置的是7，那么一件8得也是按7的计算 
+			local configCount = table.getn(breakConfig[i].qualityCountAdd)
+			if (equipQuality+1 > configCount) then
+				itemCount = itemCount + breakConfig[i].qualityCountAdd[configCount]
+				--print("qualityCount="..breakConfig[i].qualityCountAdd[configCount])
+			else
+				itemCount = itemCount + breakConfig[i].qualityCountAdd[equipQuality+1]  
+				--print("qualityCount="..breakConfig[i].qualityCountAdd[equipQuality+1])
+			end
+			 
+			configCount =   table.getn(breakConfig[i].strongCountAdd)
+			if(equipStrong +1 > configCount) then
+				itemCount = itemCount +   breakConfig[i].strongCountAdd[configCount]
+				--print("strongCount="..breakConfig[i].strongCountAdd[configCount] ) 
+			else
+				itemCount = itemCount +   breakConfig[i].strongCountAdd[equipStrong+1]
+				--print("strongCount="..breakConfig[i].strongCountAdd[equipStrong+1] )
+			end
+			table.insert(itemList, {itemId,itemCount} ) 
+		end
+	end
+
+	local needGrid =0
+	for i=1, table.getn(itemList) do
+		needGrid = needGrid + Item.getAddItemNeedGridCount(sysarg,itemList[i][1],itemList[i][2],0,0,bind)
+	end
+
+	if( needGrid > Item.getBagEmptyGridCount(sysarg) )then
+	local tipmsg= string.format(Lang.ScriptTips.x00074,needGrid) --通知用户，需要空出多少个空格 
+		Actor.sendTipmsg(sysarg, tipmsg,ttFlyTip)
+		return
+	end
+
+	Item.sendItemProcessResult(sysarg, itemPtr, opType, true)
+
+	--删除本身的物品以后再删除 
+	if (Actor.removeItemByPtr(sysarg,itemPtr,1,true,Lang.LogTips.l00074,35) ==1 ) then
+
+		for i=1, table.getn(itemList) do
+			local itemID    =  itemList[i][1]  --物品的id 
+			local itemCount = itemList[i][2]  --物品的数量 
+			local itemname = Item.getItemName(itemID)
+			Actor.addItem( sysarg, itemID,0,0,itemCount, bind, 0, Lang.LogTips.l00074,54)
+		end
+		--[[
+		-- 新增，检测物品分解完触发任务条件完成
+		for k=1, #QuestBreak do
+			local target = QuestBreak[k]
+			if target ~= nil then
+				Actor.setQuestValue(sysarg, target.qid, target.id, 1)
+			end
+		end
+		--]]
+		return true
+	else
+		return false
+	end
+end
+
+
+--装备分解消耗,分解没有消耗 
+function GetEquipBreakConsumes(sysarg, args)
+ 
+end

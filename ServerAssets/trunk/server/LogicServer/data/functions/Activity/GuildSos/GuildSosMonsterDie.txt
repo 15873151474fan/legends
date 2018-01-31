@@ -1,0 +1,53 @@
+﻿--#include "data\config\activityconfig\GuildSos\GuildSosConfig.txt" once --劫狱副本配置
+
+
+MonDieDispatcher.GuildSosMonsterDie = function(monster, sysarg, monId)
+  --确定玩家在第几层      
+  local ndx = 1
+  local nSceneId = Actor.getSceneId(sysarg) 
+  for i = 1, #GuildSosConfig.nEnterScreen do
+      if GuildSosConfig.nEnterScreen[i] == nSceneId then
+         ndx = i
+      end 
+  end
+  local Tb = GuildSosConfig.MonsterId[ndx]
+  if not Tb then return end --索引不存在 
+  if not Tb[monId] then return end--怪物不存在 
+  local bFb = Actor.getFubenPrt(sysarg)
+  local playerList = LuaHelp.getFbActorList(bFb)--副本内所有玩家
+  if playerList ~= nil then
+     for j = 1, #playerList do
+         local player = playerList[j]
+         if player then
+            Actor.giveAward(player, 20, 1, Tb[monId][1],0,0,0,0,998,"get JieYu Exp")
+            Actor.giveAward(player, 20, 1, Tb[monId][2],0,0,0,0,998,"get JieYu Gx")
+         end
+     end
+  end
+  local fhadle = Actor.getFubenHandle( sysarg)
+  local hScene = Fuben.getSceneHandleById(nSceneId, fhadle)
+  for i, j in pairs(Tb) do
+      --print("GuildSosMonsterDie:"..i)
+      if Fuben.getLiveMonsterCount(hScene,i) > 0 then
+         return    --检查该层是否有这种怪物存在 
+	  end
+  end 	
+  --print("clearMonster:")
+  Fuben.clearMonster(hScene, GuildSosConfig.ZanLanMonsterId[ndx])--清除栅栏怪
+  if ndx < #GuildSosConfig.nEnterScreen then
+     --Actor.enterFuBen(sysarg,fhadle,GuildSosConfig.nEnterScreen[ndx + 1],GuildSosConfig.nMapX,GuildSosConfig.nMapY)
+     Fuben.sendMsgToScene(hScene,Lang.Activity.w00166,2+128) 
+  else
+     Fuben.sendMsgToScene(hScene,Lang.Activity.w00167,2+128)
+  end
+
+end
+
+
+--注册怪刷出，死亡处理
+for i, j in pairs(GuildSosConfig.MonsterId) do
+    for monsterId, monsterInfo in pairs(j) do
+        --print("MonsterId:"..monsterId)
+	    MonDieDispatcher.register(monsterId, MonDieDispatcher.GuildSosMonsterDie)
+    end
+end

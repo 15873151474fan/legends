@@ -1,0 +1,47 @@
+--lua script
+
+--#include "data\envir\FuBen.txt" once
+
+
+EventCallDispatcher.AddToTeam = function ( sysarg, arg )
+	local dyvar = Actor.getDyanmicVar(sysarg)
+	local teamPtr = arg[1]
+	local oldFbId = dyvar.releaseFbId or 0
+	local memberCount = Actor.getOnlineTeamMemberCount( sysarg )
+	local memberPtr = LuaHelp.getTeamMemberListByPtr(teamPtr)
+	if oldFbId > 0 then
+		local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+		local captainPtr = TeamFun.getTeamCaptain(teamPtr)
+		if captainPtr == sysarg then
+			UpdateTeamCount( oldFbId, myId, memberCount)
+		else
+			local capDyVar = Actor.getDyanmicVar(captainPtr)
+			local capEnterFbId = capDyVar.releaseFbId or 0
+			local capId = Actor.getIntProperty( captainPtr, PROP_ENTITY_ID )
+			if capEnterFbId > 0 then
+				UpdateTeamCount( capEnterFbId, capId, memberCount)
+				RemFromList( oldFbId, myId )
+				SendOptEnterFBResult( sysarg, systemid, OptType_Leave, oldFbId, 1 )
+			else
+				local capName = Actor.getName(captainPtr)
+				ChangeReleaser( oldFbId, myId, capId, capName, memberCount)
+				capDyVar.releaseFbId = oldFbId
+				SendOptEnterFBResult( captainPtr, systemid, OptType_Release, oldFbId, 1 )
+				SendOptEnterFBResult( sysarg, systemid, OptType_Leave, oldFbId, 1 )
+			end
+			dyvar.releaseFbId = 0
+		end
+	else
+		local captainPtr = TeamFun.getTeamCaptain(teamPtr)
+		if captainPtr ~= sysarg then
+			local capDyVar = Actor.getDyanmicVar(captainPtr)
+			local capEnterFbId = capDyVar.releaseFbId or 0
+			local capId = Actor.getIntProperty( captainPtr, PROP_ENTITY_ID )
+			if capEnterFbId > 0 then
+				UpdateTeamCount( capEnterFbId, capId, memberCount)
+			end
+		end
+	end
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeAddToTeam, EventCallDispatcher.AddToTeam)

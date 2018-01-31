@@ -1,0 +1,211 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\Festival\SpringFestivalHorseActive.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\RankPointer.txt" once
+
+--加载开门利是数据
+function LoadRedEnvelope(sysarg)
+	local extractYB = 0
+	local getAwardStatus = 0
+
+	if not SpringFestivalHorseRankPt then
+		return extractYB, getAwardStatus
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.RedEnvelopeFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.RedEnvelopeFile, 1000, 1, 10)
+		if not ranking then
+			return extractYB, getAwardStatus
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.RedEnvelopeFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		if pItem then
+			Ranking.setSub(pItem,0,"0")
+			Ranking.setSub(pItem,1,"0")
+		end
+	else
+		extractYB = tonumber(Ranking.getSub(pItem,0))
+		getAwardStatus = tonumber(Ranking.getSub(pItem,1))
+	end
+
+	return extractYB, getAwardStatus
+end
+
+--保存开门利是数据
+function SaveRedEnvelope(sysarg, extractYB, getAwardStatus)
+	if not SpringFestivalHorseRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.RedEnvelopeFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.RedEnvelopeFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.RedEnvelopeFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		Ranking.setSub(pItem,0,tostring(extractYB))
+		Ranking.setSub(pItem,1,tostring(getAwardStatus))
+	end
+end
+
+--添加开门利是元宝数
+function OnAddRedEnvelopeYB(sysarg,args)
+	local nMoneyValue = args[2]
+
+	if (not nMoneyValue) or (nMoneyValue <= 0) then
+		return
+	end
+
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.redEnvelope) or (not config.redEnvelope.actTime) then
+		return 
+	end
+
+	if (System.isInDateRange(unpack(config.redEnvelope.actTime)) ~= true) then
+		return
+	end
+
+	local extractYB = 0
+	local getAwardStatus = 0
+
+	extractYB, getAwardStatus = LoadRedEnvelope(sysarg)
+
+	--保存开门利是数据
+	SaveRedEnvelope(sysarg, extractYB+nMoneyValue, lotteryCount)
+end
+
+--使用开门利是
+function OnUseRedEnvelope(sysarg)
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.redEnvelope) then
+		return 
+	end
+
+	local redEnvelope = config.redEnvelope
+
+	local y = 0
+	local m = 0
+	local d = 0
+	y,m,d = System.getDate( y, m, d )
+	if (y >= redEnvelope.useTime[1]) and (m >= redEnvelope.useTime[2]) and (d >= redEnvelope.useTime[3]) then
+	else
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cj0035, redEnvelope.useTime[1], redEnvelope.useTime[2], redEnvelope.useTime[3]), ttFlyTip)
+		return
+	end
+	
+	local extractYB = 0
+	local getAwardStatus = 0
+
+	extractYB, getAwardStatus = LoadRedEnvelope(sysarg)
+
+	local redEnvelopeAwards = redEnvelope.redEnvelopeAwards
+	if not redEnvelopeAwards then return end
+
+	local awardId = 0
+
+	for i=table.getn(redEnvelopeAwards),1,-1 do
+		if extractYB >= redEnvelopeAwards[i].needYB then
+			awardId = i
+			break
+		end
+	end
+
+	SendRedEnvelopeInfo(sysarg, extractYB, awardId)
+end
+
+--下发开门利是信息
+function SendRedEnvelopeInfo(sysarg, extractYB, awardId)
+	local pack = DataPack.allocPacket(sysarg, 52, 26)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, extractYB)
+		DataPack.writeChar(pack, awardId)
+		DataPack.flush(pack)
+	end
+end
+
+--领取开门利是奖励
+function OnGetRedEnvelopeAward(sysarg, args)
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.redEnvelope) then
+		return 
+	end
+
+	local redEnvelope = config.redEnvelope
+	
+	local extractYB = 0
+	local getAwardStatus = 0
+
+	extractYB, getAwardStatus = LoadRedEnvelope(sysarg)
+
+	if getAwardStatus == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0031, ttFlyTip)
+		return
+	end
+	
+	local count = Actor.getItemCount(sysarg, redEnvelope.redEnvelopeId)
+	local name = Item.getItemName(redEnvelope.redEnvelopeId)
+	if count <= 0 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cj0032, name), ttFlyTip)
+		return
+	end
+
+	local redEnvelopeAwards = redEnvelope.redEnvelopeAwards
+	if not redEnvelopeAwards then return end
+
+	local awardId = 0
+
+	for j=table.getn(redEnvelopeAwards),1,-1 do
+		if extractYB >= redEnvelopeAwards[j].needYB then
+			local awards = redEnvelopeAwards[j].awards
+			if not awards then return end
+			
+			local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+			local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+			if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+				--删除开门利是
+				if Actor.removeItem(sysarg, redEnvelope.redEnvelopeId, 1) >= 1 then
+					--给奖励
+					for i=1,table.getn(awards) do
+						if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+							Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+						end
+					end
+
+					extractYB = 0
+					getAwardStatus = 1
+					SaveRedEnvelope(sysarg, extractYB, getAwardStatus)
+				end
+			end
+			break
+		end
+	end
+
+end

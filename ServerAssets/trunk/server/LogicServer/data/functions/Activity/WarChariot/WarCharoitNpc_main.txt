@@ -1,0 +1,50 @@
+--lua script
+--战车系统
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\guild\WarChariotConfig.txt" once
+
+--战车npc对话
+function OnWarChariotNpc_main(sysarg)
+	local str = ""
+
+	if System.getDaysSinceOpenServer() < WarChariotConfig.openDay then
+		return str
+	end
+
+	str = str.."\\<#BL"..Lang.Activity.war0001.."/@@showWin,94,1>"			--打造战车
+	str = str.."\\<#BL"..Lang.Activity.war0002.."/@OnTakeOnWarCarriot>"			--领用战车
+	str = str.."\\<#BL"..Lang.Activity.war0004.."/@OnCarriotDes>"				--战车说明
+	str = str.."\\<#BL"..Lang.Activity.war0003.."/@OnleftCarriotDes>"			--离开
+
+	return str
+end
+
+--打造战车
+function OnBuildCarriotOP(sysarg)
+	
+end
+
+--领用战车
+function OnTakeOnWarCarriot(sysarg)
+	if Actor.getCharriotId(sysarg) <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.war0006, ttFlyTip)
+		return
+	end
+	Actor.onTransToCarrier(sysarg,0,1)
+end
+
+--战车说明
+function OnCarriotDes(sysarg)
+	local str = Lang.Activity.war0005
+	str = str.."\\<#BL"..Lang.Activity.war0003.."/@main>"
+
+	return str
+end
+
+--离开
+function OnleftCarriotDes(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+table.insert(MainFnTable, OnWarChariotNpc_main)

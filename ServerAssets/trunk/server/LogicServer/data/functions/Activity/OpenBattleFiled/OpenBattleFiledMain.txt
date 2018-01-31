@@ -1,0 +1,284 @@
+--开服战场
+--lua script
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\OpenBattleField\OpenBattleConfig.txt" once
+
+--跟npc对话
+function OpenBattleFiled_main(sysarg)
+	local str = ""
+
+	str = str.."\\<#BL"..Lang.Activity.ob0001.."/@OnEnterOpenFeiled>"			--进入开服战场
+
+	return str
+end
+
+--进入开服战场
+function OnEnterOpenFeiled(sysarg)
+	local svar = System.getDyanmicVar()
+	if svar.OpenBattleStartFlag == nil or svar.OpenBattleStartFlag == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ob0004, ttFlyTip)
+		return
+	end
+
+	local nlevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	local nCircle = Actor.getIntProperty(sysarg,PROP_ACTOR_CIRCLE)
+	if nCircle > 0 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ob0005,OpenBattleConfig.MinLev,OpenBattleConfig.MaxLev), ttFlyTip)
+		return
+	end
+
+	if nlevel < OpenBattleConfig.MinLev or nlevel > OpenBattleConfig.MaxLev then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ob0005,OpenBattleConfig.MinLev,OpenBattleConfig.MaxLev), ttFlyTip)
+		return
+	end
+
+	local nHandle = Fuben.getSceneHandleById(OpenBattleConfig.nSceneId,0)
+	if Actor.enterFuBen(sysarg,nHandle,OpenBattleConfig.nSceneId,OpenBattleConfig.enterPos[1],OpenBattleConfig.enterPos[2]) == false then return end
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(OpenBattleConfig.GroupRanking)
+	if ranking then
+		local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		if nItem then
+			local nLastPoint = Ranking.getPoint(nItem)
+			Ranking.updateItem(ranking,nActorId,1-nLastPoint)
+		else
+			Ranking.addItem(ranking,nActorId,1)
+		end
+	end
+
+	local pRanking = Ranking.getRanking(OpenBattleConfig.nKillActorId)
+	if pRanking then
+		local nItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+		if nItem then
+			local nLastPoint = Ranking.getPoint(nItem)
+			Ranking.updateItem(pRanking,nActorId,-nLastPoint)
+			--Ranking.setItem(pRanking,nActorId,0)
+		else
+			Ranking.addItem(pRanking,nActorId,0)
+		end
+	end
+
+	Actor.onHeadNumber(sysarg,1)
+
+	UpdateBattleActivityForm(sysarg,1)
+
+end
+
+--更新活动面板信息 1 表示进入 2 表示在场景内更新
+function UpdateBattleActivityForm(sysarg,nType)
+	local ranking = Ranking.getRanking(OpenBattleConfig.GroupRanking)
+	
+	local nRank = 0
+	local nScore = {0,0,0}
+	local mPoint = 0
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	if ranking then		--玩家的组别
+		local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		if nItem then
+			mPoint = Ranking.getPoint(nItem)
+		end
+	end
+
+	local pRanking = Ranking.getRanking(OpenBattleConfig.conBeKillRanking)
+	local mYRank = 0
+	if pRanking then		--连续死亡榜
+		local pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+		if pItem then
+			nRank = Ranking.getPoint(pItem)
+			mYRank = Ranking.getIndexFromPtr(pItem) + 1
+		end
+	end
+
+	if nType == 1 then
+		local nHandle = Fuben.getSceneHandleById(OpenBattleConfig.nSceneId, 0)
+		local nTime = Fuben.getSceneTime(nHandle)
+		Actor.initActivityWind(sysarg,Lang.Activity.ob0006,nTime,Lang.Activity.ob0007,Lang.Activity.ob0008,mPoint,Lang.Activity.ob0009,nRank,Lang.Activity.ob0015,mYRank)
+	else
+		Actor.changeActivityProgress(sysarg,mPoint,nRank,mYRank)
+	end
+end
+
+--开始开服战场
+function OpenBattleStart(sysarg)
+	if System.getDaysSinceOpenServer() > OpenBattleConfig.openDay then return end
+
+	local svar = System.getDyanmicVar()
+	svar.OpenBattleStartFlag = 1
+	
+	local ranking = Ranking.getRanking(OpenBattleConfig.GroupRanking)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+
+	local pRanking = Ranking.getRanking(OpenBattleConfig.conBeKillRanking)
+	if pRanking then
+		Ranking.clearRanking(pRanking)
+	end
+
+	System.broadcastTipmsg(Lang.Activity.ob0002,2+128)
+
+	local hScene = Fuben.getSceneHandleById(OpenBattleConfig.nSceneId, 0)
+	Fuben.setSceneTime(hScene,OpenBattleConfig.nLastTime)
+
+	Actor.regScriptCallback(thisNPC, thisNPC, OpenBattleConfig.perMin*1000, OpenBattleConfig.perMin*1000, -1, "GiveGroupAwardPerMin")
+	Actor.regScriptCallback(thisNPC, thisNPC, OpenBattleConfig.deathPerMin*1000, OpenBattleConfig.deathPerMin*1000, -1, "GiveDeathAwardPerMin")
+	Actor.regScriptCallback(thisNPC, thisNPC, OpenBattleConfig.killPerMin*1000, OpenBattleConfig.killPerMin*1000, -1, "GiveKillAwardPerMin")
+end
+
+--定时给组别等级发放经验
+function GiveGroupAwardPerMin()
+	local ranking = Ranking.getRanking(OpenBattleConfig.GroupRanking)
+	local playerList = LuaHelp.getSceneActorListById(OpenBattleConfig.nSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local nIndex = 0
+				if ranking then
+					local nActorId = Actor.getIntProperty(player,PROP_ENTITY_ID)
+					local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+					if pItem then
+						nIndex = Ranking.getPoint(pItem)
+					end
+					local nConfig = OpenBattleConfig.GroupsAwards[nIndex]
+					if nConfig then
+						for i=1,table.getn(nConfig) do
+							Actor.giveAward(player,nConfig[i].type,nConfig[i].id,nConfig[i].count,nConfig[i].quality,nConfig[i].strong,nConfig[i].bind,0,205,Lang.Activity.ob0011)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+--定时给死亡榜前三奖励
+function GiveDeathAwardPerMin()
+	local ranking = Ranking.getRanking(OpenBattleConfig.conBeKillRanking)
+	if ranking then
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+			if pItem then
+				local nActorId = Ranking.getId(pItem)
+				local pActor = System.getEntityPtrByActorID(nActorId)
+				if pActor then
+					local nSeneid = Actor.getSceneId(pActor)
+					if nSeneid == OpenBattleConfig.nSceneId then
+						local nConfig = OpenBattleConfig.DeathAwards[i+1]
+						if nConfig then
+							for i=1,table.getn(nConfig) do
+								Actor.giveAward(pActor,nConfig[i].type,nConfig[i].id,nConfig[i].count,nConfig[i].quality,nConfig[i].strong,nConfig[i].bind,0,205,Lang.Activity.ob0011)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+--组别等级最高的玩家奖励
+function GiveKillAwardPerMin()
+	local ranking = Ranking.getRanking(OpenBattleConfig.conBeKillRanking)
+	if ranking then
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+			if pItem then
+				local nActorId = Ranking.getId(pItem)
+				local pActor = System.getEntityPtrByActorID(nActorId)
+				if pActor then
+					local nSeneid = Actor.getSceneId(pActor)
+					if nSeneid == OpenBattleConfig.nSceneId then
+						local nConfig = OpenBattleConfig.KillAwards[i+1]
+						if nConfig then
+							for i=1,table.getn(nConfig) do
+								Actor.giveAward(pActor,nConfig[i].type,nConfig[i].id,nConfig[i].count,nConfig[i].quality,nConfig[i].strong,nConfig[i].bind,0,205,Lang.Activity.ob0011)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+--结束开服战场
+function OpenBattleEnd(sysarg)
+	if System.getDaysSinceOpenServer() > OpenBattleConfig.openDay then return end
+
+	local svar = System.getDyanmicVar()
+	svar.OpenBattleStartFlag = nil
+	
+	Actor.unregScriptCallback(thisNPC, "GiveKillAwardPerMin");
+	Actor.unregScriptCallback(thisNPC, "GiveDeathAwardPerMin");
+	Actor.unregScriptCallback(thisNPC, "GiveGroupAwardPerMin")
+
+
+	local playerList = LuaHelp.getSceneActorListById(OpenBattleConfig.nSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.closeActivityWind(player)
+
+				local nPosX = System.getRandomNumber(OpenBattleConfig.ePosX[2]-OpenBattleConfig.ePosX[1])
+				nPosX = nPosX + OpenBattleConfig.ePosX[1]
+
+				local nPosY = System.getRandomNumber(OpenBattleConfig.ePosY[2]-OpenBattleConfig.ePosY[1])
+				nPosY = nPosY + OpenBattleConfig.ePosY[1]
+				
+				Actor.enterScene(player,OpenBattleConfig.exitSceenId,nPosX,nPosY)
+			end
+		end
+	end
+
+	System.broadcastTipmsg(Lang.Activity.ob0003,2+128)
+end
+
+--积分排行榜初始化
+function BattleRankInit()
+	local RankNameList = Ranking.getRanking(OpenBattleConfig.GroupRanking)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(OpenBattleConfig.GroupRanking,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,OpenBattleConfig.GroupRanking)
+			
+			if isLoad == false then
+				Ranking.addColumn(RankNameList,"value1")
+				Ranking.addColumn(RankNameList,"value2")
+			end
+		end
+	end
+
+	local pRanking = Ranking.getRanking(OpenBattleConfig.conBeKillRanking)		--通过排行名称获取排行对象
+	if pRanking == nil then							--没有排行对象则创建并加载数据
+		pRanking = Ranking.add(OpenBattleConfig.conBeKillRanking,1000,0)		--创建排行榜
+		if pRanking ~= nil then
+			local isLoad = Ranking.load(pRanking,OpenBattleConfig.conBeKillRanking)
+			
+			if isLoad == false then
+				Ranking.addColumn(pRanking,"value1")
+				Ranking.addColumn(pRanking,"value2")
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function BattleRankFinality()
+	local ranking = Ranking.getRanking(OpenBattleConfig.GroupRanking)
+	if ranking then
+		Ranking.save(ranking,OpenBattleConfig.GroupRanking)
+	end
+
+	local pRanking = Ranking.getRanking(OpenBattleConfig.conBeKillRanking)
+	if pRanking then
+		Ranking.save(pRanking,OpenBattleConfig.conBeKillRanking)
+	end
+end
+
+table.insert(InitFnTable,BattleRankInit)
+table.insert(MainFnTable, OpenBattleFiled_main)
+table.insert(FinaFnTable,BattleRankFinality)

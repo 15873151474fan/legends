@@ -1,0 +1,160 @@
+﻿--逐魔之路
+----#include "data\language\LangCode.txt" once   --语言包
+
+RadishConfig =
+{
+	IntoShowTime = 30,--进入副本显示头顶倒计时 
+	fubenId = 17,		--副本的id
+	EnterScreens =
+	{
+		[1] = 48,  --进入第1关场景id
+	},
+
+	nMapX = 64,		--进入场景坐标X
+	nMapY = 36,		--进入场景坐标Y
+
+	ExitSceenId = 2,	--退出副本场景的id
+	eMapX = 178,		--退出的x坐标
+	eMapY = 195,		--退出的y坐标
+	
+	Mail = Lang.AchieveName.npcName0201,-- 邮件发送者
+	Title = "塔防",  -- 邮件标题
+	MailContent = "欢迎来到诛魔之路，由于您的背包已满，现将【弓箭守卫兵令】道具转发到您的邮箱中，请注意查收。",  -- 邮件内容
+
+	OpenDialogId = 183, -- 发个客户端的特定窗口类型，服务端和客户端使用
+	Dialog = {
+		ta202 = "%d,%d,%d",--0(进入), + 剩余副本次数, +  副本时间限制
+   		ta203 = "%d,%d,%s,%d,%s,%s", --1(领取), + 波数, + 获得经验, + 击杀怪物, + 获得经验, + 总计经验
+	},
+	--新加领奖功能配置
+    AllTimes = 10,--怪物的总波数
+
+    -- 免费道具 
+    FreeItem = {
+    	{type = 0, itemid = 1217, count = 8, strong = 0, quality = 0, bind = 1},
+    },
+
+    -- 建造守卫需要的物品id [守卫id] = {消耗物品id}
+    ItemData = {
+    	[459] = {1217}, 
+		[460] = {1218},
+		[461] = {1219},
+		[462] = {1220},
+		[463] = {1221},
+    },
+
+    -- Power 倍率 NeedGoldNumber 货币数量， type货币类型
+    GetExpPower = {
+     {Power = 1, NeedGoldNumber = 0, type = 0, },--倍率与领取该倍率所需要的元宝数量 
+     {Power = 2, NeedGoldNumber = 1000000, type = 0,},--倍率与领取该倍率所需要的元宝数量
+     {Power = 3, NeedGoldNumber = 400, type = 3,},--倍率与领取该倍率所需要的元宝数量
+	 {Power = 5, NeedGoldNumber = 550, type = 3,},--倍率与领取该倍率所需要的元宝数量
+	 {Power = 8, NeedGoldNumber = 800, type = 3,},--倍率与领取该倍率所需要的元宝数量
+    }, 
+
+    --防御塔配置
+    towersMax = 16, -- 副本塔的最高数量
+	--[[
+	towers =  
+	{   
+	  --nType 塔类型，1射击，2武神，3霸体, 4冰冻，5降魔，6祈福，7袭天
+	  --nLiveTime 塔的生存时间
+	  --nMod 经验倍数
+	  --[208]  =
+		{
+			nType = 1,
+			nLiveTime = 1800,
+			nMod = 2, -- 击杀怪物经验 == 怪物经验 * nMod
+		}, --群体低攻箭塔
+		
+	},
+	  ]]
+	towers =
+	{
+		--弓箭守卫 普通守卫
+		[459] =
+		{
+			nType = 1,
+			nLiveTime = 1800,
+			nMod = 1, 
+		}, 
+		--冰霜守卫 单体减速
+		[460] =
+		{
+			nType = 2,
+			nLiveTime = 1800,
+			nMod = 1, 
+		}, 
+		--焰舞守卫 群体攻击
+		[461] =
+		{
+			nType = 3,
+			nLiveTime = 1800,
+			nMod = 1, 
+		}, 
+		--魔导守卫 单体减速多倍经验
+		[462] =
+		{
+			nType = 4,
+			nLiveTime = 1800,
+			nMod = 2,
+		}, 
+		--真龙守卫 群体减速多倍经验
+		[463] =
+		{
+			nType = 5,
+			nLiveTime = 1800,
+			nMod = 3,
+		}, 
+	},
+
+	--龙崽怪
+	RadishMonster = {nMonsterID = 207, nRadishBlood = 100000},
+
+	--刷怪
+	monsters =
+	{
+		--怪物属性
+		--nExp 杀怪获取的经验
+		--nLossExp 损失的经验 龙崽击杀怪物的经验
+		monAttr = 
+		{
+			[210] = {nExp = 105000, nLossExp = 0, nScore = 1, rate = 0.03, nWave = 1},  
+			[211] = {nExp = 107800, nLossExp = 0, nScore = 1, rate = 0.03, nWave = 2}, 
+			[212] = {nExp = 107800, nLossExp = 0, nScore = 1, rate = 0.03, nWave = 3}, 
+			[213] = {nExp = 215600, nLossExp = 0, nScore = 1, rate = 0.03, nWave = 4}, 
+			[214] = {nExp = 215600, nLossExp = 0, nScore = 2, rate = 0.03, nWave = 5}, 
+			[215] = {nExp = 323400, nLossExp = 0, nScore = 2, rate = 0.03, nWave = 6}, 
+			[216] = {nExp = 323400, nLossExp = 0, nScore = 2, rate = 0.03, nWave = 7},
+			[218] = {nExp = 431200, nLossExp = 0, nScore = 2, rate = 0.03, nWave = 8}, 
+			[219] = {nExp = 431200, nLossExp = 0, nScore = 3, rate = 0.03, nWave = 9}, 
+			[220] = {nExp = 539000, nLossExp = 0, nScore = 3, rate = 0.03, nWave = 10}, 
+			[217] = {nExp = 4950000, nLossExp = 0, nScore = 3, rate = 0.03, nWave = 5}, 
+			[221] = {nExp = 19500000, nLossExp = 0, nScore = 3, rate = 0.03, nWave = 10}, 
+		},
+
+		--怪物数量
+		monCounts = 
+		{
+			countList = {30,30,30,30,30,30,30,30,30,30,}, --每波数量
+		},
+				
+	},
+
+	passAwards =  --通关奖励
+	{
+		needGuardTimes = 1,  --需要守住xx波及以上波数才有奖励
+		awardIndexs = { -- 通关波数的奖励
+			{type = 2, id = 0, count = 393750, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 404250, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 404250, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 808500, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 808500, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 1212750, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 1212750, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 1617000, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 1617000, strong = 0, quality = 0, bind = 1}, --经验
+			{type = 2, id = 0, count = 2021250, strong = 0, quality = 0, bind = 1}, --经验
+		},
+	},
+}

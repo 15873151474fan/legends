@@ -1,0 +1,414 @@
+--lua script
+--神印八卦
+--#include "data\config\activityconfig\ShenYinBaGua\ShenYinBaGuaConfig.txt" once 
+
+--请求刷新boss
+function ReqBrushBoss(sysarg)
+	local config = GetShenYinBaGuaConfig(sysarg)
+	if not config then return end
+	
+	local teamid = Actor.getTeamId(sysarg)
+	if teamid ~= 0 then		--有组队
+		local captainPtr = TeamFun.getTeamCaptain( teamid )
+		if captainPtr ~= sysarg then
+			Actor.sendTipmsg(sysarg, Lang.Activity.sybg01, ttFlyTip)
+			return
+		end
+	end
+	
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if not fbPtr then return end
+	local SysVar = Fuben.getDyanmicVar(fbPtr)
+	if SysVar.flag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sybg05, ttFlyTip)
+		return
+	end
+	
+	--每天一次免费的刷新机会
+	local num = GetShenYinBaGuaInfo(sysarg, 0)
+	if num == 1 then--已用完
+		local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+		if myGold < config.brushYb then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu039, ttFlyTip) --元宝不足
+			return
+		end
+		--先扣元宝
+		local ret = Actor.changeMoney(sysarg, mtYuanbao, -config.brushYb, 195, Lang.LogTips.sy001)
+		if not ret then return end
+	else
+		SaveShenYinBaGuaInfo(sysarg, 0, 1)
+		local pack = DataPack.allocPacket(sysarg, 145, 88)
+		if not pack then return end
+		
+		DataPack.writeByte(pack, 0)--没用，和消息统一
+		DataPack.writeByte(pack, 0)--用完
+		DataPack.flush(pack)
+	end
+	
+	local tab = BeginBrush(sysarg)
+
+	if not tab then return end
+	local num = #tab
+
+	for i=1, num do
+		SaveShenYinBaGuaInfo(sysarg, i, tab[i])
+	end
+	local pack = DataPack.allocPacket(sysarg, 145, 79)
+	if not pack then return end
+	
+	DataPack.writeByte(pack, num)
+	for i=1, num do
+		DataPack.writeWord(pack, tab[i])
+	end
+	DataPack.flush(pack)
+
+end
+
+--请求解锁
+function ReqUnlock(sysarg)
+	local config = GetShenYinBaGuaConfig(sysarg)
+	if not config then return end
+	
+	local teamid = Actor.getTeamId(sysarg)
+	if teamid ~= 0 then		--有组队
+		local captainPtr = TeamFun.getTeamCaptain( teamid )
+		if captainPtr ~= sysarg then
+			Actor.sendTipmsg(sysarg, Lang.Activity.sybg02, ttFlyTip)
+			return
+		end
+	end
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if not fbPtr then return end
+	local SysVar = Fuben.getDyanmicVar(fbPtr)
+	if SysVar.flag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sybg06, ttFlyTip)
+		return
+	end
+	
+	local bossnum = GetBossNum(sysarg) --7个boss配5档收费标准
+	if bossnum >= 7 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.sybg03, ttFlyTip)
+		return
+	end
+
+	if bossnum < 2 then return end
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	if myGold < config.openYb[bossnum-1] then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu039, ttFlyTip) --元宝不足
+		return
+	end
+	
+	--先扣元宝
+	local ret = Actor.changeMoney(sysarg, mtYuanbao, -config.openYb[bossnum-1], 195, Lang.LogTips.sy001)
+	if not ret then return end
+	
+	local bosstem = GetAllBossId(sysarg)
+	local flag = false
+	local bossid = 0
+	for i=1,10000 do
+		if flag then
+			break
+		end
+		local index = math.random(1, 10)
+		local n = 0
+		for k,v in ipairs(bosstem) do
+			local tem = config.boss[index].id
+			if v == tem then
+				n = n + 1
+			end
+		end
+
+		if n < config.boss[index].maxtimes then
+			bossid = config.boss[index].id
+			SaveShenYinBaGuaInfo(sysarg, bossnum+1, bossid) 
+			flag = true
+			break
+		end
+	end
+
+	local bosstem = GetAllBossId(sysarg)
+	if not bosstem then return end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 79)
+	if not pack then return end
+		
+	DataPack.writeByte(pack, #bosstem)
+	for i=1, #bosstem do
+		DataPack.writeWord(pack, bosstem[i])
+	end
+	DataPack.flush(pack)
+	
+end
+
+--请求神印八卦副本免费刷新解锁次数
+function ReqShenYinBaGuaTimes(sysarg)
+	local num = GetShenYinBaGuaInfo(sysarg, 0)
+	if num == 1 then
+		num = 0
+	else
+		num = 1
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 88)
+	if not pack then return end
+	
+	DataPack.writeByte(pack, 0)--没用，和消息统一
+	DataPack.writeByte(pack, num)
+	DataPack.flush(pack)
+
+end
+
+--请求打开面板
+function ReqDefaultBossId(sysarg)
+	local idTab = {}
+	local config = GetShenYinBaGuaConfig(sysarg)
+	if not config then return end
+	
+	idTab = GetAllBossId(sysarg)
+	if not idTab[1] then
+		index1 = math.random(1, 10)
+		index2 = math.random(1, 10)
+		idTab[1] = config.boss[index1].id
+		idTab[2] = config.boss[index2].id
+		SaveShenYinBaGuaInfo(sysarg, 1, idTab[1])
+		SaveShenYinBaGuaInfo(sysarg, 2, idTab[2])
+	end
+
+	local hScene = Actor.getSceneHandle(sysarg)
+	SaveShenYinBaGuaInfo(sysarg, 8, hScene)	--保存场景id
+	return idTab
+end
+
+--获取当前开了多少个boss
+function GetBossNum(sysarg)
+	local bossnum = 0
+	for i=1, 7 do
+		local ret = GetShenYinBaGuaInfo(sysarg, i)
+		if ret then
+			bossnum = bossnum+1
+		end
+	end
+
+	return bossnum
+end
+
+--执行刷新
+function BeginBrush(sysarg)
+	local config = GetShenYinBaGuaConfig(sysarg)
+	if not config then return end
+	local num = GetBossNum(sysarg)
+	if num <1 then return end
+	local ret = {}
+	for j=1, num do
+		local flag = false
+		for i=1,10000 do
+			if flag then
+				break
+			end
+			local index = math.random(1, 10)
+			if not ret[1] then
+				ret[1] =  config.boss[index].id
+			end
+			
+			local n = 0
+			for k,v in ipairs(ret) do
+				local tem = config.boss[index].id
+				if v == tem then
+					n = n + 1
+				end
+			end
+
+			if n < config.boss[index].maxtimes then
+				ret[j] = config.boss[index].id
+				flag = true
+			end
+		end
+	end
+
+	return ret --返回中奖id给客户端（一次性10次抽奖用到）
+end
+
+--获取当前有多少BOSSID
+function GetAllBossId(sysarg)
+	local bossTab = {}
+	for i=1, 7 do
+		local ret = GetShenYinBaGuaInfo(sysarg, i)
+		if ret then
+			bossTab[i] = ret
+		end
+	end
+
+	return bossTab
+end
+
+--开始刷出怪
+function ReqBeginKill(sysarg)
+	local teamid = Actor.getTeamId(sysarg)
+	if teamid ~= 0 then		--有组队
+		local captainPtr = TeamFun.getTeamCaptain( teamid )
+		if captainPtr ~= sysarg then
+			Actor.sendTipmsg(sysarg, Lang.Activity.sybg01, ttFlyTip)
+			return
+		end
+	end
+
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if not fbPtr then return end
+	local SysVar = Fuben.getDyanmicVar(fbPtr)
+	if SysVar.flag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sybg07, ttFlyTip)
+		return
+	end
+	
+	local config = GetShenYinBaGuaConfig(sysarg)
+	local bossTab = GetAllBossId(sysarg)
+	if not bossTab then return end
+	local hScene = Actor.getSceneHandle(sysarg)
+	if not hScene then return end
+	local pFuben = Actor.getFubenPrt(sysarg)
+	Fuben.setFubenProgressListVal(pFuben, 0, #bossTab); -- 总数
+	Fuben.setFubenProgressListVal(pFuben, 1, #bossTab); -- 剩余
+
+	for i=1, #bossTab do 
+		local x1 = config.pos_x1
+		local x2 = config.pos_x2
+		local y1 = config.pos_y1
+		local y2 = config.pos_y2
+		local livetime = config.liveTime
+
+		local pMonster = Fuben.createMonstersInRange(hScene, bossTab[i], x1,y1,x2,y2, 1,liveTime)
+	end
+	Actor.sendTipmsg(sysarg, Lang.Activity.sybg07, ttFlyTip)
+	SysVar.flag = 1
+	
+end
+
+--boss死亡处理 杀完怪，发放奖励
+function OnShenYinBaGuaBossDie(monster, sysarg, monId)
+	local sceneId = Actor.getSceneId(sysarg)
+	if sceneId ~= 231 then return end
+
+	local hScene = Actor.getSceneHandle(sysarg)
+	if not hScene then return end
+	local config = GetShenYinBaGuaConfig(sysarg)
+	if not config then return end
+
+	local pFuben = Actor.getFubenPrt(sysarg)
+	if not pFuben then return end
+
+	local ret = Fuben.getFubenProgressListVal(pFuben, 2)
+	if ret-1 < 0 then ret = 1 end
+	if monId ~= 1549 and monId ~= 1550 then --特殊处理，复活怪
+		Fuben.setFubenProgressListVal(pFuben, 1, ret-1) -- 剩余怪物数
+	end
+	--杀死怪记录日志
+	local teamid = Actor.getTeamId(sysarg)
+	local captinPtr = TeamFun.getTeamCaptain(teamid)
+	if not captinPtr then return end
+	local captinName = Actor.getName(captinPtr)
+
+	System.sendCommonLog(195, teamid, captinName, monId, 1,0, Lang.LogTips.sy002)
+
+	local award = true
+	for i=1, #config.bossid do
+		local flag = Fuben.isKillAllMonster(hScene, config.bossid[i])
+
+		if not flag then
+			award = false
+
+			break
+		end
+	end
+
+	if not award then return end
+
+	local bossnum = GetBossNum(sysarg)
+	local x1 = config.pos_x1
+	local x2 = config.pos_x2
+	local y1 = config.pos_y1
+	local y2 = config.pos_y2
+	local livetime = config.liveTime
+	local treasureId = config.treasure[bossnum-1].treasureId
+	local treasureNum = config.treasure[bossnum-1].count
+
+	local pMonster = Fuben.createMonstersInRange(hScene, treasureId, x1,y1,x2,y2, treasureNum, liveTime)
+	if pMonster then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sybg08, ttFlyTip)
+		System.sendCommonLog(195, teamid, captinName, treasureId, treasureNum,0, Lang.LogTips.sy003)
+	end
+end
+
+
+--读取配置文件
+function GetShenYinBaGuaConfig(sysarg)
+	return ShenYinBaGuaConfig
+end
+
+--保存数据到文件
+function SaveShenYinBaGuaInfo(sysarg, subid, value) --subid:0表示次数。1~7分别表示怪物ID
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local teamid = Actor.getTeamId(sysarg)
+	if teamid ~= 0 then		--有组队
+		nActorId = teamid
+	end
+	local ranking = Ranking.getRanking(Lang.Rank.ShenYinBaGuaFile)
+	if ranking then
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			Ranking.setSub(itemPtr, subid, value)
+		else
+			local newPtr = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(newPtr, subid, value)
+		end
+	end
+end
+
+--读取文件
+function GetShenYinBaGuaInfo(sysarg, subid)
+	local ranking = Ranking.getRanking(Lang.Rank.ShenYinBaGuaFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local teamid = Actor.getTeamId(sysarg)
+		if teamid ~= 0 then		--有组队
+			nActorId = teamid
+		end	
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local result = Ranking.getSub(item, subid)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		end
+	end
+	return nil
+end
+
+--退出清零
+function ClearShenYinBaGuaInfo(teamid)
+	local ranking = Ranking.getRanking(Lang.Rank.ShenYinBaGuaFile)
+	if ranking then
+		local item = Ranking.getItemPtrFromId(ranking, teamid)
+		if item then
+			Ranking.removeId(ranking, teamid)
+		end
+	end
+end
+
+--退出副本处理
+function OnExitShenYinBaGuaFb(sysarg)
+	local teamid = Actor.getTeamId(sysarg)
+	if teamid ~= 0 then		--有组队
+		local hScene = GetShenYinBaGuaInfo(sysarg, 8)
+		if not hScene then return end
+		local num = Fuben.getScenePlayerCount(hScene)
+		if num >= 1 then
+			return
+		end
+	end
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if not fbPtr then return end
+	local SysVar = Fuben.getDyanmicVar(fbPtr)
+	SysVar.flag = 0
+	ClearShenYinBaGuaInfo(teamid)
+end

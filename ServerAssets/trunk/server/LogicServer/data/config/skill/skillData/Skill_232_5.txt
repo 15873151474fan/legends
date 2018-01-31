@@ -1,0 +1,92 @@
+
+--技能0的1级
+{
+	--技能的三个动作的播放顺序
+	--act动作编号effect施法特效编号
+	actions=
+	{
+		{act=1,effect=0,}
+
+	},
+	
+	desc=Lang.Skill.s209L1Desc,--技能的描述
+	
+	iconID=1,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=47,delay=200,id=1,rate=-1000},							
+						{mj=0,timeParam=1,type=3,delay=200,rate=0,value=1500,interval=1500},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=245,keepTime=500,delay=300,always=false},					
+					},
+				},
+			},
+		},
+
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=35},
+						{mj=0,timeParam=1,type=47,delay=500,id=1,rate=-10000}, --自杀
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=245,keepTime=500,delay=300,always=false},					
+					},
+				},
+			},
+		}, 
+	},
+	 spellConds=
+	{
+		{cond=13,value=3,consume=false},
+		{cond=18,value=20,consume=false},--消耗蓝10
+	},
+	singTime=0,	
+	cooldownTime=0,
+        
+
+
+},

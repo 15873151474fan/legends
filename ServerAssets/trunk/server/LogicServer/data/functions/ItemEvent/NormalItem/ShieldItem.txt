@@ -1,0 +1,45 @@
+﻿
+--#include "data\config\item\NormalItemDatas.txt" once
+
+function ShieldItemFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.getItemCount(sysarg, itemIdx) < 1 then return end
+	
+	local pEquip = Item.getEquipByType(sysarg, Item.itShield)
+	if not pEquip then
+		Actor.sendTipmsg(sysarg, "没有装备护盾，无法使用", ttFlyTip)
+		return
+	end
+	
+	local nNowDura = Item.getItemProperty(sysarg, pEquip, Item.ipItemDuraAndMax, 0)
+	local nMaxDura = Item.getItemProperty(sysarg, pEquip, Item.ipItemStaticDuaMax, 0)
+	
+	
+	local equipId = Item.getItemProperty(sysarg, pEquip, Item.ipItemID, 0)
+	
+	if nNowDura >= nMaxDura then
+		Actor.sendTipmsg(sysarg, "当前护盾盾元已满", ttFlyTip)
+		return
+	end
+	
+	local itemName = Item.getItemName(equipId)
+	if Item.removeItem(sysarg,itemPtr,1,"补充盾元",9) < 1 then
+		return
+	end
+	
+	local nChgValue = nNowDura + itemConfig.value
+	
+	if nChgValue > nMaxDura then nChgValue = nMaxDura end
+	
+	Item.setItemProperty(sysarg, pEquip, Item.ipItemDuraAndMax, nChgValue)
+	
+	Actor.sendTipmsg(sysarg, string.format("%s成功补充了%d盾元",itemName, nChgValue-nNowDura), ttFlyTip)
+	
+end
+
+function ShieldItemInit(sysarg)
+	for k, v in ipairs(ShieldItem) do
+		GlobalItemFn[v.item_id] = { func = ShieldItemFunc, params = v }
+	end
+end
+
+table.insert(InitFnTable, ShieldItemInit)

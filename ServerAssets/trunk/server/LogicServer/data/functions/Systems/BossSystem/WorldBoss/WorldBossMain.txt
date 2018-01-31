@@ -1,0 +1,215 @@
+﻿--[[世界BOSS 功能文件实现 李昀 2015-9-5]]
+--------------------世界BOSS配置------------------------ 
+--#include "data\config\BossSystem\WorldBossConfig.txt" once
+
+--------------------世界BOSS事件处理-------------------- 
+--#include "WorldBossEvent.txt" once 
+
+local WorldBossImp = {}
+--------------------------------------
+------------杂项功能------------------ 
+--------------------------------------
+--获取当前的时分秒 
+function GetTime()
+  local Hour = 0
+  local Min = 0
+  local Sec = 0
+  Hour, Min, Sec = System.getTime(Hour,Min,Sec)  --获取当前的时分秒
+  return Hour, Min, Sec
+end
+
+--今天是否会刷这个BOSS
+function CanMobWorldBossToday(BossID)
+
+  local Boss = WorldBossConfig[BossID]
+  if Boss == nil then
+    return false
+  end
+
+  --周期限制 如果天数 符合才刷新
+  local  NeedMob = false
+  local Day = System.getDayOfWeek()
+  if Day == 0 then Day = 7 end
+
+  local nConfigDayCount = #Boss.DayInWeekLimit
+
+  if nConfigDayCount == 0 then
+    NeedMob = true
+  end
+
+  for i = 0 , nConfigDayCount do
+    if Day == Boss.DayInWeekLimit[i] then
+      NeedMob = true
+    end
+  end
+  
+  return NeedMob
+
+end 
+
+
+--根据配置的时间获得 时间和分钟的整形 比如 "14:20" 获得 14 , 20 
+function GetWorldBossHourMin(sConfig)
+  local sMin = string.sub(sConfig,4)
+  local sHour  = string.sub(sConfig,1,2)
+  --BossPrint("世界Boss时间  ".. sHour..":"..sMin)
+  return tonumber(sHour),tonumber(sMin)
+end
+
+--获取BOSS 的运行期存储变量  如果BOSSID 为空 = nil  则返回总表 否则返回对应的子表 
+function GetWorldBossDyanmicVar(BossID)
+  local var = System.getDyanmicVar()
+  
+  --检查确定非空 
+  if var.WorldBossInfo == nil then
+    var.WorldBossInfo = {}
+  end
+  
+  --确定要返回总表还是分表 
+  if BossID ~= nil then
+    local sType = type(BossID) 
+    if sType == "number" then
+      if var.WorldBossInfo[BossID] == nil then
+        var.WorldBossInfo[BossID] = {}
+      end 
+      return var.WorldBossInfo[BossID]  
+    else
+      BossPrint("GetWorldBossDyanmicVar Error.Boss want Number : but is ".. sType)
+      return nil
+    end
+  else
+    return var.WorldBossInfo 
+  end 
+   
+end
+
+--------------------------------------
+------------注册自动执行--------------
+--------------------------------------
+--刷怪函数的key  
+function MobWorldBossAutoRunKey(BossID)
+  return "MobWorldBoss#"..BossID
+end
+
+function WorldBossNoticeKey5Min(BossID) 
+  return "OnWorldBossMobBefore5Min#"..BossID
+end
+
+function WorldBossNoticeKey15Min(BossID)
+  return "OnWorldBossMobBefore15Min#"..BossID  
+end
+
+function WorldBossImp.GetNextMobTime(BossID)
+  return BossImp.GetNextRunTime(MobWorldBossAutoRunKey(BossID))
+end 
+                            
+
+--注册BOSS下次执行回调时间 
+function WorldBossImp.RegNextRunTime(BossID)
+  local Boss = WorldBossConfig[BossID]
+  if Boss == nil then
+    print(string.format("WorldBossImp.RegNextRunTime(%d) 不存在的世界BOSS配置!",i))
+    return   
+  end 
+  
+  local today = System.getToday()
+  local Now = System.getCurrMiniTime()
+
+  --根据每天的刷新时间 获得 下一次执行时间的 MiniDataTime
+  local Hour,Min = GetWorldBossHourMin(Boss.MobTime)
+  local NextRunTime = today + (Hour * 3600) + (Min * 60)
+  
+  BossPrint(string.format("BOSS::Today : %d , NextRunTime : %d , Now : %d " , today , NextRunTime , Now ))
+  
+  --print("系统现在时间Now:" .. Now)
+  --print("系统现在时间NextRunTime:" .. NextRunTime)
+  if (Now + 60) > NextRunTime  then--这段代码有问题，如果不关闭服务器，就会一直注册当天的时间 
+    NextRunTime = NextRunTime + (24 * 3600)
+  end
+
+  --获得下一次执行的字符串时间 以便给引擎注册
+  local sNexRunTime = System.decodeTime(NextRunTime)
+  BossPrint("BOSS 注册时间:" .. sNexRunTime)
+  print("世界BOSS 注册时间:" .. sNexRunTime)
+  --移除掉自动执行的函数
+  BossImp.UnRegisterAutoRun(MobWorldBossAutoRunKey(BossID)) 
+  
+  --注册刷怪下次执行函数
+  BossImp.RegisterAutoRun(MobWorldBossAutoRunKey(BossID),WorldBossImp.MobWorldBoss,NextRunTime,BossID)
+   
+  --注册刷怪前五分钟 以及 前15分钟刷出公告
+  local Min5 = NextRunTime -  5* 60
+  if Min5 > Now and CanMobWorldBossToday(BossID) then
+    local sMin5Run = System.decodeTime(Min5)
+    BossImp.RegisterAutoRun(WorldBossNoticeKey5Min(BossID),OnWorldBossMobBefore5Min , Min5,BossID ) 
+  end 
+  
+  -- 注册前 15分钟刷出公告 
+  local Min15 = NextRunTime -  15* 60
+  if Min15 > Now and CanMobWorldBossToday(BossID) then
+    local sMin15Run = System.decodeTime(Min15)
+    BossImp.RegisterAutoRun(WorldBossNoticeKey15Min(BossID),OnWorldBossMobBefore15Min , Min15,BossID )
+  end 
+
+end
+
+--刷出世界BOSS 
+function WorldBossImp.MobWorldBoss(BossID)
+  local Boss = WorldBossConfig[BossID]
+  if Boss == nil then
+    return
+  end
+  
+  if CanMobWorldBossToday(BossID) == true then 
+
+	  BossPrint("刷出世界BOSS : ".. BossID)
+	  local Scene = Fuben.getSceneHandleById(Boss.SceneID,0)
+	  
+      if Scene then
+	     local X = Boss.X + math.random(-Boss.Range,Boss.Range)
+	     local Y = Boss.Y + math.random(-Boss.Range,Boss.Range)
+	     local Monster = Fuben.createMonster(Scene,Boss.MonID, X, Y ,Boss.AliveSec)
+         if Monster == nil then
+	       --打印太多，先行屏蔽 
+	       print(string.format("世界BOSS刷出失败 : %d 请检查坐标配置",BossID))
+	       return
+         end
+	
+	     --注册最后消失前5分钟 和消失回调
+	     Actor.regScriptCallback(Monster, nil, 1000*(Boss.AliveSec - 5*60), 0, 1, "OnWorldBossLast5Min",BossID)
+	     Actor.regScriptCallback(Monster, nil, 1000*Boss.AliveSec, 0, 1, "OnWorldBossDisapper", BossID)
+	     OnWorldBossCreate(Monster,BossID)
+	
+	  else
+	    print(string.format("世界BOSS刷出失败 : %d 请检查坐标配置",BossID))
+	    return
+      end
+      
+  end	  
+
+  BossPrint("注册第二天的世界BOSS 执行函数 : ".. BossID)
+  --刷出后立马注册明天的自动执行函数
+  WorldBossImp.RegNextRunTime(BossID)
+
+end
+
+
+--------------------------------------
+------------初始化 反初始化----------- 
+--------------------------------------
+--注册BOSS 刷出函数 
+function WorldBossImp.RegWorldBossCall()  
+  for i = 1 , #WorldBossConfig do
+    WorldBossImp.RegNextRunTime(i)
+  end
+end
+
+
+function WorldBossImp.UnRegWorldBossCall()
+
+end 
+
+--if InitFnTable ~= nil then 
+  table.insert(InitFnTable, WorldBossImp.RegWorldBossCall)
+  table.insert(FinaFnTable, WorldBossImp.UnRegWorldBossCall)
+--end

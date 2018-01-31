@@ -1,0 +1,146 @@
+--开服战场通用
+--lua script
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\OpenBattleField\OpenBattleConfig.txt" once
+
+--玩家被杀
+function OnKillByActorInOpenBattle(sysarg,killerPtr)
+	local nSeneid = Actor.getSceneId(killerPtr)
+	if nSeneid ~=  OpenBattleConfig.nSceneId then
+		return
+	end
+
+	local svar = System.getDyanmicVar()
+	if svar.OpenBattleStartFlag == nil or svar.OpenBattleStartFlag == 0 then return end
+	
+	local nGroup = 0
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local nKillActorId = Actor.getIntProperty(killerPtr,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(OpenBattleConfig.GroupRanking)
+
+	local myPoint = 1
+	local myRank = 0
+
+	local tagPoint = 0
+	local tagRank = 0
+	
+	--更新组
+	if ranking then
+		local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		if nItem then
+			nGroup = Ranking.getPoint(nItem)
+			Ranking.updateItem(ranking,nActorId,1-nGroup)
+		else
+			Ranking.addItem(ranking,nActorId,1)
+		end
+		
+		local nKillItem = Ranking.getItemPtrFromId(ranking,nKillActorId)
+		if nKillItem then
+			tagPoint = Ranking.getPoint(nKillItem)
+			if tagPoint >= OpenBattleConfig.MaxGroup then
+				tagPoint = OpenBattleConfig.MaxGroup
+			else
+				if tagPoint <= nGroup then
+					Ranking.updateItem(ranking,nKillActorId,1)
+					tagPoint = tagPoint + 1
+				end
+			end
+		else
+			Ranking.addItem(ranking,nKillActorId,1)
+		end
+
+		Actor.onHeadNumber(killerPtr,Ranking.getPoint(nKillItem))
+
+	end
+	
+	local myKillRank = 0
+	local tagKillRank = 0
+	--更新被杀
+	local pRanking = Ranking.getRanking(OpenBattleConfig.conBeKillRanking)
+	if pRanking then
+		local pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+		if pItem then
+			Ranking.updateItem(pRanking,nActorId,1)
+		else
+			pItem = Ranking.addItem(pRanking,nActorId,1)
+		end
+		if pItem then
+			myRank = Ranking.getPoint(pItem)
+		end
+
+		local pKillItem = Ranking.getItemPtrFromId(pRanking,nKillActorId)
+		if pKillItem then
+			local nKillNum = Ranking.getPoint(pKillItem)
+			Ranking.updateItem(pRanking,nKillActorId,-nKillNum)
+			tagKillRank = Ranking.getIndexFromPtr(pKillItem) + 1
+		else
+			Ranking.addItem(pRanking,nKillActorId,0)
+		end
+		if pItem then
+			myKillRank = Ranking.getIndexFromPtr(pItem) + 1
+		end
+	end
+	
+	Actor.changeActivityProgress(sysarg,myPoint,myRank,myKillRank)
+	Actor.changeActivityProgress(killerPtr,tagPoint,tagRank,tagKillRank)
+
+	local nConfig = OpenBattleConfig.KillPlayAwards[nGroup+1]
+	if nConfig then
+		for i=1,table.getn(nConfig) do
+			Actor.giveAward(killerPtr,nConfig[i].type,nConfig[i].id,nConfig[i].count,nConfig[i].quality,nConfig[i].strong,nConfig[i].bind,0,205,Lang.Activity.ob0010)
+		end
+	end
+	
+	local nCurTime = System.getCurrMiniTime()
+	local dVal = Actor.getDyanmicVar(sysarg)
+	dVal.nLastEnterFeiledTime = nCurTime + OpenBattleConfig.enterCd
+end
+
+--等级超过了，就被踢出
+function OnOpenBattleFieldOp(sysarg)
+	local nSeneid = Actor.getSceneId(sysarg)
+	if nSeneid ~=  OpenBattleConfig.nSceneId then
+		return
+	end
+	
+	local myCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	if myCircle > 0 then
+		return
+	end
+
+	local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if myLevel > OpenBattleConfig.MaxLev then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ob0012,OpenBattleConfig.MaxLev), ttFlyTip)
+
+		local nPosX = System.getRandomNumber(OpenBattleConfig.ePosX[2]-OpenBattleConfig.ePosX[1])
+		nPosX = nPosX + OpenBattleConfig.ePosX[1]
+
+		local nPosY = System.getRandomNumber(OpenBattleConfig.ePosY[2]-OpenBattleConfig.ePosY[1])
+		nPosY = nPosY + OpenBattleConfig.ePosY[1]
+		
+		Actor.enterScene(sysarg,OpenBattleConfig.exitSceenId,nPosX,nPosY)
+	end
+end
+
+--更新复活后的组数
+function UpdateLiveUpInfo(sysarg)
+	local nSeneid = Actor.getSceneId(sysarg)
+	if nSeneid ~=  OpenBattleConfig.nSceneId then
+		return
+	end
+
+	local ranking = Ranking.getRanking(OpenBattleConfig.GroupRanking)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		if nItem then
+			nGroup = Ranking.getPoint(nItem)
+			Ranking.updateItem(ranking,nActorId,1-nGroup)
+		else
+			Ranking.addItem(ranking,nActorId,1)
+		end
+
+		Actor.onHeadNumber(sysarg,1)
+	end
+end

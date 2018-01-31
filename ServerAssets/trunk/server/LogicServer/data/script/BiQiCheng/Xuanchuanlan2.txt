@@ -1,0 +1,64 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+  thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+ 
+---#include "data\language\LangCode.txt" once          
+--#include "data\functions\guildOperate\GuildBillBoard.txt" once   -- 脚本函数  once
+
+--[[此NPC中标准任务发行表]]
+
+
+--[[此NPC中标准任务受理表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = Lang.NormalTalk.h00003, },
+
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+--QTSTB-----------------------------------
+--优先返回此NPC的任务对话状态
+  local qts, qid = Actor.getQuestTalkState( sysarg )
+  if qts == 1 then
+    return ShowQuestTalk( sysarg, qid, 1 )
+  elseif qts == 2 then
+    return ShowQuestTalk( sysarg, qid, 0 )
+  end
+--QTSTE-----------------------------------
+  local str = ""
+  
+  local str1 = GuildStatueRank_Main(sysarg,2)
+
+  str = str..str1
+
+  return str
+end
+
+
+--[[注销任务的系统回调函数]]
+
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

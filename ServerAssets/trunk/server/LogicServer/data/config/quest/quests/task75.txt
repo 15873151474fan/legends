@@ -1,0 +1,45 @@
+﻿--lua script
+{
+	id = 75,			-- 挖矿强化
+	parentid = 74,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name75,
+	content = Lang.Quest.desc75,
+
+	prom = { type = 0, scene = Lang.SceneName.s00099, npc = Lang.EntityName.n00376 },
+	comp = { type = 0, scene = Lang.SceneName.s00099, npc = Lang.EntityName.n00376 },
+	target = {
+		{
+			type = 0, id = 9, count = 5, rewardId = 0,useList = false,
+			location = {
+				sceneid = 74, x= 111,y = 111,entityName = Lang.EntityName.m9,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 1652130, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 65000, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+            { type = 0, id = 735, count = 1, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--新手锄头 
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk751,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk751,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip751,
+	},
+	PassMsTip = {
+	},
+},

@@ -1,0 +1,16 @@
+--lua script
+
+--¹Ò»ú¼ýËþËÀÍö
+
+MonDieDispatcher.MonArrowDie = function(monster,sysarg,monId)
+	local nActorId = Actor.getOwnerActorId(monster)
+	local pActor = System.getEntityPtrByActorID(nActorId)
+	if pActor then
+		Actor.sendTipmsg( pActor,string.format(Lang.Activity.war0014,Actor.getName(monster),Actor.getName(sysarg)),ttTipmsgWindow )
+		Actor.onAutoArrowDieOP(pActor)
+	end
+end
+
+--MonDieDispatcher.register(1124, MonDieDispatcher.MonArrowDie )
+--MonDieDispatcher.register(1125, MonDieDispatcher.MonArrowDie )
+--MonDieDispatcher.register(1126, MonDieDispatcher.MonArrowDie )

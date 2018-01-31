@@ -1,0 +1,21 @@
+
+
+function ItemAcceptQusetFunc( sysarg, itemidx, itemPtr, ItemTab )
+	print("dfsfs")
+	if Actor.hasQuest(sysarg, ItemTab.questId) then
+		print("有这个任务了",ItemTab.questId)
+		return
+	end 
+	if Actor.addQuest( sysarg, ItemTab.questId) then
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true,"ItemAcceptQuset",5)      --删除一个物品
+	end
+end
+
+function ItemAcceptQusetInit( sysarg )
+	for k, v in ipairs(ItemAcceptQuest) do
+		GlobalItemFn[v.item_id] = { func = ItemAcceptQusetFunc, params = v }
+	end
+end
+
+
+table.insert(InitFnTable, ItemAcceptQusetInit)

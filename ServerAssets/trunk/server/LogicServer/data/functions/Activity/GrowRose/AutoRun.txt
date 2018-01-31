@@ -1,0 +1,60 @@
+﻿
+--#include "data\config\activityconfig\GrowRose\Config.txt" once
+
+--结算
+function GrowRoseCalc()
+	if (not GrowRoseConfig) then return end
+	local config = GrowRoseConfig.extraAward
+	
+	local sVal = System.getStaticVar()
+	local growRose = sVal.growRose
+	if not growRose then
+		growRose = 0
+	end
+	
+	if growRose >= config.growTimes then
+		System.broadcastTipmsgLimitLev(string.format(Lang.Activity.t00137, config.growTimes), ttScreenCenter+ttChatWindow, GrowRoseConfig.limitLevel)
+		sVal.growCalcRose = growRose
+	end
+	
+	sVal.growRose = nil
+end
+
+--喜从天降
+function GrowRoseExtraAward()
+	if (not GrowRoseConfig) then return end
+	local config = GrowRoseConfig.extraAward
+	local sVal = System.getStaticVar()
+	local growRose = sVal.growCalcRose
+	if not growRose then
+		growRose = 0
+	end
+	
+	if growRose >= config.growTimes then
+		for k, v in ipairs(config.mob) do
+			local hScene = Fuben.getSceneHandleById(v.sid, 0)
+			Fuben.createMonstersInRange(hScene, v.mid, v.x1, v.y1, v.x2, v.y2, v.count, v.liveTime)
+		end
+		PlayRoseFlowerEffect()
+		System.broadcastTipmsgLimitLev(string.format(Lang.Activity.t00128, config.growTimes), ttScreenCenter+ttChatWindow, GrowRoseConfig.limitLevel)
+	end
+	
+	sVal.growCalcRose = nil
+end
+
+--天女散花
+function PlayRoseFlowerEffect()
+	local config = GrowRoseConfig
+	if config.extraAward.effect == nil then return end
+	local playerList = LuaHelp.getAllActorList()  --获取某场景玩家对象列表
+	if not playerList then return end
+	for i = 1, #playerList do
+		local player = playerList[i]
+		if player and Actor.checkActorLevel(player, config.limitLevel, 0) == true then
+			--播放全屏特效
+			local effect = config.extraAward.effect
+			Actor.playScrEffectCode(player,effect.nEffId,effect.nSec)
+		end
+	end
+	
+end

@@ -1,0 +1,43 @@
+﻿--lua script
+--这里定义活动的主要业务逻辑相关的函数
+--
+--#include "data\functions\GlobalDefine.txt" once
+
+
+local CrossServerSystemImpl = {}
+
+--[[
+    注册跨服子系统消息处理函数，函数的形式为function (sysarg, msgid, packet)
+]]
+CrossServerSystemImpl.registerMsgHandler = function (msgid, proc)
+	if CrossServerSystemImpl[msgid] then
+		return false
+	else
+		CrossServerSystemImpl[msgid] = proc
+	return true
+	end
+end
+
+--[[
+    取消已注册的宝物子系统消息处理函数
+]]
+CrossServerSystemImpl.unregisterMsgHandler = function (msgid, proc)
+	if CrossServerSystemImpl[msgid] == proc then
+		CrossServerSystemImpl[msgid] = nil
+		return true
+	else
+		return false
+	end
+end 
+
+
+CrossServerSystemImpl.main = function (sysarg, systemid, msgid, packet)
+	if CrossServerSystemImpl[msgid] then
+		CrossServerSystemImpl[msgid](sysarg, msgid, packet)
+	end
+end
+
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.crossServerSystem, CrossServerSystemImpl.main)
+
+--#include "ActivityHandler.txt" once

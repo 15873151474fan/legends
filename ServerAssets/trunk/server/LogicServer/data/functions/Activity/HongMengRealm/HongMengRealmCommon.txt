@@ -1,0 +1,169 @@
+--鸿蒙秘境
+--#include "data\config\activityconfig\HongMengRealm\HongMengRealmConfig.txt" once
+
+--活动开始
+function HmrStart()
+	ClearHmrData()
+	System.broadcastTipmsg(Lang.Activity.hmr0024, ttScreenCenter+ttChatWindow, HongMengRealmConfig.limitLevel, HongMengRealmConfig.limitCircle)
+		
+end 
+
+--活动结束
+function HmrOver()
+	local playerList = LuaHelp.getSceneActorListById(HongMengRealmConfig.sceneId)	--获取场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player then
+				Actor.enterScene(player, HongMengRealmConfig.exitSceneId, HongMengRealmConfig.exitPosX, HongMengRealmConfig.exitPosY)
+			end
+		end
+	end
+	
+	ClearHmrData()
+	System.broadcastTipmsg(Lang.Activity.hmr0025, ttScreenCenter+ttChatWindow, HongMengRealmConfig.limitLevel, HongMengRealmConfig.limitCircle) 
+	
+
+end
+
+
+--进入鸿蒙
+function EnterHongMengRealm(sysarg)
+	local result, remainTime = CheckEnterHmr(sysarg) 
+	if result ~= true then
+		return 
+	end
+	
+	Actor.enterScene(sysarg, HongMengRealmConfig.sceneId, HongMengRealmConfig.posX, HongMengRealmConfig.posY)
+	Actor.initActivityWind(sysarg, Lang.Activity.hmr0019, remainTime, Lang.Activity.hmr0020)
+end
+
+--检测是否可进入
+function CheckEnterHmr(sysarg)
+	if Actor.checkActorLevel(sysarg, HongMengRealmConfig.limitLevel , HongMengRealmConfig.limitCircle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.hmr0021, HongMengRealmConfig.limitCircle,HongMengRealmConfig.limitLevel), ttFlyTip)
+		return false
+	end
+
+	local weekDay = System.getDayOfWeek()
+	local curTime = System.getCurrMiniTime()
+	
+	local weekDayFlag = false
+	for k, v in ipairs(HongMengRealmConfig.actWeekDay or {}) do 
+		if v == weekDay then
+			weekDayFlag = true
+			break
+		end
+	end
+	
+	if weekDayFlag == false then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.hmr0022, ttFlyTip) 
+		return false
+	end
+	
+	local todayTime = System.getToday()
+	local curTime = System.getCurrMiniTime()
+	local actTimeRange = HongMengRealmConfig.actTimeRange	
+	local startTime = todayTime + ((actTimeRange[1] * 60 + actTimeRange[2]) * 60 + actTimeRange[3])
+	local endTime = todayTime + ((actTimeRange[4] * 60 + actTimeRange[5]) * 60 + actTimeRange[6]) 
+	
+	if curTime < startTime or curTime > endTime then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hmr0022, ttFlyTip) 
+		return false
+	end
+	
+	return true, endTime-curTime
+
+end
+
+--花元宝传送
+function TeleportByYb(sysarg)
+	local result, remainTime = CheckEnterHmr(sysarg) 
+	if result ~= true then
+		return 
+	end
+
+	if not HongMengRealmConfig.TeleportYb or HongMengRealmConfig.TeleportYb <= 0 then
+		return 
+	end	
+	local npcHandle = Actor.getHandle(thisNPC)
+	Actor.messageBox( sysarg, npcHandle, 0, string.format(Lang.Activity.hmr0027,HongMengRealmConfig.TeleportYb), Lang.Activity.hmr0028.."/OnTeleportByYb,"..remainTime, Lang.Activity.hmr0029.."/OnCancelTeleport", nil)
+end
+
+function OnTeleportByYb(sysarg, remainTime)
+	if not HongMengRealmConfig.TeleportYb then
+		return 
+	end	
+
+	if Actor.changeMoney(sysarg,mtYuanbao,-HongMengRealmConfig.TeleportYb,967, Lang.LogTips.hmr004) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hmr0018, ttFlyTip)
+		return 
+	end
+	
+	--local nHandle = Fuben.getSceneHandleById(HongMengRealmConfig.sceneId, 0)
+	--local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00311)
+	--local npcSceneName, npcX, npcY = Actor.getSceneName(npcPtr, 0, 0)
+	Actor.enterScene(sysarg, HongMengRealmConfig.sceneId, HongMengRealmConfig.telPosX, HongMengRealmConfig.telPosY)
+	
+	Actor.initActivityWind(sysarg, Lang.Activity.hmr0019, tonumber(remainTime), Lang.Activity.hmr0020)
+end
+
+function OnCancelTeleport(sysarg)
+
+end
+
+function BuyHundunZhu(sysarg)
+	Actor.openDialogs(sysarg, 51, HongMengRealmConfig.buyItem)
+end
+
+
+--活动介绍
+function Introduce(sysarg)
+	local str = Lang.Activity.hmr0003
+	str = str..Lang.Activity.hmr0004
+	return str
+end
+
+--清除数据
+function ClearHmrData()
+	local qyAwardPtr = Ranking.getRanking( Lang.Rank.QiYuanAwardFile ) 
+	if qyAwardPtr then
+		Ranking.clearRanking(qyAwardPtr)
+	end
+end
+
+function HmrLoginHandle(sysarg)
+	local sceneId =  Actor.getSceneId(sysarg)
+	if HongMengRealmConfig.sceneId == sceneId then
+		local weekDay = System.getDayOfWeek() 
+		local weekDayFlag = false
+		for k, v in ipairs(HongMengRealmConfig.actWeekDay or {}) do 
+			if v == weekDay then
+				weekDayFlag = true
+				break
+			end
+		end
+	
+		local flag = false
+		if weekDayFlag ~= true then 
+			flag = true
+		else
+			local todayTime = System.getToday()
+			local curTime = System.getCurrMiniTime()
+			local actTimeRange = HongMengRealmConfig.actTimeRange	
+			local startTime = todayTime + ((actTimeRange[1] * 60 + actTimeRange[2]) * 60 + actTimeRange[3])
+			local endTime = todayTime + ((actTimeRange[4] * 60 + actTimeRange[5]) * 60 + actTimeRange[6]) 
+	
+			if curTime < startTime or curTime > endTime then
+				flag = true
+			end
+		end
+		
+		if flag == true then
+			Actor.enterScene(sysarg, HongMengRealmConfig.exitSceneId, HongMengRealmConfig.exitPosX, HongMengRealmConfig.exitPosY)
+		end
+
+	end
+	
+
+end

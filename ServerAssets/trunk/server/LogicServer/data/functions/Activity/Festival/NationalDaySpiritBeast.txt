@@ -1,0 +1,12 @@
+--国庆刷灵兽
+
+--#include  "data\config\activityconfig\Festival\NationalDayActive.txt"
+
+function CreateSpiritBeast()
+	local BeastConfigTab = NationalDayActiveConfig.spiritBeastXianRui.spiritBeast
+	--print("CreateSpiritBeast")
+	for k, BeastInfo in ipairs(BeastConfigTab or {}) do
+		local hScene = Fuben.getSceneHandleById(BeastInfo.scenceId, 0)  --获得场景句柄
+		local count = Fuben.createMonstersInRange(hScene, BeastInfo.id, BeastInfo.x1, BeastInfo.y1, BeastInfo.x2, BeastInfo.y2, BeastInfo.count, BeastInfo.liveTime)
+	end
+end

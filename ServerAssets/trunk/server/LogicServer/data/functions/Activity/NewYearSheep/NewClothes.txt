@@ -1,0 +1,180 @@
+--lua script
+--新装过节
+--#include "data\config\activityconfig\NewYearSheep\NewClothesConfig.txt" once
+
+--请求面板信息
+function ReqNewClothesInfo(sysarg)
+	if System.isInDateRange(unpack(NewClothesConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0201, ttFlyTip)
+		return
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 114)
+	if not pack then return end
+
+	local award = {}
+	
+	for i=1,2 do
+		local horseNum = NewClothesConfig.horseNum[i] - ReadNewClothesNum(i) or 0
+		award[i] = horseNum
+	end
+	
+	DataPack.writeByte(pack, 2) --数组大小
+	DataPack.writeUInt(pack, award[1])--全服剩余数量
+	DataPack.writeUInt(pack, award[2])--全服剩余数量
+	
+	DataPack.flush(pack)
+end
+
+--判断物品
+function ReqNewClothesChange(sysarg, changeWay, awardIndex) --方式，奖品
+	if System.isInDateRange(unpack(NewClothesConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0201, ttFlyTip)
+		return
+	end
+
+	--判断剩余
+	if awardIndex ~= 1 and awardIndex ~= 2 then	return end
+	if not NewClothesConfig.horseNum[awardIndex] then return end
+	local horseNum = NewClothesConfig.horseNum[awardIndex] - ReadNewClothesNum(awardIndex) or 0
+	if horseNum < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0214, ttFlyTip)
+		return
+	end
+	
+	--判断消耗
+	local needItem = NewClothesConfig.change[awardIndex].consumes[1].count --需要道具
+	local itemId = NewClothesConfig.consumeItem[awardIndex] --需要物品id
+	local count = Actor.getItemCount(sysarg, itemId, -1, -1) --身上的物品数量
+	if changeWay == 1 then --元宝+道具
+		local needYb = NewClothesConfig.change[awardIndex].consumes[2].count --需要元宝
+		local itemYb = count*NewClothesConfig.change[awardIndex].consumes[1].yb --身上装备价钱
+		local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)--元宝
+		if itemYb+myGold < needYb then
+			Actor.sendTipmsg(sysarg, Lang.Activity.yyd0207, ttFlyTip)
+			return
+		end	
+	elseif changeWay == 2 then --单独道具
+		if count < needItem then
+			Actor.sendTipmsg(sysarg, Lang.Activity.yyd0208, ttFlyTip)
+			return
+		end
+	end
+
+	--判断背包空格足不足
+	local needbag = 1
+	local nGridCount = Item.getBagEmptyGridCount(sysarg)
+	if needbag > nGridCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0204, ttFlyTip)
+		return
+	end
+	
+	--对话框
+	local ybNum = 0
+	if count < needItem then
+		ybNum = (needItem-count)*NewClothesConfig.change[awardIndex].consumes[1].yb --还要继续扣元宝数
+		needItem = count
+	end
+
+	NewClothesdialog(sysarg, changeWay, awardIndex, ybNum, needItem)
+end
+
+--继续兑换对话框
+function NewClothesdialog(sysarg, changeWay, awardIndex, ybNum, itemNum) -- 方式，物品，元宝，道具
+	local itemId = 0
+	if awardIndex == 1 then
+		local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)--1女，0男
+		itemId = NewClothesConfig.change[awardIndex].awards[sex+1].id
+	else
+		itemId = NewClothesConfig.change[awardIndex].awards[1].id
+	end
+
+	local itemName = Item.getItemName(itemId)
+	local str1 = ""
+	if changeWay == 1 then
+		if ybNum == 0 then
+			str1 = Lang.Activity.yyd0211
+			str1 = string.format(str1,itemNum,itemName)
+		elseif itemNum == 0 then
+			str1 = Lang.Activity.yyd0210
+			str1 = string.format(str1,ybNum,itemName)
+		else
+			str1 = Lang.Activity.yyd0209
+			str1 = string.format(str1,itemNum,ybNum,itemName)
+		end
+	else
+		str1 = Lang.Activity.yyd0211
+		str1 = string.format(str1,itemNum,itemName)
+	end
+	local str2 = Lang.Activity.yyd0212
+	local str3 = Lang.Activity.yyd0213
+
+	Actor.messageBox(sysarg,0,0,str1,str2.."/YesChangeClothes,"..changeWay..","..awardIndex..","..itemNum..","..ybNum,str3.."/CancelChange",NULL)
+end
+
+--确定继续兑换，扣材料，给奖励
+function YesChangeClothes(sysarg, changeWay, awardIndex, itemNum, ybNum)
+	changeWay = tonumber(changeWay)
+	awardIndex = tonumber(awardIndex)
+	itemNum = tonumber(itemNum)
+	ybNum = tonumber(ybNum)
+	local itemId = NewClothesConfig.consumeItem[awardIndex] --需要物品id
+
+	if itemNum > 0 then
+		--扣除物品
+		Actor.removeItem(sysarg, itemId, itemNum, -1,-1,-1, Lang.LogTips.yyd0201, 980)
+	end
+	if ybNum > 0 then
+		--扣除元宝
+		Actor.changeMoney(sysarg, mtYuanbao, -ybNum, 980, Lang.LogTips.yyd0201)
+	end
+
+	SaveNewClothesNum(awardIndex, 1)
+
+	--给奖励
+	Awards.Give(sysarg,NewClothesConfig.change[awardIndex].awards,980,Lang.LogTips.yyd0201)
+	ReqNewClothesInfo(sysarg)--刷一下界面
+end
+
+--取消兑换
+function CancelChange( sysarg )
+end
+
+--保存全服消耗的数量
+function SaveNewClothesNum(awardIndex, itemNum)
+	local ranking = Ranking.getRanking(Lang.Rank.NewClothesFile)  --1:服装，2:坐骑
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local num = tonumber(Ranking.getSub(item, awardIndex)) or 0
+			Ranking.setSub(item, awardIndex, num+itemNum)
+		else
+			item = Ranking.addItem(ranking,awardIndex,0)
+			Ranking.setSub(item, awardIndex, itemNum)
+		end
+	end
+end
+
+--读取全服消耗的数量
+function ReadNewClothesNum(awardIndex)
+	local ranking = Ranking.getRanking(Lang.Rank.NewClothesFile) --1:服装，2:坐骑
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, awardIndex)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		end
+	end
+	return 0
+end
+
+--活动结束清数据
+function ClearNewClothesActEnd()
+	local ranking = Ranking.getRanking(Lang.Rank.NewClothesFile) --1:服装，2:坐骑
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end

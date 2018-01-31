@@ -1,0 +1,59 @@
+﻿{
+	id = 1029,
+	name = Lang.Quest.q02058,
+	parentid = 1028,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q02059,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00001,
+    npc = Lang.EntityName.n00019,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00049,
+	npc = Lang.EntityName.n01002,
+  },
+
+  target =
+  {
+
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 446,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 41,  bind = true, job = 0, sex = -1, group=0 },
+},
+  --任务条件表
+  conds =
+  {
+
+    { type = 0, id = 0,count = 1 },  --1级可接
+    { type = 3, id = 1,count = 1 },
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t03087,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t03088,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t03089,
+  }, 
+	PromCallBack =  "OnPromTelport",
+	PromCallBackArg = {Lang.SceneName.s00049,52,34}, 
+},

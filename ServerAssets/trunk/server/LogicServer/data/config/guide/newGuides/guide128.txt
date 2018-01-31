@@ -1,0 +1,66 @@
+--挖矿的指引
+{
+  maxLevel = 37,
+  --触发条件
+	triggerList =
+	{
+		{ type = 1, valueList = {351,}},      --有这个任务
+	} ,
+
+
+  --引导的步骤 
+	steps = 
+	{
+    --第1步 指向挖矿按钮
+		{
+			condList = 
+			{
+				{ type = 7,  helpId = 0, dataList = {351,} },   --任务进行中
+				{ type = 15,  helpId = 0, dataList = {4,} },		--在矿洞
+				{ type = 1,  helpId = 7, dataList = {0,} },			--挖矿按钮
+				{ type = 22,  helpId = 0, dataList = {325,326,327,727,728} },    --身上没有这些物品（鹤嘴锄）
+				--{ type = 13,  helpId = 0, dataList = {325,326,327,727,728} },    --背包有这些物品（鹤嘴锄）
+			},
+
+			action = { type = 1, helpId = 7, data = 0, desc = Lang.GuideLang.desc26 },
+		},
+
+    --第2步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },			--任务追踪面板可见
+				{ type = 4,  helpId = 51, dataList = {1,} },      --任务追踪面板没有选中第1项
+				{ type = 5,  helpId = 0, dataList = {351,} },     --存在任务
+      },
+
+      action = { type = 2, helpId = 51, data = 1, desc = Lang.GuideLang.desc4 },  --指向任务追踪面板第1项
+    },
+
+    --第3步 指任务连接
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 5,  helpId = 0, dataList = {351,} },		--存在任务
+				{ type = 8,  helpId = 0, dataList = {351,} },   --完成任务
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 351, data = Lang.GuideLang.name30, desc = Lang.GuideLang.desc2 },
+    },
+
+    --第4步 结束指引
+    {
+      condList =
+      {
+				{ type = 6,  helpId = 0, dataList = {351,} },			--不存在任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

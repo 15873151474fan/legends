@@ -1,0 +1,115 @@
+
+--使用两周年道具
+
+--#include "data\config\item\NormalItemDatas.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\AnniversaryTurntable.txt" once  
+--#include "data\functions\Activity\AnniversaryHorse\FireworksFeast.txt" once 
+
+--[[
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+function AnniverDebrisFunc(sysarg, itemidx, itemPtr, itemConfig)
+	if Actor.checkActorLevel(sysarg, AnniversaryTurntableCfg.level, AnniversaryTurntableCfg.circle) ~= true then
+		Actor.sendTipmsg( sysarg, Lang.Activity.mzn0212, ttFlyTip )  
+		return 
+	end
+	
+	if(Actor.getItemCount(sysarg,itemidx) < AnniversaryTurntableCfg.debrisCount) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mzn0204, AnniversaryTurntableCfg.debrisCount), ttFlyTip)
+		return
+    end
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mzn0219,1), ttFlyTip)
+		return 
+	end
+	
+	if Actor.removeConsume(sysarg, 0, itemidx, AnniversaryTurntableCfg.debrisCount, -1, -1, -1, 0, 197, Lang.LogTips.mzn204) >= AnniversaryTurntableCfg.debrisCount then
+		local awardIdx = GetTurntableRandomInfo(AnniversaryTurntableCfg.debrisList, nil) 
+		if awardIdx > 0 and awardIdx <= table.getn(AnniversaryTurntableCfg.debrisList) then
+			local awardConfig = AnniversaryTurntableCfg.debrisList[awardIdx]
+			Actor.giveAward(sysarg, awardConfig.type, awardConfig.id, awardConfig.count,
+				awardConfig.quality, awardConfig.strong, awardConfig.bind, 0, 197, Lang.LogTips.mzn205)
+		end
+	
+	end
+	
+end
+
+function AnniverfireworksFunc(sysarg,itemidx,itemPtr,ItemTable)
+	if Actor.checkActorLevel(sysarg, FireworksFeastCfg.level, FireworksFeastCfg.circle) ~= true then
+		Actor.sendTipmsg( sysarg, Lang.Activity.mzn0212, ttFlyTip )  
+		return 
+	end
+
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )  
+		return
+    end
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0206, ttFlyTip)
+		return 
+	end
+	
+	local hScene = Fuben.getSceneHandleById(8,0)
+	local npcPtr = Fuben.getNpcPtrByName(hScene, FireworksFeastCfg.npcName) 
+	local npcName, npcX, npcY = Actor.getSceneName(npcPtr, 0, 0)
+	local actorSceName, acotrX, actorY = Actor.getSceneName(sysarg, 0, 0)
+	if Actor.getName(npcPtr) ~= FireworksFeastCfg.npcName or (math.abs(acotrX - npcX) > FireworksFeastCfg.useDistance or math.abs(actorY - npcY) > FireworksFeastCfg.useDistance) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0209, ttFlyTip)
+		return 
+	end	
+	
+ --添加buff 
+  if(ItemTable.buffs ~= nil) then
+	  for i=1, table.getn(ItemTable.buffs ) do
+		   local buff =ItemTable.buffs[i]
+		   Actor.addBuff(sysarg,buff.buffType,buff.buffGroup, buff.value, buff.times, buff.interval, Item.getItemName(itemidx), buff.timeOverlay) --添加buff
+	  end
+  end
+  
+	--添加实体特效
+	if(ItemTable.entityEffects ~= nil) then
+	  for i=1, table.getn(ItemTable.entityEffects) do
+		   local effect = ItemTable.entityEffects[i]
+		   Actor.addEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime) --添加特效 
+	  end
+	end
+	
+	--添加场景特效
+	if(ItemTable.sceneEffects ~= nil) then
+	  for i=1, table.getn(ItemTable.sceneEffects)   do
+		   local effect = ItemTable.sceneEffects[i]
+		   Actor.addSceneEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime,effect.x,effect.y) --添加特效 
+	  end
+	end
+	
+	Actor.removeItemByPtr(sysarg,itemPtr,1,true,"buffEffect",5) 
+	
+	PlayAnniverFireworks(sysarg)  
+
+	
+end
+
+
+function AnniversaryHorseItemInit(sysarg)
+	if AnniversaryTurntableCfg.debrisId then --周年碎片
+		GlobalItemFn[AnniversaryTurntableCfg.debrisId] = { func = AnniverDebrisFunc}
+	end
+	
+	for i = 1,table.getn(EffectItemItem) do --周年烟花盛宴
+		local x = EffectItemItem[i]
+		if x.item_id == FireworksFeastCfg.fireworksId then
+			GlobalItemFn[x.item_id] = { func = AnniverfireworksFunc, params = x }
+			break
+		end
+	end
+  
+end
+
+table.insert(InitFnTable,AnniversaryHorseItemInit)

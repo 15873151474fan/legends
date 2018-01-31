@@ -1,0 +1,576 @@
+﻿--#include "data\envir\FuBen.txt" once
+--#include "data\config\activityconfig\PaTaFuben\PaTaConfig.txt" once --客户端也有的配置表
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+--#include "data\functions\CombatChallange\CombatPkCommonOp.txt" once   --战力竞技
+--#include "data\functions\Systems\ActivitySystem\ProbabilityIndexDrop.txt" once
+
+PaTaAward_Rank = 1		 --排名奖励
+PaTaAward_Master = 2  --楼主奖励
+
+cInitData = 1
+cGetReward = 2
+cFubenOpt = 3
+cLastFubenRanking = 4
+
+sInitData = 1
+sSendReward = 2
+sSendOptPack = 3
+sSendOfflineLog = 4
+sGetPassAward = 5
+sSendImmediatelyAward = 6
+sSendLastFubenRank = 7
+
+
+Opt_EnterFuben = 1
+Opt_StartPass = 2	--开始扫荡
+Opt_AddTimes = 3
+Opt_OverPass = 4    --结束扫荡
+Opt_ImmediatelyFin = 5  --立即完成
+Opt_Challenge = 6
+
+SendOpt_CloseUI = 1
+SendOpt_StartPass = 2
+SendOpt_OverPass = 3
+SendOpt_AllTimes = 4
+SendOpt_ImmFin = 5
+
+TempFubenId = 34
+TempGroupId = 34
+
+function GetPaTaFbCfg( fubenId )
+	for k, v in ipairs(PaTaFBConfig) do
+		for _, cfg in ipairs(v.fubens) do
+			if cfg.fubenId == fubenId then
+				return cfg, v.minLv
+			end
+		end
+	end
+	return nil
+end
+
+function SetGloPaTaInfo( sysarg, _fubenId, _times, _deadline)
+	local SysVar = System.getStaticVar()
+	if not SysVar.PaTaFubenInfoList then
+		SysVar.PaTaFubenInfoList = {}
+	end
+	local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	SysVar.PaTaFubenInfoList[myId] = {}
+	local t = SysVar.PaTaFubenInfoList[myId]
+	t.deadline = _deadline
+	t.times = 0
+	t.selectTimes = _times
+	t.fubenId = _fubenId
+	t.award = {}
+	--t.Flag = Flag--扫荡状态 
+end
+
+function ClearGloPaTaInfo( sysarg )
+	local SysVar = System.getStaticVar()
+	if SysVar.PaTaFubenInfoList then
+		local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+		SysVar.PaTaFubenInfoList[myId] = nil
+		Actor.unregScriptCallback(sysarg, "OnFinishFubenPass")
+		if Actor.hasState(sysarg, esPaTaFubenBattle) then
+			Actor.removeState(sysarg, esPaTaFubenBattle)
+		end
+	end
+end
+
+
+function GetGloPaTaInfo( sysarg )
+	local SysVar = System.getStaticVar()
+	if SysVar.PaTaFubenInfoList then
+		local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+		return SysVar.PaTaFubenInfoList[myId]
+	end
+	return nil
+end
+
+
+function SendPaTaFubenPack( sysarg, optType, param1, param2 )
+	local netPack = DataPack.allocPacket(sysarg, 142, sSendOptPack)  --申请一个数据包
+	if netPack then
+		DataPack.writeByte(netPack, optType)
+		DataPack.writeInt(netPack, param1 or 0)
+		DataPack.writeInt(netPack, param2 or 0)
+		DataPack.flush(netPack)
+	end
+end
+
+function GetTodayPaTaTimes( sysarg, fubenId )
+	return 20
+end
+
+function DropProbabilityIndexAward(sysarg, index, paTaTab)
+	local cbInfo = ProbabilityIndexDropImpl[index]
+	if cbInfo then
+		cbInfo.func(sysarg, cbInfo.params, paTaTab)
+	end
+end
+
+function SetPaTaState( sysarg )
+	local ranking = Ranking.getRanking( Lang.Rank.FubenRank )
+	if ranking then
+		local myPoint = 0
+		local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, myId)
+		if item then
+			myPoint = Ranking.getPoint(item)
+		end
+		Actor.setUIntProperty(sysarg, PROP_ACTOR_PATA_POINT, myPoint)
+	end
+
+	local ptInfo = GetGloPaTaInfo(sysarg)
+	if ptInfo then
+		local nNowDt = System.getCurrMiniTime()
+		local diffSecs = ptInfo.deadline - nNowDt
+		if diffSecs < 0 then    --过期了
+			diffSecs = 0
+		else
+		end		
+		local fbCfg = GetPaTaFbCfg( ptInfo.fubenId )
+		local remainTimes = math.ceil(diffSecs / fbCfg.OneFbSecs)
+		local remainSecs = diffSecs % fbCfg.OneFbSecs
+		local missTimes = ptInfo.selectTimes - ptInfo.times - remainTimes
+		if missTimes > 0 then
+			for i = 1, missTimes do
+				local curTimes = i + ptInfo.times
+				ptInfo.award[curTimes] = {}
+				DropProbabilityIndexAward(sysarg, fbCfg.finishAwards, ptInfo.award[curTimes])
+				DeductFubenTimes(sysarg, ptInfo.fubenId)
+			end			
+			ptInfo.times = ptInfo.times + missTimes
+		end
+		if remainTimes > 0 then
+			Actor.regScriptCallback(sysarg, 0, remainSecs * 1000, fbCfg.OneFbSecs * 1000, remainTimes, "OnFinishFubenPass", ptInfo.fubenId)
+			--Actor.addState(sysarg, esPaTaFubenBattle)
+		end
+		local netPack = DataPack.allocPacket(sysarg, 142, 4)  --申请一个数据包
+		if netPack then
+			DataPack.writeByte(netPack, ptInfo.fubenId)
+			DataPack.writeByte(netPack, ptInfo.selectTimes)
+			DataPack.writeWord(netPack, diffSecs)
+			DataPack.writeByte(netPack, ptInfo.times)
+			for i = 1, ptInfo.times do
+				local cfg = ptInfo.award[i]
+				if cfg then
+					local count = #cfg
+					DataPack.writeByte(netPack, count)
+					for j = 1, count do
+						DataPack.writeByte(netPack, cfg[j][1])
+						DataPack.writeInt(netPack, cfg[j][2])
+						DataPack.writeInt(netPack, cfg[j][3])
+					end
+				end
+			end
+			DataPack.flush(netPack)
+		end
+	end
+end
+
+function SendOneAward( sysarg, curTimes, oneAward )
+	local netPack = DataPack.allocPacket(sysarg, 142, sGetPassAward)  --申请一个数据包
+	if netPack then
+		local count = #oneAward
+		DataPack.writeByte(netPack, curTimes)
+		DataPack.writeByte(netPack, count)
+		for i = 1, count do
+			DataPack.writeByte(netPack, oneAward[i][1])
+			DataPack.writeInt(netPack, oneAward[i][2])
+			DataPack.writeInt(netPack, oneAward[i][3])
+		end
+		DataPack.flush(netPack)   --做一个包发送完
+	end
+end
+
+function OnFinishFubenPass( sysarg, fubenId )
+	local fbCfg = GetPaTaFbCfg( fubenId )
+	if fbCfg then
+		local ptInfo = GetGloPaTaInfo(sysarg)
+		if ptInfo then
+			local curTimes = ptInfo.times + 1
+			ptInfo.award[curTimes] = {}
+			DropProbabilityIndexAward(sysarg, fbCfg.finishAwards, ptInfo.award[curTimes])
+			
+			ptInfo.times = curTimes
+			SendOneAward(sysarg, curTimes, ptInfo.award[curTimes])
+			DeductFubenTimes(sysarg, fubenId)
+			--AddPoints(sysarg, fubenId)
+			if curTimes == ptInfo.selectTimes then
+				Actor.removeState(sysarg, esPaTaFubenBattle)
+				--ptInfo.Flag = nil
+			end
+			local useTimes, allTimes = GetFubenTimes(sysarg)
+			SendPaTaFubenPack(sysarg, SendOpt_AllTimes, useTimes, allTimes)
+		end
+	end
+end
+
+function GetFubenTimes( sysarg )
+	local useTimes = GetEnterFubenTimes(sysarg, TempFubenId)
+	local allTimes = GetFubenAllTimes(sysarg, TempFubenId)
+	--print("useTimes"..useTimes..","..allTimes)
+	return allTimes - useTimes, allTimes
+end
+
+--增加扫荡的次数
+function AddPaTaTimes( sysarg, addTimes )
+	if addTimes ~= 1 then return end
+
+	local buyTimes = getTodayFBItemTimes(sysarg, TempFubenId)
+	if buyTimes + addTimes > MaxBuyTimes then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.pataNotice007, ttFlyTip)
+		return
+	end
+	local dVar = System.getDyanmicVar()
+	if dVar.PataRankFlag then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.pataNotice023, ttFlyTip)
+		return
+	end
+	local feeCount = addTimes * BuyFBTimesFee
+	--local consumeBindYb = 0
+	--local consumeYb = 0
+	--local myBindGold = Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO)
+	local myGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	if myGold  < feeCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.pataNotice008,feeCount), ttFlyTip)
+		return
+	end
+	--[[if myBindGold > 0 then
+		if myBindGold >= feeCount then
+			consumeBindYb = feeCount
+		else
+			consumeBindYb = myBindGold
+		end
+	end
+	if consumeBindYb < feeCount then
+		consumeYb =  feeCount - consumeBindYb
+	end
+	if consumeBindYb > 0 then
+		if not Actor.changeMoney(sysarg, mtBindYuanbao, -consumeBindYb, 183, Lang.LogTips.yb026) then
+			return
+		end
+	end]]
+	if feeCount > 0 then
+		if not Actor.changeMoney(sysarg, mtYuanbao, -feeCount, 183, Lang.LogTips.yb026) then
+			return
+		end
+	end	
+	setTodayFBItemTimes(sysarg, TempFubenId, buyTimes + addTimes)
+	IncExtBuyTimes(sysarg, TempGroupId)
+	local useTimes, allTimes = GetFubenTimes(sysarg)
+	SendPaTaFubenPack(sysarg, SendOpt_AllTimes, useTimes, allTimes)
+end
+
+function AddPoints( sysarg, fubenId )
+	local fbCfg = GetPaTaFbCfg( fubenId )
+	if fbCfg then
+		OnAddPoints( sysarg, fbCfg.points )
+	end
+end
+
+function GetMyRank( sysarg )
+	local ranking = Ranking.getRanking( Lang.Rank.FubenRank )
+	if ranking then
+		local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, myId)
+		if item then
+			return Ranking.getIndexFromPtr(item) + 1
+		end
+	end
+	return 0
+end
+
+function OnAddPoints( sysarg, _points )
+	local dVar = System.getDyanmicVar()
+	if dVar.PataRankFlag then
+		return
+	end
+	local ranking = Ranking.getRanking( Lang.Rank.FubenRank )
+	if ranking then
+		local newPoint = _points
+		local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, myId)
+		if item then
+			Ranking.updateItem(ranking, myId, _points)
+			newPoint = Ranking.getPoint(item)
+		else
+			item = Ranking.addItem(ranking, myId, _points)
+			if item then
+				local myName = Actor.getName(sysarg)
+				local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+				local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+				local nCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+				local levelStr = myLevel
+				if nCircle > 0 then
+					levelStr = string.format("[%d]%d", nCircle, myLevel)
+				end
+				Ranking.setSub(item, 0, myName)
+				Ranking.setSub(item, 1, Job_cn[myJob])
+				Ranking.setSub(item, 2, levelStr)
+			end
+		end
+		Actor.setUIntProperty(sysarg, PROP_ACTOR_PATA_POINT, newPoint)
+		--Ranking.save(ranking, Lang.Rank.FubenRank)
+	end
+end
+
+function OnKillPaTaMonster(sysarg, monster, mondId)
+	if 0 == Actor.getEntityType(sysarg) then
+		local fubenId = Actor.getFubenId(sysarg)
+		if fubenId > 0 then
+			Actor.triggerAchieveEvent(sysarg, 85, fubenId)
+			--AddPoints(sysarg, fubenId)
+			--IsBossMaster(sysarg, monster, fubenId)
+		end
+	end
+end
+
+function IsBossMaster( sysarg, monster, fubenId )
+	local sysVar = System.getStaticVar()
+	if not sysVar.PaTaBossMasters then
+		sysVar.PaTaBossMasters = {}
+	end
+	if not sysVar.PaTaMasterIds then
+		sysVar.PaTaMasterIds = {}
+	end
+	local myName = Actor.getName(sysarg)
+	local masterName = sysVar.PaTaBossMasters[fubenId]
+	if not masterName then
+		if SetNewMaster(sysarg, fubenId) then
+			local monName = Actor.getName(monster)
+			local noticeStr = string.format(Lang.ScriptTips.pataNotice009, myName, monName, GetFuBenName(fubenId))
+			System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+			AddCombatRank(sysarg)
+		end
+	end
+end
+
+function AddCombatRank( sysarg )
+	local myName = Actor.getName(sysarg)
+	local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(CombatRanking.RankName)
+	if ranking then
+		local item = Ranking.getItemPtrFromId(ranking, myId)
+		if item then
+			if Ranking.getSub(item, 2) ~= "-" then
+				return
+			end
+		end
+		if not item then
+			local powerCount = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+			item = Ranking.addItem(ranking, myId, powerCount)
+		end				
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+		Ranking.setSub(item, 0, myName)
+		Ranking.setSub(item, 1, "")
+		Ranking.setSub(item, 2, tostring(myJob))
+		Ranking.setSub(item, 3, tostring(myLevel))
+		Ranking.setSub(item, 4, tostring(mySex))
+		local modelId = Actor.getIntProperty(sysarg, PROP_ENTITY_MODELID)
+		local weaponId = Actor.getIntProperty(sysarg, PROP_ACTOR_WEAPONAPPEARANCE)
+		local myIconId = Actor.getIntProperty(sysarg, PROP_ENTITY_ICON)
+		Ranking.setSub(item, 5, tostring(modelId))
+		Ranking.setSub(item, 6, tostring(weaponId))
+		Ranking.setSub(item, 7, tostring(iconId))
+	end
+end
+
+
+function GivePaTaRankAward()
+	local dVar = System.getDyanmicVar()
+	dVar.PataRankFlag = true
+	local ranking = Ranking.getRanking( Lang.Rank.FubenRank )
+	if ranking then
+		local pRanking = Ranking.getRanking( Lang.Rank.LastFubenRank )
+		if pRanking then
+			Ranking.clearRanking(pRanking)
+		end
+		for idx, tab in ipairs(PaTaReward) do
+			local item = Ranking.getItemFromIndex(ranking, idx - 1)
+			if item then
+				if Ranking.getPoint(item) >= PaTaMinAwardLv then
+					local name = Ranking.getSub(item, 0)
+					local nNowDt = System.getCurrMiniTime()
+					local rankAward = string.format(Lang.ScriptTips.pataNotice020, idx)
+					local nDeadline = 3600 * 24 * PaTaRankDays + nNowDt
+					--System.sendPataMasterMsg(name, rankAward, Lang.ScriptTips.bt00071, PaTaAward_Rank, idx, nDeadline)
+
+					System.sendPataMasterMsgById(Ranking.getId(item), rankAward, Lang.ScriptTips.bt00071, PaTaAward_Rank, idx, nDeadline)
+
+					if pRanking then
+						local pItem = Ranking.addItem(pRanking,Ranking.getId(item),Ranking.getPoint(item))
+						if pItem then
+							Ranking.setSub(pItem,0,name)
+						end
+					end
+				end
+			end
+		end
+		Ranking.clearRanking(ranking)
+		--Ranking.save(ranking, Lang.Rank.FubenRank)
+	end
+end
+
+function GivePaTaMasterAward()
+	local dVar = System.getDyanmicVar()
+	dVar.PataRankFlag = nil
+
+	local sysVar = System.getStaticVar()
+	if not sysVar.PaTaBossMasters then
+		return
+	end
+	for k, v in ipairs(PaTaFBConfig) do
+		for _, cfg in ipairs(v.fubens) do
+			local masterName = sysVar.PaTaBossMasters[cfg.fubenId]
+			if masterName then
+				local nNowDt = System.getCurrMiniTime()
+				local masterAward = string.format(Lang.ScriptTips.pataNotice010, GetFuBenName(cfg.fubenId))
+				local nDeadline = 3600 * 24 * MasterDays + nNowDt
+				--System.sendPataMasterMsg(masterName, masterAward, "", PaTaAward_Master, cfg.fubenId, nDeadline)
+
+				local nActorId = sysVar.PaTaMasterIds[cfg.fubenId]
+				if nActorId then
+					System.sendPataMasterMsgById(nActorId, masterAward, "", PaTaAward_Master, cfg.fubenId, nDeadline)
+				end
+			end
+			sysVar.PaTaBossMasters[cfg.fubenId] = nil
+			sysVar.PaTaMasterIds[cfg.fubenId] = nil
+		end
+	end	
+end
+
+function GiveMyMasterAward( sysarg, bType, fubenId )
+	if bType == PaTaAward_Master  then
+		local fbCfg = GetPaTaFbCfg(fubenId)
+		if fbCfg then
+			if checkPaTaBagGrids(sysarg, fbCfg.topAwards) then
+				for k, v in ipairs(fbCfg.topAwards) do
+					if v.type > 0 then
+						Actor.giveAward(sysarg, v.type, v.id, v.count, 0, 0, 0, 0, 818, Lang.LogTips.l00104)
+					else
+						Actor.addItem(sysarg, v.id, v.quality,v.strong, v.count, v.bind, 0, Lang.LogTips.l00104, 818) 	
+					end
+				end
+				return true
+			end
+		end
+	elseif bType == PaTaAward_Rank then
+		local idx = fubenId
+		local awardCfg = PaTaReward[idx]
+		if awardCfg and checkOneBagItem(sysarg, awardCfg) then
+			if awardCfg.type > 0 then
+				Actor.giveAward(sysarg, awardCfg.type, awardCfg.id, awardCfg.count, 0,0,0,0,819, Lang.LogTips.l00105)
+			else
+				Actor.addItem(sysarg, awardCfg.id,0,0,awardCfg.count,awardCfg.bind,0, Lang.LogTips.l00105, 819)
+			end
+			return true
+		end
+	end	
+	return false
+end
+
+function SetNewMaster( sysarg, fubenId )
+	local tMyMasters = {}
+	local isInTab = false
+	local sysVar = System.getStaticVar()
+	local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	for k, v in ipairs(PaTaFBConfig) do
+		for _, cfg in ipairs(v.fubens) do
+			local masterId = sysVar.PaTaMasterIds and sysVar.PaTaMasterIds[cfg.fubenId]	or 0
+			if masterId == myId then
+				if fubenId == cfg.fubenId then
+					isInTab = true
+				end
+				table.insert(tMyMasters, cfg.fubenId)
+			end
+		end
+	end
+	if isInTab then
+		return false
+	end
+	if #tMyMasters >= 2 then
+		local minFubenId = tMyMasters[1]
+		if fubenId < minFubenId then
+			return false
+		end
+		sysVar.PaTaBossMasters[minFubenId] = nil
+		sysVar.PaTaMasterIds[minFubenId] = nil
+	end
+	sysVar.PaTaBossMasters[fubenId] = Actor.getName(sysarg)
+	sysVar.PaTaMasterIds[fubenId] = myId
+	return true
+end
+
+function ChallengeMaster( sysarg, fubenId )
+	local sysVar = System.getStaticVar()
+	if sysVar.PaTaBossMasters then
+		local masterName = sysVar.PaTaBossMasters[fubenId]
+		local masterId = sysVar.PaTaMasterIds[fubenId]
+		local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local myName = Actor.getName(sysarg)
+		if masterName and masterId then
+			if myId == masterId then
+				return
+			end
+			local sVar = Actor.getStaticVar(sysarg)
+			local nNowDt = System.getCurrMiniTime()
+			if sVar.PaTaChallengeCd and sVar.PaTaChallengeCd > nNowDt then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.pataNotice011, ChallengeCd/60), ttFlyTip)
+				return
+			end
+			sVar.PaTaChallengeCd = nNowDt + ChallengeCd
+			local ranking = Ranking.getRanking(CombatRanking.RankName)
+			if ranking then
+				local item = Ranking.getItemPtrFromId(ranking, masterId)
+				if item then
+					local myPower = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+					local targetJob = Ranking.getSub(item, 2)
+					local targetPower = Ranking.getPoint(item)
+					local nResult = PaTaCombatPkCommon(sysarg, myPower, targetPower,masterId, tonumber(targetJob))
+					if nResult == 0 then
+						if SetNewMaster(sysarg, fubenId) then
+							local noticeStr = string.format(Lang.ScriptTips.pataNotice009, myName, masterName, GetFuBenName(fubenId))
+							System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+							AddCombatRank(sysarg)
+						end
+					end
+				end
+			end			
+		end
+	end
+end
+
+--发送上周的排名
+function SendLastFubenRank(sysarg)
+    --print("SendLastFubenRank")
+	local pRanking = Ranking.getRanking( Lang.Rank.LastFubenRank )
+	if pRanking then
+		local nCount = Ranking.getRankItemCount(pRanking)
+		if nCount > 5 then
+			nCount = 5
+		end
+		--print("SendLastFubenRanknCount"..nCount)
+		if nCount <= 0 then
+			return
+		end
+
+		local pPack = DataPack.allocPacket(sysarg, 142, 7)  --申请一个数据包
+		if pPack then
+			DataPack.writeInt(pPack, nCount)				
+			for i=1,nCount do
+				local pItem = Ranking.getItemFromIndex(pRanking,i-1)
+				if pItem then
+					DataPack.writeByte(pPack, i)
+					local str = Ranking.getSub(pItem,0)
+					DataPack.writeString(pPack,Ranking.getSub(pItem,0))
+					DataPack.writeInt(pPack,Ranking.getPoint(pItem))
+					DataPack.writeInt(pPack,PaTaReward[i].id)
+				end
+			end
+			DataPack.flush(pPack)   --做一个包发送完
+		end
+	end
+end

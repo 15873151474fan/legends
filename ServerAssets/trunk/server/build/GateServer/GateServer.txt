@@ -1,0 +1,27 @@
+GateServer =
+{
+
+	--逻辑网关
+	{
+		--网关服务的绑定地址和端口
+		LocalService = 
+		{
+			ServerName = "LogicServerGate",	
+			Address =  "0.0.0.0",
+			Port = 13000,
+			MaxSession = 8192,--网关中客户端连接池的最大连接数
+			SendThreadCount = 2,--数据发送线程池中工作线程数量
+		},	
+		--后台服务器的地址和端口
+		BackServer = 
+		{ 
+			Host = "127.0.0.1", 
+			Port = 23000 
+		},
+	},
+
+    
+
+
+
+}

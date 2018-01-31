@@ -1,0 +1,65 @@
+﻿--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\functions\Activity\WanLingXianfu\WanLingXianfuReshConfig.txt" once --刷怪配置 
+--#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once           --用于处理副本的通用函数
+
+--[[
+    函数名称：恶灵府邸刷怪 
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function EnterWanEFuDi_Main(sysarg)
+  local FubenPtr = Actor.getFubenPrt(sysarg)
+  local FubenSvar = Fuben.getDyanmicVar( FubenPtr )
+  if not FubenSvar then
+     return
+  end
+  if not FubenSvar.WanEFuDiFuTimes then
+     FubenSvar.WanEFuDiFuTimes  = 0
+  end
+    --print("EnterWanEFuDi_Main:"..(FubenSvar.WanEFuDiFuTimes ))
+  local Times = FubenSvar.WanEFuDiFuTimes 
+  local Str =  string.format("<#BL%s/@OnCallWanEFuDiMonster>",string.format(Lang.Activity.WanLingXianfFu001a, Times, WanLingXianfuReshConfig.MaxTime, WanLingXianfuReshConfig.GoldNumber))
+  Str = Str.."\\<#BL".."离开副本".."/@LeaveFuben>"  --<离开副本>
+  return Str
+end
+ 
+function LeaveFuben(sysarg)
+  onExitFubenFunc(sysarg)
+
+end
+
+function OnCallWanEFuDiMonster(sysarg)
+  local FubenPtr = Actor.getFubenPrt(sysarg)
+  local FubenSvar = Fuben.getDyanmicVar( FubenPtr )
+  if not FubenSvar then
+     return
+  end
+  if not FubenSvar.WanEFuDiFuTimes then
+     FubenSvar.WanEFuDiFuTimes  = 0
+  end
+  local Times = FubenSvar.WanEFuDiFuTimes
+  if Times >= WanEFuDiConfig.MaxTime then
+      Actor.sendTipmsg(sysarg, Lang.Activity.WanLingXianfFu002a, 130)
+      return
+  end
+  local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+  if myGold < WanEFuDiConfig.GoldNumber then
+     Actor.sendTipmsg(sysarg, string.format(Lang.Activity.WanLingXianfFu003, WanEFuDiConfig.GoldNumber), 130)
+     return 
+  end
+  if not Actor.changeMoney(sysarg, mtYuanbao, -WanEFuDiConfig.GoldNumber, 997, Lang.Activity.WanLingXianfFu005) then
+        return 
+  end
+  Actor.sendTipmsg(sysarg, Lang.Activity.WanLingXianfFu004a, 130)
+  FubenSvar.WanEFuDiFuTimes = Times + 1
+  --print("OnCallWanEFuDiMonster:"..(FubenSvar.WanEFuDiFuTimes )) 
+  local fhadle = Actor.getFubenHandle( sysarg)
+  local hScene = Fuben.getSceneHandleById(WanEFuDiConfig.nScence, fhadle)
+  local Tb = WanEFuDiConfig.Moster
+  Fuben.createMonsters(hScene, Tb.nMonsterID, Tb.posX1, Tb.posX2, Tb.posY, Tb.nCount, Tb.nLiveTime)
+  return EnterWanEFuDi_Main(sysarg)
+  
+end
+                        
+
+table.insert(MainFnTable, EnterWanEFuDi_Main)

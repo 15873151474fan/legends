@@ -1,0 +1,38 @@
+--lua script
+--用户使用倒福的个性处理
+--#include "data\config\item\NormalItemDatas.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\ReversedLuck.txt" once
+
+function ReversedLuckFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.getItemCount(sysarg, itemIdx) < 1 then return end
+
+	if (System.isInDateRange(unpack(itemConfig.actTime)) ~= true) and (System.getDoubleElevenActFlag(5) ~= 1 and itemIdx == 3148) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0025, ttFlyTip)
+		return
+	end
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = 0
+	local reversedLuckValue = 0
+	--加载倒福数据
+	getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue = LoadReversedLuck(sysarg)
+
+	reversedLuckValue = reversedLuckValue + 1
+	
+	--保存倒福数据
+	SaveReversedLuck(sysarg, getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue)
+
+	SendReversedLuckInfo(sysarg, reversedLuckValue)
+
+	Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use reversedluck",5)
+end
+
+function ReversedLuck_Init(sysarg)
+	for k, v in ipairs(ReversedLuckTab) do
+		GlobalItemFn[v.item_id] = { func = ReversedLuckFunc, params = v }
+	end
+end
+
+table.insert( InitFnTable, ReversedLuck_Init)
+

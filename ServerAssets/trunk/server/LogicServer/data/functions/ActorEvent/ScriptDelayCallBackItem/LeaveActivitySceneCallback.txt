@@ -1,0 +1,51 @@
+﻿--lua script
+
+--离开活动场景
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+
+--#include "data\functions\Activity\HookMap\HookMapCommon.txt" once
+--#include "data\functions\Activity\VipHookMap\VipHookMapCommon.txt" once
+--#include "data\functions\Activity\VipBoss\VipBoss_common.txt" once
+--#include "data\functions\FuBenNpcFunc\FuQiQueQiao\FuQiQueQiaoMenu.txt" once
+--#include "data\functions\Activity\ProgrammerActivity\ProgrammerCommon.txt" once
+--#include "data\functions\Activity\AsuraField\Asura_common.txt" once
+--#include "data\functions\Activity\BossDaZhaiMen\DaZhaiMenCommon.txt" once
+
+--离开活动场景的回调,需要定时回调
+function LeaveActivitySceneCallback(sysarg,arg)
+	if IsInPkChallengeScene(sysarg) then
+		ExitPKScene(sysarg)
+	elseif IsInCampBattle(sysarg) then
+		doExitCampBattle(sysarg)
+	elseif IsInHuntScene(sysarg) then
+		ExitHuntingScene(sysarg)
+	elseif IsInHoopMap(sysarg) then
+		ExitFromHoopMap(sysarg)
+	elseif IsInVipHoopMap(sysarg) then
+		ExitFromVipHoopMap(sysarg)
+	elseif IsInVipBossMap(sysarg) then
+		ExitVipBossMap(sysarg)
+	elseif IsInFuQiMap(sysarg) then
+		ExitFuQiFuben(sysarg)
+	elseif IsInProgrammerMap(sysarg) then
+		ExitProgrammerMap(sysarg)
+	elseif IsInAsuraMap(sysarg) then
+		ExitAsuraMap(sysarg)  
+	elseif IsInDaZhaiMenMap(sysarg) then  
+		ExitDaZhaiMenMap(sysarg)  
+	else
+		if Actor.getFubenId(sysarg) > 0 then
+			onExitFubenFunc(sysarg)
+		else
+			local Pos = LuaHelp.getReloadMapPos(sysarg) 
+			Actor.enterScene(sysarg,Pos[1],Pos[2],Pos[3])
+		end		
+		Actor.closeActivityWind(sysarg)
+
+		UnRegisteTimers(sysarg)	 -- 删掉装备烈火宫的定时器
+	end
+end
+
+
+
+table.insert(LocalDT.ScriptDelayConfig[14], LeaveActivitySceneCallback)

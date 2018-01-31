@@ -1,0 +1,44 @@
+﻿
+TestLevelAward = {
+{Rebirth = 0,Level = 57 , YB = 1000},
+{Rebirth = 0,Level = 58 , YB = 4000},
+{Rebirth = 0,Level = 65 , YB = 5000},
+{Rebirth = 0,Level = 68 , YB = 10000},
+{Rebirth = 1,Level = 50 , YB = 20000},
+{Rebirth = 1,Level = 68 , YB = 20000},
+{Rebirth = 2,Level = 50 , YB = 20000},
+{Rebirth = 2,Level = 68 , YB = 25000},
+{Rebirth = 3,Level = 50 , YB = 25000},
+{Rebirth = 3,Level = 68 , YB = 30000},
+{Rebirth = 4,Level = 50 , YB = 30000},
+{Rebirth = 4,Level = 68 , YB = 35000},
+{Rebirth = 5,Level = 50 , YB = 50000},
+{Rebirth = 5,Level = 68 , YB = 50000},
+
+
+
+
+}
+
+
+function OnLevelUpGiveTestLevelAward(sysarg)
+  if true then return end
+  local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+  local Rebirth = Actor.getIntProperty( sysarg, PROP_ACTOR_CIRCLE)
+  for i = 1 , #TestLevelAward do
+    if level == TestLevelAward[i].Level and Rebirth == TestLevelAward[i].Rebirth then
+        
+        local Award = {
+        {type = 15 , itemid = 1,count = TestLevelAward[i].YB ,strong = 0 ,quality =0, bind = 0},
+            }
+
+         local Title = string.format("内部测试等级福利",level)
+         local Content = string.format("请领取附件的元宝奖励: %d转%d级",Rebirth,level)   
+         System.addMail(sysarg,"游戏小秘书",Title,Content,24*3600,Award) 
+     
+      break
+    end
+    
+  end
+
+end

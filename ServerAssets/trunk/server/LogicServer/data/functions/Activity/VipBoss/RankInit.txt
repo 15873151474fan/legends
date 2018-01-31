@@ -1,0 +1,18 @@
+﻿--#include "RankPointer.txt" once
+
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function VipBossRanking_Init(npcobj)
+	local config = VipBossRankPt
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function VipBossRanking_Fina(npcobj)
+	local config = VipBossRankPt
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+end
+
+table.insert(InitFnTable,VipBossRanking_Init)
+table.insert(FinaFnTable,VipBossRanking_Fina)

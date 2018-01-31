@@ -1,0 +1,351 @@
+{					
+	--开服OpenDays或者合服世界文明度等级CultureLvl  如果两项都配置了则先判断开服天数再判断合服世界文明度等级				
+	--OpenDays配置为0 代表 当作常规库  配置为nil则为 首次盗梦库 此位置索引要与FirstDmIndex对应 不进行常规库帅选 如果多个常规库  会进行随机选择一个				
+	OpenDays = 0,				
+					
+	--每档的物品库,刷新的时候会从以下各档抽取物品				
+	--[[				
+		--yb:全局元宝消耗判断  服务器每盗梦yb元宝,产出一次,如果再使用yb元宝才能再次命中			
+		--mjPoint:个人梦阶值限制,当前梦阶值大于等于mjPoint才能命中			
+		--useItem:使用道具是否能可以开出来true为可开出,false为不可开出,默认为true			
+	--]]				
+	MjLibList=				
+	{				
+		--梦境级			
+		{			
+		{ Persent = 500 , ItemList =			
+		{  {  type = 0 ,itemid = 5 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞剑			
+		{  type = 0 ,itemid = 54 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 8 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞战甲(男)			
+		{  type = 0 ,itemid = 69 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 8 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞战甲(女)			
+		{  type = 0 ,itemid = 145 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 15 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞腰带			
+		{  type = 0 ,itemid = 191 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞头盔			
+		{  type = 0 ,itemid = 237 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞项链			
+		{  type = 0 ,itemid = 283 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞手镯			
+		{  type = 0 ,itemid = 329 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 11 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞戒指			
+		{  type = 0 ,itemid = 375 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞战靴			
+		{  type = 0 ,itemid = 420 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 9 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙鳞宝石			
+		{  type = 0 ,itemid = 20 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉影刃			
+		{  type = 0 ,itemid = 84 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 8 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉法袍(男)			
+		{  type = 0 ,itemid = 99 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 8 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉法袍(女)			
+		{  type = 0 ,itemid = 160 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 15 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉腰带			
+		{  type = 0 ,itemid = 206 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉头盔			
+		{  type = 0 ,itemid = 252 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉项链			
+		{  type = 0 ,itemid = 298 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉手镯			
+		{  type = 0 ,itemid = 344 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 11 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉戒指			
+		{  type = 0 ,itemid = 390 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉法靴			
+		{  type = 0 ,itemid = 435 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 9 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---红玉宝石			
+		{  type = 0 ,itemid = 35 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨神剑			
+		{  type = 0 ,itemid = 114 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 8 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨道铠(男)			
+		{  type = 0 ,itemid = 129 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 8 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨道铠(女)			
+		{  type = 0 ,itemid = 175 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 15 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨腰带			
+		{  type = 0 ,itemid = 221 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨头盔			
+		{  type = 0 ,itemid = 267 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨项链			
+		{  type = 0 ,itemid = 313 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨手镯			
+		{  type = 0 ,itemid = 359 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 11 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨戒指			
+		{  type = 0 ,itemid = 405 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄烨道靴			
+		{  type = 0 ,itemid = 450 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 9 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---玄烨宝石			
+		{ Persent = 1500 , ItemList =			
+		{  {  type = 0 ,itemid = 55 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍战甲(男)			
+		{  type = 0 ,itemid = 70 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍战甲(女)			
+		{  type = 0 ,itemid = 85 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇法袍(男)			
+		{  type = 0 ,itemid = 100 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇法袍(女)			
+		{  type = 0 ,itemid = 115 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼道铠(男)			
+		{  type = 0 ,itemid = 130 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼道铠(女)			
+		{  type = 0 ,itemid = 146 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍腰带			
+		{  type = 0 ,itemid = 161 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇腰带			
+		{  type = 0 ,itemid = 176 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼腰带			
+		{  type = 0 ,itemid = 192 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍头盔			
+		{  type = 0 ,itemid = 207 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇头盔			
+		{  type = 0 ,itemid = 222 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼头盔			
+		{  type = 0 ,itemid = 238 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍项链			
+		{  type = 0 ,itemid = 253 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇项链			
+		{  type = 0 ,itemid = 268 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼项链			
+		{  type = 0 ,itemid = 284 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍手镯			
+		{  type = 0 ,itemid = 299 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇手镯			
+		{  type = 0 ,itemid = 314 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼手镯			
+		{  type = 0 ,itemid = 330 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍戒指			
+		{  type = 0 ,itemid = 345 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇戒指			
+		{  type = 0 ,itemid = 360 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼戒指			
+		{  type = 0 ,itemid = 376 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍战靴			
+		{  type = 0 ,itemid = 391 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇法靴			
+		{  type = 0 ,itemid = 406 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼道靴			
+		{  type = 0 ,itemid = 421 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---天苍宝石			
+		{  type = 0 ,itemid = 436 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇宝石			
+		{  type = 0 ,itemid = 451 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---笙狼宝石			
+		{  type = 0 ,itemid = 6 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---火撩天苍			
+		{  type = 0 ,itemid = 21 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫薇映月			
+		{  type = 0 ,itemid = 36 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---笙狼道剑			
+		{ Persent = 2000 , ItemList =			
+		{  {  type = 0 ,itemid = 7 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---斩龙屠魔			
+		{  type = 0 ,itemid = 22 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---冰蓝法杖			
+		{  type = 0 ,itemid = 37 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---紫光道剑			
+		{  type = 0 ,itemid = 56 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天战甲(男)			
+		{  type = 0 ,itemid = 71 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天战甲(女)			
+		{  type = 0 ,itemid = 86 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽法袍(男)			
+		{  type = 0 ,itemid = 101 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽法袍(女)			
+		{  type = 0 ,itemid = 116 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---蓝凌道铠(男)			
+		{  type = 0 ,itemid = 131 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---蓝凌道铠(女)			
+		{  type = 0 ,itemid = 147 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天腰带			
+		{  type = 0 ,itemid = 162 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽腰带			
+		{  type = 0 ,itemid = 177 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---蓝凌腰带			
+		{  type = 0 ,itemid = 193 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天头盔			
+		{  type = 0 ,itemid = 208 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽头盔			
+		{  type = 0 ,itemid = 223 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---蓝凌头盔			
+		{  type = 0 ,itemid = 239 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天项链			
+		{  type = 0 ,itemid = 254 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽项链			
+		{  type = 0 ,itemid = 269 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---蓝凌项链			
+		{  type = 0 ,itemid = 285 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天手镯			
+		{  type = 0 ,itemid = 300 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽手镯			
+		{  type = 0 ,itemid = 315 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---蓝凌手镯			
+		{  type = 0 ,itemid = 331 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天戒指			
+		{  type = 0 ,itemid = 346 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽戒指			
+		{  type = 0 ,itemid = 361 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---蓝凌戒指			
+		{  type = 0 ,itemid = 377 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天战靴			
+		{  type = 0 ,itemid = 392 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽法靴			
+		{  type = 0 ,itemid = 407 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---蓝凌道靴			
+		{  type = 0 ,itemid = 422 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---破天宝石			
+		{  type = 0 ,itemid = 437 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翠羽宝石			
+		{  type = 0 ,itemid = 452 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---蓝凌宝石			
+		{ Persent = 800 , ItemList =			
+		{  {  type = 0 ,itemid = 8 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金宝刀			
+		{  type = 0 ,itemid = 23 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺法杖			
+		{  type = 0 ,itemid = 38 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空神剑			
+		{  type = 0 ,itemid = 57 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金战甲(男)			
+		{  type = 0 ,itemid = 72 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金战甲(女)			
+		{  type = 0 ,itemid = 87 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺法袍(男)			
+		{  type = 0 ,itemid = 102 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺法袍(女)			
+		{  type = 0 ,itemid = 117 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空道铠(男)			
+		{  type = 0 ,itemid = 132 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空道铠(女)			
+		{  type = 0 ,itemid = 148 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金腰带			
+		{  type = 0 ,itemid = 163 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺腰带			
+		{  type = 0 ,itemid = 178 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空腰带			
+		{  type = 0 ,itemid = 194 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金头盔			
+		{  type = 0 ,itemid = 209 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺头盔			
+		{  type = 0 ,itemid = 224 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空头盔			
+		{  type = 0 ,itemid = 240 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金项链			
+		{  type = 0 ,itemid = 255 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺项链			
+		{  type = 0 ,itemid = 270 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空项链			
+		{  type = 0 ,itemid = 286 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金手镯			
+		{  type = 0 ,itemid = 301 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺手镯			
+		{  type = 0 ,itemid = 316 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空手镯			
+		{  type = 0 ,itemid = 332 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金戒指			
+		{  type = 0 ,itemid = 347 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺戒指			
+		{  type = 0 ,itemid = 362 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空戒指			
+		{  type = 0 ,itemid = 378 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金战靴			
+		{  type = 0 ,itemid = 393 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺法靴			
+		{  type = 0 ,itemid = 408 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---岚空道靴			
+		{  type = 0 ,itemid = 423 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---鎏金宝石			
+		{  type = 0 ,itemid = 438 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---碧玺宝石			
+		{  type = 0 ,itemid = 453 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---岚空宝石			
+		{ Persent = 400 , ItemList =			
+		{  {  type = 0 ,itemid = 9 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---戮仙霸斩			
+		{  type = 0 ,itemid = 24 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃法杖			
+		{  type = 0 ,itemid = 39 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---青翼道剑			
+		{  type = 0 ,itemid = 58 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳战甲(男)			
+		{  type = 0 ,itemid = 73 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳战甲(女)			
+		{  type = 0 ,itemid = 88 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃法袍(男)			
+		{  type = 0 ,itemid = 103 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃法袍(女)			
+		{  type = 0 ,itemid = 118 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---两仪道铠(男)			
+		{  type = 0 ,itemid = 133 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---两仪道铠(女)			
+		{  type = 0 ,itemid = 149 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳腰带			
+		{  type = 0 ,itemid = 164 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃腰带			
+		{  type = 0 ,itemid = 179 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---两仪腰带			
+		{  type = 0 ,itemid = 195 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳头盔			
+		{  type = 0 ,itemid = 210 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃头盔			
+		{  type = 0 ,itemid = 225 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---两仪头盔			
+		{  type = 0 ,itemid = 241 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳项链			
+		{  type = 0 ,itemid = 256 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃项链			
+		{  type = 0 ,itemid = 271 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---两仪项链			
+		{  type = 0 ,itemid = 287 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳手镯			
+		{  type = 0 ,itemid = 302 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃手镯			
+		{  type = 0 ,itemid = 317 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---两仪手镯			
+		{  type = 0 ,itemid = 333 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳戒指			
+		{  type = 0 ,itemid = 348 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃戒指			
+		{  type = 0 ,itemid = 363 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---两仪戒指			
+		{  type = 0 ,itemid = 379 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳战靴			
+		{  type = 0 ,itemid = 394 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃法靴			
+		{  type = 0 ,itemid = 409 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---两仪道靴			
+		{  type = 0 ,itemid = 424 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---玄阳宝石			
+		{  type = 0 ,itemid = 439 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---琉璃宝石			
+		{  type = 0 ,itemid = 454 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---两仪宝石			
+		{ Persent = 100 , ItemList =			
+		{  {  type = 0 ,itemid = 10 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天灭世			
+		{  type = 0 ,itemid = 25 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天绝地			
+		{  type = 0 ,itemid = 40 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天斩仙			
+		{  type = 0 ,itemid = 59 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天战甲(男)			
+		{  type = 0 ,itemid = 74 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天战甲(女)			
+		{  type = 0 ,itemid = 89 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天法袍(男)			
+		{  type = 0 ,itemid = 104 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天法袍(女)			
+		{  type = 0 ,itemid = 119 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天道铠(男)			
+		{  type = 0 ,itemid = 134 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天道铠(女)			
+		{  type = 0 ,itemid = 150 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天腰带			
+		{  type = 0 ,itemid = 165 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天腰带			
+		{  type = 0 ,itemid = 180 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天腰带			
+		{  type = 0 ,itemid = 196 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天头盔			
+		{  type = 0 ,itemid = 211 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天头盔			
+		{  type = 0 ,itemid = 226 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天头盔			
+		{  type = 0 ,itemid = 242 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天项链			
+		{  type = 0 ,itemid = 257 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天项链			
+		{  type = 0 ,itemid = 272 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天项链			
+		{  type = 0 ,itemid = 288 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天手镯			
+		{  type = 0 ,itemid = 303 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天手镯			
+		{  type = 0 ,itemid = 318 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天手镯			
+		{  type = 0 ,itemid = 334 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天戒指			
+		{  type = 0 ,itemid = 349 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天戒指			
+		{  type = 0 ,itemid = 364 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天戒指			
+		{  type = 0 ,itemid = 380 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天战靴			
+		{  type = 0 ,itemid = 395 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天法靴			
+		{  type = 0 ,itemid = 410 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---诛天道靴			
+		{  type = 0 ,itemid = 425 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---轰天宝石			
+		{  type = 0 ,itemid = 440 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---焚天宝石			
+		{  type = 0 ,itemid = 455 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---诛天宝石			
+		{ Persent = 15 , ItemList =			
+		{  {  type = 0 ,itemid = 11 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---悲龙啸			
+		{  type = 0 ,itemid = 26 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---神龙吟			
+		{  type = 0 ,itemid = 41 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---怒龙咆			
+		{ Persent = 20 , ItemList =			
+		{  {  type = 0 ,itemid = 60 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸战甲(男)			
+		{  type = 0 ,itemid = 75 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸战甲(女)			
+		{  type = 0 ,itemid = 90 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟法袍(男)			
+		{  type = 0 ,itemid = 105 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟法袍(女)			
+		{  type = 0 ,itemid = 120 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙咆道铠(男)			
+		{  type = 0 ,itemid = 135 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---龙咆道铠(女)			
+		{ Persent = 25 , ItemList =			
+		{  {  type = 0 ,itemid = 151 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸腰带			
+		{  type = 0 ,itemid = 166 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟腰带			
+		{  type = 0 ,itemid = 181 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙咆腰带			
+		{  type = 0 ,itemid = 197 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸头盔			
+		{  type = 0 ,itemid = 212 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟头盔			
+		{  type = 0 ,itemid = 227 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙咆头盔			
+		{  type = 0 ,itemid = 243 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸项链			
+		{  type = 0 ,itemid = 258 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟项链			
+		{  type = 0 ,itemid = 273 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙咆项链			
+		{  type = 0 ,itemid = 289 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸手镯			
+		{  type = 0 ,itemid = 304 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟手镯			
+		{  type = 0 ,itemid = 319 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙咆手镯			
+		{  type = 0 ,itemid = 335 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸戒指			
+		{  type = 0 ,itemid = 350 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟戒指		},	
+		{  type = 0 ,itemid = 365 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙咆戒指	}		
+		{  type = 0 ,itemid = 381 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸战靴			
+		{  type = 0 ,itemid = 396 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 14 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟法靴			
+		{  type = 0 ,itemid = 411 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 12 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙咆道靴			
+		{  type = 0 ,itemid = 426 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙啸宝石			
+		{  type = 0 ,itemid = 441 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---龙吟宝石			
+		{  type = 0 ,itemid = 456 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 13 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---龙咆宝石			
+		{ Persent = 2 , ItemList =			
+		{  {  type = 0 ,itemid = 12 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---斩魔刀			
+		{  type = 0 ,itemid = 27 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---烈焰焚魔			
+		{  type = 0 ,itemid = 42 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---戮世绝魔			
+		{ Persent = 5 , ItemList =			
+		{  {  type = 0 ,itemid = 61 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖战甲(男)			
+		{  type = 0 ,itemid = 76 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖战甲(女)			
+		{  type = 0 ,itemid = 91 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔法袍(男)			
+		{  type = 0 ,itemid = 106 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔法袍(女)			
+		{  type = 0 ,itemid = 121 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---封鬼道铠(男)			
+		{  type = 0 ,itemid = 136 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---封鬼道铠(女)			
+		{ Persent = 8 , ItemList =			
+		{  {  type = 0 ,itemid = 152 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖腰带			
+		{  type = 0 ,itemid = 167 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔腰带			
+		{  type = 0 ,itemid = 182 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---封鬼腰带			
+		{  type = 0 ,itemid = 198 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖头盔			
+		{  type = 0 ,itemid = 213 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔头盔			
+		{  type = 0 ,itemid = 228 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---封鬼头盔			
+		{  type = 0 ,itemid = 244 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖项链			
+		{  type = 0 ,itemid = 259 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔项链			
+		{  type = 0 ,itemid = 274 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---封鬼项链			
+		{  type = 0 ,itemid = 290 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖手镯			
+		{  type = 0 ,itemid = 305 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔手镯			
+		{  type = 0 ,itemid = 320 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---封鬼手镯			
+		{  type = 0 ,itemid = 336 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖戒指			
+		{  type = 0 ,itemid = 351 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔戒指			
+		{  type = 0 ,itemid = 366 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---封鬼戒指			
+		{  type = 0 ,itemid = 382 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖战靴			
+		{  type = 0 ,itemid = 397 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔法靴			
+		{  type = 0 ,itemid = 412 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---封鬼道靴			
+		{  type = 0 ,itemid = 427 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---伏妖宝石			
+		{  type = 0 ,itemid = 442 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---赤魔宝石			
+		{  type = 0 ,itemid = 457 ,count = 1 ,quality = 0 ,strongMin = 3 ,strongMax = 6 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---封鬼宝石			
+		{ Persent = 2000 , ItemList =			
+		{  {  type = 0 ,itemid = 1145 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---特戒图纸			
+		{  type = 0 ,itemid = 896 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 8 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---小金条			
+		{  type = 0 ,itemid = 897 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 2 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---大金条			
+		{ Persent = 200 , ItemList =			
+		{  {  type = 0 ,itemid = 464 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 80 ,mjpoint = 0 ,yb = 6000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---1阶魂珠			
+		{  type = 0 ,itemid = 465 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 18 ,mjpoint = 0 ,yb = 12000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---2阶魂珠			
+		{  type = 0 ,itemid = 466 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 6 ,mjpoint = 0 ,yb = 24000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---3阶魂珠			
+		{  type = 0 ,itemid = 467 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 2 ,mjpoint = 0 ,yb = 48000 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---4阶魂珠			
+		{ Persent = 3000 , ItemList =			
+		{  {  type = 0 ,itemid = 491 ,count = 2 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 2 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---翅膀进阶珠			
+		{  type = 0 ,itemid = 473 ,count = 3 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---马鞭			
+		{  type = 0 ,itemid = 463 ,count = 5 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---一阶灵羽			
+		{  type = 0 ,itemid = 779 ,count = 2 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---二阶灵羽			
+		{  type = 0 ,itemid = 918 ,count = 2 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 15 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---星珠碎晶(小)			
+		{  type = 0 ,itemid = 921 ,count = 2 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 15 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---护镜碎晶(小)			
+		{  type = 0 ,itemid = 919 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---星珠碎晶(中)			
+		{  type = 0 ,itemid = 922 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---护镜碎晶(中)			
+		{  type = 0 ,itemid = 920 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 1 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---星珠碎晶(大)			
+		{  type = 0 ,itemid = 923 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 1 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---护镜碎晶(大)			
+		{ Persent = 2000 , ItemList =			
+		{  {  type = 0 ,itemid = 727 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---千万经验灵丹			
+		{  type = 0 ,itemid = 728 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 2 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---一亿经验灵丹			
+		{ Persent = 1000 , ItemList =			
+		{  {  type = 0 ,itemid = 636 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 20 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---2倍经验丹(1小时)			
+		{  type = 0 ,itemid = 637 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 10 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---2倍经验丹(8小时)			
+		{  type = 0 ,itemid = 640 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 5 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },---4倍经验丹(1小时)			
+		{  type = 0 ,itemid = 644 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 2 ,mjpoint = 0 ,yb = 0 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---8倍经验丹(1小时)			
+		{ Persent = 1000 , ItemList =			
+		{  {  type = 0 ,itemid = 915 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 3 ,mjpoint = 0 ,yb = 5000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---转生灵石(小)			
+		{  type = 0 ,itemid = 752 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 1 ,mjpoint = 0 ,yb = 5000 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---转生灵石			
+		{ Persent = 100 , ItemList =			
+		{  {  type = 0 ,itemid = 525 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 18000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---5阶生命魂玉			
+		{  type = 0 ,itemid = 526 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 18800 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---5阶魔法魂玉			
+		{ Persent = 100 , ItemList =			
+		{  {  type = 0 ,itemid = 523 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 16000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---5阶物防魂玉			
+		{  type = 0 ,itemid = 524 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 5 ,mjpoint = 0 ,yb = 16500 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---5阶魔防魂玉			
+		{ Persent = 100 , ItemList =			
+		{  {  type = 0 ,itemid = 522 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 15500 ,broadcast = 1 ,autoUse = false ,useItem = false   },---5阶道攻魂玉			
+		{  type = 0 ,itemid = 520 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 14500 ,broadcast = 1 ,autoUse = false ,useItem = false   },---5阶物攻魂玉			
+		{  type = 0 ,itemid = 521 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 15000 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---5阶魔攻魂玉			
+		{ Persent = 1 , ItemList =			
+		{  {  type = 0 ,itemid = 546 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 510000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---8阶生命魂玉			
+		{  type = 0 ,itemid = 547 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 520000 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---8阶魔法魂玉			
+		{ Persent = 1 , ItemList =			
+		{  {  type = 0 ,itemid = 544 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 530000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---8阶物防魂玉			
+		{  type = 0 ,itemid = 545 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 490000 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---8阶魔防魂玉			
+		{ Persent = 1 , ItemList =			
+		{  {  type = 0 ,itemid = 543 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 500000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---8阶道攻魂玉			
+		{  type = 0 ,itemid = 541 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 550000 ,broadcast = 1 ,autoUse = false ,useItem = false   },---8阶物攻魂玉			
+		{  type = 0 ,itemid = 542 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 0 ,persent = 10 ,mjpoint = 0 ,yb = 570000 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---8阶魔攻魂玉			
+		{ Persent = 1 , ItemList =			
+		{  {  type = 0 ,itemid = 719 ,count = 1 ,quality = 0 ,strongMin = 0 ,strongMax = 0 ,bind = 1 ,persent = 1 ,mjpoint = 0 ,yb = 500000 ,broadcast = 1 ,autoUse = false ,useItem = false   },   },},---坐骑直升一星丹			
+					
+					
+					
+					
+					
+					
+				},	
+			}		
+		},			
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					

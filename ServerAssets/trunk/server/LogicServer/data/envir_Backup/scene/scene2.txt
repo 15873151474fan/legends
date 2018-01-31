@@ -1,0 +1,142 @@
+﻿--比奇区域-王城
+{
+	scenceid = 2,
+	scencename = Lang.SceneName.s00002,
+	mapfilename = "2WangCheng",
+	minlevel = 11,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "biqicheng.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 452,
+	sceneHeight = 456,
+	posx = 318,
+	posy = 392,
+	area =
+	{
+		{ name = Lang.SceneName.s00002, range = { 226,77,85,218,206,338,346,197 }, center = { 208,218 },attri = {{type=19,value = {}},{type=1,value = {}},{type=39,value = {}},{type=46,value = {196,210,212,232}},{type=87,value = {}},}},	--默认配置场景，
+		
+		{ name = Lang.SceneName.a00004, range = { 165,162,255,252,114,213,204,303 }, center = { 208,218 },attri = {{type=78,value = {}},}},	--摆摊区域
+		
+
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh2.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货  10 书店，默认是0可以不配置
+		{name = Lang.EntityName.n00000, posx = 221, posy = 192,script= "data/script/BiQiCheng/Xuanchuanlan1.txt",modelid=19,icon = 1,classId=3 },
+		{name = Lang.EntityName.n00001, posx = 218, posy = 195,script= "data/script/BiQiCheng/Xuanchuanlan2.txt",modelid=19,icon = 1,classId=3 },
+		{name = Lang.EntityName.n00002, posx = 224, posy = 189,script= "data/script/BiQiCheng/Xuanchuanlan3.txt",modelid=19,icon = 1,classId=3 },
+		
+		{name = Lang.EntityName.n00042, posx = 197, posy = 245,script= "data/script/BiQiCheng/YaoDianZhangGui.txt",modelid=78,icon = 78,funcId=7,classId=0},
+		{name = Lang.EntityName.n00028, posx = 250, posy = 253,script= "data/script/BiQiCheng/ZaHuoShang.txt",modelid=79,icon = 79,funcId=9,classId=0},
+    {name = Lang.EntityName.n00009, posx = 206, posy = 254,script= "data/script/BiQiCheng/TieJiang.txt",modelid=72,icon = 72,funcId=5,classId=0},
+    {name = Lang.EntityName.n00013, posx = 171, posy = 213,script= "data/script/BiQiCheng/CangKuGuanLiYuan.txt",modelid=95,icon = 95,funcId=2,classId=0},
+    {name = Lang.EntityName.n00158, posx = 203, posy = 219,script = "data/script/MengZhongTuCheng/ChuanSongShi.txt",modelid=141,icon = 12,funcId=3,classId=0},--传送
+		{name = Lang.EntityName.n00011, posx = 175, posy = 231,script= "data/script/BiQiCheng/ShouShiDianZhangGui.txt",modelid=88,icon = 88,funcId=4,classId=0},
+		{name = Lang.EntityName.n00010, posx = 188, posy = 258,script= "data/script/BiQiCheng/FuZhuangDianZhangGui.txt",modelid=56,icon = 56,funcId=4,classId=0},
+		{name = Lang.EntityName.n00012, posx = 201, posy = 209,script= "data/script/BiQiCheng/ShuDianLaoBan.txt",modelid=86,icon = 86,funcId=10,classId=0},
+		
+		{name = Lang.EntityName.n00134, posx = 266, posy = 202,script= "data/script/BiQiCheng/WangChengWenGuan.txt",modelid=92,icon = 92,funcId=11,classId=4},
+		{name = Lang.EntityName.n00008, posx = 154, posy = 309,script= "data/script/BiQiCheng/YuLinJunTongLing.txt",modelid=97,icon = 97,funcId=0,classId=4,nShowNpcForm=1},
+		{name = Lang.EntityName.n00014, posx = 198, posy = 229,script= "data/script/BiQiCheng/LaoBing.txt",modelid=72,icon = 98,funcId=0,classId=3},
+		{name = Lang.EntityName.n00015, posx = 338, posy =  80,script= "data/script/BiQiCheng/HuKuang.txt",modelid=96,icon = 96,funcId=0,classId=4},
+		{name = Lang.EntityName.n00018, posx = 343, posy = 247,script= "data/script/BiQiCheng/ChengWeiJun.txt",modelid=12,icon = 12,funcId=0,classId=4},
+		{name = Lang.EntityName.n00019, posx = 388, posy = 193,script= "data/script/BiQiCheng/XiaoDuiZhang.txt",modelid=100,icon = 100,funcId=0,classId=4},
+		{name = Lang.EntityName.n00020, posx = 276, posy = 301,script= "data/script/BiQiCheng/WangChengJiSi.txt",modelid=2,icon = 2,funcId=0,classId=4,nShowNpcForm=1},
+		{name = Lang.EntityName.n00076, posx = 127, posy = 412,script= "data/script/BiQiCheng/ShaoZhanWeiBing.txt",modelid=12,icon = 12,funcId=0,classId=4},
+		{name = Lang.EntityName.n00116, posx = 170, posy = 173,script= "data/script/BiQiCheng/WuQiXiaoFan.txt",modelid=63,icon = 63,funcId=0,classId=4},
+		{name = Lang.EntityName.n00096, posx = 188, posy = 222,script= "data/script/BiQiCheng/MeiGuiXiaoJie.txt",modelid=117,icon = 12,funcId=0,classId=0},
+		{name = Lang.EntityName.n00120, posx = 196, posy = 218,script= "data/script/BiQiCheng/DaKunShangRen.txt",modelid=78,icon = 12,funcId=0,classId=0},
+		{name = Lang.EntityName.n00126, posx = 217, posy = 213,script= "data/script/BiQiCheng/JieYinLingShi.txt",modelid=76,icon = 12,funcId=8,title=Lang.NpcTitle.n00012,isShowTitle = false,classId=1},
+		--{name = Lang.EntityName.n00125, posx = 220, posy = 216,script= "data/script/BiQiCheng/ChengPeng.txt",modelid=63,icon = 12,funcId=8,title=Lang.NpcTitle.n00013,isShowTitle = false,classId=1},
+		{name = Lang.EntityName.n00127, posx = 225, posy = 221,script= "data/script/BiQiCheng/JinQianGui.txt",modelid=49,icon = 12,funcId=8,title=Lang.NpcTitle.n00014,isShowTitle = false,classId=1},
+		{name = Lang.EntityName.n00128, posx = 235, posy = 231,script= "data/script/BiQiCheng/MengDuTong.txt",modelid=97,icon = 12,funcId=8,title=Lang.NpcTitle.n00021,isShowTitle = false,classId=1},
+		{name = Lang.EntityName.n00133, posx = 221, posy = 217,script= "data/script/BiQiCheng/GeRenFuBen.txt",modelid=9,icon = 12,funcId=8,title=Lang.NpcTitle.n00016,isShowTitle = false,classId=1},	
+		--{name = Lang.EntityName.n00141, posx = 223, posy = 219,script= "data/script/BiQiCheng/ChiYueYongShi.txt",modelid=38,icon = 12,funcId=8,title=Lang.NpcTitle.n00015,isShowTitle = false,classId=1},
+		{name = Lang.EntityName.n00144, posx = 232, posy = 228,script= "data/script/BiQiCheng/ShaMoDaoQieZhe.txt",modelid=60,icon = 12,funcId=8,title=Lang.NpcTitle.n00018,isShowTitle = false,classId=1},		
+		{name = Lang.EntityName.n00147, posx = 229, posy = 225,script= "data/script/BiQiCheng/ShuiYuLongDuShiZhe.txt",modelid=58,icon = 12,funcId=8,title=Lang.NpcTitle.n00019,isShowTitle = false,classId=1},		
+		{name = Lang.EntityName.n00150, posx = 238, posy = 234,script= "data/script/BiQiCheng/MoJianFengYinShiZhe.txt",modelid=59,icon = 12,funcId=8,title=Lang.NpcTitle.n00020,isShowTitle = false,classId=1},		
+		{name = Lang.EntityName.n00151, posx = 242, posy = 237,script= "data/script/BiQiCheng/DiYuShiZhe.txt",modelid=13,icon = 12,funcId=8,title=Lang.NpcTitle.n00022,isShowTitle = false,classId=1},		
+
+		
+		{name = Lang.EntityName.n00084, posx = 199, posy = 205,script= "data/script/Statue/Castellan.txt",modelid=20,icon = 12,title=Lang.NpcTitle.n00002,isShowTitle = false,classId=3 },
+		{name = Lang.EntityName.n00085, posx = 184, posy = 190,script= "data/script/Statue/Warrior.txt",modelid=24,icon = 12,title=Lang.NpcTitle.n00003,isShowTitle = false,classId=3 },
+		{name = Lang.EntityName.n00086, posx = 186, posy = 192,script= "data/script/Statue/Magician.txt",modelid=28,icon = 12,title=Lang.NpcTitle.n00004,isShowTitle = false,classId=3 },
+		{name = Lang.EntityName.n00087, posx = 188, posy = 194,script= "data/script/Statue/Wizard.txt",modelid=33,icon = 12,title=Lang.NpcTitle.n00005,isShowTitle = false,classId=3 },
+		--{name = Lang.EntityName.n00088, posx = 190, posy = 196,script= "data/script/Statue/CsCastellan.txt",modelid=20,icon = 12,title=Lang.NpcTitle.n00006,isShowTitle = false},
+		{name = Lang.EntityName.n00089, posx = 190, posy = 196,script= "data/script/Statue/CsWarrior.txt",modelid=24,icon = 12,title=Lang.NpcTitle.n00007,isShowTitle = false,classId=3 },
+		{name = Lang.EntityName.n00090, posx = 194, posy = 200,script= "data/script/Statue/CsMagician.txt",modelid=28,icon = 12,title=Lang.NpcTitle.n00008,isShowTitle = false,classId=3 },
+		{name = Lang.EntityName.n00091, posx = 196, posy = 202,script= "data/script/Statue/CsWizard.txt",modelid=33,icon = 12,title=Lang.NpcTitle.n00009,isShowTitle = false,classId=3 },
+		{name = Lang.EntityName.n00135, posx = 206, posy = 231,script= "data/script/BiQiCheng/ZhiDuoXing.txt",modelid=73,icon = 12,title=Lang.NpcTitle.n00017,isShowTitle = false,classId=3 },
+		--{name = Lang.EntityName.n00097, posx = 198, posy = 204,script= "data/script/Statue/TianXiaDiYi.txt",modelid=20,icon = 12,title=Lang.NpcTitle.n00010,isShowTitle = false},
+		{name = Lang.EntityName.n00138, posx = 191, posy = 220,script= "data/script/BiQiCheng/YueLao.txt",modelid=142,icon = 12,funcId=0,classId=0 },
+		{name = Lang.EntityName.n00152, posx = 215, posy = 239,script= "data/script/BiQiCheng/BoLe.txt",modelid=50,icon = 12,funcId=0,classId=3},
+		{name = Lang.EntityName.n00177, posx = 170, posy = 239,script = "data/script/MengZhongTuCheng/FuLiDaShi.txt",modelid=9,icon = 71,classId=3,},--福利大使
+		{name = Lang.EntityName.n00205, posx = 222, posy = 246,script = "data/script/Activity/ShouLieDaHui/ShouLieShiZhe.txt",modelid=70,icon = 13,funcId=0,classId=3}, --狩猎使者
+		{name = Lang.EntityName.n00241, posx = 247, posy = 244,script = "data/script/BiQiCheng/FuBenJieYinRen.txt",modelid=70,icon = 13,funcId=8,title=Lang.NpcTitle.n00032,classId=1}, --副本接引人
+		{name = Lang.EntityName.n00247, posx = 205, posy = 146,script = "data/script/BiQiCheng/TangSenShiFu.txt",modelid = 109,icon = 1,funcId = 0},--唐僧师傅
+		{name = Lang.EntityName.n00254, posx = 312, posy = 376,script= "data/script/BiQiCheng/TianYuanNongFu.txt",modelid=75,icon = 12,funcId=0,classId=0},--田园农夫
+		{name = Lang.EntityName.n00257, posx = 205, posy = 208,script= "data/script/BiQiCheng/FengCunFuWuYuan.txt",modelid=118,icon = 12,funcId=0,classId=0},--封存服务员
+		{name = Lang.EntityName.n00165, posx = 214, posy = 210,script = "data/script/BiQiCheng/HongNiang.txt",modelid=153,icon = 13,funcId=8,title=Lang.NpcTitle.n00034,classId=1,nShowNpcForm=1}, --红娘
+		{name = Lang.EntityName.n00314, posx = 244, posy = 240,script = "data/script/BiQiCheng/ShenYinShiZhe.txt",modelid=89,icon = 13,funcId=8,title=Lang.NpcTitle.n00037,classId=1,nShowNpcForm=1}, --神印使者
+
+	},
+
+  teleport =
+  {
+		--传送点设置
+		{ posx = 141, posy = 425,toSceneid =  1,toPosx = 48, toPosy = 38,modelid = 50000,name = Lang.SceneName.s00001 },  --王城→边界村
+		{ posx = 218, posy = 139,toSceneid =  3,toPosx = 18, toPosy =  39,modelid = 50000,name = Lang.SceneName.s00003 },  --王城→王城皇宫
+		{ posx = 350, posy =  44,toSceneid =  4,toPosx =  27, toPosy = 152,modelid = 50000,name = Lang.SceneName.s00004 },  --王城→矿洞一层
+		{ posx = 414, posy =  36,toSceneid =  8,toPosx =  93, toPosy = 376,modelid = 50000,name = Lang.SceneName.s00008 },  --王城→土城
+		{ posx = 47, posy =  357,toSceneid =  107,toPosx =  32, toPosy = 78,modelid = 50000,name = Lang.SceneName.s00107 },  --王城→海滩
+		{ posx = 420, posy =  362,toSceneid =  106,toPosx =  64, toPosy = 149,modelid = 50000,name = Lang.SceneName.s00106 },  --王城→天宫
+		{ posx = 388, posy =  432,toSceneid =  105,toPosx =  72, toPosy = 144,modelid = 50000,name = Lang.SceneName.s00105 },  --王城→教堂
+		{ posx = 290, posy =  427,toSceneid =  104,toPosx =  63, toPosy = 152,modelid = 50000,name = Lang.SceneName.s00104 },  --王城→鸳鸯池
+
+  },
+
+   landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=202,posy1=225,posx2=202,posy2=225,modelid=90,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=179,posy1=189,posx2=179,posy2=189,modelid=90,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=237,posy1=249,posx2=237,posy2=249,modelid=90,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=196,posy1=158,posx2=196,posy2=158,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=204,posy1=166,posx2=204,posy2=166,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置	
+		{posx1=213,posy1=141,posx2=213,posy2=141,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=219,posy1=147,posx2=219,posy2=147,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=147,posy1=270,posx2=147,posy2=270,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=153,posy1=276,posx2=153,posy2=276,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=255,posy1=280,posx2=255,posy2=280,modelid=86,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=261,posy1=274,posx2=261,posy2=274,modelid=86,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=283,posy1=143,posx2=283,posy2=143,modelid=88,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=276,posy1=136,posx2=276,posy2=136,modelid=88,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=144,posy1=166,posx2=144,posy2=166,modelid=89,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=152,posy1=158,posx2=152,posy2=158,modelid=89,xinterval=1,yinterval=1},  --灯笼的位置
+		--{posx1=221,posy1=225,posx2=221,posy2=225,modelid=91,xinterval=1,yinterval=1},  --金钱的位置
+		--{posx1=235,posy1=239,posx2=235,posy2=239,modelid=91,xinterval=1,yinterval=1},  --金钱的位置
+		--{posx1=228,posy1=232,posx2=228,posy2=232,modelid=91,xinterval=1,yinterval=1},  --金钱的位置
+		--{posx1=214,posy1=218,posx2=214,posy2=218,modelid=91,xinterval=1,yinterval=1},  --金钱的位置
+		--{posx1=202,posy1=212,posx2=202,posy2=212,modelid=91,xinterval=1,yinterval=1},  --金钱的位置
+		
+
+
+ },
+
+},

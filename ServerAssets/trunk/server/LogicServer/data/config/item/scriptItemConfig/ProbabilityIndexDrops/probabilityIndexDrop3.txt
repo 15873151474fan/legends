@@ -1,0 +1,71 @@
+--[[
+--按照概率和掉落的配置,id表示物品的id
+--type表示通用奖励的类型
+--count表示物品的数量,
+--strong 强化等级,如果是小于0的表示0-n随机
+-- quality 品质如果是小于0的表示0-n随机 ,比如-3表示0到3之间随机
+-- strongMin 表示最小的强化等级, 如果配置了，那么随出了一个物品的强化低于这个值将设置为这个值，这个不配置就是0
+-- qualityMin:表示最小的品质等级
+--propability概率，概率的数字越大的话掉的物品的概率越高
+--bind绑定的标记
+--group是分组的id，类似怪物的爆率的配置
+--sex表示玩家的性别，男的是0，女的是1，如果男女通用就是-1
+--job表示玩家的职业,2华山 4水月 7御神 8忍者 0表示没有职业限制
+--]]
+
+drops=
+{
+	{ type = 20, id = 3, count = 100, propability = 3100, group = 1 }, --正常经验		
+	{ type = 20, id = 3, count = 150, propability = 3500, group = 1 }, --高倍经验		
+	{ type = 6, id = 0, count = 2000, propability = 1000, group = 1 }, --正常金币		
+	{ type = 6, id = 0, count = 20000, propability = 861, group = 1 }, --高倍金币		
+	{ type = 21, id = 0, count = 500, propability = 1000, group = 1 }, --正常荣誉				
+	{ type = 0, id = 277, count = 1, propability = 500, group = 1 }, --鉴定图鉴		
+	{ type = 0, id = 278, count = 1, propability = 10, group = 1,broadcast =true }, --清洗砂		
+	{ type = 0, id = 665, count = 1, propability = 1, group = 1,broadcast =true }, --寻宝图		
+	{ type = 0, id = 280, count = 1, propability = 1, group = 1,broadcast =true }, --一级灵珠		
+		
+	--下一档次装备
+	--{ type = 0, id=127,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	--{ type = 0, id=128,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	--{ type = 0, id=129,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=130,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=131,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=132,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=133,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=134,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=135,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=136,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=137,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	--{ type = 0, id=138,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	--{ type = 0, id=139,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	--{ type = 0, id=140,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=140,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=142,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=143,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=144,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=145,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=146,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=147,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=148,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	--{ type = 0, id=149,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	--{ type = 0, id=150,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	--{ type = 0, id=151,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=152,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=153,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=154,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=155,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=156,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=157,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=158,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=159,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=585,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=586,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=587,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=588,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=589,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=590,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=591,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=592,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+	{ type = 0, id=593,count=1,strong =0,quality=0, propability=1, bind=0,group=1,strongMin =0,qualityMin=0,broadcast =true},
+}

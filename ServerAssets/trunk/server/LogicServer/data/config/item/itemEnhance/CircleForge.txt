@@ -1,0 +1,426 @@
+
+--转生锻造 
+--[[
+装备类型：
+	itWeapon = 1,				//武器
+	itDress = 2,				//衣服
+	itHelmet = 3,				//头盔
+	itNecklace = 4,				//项链
+	itDecoration =5,            //勋章
+	itBracelet  = 6,			//手镯
+	itRing = 7,					//戒指
+	itGirdle = 8,				//腰带
+	itShoes = 9,				//鞋子
+	itEquipDiamond=10,          //宝石
+	itMeterial =11,             //材料
+	itFashionDress=12,          //时装
+	itSwing=13,					//翅膀
+--]]
+
+ZhanShenEquipId = {573,574,575,576,577,578,579,580,581,667,960,1125,1390,1391,1392,1393,1394,1395,1396,1397,1398,1399,1400,1401,1593,1594,1704,1705,1699,1703,1691,1695,1724,1725,1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736,1737,2206,2207,2208,2209,2210,2211,2212,2213,2214,2215,2216,2938,2939,2940,2941,2942,2943,2944,2945,2946,2947,3204,3205,3206,3207,3208,3209,3210,3211,3212,3213,3440,3441,3442,3443,3444,3445,3446,3447,3448,3449}	--战神套装备ID组 用于筛选战神套
+
+--转生装备锻造
+CircleForge = 
+{
+	baseEquip =
+	{
+		rates = {1,2, 3, 4, 5, },	--对应每转的消耗数量倍数 {1转, 2转....} 消耗=rate*base 可以为浮点 得到的值舍弃小数
+		base = 
+		{
+{
+				eqtype = {11,},	--装备类型(物品类型)
+				level = {0, 0},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 16, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},		
+		
+			{
+				eqtype = {12,},	--装备类型(物品类型)
+				level = {20, 20},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 16, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {1, 2, 3,4, 5, 6, 7, 8, 9,10,12,11,},	--装备类型(物品类型)
+				level = {40, 40},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 16, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {1, 2, 3,4, 5, 6, 7, 8, 9,10,12,},	--装备类型(物品类型)
+				level = {45, 45},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 18, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {1, 2, 3,4, 5, 6, 7, 8, 9,10,12,},	--装备类型(物品类型)
+				level = {50, 50},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 20, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {1, 2, 3,4, 5, 6, 7, 8, 9,10,12,},	--装备类型(物品类型)
+				level = {55, 55},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 22, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {1, 2, 3,4, 5, 6, 7, 8, 9,10,12,},	--装备类型(物品类型)
+				level = {60, 60},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 24, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			
+			{
+				eqtype = {1, 2, 3,4, 5, 6, 7, 8, 9,10,12,},	--装备类型(物品类型)
+				level = {70, 75},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 30, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			--鬼王套
+			{
+				eqtype = {1, 2, 3,4, 5, 6, 7, 8, 9,10,12,},	--装备类型(物品类型)
+				level = {80, 85},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 36, yb = 10}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			--敖龙套
+			{
+				eqtype = {1, 2, 3,4, 5, 6, 7, 8, 9,10,12,},	--装备类型(物品类型)
+				level = {90, 95},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 572, count = 50, yb = 10}, 
+					{type = 6, id = 0, count = 5000000},
+				},
+			},
+		},
+	},
+	
+	--战神装消耗
+	zhanShenEquip =
+	{
+		rates = {1,2, 4, 8, 16},	--对应每转的消耗数量倍数 {1转, 2转....} 消耗=rate*base 可以为浮点 得到的值舍弃小数
+		base = 
+		{
+		--基础战神套
+			{
+				eqtype = {1,},	--装备类型(物品类型)
+				level = {40, 40},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 10, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {2,},	--装备类型(物品类型)
+				level = {40, 40},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 5, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {3,},	--装备类型(物品类型)
+				level = {40, 40},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 4, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {4,10,},	--装备类型(物品类型)
+				level = {40, 40},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 3, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {5,6,8,9,},	--装备类型(物品类型)
+				level = {40, 40},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 2, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+--紫金屠龙转生
+			{
+				eqtype = {1,},	--装备类型(物品类型)
+				level = {70, 75},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 40, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {2,},	--装备类型(物品类型)
+				level = {70, 75},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 20, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {3,},	--装备类型(物品类型)
+				level = {70, 75},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 16, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {4,10,},	--装备类型(物品类型)
+				level = {70, 75},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 12, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {5,6,8,9,},	--装备类型(物品类型)
+				level = {70, 75},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 8, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			
+
+--白金屠龙转生
+			{
+				eqtype = {1,},	--装备类型(物品类型)
+				level = {80, 80},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 40, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {2,},	--装备类型(物品类型)
+				level = {80, 80},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 20, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {3,},	--装备类型(物品类型)
+				level = {80, 80},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 16, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {4,10,},	--装备类型(物品类型)
+				level = {80, 80},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 12, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {5,6,8,9,},	--装备类型(物品类型)
+				level = {80, 80},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 8, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+--流光屠龙转生
+			{
+				eqtype = {1,},	--装备类型(物品类型)
+				level = {85, 85},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 40, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {2,},	--装备类型(物品类型)
+				level = {85, 85},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 20, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {3,},	--装备类型(物品类型)
+				level = {85, 85},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 16, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {4,10,},	--装备类型(物品类型)
+				level = {85, 85},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 12, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {5,6,8,9,},	--装备类型(物品类型)
+				level = {85, 85},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 8, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+	--北冥屠龙转生
+			{
+				eqtype = {1,},	--装备类型(物品类型)
+				level = {90, 90},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 50, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {2,},	--装备类型(物品类型)
+				level = {90, 90},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 30, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {3,},	--装备类型(物品类型)
+				level = {90, 90},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 24, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {4,10,},	--装备类型(物品类型)
+				level = {90, 90},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 18, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {5,6,8,9,},	--装备类型(物品类型)
+				level = {90, 90},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 12, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+
+			
+					--20W时装，吕布貂蝉
+			{
+				eqtype = {12,},	--装备类型(物品类型)
+				level = {20, 20},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 40, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},			
+					--至尊战神套
+			{
+				eqtype = {1,},	--装备类型(物品类型)
+				level = {45, 45},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 40, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {2,},	--装备类型(物品类型)
+				level = {45, 45},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 20, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {3,},	--装备类型(物品类型)
+				level = {45, 45},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 16, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {4,10,},	--装备类型(物品类型)
+				level = {45, 45},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 12, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			{
+				eqtype = {5,6,8,9,},	--装备类型(物品类型)
+				level = {45, 45},	--装备等级 范围为(level[1] <= level <= level[2])
+				consumes = 	--消耗要求物品
+				{
+					{type = 0, id = 1175, count = 8, yb = 0}, 
+					{type = 6, id = 0, count = 1000000},
+				},
+			},
+			
+		},
+	},
+}

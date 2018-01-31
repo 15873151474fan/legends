@@ -1,0 +1,80 @@
+--驾御古兽幡 百事通 追踪面板及NPC对话框引导
+{
+  maxLevel = 42,
+  --触发条件
+  triggerList =
+	{
+		{ type = 1, valueList = {2191,}},      --有这个任务
+	},
+
+
+  --引导的步骤
+  steps =
+	{
+
+    --第1步 指向导航标签
+		{
+      condList =
+			{
+				{ type = 1,  helpId = 50, dataList = {0,} },       --任务追踪面板可见
+				{ type = 15,  helpId = 51, dataList = {1,} },      --任务追踪面板没有选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+      },
+
+      action = { type = 2, helpId = 51, data = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项
+    },
+
+    --第2步 指任务连接
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },     --任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },     --任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 2191, data = Lang.GuideLang.name93, desc = Lang.GuideLang.desc2 },
+    },
+
+    --第3步 指向npc对话框列表功能选项
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },     --npc对话框可见
+				{ type = 29,  helpId = 40, dataList = {2191,} },     --任务未完成
+				{ type = 31,  helpId = 40, dataList = {Lang.GuideLang.name91,} },     --指定NPC
+      },
+
+      --指向npc对话框功能选择的第二项
+      action = { type = 13, helpId = 42, data = 2, desc = Lang.GuideLang.desc64 },
+    },
+
+     --第4步 指向任务导航 百事通
+    {
+      condList =
+      {
+				{ type = 3,  helpId = 51, dataList = {1,} },     --任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+				{ type = 30,  helpId = 40, dataList = {2191,} },     --任务完成
+				{ type = 16,  helpId = 40, dataList = {2191,} },     --存在任务
+      },
+
+      --指向追踪面板的人物链接
+      action = { type = 5, helpId = 2191, data = Lang.GuideLang.name55, desc = Lang.GuideLang.desc2 },
+    },
+
+    --第5步 结束
+    {
+      condList =
+      {
+				{ type = 17,  helpId = 40, dataList = {2191,} },     --不存在任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 0, data = 3, desc = Lang.GuideLang.desc20 },
+    },
+
+
+	}
+}

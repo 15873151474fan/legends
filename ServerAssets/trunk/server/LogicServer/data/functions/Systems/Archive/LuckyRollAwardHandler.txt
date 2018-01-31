@@ -1,0 +1,107 @@
+--lua script
+--#include "data\language\LangCode.txt" once
+
+
+--#include "data\functions\Systems\Archive\LuckyRollAwardCommon.txt" once
+
+local LuckyRollAwardSystemImplement =
+{
+  --点击领取成就奖励，MSGID：1
+  getAward = function (sysarg, itemidx,ItemTable)
+    if not ItemTable then return end 
+	  local arraynum = Actor.getRTIntValue(sysarg,LUCKYROLLAWARDINDEX+1) --31保存组数 
+	  local resultnum = Actor.getRTIntValue(sysarg,LUCKYROLLAWARDINDEX+2) --32保存结果
+	  if(arraynum == 0) or (resultnum == 0)  then return end
+	  --搜索奖励表 
+	  local c = ItemTable.dropInclude[arraynum].drops
+	  local x = c[resultnum]
+	  if not x then return end
+	  local removenum = Actor.getRTIntValue(sysarg,LUCKYROLLAWARDINDEX+3) --32保存结果
+	  if removenum <= 0 then return end
+    local itemcount = Item.getAddItemNeedGridCount(sysarg,x.id,x.count)
+	  if not Actor.canAddItem(sysarg,x.id,x.count) then
+	    if itemcount ~= nil then
+	    	local str = string.format(Lang.ScriptTips.f00016,itemcount)
+		  	Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+		  end
+		  ---返回客户端领取奖励 失败 
+	    local npack = DataPack.allocPacket(sysarg,140,2)  --申请一个数据包
+		  DataPack.writeByte(npack,0)
+		  DataPack.flush(npack)
+		  return
+	  else
+	    if Actor.canAddItem(sysarg,x.id,x.count) then
+	      Actor.addItem(sysarg,x.id,x.quality,x.strong,x.count,x.bind,0,"LuckyRollAwardSystemImplement",21)
+	 	  else
+	 	    local str = string.format(Lang.ScriptTips.f00016,x.count)
+	 	 	  Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+	 	  end
+	  end
+	  ---返回客户端领取奖励成功 
+	  local npack = DataPack.allocPacket(sysarg,140,2)  --申请一个数据包
+	  DataPack.writeByte(npack,1)
+	  DataPack.flush(npack)
+	  ---清空前一次的抽奖情况 
+	  Actor.setRTIntValue(sysarg,LUCKYROLLAWARDINDEX+1,0)
+	  Actor.setRTIntValue(sysarg,LUCKYROLLAWARDINDEX+2,0)
+	  Actor.setRTIntValue(sysarg,LUCKYROLLAWARDINDEX+3,0)
+	  --判断是否还有抽奖物品，如果有则从新请求打开抽奖界面 
+	  if(Actor.getItemCount(sysarg,itemidx) > 0) then
+	    LuckyRollAwardCallBack(sysarg, itemidx, ItemTable)
+	  end
+	end,
+	
+	--点击开始后判断条件是否可开始 
+	goRollAward = function (sysarg, itemidx,ItemTable)  
+    local result = 0
+    local needGridCount = ItemTable.needMinBagGrid
+    if(Item.getBagEmptyGridCount(sysarg) >= needGridCount) then
+      if (Actor.getItemCount(sysarg,itemidx) >= 1) then
+        --如果需要删除物品的话就删除
+        if(ItemTable.needDelete)then
+          if Actor.removeItem(sysarg,itemidx,1,-1,-1,-1,"goRollAward",5) >= 1 then     --删除一个抽奖物品
+            result = 1
+            Actor.setRTIntValue(sysarg,LUCKYROLLAWARDINDEX+3,1)
+          else
+            result = 0
+            Actor.setRTIntValue(sysarg,LUCKYROLLAWARDINDEX+3,0)
+          end
+        end 
+      else
+        Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00030,ttDialog )
+      end
+    else
+      local tipMsg = string.format(Lang.ScriptTips.x00090,needGridCount)
+      Actor.sendTipmsg( sysarg,tipMsg,ttDialog )
+    end
+    --返回客户端能否开始
+    local npack = DataPack.allocPacket(sysarg,140,3)  --申请一个数据包
+    DataPack.writeByte(npack,result)
+    DataPack.flush(npack)
+  end,
+}
+
+LuckyRollAwardSystemImplement.main = function (sysarg, systemid, msgid, packet)
+  if msgid == 3 then
+		--关闭抽奖界面，标识 用于初始化抽奖进行 标识
+		Actor.setRTIntValue(sysarg,GETLUCKYROLLAWARDING,0)
+	end
+  local itemId = DataPack.readShort(packet)
+  if not itemId then return end
+  local itemId = tonumber(itemId)
+  local conf = LuckyRollAwardItemConfig
+  local index = 0
+  table.foreachi(conf, function( i, v )  if (v.item_id == itemId) then index = i end end) --查找当前抽奖物品
+  --print(index)
+  if index <= 0 then return end
+  if msgid == 1 then
+		--点击 领奖
+    LuckyRollAwardSystemImplement.getAward(sysarg, itemId, conf[index])
+  elseif msgid == 2 then
+		--点击 开始
+    LuckyRollAwardSystemImplement.goRollAward(sysarg, itemId, conf[index])
+  end
+	
+end
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.archiveSystem, LuckyRollAwardSystemImplement.main)

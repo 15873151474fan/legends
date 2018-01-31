@@ -1,0 +1,307 @@
+MeetConfig = {
+	NpcLiveTime = 1800,		--黑市商人、试炼使徒的停留时间(半小时) data/config/item/RandNpcShop.txt 黑市商人物品配置
+	FubenId = 34,			--副本id
+	RandSceneNames = {	--NPC 的随机场景列表
+		Lang.SceneName.s00001,
+		Lang.SceneName.s00002,
+		Lang.SceneName.s00008,
+		Lang.SceneName.s00021,
+		Lang.SceneName.s00035,
+		Lang.SceneName.s00005,
+		Lang.SceneName.s00007,
+		Lang.SceneName.s00010,
+		Lang.SceneName.s00013,
+		Lang.SceneName.s00016,
+		Lang.SceneName.s00060,
+		Lang.SceneName.s00019,
+		Lang.SceneName.s00025,
+	},
+
+	--注册Boss死亡给随从宝宝、公告等
+	RegBoss = {
+		--[boss怪id] = {宝宝列表，该列表最多只携带一个，宝宝等级，生存时间，对应的公告 items 请查看下方的索引，是指财神、福神奖励的东西列表movieId = {4},movieId = {5},
+		[476] = {petIds = {537}, items = {0},petLevel = 1, aiId = {101}, liveTime = 600,msgIds = {Lang.ScriptTips.meeting012}},
+		[477] = {petIds = {538}, items = {0},petLevel = 1, aiId = {102}, liveTime = 600,msgIds = {Lang.ScriptTips.meeting013}},
+		--481,482 是衰神、穷神，新年期间屏蔽掉，吉利些.物品配置出怪物在此：item/NormalItemDatas.txt 去掉电影脚本, movieId = {6,7,8,9}
+		[478] = {petIds = {479,480,},items = {251,252,0,0},petLevel = 1, aiId = {103,104,105,106}, liveTime = 600,msgIds = {Lang.ScriptTips.meeting014,Lang.ScriptTips.meeting015,Lang.ScriptTips.meeting016,Lang.ScriptTips.meeting017}},
+	},
+
+	RegBuffMons = {471,472,473},    --增益类怪(视乎数据再增加)
+	BuffMonsPos = {
+		{
+			sceneId = 5,
+			liveTime = 18000,        --生存期秒数(5小时)
+			pos = {
+				{26,30,65,100},   --x1,x2, y1, y2
+				{126,134,162,171},   --x1,x2, y1, y2
+				{152,162,66,86},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 7,
+			liveTime = 18000,        --生存期秒数
+			pos = {
+				{80,85,65,110},   --x1,x2, y1, y2
+				{95,100,60,110},   --x1,x2, y1, y2
+				{85,100,150,160},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 10,
+			liveTime = 18000,        --生存期秒数
+			pos = {
+				{90,95,130,160},   --x1,x2, y1, y2
+				{129,163,133,135},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 13,           --场景id
+			liveTime = 18000,        --生存期秒数
+			pos = {
+				{59,135,73,100},   --x1,x2, y1, y2
+				{136,150,38,170},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 16,
+			liveTime = 18000,        --生存期秒数
+			pos = {
+				{63,67,104,138},   --x1,x2, y1, y2
+				{99,105,44,76},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 60,
+			liveTime = 18000,        --生存期秒数
+			pos = {
+				{43,99,66,99},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 19,
+			liveTime = 18000,        --生存期秒数
+			pos = {
+				{50,75,95,110},   --x1,x2, y1, y2
+				{114,132,62,90},   --x1,x2, y1, y2
+				{178,212,209,218},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 25,           --场景id
+			liveTime = 18000,        --生存期秒数
+			pos = {
+				{97,145,41,65},   --x1,x2, y1, y2
+				{68,146,86,108},   --x1,x2, y1, y2
+			},
+		},
+
+	},
+
+	KillMons = 475,					--击杀类怪
+	KillMonsPos = {
+		{
+			sceneId = 1,           --场景id
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{155,194,164,195},   --x1,x2, y1, y2
+
+			},
+		},
+		{
+			sceneId = 2,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{142,170,358,370},   --x1,x2, y1, y2
+				{100,136,116,148},   --x1,x2, y1, y2
+				{179,202,162,163},   --x1,x2, y1, y2
+				{188,208,170,173},   --x1,x2, y1, y2
+				{216,236,182,202},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 8,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{155,198,226,240},   --x1,x2, y1, y2
+				{45,72,154,164},   --x1,x2, y1, y2
+				{110,134,154,158},   --x1,x2, y1, y2
+				{174,212,245,252},   --x1,x2, y1, y2
+				{364,404,305,330},   --x1,x2, y1, y2
+			},
+		},
+	},
+
+	GoodPetAwards = {
+		[251] = {   --财神随机物品
+			{type = 0, id = 320, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 321, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 322, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 323, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 324, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 655, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 656, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 657, count = 1, strong = 0,quality = 0, bind = 1},
+		},
+		[252] = {    --福神随机物品
+			{type = 0, id = 815, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 817, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 704, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 355, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 379, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 420, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 665, count = 1, strong = 0,quality = 0, bind = 1},
+			{type = 0, id = 370, count = 1, strong = 0,quality = 0, bind = 1},
+		},
+	},
+
+	--boss刷新场景和坐标范围
+	BossScenePos = {
+		{
+			sceneId = 1,           --场景id
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{30,40,45,60},   --x1,x2, y1, y2
+				{50,60,40,60},   --x1,x2, y1, y2
+				{135,155,30,50},   --x1,x2, y1, y2
+				{190,210,35,50},   --x1,x2, y1, y2
+				{220,230,110,120},   --x1,x2, y1, y2
+				{30,60,115,140},   --x1,x2, y1, y2
+				{30,80,200,210},   --x1,x2, y1, y2
+				{100,120,225,240},   --x1,x2, y1, y2
+				{136,140,87,92},   --x1,x2, y1, y2
+				{108,156,118,160},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 2,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{50,66,47,62},   --x1,x2, y1, y2
+				{125,141,49,68},   --x1,x2, y1, y2
+				{215,227,32,51},   --x1,x2, y1, y2
+				{399,412,120,138},   --x1,x2, y1, y2
+				{367,380,371,386},   --x1,x2, y1, y2
+				{222,242,382,394},   --x1,x2, y1, y2
+				{58,73,325,350},   --x1,x2, y1, y2
+				{65,80,187,200},   --x1,x2, y1, y2
+				{210,215,180,190},   --x1,x2, y1, y2
+				{288,295,199,204},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 8,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{159,169,30,40},   --x1,x2, y1, y2
+				{219,235,85,102},   --x1,x2, y1, y2
+				{396,409,48,70},   --x1,x2, y1, y2
+				{249,265,312,318},   --x1,x2, y1, y2
+				{46,62,241,252},   --x1,x2, y1, y2
+				{287,302,160,170},   --x1,x2, y1, y2
+				{308,323,222,225},   --x1,x2, y1, y2
+				{383,415,339,351},   --x1,x2, y1, y2
+				{75,80,190,200},   --x1,x2, y1, y2
+				{210,211,142,152},   --x1,x2, y1, y2
+			},
+		},
+
+		{
+			sceneId = 21,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{40,50,50,60},   --x1,x2, y1, y2
+				{95,115,65,85},   --x1,x2, y1, y2
+				{208,220,80,110},   --x1,x2, y1, y2
+				{190,200,225,235},   --x1,x2, y1, y2
+				{70,80,200,210},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 35,           --场景id
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{155,160,30,40},   --x1,x2, y1, y2
+				{125,135,95,105},   --x1,x2, y1, y2
+				{50,65,55,70},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 5,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{26,30,65,100},   --x1,x2, y1, y2
+				{126,134,162,171},   --x1,x2, y1, y2
+				{90,103,85,95},   --x1,x2, y1, y2
+				{23,29,68,82},   --x1,x2, y1, y2
+				{152,162,66,86},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 7,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{80,85,65,110},   --x1,x2, y1, y2
+				{95,100,60,110},   --x1,x2, y1, y2
+				{110,125,50,110},   --x1,x2, y1, y2
+				{130,150,45,90},   --x1,x2, y1, y2
+				{85,100,150,160},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 10,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{90,95,130,160},   --x1,x2, y1, y2
+				{45,50,55,85},   --x1,x2, y1, y2
+				{129,163,133,135},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 13,           --场景id
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{59,135,73,100},   --x1,x2, y1, y2
+				{65,155,142,155},   --x1,x2, y1, y2
+				{136,150,38,170},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 16,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{63,67,104,138},   --x1,x2, y1, y2
+				{55,59,48,82},   --x1,x2, y1, y2
+				{99,105,44,76},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 60,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{43,99,66,99},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 19,
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{50,75,95,110},   --x1,x2, y1, y2
+				{114,132,62,90},   --x1,x2, y1, y2
+				{159,215,82,88},   --x1,x2, y1, y2
+				{179,220,158,162},   --x1,x2, y1, y2
+				{178,212,209,218},   --x1,x2, y1, y2
+			},
+		},
+		{
+			sceneId = 25,           --场景id
+			liveTime = 1800,        --生存期秒数
+			pos = {
+				{97,145,41,65},   --x1,x2, y1, y2
+				{164,175,68,135},   --x1,x2, y1, y2
+				{73,156,149,158},   --x1,x2, y1, y2
+				{68,146,86,108},   --x1,x2, y1, y2
+			},
+		},
+
+	},
+}

@@ -1,0 +1,51 @@
+﻿--lua script
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+--恢复体力的物品效果
+
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--恢复体力药水
+function AddPhysicalItem(sysarg,itemdx,itemPtr,ItemTable)
+  --print(Actor.getIntProperty(sysarg,PROP_ACTOR_JUMP_POWER))
+  ----print("itemdx:"..itemdx)
+  ----print("ItemTable[1]:"..ItemTable.item_id)
+	local phyCount = Actor.getIntProperty(sysarg,PROP_ACTOR_JUMP_POWER)
+	local phymax = Actor.getIntProperty(sysarg,PROP_ACTOR_MAX_JUMP_POWER)
+	--print("phymax:"..phymax)
+
+	
+	if phyCount >= phymax then
+	Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00005,ttTipmsgWindow)
+	return 
+	end
+	
+	phyCount = phyCount + ItemTable.value
+	local result = false
+	if ( phyCount >= phymax ) then
+	 result = Actor.setUIntProperty(sysarg,PROP_ACTOR_JUMP_POWER,phymax) 
+	else 
+	 result = Actor.setUIntProperty(sysarg,PROP_ACTOR_JUMP_POWER,phyCount)
+	end
+	if result == true then 
+		if ItemTable.needDetele then --需要删除
+		
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true," ",5)      --删除一个物品
+		end	
+	end 
+	
+end
+
+function AddPhysicalItemInit(sysarg)	
+  for i = 1,table.getn(PhysicalItems) do 
+	local x = PhysicalItems[i]
+	GlobalItemFn[x.item_id] = { func = AddPhysicalItem, params = x }
+  end
+end
+
+
+table.insert(InitFnTable,AddPhysicalItemInit)
+	

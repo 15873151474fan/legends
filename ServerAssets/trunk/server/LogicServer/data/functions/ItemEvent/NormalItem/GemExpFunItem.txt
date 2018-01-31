@@ -1,0 +1,49 @@
+--宝物经验功能道具，使用后为宝物增加经验
+
+
+--[[
+--宝物经验道具物品使用处理函数
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 { item_id=1972, exp=1,}
+--]]
+function GemExpFuncItemUseHandler(sysarg, itemIdx, itemPtr, conf)
+	if (conf == nil) then return end
+	local exp = conf.exp
+	local equipedGemPtr = Actor.getCurrEquipedGem(sysarg)
+	
+	--检测是否为限时宝物
+	if GemItem.isLimitTimeGem(equipedGemPtr) then 
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00030, ttDialog)
+		return 
+	end
+	
+	if (equipedGemPtr == nil) then
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00003, ttDialog)
+		return
+	end
+		
+	if (GemItem.isExpUpLmt(equipedGemPtr)) then	
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00027, ttTipmsgWindow)
+		return
+	end
+	
+	if (Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "exp inject", 5) ~= 1) then
+		return
+	end
+	
+	if (exp > 0) then	
+		GemItem.addExp(equipedGemPtr, exp, 663, " use exp item", false)
+	end	
+end
+
+-- @brief: 注册宝物经验道具物品使用Handler
+function GemExpFuncItemInit(sysarg)
+	for i = 1, table.getn(GemExpFuncItem) do
+		local conf = GemExpFuncItem[i]
+		GlobalItemFn[conf.item_id] = { func = GemExpFuncItemUseHandler, params = conf, }
+	end
+end
+
+table.insert(InitFnTable, GemExpFuncItemInit)

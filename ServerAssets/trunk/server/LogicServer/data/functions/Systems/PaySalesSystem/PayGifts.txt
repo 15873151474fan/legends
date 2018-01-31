@@ -1,0 +1,117 @@
+
+--#include "data\config\guide\PayGifts.txt" once 
+
+initPayGiftsCount = 1000000
+
+function MiscsImplement.OnGetPayGiftsData(sysarg)
+	--print("OnGetPayGiftsData")
+	local config = PayGifts
+	if not config then return end
+	
+	local canGetTimes,needYbCount = CalcPayGiftsData(sysarg, config)
+	
+	SendPayGiftsData(sysarg, canGetTimes, needYbCount, config)
+	
+end
+
+function OnPayGiftsWithDrawYuanBao(sysarg)
+	MiscsImplement.OnGetPayGiftsData(sysarg)
+end
+
+
+function MiscsImplement.OnGetPayGiftsAwards(sysarg)
+	--print("OnGetPayGiftsAwards")
+	-- local config = PayGifts
+	-- if not config then return end
+	
+	-- local drawYbCount = Actor.getIntProperty(sysarg, PROP_ACTOR_DRAW_YB_COUNT)
+	-- if drawYbCount == 0 then return end
+	
+	-- local canGetTimes,needYbCount = CalcPayGiftsData(sysarg, config)
+	
+	-- if canGetTimes <= 0 then return end
+	
+	-- local getTimes = 1
+	
+	-- local awards = {{type=0, id=config.awardId, count=getTimes}}
+	
+	-- if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+	
+	
+	-- local sVar = Actor.getStaticVar(sysarg)
+	-- --print("payGiftsCount1:"..sVar.payGiftsCount)
+	-- local payGiftsCount = sVar.payGiftsCount + getTimes * config.ybCount
+	-- sVar.payGiftsCount = payGiftsCount
+	-- --print("payGiftsCount2:"..sVar.payGiftsCount)
+	
+	-- Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000182, getTimes), ttFlyTip)
+	
+	-- local canGetTimes, needYbCount = CalcPayGiftsData(sysarg, config)
+	
+	-- if Awards.Give(sysarg, awards, 914, Lang.LogTips.l00167) ~= true then
+	-- 	System.trace("OnGetPayGiftsAwards error! id=%d", Actor.getIntProperty(sysarg, PROP_ENTITY_ID))
+	-- end
+	
+	
+	
+	-- SendPayGiftsData(sysarg, canGetTimes, needYbCount, config)
+end
+
+function CalcPayGiftsData(sysarg, config)
+	-- if not config then return 0,0 end
+	
+	-- local drawYbCount = Actor.getIntProperty(sysarg, PROP_ACTOR_DRAW_YB_COUNT)
+	-- --print("drawYbCount::"..drawYbCount)
+	
+	-- local sVar = Actor.getStaticVar(sysarg)
+	-- local payGiftsCount = sVar.payGiftsCount
+	
+	-- if not payGiftsCount then
+	-- 	sVar.payGiftsCount = initPayGiftsCount
+	-- 	payGiftsCount = sVar.payGiftsCount
+	-- end
+	
+	-- local canGetTimes = math.modf((drawYbCount - payGiftsCount) / config.ybCount)
+	-- local needYbCount = 0
+	-- --print(sVar.payGiftsCount)
+	-- if canGetTimes <= 0 then
+	-- 	canGetTimes = 0
+	-- 	if drawYbCount < payGiftsCount then
+	-- 		needYbCount = config.ybCount + payGiftsCount - drawYbCount
+	-- 	else
+	-- 		needYbCount = config.ybCount - (drawYbCount - payGiftsCount)
+	-- 	end
+	-- end
+	
+	-- if drawYbCount == 0 or drawYbCount == payGiftsCount then
+	-- 	needYbCount = config.ybCount
+	-- end
+	-- --print(canGetTimes.."=="..needYbCount)
+	-- return canGetTimes,needYbCount
+end
+
+function SendPayGiftsData(sysarg, canGetTimes, needYbCount, config)
+	-- local npack = DataPack.allocPacket(sysarg, 139, 73)
+	-- if not npack then return end
+	-- DataPack.writeShort(npack, canGetTimes)
+	-- --print(canGetTimes)
+	-- DataPack.writeUInt(npack, needYbCount)
+	-- --print(needYbCount)
+	-- DataPack.writeByte(npack, table.getn(config.awards))
+	-- ----print(table.getn(config.awards))
+	-- for k, v in ipairs(config.awards) do
+	-- 	DataPack.writeByte(npack, v.type)
+	-- 	----print(v.type)
+	-- 	DataPack.writeShort(npack, v.id)
+	-- 	----print(v.id)
+	-- 	DataPack.writeUInt(npack, v.count)
+	-- 	----print(v.count)
+	-- 	DataPack.writeByte(npack, v.job or 0)
+	-- 	DataPack.writeInt(npack, v.sex or -1)
+	-- end
+	-- DataPack.flush(npack)
+
+end
+
+MiscsImplement.registerMsgHandler(76, MiscsImplement.OnGetPayGiftsData)
+MiscsImplement.registerMsgHandler(77, MiscsImplement.OnGetPayGiftsAwards)

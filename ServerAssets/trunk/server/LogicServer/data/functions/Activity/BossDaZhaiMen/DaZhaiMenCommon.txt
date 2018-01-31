@@ -1,0 +1,282 @@
+--lua script
+--Boss 大寨门
+
+--#include "data\config\activityconfig\BossDaZhaiMen\BossDaZhaiMenConfig.txt" once   
+--#include "data\functions\Activity\Common\Misc.txt" once  
+
+--添加挂机buff enterType为1开启加buff，为2续费加buff
+function AddDaZhaiMenBuff(sysarg, enterType)    
+	local config = BossDaZhaiMenConfig
+	if enterType <= 0 or enterType > table.getn(config.buffTab) then 
+		return
+	end
+	local buffConfig = config.buffTab[enterType]
+	if buffConfig then
+		Actor.addBuff(sysarg, buffConfig.buffType, buffConfig.groupId, buffConfig.value, buffConfig.times, buffConfig.interval, Lang.Activity.dzm009, true)
+		local leftTime = Actor.getBuffRemainTime(sysarg, config.buffTab[1].buffType, config.buffTab[1].groupId)
+		local scenceId = Actor.getSceneId(sysarg)
+		if scenceId == BossDaZhaiMenConfig.scenceId then 
+			Actor.initActivityWind(sysarg, Lang.Activity.dzm009, leftTime, Lang.Activity.dzm011)    
+		end
+	end
+	
+	CheckDaZhaiMenRenew(sysarg)  
+end
+
+--是否在Boss大寨门地图
+function IsInDaZhaiMenMap(sysarg) 
+	local scenceId = Actor.getSceneId(sysarg)
+	if scenceId == BossDaZhaiMenConfig.scenceId then 
+		return true
+	end
+	return false
+end
+
+--离开场景
+function ExitDaZhaiMenMap(sysarg)   
+	--直接把玩家传出来
+	local config = BossDaZhaiMenConfig
+	if Actor.enterScene(sysarg, config.exitSceneId, config.exitPosTab.posX, config.exitPosTab.posY) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+	SendDaZhaiMenBossInfo(sysarg, 0, 0)
+end
+
+--时间结束切换场景处理
+function DzmSceneHandle(sysarg)
+	local scenceId = Actor.getSceneId(sysarg) 
+	if scenceId == BossDaZhaiMenConfig.scenceId then 
+		SendDaZhaiMenBossInfo(sysarg, 0, 0)
+	end 
+end
+
+--创建怪物
+function CreateDaZhaiMenBoss()
+	for idx, bossConfig in ipairs(BossDaZhaiMenConfig.bossTab or {}) do
+		CreateOneDaZhaiMenBoss(bossConfig.id)
+	end
+
+end
+
+function CreateOneDaZhaiMenBoss(monId)   
+	--print("CreateOneDaZhaiMenBoss monId ",monId) 
+	local monsterId = tonumber(monId)
+	local hScene = Fuben.getSceneHandleById(BossDaZhaiMenConfig.scenceId,0)
+	--print("hScene ",hScene)
+	for idx, bossConfig in ipairs(BossDaZhaiMenConfig.bossTab or {}) do
+		if monsterId == bossConfig.id then
+			Actor.unregScriptCallback(hScene,"CreateOneDaZhaiMenBossExt") 
+			Fuben.clearMonster(hScene, bossConfig.id) 
+			local monsterPtr = Fuben.createMonster(hScene, bossConfig.id, bossConfig.x, bossConfig.y, bossConfig.liveTime)
+			--print("bossConfig.id ",bossConfig.id)
+			--print("monsterPtr ",monsterPtr)   
+			if monsterPtr then
+				UpdateDaZhaiMenBossInfo(monsterId, 0)
+			end
+			break
+		end
+	end
+end
+
+--回调创建boss
+function CreateOneDaZhaiMenBossExt(npcObj, monId) 
+	CreateOneDaZhaiMenBoss(monId)   
+end
+
+--boss创建后调用
+function OnDaZhaiMenBossCreate(monster, monId, sceneId,x,y)  
+	UpdateDaZhaiMenBossInfo(monId, 0)
+	BroadcastDzmBossInfo(monId)
+end
+
+--boss死亡后调用 
+function OnDaZhaiMenBossDead( monster,sysarg,monId )   
+	--print("OnDaZhaiMenBossDead")
+	local nHandle = Fuben.getSceneHandleById(BossDaZhaiMenConfig.exitSceneId, 0)
+	local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00334) 
+	--print("NpcPtr ",NpcPtr)
+	for idx, bossConfig in ipairs(BossDaZhaiMenConfig.bossTab or {}) do
+		if monId == bossConfig.id then
+			--print("OnDaZhaiMenBossDead ",monId)  
+			Actor.regScriptCallback(NpcPtr, NpcPtr, bossConfig.revive*60*1000, 0, 1, "CreateOneDaZhaiMenBossExt", monId)
+			local curTime = System.getCurrMiniTime()
+			UpdateDaZhaiMenBossInfo(monId, curTime + bossConfig.revive*60)
+			BroadcastDzmBossInfo(monId)
+			break
+		end
+	end
+
+end
+
+--更新boss数据 
+function UpdateDaZhaiMenBossInfo(monId, refreshTime)
+	for idx, bossConfig in ipairs(BossDaZhaiMenConfig.bossTab or {}) do
+		if monId == bossConfig.id then
+			if GetRankFileData(BossDaZhaiMenConfig.DzmBossFile, monId, -1, 1) == nil then 
+				AddRankFileData(BossDaZhaiMenConfig.DzmBossFile, monId, 0, false)  
+			else
+				UpdateRankFileData(BossDaZhaiMenConfig.DzmBossFile, monId, 0, refreshTime, 2)  
+			end
+			break
+		end
+	end
+end
+
+--请求boss信息
+function ReqDaZhaiMenBossInfo(sysarg) 
+	SendDaZhaiMenBossInfo(sysarg, 1, 0)  
+end
+
+--发送boss信息, infoType为0关闭，为1发boss数据,  bossId为0发全部boss，大于0表示bossid
+function SendDaZhaiMenBossInfo(sysarg, infoType, bossId) 
+
+	local rankPtr = Ranking.getRanking(BossDaZhaiMenConfig.DzmBossFile)
+	if not rankPtr then
+		return
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 123)
+	if not pack then
+		return
+	end
+	
+	DataPack.writeByte(pack, infoType) 
+	
+	if bossId == nil then
+		bossId = 0
+	end
+	DataPack.writeWord(pack, bossId)  
+	
+	local itemCount = 0
+	if infoType > 0 then
+		if bossId > 0 then
+			itemCount = 1 
+		else
+			itemCount = Ranking.getRankItemCount(rankPtr) 
+		end
+	end
+	DataPack.writeByte(pack, itemCount) 
+	--print("itemCount ",itemCount )
+	if itemCount > 0 then
+		local curTime = System.getCurrMiniTime()
+		for i = 1, itemCount do 
+			local monId = 0
+			local leftRefreshTime = 0
+			local state = 0
+			local itemPtr = nil
+				
+			if bossId > 0 then
+				itemPtr = Ranking.getItemPtrFromId(rankPtr, bossId)
+			else
+				itemPtr = Ranking.getItemPtrByIndex(rankPtr, i-1)
+			end
+				
+			if itemPtr then
+				monId = Ranking.getId(itemPtr) 
+				local refreshTime = tonumber(Ranking.getSub(itemPtr, 0)) or 0
+				if refreshTime > curTime then
+					leftRefreshTime = refreshTime - curTime
+					--print("leftRefreshTime ",leftRefreshTime)
+					state = 1
+				end
+			end
+			DataPack.writeWord(pack, monId)
+			DataPack.writeUInt(pack, leftRefreshTime)
+			DataPack.writeByte(pack, state) 
+		end
+	end
+
+	DataPack.flush(pack)
+end
+
+--广播boss信息
+function BroadcastDzmBossInfo(monId)
+	local playerList = LuaHelp.getSceneActorListById(BossDaZhaiMenConfig.scenceId)
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				SendDaZhaiMenBossInfo(player, 1, monId) 
+			end
+		end
+	end
+end
+
+--关闭boss信息窗口
+function OnDaZhiMenBossMapOp(sysarg)  
+	local config = BossDaZhaiMenConfig
+	if config.buffTab and table.getn(config.buffTab) > 0 then
+		if Actor.hasBuff(sysarg, config.buffTab[1].buffType, config.buffTab[1].groupId) == true then
+			SendDaZhaiMenBossInfo(sysarg, 0, 0)
+		end
+	end
+end
+
+--检测是否需要续费提示
+function CheckDaZhaiMenRenew(sysarg)
+	local config = BossDaZhaiMenConfig
+	if config.buffTab and table.getn(config.buffTab) > 0 then
+		local leftTime = Actor.getBuffRemainTime(sysarg, config.buffTab[1].buffType, config.buffTab[1].groupId)
+		if leftTime-config.renewTime > 0 then 
+			Actor.unregScriptCallback(sysarg, "DaZhaiMenRenew")
+			Actor.regScriptCallback(sysarg, nil, (leftTime-config.renewTime)*1000, 0, 1, "DaZhaiMenRenew", 1)   
+		end
+	end
+end
+
+--续费提示
+function DaZhaiMenRenew(sysarg, renewTypeStr) 
+	--print("renewTypeStr ",renewTypeStr) 
+	local renewType = tonumber(renewTypeStr) or 0 
+	--print("renewType",renewType)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 124)
+	if pack then
+		DataPack.writeByte(pack, renewType) 
+		DataPack.flush(pack)
+	end
+
+end
+
+--请求续费
+function ReqDaZhaiMenRenew(sysarg)  
+	local config = BossDaZhaiMenConfig   
+    local consumYb = 0
+	if config.consumeTab and table.getn(config.consumeTab) >= 2  then
+		consumYb = config.consumeTab[2] or 0 
+	else
+		return
+	end
+	
+	if Actor.changeMoney(sysarg, mtYuanbao, -consumYb, config.logId, Lang.LogTips.dzm0002) ~= true then  
+		Actor.sendTipmsg(sysarg, Lang.Activity.dzm010, ttFlyTip)  
+		return
+	end
+	
+	AddDaZhaiMenBuff(sysarg, 2)  
+end
+
+--重置大寨门数据 
+function ResetDaZhaiMenInfo()
+	local infoPtr = Ranking.getRanking( BossDaZhaiMenConfig.DzmInfoFile )		
+	if infoPtr then
+		Ranking.clearRanking(infoPtr)
+	end
+	
+end
+
+ 
+--重置boss
+function ResetDzmBoss()
+	local dVar = System.getDyanmicVar()
+	--print("dVar ",dVar)
+	--print("dVar.DzmBossFlag ",dVar.DzmBossFlag) 
+	CreateDaZhaiMenBoss()
+	dVar.DzmBossFlag = 1  
+
+end
+
+
+
+
+

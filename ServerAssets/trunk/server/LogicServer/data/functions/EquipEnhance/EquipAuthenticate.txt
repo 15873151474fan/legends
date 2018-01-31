@@ -1,0 +1,397 @@
+﻿
+AuthValTab = {
+	Item.ipItemForgeProperty1Value,
+	Item.ipItemForgeProperty2Value,
+	Item.ipItemForgeProperty3Value,
+	Item.ipItemForgeProperty4Value,
+}
+
+--装备鉴定
+function EquipAuthenticate(sysarg, args)	--3 装备鉴定 
+	local itemPtr = args[2]
+	local useGold = args[4]
+	if not itemPtr then
+		return
+	end
+	--print("EquipAuthenticate")
+	--从物品身上取得类型
+	local itemType = Item.getItemProperty( sysarg, itemPtr, Item.ipItemType, 0 )
+	--是否幻武
+	if itemType == Item.itWeaponExtend then
+		return false
+	end
+	
+	local itemGuid = Item.getItemGuid(itemPtr)
+	local smithFlag = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSmithId, 0) 
+
+	if smithFlag <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf023, ttFlyTip)		
+		return
+	end
+	local authIndex = 0
+	local authCount = 0
+	for idx, val in ipairs(AuthValTab) do
+		local maxIdx = Item.getItemProperty( sysarg, itemPtr, val, 0) 
+		authCount = authCount + 1
+		if maxIdx == 0 then
+			if IsOpenSmith(sysarg, itemPtr, idx) == true then
+				authIndex = idx
+				break
+			else
+				authCount = authCount - 1
+			end
+		end
+	end
+    --print("EquipAuthenticateauthCount:"..authCount)
+    --print("EquipAuthenticateauthIndex:"..authIndex)
+	if authIndex == 0 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf022,authCount), ttFlyTip)  
+		return
+	end
+	local authCfg = EquipAuthenticateConfig.auth[authIndex]
+	if not authCfg then
+		return
+	end
+	--检测
+	
+	local needStuff = 0
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	for idx, tab in ipairs(authCfg) do
+		if tab.usetype == Any_Stuff then
+			local itemCount = Actor.getItemCount(sysarg, tab.id) 
+			if itemCount < tab.count then
+				if useGold <= 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf029, ttFlyTip)
+					return
+				end
+				if not tab.yb or tab.yb == 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf039, ttFlyTip)
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - itemCount)
+				if myGold < needGoldCount then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf030, ttFlyTip)
+					return
+				end
+				myGold = myGold - needGoldCount
+			end
+		elseif tab.usetype == Any_Silver then
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_BIND_COIN )
+			if myCoin < tab.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf031, tab.count), ttFlyTip)
+				return
+			end
+		end
+	end
+	--扣费
+	for idx, tab in ipairs(authCfg) do 
+		if tab.usetype == Any_Stuff then
+			needStuff = tab.count
+			local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1,Lang.LogTips.yb010, 31)
+			if remCount < tab.count then
+				if useGold == 0 then
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - remCount)
+				Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 31, Lang.LogTips.yb010)
+			end
+		elseif tab.usetype == Any_Silver then
+			Actor.changeMoney(sysarg, mtBindCoin, -tab.count, 125, Lang.LogTips.yb010)
+		end
+	end
+	Item.setItemProperty( sysarg, itemPtr, Item.ipItemRandForge, authIndex)
+    local ItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0 )
+    local ItemName = Item.getItemName( ItemId )
+	--洗练出第二或者第三条属性则全服播报 
+	if authIndex == 2 then
+       local str2 = string.format(Lang.ScriptTips.q00103,Actor.getName(sysarg), ItemName)
+       --System.broadcastTipmsg(str2,ttScreenCenter+ttChatWindow)
+    elseif authIndex == 3 then 
+       local str2 = string.format(Lang.ScriptTips.q00104,Actor.getName(sysarg), ItemName)
+       --System.broadcastTipmsg(str2,ttScreenCenter+ttChatWindow)
+    end 
+	SendEquipOptResult(sysarg, itemGuid, itEquipAuthenticate, 0) 
+	
+	local smithTimes = getTodayFlag(sysarg,ActorSmithCount)
+
+	if smithTimes == nil then
+		smithTimes = 0 
+	end
+
+	smithTimes = smithTimes + 1
+	setTodayFlag(sysarg,ActorSmithCount,smithTimes) --更新鉴定次数
+	Actor.triggerAchieveEvent (sysarg,81,1,smithTimes,smithTimes)
+	--Actor.triggerAchieveEvent( sysarg,99,1,0,0,0)
+	--更新主题活动排行
+	UpdateAuthenRank(sysarg,needStuff,1) --更新鉴定积分
+	
+	return true
+end
+
+--是否开启鉴定属性，根据序号查
+function IsOpenSmith(sysarg, itemPtr, smithIdx) 
+	
+	local result = true
+	local conditionCfg = EquipAuthenticateConfig.condition
+	if not conditionCfg then
+		return result
+	end
+	
+	for k, v in ipairs(conditionCfg) do
+		if v.smithIdx == smithIdx then
+			if v.smithIdx == 4 then
+				local strongLvl = Item.getItemProperty(sysarg, itemPtr, Item.ipItemStrong, 0)
+				
+				if v.cond[1] ~= nil and strongLvl < v.cond[1] then
+					result = false
+					break
+				end
+			end
+		end
+	end
+
+	return result
+end
+
+--是否开启鉴定属性，根据属性值查
+function IsOpenSmithExt(sysarg, itemPtr, ipItemForgeProperty)
+	local result = false
+	for idx, val in ipairs(AuthValTab or {}) do
+		if val == ipItemForgeProperty then
+			if IsOpenSmith(sysarg, itemPtr, idx) then
+				result =  true
+			end
+		end
+	end
+	return result
+end
+
+
+
+--鉴定材料数据
+function EquipAuthenticateConsume(sysarg, args)
+--print("EquipAuthenticateConsume")
+	
+	local ptrCount = args[1]			--指针数量
+	local itemPtr = args[2]
+	if not itemPtr then
+		return
+	end	
+	--print("EquipAuthenticateConsume1")
+	local opType = args[ptrCount+2]		--操作类型
+	local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0) 
+	--print("EquipAuthenticateConsume"..nLevel)
+	if nLevel < EquipAuthCond.minItLv then
+		return
+	end
+	--print("EquipAuthenticateConsume2")
+	local authCount = 0
+	local authIndex = 0
+	for idx, val in ipairs(AuthValTab) do
+		local maxIdx = Item.getItemProperty( sysarg, itemPtr, val, 0) 
+		--print("EquipAuthenticateConsumeauthmaxIdx"..maxIdx)
+		if maxIdx == 0 then
+			authIndex = idx
+			break
+		else
+			authCount = authCount + 1
+		end
+	end
+	if authCount >= #EquipAuthenticateConfig.auth then
+		authIndex = #EquipAuthenticateConfig.auth
+	end
+	--print("EquipAuthenticateConsumeauthIndex"..authIndex)
+	local authCfg = EquipAuthenticateConfig.auth[authIndex]
+	if not authCfg then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf022, authCount), ttWarmTip)
+		return
+	end
+	--print("EquipAuthenticateConsume3")
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	local consumeSize = #authCfg + #EquipAuthenticateConfig.consume
+	DataPack.writeByte(netPack,consumeSize)
+	for k, curTab in ipairs(authCfg) do
+		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack,curTab.id or 0)
+		DataPack.writeInt(netPack,curTab.count)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	
+	for k, curTab in ipairs(EquipAuthenticateConfig.consume) do
+		local consumeCount = curTab.count
+		if curTab.usetype == AuthType_Wash then
+			if IsOpenSmith(sysarg, itemPtr, authIndex) then
+				consumeCount = consumeCount + AddWashAuthConsume(sysarg, curTab.usetype, authIndex) 
+			end
+		end
+		--print("EquipAuthenticateConsume4")
+		DataPack.writeChar(netPack, curTab.type)
+		DataPack.writeInt(netPack, curTab.id or 0)
+		DataPack.writeInt(netPack, consumeCount)	
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	DataPack.flush(netPack)
+end
+
+
+
+function EquipWashAuth( sysarg, args )		--鉴定清洗 
+--print("EquipAuthenticate")
+	local itemPtr = args[2]
+	local useGold = args[4]
+	local protectVal = {args[5], args[6], args[7]} 
+	
+	if not itemPtr then
+		return
+	end
+	local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0) 
+	if nLevel < EquipAuthCond.minItLv then
+		return
+	end
+	
+	for idx, val in ipairs(AuthValTab) do
+		local maxIdx = Item.getItemProperty( sysarg, itemPtr, val, 0)
+		if maxIdx == 0 and IsOpenSmith(sysarg, itemPtr, idx) == true then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf501, idx), ttFlyTip) 
+			return 
+		end
+	end
+	
+	if args[8] ~= nil then  --加第四鉴定属性
+		if IsOpenSmith(sysarg, itemPtr, table.getn(protectVal) + 1) then 
+			table.insert(protectVal, args[8])
+		end
+	end
+	
+	local totalNeedGold = 0
+	local protectItemCount = 0
+	local needWashItCount = 0
+	local itemGuid = Item.getItemGuid(itemPtr)
+	for k, v in ipairs(EquipAuthenticateConfig.consume) do
+		if v.usetype == AuthType_Wash then
+			local washItCount = Actor.getItemCount(sysarg, v.id)			--清洗材料
+			needWashItCount = AddWashAuthConsume(sysarg, v.usetype, table.getn(protectVal or {})) + v.count --需要清洗材料
+			
+			if  washItCount < needWashItCount then
+				if useGold > 0 and v.yb and v.yb > 0 then
+					local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO) 
+					local needGoldCount = v.yb * ( needWashItCount - washItCount )
+					totalNeedGold = totalNeedGold + needGoldCount
+					if myGold < totalNeedGold then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf033, ttFlyTip)
+						return
+					end
+				else
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf033, ttFlyTip)
+					return
+				end
+			end
+		elseif v.usetype == Any_Protect then
+			for idx, val in ipairs(protectVal) do
+				if protectVal[idx] > 0 then
+					protectItemCount = protectItemCount + v.count 
+					
+					if idx == 4 then
+						protectItemCount = protectItemCount + AddWashAuthConsume(sysarg, v.usetype, idx)
+					end
+				end
+
+			end
+
+			if protectItemCount > 0 then
+				local itemCount = Actor.getItemCount(sysarg, v.id)
+				if itemCount < protectItemCount then
+					if v.yb and v.yb > 0 and useGold > 0 then
+						local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+						local needGoldCount = v.yb * ( protectItemCount - itemCount )
+						totalNeedGold = totalNeedGold + needGoldCount
+						if myGold < totalNeedGold then
+							Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf032, ttFlyTip)
+							return
+						end
+					else
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf032, ttFlyTip)
+						return
+					end
+				end
+			end				
+		elseif v.usetype == Any_Silver then
+			local mtBindCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_BIND_COIN )
+			if mtBindCoin < v.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf094, v.count), ttFlyTip) 
+				return
+			end
+		end
+	end	
+	--扣消耗的材料
+	for k, v in ipairs(EquipAuthenticateConfig.consume) do
+		if v.usetype == Any_Protect and protectItemCount > 0 then
+			local remCount = Actor.removeItem(sysarg, v.id, protectItemCount,-1,-1,-1,Lang.LogTips.yb011,32)
+			if remCount < protectItemCount then
+				if v.yb and v.yb > 0 and useGold > 0 then
+					local needGoldCount = v.yb * ( protectItemCount - remCount )
+					
+					Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 32, Lang.LogTips.yb011)
+				else
+					return
+				end
+			end
+		elseif v.usetype == AuthType_Wash then
+			--local remCount = Actor.removeItem(sysarg, v.id, v.count,-1,-1,-1,Lang.LogTips.yb011,32)			--清洗材料
+			local remCount = Actor.removeItem(sysarg, v.id, needWashItCount,-1,-1,-1,Lang.LogTips.yb011,32)			--清洗材料
+			if remCount < v.count then
+				if v.yb and v.yb > 0 and useGold > 0 then
+					local needGoldCount = v.yb * ( needWashItCount - remCount )
+					
+					Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 32, Lang.LogTips.yb011)
+				else
+					return
+				end
+			end
+		elseif v.usetype == Any_Silver then
+			Actor.changeMoney(sysarg, mtBindCoin, -v.count, 126, Lang.LogTips.yb011)
+		end
+	end
+	local t = {}
+	for idx, val in ipairs(AuthValTab) do
+		if protectVal[idx] and protectVal[idx] > 0 then
+			Item.setItemProperty( sysarg, itemPtr, Item.ipItemForgeProtect, idx)
+			local protVal = Item.getItemProperty( sysarg, itemPtr, val, 0)
+			if protVal > 0 then
+				table.insert(t,protVal)
+			end
+		end
+		Item.setItemProperty( sysarg, itemPtr, val, 0)
+	end
+	for idx, val in ipairs(t) do
+		Item.setItemProperty( sysarg, itemPtr, AuthValTab[idx], val)
+	end
+	SendEquipOptResult(sysarg, itemGuid, itEquipClearProp, 0)
+
+	UpdateAuthenRank(sysarg,protectItemCount + needWashItCount,3)		--鉴定活动
+
+	return true
+end
+
+--增加清洗消耗
+function AddWashAuthConsume(sysarg, usetype, smithIdx) 
+	local result = 0
+	local addConsumeCfg = EquipAuthenticateConfig.addConsume 
+	if not addConsumeCfg then
+		return result
+	end
+	
+	for k, v in ipairs(addConsumeCfg or {}) do 
+		if v.smithIdx == smithIdx then
+			for idx, val in ipairs(v.add or {}) do
+				if val.usetype == usetype then
+					result = result + val.count
+				end
+			end
+		end
+	end
+	
+	return  result
+
+end

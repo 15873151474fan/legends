@@ -1,0 +1,20 @@
+--lua script
+
+--type :条件的类型，1 为杀死某个BOSS，2 为清除所有的怪物。3 为在副本的存活时间 ..
+--monsterid :怪物ID，amount = 数量，也可作为存活的时间数（单位为秒）
+--sceneid ；要清除所有怪物的 场景ID，-1表示为玩家所在场景。 
+{
+condition = 
+	{
+		--开启传送功能的条件     
+		--{type = 3 , monsterid = 0,amount = 1200 }, 
+	},
+        
+destination =
+	{
+		--可传送的下一个目的地 
+		--{sceneid = 8, scenename = Lang.SceneName.s00008, pos_x = 152, pos_y = 178 },
+	},
+
+
+}

@@ -1,0 +1,51 @@
+﻿--lua script
+{
+	id = 8200,
+	parentid = 0,type = 8,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 0,
+	cangiveup = true,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	randomTarget = false,
+	name = Lang.Quest.q04152,
+	content = Lang.Quest.q04165,
+
+	prom = { type = 2, scene = "", npc = "" },
+	comp = { type = 0, scene = Lang.SceneName.s00049, npc = Lang.EntityName.n01002 },
+	target = {
+		{
+			type = 0, id = 487, count = 5, rewardId = 0,useList = true,
+			location = {
+				sceneid = 143, x= 0,y = 0,entityName = Lang.EntityName.m00487,hideFastTransfer = true,
+				pass = {
+					{ sceneid=49,entityName = Lang.EntityName.n00502, actionDesc = Lang.Talk.t10093,},
+				},
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 35 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 81720, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+		},
+	},
+	PromMsTalks = {
+		Lang.Talk.t06009,
+	},
+	CompMsTalks = {
+		Lang.Talk.t06007,
+	},
+	CompMsTip = {
+		Lang.Talk.t06008,
+	},
+	PassMsTip = {
+	},
+	CompCallBack = "OnCompCampCircle",
+	CompCallbackArg = {
+		 { 8149, 8150, 8151, 8152, 8166, 8167, 8168, 8169, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201, 8202, 8203, 8204, 8205, 8368, 8369, 8370,},
+		 1,
+		 8148,
+	},
+},

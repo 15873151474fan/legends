@@ -1,0 +1,127 @@
+--0元特价
+{
+	name = Lang.Store.c00012, --分类名称
+	labelId =2,  --0表示是普通的商城，1表示背包限时抢购，2表示0元抢购,3表示1元抢购
+	totalBuyLimit =1,    --表示大类的数目的限制个数,0表示无限制，1表示限制一个
+	dynamicAdd =true, --是否是动态添加进来的，true表示是动态添加的，动态添加的有数量限制，客户端需要向服务器请求剩余的数据，普通的没有时间限制的配置false
+        hasShowWind = false,  --是否有右侧的显示窗口，用于显示装备外观等
+
+        desc =Lang.Store.desc0003,   --分类的刷新描述
+
+	--该分类中的商品表
+	items =
+	{
+		--	疾风令
+		{
+			id =	92001	,
+			item =	1559	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price = 	0	, bind = true,oldPrice=	6	 },
+			},
+		},
+
+		--	1朵玫瑰
+		{
+			id =	92002	,
+			item =	1720	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	0	, bind = true,oldPrice=	3	 },
+			},
+		},
+
+		--	初级强化石
+		{
+			id =	92003	,
+			item =	1002	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	0	, bind = true,oldPrice=	5	 },
+			},
+		},
+
+		--	修为封存宝器
+		{
+			id =	92004	,
+			item =	1750	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	0	, bind = true,oldPrice=	5	 },
+			},
+		},
+
+		--	渡脉金针
+		{
+			id =	92005	,
+			item =	1886	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	0	, bind = true,oldPrice=	6	 },
+			},
+		},
+
+		--	绑定银两宝箱
+		{
+			id =	92006	,
+			item =	2060	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	0	, bind = true,oldPrice=	25	 },
+			},
+		},
+
+		--	梦想神符
+		{
+			id =	92007	,
+			item =	1766	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	0	, bind = true,oldPrice=	8	 },
+			},
+		},
+
+		--	如梦江湖
+		{
+			id =	92008	,
+			item =	2137	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price = 0	, bind = true,oldPrice=	12	 },
+			},
+		},
+
+	},
+},

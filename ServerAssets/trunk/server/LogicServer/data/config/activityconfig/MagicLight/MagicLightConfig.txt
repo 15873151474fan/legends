@@ -1,0 +1,102 @@
+--lua script
+--神灯密室配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+MagicLightConfig = 
+{
+	nFubeId = 61,						--副本的id
+	nSceenId = 118,						--场景id 
+
+	nAmountOfLight = 5,  					--总神灯数
+	PlatBossMaxCount = 3, 					--高台同时允许最多boss数量
+
+	--高台刷boss点
+	PlatBossPos = 
+	{
+		{ posX= 63, posY = 47,},
+		{ posX= 64, posY = 46,},
+		{ posX= 66, posY = 44,},
+		{ posX= 68, posY = 46,},
+		{ posX= 70, posY = 48,},
+		{ posX= 69, posY = 50,},
+		{ posX= 67, posY = 51,},
+		{ posX= 65, posY = 49,},
+	},
+
+	--刷怪区boss点
+	GroundBossPos = 
+	{
+		{ posX= 48, posY = 56,},
+		{ posX= 56, posY = 64,},
+		{ posX= 62, posY = 70,},
+		{ posX= 70, posY = 72,},
+		{ posX= 76, posY = 66,},
+		{ posX= 82, posY = 60,},
+		{ posX= 82, posY = 54,},
+		{ posX= 78, posY = 50,},
+		{ posX= 74, posY = 46,},
+		{ posX= 70, posY = 42,},
+		{ posX= 66, posY = 38,},
+		{ posX= 58, posY = 38,},
+		{ posX= 52, posY = 40,},
+		{ posX= 46, posY = 46,},
+		{ posX= 42, posY = 50,},
+		{ posX= 46, posY = 54,},
+		{ posX= 50, posY = 58,},
+		{ posX= 54, posY = 62,},
+	},
+
+	GuardPos = 
+	{
+		{ posX = 53, posY = 46 , },
+		{ posX = 57, posY = 58, },
+		{ posX = 60, posY = 40, },
+		{ posX = 68, posY = 40, },
+		{ posX = 74, posY = 46, },
+		{ posX = 80, posY = 54, },
+		{ posX = 76, posY = 58, },
+		{ posX = 72, posY = 62, },
+		{ posX = 66, posY = 66, },
+		{ posX = 62, posY = 62, },
+	},
+
+	--高台中心坐标
+	PlatPos	  = {xPos = 65, yPos = 50, },	
+
+	--平面坐标
+	GroundPos = {xPos = 50, yPos = 50, },	
+	--神灯配置
+	nMagicLight = 	
+	{
+		{nMonsterID = 1084, posX = 55, posY = 47, nLiveTime = 7200, }, --红
+		{nMonsterID = 1085, posX = 58, posY = 50, nLiveTime = 7200, }, --黄		
+		{nMonsterID = 1086, posX = 61, posY = 53, nLiveTime = 7200, }, --绿		
+		{nMonsterID = 1087, posX = 64, posY = 56, nLiveTime = 7200, }, --蓝		
+		{nMonsterID = 1088, posX = 67, posY = 59, nLiveTime = 7200, }, --紫		
+	},
+	--几率值设定
+	nRate = {rateBegin = 1, rateEnd = 100,},
+	--boss配置 rate刷出boss几率
+	nBossId = 
+	{
+		{nMonsterID = 1080, nCount = 1, nLiveTime = 7200, rate = 67 ,   isPlatBoss = true},		--神灯使者(高台怪)
+		{nMonsterID = 1081, nCount = 1, nLiveTime = 7200, rate = 1 ,  isPlatBoss = true},		--神灯天尊(高台怪)
+		{nMonsterID = 1082, nCount = 1, nLiveTime = 7200, rate = 25 ,   isPlatBoss = true},		--神灯长老(高台怪)	
+		{nMonsterID = 1083, nCount = 1, nLiveTime = 7200, rate = 7 , isPlatBoss = false},		--神灯宝箱	
+	},
+	--捣乱灭灯魂配置 rate刷出灭灯魂几率
+	nMieDengHun = { nMonsterID = 1079, nCount = 1, nLiveTime = 30,   rate = 15,   isPlatBoss = false},	--灭灯魂
+	--神灯碎片
+	nLightPieces = 
+	{
+		{nMonsterID = 2251, strColor = "红色", nNeedCount=5, }, --红色神灯碎片
+		{nMonsterID = 2252, strColor = "黄色", nNeedCount=5, }, --黄色神灯碎片
+		{nMonsterID = 2253, strColor = "蓝色", nNeedCount=5, }, --蓝色神灯碎片
+		{nMonsterID = 2254, strColor = "绿色", nNeedCount=5, }, --绿色神灯碎片		
+		{nMonsterID = 2255, strColor = "紫色", nNeedCount=5, }, --紫色神灯碎片		
+	},
+	--守卫金钱类型,价格,最多守卫个数
+		
+	--购买的守卫ID ,生存时间，金钱类型，价格，最大购买数量
+	GuardMonster = { nMonsterID = 1133, nLiveTime = 7200, moneyType = 3, GuardPrice = 10, MaxGuardCount = 10,  },	
+}

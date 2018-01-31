@@ -1,0 +1,29 @@
+	--id = 0	例子
+	{
+		id = 0,
+			--成就事件的ID
+		name = Lang.AchieveName.event0000,
+			--成就事件的名称
+		logicop = 1,
+			--逻辑操作的,logicop=1表示与,logicop=2表示或,这里支持多个条件
+		atomEventId = 2,
+			--原子事件的ID,svn://192.168.0.160/idgp/Dragon/C-程序设定/C-成就事件的ID.txt
+			
+		plusParamId = 0,--进度的计数计数采用第几个参数，默认是0，那么一次事件进度+1，否则加第几个参数的数字
+		conds =
+		{
+			{
+				paramID = 1,
+					--触发事件第几个参数有效,比如第1个参数,第2个参数...这个程序配置
+						-- paramType参数的类型,与params配合使用
+						--1表示枚举,比如怪物的id如果为1,2,3,4,6,那么params ={1,2,3,4,6}
+						--2表示范围,比如20-30的话params就配置params ={20,30}
+				paramType =	2,
+					--见成就事件的ID说明，若无说明则配置为2
+				params =
+				{
+					40,400
+				}
+			},
+		}
+	},

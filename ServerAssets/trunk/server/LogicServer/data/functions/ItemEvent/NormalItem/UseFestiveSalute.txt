@@ -1,0 +1,36 @@
+--lua script
+--用户使用喜庆鞭炮的个性处理
+--#include "data\functions\Activity\SpringFestivalHorse\GodCruise.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+
+function FestiveSaluteFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.getItemCount(sysarg, itemIdx) < 1 then return end
+	if OnUseFestiveSalute(sysarg) == true then
+		--添加实体特效
+		if(itemConfig.entityEffects ~= nil) then
+			for i=1, table.getn(itemConfig.entityEffects)   do
+				local effect = itemConfig.entityEffects[i]
+				Actor.addEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime) --添加特效 
+			end
+		end
+		
+		--添加场景特效
+		if(itemConfig.sceneEffects ~= nil) then
+			for i=1, table.getn(itemConfig.sceneEffects)   do
+				local effect = itemConfig.sceneEffects[i]
+				Actor.addSceneEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime,effect.x,effect.y) --添加特效 
+			end
+		end
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use festivesalute",5)
+	end
+end
+
+function UseFestiveSalute_Init(sysarg)
+	for i = 1,table.getn(EffectItemSaluteItem) do
+		local x = EffectItemSaluteItem[i]
+		GlobalItemFn[x.item_id] = { func = FestiveSaluteFunc, params = x }
+	end
+end
+
+table.insert( InitFnTable, UseFestiveSalute_Init)
+

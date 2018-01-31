@@ -1,0 +1,361 @@
+
+--lua script 
+--#include "data\config\activityconfig\SheepLaborDay\SheepLaborDayAct.txt" once
+--#include "data\config\activityconfig\SheepLaborDay\PotPlantingConfig.txt" once
+--#include "RankPointer.txt" once
+
+--初始化奖励表
+function InitPotPlantingAwardTab()
+	local config = PotPlantingConfig
+	if (not config) or (not SheepLaborDayRankPt.PotPlantingPt) or (not config.pots) then
+		return
+	end
+
+	local awardFile = SheepLaborDayRankPt.PotPlantingPt.PotPlantingAwardFile
+
+	local awardRankPtr = Ranking.getRanking(awardFile) 
+	if not awardRankPtr then
+		awardRankPtr = Ranking.add(awardFile, 1000, 1, 10)
+		if not awardRankPtr then
+			return
+		end
+
+		if not Ranking.load(awardRankPtr, awardFile) then
+			for i=0,9 do
+				Ranking.addColumn(awardRankPtr, string.format("value%d", i))
+			end
+		end
+	end
+	if not awardRankPtr then return end
+	
+	if Ranking.getRankItemCount(awardRankPtr) > 0 then
+		return 
+	end
+
+	local itemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+	if not itemPtr then
+		itemPtr = Ranking.addItemExt(awardRankPtr, 1, 0, false)
+		for i = 1, 10 do  
+			Ranking.setSub(itemPtr, i-1, 0)
+		end
+	end
+
+	local pots = config.pots
+
+	local count = table.getn(pots or {})
+	local beginPot = 0
+	for i = 1, count do
+		local consumes = pots[i].consumes
+		for k, v in ipairs(consumes or {}) do
+			if v.type == 15 then
+				beginPot = i
+				break
+			end
+		end
+		if beginPot ~= 0 then
+			break
+		end
+	end
+	for i = beginPot, count do	--金币道具不需要加入
+		local awardConfig = pots[i].awards
+		for k, v in ipairs(awardConfig or {}) do
+			if v.type == 0 then
+				local awardItemPtr = Ranking.getItemPtrFromId(awardRankPtr, v.id)
+				if not awardItemPtr then
+					awardItemPtr = Ranking.addItemExt(awardRankPtr, v.id, 0, false)
+					for j = 1, 10 do  
+						Ranking.setSub(awardItemPtr, j-1, 0)
+					end
+				end
+		
+				if awardItemPtr then
+					Ranking.setSub(awardItemPtr, i-1, v.startYb)
+				end
+			end
+		end
+	end
+end
+
+--加载珍宝盆栽数据
+function LoadPotPlanting(sysarg)
+	local tmpTable = {}
+	for i=0,7 do
+		table.insert(tmpTable, 0)
+	end
+	tmpTable[1] = 1		--第一个肯定是亮的
+
+	local config = PotPlantingConfig
+	if (not config) or (not SheepLaborDayRankPt.PotPlantingPt) then
+		return tmpTable
+	end
+
+	local awardFile = SheepLaborDayRankPt.PotPlantingPt.PotPlantingFile
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(awardFile)
+	if not ranking then
+		ranking = Ranking.add(awardFile, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, awardFile) then
+			for i=0,7 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if pItem then
+		local tmpVal = 0
+		for i=0,7 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			--table.insert(tmpTable, tmpVal)
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存珍宝盆栽数据
+function SavePotPlanting(sysarg, tmpTable)
+	if not SheepLaborDayRankPt.PotPlantingPt then return end
+	
+	local awardFile = SheepLaborDayRankPt.PotPlantingPt.PotPlantingFile
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(awardFile)
+	if not ranking then
+		ranking = Ranking.add(awardFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, awardFile) then
+			for i=0,7 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {}) do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--请求珍宝盆栽
+function GetPotPlantingOp(sysarg,args)
+	local nType = args[2]
+	local nPotId = args[3]
+
+	if System.isInDateRange(unpack(SheepLaborDayActCfg.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0005, ttFlyTip)
+		return
+	end
+	
+	InitPotPlantingAwardTab()	--初始化奖励表
+
+	if nType == 0 then
+		OnGetPotPlanting(sysarg)
+	elseif nType == 1 then
+		OnOptPotPlanting(sysarg, nPotId)
+	end
+end
+
+--请求珍宝盆栽信息
+function OnGetPotPlanting(sysarg)
+	local config = PotPlantingConfig
+	if (not config) then
+		return
+	end
+
+	local potCount = table.getn(config.pots or {})
+
+	local tmpTable = LoadPotPlanting(sysarg)
+
+	local pack = DataPack.allocPacket(sysarg, 52, 49)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, potCount)
+
+		for i = 1, potCount do
+			DataPack.writeChar(pack, i)
+			DataPack.writeChar(pack, tmpTable[i])	
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--请求操作珍宝盆栽
+function OnOptPotPlanting(sysarg, nPotId)
+	local config = PotPlantingConfig
+	if (not config) then
+		return
+	end
+
+	if Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ywy0015, config.limitCircle, config.limitLevel), ttFlyTip)
+		return
+	end
+
+	local potCount = table.getn(config.pots or {})
+
+	if (nPotId <= 0) or (nPotId > potCount) then
+		return
+	end
+
+	local pot = config.pots[nPotId]
+
+	local tmpTable = LoadPotPlanting(sysarg)
+
+	if tmpTable[nPotId] ~= 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0016, ttFlyTip)
+		return
+	end
+
+	local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	local nCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+
+	for k, v in ipairs(pot.consumes or {}) do
+		if (v.type == 6) and (nCoin < v.count) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ywy0017, ttFlyTip)
+			return
+		elseif (v.type == 15) and (nGold < v.count) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ywy0018, ttFlyTip)
+			return
+		end
+	end
+	
+	for k, v in ipairs(pot.consumes or {}) do
+		if (v.type == 6) and (nCoin >= v.count) then
+			Actor.changeMoney(sysarg,1,-v.count,987,Lang.Activity.ywy0019)
+		elseif (v.type == 15) and (nGold >= v.count) then
+			Actor.changeMoney(sysarg,3,-v.count,987,Lang.Activity.ywy0020)
+
+			local awardFile = SheepLaborDayRankPt.PotPlantingPt.PotPlantingAwardFile
+			local awardRankPtr = Ranking.getRanking(awardFile)
+			if awardRankPtr then
+				local ybitemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+				if ybitemPtr then
+					local curYb = tonumber(Ranking.getSub(ybitemPtr, 0)) or 0
+					Ranking.setSub(ybitemPtr, 0, curYb+v.count)
+				end
+			end
+		end
+	end
+
+	local awardTab = pot.awards
+	local awardInfo = GetTumulusAwardInfo(awardTab)
+
+	Dmkj.addItem(sysarg, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind, false, 0, 987, Lang.LogTips.ywy0021)
+	if awardInfo.isBroadcast and awardInfo.isBroadcast == 1 then
+		local desc = Item.getAwardDesc(awardInfo.type, awardInfo.id)
+		System.broadcastTipmsg(string.format(Lang.Activity.ywy0022, actorName, awardInfo.count, desc), ttScreenCenter+ttChatWindow)
+	end
+
+	if (nPotId > 1) and (nPotId <= potCount) then --除了第一个，其余都变成不亮
+		tmpTable[nPotId] = 0
+	end
+
+	if (nPotId >= 1) and (nPotId < potCount) then --除了第最后一个，其余有可能变亮
+		local randVal = math.random(1, 10000)
+		if randVal <= pot.rate then	--升级
+			tmpTable[nPotId+1] = 1
+		end
+	end
+
+	SavePotPlanting(sysarg, tmpTable)
+
+	OnGetPotPlanting(sysarg)
+end
+
+--获取奖励信息
+function GetPotPlantingAwardInfo(awardTab)
+	local totalRate = 0
+	local awardInfo = nil
+	for k, v in ipairs(awardTab) do 
+		totalRate = totalRate + v.propability 
+	end
+	
+	for i = 1, 10000 do 
+		awardInfo = GetPotPlantingAwardRandomInfo(awardTab, 1, totalRate)
+		if awardInfo == nil then
+			return awardInfo
+		end
+		if CheckPotPlantingAward(awardInfo, awardTab) == true then
+			break
+		end
+	end
+	
+	return awardInfo
+end
+
+--根据概率获取值
+function GetPotPlantingAwardRandomInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local awardInfo = nil
+	local tmpValue = 0
+
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].propability
+		if tmpValue >= randVal then
+			awardInfo = infoTable[i]
+			break
+		end
+	end
+	return awardInfo
+end
+
+--检测是否可获取奖励,根据消耗的元宝
+function CheckPotPlantingAward(awardInfo, awardTab)
+	local result = false
+
+	local awardFile = SheepLaborDayRankPt.PotPlantingPt.PotPlantingAwardFile
+
+	local awardRankPtr = Ranking.getRanking(awardFile)
+	if awardRankPtr then
+		local totalYb = 0
+		local ybitemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+			if ybitemPtr then
+				totalYb = tonumber(Ranking.getSub(ybitemPtr, 0)) or 0
+			end
+
+		local itemPtr = Ranking.getItemPtrFromId(awardRankPtr, awardInfo.id)
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(awardRankPtr, awardInfo.id, 0, false)
+			if itemPtr then
+				for i = 1, 10 do  
+					Ranking.setSub(itemPtr, i-1, 0)
+				end
+			end
+		end 		
+		
+		for k, v in ipairs(awardTab) do 
+			if v.id == awardInfo.id then
+				local startYb = tonumber(Ranking.getSub(itemPtr, k-1)) or 0
+				if v.startYb > startYb then
+					startYb = v.startYb 
+				end
+				
+				if totalYb >= startYb then
+					result = true
+					Ranking.setSub(itemPtr, k-1, startYb+v.ybCircle)
+				end
+				break
+			end
+		end   
+	end
+
+	return result
+end

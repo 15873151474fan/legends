@@ -1,0 +1,41 @@
+﻿--[[ 地图BOSS系统与客户端通信的单元文件 李昀]]
+
+--处理地图BOSS的消息
+MapBossCCTable = {}
+--收到地图BOSS系统的消息处理
+function MapBossMainHandle(sysarg,packet)
+  local ID = DataPack.readByte(packet)
+  local Handle = MapBossCCTable[ID]
+  if Handle ~= nil then
+   Handle(sysarg,packet)
+  end
+end
+
+--查询地图BOSS的信息
+MapBossCCTable[1] = function(sysarg,packet)
+  --是否已经刷新 如果(前端显示，后端屏蔽) 
+  local BossID = DataPack.readByte(packet)
+  
+  local Var = GetMapBossDyanmicVar(BossID)
+  local btAlive = 0
+  if Var.Alive ~= nil then
+    btAlive = Var.Alive 
+  end
+  
+  local NextMobTime = MapBossImp.GetNextMobTime(BossID)
+  local Boss = MapBossConfig[BossID]
+  local MaxExp = 0 
+  local GrowLevel = 0
+  local Exp = 0 
+  MaxExp,GrowLevel,Exp = System.getMonsterGrowInfo(Boss.MonID,GrowLevel,Exp)
+  
+  local Data = DataPack.allocPacket(sysarg,153,SubMapBossCC)
+  DataPack.writeByte(Data,1) --协议ID     1
+  DataPack.writeWord(Data,BossID) --BOSSID  2
+  DataPack.writeByte(Data,btAlive) --是否存活 1 
+  DataPack.writeWord(Data,GrowLevel)  --当前成长等级 2
+  DataPack.writeUInt( Data,NextMobTime) --下次刷新时间 4
+  DataPack.flush(Data)
+  BossPrint(string.format("客户端查询地图BOSS : ID:%d , 是否存活 : %d , 成长等级:%d",BossID,btAlive , GrowLevel))
+  
+end

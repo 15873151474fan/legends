@@ -1,0 +1,395 @@
+﻿--世界文明度的配置
+--转生后经验剩余=转生前（当前）经验*世界等级加成系数（20个等级可配置）*等级加成系数（75级，80级阶段性等级系数可配置）+固定值C (可配置)
+WordCultureConfig = 
+{
+	addCultureByDay = 2,		--每开一天服，文明度增加T
+	addCultureByFullLevel = 5,	--满级一个，增加文明度L
+	
+	nKillMonsterRate = 2,		--怒气调整系数
+	fAddAngerByMonsterType = 0.5,	--根据怪物类型不同递增的系数
+	nMinLevel = 250,			--杀怪获得怒气值的最低等级
+    --等级加成系数= 转生前等级^SqrtRate*RelevelRate 
+    SqrtRate = 3, --次方跟系数
+    RelevelRate = 0.000001,--加成系数 
+    fixedValue = 8000000,--转生后加成固定值 
+	--等级修正
+        killMonsterRate = 
+	{
+		{
+			levleDis = 3,	--等级差小于等于3时
+			nRate = 1.0,	--等级修正
+		},
+
+		{
+			levleDis = 9,	
+			nRate = 0.5,	
+		},
+
+		{
+			levleDis = 100,	
+			nRate = 0,	
+		},
+	},
+   --以上用于填充老系统策划不需要管 
+	--经验加成的转生修正
+	CultureModulus = 
+	{
+		{
+			differNum = 0,		--转生次数差
+			cModulus = 0,		--转生修正系数  0%
+		},
+
+		{
+			differNum = 1,		--转生次数差
+			cModulus = 25,		--转生修正系数  0%
+		},
+		
+		{
+			differNum = 2,		--转生次数差
+			cModulus = 50,		--转生修正系数  0%
+		},
+
+		{
+			differNum = 3,		--转生次数差
+			cModulus = 75,		--转生修正系数  0%
+		},
+	},
+
+	--[[
+		mtMainLine=1,				//主线经验百分比数值A
+		mtDaily =2,				//日常经验百分比数值
+		mtRepairEquip=3,			//装备普通维修消耗
+		mtRepairSpecial=4,			//装备特殊维修消耗
+		mtSellProps=5,				//ＮＰＣ出售道具
+		mtAddDuty = 6,				//屠龙城城主税收上限
+        mtMonExp  = 7，             //怪物经验加成百分比 
+        mtCircleAddExpRate  = 8，             //转生后人物经验加成系数 
+		--对应一下type
+	]]
+	--文明度的等级区间
+
+CultureTimesInterval = {
+{
+	-- = 文明度级别1,
+	CultureNum = 0,
+	cultureLevel = 1,
+	CultureTimes = 1,
+	--以上三行策划不需要管 
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 0, },
+		{ type = 3, nRate = 0, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, }, 
+		{ type = 7, nRate = 0, },
+		{ type = 8, nRate = 2, },
+	},
+},
+{
+	-- = 文明度级别2,
+	CultureNum = 10,
+	cultureLevel = 2,
+	CultureTimes = 2,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 0, },
+		{ type = 3, nRate = 0, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 5, },
+		{ type = 8, nRate = 5, },
+	},
+},
+{
+	-- = 文明度级别3,
+	CultureNum = 20,
+	cultureLevel = 3,
+	CultureTimes = 3,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 0, },
+		{ type = 3, nRate = 5, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 5, }, 
+		{ type = 8, nRate = 8, },
+	},
+},
+{
+	-- = 文明度级别4,
+	CultureNum = 35,
+	cultureLevel = 4,
+	CultureTimes = 4,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 5, },
+		{ type = 3, nRate = 10, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 10, },
+		{ type = 8, nRate = 11, },
+	},
+},
+{
+	-- = 文明度级别5,
+	CultureNum = 55,
+	cultureLevel = 5,
+	CultureTimes = 5,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 5, },
+		{ type = 3, nRate = 15, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 10, },
+		{ type = 8, nRate = 14, },
+	},
+},
+{
+	-- = 文明度级别6,
+	CultureNum = 80,
+	cultureLevel = 6,
+	CultureTimes = 6,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 10, },
+		{ type = 3, nRate = 20, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 15, },
+		{ type = 8, nRate = 14, },
+	},
+},
+{
+	-- = 文明度级别7,
+	CultureNum = 110,
+	cultureLevel = 7,
+	CultureTimes = 7,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 10, },
+		{ type = 3, nRate = 25, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 15, },
+		{ type = 8, nRate = 14, },
+	},
+},
+{
+	-- = 文明度级别8,
+	CultureNum = 145,
+	cultureLevel = 8,
+	CultureTimes = 8,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 15, },
+		{ type = 3, nRate = 30, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 15, },
+		{ type = 8, nRate = 14, },
+	},
+},
+{
+	-- = 文明度级别9,
+	CultureNum = 185,
+	cultureLevel = 9,
+	CultureTimes = 9,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 15, },
+		{ type = 3, nRate = 35, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 20, },
+		{ type = 8, nRate = 14, },
+	},
+},
+{
+	-- = 文明度级别10,
+	CultureNum = 230,
+	cultureLevel = 10,
+	CultureTimes = 10,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 20, },
+		{ type = 3, nRate = 40, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 20, },
+		{ type = 8, nRate = 14, },
+	},
+},
+{
+	-- = 文明度级别11,
+	CultureNum = 280,
+	cultureLevel = 11,
+	CultureTimes = 11,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 20, },
+		{ type = 3, nRate = 45, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 25, },
+		{ type = 8, nRate = 16, },
+	},
+},
+{
+	-- = 文明度级别12,
+	CultureNum = 335,
+	cultureLevel = 12,
+	CultureTimes = 12,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 25, },
+		{ type = 3, nRate = 50, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 25, },
+		{ type = 8, nRate = 17, },
+	},
+},
+{
+	-- = 文明度级别13,
+	CultureNum = 395,
+	cultureLevel = 13,
+	CultureTimes = 13,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 25, },
+		{ type = 3, nRate = 55, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 25, },
+		{ type = 8, nRate = 18, },
+	},
+},
+{
+	-- = 文明度级别14,
+	CultureNum = 460,
+	cultureLevel = 14,
+	CultureTimes = 14,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 30, },
+		{ type = 3, nRate = 60, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 30, },
+		{ type = 8, nRate = 19, },
+	},
+},
+{
+	-- = 文明度级别15,
+	CultureNum = 530,
+	cultureLevel = 15,
+	CultureTimes = 15,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 30, },
+		{ type = 3, nRate = 65, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 30, },
+		{ type = 8, nRate = 20, },
+	},
+},
+{
+	-- = 文明度级别16,
+	CultureNum = 605,
+	cultureLevel = 16,
+	CultureTimes = 16,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 35, },
+		{ type = 3, nRate = 70, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 35, },
+		{ type = 8, nRate = 21, },
+	},
+},
+{
+	-- = 文明度级别17,
+	CultureNum = 685,
+	cultureLevel = 17,
+	CultureTimes = 17,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 35, },
+		{ type = 3, nRate = 75, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 35, }, 
+		{ type = 8, nRate = 22, },
+	},
+},
+{
+	-- = 文明度级别18,
+	CultureNum = 770,
+	cultureLevel = 18,
+	CultureTimes = 18,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 40, },
+		{ type = 3, nRate = 80, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 40, },
+		{ type = 8, nRate = 23, },
+	},
+},
+{
+	-- = 文明度级别19,
+	CultureNum = 860,
+	cultureLevel = 19,
+	CultureTimes = 19,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 40, },
+		{ type = 3, nRate = 85, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 40, },
+		{ type = 8, nRate = 24, },
+	},
+},
+{
+	-- = 文明度级别20,
+	CultureNum = 955,
+	cultureLevel = 20,
+	CultureTimes = 20,
+	AddCultureRate = { 
+		{ type = 1, nRate = 0, },
+		{ type = 2, nRate = 45, },
+		{ type = 3, nRate = 90, },
+		{ type = 4, nRate = 0, },
+		{ type = 5, nRate = 0, },
+		{ type = 6, nRate = 0, },
+		{ type = 7, nRate = 45, },
+		{ type = 8, nRate = 25, },
+	},
+},
+	},
+
+}

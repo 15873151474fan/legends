@@ -1,0 +1,54 @@
+--lua script
+--沙巴克秘道npc
+--#include "data\language\LangCode.txt" once --语言包 
+
+--#include "data\config\guild\GuildSiegeConfig.txt" once 
+
+function OnSbkMiDaoNpcDialog(sysarg)
+	local str = ""
+	str = Lang.GuildLang.z00115
+	str = str.."\\<#BL"..Lang.GuildLang.z00114.."/@ChuanSongToSbkScene>"		
+
+	return str
+end
+
+--传送到
+function ChuanSongToSbkScene(sysarg)
+	local gVar = System.getDyanmicVar()
+	if gVar.StartSbkWarFlag == nil then
+		gVar.StartSbkWarFlag = 0
+	end
+	
+	if gVar.StartSbkWarFlag == 0 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00116,ttFlyTip)
+		return
+	end
+
+	local nLevel = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+	if Actor.checkActorLevel(sysarg,GuildSiegeConfig.LimitLevel) == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.GuildLang.z00117,GuildSiegeConfig.LimitLevel),ttFlyTip)
+		return
+	end
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local sbkGuildId = System.getSbkGuildId()
+	if nGuildId > 0 and nGuildId== sbkGuildId then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00145,ttFlyTip)
+		return 
+	end
+
+	local nCount = table.getn(GuildSiegeConfig.MiDaoEnterPalace)
+
+	local randNum = System.getRandomNumber(nCount+1)
+	if randNum <= 0 then
+		randNum = 1
+	end
+
+	local PosConfig = GuildSiegeConfig.MiDaoEnterPalace[randNum]
+
+	if PosConfig then
+		Actor.enterScene(sysarg,GuildSiegeConfig.PalaceSceenId,unpack(PosConfig.enterPos))
+	end
+end
+
+table.insert(MainFnTable, OnSbkMiDaoNpcDialog)

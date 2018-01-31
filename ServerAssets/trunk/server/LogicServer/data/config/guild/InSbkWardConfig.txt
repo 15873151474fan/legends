@@ -1,0 +1,57 @@
+﻿--沙巴克战的配置
+--#include "..\..\language\LangCode.txt"
+
+SbkWarTime = 
+{
+	sbkTime = 30 * 60,		--沙巴克区域停留30分钟给奖励
+	
+	--沙巴克区域停留30分钟给奖励
+	sbkAwards = 
+	{
+		{type = 0, id = 918, count = 15, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 921, count = 15, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 656, count = 1, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 623, count = 1, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 782, count = 1, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 473, count = 1, quality = 0, strong = 0, bind = 1},
+	},
+
+	SiegeTime = 10 * 60,		--沙巴克皇宫停留的时间
+	SiegeAwards = 
+	{
+		{type = 0, id = 782, count = 1, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 473, count = 1, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 656, count = 1, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 924, count = 15, quality = 0, strong = 0, bind = 1},
+		{type = 0, id = 927, count = 15, quality = 0, strong = 0, bind = 1},
+	},
+	
+	opepTime = {20,21},		--开启的时间
+	--沙巴克失败buff  buffGroup统一使用135 表示在沙巴克区域有效
+	FaileBuff = 
+	{
+		--表示失败次数 faileTimes
+		{faileTimes = 1, buffType= 80, value= 0.05, buffGroup= 135,times =1,interval= 1800,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel026,addtips = Lang.GuildLang.wel048,},
+		{faileTimes = 2, buffType= 80, value= 0.10, buffGroup= 135,times =1,interval= 1800,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel027,addtips = Lang.GuildLang.wel049,},
+		{faileTimes = 3, buffType= 80, value= 0.15, buffGroup= 135,times =1,interval= 1800,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel028,addtips = Lang.GuildLang.wel050,},
+		{faileTimes = 4, buffType= 80, value= 0.20, buffGroup= 135,times =1,interval= 1800,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel029,addtips = Lang.GuildLang.wel051,},
+		{faileTimes = 5, buffType= 80, value= 0.25, buffGroup= 135,times =1,interval= 1800,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel030,addtips = Lang.GuildLang.wel052,},
+	},
+	
+	--勇气buff
+	courageBuff = 
+	{
+		--表示勇气值 courageValue
+		{courageValue = 1, buffType= 54, value= 0.05, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel031,},
+		{courageValue = 2, buffType= 54, value= 0.10, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel032,},
+		{courageValue = 3, buffType= 54, value= 0.15, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel033,},
+                {courageValue = 4, buffType= 54, value= 0.20, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel034,},       
+		{courageValue = 5, buffType= 54, value= 0.25, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel035,},
+		{courageValue = 6, buffType= 54, value= 0.30, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel036,},
+		{courageValue = 7, buffType= 54, value= 0.35, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel037,},
+                {courageValue = 8, buffType= 54, value= 0.40, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel038,},                        
+		{courageValue = 9, buffType= 54, value= 0.45, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel039,},
+		{courageValue = 10, buffType= 54, value= 0.50, buffGroup= 135,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel040,},
+ 
+	},
+}

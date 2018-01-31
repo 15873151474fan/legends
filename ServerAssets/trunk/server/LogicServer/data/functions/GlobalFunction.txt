@@ -1,0 +1,92 @@
+﻿--[[File: GloabalFunction.txt]]
+
+--全局NPC的脚本文件，游戏重要的语法逻辑全部挂在这个NPC下面
+
+thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+--脚本子模块使用的局部函数或常量存放位置，避免使用全局对象 
+local LocalDT = {}
+
+
+
+--#include "data\language\LangCode.txt" once
+--#include "GlobalMisc.txt" once     --全局的杂项函数 
+
+----################基本类型定义########### 
+--#include "BaseDef\BaseTypes.txt" once   
+
+----################角色时间派发###########       
+--#include "ActorEvent\ActorEventDispatcher.txt" once
+
+----################脚本子系统派发############## 
+--#include "Systems\SystemHandlerDispatcher.txt" once
+
+--#include "CrossServerEvent\CSHandlerDispatcher.txt" once
+--#include "data\functions\Activity\GuildBiaoChe\GuildDartDie.txt" once
+ --#include "Tasks\taskInclude.txt" once
+--#include "CampKingNPC\CampKingNpcChangeName.txt" once
+
+--#include "OnTimeRunFunction.txt" once     --定时执行的函数 
+--#include "data\functions\Activity\Festival\SpringFestivalActivities.txt" once -- 驱年兽
+--#include "data\functions\Activity\NewYearCountdown\NewYearCountdown.txt" once -- 新年倒计时
+
+--#include "data\functions\guildOperate\GuildOnTimeFuc.txt" once
+--#include "data\functions\Activity\OpenTenDaysActivity\TenDaysActivity.txt" once
+--#include "data\functions\Activity\SbkBiaoChe\SbkBiaoCheOnTime.txt" once
+
+
+
+--#include "data\functions\ExpandFunc\AutoRunFunc.txt" once	--自动执行函数
+--#include "data\functions\ExpandFunc\ActivityTipsFunc.txt" once --活动开启提示公告
+--#include "data\functions\ExpandFunc\RankFunc.txt" once	--排行榜相关
+--#include "data\functions\ExpandFunc\ViewSysState.txt" once	--查看系统状态
+
+--#include "data\functions\Activity\SaveRadish\RadishAward.txt" once	--查看萝卜奖励状态
+
+--#include "data\functions\Activity\QianFuActivity\SuperBossActivity.txt"
+--#include "data\functions\Activity\Festival\NationalDaySpiritBeast.txt" once       --国庆活动刷灵兽
+--#include "data\functions\Activity\Festival\NationalDayCommon.txt" once  --国庆活动
+--#include "data\functions\Activity\SavePillar\SavePillarFunc.txt" once  --国庆活动怪物攻城
+--#include "data\functions\Activity\PracticeStone\AutoRun.txt" once  --5倍练功收益
+--#include "data\functions\Activity\ProgrammerActivity\AutoRun.txt" once  --程序大神
+--#include "data\functions\Activity\CharistMas\CharistmasCommon.txt" once  --圣诞元旦
+--#include "data\functions\Activity\Festival\AnniversaryCommon.txt" once  --庆典礼炮 
+--#include "data\functions\Activity\CrossMatches\CrossMatchesCommon.txt" once  --跨服联赛
+--#include "data\functions\Systems\AnniversarySystem\RechargePackageCommon.txt" once  --充值套餐
+--#include "data\functions\Activity\SpringFestivalHorse\SpringFestivalHorseActivities.txt" once  --马年春节活动
+--#include "data\functions\Activity\Tumulus\TumulusTreasure.txt" once  --古墓探宝
+--#include "data\functions\Activity\NpcOccupation\NpcOccupation.txt" once  --NPC占领
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once --元宵节
+--#include "data\functions\Activity\DragonGod\DragonGod.txt" once --龙神祭拜
+---#include "data\functions\Activity\DiscountMall\DiscountMall.txt" once
+--#include "data\functions\Activity\SheepQingMing\Commemorate.txt" once --祭念先贤
+--#include "data\functions\Activity\SheepLaborDay\SheepLaborDayTree.txt" once --羊年五一神树活动
+--#include "data\functions\Systems\NewVipSystem\NewVipRank.txt" once --Vip名单初始化 
+--#include "data\functions\Activity\CharmCityActivity\CharmCityActivity.txt" once --魑魅侵城 
+
+--====================BOSS系统=======================
+--#include "data\functions\Systems\BossSystem\BossSystemMain.txt" once
+ 
+function main(sysarg)
+	return "global"
+end
+
+
+--[[初始化函数]]--
+function initialization(npcobj)
+	thisNPC = npcobj
+	for i = 1, table.getn(InitFnTable) do
+		InitFnTable[i]( npcobj )
+	end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+	for i = 1, table.getn(FinaFnTable) do
+		FinaFnTable[i]( npcobj )
+	end
+	thisNPC = nil
+end

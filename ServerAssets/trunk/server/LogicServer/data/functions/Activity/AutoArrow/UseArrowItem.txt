@@ -1,0 +1,108 @@
+--lua script
+--使用挂机箭塔的物品处理
+
+--#include "data\config\activityconfig\AutoArrow\UseArrowItem.txt" once
+--#include "data\config\activityconfig\AutoArrow\AutoArrowConfig.txt" once
+
+--使用挂机箭塔处理
+function UseAutoArrowItem(sysarg,itemidx,itemPtr,ItemTable)
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+	
+	local nIndex = Actor.getAuotArrowIndex(sysarg)
+	local nItemIndex = 0
+	for i=1,table.getn(UseArrowTime) do
+		if UseArrowTime[i].item_id == itemidx then
+			nItemIndex = UseArrowTime[i].nIndex
+			break
+		end
+	end
+	
+	if nItemIndex <= 0 then
+		return
+	end
+	
+	local nTimes = Actor.getCallArrowTimes(sysarg)
+	if nTimes >= AutoArrowConfig.maxTimes then
+		Actor.sendTipmsg( sysarg,string.format(Lang.Activity.war0015,AutoArrowConfig.maxTimes),ttFlyTip )
+		return
+	end
+
+	local entityList = LuaHelp.getNearEntityList(sysarg,20)	
+
+	if entityList ~= nil then
+		for j = 1, #entityList do
+			local pEntity = entityList[j]
+			if pEntity then
+				local nId = Actor.getIntProperty(pEntity, PROP_ENTITY_ID)
+				for i=1,table.getn(AutoArrowConfig.ArrowMonsters) do
+					if nId == AutoArrowConfig.ArrowMonsters[i].nMonsterID then
+						Actor.sendTipmsg( sysarg,Lang.Activity.war0016,ttFlyTip )
+						return
+					end
+				end
+			end
+		end
+	end
+
+	if nIndex > 0 then			--已有挂机箭塔
+		local npcHandle = Actor.getHandle(thisNPC)
+		local str = string.format(Lang.Activity.war0013,System.getMonsterNameById(AutoArrowConfig.ArrowMonsters[nIndex].nMonsterID))
+		Actor.messageBox(sysarg,npcHandle,0,str,Lang.Activity.w00010.."/OnCreateArrowOP,"..nItemIndex,Lang.Activity.w00011.."/CanleCreateAutoArrow",NULL)
+	else
+		if CreateArrowOp(sysarg,nItemIndex) then
+			Actor.removeItemByPtr(sysarg,itemPtr,1,true,"AutoArrow",5)
+		end
+	end
+end
+
+function CanleCreateAutoArrow(sysarg)
+	return nil
+end
+
+function OnCreateArrowOP(sysarg,nItemIndex)
+	local nIndex = tonumber(nItemIndex)
+	local nConfig = UseArrowTime[nIndex]
+	if nConfig == nil then
+		return
+	end
+
+	if CreateArrowOp(sysarg,nIndex) then
+		Actor.removeItem(sysarg,nConfig.item_id,1,-1,-1,-1,"AutoArrow",5)
+	end
+end
+
+--创建箭塔
+function CreateArrowOp(sysarg,nIndex)
+	local nConfig = AutoArrowConfig.ArrowMonsters[nIndex]
+	if nConfig == nil then
+		return false
+	end
+	
+	local nPosX,nPosY = Actor.getEntityPosition(sysarg,0,0)
+	local hScene = Actor.getSceneHandle(sysarg)
+	local pMonster = Fuben.createMonster(hScene, nConfig.nMonsterID, nPosX, nPosY, nConfig.nLiveTime)
+	if pMonster then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		Actor.setOnwerActorId( pMonster, nActorId )
+		Actor.setAutoArrowIndex(sysarg,nIndex)
+		Actor.createArrowSuc(sysarg,pMonster)
+		local str = Actor.getName(pMonster)
+		str = str.."[%s]"
+		Actor.setMonsterName(pMonster,string.format(str,Actor.getName(sysarg)))
+	end
+
+	return true
+end
+
+function UseAutoArrowItemInit(sysarg)
+	for i = 1,table.getn(UseArrowTime) do
+		local x = UseArrowTime[i]
+		GlobalItemFn[x.item_id] = { func = UseAutoArrowItem, params = x }
+	end
+end
+
+table.insert(InitFnTable,UseAutoArrowItemInit)
+

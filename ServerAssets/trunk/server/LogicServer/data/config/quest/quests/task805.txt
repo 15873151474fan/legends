@@ -1,0 +1,47 @@
+﻿--lua script
+{
+	id = 805,			-- 礼券商城
+	parentid = 0,type = 1,multiAward = 0,level = 0,circle = 0,entrust = 0,speedYb = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = true,
+	automount = true,
+	autoRun = true,
+	excludetree = false,
+	showTimerBox = false,
+	doubleYB = false,
+	randomTarget = false,
+	name = Lang.Quest.name805,
+	content = Lang.Quest.desc805,
+
+	prom = { type = 0, scene = Lang.SceneName.s00073, npc = Lang.EntityName.n00197 },
+	comp = { type = 0, scene = Lang.SceneName.s00073, npc = Lang.EntityName.n00197 },
+	target = {
+		{
+			type = 127, id = 50090, count = 1, rewardId = 0,useList = false, data = Lang.Quest.data8050,
+			location = {
+				sceneid = 73, x= 0,y = 0,entityName = Lang.EntityName.n00197,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 25 },
+		{ type = 3, id = 458, count = 0 },
+	},
+	awards = {
+		{
+			{ type = 0, id = 102, count = 1, group = 0,strong = 3,quality = 0,job = 1,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 113, count = 1, group = 0,strong = 3,quality = 0,job = 2,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 124, count = 1, group = 0,strong = 3,quality = 0,job = 3,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk8051,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk8051,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip8051,
+	},
+	PassMsTip = {
+	},
+},

@@ -1,0 +1,209 @@
+--督脉-长强
+{
+	id = 3,		--穴位的id，注意：此id需连续
+	name = Lang.JingMai.x0013,	--穴位的名称
+	desc = Lang.JingMai.x0013desc00,	--0级时候的显示
+	type = 1,		--1：普通，2：气穴
+	maxStrong = 100,	--最大的强化值，如果不可强化，则为0，嵌入的天晶碎片的最大数量
+	onePersent = 1,		--提升1%属性所需要的天晶碎片数量
+	maxLevel = 10,		--可提升的最大等级，最大128，一般都是10级
+	--以下是各等级的相关属性
+	level = {
+			{
+				--这里每一项代表一个等级，从1开始
+				level = 1,	--等级1，这个需递增，下一个是等级2
+				attri = { {type = 80,value = -5,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc01,	--1级时候的显示
+				present = 100,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = -1,	--失败掉级几率
+				failLevel = {0,0},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 0,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 0,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+			},
+			{
+				--2级穴位
+				level = 2,	
+				attri = { {type = 80,value = -8,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc02,	--1级时候的显示
+				present = 80,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = -1,	--失败掉级几率
+				failLevel = {0,0},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 1,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 0,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+			},
+			{
+				--3级穴位
+				level = 3,
+				attri = { {type = 80,value = -10,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc03,	--1级时候的显示
+				present = 70,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = -1,	--失败掉级几率
+				failLevel = {0,0},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 1,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 0,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+			},
+			{
+				--4级穴位
+				level = 4,
+				attri = { {type = 80,value = -13,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc04,	--1级时候的显示
+				present = 60,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = -1,	--失败掉级几率
+				failLevel = {0,0},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 2,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 0,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+			},
+			{
+				--5级穴位
+				level = 5,
+				attri = { {type = 80,value = -17,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc05,	--1级时候的显示
+				present = 50,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = -1,	--失败掉级几率
+				failLevel = {0,0},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 2,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 15,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+				addStrongCount = 1,	--使用元宝护脉每次增加的强化次数 不填表示每次默认增加一次
+			},
+			{
+				--6级穴位
+				level = 6,
+				attri = { {type = 80,value = -23,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc06,	--1级时候的显示
+				present = 45,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = 100,	--失败掉级几率
+				failLevel = {1,1},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 4,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 20,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+				addStrongCount = 3,	--使用元宝护脉每次增加的强化次数 不填表示每次默认增加一次
+			},
+			{
+				--7级穴位
+				level = 7,
+				attri = { {type = 80,value = -31,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc07,	--1级时候的显示
+				present = 40,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = 100,	--失败掉级几率
+				failLevel = {1,1},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 7,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 50,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+				addStrongCount = 15,	--使用元宝护脉每次增加的强化次数 不填表示每次默认增加一次
+			},
+			{
+				--8级穴位
+				level = 8,
+				attri = { {type = 80,value = -43,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc08,	--1级时候的显示
+				present = 35,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = 100,	--失败掉级几率
+				failLevel = {1,1},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 12,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 150,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+				addStrongCount = 25,	--使用元宝护脉每次增加的强化次数 不填表示每次默认增加一次
+			},
+			{
+				--9级穴位
+				level = 9,
+				attri = { {type = 80,value = -60,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc09,	--1级时候的显示
+				present = 30,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = 100,	--失败掉级几率
+				failLevel = {1,1},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 24,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 300,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+				addStrongCount = 50,	--使用元宝护脉每次增加的强化次数 不填表示每次默认增加一次
+			},
+			{
+				--10级穴位
+				level = 10,
+				attri = { {type = 80,value = -74,} },			--内功外攻等属性的类型
+				desc = Lang.JingMai.x0013desc10,	--1级时候的显示
+				present = 15,		--升级到这个等级的成功率，最大设置100，表示100%
+				failPresent = 100,	--失败掉级几率
+				failLevel = {1,1},		--从下一级升级到这一级失败的话，原本的等级会跌多少，这里设置1，3，表示会随机跌1-3级,当然，最多就跌到第0级
+				coin = 200,		--需要的银两
+				bindCoin = 0,	--绑定银两，不需要填0
+				YB = 8,		--元宝
+				bindYB = 0,		--绑定元宝
+				xiuwei = 5000,		--需要的修为
+				actorLevel = 45,		--升级到这个等级需要的玩家的等级
+				needStrongCount = 96,	--表示必须强化1次，才可能升级到下一个等级
+				needYBStrongCount = 0,	--表示元宝必须强化1次，才可能升级到下一个等级
+				YBGuardAcupoint = 75,	--保护经脉不掉级需要的元宝
+				needleMaxPresent = 0,	--渡脉金针道具效果影响概率限制
+				addStrongCount = 100,	--使用元宝护脉每次增加的强化次数 不填表示每次默认增加一次
+			},
+		},
+},

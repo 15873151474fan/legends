@@ -1,0 +1,51 @@
+﻿--lua script
+{
+	id = 1535,
+	parentid = 1534,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	randomTarget = false,
+	name = Lang.Quest.q03070,
+	content = Lang.Quest.q03071,
+
+	prom = { type = 0, scene = Lang.SceneName.s00044, npc = Lang.EntityName.n01058 },
+	comp = { type = 0, scene = Lang.SceneName.s00044, npc = Lang.EntityName.n01058 },
+	target = {
+		{
+			type = 0, id = 253, count = 1, rewardId = 0,useList = true,
+			location = {
+				sceneid = 134, x= 0,y = 0,entityName = Lang.EntityName.m00253,hideFastTransfer = true,
+				pass = {
+					{ sceneid=44,entityName = Lang.EntityName.n01058, actionDesc = Lang.Talk.t10064,},
+				},
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 47 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 284770, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+			{ type = 5, id = 0, count = 17016, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+			{ type = 12, id = 0, count = 26, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,},
+		},
+	},
+	PromMsTalks = {
+		Lang.Talk.t04605,
+	},
+	CompMsTalks = {
+		Lang.Talk.t04606,
+	},
+	CompMsTip = {
+		Lang.Talk.t04605,
+	},
+	PassMsTip = {
+	},
+	PromCallBack = "OnPromEnterFuben",
+	PromCallBackArg = {
+		 17,
+	},
+},

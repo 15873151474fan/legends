@@ -1,0 +1,60 @@
+﻿{
+	id = 634,
+	name = Lang.Quest.q01263,
+	parentid = 633,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q01264,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00049, 
+    npc = Lang.EntityName.n00079,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00049, 
+	npc = Lang.EntityName.n00079,
+  },
+
+  target =
+  {
+        { type = 1, id = 729, count = 25,location={ sceneid=25,entityName=Lang.EntityName.m00140} }, --【贼将腰牌】，山贼守寨贼将掉落
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 547106,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 73677,  bind = true, job = 0, sex = -1, group=0 },
+ },
+  --任务条件表
+  conds =
+  {
+        { type = 0, id = 0,count = 30 }, 
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t02161,
+
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t02162,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t02163,
+  }, 
+  
+ --用于完成任务后的从背包里删除任务物品
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {729, 25}, 
+},                             

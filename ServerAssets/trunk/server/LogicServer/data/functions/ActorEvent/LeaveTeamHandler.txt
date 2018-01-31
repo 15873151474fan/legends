@@ -1,0 +1,159 @@
+﻿--lua script
+--Do something about Team
+--#include "data\envir\FuBen.txt" once
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+--#include "data\config\GlobalConfig.txt" once
+
+
+--玩家离开队伍  [玩家的指针]
+EventCallDispatcher.handlerLeaveTeam = function (sysarg,arg)
+	local teamPtr = arg[1]
+	local boExitFuben = false
+	local fubenId = Actor.getFubenId(sysarg)
+	if fubenId then
+		local fubenCfg = FuBen[fubenId]
+		if fubenCfg then
+			if fubenCfg.maxPlayCount > 1 then		--单人副本
+				boExitFuben = true
+			end
+		end
+	end
+	if boExitFuben then
+		onExitFubenFunc(sysarg)
+		Actor.sendTipmsg(sysarg, Lang.Activity.fu0001, ttFlyTip+1)
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.fu0002, ttFlyTip+1)
+	end
+	local memList = LuaHelp.getTeamMemberListByPtr(teamPtr)
+	if memList and #memList == 1 then
+		local ensureBtn = string.format("%s/StayInTeam",Lang.ScriptTips.fuben039)
+		local cancelBtn = string.format("%s/DestroyTeam", Lang.ScriptTips.fuben040)
+		for k, v in ipairs(memList) do			
+			Actor.messageBox(v, 0, 0, Lang.ScriptTips.fuben017, ensureBtn, cancelBtn, "")
+		end
+	end
+	--[[local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	local myDyVar = Actor.getDyanmicVar(sysarg)
+	local myReleaseId = myDyVar and myDyVar.releaseFbId or 0
+	local captainPtr = TeamFun.getTeamCaptain( teamPtr )
+	if myReleaseId > 0 then
+		if captainPtr == sysarg then
+			RemFromList(myReleaseId, myId)			
+		else
+			local capVar = Actor.getDyanmicVar(captainPtr)
+			if capVar then
+				capVar.releaseFbId = myReleaseId
+				local capId = Actor.getIntProperty( captainPtr, PROP_ENTITY_ID )
+				local memberCount = Actor.getTeamMemberCount( captainPtr )
+				local capName = Actor.getName(captainPtr)
+				ChangeReleaser( myReleaseId, myId, capId, capName, memberCount)
+			end
+		end
+		myDyVar.releaseFbId = 0
+		SendOptEnterFBResult( sysarg, systemid, OptType_Leave, myReleaseId, 1 )
+	else
+		local capVar = Actor.getDyanmicVar(captainPtr)
+		local capReleaseFbId = capVar and capVar.releaseFbId or 0
+		if capReleaseFbId > 0 then
+			local memberCount = Actor.getTeamMemberCount( captainPtr )
+			local capId = Actor.getIntProperty( captainPtr, PROP_ENTITY_ID )
+			UpdateTeamCount( capReleaseFbId, capId, memberCount)
+		end
+	end]]
+	--[[local captainPtr = TeamFun.getTeamCaptain( teamPtr )
+	print("队长",captainPtr)
+	if captainPtr then
+		local capDyVar = Actor.getDyanmicVar(captainPtr)
+		local capReleaseId = capDyVar and capDyVar.releaseFbId or 0
+		print("capReleaseId", myId, Actor.getIntProperty( captainPtr, PROP_ENTITY_ID ))
+		if capReleaseId > 0 then
+			if captainPtr == sysarg then
+				print("是自己",capReleaseId)
+				RemFromList(capReleaseId, myId)
+				SendOptEnterFBResult( sysarg, systemid, OptType_Leave, capReleaseId, 1 )
+			else
+				local memberCount = Actor.getTeamMemberCount( captainPtr )
+				local capId = Actor.getIntProperty( captainPtr, PROP_ENTITY_ID )
+				UpdateTeamCount(capReleaseId, capId, memberCount)
+			end
+		end
+	end]]
+
+  --[[
+  if fbid ~= 0 then 
+    --print("dsage------------")
+    local teamPtr = arg[1]
+		if teamPtr == nil then return end
+		local memberPtr = LuaHelp.getTeamMemberListByPtr(teamPtr)
+		----print("----:"..table.getn(memberPtr))
+		--local teamCount = Fuben.getTeamOnlineMemberCount(teamPtr)
+		local mode = GetMode(sysarg,fbid)
+		local fbdata = FuBen[fbid]
+		if ( table.getn(memberPtr) < fbdata.minPlayCount ) then
+		
+			for i=1,table.getn(memberPtr) do
+			Actor.exitTeam(memberPtr[i])
+			Actor.exitFuben(memberPtr[i])
+			end
+		end
+  end
+  ]]
+end
+
+function EventCallDispatcher.HandlerCallTeamer(sysarg, args)
+	local callPtr = args[1]
+	if not callPtr then
+		return
+	end
+	local callerName = Actor.getName(callPtr)
+	local noticeStr = string.format(Lang.ScriptTips.team01, callerName)
+	local sureStr = string.format("%s/sureTeamCaller,%s", Lang.ScriptTips.team02, callerName)
+	local refuseStr = string.format("%s/refuseTeamCaller,%s", Lang.ScriptTips.team03, callerName)
+	local dyVar = Actor.getDyanmicVar(callPtr)
+	local sceneId = Actor.getSceneId(callPtr)
+	local x, y = Actor.getEntityPosition(callPtr, 0, 0)
+	dyVar.TeamCallSceneId = sceneId
+	dyVar.TeamCallX = x
+	dyVar.TeamCallY = y
+	Actor.messageBox(sysarg, 0, 0, noticeStr, sureStr, refuseStr, nil, 0, 1)
+end
+
+function sureTeamCaller(sysarg, callerName)
+	if Actor.canTelport(sysarg, 0) then
+		if Actor.hasMapAreaAttriValue(sysarg,aaNotBeTran,4) == true then
+			Actor.sendTipmsg( sysarg, Lang.ScriptTips.team06,ttFlyTip )
+			return
+		end
+		local actPtr = Actor.getActorPtrByName(callerName)
+		if actPtr then
+			if Actor.getItemCount(actPtr, GlobalConfig.nTeamCallerItemId, -1, -1, -1) <= 0 
+				and Actor.getItemCount(actPtr, GlobalConfig.nTeamCallerBindItemId, -1,-1,-1) <= 0 then
+				local noticeStr = string.format(Lang.ScriptTips.team05, callerName)
+				Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+				return
+			end
+			local dyVar = Actor.getDyanmicVar(actPtr)
+			if not dyVar.TeamCallSceneId then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.team07, ttFlyTip)
+				return
+			end
+
+			if Actor.removeItem(actPtr, GlobalConfig.nTeamCallerBindItemId, 1, -1, -1, -1, Lang.LogTips.l00126, 848) > 0
+				or Actor.removeItem(actPtr, GlobalConfig.nTeamCallerItemId, 1, -1, -1, 1, Lang.LogTips.l00126, 848) > 0
+				or Actor.removeItem(actPtr, GlobalConfig.nTeamCallerItemId, 1, -1, -1, 0, Lang.LogTips.l00126, 848) > 0 then
+				System.telportScene(sysarg, dyVar.TeamCallSceneId, dyVar.TeamCallX, dyVar.TeamCallY)
+			end
+		end
+	end
+end
+
+function refuseTeamCaller(sysarg, callerName)
+	local actPtr = Actor.getActorPtrByName(callerName)
+	if actPtr then
+		local noticeStr = string.format(Lang.ScriptTips.team04, Actor.getName(sysarg))
+		Actor.sendTipmsg(actPtr, noticeStr, ttFlyTip)
+	end
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeTeamCaller, EventCallDispatcher.HandlerCallTeamer)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeLeftTeam, EventCallDispatcher.handlerLeaveTeam)

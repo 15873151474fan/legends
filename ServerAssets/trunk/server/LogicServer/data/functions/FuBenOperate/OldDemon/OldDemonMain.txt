@@ -1,0 +1,22 @@
+﻿
+--#include "OpenRefreshOldDemon.txt" once
+
+
+function OldDemonMain(sysarg)
+	local nFid = Actor.getFubenId(sysarg)
+	if nFid <= 0 then return "" end
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.od0001.."/@OpenRefreshOldDemon>"  --<刷新Boss>
+	str = str.."\\<#BL"..Lang.Activity.od0004.."/@AboutOldDemon>"  --<查看攻略>
+	return str
+end
+
+
+function AboutOldDemon(sysarg)
+	local str = Lang.Activity.od0005
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<查看攻略>
+	return str
+end
+
+
+table.insert(MainFnTable, OldDemonMain)

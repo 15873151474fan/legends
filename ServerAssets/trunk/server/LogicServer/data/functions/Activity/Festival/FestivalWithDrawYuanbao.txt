@@ -1,0 +1,54 @@
+
+--#include "data\config\activityconfig\Festival\DrawYuanBao.txt" once
+
+function OnFestivalWithDrawYuanbao(sysarg, nCount)
+	local nNowDt = System.getCurrMiniTime()
+	if nNowDt > 99791972 then			--2月28日23点59分后就不能计算了
+		return
+	end
+	local drawRanking = Ranking.getRanking(Lang.Rank.FestivalDrawYBRank)
+	if drawRanking then
+		local nMyId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(drawRanking, nMyId)
+		if pItem then
+			Ranking.updateItem(drawRanking, nMyId, nCount)
+		else
+			pItem = Ranking.addItem(drawRanking, nMyId, nCount)
+			if pItem then
+				Ranking.setSub(pItem, 0, Actor.getName(sysarg))
+			end
+		end
+	end
+end
+
+function calcFestivalWithDrawAward()
+	local drawRanking = Ranking.getRanking(Lang.Rank.FestivalDrawYBRank)
+	if drawRanking then
+		local rankCount = Ranking.getRankItemCount(drawRanking)
+		if rankCount > 0 then
+			rankCount =  rankCount - 1
+			for i = 0, rankCount do
+				local pItem = Ranking.getItemFromIndex(drawRanking, i)
+				if pItem then
+					local nVal = Ranking.getPoint(pItem)
+					local nId = Ranking.getId(pItem)
+					doGiveDrawAward(nId, nVal)
+				end
+			end
+		end
+		Ranking.clearRanking(drawRanking)
+	end
+end
+
+function doGiveDrawAward(nId, nVal)
+	for k, v in ipairs(DrawYuanBaoConfig) do
+		if nVal >= v.min and (v.max == -1 or nVal <= v.max) then
+			for k, item in ipairs(v.award) do
+				System.addItemMsgById(nId, 0, item.id, item.count, item.bind, Lang.ScriptTips.draw0001, "", 850, Lang.LogTips.l00131,true,36)
+			end
+			return
+		end
+	end
+end
+
+

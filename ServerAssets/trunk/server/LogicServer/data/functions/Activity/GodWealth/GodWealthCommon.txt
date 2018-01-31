@@ -1,0 +1,359 @@
+--lua script
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\godWealth\GodWealthConfig.txt" once
+--#include "data\config\godWealth\WealthEventConfig.txt" once    
+----#include "data\NPC\0Tongyong\chuansongshi_8.txt" once
+
+OnGodWealthEventsOp = {}
+
+--#include "WealthEventsOp.txt"
+
+--摇骰子后的处理
+function OnAfterRollResultOp(sysarg,args)
+	local nNum = args[2]			--骰子的点数
+	if nNum <= 0 then return end
+
+	local nCurCheck = Actor.getCurCheckPointIndex(sysarg)			--当前关卡
+	local nWealthConfig = GodWealthConfig.CheckPoints[nCurCheck]
+	if nWealthConfig == nil then return end
+
+	local nMaxPoint = table.getn(nWealthConfig.points)
+	local nCurPoint = Actor.getCurPoint(sysarg)
+	
+	local nResult = nCurPoint + nNum
+	if nResult < 0 then
+		nResult = 0
+	end
+	
+	if nCurPoint > nMaxPoint then return end
+	
+	local nCount = nMaxPoint
+	if nCurCheck == table.getn(GodWealthConfig.CheckPoints) then
+		nCount = nMaxPoint - 1
+	end
+	
+	local var = Actor.getStaticVar( sysarg ) 
+
+	--print("nCurPoint:"..nCurPoint)
+	--print("nMaxPoint:"..nMaxPoint)
+	if nResult < nCount then
+		if nCurPoint >= (nMaxPoint-1) then return end
+
+		Actor.sendMoveToDestMsg(sysarg,nCurCheck,nResult)
+		--Actor.setFinishState(sysarg,0)
+		var.GetEventFlag = 0
+		if nResult == nMaxPoint - 1 then
+			if nCurCheck+1 == 2 then
+				local nConfig = WealthEventConfig.finishAwards[1]
+				local nIndex = 1
+				Actor.giveAward(sysarg,nConfig.awards[nIndex].type,nConfig.awards[nIndex].id,nConfig.awards[nIndex].count,nConfig.awards[nIndex].quality,nConfig.awards[nIndex].strong,nConfig.awards[nIndex].bind,0,189,Lang.Activity.cg0018)
+			elseif nCurCheck+1 == 3 then
+				local nConfig = WealthEventConfig.finishAwards[2]
+				local nIndex = 1
+				Actor.giveAward(sysarg,nConfig.awards[nIndex].type,nConfig.awards[nIndex].id,nConfig.awards[nIndex].count,nConfig.awards[nIndex].quality,nConfig.awards[nIndex].strong,nConfig.awards[nIndex].bind,0,189,Lang.Activity.cg0018)
+			end
+		end
+	else 
+		if nCurCheck < table.getn(GodWealthConfig.CheckPoints) then -- 两关以内
+			if nCurPoint < nMaxPoint - 1 then
+				if nCurCheck+1 == 2 then
+					Actor.addWealthEventRecord(sysarg,1,Lang.Activity.cg0016)
+					local nConfig = WealthEventConfig.finishAwards[1]
+					local nIndex = 1
+					Actor.giveAward(sysarg,nConfig.awards[nIndex].type,nConfig.awards[nIndex].id,nConfig.awards[nIndex].count,nConfig.awards[nIndex].quality,nConfig.awards[nIndex].strong,nConfig.awards[nIndex].bind,0,189,Lang.Activity.cg0018)
+				elseif nCurCheck+1 == 3 then
+					Actor.addWealthEventRecord(sysarg,1,Lang.Activity.cg0017)
+					local nConfig = WealthEventConfig.finishAwards[2]
+					local nIndex = 1
+					Actor.giveAward(sysarg,nConfig.awards[nIndex].type,nConfig.awards[nIndex].id,nConfig.awards[nIndex].count,nConfig.awards[nIndex].quality,nConfig.awards[nIndex].strong,nConfig.awards[nIndex].bind,0,189,Lang.Activity.cg0018)
+				end
+			end
+			Actor.sendMoveToDestMsg(sysarg,nCurCheck+1,0)
+			var.GetEventFlag = 0
+			local str = ""
+		else			--第三关到终点
+			if nCurPoint >= (nMaxPoint-1) then return end
+
+			Actor.sendMoveToDestMsg(sysarg,nCurCheck,nMaxPoint-1,1)
+			var.GetEventFlag = 0
+			Actor.addWealthEventRecord(sysarg,1,Lang.Activity.cg0023)
+
+			local nConfig = WealthEventConfig.finishAwards[3]
+			local nIndex = 1
+
+			if var.ArriveWealthEnd == nil then
+				var.ArriveWealthEnd = 0
+			end
+			if var.ArriveWealthEnd == 1 then
+				var.ArriveWealthEnd = 0
+				return
+			end
+			Actor.giveAward(sysarg,nConfig.awards[nIndex].type,nConfig.awards[nIndex].id,nConfig.awards[nIndex].count,nConfig.awards[nIndex].quality,nConfig.awards[nIndex].strong,nConfig.awards[nIndex].bind,0,189,Lang.Activity.cg0018)
+			var.ArriveWealthEnd = 1 
+		end
+	end
+end
+
+--移动到某格的动画播放完毕
+function OnMoveToDestPointOp(sysarg,args)
+	local nEventId = args[2]
+	local nEventConfig = WealthEventConfig.events[nEventId]
+	
+	if nEventConfig == nil then return end
+
+	local func = OnGodWealthEventsOp[nEventId]
+	if func ~= nil then
+		func(sysarg, args) 
+	end
+	
+end
+
+--随机生成事件
+function OnSetPointEvent(sysarg)
+	local nCurCheck = Actor.getCurCheckPointIndex(sysarg)			--当前关卡
+	local nWealthConfig = GodWealthConfig.CheckPoints[nCurCheck]
+
+	if nWealthConfig == nil then return end  
+	local nMaxPoint = #nWealthConfig.points - 2 -- 除去首位两个格子
+
+	-- 删除事件数据 并创建一个新的数据
+	Actor.clearWealthEventData(sysarg)
+	local nEventCount = WealthEventConfig.haveEvents[nCurCheck][2] 
+	local EventData = {} -- 剩余事件数据
+	for i=1,nMaxPoint do
+		EventData[i] = i
+	end
+
+	local find_value = function ( t,var )
+		for i,v in ipairs(t) do
+			if v == var then
+				return i
+			end
+		end
+	end
+
+	-- 随机惊喜事件---------------------------------------------------------------
+	local nRate = 0 -- 随机值
+	local nPoint = 1 -- 随机点
+	local idx 
+	for i,v in ipairs(WealthEventConfig.surprisedRate) do
+		nRate = System.getRandomNumber(100)
+		if nRate <= v[2] then
+			idx = System.getRandomNumber(#EventData) + 1
+			nPoint = EventData[idx]
+			table.remove(EventData, idx)  -- 报错则策划配错数据
+
+			nPoint = System.getRandomNumber(nMaxPoint) + 1 -- 随机数 % nMaxPoint 下同
+			idx = find_value(EventData, nPoint)
+			if idx then
+				Actor.addWealthEventData(sysarg, nPoint, v[1],0)
+				nEventCount = nEventCount - 1
+				table.remove(EventData, idx)
+			end
+		end
+	end
+	
+	local getNomalRate = function ( t ) -- 获取总期望值
+		local x = 0
+		for k,v in pairs(t) do
+			x = x + v
+		end
+		return x
+	end
+
+	local getEventId = function ( t, var ) -- 通过概率获取事件id
+		for k,v in pairs(t) do
+			if var > v then
+				var = var - v
+			else
+				return k
+			end
+		end
+	end
+
+	-- 随机事件一定要出---------------------------------------------------
+	local nEventId = 0
+	local eventMaxData = {}
+	for i,v in ipairs(WealthEventConfig.maxCount[nCurCheck]) do
+		eventMaxData[v[1]] = v[2] 
+		
+	end
+
+	local dRate = {}				--普通事件随机的概率 {1,2} 对应 {事件id，权重}
+	for i,v in ipairs(WealthEventConfig.nomalRate) do
+		dRate[v[1]] = v[2] 
+	end
+
+	local nTotalNum = getNomalRate(dRate) --普通的所用的概率总和
+	for i=1,nEventCount do 
+		idx = System.getRandomNumber(#EventData) + 1
+		nPoint = EventData[idx] -- 剩余空格
+		table.remove(EventData, idx)  -- 报错则策划配错数据
+		nRate = System.getRandomNumber(nTotalNum) + 1
+		nEventId = getEventId(dRate, nRate)
+		Actor.addWealthEventData(sysarg,nPoint,nEventId,0)
+
+		-- 某个事件的数量达到最大 需要删除，总期望也需要重新计算
+		if eventMaxData[nEventId] > 0 then
+			eventMaxData[nEventId] = eventMaxData[nEventId] - 1
+			if eventMaxData[nEventId] == 0 then
+				dRate[nEventId] = nil
+				if next(dRate) == nil then break end -- 若 生成的事件数 < 事件最大数量 会报错
+				nTotalNum = getNomalRate(dRate)
+				
+			end
+		end
+	end
+end
+
+--随机产生事件
+function OnRandProduceEvent(sysarg,args)
+	OnSetPointEvent(sysarg)
+end
+
+--登陆时初始化财富事件(每次登陆现改为固定的)
+function InitGodEventOnLogin(sysarg,args)
+	Actor.clearWealthEventData(sysarg)
+	for i=1,table.getn(WealthEventConfig.loginEvent) do
+		Actor.addWealthEventData(sysarg,WealthEventConfig.loginEvent[i][1],WealthEventConfig.loginEvent[i][2],0)
+	end
+	
+	if Actor.hasQuest(sysarg,WealthEventConfig.events[9].nQuestId[1]) == false then		--没有财神任务，状态置为1
+		Actor.setFinishState(sysarg,1)
+	end
+end
+
+--初始化玩家的财富闯关数据
+function OnInitActorWealthInfo(sysarg,args)
+	local nMaxTimes = GodWealthConfig.freeTimes
+end
+
+--增加摇骰子的次数
+function OnAddRollTimesOp(sysarg,args)
+	local nBindyb = Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO)
+	
+	local bState = 0
+	if nBindyb < GodWealthConfig.bindYb then
+		--Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cg0002,GodWealthConfig.bindYb), ttFlyTip)
+		bState = 0
+	else
+		Actor.changeMoney(sysarg,2,-GodWealthConfig.bindYb,189,Lang.Activity.cg0004)
+		bState = 1
+	end
+	
+	if bState == 0 then
+		local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+		if nYb < GodWealthConfig.nYb then
+			Actor.sendTipmsg(sysarg, Lang.Activity.cg0003, ttFlyTip)
+			return
+		else
+			Actor.changeMoney(sysarg,3,-GodWealthConfig.nYb,189,Lang.Activity.cg0004)
+			bState = 1
+		end
+	end
+	
+	if Actor.getRollMaxTimes(sysarg) >= WealthEventConfig.maxRollTimes then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cg0021, ttFlyTip)
+		return
+	end
+
+	if bState == 1 then
+		local pack = DataPack.allocPacket(sysarg, 47, 5)
+		if (pack ~= nil) then
+			DataPack.writeChar(pack, 1)
+			DataPack.flush(pack)
+		end
+
+		Actor.addRollTimes(sysarg,1)
+	end
+end
+
+--清除摇骰子的剩余时间
+function OnClearRollLeftTime(sysarg,args)
+	local nBindyb = Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO)
+	
+	local bState = 0
+	--[[
+	if nBindyb < GodWealthConfig.clearTimebindYb then
+		bState = 0
+	else
+		Actor.changeMoney(sysarg,2,-GodWealthConfig.clearTimebindYb,189,Lang.Activity.cg0005)
+		bState = 1
+	end
+	]]
+	
+	--if bState == 0 then
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	if nYb < GodWealthConfig.clearTimeNeedYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cg0020, ttFlyTip)
+		return
+	else
+		Actor.changeMoney(sysarg,3,-GodWealthConfig.clearTimeNeedYb,189,Lang.Activity.cg0005)
+		bState = 1
+	end
+	--end
+	
+	if bState == 1 then
+		local pack = DataPack.allocPacket(sysarg, 47, 6)
+		if (pack ~= nil) then
+			DataPack.writeInt(pack, 0)
+			DataPack.flush(pack)
+		end
+
+		Actor.setNextRollTime(sysarg,0)
+	end
+
+end
+
+--翻天覆地
+OnGodWealthEventsOp[11] = function (sysarg, args)
+	if Actor.getFinishState(sysarg) == 1 then return end
+	local var = Actor.getStaticVar( sysarg ) 
+	if var.GetEventFlag == nil or var.GetEventFlag == 1 then
+		return
+	end
+
+	OnSetPointEvent(sysarg)
+	Actor.sendEventsList(sysarg)
+	Actor.setFinishState(sysarg,1)
+	Actor.addWealthEventRecord(sysarg,1,Lang.Activity.cg0022)
+end
+
+--重置财富事件
+function OnResetWealthEventOp(sysarg,args)
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	if nYb < GodWealthConfig.reSetEventNeedYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cg0020, ttFlyTip)
+		return
+	end
+
+	if Actor.changeMoney(sysarg,3,-GodWealthConfig.reSetEventNeedYb,189,Lang.Activity.cg0019) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cg0020, ttFlyTip)
+		return
+	end
+
+	OnSetPointEvent(sysarg)
+
+	Actor.sendEventsList(sysarg)
+end
+
+function MagicRoll(sysarg,args)
+  local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+  if nYb < GodWealthConfig.MagicRollNeedGoldNum then
+	 Actor.sendTipmsg(sysarg, Lang.Activity.cg0020, ttFlyTip)
+	 return
+  end
+
+  if Actor.changeMoney(sysarg,3,-GodWealthConfig.MagicRollNeedGoldNum,1007,Lang.Activity.cg0019a) == false then
+	 Actor.sendTipmsg(sysarg, Lang.Activity.cg0020, ttFlyTip)
+	 return
+  end
+  local nNum = args[2]
+  Actor.setMagicRollnNum( sysarg, nNum) 
+  local pack = DataPack.allocPacket(sysarg, 47, 8)
+  if (pack ~= nil) then
+     DataPack.writeByte(pack, 1)
+     DataPack.flush(pack)
+  end
+end

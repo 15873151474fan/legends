@@ -1,0 +1,41 @@
+--进入跨服boss战场的npc对话
+--lua script
+--#include "data\language\LangCode.txt" once			--语言包
+--#include "data\config\activityconfig\CrossGuildSbk\CrossBoss.txt" once	
+--#include "data\config\activityconfig\CrossGuildSbk\CrossCommon.txt" once	
+----#include "CrossBoss_Main.txt" once
+
+function CrossBossNpc_Dialog(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.ku0024.."/@OnEnterCrossBoss>"		--参加跨服boss战场
+	--str = str.."\\<#BL"..Lang.Activity.ku0019.."/@ReturnRawServer>"			--返回原来服务器
+	return str
+end
+
+
+
+--进入跨服boss战场
+function OnEnterCrossBoss(sysarg)
+	local sVar = System.getStaticVar()
+	if sVar.StartCrossBossFlag == nil or sVar.StartCrossBossFlag == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0020, ttFlyTip)
+		return
+	end
+
+	if Actor.checkActorLevel(sysarg, CrossBossConfig.nLevel, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0025,CrossBossConfig.nLevel), ttFlyTip)
+		return
+	end
+	local nMyBattle = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+	if nMyBattle < CrossBossConfig.nBattle then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0018, CrossBossConfig.nBattle), ttFlyTip)
+		return
+	end
+	local nHandle = Fuben.getSceneHandleById(CrossBossConfig.BossConfig[1].sceneid,0)
+	Actor.enterFuBen(sysarg,nHandle,CrossBossConfig.BossConfig[1].sceneid,CrossCommonConig.pos_x,CrossCommonConig.pos_y)
+	local sceneName, x, y = Actor.getSceneName(sysarg, 0, 0)
+	local mapTime = Fuben.getSceneTime(nHandle)
+	Actor.initActivityWind(sysarg, sceneName, mapTime, Lang.Activity.ku0057)
+end
+
+table.insert(MainFnTable, CrossBossNpc_Dialog)

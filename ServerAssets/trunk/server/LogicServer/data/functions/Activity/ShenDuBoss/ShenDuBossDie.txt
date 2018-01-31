@@ -1,0 +1,28 @@
+--#include "data\config\activityconfig\ShenBoss\ShenBossConfig.txt" once
+--神都海域小怪死亡
+
+MonDieDispatcher.MonShenDuDie = function(monster,sysarg,monId)
+	local svar = System.getDyanmicVar()
+	if svar.CanNotHandedItem == nil or svar.CanNotHandedItem == 0 then return end
+
+	local hScene = Fuben.getSceneHandleById(ShenBossConfig.nSceneid, 0)
+
+	local bFresh = true
+	for i=1,table.getn(ShenBossConfig.smallBoss) do
+		if Fuben.getLiveMonsterCount(hScene,ShenBossConfig.smallBoss[i].nMonsterID) > 1 then
+			bFresh = false
+			break
+		end
+	end
+	
+	if bFresh == true then
+		for i=1,table.getn(ShenBossConfig.smallBoss) do
+			Fuben.createMonsters(hScene, ShenBossConfig.smallBoss[i].nMonsterID, ShenBossConfig.smallBoss[i].posX1, ShenBossConfig.smallBoss[i].posX2,
+			ShenBossConfig.smallBoss[i].posY, ShenBossConfig.smallBoss[i].nCount,ShenBossConfig.smallBoss[i].nLiveTime)
+		end
+	end
+end
+
+--MonDieDispatcher.register(1233, MonDieDispatcher.MonShenDuDie )
+--MonDieDispatcher.register(1234, MonDieDispatcher.MonShenDuDie )
+--MonDieDispatcher.register(1235, MonDieDispatcher.MonShenDuDie )

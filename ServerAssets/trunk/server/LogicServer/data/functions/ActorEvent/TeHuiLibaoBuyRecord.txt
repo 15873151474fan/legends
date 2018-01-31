@@ -1,0 +1,163 @@
+﻿--lua script
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+--#include "data\functions\Common.txt"
+
+
+TeHuiLiBaoOutPutDebugMsg = false
+TeHuiLiBaoRankingConfig =
+{
+	RankName = "TeHuiLibaoBuyRecord",
+	RankFile = "TeHuiLibaoBuyRecord.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+	  {"Record",0,},
+	},
+	ClinetShowCount = 0,
+	ClientShow = 0,
+}
+
+function TeHuiLiBaoprint(S)
+  if TeHuiLiBaoOutPutDebugMsg == true then
+    print(S)
+  end 
+end
+
+function SetBuyTeHuiLibao(sysarg,ShopItem)
+  TeHuiLiBaoprint("设置不可在购买 "..ShopItem)
+  local config = TeHuiLiBaoRankingConfig
+  local PRanking = Ranking.getRanking(config.RankName)
+  
+  if PRanking then
+    local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+    TeHuiLiBaoprint("设置不可在购买 ActorID: "..nActorId)
+    local pRankItem = Ranking.getItemPtrFromId(PRanking,nActorId) 
+    
+    if pRankItem == nil then
+      pRankItem = Ranking.addItem(PRanking,nActorId,0)
+    end
+  
+    if pRankItem then
+	    local ReciveTable = {}   
+	    local Str = Ranking.getSub(pRankItem,0)
+	
+	    if Str and Str ~= "-" then
+	      ReciveTable = SimpleTool.Split(Str,",")
+	    end
+	    
+	    table.insert(ReciveTable,ShopItem)
+	    nCount = #ReciveTable
+	    local RecordStr = ""
+	
+	    for i = 1, nCount do
+	      RecordStr = RecordStr..ReciveTable[i]
+	      if i ~= nCount then
+	        RecordStr = RecordStr..","
+	      end
+	    end
+	    TeHuiLiBaoprint("SetBuy 特惠礼包Str :" .. RecordStr)
+	    Ranking.setSub(pRankItem,0,RecordStr) 
+    end
+  
+  end
+  
+    local npack = DataPack.allocPacket(sysarg, 139, 85)
+    if not npack then return true end
+    
+	DataPack.writeInt(npack, ShopItem)
+    if bo then
+      DataPack.writeByte( npack, 1)
+    else
+      DataPack.writeByte( npack, 0)
+    end
+	DataPack.flush(npack)
+	
+  return true
+
+end
+
+
+
+function CanBuyTeHuiLiBao(sysarg,ShopItem)
+  TeHuiLiBaoprint("Buy1")
+  local config = TeHuiLiBaoRankingConfig
+  local PRanking = Ranking.getRanking(config.RankName)
+  
+  local CanGive = true
+  
+  if not PRanking then
+    TeHuiLiBaoprint("Buy2")
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.TeHuiLiBaoError,ttFlyTip)
+    return false
+  else
+    TeHuiLiBaoprint("Buy3")
+    local ReciveTable = {}
+    local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+    local pRankItem = Ranking.getItemPtrFromId(PRanking,nActorId)
+    
+    if pRankItem == nil then
+      pRankItem = Ranking.addItem(PRanking,nActorId,0)
+    end
+    
+    if pRankItem then
+      local Str = Ranking.getSub(pRankItem,0)
+      
+      if Str and Str ~= "-" then
+        TeHuiLiBaoprint("Can Buy 特惠礼包Str :" .. Str)
+        ReciveTable = SimpleTool.Split(Str,",")
+      end
+      
+      for i = 1 , #ReciveTable do
+        if ReciveTable[i] == tostring(ShopItem) then
+          CanGive = false 
+        end
+      end
+    else
+      TeHuiLiBaoprint("BuyS")
+      Actor.sendTipmsg (sysarg,Lang.ScriptTips.TeHuiLiBaoError,ttFlyTip)
+      return false
+    end 
+    
+    if CanGive == false then
+      TeHuiLiBaoprint("Buy4")
+      Actor.sendTipmsg (sysarg,Lang.ScriptTips.CanNotBuyTeHuiLiBao,ttFlyTip)
+      return false
+    end 
+                                    
+  end
+  TeHuiLiBaoprint("Buy5")
+  --Actor.sendTipmsg (sysarg,Lang.ScriptTips.TeHuiLiBaoSucess,ttFlyTip)
+  return true
+
+end
+
+
+EventCallDispatcher.BuyTeHuiLiBaoHandler = function(sysarg,Param)
+  local OPID = Param[1]
+  local ShopID = Param[2]
+  TeHuiLiBaoprint(string.format("买特惠礼包:%d , %d ",OPID,ShopID))
+  if OPID == 1 then
+    return CanBuyTeHuiLiBao(sysarg,ShopID) 
+    
+  elseif OPID == 2 then
+    return SetBuyTeHuiLibao(sysarg,ShopID) 
+    
+  end
+  
+end
+
+
+
+function TeHuiLiBaoRecordInit(npcobj)
+    local config = TeHuiLiBaoRankingConfig
+   	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function TeHuiLiBaoRecordFinal(npcobj)
+	local config = TeHuiLiBaoRankingConfig
+    Rank.Fina(config.RankName, config.RankFile)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeBuyTeHuiLiBao, EventCallDispatcher.BuyTeHuiLiBaoHandler )
+
+table.insert(InitFnTable,TeHuiLiBaoRecordInit)
+table.insert(FinaFnTable,TeHuiLiBaoRecordFinal)

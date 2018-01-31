@@ -1,0 +1,76 @@
+﻿--温泉仙子（盟重土城、太虚灵泉）
+
+--#include "data\config\activityconfig\HotSpring\Config.txt" once --配置文件
+--#include "data\functions\Activity\Common\Consumes.txt" once
+--#include "data\functions\Activity\HotSpring\AddExp.txt" once
+--#include "data\functions\Systems\Interactive\Common.txt" once
+
+
+--[[
+    函数名称：
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function Enter_Main(sysarg)
+	--local svar = Actor.getStaticVar(sysarg)
+	--svar.InteractTimes = nil
+	local config = HotSpringConfig
+	if (not config) then return "" end
+	local str = ""
+	if Actor.getSceneId(sysarg) ~= config.actArea.sid then
+		str = str.."\\<#BL"..Lang.Activity.a00180.."/@AskEnterHotSpring>"  --<进入灵泉>
+	end
+	return str
+end
+
+function AskEnterHotSpring(sysarg)
+	local str = Lang.Activity.a00181
+	str = str.."\\<#BL"..Lang.Activity.a00182.."/@EnterHotSpring>"  --<进入太虚灵泉>
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+function EnterHotSpring(sysarg)
+	-- local config = HotSpringConfig
+	
+	-- if not Actor.checkActorLevel(sysarg, config.limitLevel, 0) then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00183, 0,config.limitLevel), ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- local hotSpring = svar.hotSpring
+	-- local v = config.buff
+	-- if hotSpring and Actor.hasBuff(sysarg, v.buffType, v.groupId) ~= true then
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.a00184, ttFlyTip)
+	-- 	return 
+	-- end
+	
+	-- if Actor.enterScene(sysarg, config.actArea.sid, config.actArea.x, config.actArea.y) then
+	-- 	local InteractTimes = InitInteractDatas(sysarg)
+	-- 	local tbData = 
+	-- 	{
+	-- 		{type = 1, count = InteractTimes[1]},
+	-- 		{type = 2, count = InteractTimes[2]},
+	-- 		{type = 3, count = InteractTimes[3]},
+	-- 		{type = 4, count = InteractTimes[4]},
+	-- 	}
+	-- 	SendInteractData(sysarg, tbData)
+		
+	-- 	if not hotSpring then
+	-- 		-- if Actor.hasBuff(sysarg, v.buffType, v.groupId) ~= false then
+	-- 			-- Actor.delBuff(sysarg, v.buffType, v.groupId)
+	-- 		-- end
+	-- 		svar.hotSpring = 1
+	-- 		Actor.addBuff( sysarg, v.buffType, v.groupId, v.value, v.times, v.interval, v.buffName, v.timeOverlay)
+	-- 	end
+	-- 	local mapTime = Actor.getBuffRemainTime(sysarg, v.buffType, v.groupId)
+	-- 	Actor.initActivityWind(sysarg, Lang.Activity.a00175, mapTime, Lang.Activity.a00176)
+	-- end
+	
+	-- Actor.closeNPCDialog(sysarg)
+end
+
+
+
+table.insert(MainFnTable, Enter_Main)

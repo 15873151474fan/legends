@@ -1,0 +1,57 @@
+﻿   -- 怪物发言
+    talk = 
+    {  
+		
+        minInterval = 60, -- 下限间隔时间(只有空闲发言有效)
+        maxInterval = 300, -- 上限间隔时间(只有空闲发言有效)
+		
+        -- type: 发言类型
+        -- type=0 空闲状态
+        -- type=1 发现目标
+        -- type=2 攻击。暂时不支持
+        -- type=3 被攻击
+        -- type=4 死亡
+        -- type=5 血量低于某个值
+        -- type=6 创建的时候
+        -- type=7 消失的时候        
+        -- rate: 发言概率（百分比。例如50%就配置50）
+        -- param：针对type=5使用，用于指定血量低于百分比。例如type=5，param=20表明血量低于20%发言
+        -- bctype：发言广播类型。 1：附近  2：场景 3：副本  4：世界 5：同阵营广播
+        -- tiptype: 提示类型，用于指定发言内容在客户端如何显示。默认是128，在聊天栏显示
+        --[[
+        	tiptype =1, --只在右侧提示栏显示
+					tiptype=2, --屏幕中央，用于xxx把xxx强化到6级之类的全服公告
+					tiptype =4,      --弹出框
+					tiptype =8,  --公告栏，用于GM发通知
+					tiptype = 16,	--短消息，在屏幕中央悬挂，点击后查看内容，
+					tiptype  =32,   --温馨提示
+					tiptype = 64,	-- Gm提示信息
+					tiptype =128, --左侧聊天栏里，用于一些系统公告在聊天栏显示
+        --]]
+        -- 注意：对于type=5的发言类型，可以配置多条。
+		info = 
+		{
+		    { 
+			    type=0, rate=1, 
+			    param=0,
+			    bctype=1,
+			    content=
+				{
+				    Lang.Paopao.yd00069,
+				    Lang.Paopao.yd00077,
+				    Lang.Paopao.yd00078,
+			    },
+		    },
+		     {
+			    type=4, rate=1,
+			    param=0,
+			    bctype=1,
+			    content=
+				{
+				    Lang.Paopao.yd00040,
+				    Lang.Paopao.yd00079,
+				    Lang.Paopao.yd00080,
+			    },
+		    },
+		},
+	},

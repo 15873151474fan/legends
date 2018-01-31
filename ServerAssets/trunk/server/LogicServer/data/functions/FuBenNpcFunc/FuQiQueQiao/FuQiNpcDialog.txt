@@ -1,0 +1,190 @@
+--夫妻副本中的梦飞NPC副本对话
+--#include "data\config\activityconfig\FuQiQueQiaoConfig\FuQiQueQiaoConfig.txt" once
+--#include "FuQiQueQiaoMenu.txt" once
+
+function MengFei_Main( sysarg )
+	local isCenterNpc = isCenterNpc(sysarg)
+	local dlgStr = ""
+	dlgStr = string.format("%s\\<#BL%s/@buyLoveHeart>",  dlgStr, Lang.ScriptTips.couple007)
+	if isCenterNpc then
+		dlgStr = string.format("%s\\<#BL%s/@btBuyYueLao>",	dlgStr, Lang.ScriptTips.couple008)
+		dlgStr = string.format("%s\\<#BL%s/@CallQueenMother>",	dlgStr, Lang.ScriptTips.couple011)
+	end
+	dlgStr = dlgStr..Lang.Activity.w00046	--买药品	 
+	dlgStr = string.format("%s\\<#BL%s/@ExitFuQiFuben>",	dlgStr, Lang.Activity.t00037)  --退出副本
+	return dlgStr
+end
+
+--交互的是否是大厅的NPC	
+function isCenterNpc(sysarg)
+	local posX = 0 
+	local posY = 0
+	posX,posY = Actor.getEntityPosition(sysarg,0,0)
+	npcCfg = FuQiConfig.npcPos
+	if not npcCfg then 
+		return
+	end
+	local npcPosX = npcCfg.posX
+	local npcPosY = npcCfg.posY
+	if (math.abs(posX - npcPosX) > 10 and math.abs(posY - npcPosY) > 10) then
+		return false
+	end
+	return true
+end
+
+
+--购买真爱之心
+function buyLoveHeart( sysarg )
+	local LoveHeartCfg = FuQiConfig.LoveHeart	
+	if LoveHeartCfg then
+		local coinCount = Actor.getMoneyCount(sysarg, LoveHeartCfg.moneyType)
+		if coinCount < LoveHeartCfg.ItemPrice then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.couple006, LoveHeartCfg.ItemPrice ), ttFlyTip)
+			return
+		end
+		local bindFlag = 0
+		if checkBagGrids(sysarg, LoveHeartCfg.nItemID, 1, bindFlag) and Actor.changeMoney(sysarg, LoveHeartCfg.moneyType,
+			-LoveHeartCfg.ItemPrice, 115, Lang.LogTips.yb046) then
+		     --print(Actor.canAddItem(sysarg, LoveHeartCfg.nItemID,1,0, 0, false))
+			 Actor.addItem(sysarg, LoveHeartCfg.nItemID, 0, 0, 1, bindFlag, 0, NULL, 1, -1)
+		end
+	end
+end
+
+--检查背包格子数是否够
+function checkBagGrids( sysarg, itemId, itemCount, bindFlag )
+	local count = Item.getAddItemNeedGridCount( sysarg, itemId, itemCount, 0, 0, bindFlag)
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+		return false
+	end
+	return true
+end
+
+
+--点击召唤月老
+ function btBuyYueLao( sysarg )
+ 	local yuelaoCount = 0
+	local sceneId = Actor.getSceneId(sysarg)
+	local yueLaoCfg = FuQiConfig.YueLao
+	if yueLaoCfg then
+		local coinCount = Actor.getMoneyCount(sysarg, yueLaoCfg.moneyType)
+		if coinCount < yueLaoCfg.yuelaoPrice then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.couple020, yueLaoCfg.yuelaoPrice), ttFlyTip)
+			return
+		end
+		local hScene = Actor.getSceneHandle(sysarg)
+		if Fuben.getLiveMonsterCount(hScene, yueLaoCfg.nMonsterID) > 0  then
+			Actor.sendTipmsg( sysarg,Lang.ScriptTips.couple009,ttFlyTip )
+			return
+		end
+		local moneyType = yueLaoCfg.moneyType
+		local needMoney = yueLaoCfg.yuelaoPrice
+		if Actor.changeMoney(sysarg, moneyType, -needMoney, 899, Lang.LogTips.l00189) then
+			local posX = yueLaoCfg.posX
+			local posY = yueLaoCfg.posY
+			local hScene = Actor.getSceneHandle(sysarg)
+			local monterPtr = Fuben.createMonster(hScene, yueLaoCfg.nMonsterID,
+			posX, posY, yueLaoCfg.nLiveTime)
+			if monterPtr then
+				Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.couple010,posX, posY), ttFlyTip)
+			end
+		end
+	end
+
+end
+
+--召唤王母
+function CallQueenMother(sysarg)
+	WmCfg = FuQiConfig.QueenMother
+	if not WmCfg then
+		return
+	end
+	if not checkIsCanCallWm(sysarg) then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.couple014), ttFlyTip )
+		return
+	end
+	--检测是否已经召唤过王母
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)
+		if sVal.isCallWm == nil then
+			sVal.isCallWm = 0
+		end
+		if sVal.isCallWm == 1 then
+			Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.couple018), ttFlyTip )
+			return 
+		end
+	end	
+	--付钱召唤王母
+	local hScene = Actor.getSceneHandle(sysarg)
+	local moneyType = WmCfg.moneyType
+	local needMoney = WmCfg.Price
+	local coinCount = Actor.getMoneyCount(sysarg, moneyType)
+	if coinCount < needMoney then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.couple016, needMoney ), ttFlyTip)
+		return
+	end
+	if Actor.changeMoney(sysarg, moneyType, -needMoney, 899, Lang.LogTips.l00189) then
+		local posX = WmCfg.posX
+		local posY = WmCfg.posY
+		local hScene = Actor.getSceneHandle(sysarg)
+		local monterPtr = Fuben.createMonster(hScene, WmCfg.nMonsterID,
+		posX, posY, WmCfg.nLiveTime)
+		if monterPtr then
+			Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.couple015,posX, posY), ttFlyTip)
+			local pFb = Actor.getFubenPrt(sysarg)
+			if pFb then
+				local sVal = Fuben.getDyanmicVar(pFb)												
+				sVal.isCallWm = 1
+			end			
+		end
+	end
+end
+
+--检测是否到达召唤王母的条件
+function checkIsCanCallWm(sysarg)	
+	--检测真爱之门是否存在
+	local LoveDoorCfg =	FuQiConfig.LoveDoor
+	local hScene = Actor.getSceneHandle(sysarg)
+	if LoveDoorCfg then
+		for idx = 1,table.getn(LoveDoorCfg) do
+			if Fuben.getLiveMonsterCount(hScene, LoveDoorCfg[idx].nMonsterID) > 0  then
+				return false
+			end	
+		end
+	end
+	--检测是否有天兵天将存在
+	local SkySolidCfg = FuQiConfig.SkySolider
+	if SkySolidCfg then
+		if Fuben.getLiveMonsterCount(hScene, SkySolidCfg.nMonsterID) > 0  then
+			return false
+		end			
+	end
+
+	local SkyGenearCfg = FuQiConfig.SkyGeneral
+	if SkyGenearCfg then
+		if Fuben.getLiveMonsterCount(hScene, SkyGenearCfg.nMonsterID) > 0  then
+			return false
+		end			
+	end
+	--检测王母的玉钗或者金钗是否存在
+	local jadeCfg =	FuQiConfig.WmJadePin
+	if jadeCfg then
+		if Fuben.getLiveMonsterCount(hScene, jadeCfg.nMonsterID) > 0  then
+			return false
+		end	
+	end
+	local goldCfg =	FuQiConfig.WmJadePin
+	if goldCfg then
+		if Fuben.getLiveMonsterCount(hScene, goldCfg.nMonsterID) > 0  then
+			return false
+		end	
+	end
+	return true
+end
+
+table.insert(MainFnTable,MengFei_Main)
+
+

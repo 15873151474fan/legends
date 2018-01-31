@@ -1,0 +1,73 @@
+﻿--lua script
+
+ActFireConfig = {
+	RadioVal = 1,			--npc的半径内的玩家
+	GetExpInterval = 5,		--获取经验间隔，秒
+	FireExpRate = 4,		--基础经验的比率，万分之几
+	VipAddRate = 500,			--vip的加成，万分之几
+	TableIndex = 2,			--在基础表的第几张表
+    GetExpReshHuoChai = 180, --刷出火柴间隔 
+	--换模型
+	ViewNpcRadio = 24,		--广播npc半径内的玩家
+	BurnModelId = 4,		--燃烧着的火模型
+	UnBurnModelId = 5,		--熄灭着的火模型
+    LandscapeModelid=2,     --场景那个模型的id
+	durTime =3600000,        --场景特效的时间
+	--这里是相对于篝火+经验的坐标点
+	points=
+	{
+		{-2,-2},
+		{0,-2},
+		{2,-2},
+		{-2,0},
+		{2,0},
+		{-2,2},
+		{0,2},
+		{2,2},
+		{-4,4},
+		{-2,4},
+		{0,4},
+		{2,4},
+		{4,4},
+		{4,2},
+		{4,0},
+		{4,-2},
+		{4,-4},
+		{2,-4},
+		{0,-4},
+		{-2,-4},
+		{-4,-4},
+		{-4,-2},
+		{-4,0},
+		{-4,2},
+		
+	},
+	
+	--活动期间支持的经验倍数
+	fiveRateExp = 1,
+	MinLevel = 40,		--提示该等级以上的
+	--火柴的刷新
+	monsters =
+	{
+			{nMonsterID = 365, posX1 = 60, posX2 = 79,  posY = 162, nCount = 1, nLiveTime = 180,},	--BOSS
+			{nMonsterID = 365, posX1 = 60, posX2 = 79,  posY = 180, nCount = 1, nLiveTime = 180,},	--小怪
+			{nMonsterID = 365, posX1 = 60, posX2 = 79,  posY = 174, nCount = 2, nLiveTime = 180,},
+			{nMonsterID = 365, posX1 = 60, posX2 = 79,  posY = 177, nCount = 2, nLiveTime = 180,},
+			{nMonsterID = 365, posX1 = 60, posX2 = 68,  posY = 166, nCount = 2, nLiveTime = 180,},
+			{nMonsterID = 365, posX1 = 60, posX2 = 68,  posY = 170, nCount = 2, nLiveTime = 180,},
+	}, 
+	nSceneId = 4,--场景ID 
+	MaxTime = 10,--每次活动开启最多投入火柴次数 
+	FireItemId = 773,--火柴的ID 
+    Exp = {type = 20, id = 2, count =  33.75,}--经验库经验 
+}
+
+FireRankPt = {
+	RankName = "GetFire",
+	RankFile = "GetFire.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+	},
+	ClinetShowCount = 0,
+	ClientShow = 0,
+}

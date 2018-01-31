@@ -1,0 +1,315 @@
+﻿--lua script
+--#include "..\..\language\LangCode.txt"
+
+--沙巴克攻城战配置
+GuildSiegeConfig = {
+	callGuardCoin = 480000,		--召唤弓箭护卫需要的行会资金
+	repairWallCoin = 200000,		--维修城墙需要的行会资金
+	AwardYb = 10000,			--开服第一个占领的行会头领奖励的元宝
+	
+	openDay = 3,			--开服第7天开放
+
+	--泡点时间 19:00-19:30，12：00-12：30
+	--[[duckTime = 
+	{
+		{nHourStart = 12,nMinStart = 0,nHourEnd = 12,nMinEnd = 30,},
+		{nHourStart = 19,nMinStart = 0,nHourEnd = 19,nMinEnd = 30,},
+	},]]
+	
+	--SecSbkSceneId = 194,				--卫城的场景id
+
+	--泡点 只有沙城时的奖励
+	--[[sbkDuckAward =
+	{
+		{ type = 20, id = 3, count = 10, strong = 0, quality = 0, bind = 1 },
+		{ type = 34, id = 0, count = 12, strong = 0, quality = 0, bind = 1 },
+
+	},]]
+	
+	--泡点 卫城也奖励
+	--[[delDuckAward = 
+	{
+		{ type = 20, id = 3, count = 5, strong = 0, quality = 0, bind = 1 },
+		{ type = 34, id = 0, count = 10, strong = 0, quality = 0, bind = 1 },
+	},]]
+
+	--箭塔配置
+	--[[ArrowConfig = 
+	{
+		{Sceneid = 8, nMonsterID = 1039, posX1 = 373, posX2 = 373,  posY = 304, nCount = 1, nLiveTime = 0,ArrowCoin = 500000,NeedYb = 20 },	--初级箭塔
+		{Sceneid = 8, nMonsterID = 1039, posX1 = 381, posX2 = 381,  posY = 296, nCount = 1, nLiveTime = 0,ArrowCoin = 500000,NeedYb = 20},	--初级箭塔
+
+		{Sceneid = 8, nMonsterID = 1040, posX1 = 359, posX2 = 359,  posY = 285, nCount = 1, nLiveTime = 0,ArrowCoin = 1500000,NeedYb = 60},	--中级箭塔
+		{Sceneid = 8, nMonsterID = 1040, posX1 = 366, posX2 = 366,  posY = 278, nCount = 1, nLiveTime = 0,ArrowCoin = 1500000,NeedYb = 60},	--中级箭塔
+
+		{Sceneid = 8, nMonsterID = 1041, posX1 = 338, posX2 = 338,  posY = 253, nCount = 1, nLiveTime = 0,ArrowCoin = 3000000,NeedYb = 120},	--戍卫箭塔
+		{Sceneid = 8, nMonsterID = 1041, posX1 = 345, posX2 = 345,  posY = 246, nCount = 1, nLiveTime = 0,ArrowCoin = 3000000,NeedYb = 120},	--戍卫箭塔
+	},]]
+	
+	--箭塔被杀添加buff
+	--[[arrowDelBuff = 
+	{
+		{nMonsterID = 1039,buffType= 139, value= 5000, buffGroup= 78,times =1,interval= 7200,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel053,},
+		{nMonsterID = 1040,buffType= 139, value= 7000, buffGroup= 78,times =1,interval= 7200,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel053,},
+		{nMonsterID = 1041,buffType= 139, value= 9000, buffGroup= 78,times =1,interval= 7200,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel053,},
+	},]]
+	
+	--守护之柱
+	--[[taxMonster = 
+	{
+		{nMonsterID = 1042, nSceenId = 8, posX = 332, posY = 310, nCount = 1, nLiveTime = 1800,},
+		{nMonsterID = 1042, nSceenId = 8, posX = 282, posY = 249, nCount = 1, nLiveTime = 1800,},
+		{nMonsterID = 1042, nSceenId = 8, posX = 396, posY = 253, nCount = 1, nLiveTime = 1800,},
+		{nMonsterID = 1042, nSceenId = 8, posX = 339, posY = 189, nCount = 1, nLiveTime = 1800,},
+	},]]
+
+	--TaxMonsterTimes = 1,			--守护之柱死4次减少税收倍率
+	--TaxMonsterRate = 4,				--百分比
+
+	--ManmMnsterFashion = { type = 0, id = 270, count = 1, strong = 0, quality = 0, bind = 1 },	--城主时装id（男）
+	--WomanMonsterFashion = { type = 0, id = 271, count = 1, strong = 0, quality = 0, bind = 1 },	--城主时装id（女）
+	--MagicWeapon = { type = 0, id = 2259, count = 1, strong = 0, quality = 0, bind = 1 },	--幻武id
+
+	countDown = 12,			--普天同庆倒计时 单位秒
+
+	--effectId 普天同庆的金币特效id
+	--effectLastTime特效持续的时间 单位秒
+	-- effectType 特效的类型 无效果=0,挥洒=1,投掷=2,飞行=3,爆炸=4,脚下持续=5,持续=6
+	sbkeffect = {effectId = 2,effectLastTime = 30,},
+
+
+	SbkSceenId = 4,			--盟重土城场景id
+	PalaceSceenId = 5,		--皇宫场景id
+	exitPos = {99,167,10,10},	--退出的坐标  （148，180） 以半径10随机
+
+	MiDaoEnterPalace =		--从密道进入的坐标
+	{
+		{enterPos = {32,26,2,2},},
+		{enterPos = {36,25,1,1},},
+		{enterPos = {23,31,1,1},},
+		{enterPos = {28,31,3,3},},
+		{enterPos = {29,34,1,1},},
+		{enterPos = {33,27,3,3},},
+		--{enterPos = {19,14,2,2},},
+		--{enterPos = { 9,17,1,1},},
+	},
+
+	LimitLevel = 53,		--能通过沙巴克密道的最低等级
+
+	MaxTaxing = 3000000,		--税收上限
+	taxingRate = 10,		--税率10%
+
+	MaxCanGetTaxing = 800000000,			--可领取的税收最大上限 8亿
+
+	LoopTime = 30000,		--沙巴克皇宫的经验奖励30秒循环时间 单位毫秒
+	LoopExp = { type = 20, id = 2, count = 25, strong = 0, quality = 0, bind = 0 },	--经验库2 的经验奖励
+	TrackMinLevel = 53,				--攻城追踪信息显示的最低等级
+	SbkActivityTime = 1 * 60 * 60,		--沙巴克战持续时间
+
+	--沙巴克领取福利的信息
+	AwardSbkPostion =
+	{
+		{
+			posId = 1,	--城主职位id
+			itemId = 625,	--领取的物品id（大宝印）
+			itemNum = 4,	--领取的数量
+			itemBind = 1,	--绑定
+		},
+
+		{
+			posId = 2,	--副城主
+			itemId = 625,
+			itemNum = 3,
+			itemBind = 1,
+		},
+
+		{
+			posId = 3,	--大将军
+			itemId = 625,
+			itemNum = 2,
+			itemBind = 1,
+		},
+
+		{
+			posId = 4,	--大政令
+			itemId = 625,
+			itemNum = 2,
+			itemBind = 1,
+		},
+
+		{
+			posId = 5,	--大总管
+			itemId = 625,
+			itemNum = 2,
+			itemBind = 1,
+		},
+	},
+
+	--传送门
+	teleport =
+	{
+		{ Sceneid = 4, posx = 300, posy = 144,toSceneid = 5,toPosx =  26, toPosy = 36,modelid = 81000,name = Lang.SceneName.s50001 },  --盟重土城→沙巴克皇宫左城墙
+		{ Sceneid = 4, posx = 304, posy = 144,toSceneid = 5,toPosx = 28, toPosy = 35,modelid = 81100,name = Lang.SceneName.s50002 },  --盟重土城→沙巴克皇宫中城墙
+		{ Sceneid = 4, posx = 314, posy = 134,toSceneid = 5,toPosx = 36, toPosy = 27,modelid = 81200,name = Lang.SceneName.s50003 },  --盟重土城→沙巴克皇宫右城墙
+
+	},
+
+	--城墙配置
+	wallMonsters =
+	{
+		{Sceneid = 4, nMonsterID = 252, posX1 = 300, posX2 = 300,  posY = 144, nCount = 1, nLiveTime = 0,},	--左城墙
+		{Sceneid = 4, nMonsterID = 256, posX1 = 304, posX2 = 304,  posY = 144, nCount = 1, nLiveTime = 0,},	--中城墙
+		{Sceneid = 4, nMonsterID = 260, posX1 = 314, posX2 = 314,  posY = 134, nCount = 1, nLiveTime = 0,},	--右城墙
+	},
+
+	--弓箭手配置
+	archerConfig =
+	{
+		{Sceneid = 4, nMonsterID = 251, posX1 = 381, posX2 = 381,  posY = 211, nCount = 1, nLiveTime = 0,},	--弓箭护卫1
+		{Sceneid = 4, nMonsterID = 251, posX1 = 384, posX2 = 384,  posY = 207, nCount = 1, nLiveTime = 0,},	--弓箭护卫2
+		{Sceneid = 4, nMonsterID = 251, posX1 = 372, posX2 = 372,  posY = 220, nCount = 1, nLiveTime = 0,},	--弓箭护卫3
+		{Sceneid = 4, nMonsterID = 251, posX1 = 368, posX2 = 368,  posY = 221, nCount = 1, nLiveTime = 0,},	--弓箭护卫4
+		{Sceneid = 4, nMonsterID = 251, posX1 = 348, posX2 = 348,  posY = 167, nCount = 1, nLiveTime = 0,},	--弓箭护卫5
+		{Sceneid = 4, nMonsterID = 251, posX1 = 351, posX2 = 351,  posY = 167, nCount = 1, nLiveTime = 0,},	--弓箭护卫6
+		{Sceneid = 4, nMonsterID = 251, posX1 = 333, posX2 = 333,  posY = 179, nCount = 1, nLiveTime = 0,},	--弓箭护卫7
+		{Sceneid = 4, nMonsterID = 251, posX1 = 335, posX2 = 335,  posY = 183, nCount = 1, nLiveTime = 0,},	--弓箭护卫8
+		{Sceneid = 4, nMonsterID = 251, posX1 = 332, posX2 = 332,  posY = 150, nCount = 1, nLiveTime = 0,},	--弓箭护卫9
+		{Sceneid = 4, nMonsterID = 251, posX1 = 335, posX2 = 335,  posY = 151, nCount = 1, nLiveTime = 0,},	--弓箭护卫10
+		{Sceneid = 4, nMonsterID = 251, posX1 = 317, posX2 = 317,  posY = 164, nCount = 1, nLiveTime = 0,},	--弓箭护卫11
+		{Sceneid = 4, nMonsterID = 251, posX1 = 320, posX2 = 320,  posY = 166, nCount = 1, nLiveTime = 0,},	--弓箭护卫12
+	},
+	
+	FortuneLastTime = 10,			--普天同庆持续的时间
+
+	--普天同庆的奖励（奖励请看经济表的 系统奖励——>沙城争夺战）
+	FortuneAwards =
+	{
+		{
+			needCoin = 100000,			--投入10W行会资金
+			nCount = 30,			--奖励类型的个数
+
+			nRate = {1,2,3,7,12,16,20,24,30,36,41,48,52,54,56,58,60,70,75,80,82,85,86,88,90,92,94,96,98,100},				--奖励的概率
+			awards=
+			{
+{ type = 0, id = 728, count = 1, bind = 1 },    --一亿经验灵丹 
+{ type = 0, id = 623, count = 1, bind = 1 },    --小金砖 
+{ type = 0, id = 808, count = 5, bind = 1 },    --绑定10元宝锭 
+{ type = 0, id = 485, count = 1, bind = 1 },    --完美强化符 
+{ type = 0, id = 918, count = 5, bind = 1 },    --星珠碎晶(小) 
+{ type = 0, id = 921, count = 5, bind = 1 },    --护镜碎晶(小) 
+{ type = 0, id = 656, count = 1, bind = 1 },    --百年阳参 
+{ type = 0, id = 660, count = 1, bind = 1 },    --百年灵花 
+{ type = 0, id = 924, count = 5, bind = 1 },    --血印碎晶(小) 
+{ type = 0, id = 927, count = 5, bind = 1 },    --玄盾碎晶(小) 
+{ type = 0, id = 473, count = 1, bind = 1 },    --马鞭 
+{ type = 0, id = 1154, count = 1, bind = 1 },   --1级未激活的晶石 
+{ type = 0, id = 636, count = 1, bind = 1 },    --2倍经验丹(1小时) 
+{ type = 0, id = 664, count = 1, bind = 1 },    --生命药剂(小) 
+{ type = 0, id = 669, count = 1, bind = 1 },    --魔法药剂(小) 
+{ type = 0, id = 674, count = 1, bind = 1 },    --攻击药剂(小) 
+{ type = 0, id = 679, count = 1, bind = 1 },    --防御药剂(小) 
+{ type = 0, id = 808, count = 2, bind = 1 },    --绑定10元宝锭 
+{ type = 0, id = 854, count = 3, bind = 1 },    --绑定50元宝锭 
+{ type = 0, id = 726, count = 1, bind = 1 },    --百万经验灵丹 
+{ type = 0, id = 727, count = 1, bind = 1 },    --千万经验灵丹 
+{ type = 0, id = 623, count = 1, bind = 1 },    --小金砖 
+{ type = 0, id = 624, count = 1, bind = 1 },    --大金砖 
+{ type = 0, id = 492, count = 1, bind = 1 },    --1阶物攻魂玉 
+{ type = 0, id = 493, count = 1, bind = 1 },    --1阶魔攻魂玉 
+{ type = 0, id = 494, count = 1, bind = 1 },    --1阶道攻魂玉 
+{ type = 0, id = 497, count = 1, bind = 1 },    --1阶生命魂玉 
+{ type = 0, id = 498, count = 1, bind = 1 },    --1阶魔法魂玉 
+{ type = 0, id = 495, count = 1, bind = 1 },    --1阶物防魂玉 
+{ type = 0, id = 496, count = 1, bind = 1 },    --1阶魔防魂玉 
+
+
+			},
+		},
+
+		{
+			needCoin = 500000,			--投入50W行会资金
+			nCount = 30,			--奖励类型的个数
+
+			nRate = {1,2,3,7,12,16,20,24,30,36,41,48,52,54,56,58,60,70,75,80,82,85,86,88,90,92,94,96,98,100},				--奖励的概率
+			awards=
+			{
+{ type = 0, id = 728, count = 1, bind = 1 },--一亿经验灵丹 
+{ type = 0, id = 623, count = 2, bind = 1 },--小金砖 
+{ type = 0, id = 854, count = 1, bind = 1 },--绑定50元宝锭 
+{ type = 0, id = 485, count = 1, bind = 1 },--完美强化符 
+{ type = 0, id = 918, count = 5, bind = 1 },--星珠碎晶(小) 
+{ type = 0, id = 921, count = 5, bind = 1 },--护镜碎晶(小) 
+{ type = 0, id = 657, count = 1, bind = 1 },--千年阳参 
+{ type = 0, id = 661, count = 1, bind = 1 },--千年灵花 
+{ type = 0, id = 924, count = 5, bind = 1 },--血印碎晶(小) 
+{ type = 0, id = 927, count = 5, bind = 1 },--玄盾碎晶(小) 
+{ type = 0, id = 473, count = 2, bind = 1 },--马鞭 
+{ type = 0, id = 1154, count = 1, bind = 1 },--1级未激活的晶石 
+{ type = 0, id = 638, count = 1, bind = 1 },--3倍经验丹(1小时) 
+{ type = 0, id = 665, count = 1, bind = 1 },--生命药剂(中) 
+{ type = 0, id = 670, count = 1, bind = 1 },--魔法药剂(中) 
+{ type = 0, id = 675, count = 1, bind = 1 },--攻击药剂(中) 
+{ type = 0, id = 680, count = 1, bind = 1 },--防御药剂(中) 
+{ type = 0, id = 854, count = 3, bind = 1 },--绑定50元宝锭 
+{ type = 0, id = 809, count = 5, bind = 1 },--绑定100元宝锭 
+{ type = 0, id = 726, count = 1, bind = 1 },--百万经验灵丹 
+{ type = 0, id = 727, count = 1, bind = 1 },--千万经验灵丹 
+{ type = 0, id = 623, count = 1, bind = 1 },--小金砖 
+{ type = 0, id = 624, count = 1, bind = 1 },--大金砖 
+{ type = 0, id = 499, count = 1, bind = 1 },--2阶物攻魂玉 
+{ type = 0, id = 500, count = 1, bind = 1 },--2阶魔攻魂玉 
+{ type = 0, id = 501, count = 1, bind = 1 },--2阶道攻魂玉 
+{ type = 0, id = 504, count = 1, bind = 1 },--2阶生命魂玉 
+{ type = 0, id = 505, count = 1, bind = 1 },--2阶魔法魂玉 
+{ type = 0, id = 502, count = 1, bind = 1 },--2阶物防魂玉 
+{ type = 0, id = 503, count = 1, bind = 1 },--2阶魔防魂玉 
+
+			},
+		},
+
+		{
+			needCoin = 1000000,			--投入100W行会资金
+			nCount = 30,				--奖励类型的个数
+
+			nRate = {1,2,3,7,12,16,20,24,30,36,41,48,52,54,56,58,60,70,75,80,82,85,86,88,90,92,94,96,98,100},				--奖励的概率
+			awards=
+			{
+{ type = 0, id = 728, count = 1, bind = 1 },  --一亿经验灵丹 
+{ type = 0, id = 624, count = 5, bind = 1 },  --大金砖 
+{ type = 0, id = 810, count = 2, bind = 1 },  --绑定500元宝锭 
+{ type = 0, id = 485, count = 1, bind = 1 },  --完美强化符 
+{ type = 0, id = 918, count = 5, bind = 1 },  --星珠碎晶(小) 
+{ type = 0, id = 921, count = 5, bind = 1 },  --护镜碎晶(小) 
+{ type = 0, id = 657, count = 1, bind = 1 },  --千年阳参 
+{ type = 0, id = 661, count = 1, bind = 1 },  --千年灵花 
+{ type = 0, id = 924, count = 5, bind = 1 },  --血印碎晶(小) 
+{ type = 0, id = 927, count = 5, bind = 1 },  --玄盾碎晶(小) 
+{ type = 0, id = 473, count = 3, bind = 1 },  --马鞭 
+{ type = 0, id = 1154, count = 1, bind = 1 }, --1级未激活的晶石 
+{ type = 0, id = 640, count = 1, bind = 1 },  --4倍经验丹(1小时) 
+{ type = 0, id = 666, count = 1, bind = 1 },  --生命药剂(大) 
+{ type = 0, id = 671, count = 1, bind = 1 },  --魔法药剂(大) 
+{ type = 0, id = 676, count = 1, bind = 1 },  --攻击药剂(大) 
+{ type = 0, id = 681, count = 1, bind = 1 },  --防御药剂(大) 
+{ type = 0, id = 854, count = 5, bind = 1 },  --绑定50元宝锭 
+{ type = 0, id = 809, count = 1, bind = 1 },  --绑定100元宝锭 
+{ type = 0, id = 726, count = 1, bind = 1 },  --百万经验灵丹 
+{ type = 0, id = 727, count = 1, bind = 1 },  --千万经验灵丹 
+{ type = 0, id = 623, count = 1, bind = 1 },  --小金砖 
+{ type = 0, id = 624, count = 1, bind = 1 },  --大金砖 
+{ type = 0, id = 506, count = 1, bind = 1 },  --3阶物攻魂玉 
+{ type = 0, id = 507, count = 1, bind = 1 },  --3阶魔攻魂玉 
+{ type = 0, id = 508, count = 1, bind = 1 },  --3阶道攻魂玉 
+{ type = 0, id = 511, count = 1, bind = 1 },  --3阶生命魂玉 
+{ type = 0, id = 512, count = 1, bind = 1 },  --3阶魔法魂玉 
+{ type = 0, id = 509, count = 1, bind = 1 },  --3阶物防魂玉 
+{ type = 0, id = 510, count = 1, bind = 1 },  --3阶魔防魂玉 
+
+			},
+		},
+	},
+
+	hAwardTimeRang = {21,23},						--回收后首个周五占领 领取攻沙元宝奖励的时间 
+
+	nAwardYb = 5000,								--回收后首个周五占领 奖励的元宝
+}

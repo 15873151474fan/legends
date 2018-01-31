@@ -1,0 +1,72 @@
+﻿{
+	id = 775,
+	name = Lang.Quest.q01545,
+	parentid = 0,
+	type = 1,
+	level = 0,
+	cangiveup = true,
+	content = Lang.Quest.q01546,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00024,  
+    npc = Lang.EntityName.n00066,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00039,  
+	npc = Lang.EntityName.n00062,
+  },
+
+  target =
+  { 
+    { type = 1, id = 1477,count = 1,location={ sceneid=39,entityName=Lang.EntityName.n00062} },
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 18062,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 2317,  bind = true, job = 0, sex = -1, group=0 },
+ },
+  --任务条件表
+  conds =
+  {
+
+        { type = 0, id = 0,count = 28 },  --1级可接
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t02746,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t02747,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t02748,
+  }, 
+
+   PromCheck = "OnAddItem",
+    PromCheckArg = {1477, 1},
+   
+  
+  --送物类的任务，需要加上此函数获取任务物品。
+  
+  	PromCallBack =  "OnPromAddItem",
+	PromCallBackArg = { 1477,0,0,1,1},  
+  
+  
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {1477,1}, 
+  --放弃任务后删掉任务物品
+  	GiveUpCallBack = "OnGvupRemItem",
+	GiveUpCallBackArg = {1477},  
+},

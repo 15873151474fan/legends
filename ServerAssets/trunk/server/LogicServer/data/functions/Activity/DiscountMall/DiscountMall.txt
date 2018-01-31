@@ -1,0 +1,813 @@
+
+--lua script
+
+--#include "data\config\activityconfig\DiscountMall\DiscountMall.txt" once 
+
+--折扣商城
+
+--请求折扣商城信息
+function GetDiscountMallInfo(sysarg, packet)
+	if System.getDiscountMallFlag() ~= 1 then 
+		return 
+	end
+	
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile)
+	if not disMallBuyInfoRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local disMallBuyInfoItemPtr = Ranking.getItemPtrFromId(disMallBuyInfoRankPtr, actorId)
+	
+	if not disMallBuyInfoItemPtr then
+		AddPersonMallBuyInfo(sysarg)
+	end
+	
+	SendDiscountMallInfo(sysarg)
+end
+
+--增加玩家折扣购买信息
+function AddPersonMallBuyInfo(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile)
+	
+	if not disMallBuyInfoRankPtr then
+		return 
+	end
+		
+	local disBuyInfoItemPtr = Ranking.addItemExt(disMallBuyInfoRankPtr, actorId, 0, false)
+	if not disBuyInfoItemPtr then
+		return 
+	end
+
+	for i = 1, 25 do 
+		Ranking.setSub(disBuyInfoItemPtr, i-1, 0)
+	end
+		
+	local disMallListRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallListFile)
+	if disMallListRankPtr then
+		local itemCount = Ranking.getRankItemCount(disMallListRankPtr)
+		if itemCount < DiscountMallConfig.itemCount then
+			return 
+		end
+		
+		for j = 1, itemCount do 
+			local itemPtr = Ranking.getItemPtrByIndex(disMallListRankPtr, j-1)
+			if itemPtr then
+				local val = 0
+				local itemIndex = tonumber(Ranking.getSub(itemPtr, 0))
+				local discountIndex = tonumber(Ranking.getSub(itemPtr, 1))
+				val = System.setIntWord(val, itemIndex, 1)
+				val = System.setIntWord(val, discountIndex, 0)
+				
+				local discountTab = DiscountMallConfig[itemIndex].discountTab
+				Ranking.setSub(disBuyInfoItemPtr, j-1, val)
+				Ranking.setSub(disBuyInfoItemPtr, j+itemCount-1, discountTab[discountIndex].limitCount)		
+			end
+		end
+		
+		Ranking.setSub(disBuyInfoItemPtr, itemCount*2+2, 1) --设置总免费次数
+	end
+	
+end
+
+
+--发送折扣商品信息
+function SendDiscountMallInfo(sysarg)
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile)
+	if not disMallBuyInfoRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local disMallBuyInfoItemPtr = Ranking.getItemPtrFromId(disMallBuyInfoRankPtr, actorId)
+	
+	if not disMallBuyInfoItemPtr then
+		return 
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 44)
+	if pack == nil then
+		return 
+	end
+	
+	local todayTime = System.getToday()
+	local curTime = System.getCurrMiniTime()
+	curTime = curTime - todayTime
+	local temp = math.floor(curTime / (DiscountMallConfig.refreshInterval))
+	local remainFreshTime = (temp + 1) * DiscountMallConfig.refreshInterval - curTime
+	
+	local remainTime = System.getDisMallRemainTime()
+	DataPack.writeUInt(pack, remainTime) 
+	DataPack.writeUInt(pack, remainFreshTime)
+	DataPack.writeByte(pack, DiscountMallConfig.itemCount)
+	
+	for i = 1, DiscountMallConfig.itemCount do 	
+		local val = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, i-1))
+		local itemIndex = System.getIntWord(val, 1)
+		local discountIndex = System.getIntWord(val, 0)	
+	
+		if itemIndex <= 0 or itemIndex > table.getn(DiscountMallConfig) then
+			return 
+		end
+		
+		local discountTab = DiscountMallConfig[itemIndex].discountTab
+		if not discountTab then
+			return 
+		end
+		
+		if discountIndex <= 0 or discountIndex > table.getn(discountTab) then
+			return
+		end
+		
+		local discountConfig = discountTab[discountIndex]
+		if not discountConfig then
+			return 
+		end
+		
+		DataPack.writeShort(pack, i)  
+		DataPack.writeInt(pack, DiscountMallConfig[itemIndex].id)
+		DataPack.writeInt(pack,  DiscountMallConfig[itemIndex].price)
+		DataPack.writeInt(pack,  math.ceil((DiscountMallConfig[itemIndex].price)*(discountConfig.discount)/10))
+		DataPack.writeByte(pack, discountConfig.discount*10)
+		local limitCount = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, i+DiscountMallConfig.itemCount-1))
+		DataPack.writeByte(pack, limitCount)
+	end
+	
+	local consumYb = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2))
+	DataPack.writeInt(pack, consumYb)
+	local useFreeCount = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+1))
+	DataPack.writeShort(pack, useFreeCount)
+	local totalFreeCount = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+2))
+	DataPack.writeShort(pack, totalFreeCount)
+	
+	DataPack.flush(pack)
+
+end
+
+--请求刷新折扣
+function ReqRefreshDiscount(sysarg, packet)
+	if System.getDiscountMallFlag() ~= 1 then
+		return 
+	end
+	
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile)
+	if not disMallBuyInfoRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local disMallBuyInfoItemPtr = Ranking.getItemPtrFromId(disMallBuyInfoRankPtr, actorId)
+	if not disMallBuyInfoItemPtr then
+		return 
+	end
+
+	local useFreeCount = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+1))
+	local totalFreeCount = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+2))
+	
+	if useFreeCount < totalFreeCount then
+		Ranking.setSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+1, useFreeCount+1)
+		ProducePersonMallList(sysarg)			--产生个人商品列表
+	else 
+		local isConsumeYb = true
+		if Actor.checkConsume(sysarg, DiscountMallConfig.refreshItem.type, DiscountMallConfig.refreshItem.id, DiscountMallConfig.refreshItem.count,
+			DiscountMallConfig.refreshItem.quality,DiscountMallConfig.refreshItem.strong,DiscountMallConfig.refreshItem.bind ) == true then
+			
+			Actor.removeConsume(sysarg, DiscountMallConfig.refreshItem.type, DiscountMallConfig.refreshItem.id, DiscountMallConfig.refreshItem.count, 
+				DiscountMallConfig.refreshItem.quality, DiscountMallConfig.refreshItem.strong, DiscountMallConfig.refreshItem.bind,0,947, Lang.LogTips.dm0004)
+
+			local totalRefresh = Ranking.getSub(disMallBuyInfoItemPtr,(DiscountMallConfig.itemCount)*2+3)
+			Ranking.setSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+3, totalRefresh+1)	
+			ProducePersonMallList(sysarg)
+			isConsumeYb = false
+	
+		end
+		 
+		if isConsumeYb == true then
+			if Actor.checkConsume(sysarg, 15, 0, DiscountMallConfig.consumeYb) ~= true then
+				Actor.sendTipmsg(sysarg, Lang.Activity.dm0001, ttFlyTip) 
+				return 
+			end
+		
+			if Actor.changeMoney(sysarg, 3, -DiscountMallConfig.consumeYb, 947, Lang.LogTips.dm0001) == true then
+				local consumeYb = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2))
+				Ranking.setSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2, consumeYb + DiscountMallConfig.consumeYb)
+			
+				local totalConsumeYb = consumeYb + DiscountMallConfig.consumeYb
+				local totalFreeCount = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+2))
+			
+				if math.floor(totalConsumeYb / DiscountMallConfig.refreshYb) > totalFreeCount-1 and totalFreeCount < DiscountMallConfig.freeTimes then
+					totalFreeCount = math.floor(totalConsumeYb / DiscountMallConfig.refreshYb) + 1
+					Ranking.setSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+2, totalFreeCount)
+				end
+			
+				local totalRefresh = tonumber(Ranking.getSub(disMallBuyInfoItemPtr,(DiscountMallConfig.itemCount)*2+3))
+				Ranking.setSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+3, totalRefresh+1)
+				
+				local totalRefreshYb = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+4))
+				Ranking.setSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+4, totalRefreshYb+DiscountMallConfig.consumeYb)
+				
+				UpdateDisMallConsumYb(DiscountMallConfig.consumeYb)
+				ProducePersonMallList(sysarg)
+			end
+		end 	
+	end		
+		
+	SendDiscountMallInfo(sysarg) 	 
+		
+end 
+
+--更新全服消耗元宝数
+function UpdateDisMallConsumYb(addConsumYb)
+	local disMallParamRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallParamFile)
+	if disMallParamRankPtr then
+		local disMallParamItemPtr = Ranking.getItemPtrFromId(disMallParamRankPtr, 1)
+		if disMallParamItemPtr then
+			local consumeYb = tonumber(Ranking.getSub(disMallParamItemPtr, 0))
+			Ranking.setSub(disMallParamItemPtr, 0, consumeYb+addConsumYb)
+		end
+	end
+	
+end
+
+--请求购买折扣物品
+function ReqDiscountBuy(sysarg, packet) 
+	if System.getDiscountMallFlag() ~= 1 then
+		return 
+	end
+	
+	local index = DataPack.readShort(packet)
+	local itemCount = DataPack.readByte(packet)
+	
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile)
+	if not disMallBuyInfoRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local disMallBuyInfoItemPtr = Ranking.getItemPtrFromId(disMallBuyInfoRankPtr, actorId)
+	if not disMallBuyInfoItemPtr then
+		return 
+	end
+	
+	if index > DiscountMallConfig.itemCount then
+		return 
+	end
+	
+	local limitCount = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, index+DiscountMallConfig.itemCount-1))
+	
+	if itemCount > limitCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.dm0002, ttFlyTip)
+		return 
+	end
+	
+	local val = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, index-1))
+	local itemIndex = System.getIntWord(val, 1)
+	local discountIndex = System.getIntWord(val, 0)
+	
+	if itemIndex > 0 and discountIndex > 0 then
+		local itemConfig = DiscountMallConfig[itemIndex]
+		local discountConfig = itemConfig.discountTab[discountIndex]
+		local needYb = math.ceil(itemConfig.price*discountConfig.discount/10)
+		if Actor.checkConsume(sysarg, 15, 0, needYb*itemCount) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.dm0003, ttFlyTip) 
+			return 
+		end
+		
+		local needGridCount = Item.getAddItemNeedGridCount(sysarg,itemConfig.id,itemCount,itemConfig.quality,itemConfig.strong, itemConfig.bind)
+		local emptyCount = Item.getBagEmptyGridCount(sysarg)
+		if emptyCount < needGridCount then
+			Actor.sendTipmsg(sysarg, Lang.Activity.dm0004, ttFlyTip) 	
+			return 
+		end
+		
+		if Actor.changeMoney(sysarg, 3, -(needYb*itemCount), 947, Lang.LogTips.dm0002) == true then
+			Actor.giveAward(sysarg,itemConfig.type, itemConfig.id, itemCount,itemConfig.quality, itemConfig.strong, itemConfig.bind,0,947,Lang.LogTips.dm0003)
+			Ranking.setSub(disMallBuyInfoItemPtr, index+DiscountMallConfig.itemCount-1, limitCount-itemCount)
+			
+			local consumeYb = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2))
+			Ranking.setSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2, consumeYb + needYb*itemCount)
+			
+			local totalConsumeYb = consumeYb + needYb*itemCount 
+			local totalFreeCount = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+2))
+			
+			if math.floor(totalConsumeYb / DiscountMallConfig.refreshYb) > totalFreeCount-1 and totalFreeCount < DiscountMallConfig.freeTimes then
+				totalFreeCount = math.floor(totalConsumeYb / DiscountMallConfig.refreshYb) + 1
+				Ranking.setSub(disMallBuyInfoItemPtr, (DiscountMallConfig.itemCount)*2+2, totalFreeCount)
+			end
+			
+			--UpdateDisMallConsumYb(needYb*itemCount)
+			
+			if discountConfig.isBrocast == true then
+				local str = Lang.Activity.dm0005
+				local actorName = Actor.getName(sysarg)
+				local itemName = Item.getItemName(itemConfig.id)
+				local str = string.format(str, actorName, discountConfig.discount, itemName)
+				System.broadcastTipmsg(str, ttScreenCenter+ttChatWindow)
+			end
+			
+		
+			local pack = DataPack.allocPacket(sysarg, 145, 45)
+			if pack ~= nil then
+				DataPack.writeShort(pack, index)
+				DataPack.writeByte(pack, limitCount-itemCount)
+				DataPack.writeInt(pack, totalConsumeYb)
+				DataPack.writeShort(pack, totalFreeCount)
+				DataPack.flush(pack)
+			end
+		end
+
+	end
+	
+end
+
+--初始化折扣商城相关信息
+function InitDiscountMall()
+	
+	local disMallParamRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallParamFile)
+	
+	if disMallParamRankPtr then
+		if Ranking.getRankItemCount(disMallParamRankPtr) > 0 then 
+			return 
+		end 
+		
+		local itemPtr = Ranking.getItemPtrFromId(disMallParamRankPtr, 1) 
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(disMallParamRankPtr, 1, 0, false)
+			if itemPtr then
+				for i = 1, 20 do  
+					Ranking.setSub(itemPtr, i-1, 0)
+				end
+			end
+		end
+		
+		local count = table.getn(DiscountMallConfig)
+		for i = 1, count do 
+			local discountItemPtr = Ranking.getItemPtrFromId(disMallParamRankPtr, DiscountMallConfig[i].id)
+			if not discountItemPtr then
+				discountItemPtr = Ranking.addItemExt(disMallParamRankPtr, DiscountMallConfig[i].id, 0, false)
+				if discountItemPtr then
+					for j = 1, 20 do  
+						Ranking.setSub(discountItemPtr, j-1, 0)
+					end
+				end
+			end 
+			
+			local discountTab = DiscountMallConfig[i].discountTab
+			if discountItemPtr then
+				if discountTab and table.getn(discountTab) > 0 then
+					for index = 1, table.getn(discountTab) do 
+						Ranking.setSub(discountItemPtr, index-1, discountTab[index].startYb)
+					end
+				end
+			end
+			
+		end
+	end
+	
+	
+	local disMallListRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallListFile)
+	
+	if disMallListRankPtr then
+		if Ranking.getRankItemCount(disMallListRankPtr) > 0 then 
+			return 
+		end
+
+		ProduceMallList() 
+	end
+
+end
+
+--产生全服商品列表
+function ProduceMallList() 
+	if not DiscountMallConfig or not DiscountMallConfig.itemCount then 
+		return 
+	end
+	
+	local disMallListRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallListFile)
+	if not disMallListRankPtr then
+		return 
+	end
+		
+	local itemProduceTab = {}  
+	
+	local itemIndex = 0
+	local dicountIndex = 0
+	for i = 1, DiscountMallConfig.itemCount do  
+		itemIndex, dicountIndex = ProduceMallItem(itemProduceTab, true, 0)
+		if itemIndex > 0 and dicountIndex > 0 then
+		
+			local disMallListItemPtr = Ranking.getItemPtrFromId(disMallListRankPtr, DiscountMallConfig[itemIndex].id)
+			if not disMallListItemPtr then
+				disMallListItemPtr = Ranking.addItemExt(disMallListRankPtr, DiscountMallConfig[itemIndex].id, 0, false)
+				if disMallListItemPtr then
+					for j = 1, 10 do  
+						Ranking.setSub(disMallListItemPtr, j-1, 0) 
+					end
+				end
+			end 
+			
+			if disMallListItemPtr then
+				Ranking.setSub(disMallListItemPtr, 0, itemIndex)
+				Ranking.setSub(disMallListItemPtr, 1, dicountIndex) 
+			end
+		end
+	end
+
+end
+
+--产生个人商品列表
+function ProducePersonMallList(sysarg)
+	
+	if not DiscountMallConfig or not DiscountMallConfig.itemCount then
+		return 
+	end
+	
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile)
+	if not disMallBuyInfoRankPtr then
+		return 
+	end
+		
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local itemProduceTab = {}  
+	local itemIndex = 0
+	local dicountIndex = 0
+	
+	local disMallBuyInfoItemPtr = Ranking.getItemPtrFromId(disMallBuyInfoRankPtr, actorId)
+	if not disMallBuyInfoItemPtr then
+		disMallBuyInfoItemPtr = Ranking.addItemExt(disMallBuyInfoRankPtr, actorId, 0, false)
+		if disMallBuyInfoItemPtr then
+			for j = 1, 25 do  
+				Ranking.setSub(disMallListItemPtr, j-1, 0)
+			end
+		end 
+	end 
+
+	if disMallBuyInfoItemPtr then
+		for i = 1, DiscountMallConfig.itemCount do 
+			local val = tonumber(Ranking.getSub(disMallBuyInfoItemPtr, i-1))
+			itemIndex = System.getIntWord(val, 1)
+			dicountIndex = System.getIntWord(val, 0)
+
+			local discountTab = DiscountMallConfig[itemIndex].discountTab
+			if not discountTab then
+				return 
+			end
+
+			local discountCount = table.getn(discountTab) 
+			for j=1,10000 do
+				dicountIndex = GetDisMallRandomInfo(discountTab, false)
+			    if CheckDiscountRate(itemIndex,dicountIndex,false,actorId) == true then
+					break
+				end
+			end
+		
+			if itemIndex > 0 and dicountIndex > 0 then	
+				val = System.setIntWord(val, dicountIndex, 0)
+				Ranking.setSub(disMallBuyInfoItemPtr, i-1, val)
+				Ranking.setSub(disMallBuyInfoItemPtr, i+DiscountMallConfig.itemCount-1, discountTab[dicountIndex].limitCount)
+			end
+		end
+	end
+end
+
+
+--产生商品
+--isAllProduce (true产生全服的，false个人刷新产生)，param(全服的传0，个人的传玩家id)
+function ProduceMallItem(itemProduceTab, isAllProduce, param)
+	local itemIndex = 1
+	local dicountIndex = 1
+	
+	local itemCount = table.getn(DiscountMallConfig)
+	for i=1,10000 do 
+		itemIndex = math.random(1, itemCount)
+	    if CheckDiscountItem(itemIndex,itemProduceTab) == true then
+			break
+		end
+	end
+	
+	table.insert(itemProduceTab, itemIndex)
+	
+	local itemConfig = DiscountMallConfig[itemIndex]
+	if not itemConfig then
+		return itemIndex, dicountIndex
+	end
+	
+	local discountCount = table.getn(itemConfig.discountTab)
+	
+	for  i=1,10000 do
+		--dicountIndex = math.random(1, discountCount)
+		dicountIndex = GetDisMallRandomInfo(itemConfig.discountTab, true)
+	    if CheckDiscountRate(itemIndex,dicountIndex,isAllProduce,param) == true then
+			break
+		end
+	end
+	
+	return itemIndex, dicountIndex
+	
+end
+
+
+--根据概率获取值, isAllProduce
+function GetDisMallRandomInfo(infoTable, isAllProduce)
+	local maxVal = 0
+	local endIdx = 0
+	local beginIdx = 0
+
+	for i = 1, table.getn(infoTable) do 
+		local info = infoTable[i]
+		if isAllProduce == true then
+			if info.isInit == true then
+				if beginIdx == 0 then
+					beginIdx = i
+				end
+				
+				maxVal = maxVal + info.rate
+			end
+		else
+			if info.isInit == false then
+				if beginIdx == 0 then
+					beginIdx = i
+				end
+				maxVal = maxVal + info.rate
+			end
+			
+		end
+		
+		endIdx = endIdx + 1
+	end
+	
+	local randVal = math.random(1, maxVal)
+	local retVal = 0
+	local tmpValue = 0
+	for index = beginIdx, endIdx do
+		tmpValue = tmpValue + infoTable[index].rate
+		if tmpValue >= randVal then
+			retVal = index
+			break
+		end
+	end
+	return retVal
+end
+
+--判断折扣物品
+function CheckDiscountItem(val, itemProduceTab)
+	for k, v in ipairs(itemProduceTab) do 
+		if val == v then
+			return false
+		end
+	end
+	return true
+end
+
+--判断折扣概率
+function CheckDiscountRate(itemIndex,dicountIndex,isAllProduce,param) 
+	local itemConfig = DiscountMallConfig[itemIndex]
+	if not itemConfig then
+		return false
+	end
+	
+	local discountConfig = itemConfig.discountTab[dicountIndex]
+	if not discountConfig then
+		return false
+	end
+	
+	if isAllProduce == true then 
+		if discountConfig.isInit and discountConfig.isInit == true then
+			return true
+		else
+			return false
+		end
+	else 
+		if discountConfig.isInit and discountConfig.isInit == true then
+			return false
+		end
+	end 
+	
+	if discountConfig.refreshCount then
+		if GetDisMallRefreshTimes(param) < discountConfig.refreshCount then
+			return false
+		end
+	end
+	
+	local totalConsumeYb = 0
+	local disMallParamRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallParamFile) 
+	if disMallParamRankPtr then
+		local ybItemPtr = Ranking.getItemPtrFromId(disMallParamRankPtr, 1)
+		if ybItemPtr then
+			totalConsumeYb = tonumber(Ranking.getSub(ybItemPtr, 0))
+		end 
+		
+		local paramItemPtr = Ranking.getItemPtrFromId(disMallParamRankPtr, itemConfig.id)
+		if paramItemPtr then
+			--local startYb = tonumber(Ranking.getSub(paramItemPtr, dicountIndex-1))
+			if GetDisMallConsumeYb(param) >= discountConfig.startYb then
+				local needYb = tonumber(Ranking.getSub(paramItemPtr, dicountIndex-1))
+			
+				if discountConfig.ybCircle and discountConfig.ybCircle > 0 then
+					if totalConsumeYb >= needYb then
+						Ranking.setSub(paramItemPtr, dicountIndex-1, needYb+discountConfig.ybCircle)
+					else
+						return false
+					end
+				end
+				return true 
+			end
+		end
+	end
+	
+	return false
+
+end
+
+--获取刷新次数 
+function GetDisMallRefreshTimes(actorid)
+	local refreshTimes = 0
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile) 
+	if disMallBuyInfoRankPtr then
+		local buyInfoItemPtr = Ranking.getItemPtrFromId(disMallBuyInfoRankPtr, actorid)
+		if buyInfoItemPtr then
+			refreshTimes = tonumber(Ranking.getSub(buyInfoItemPtr, (DiscountMallConfig.itemCount)*2+3))
+		end
+	end
+	
+	return refreshTimes
+end
+
+--获取刷新花费元宝
+function GetDisMallConsumeYb(actorid)
+	local consumeYb = 0
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile) 
+	if disMallBuyInfoRankPtr then
+		local buyInfoItemPtr = Ranking.getItemPtrFromId(disMallBuyInfoRankPtr, actorid)
+		if buyInfoItemPtr then
+			consumeYb = tonumber(Ranking.getSub(buyInfoItemPtr, (DiscountMallConfig.itemCount)*2+4))
+		end
+	end
+	
+	return consumeYb
+
+end
+
+
+--定时刷新
+function OnRefreshDiscountMall()
+	if System.getDiscountMallFlag() ~= 1 then
+		return 
+	end
+	
+	local disMallListRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallListFile)
+	if not disMallListRankPtr then
+		return 
+	end
+	
+	Ranking.clearRanking(disMallListRankPtr) 
+	ProduceMallList()
+	
+	if Ranking.getRankItemCount(disMallListRankPtr) > 0 then
+		ResetMallBuyInfo(false) 
+	end
+
+end
+
+--折扣商城零点重置处理
+function OnResetDiscountMall()
+	if System.getDiscountMallFlag() ~= 1 then
+		return 
+	end
+
+	local disMallListRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallListFile)
+	if disMallListRankPtr then
+		Ranking.clearRanking(disMallListRankPtr)  
+	end
+	
+	local disMallParamRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallParamFile)
+	if disMallParamRankPtr then
+		Ranking.clearRanking(disMallParamRankPtr)  
+	end
+	
+	--ProduceMallList()
+	InitDiscountMall()
+	
+	if Ranking.getRankItemCount(disMallListRankPtr) > 0 then
+		ResetMallBuyInfo(true) 
+	end
+	
+end
+
+--重置, isReset=false(定时刷新), isReset=true(零点重置)
+function ResetMallBuyInfo(isReset)
+	local disMallBuyInfoRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallBuyInfoFile) 
+	if not disMallBuyInfoRankPtr then
+		return 
+	end 
+	
+	local discountMallTab = GetDiscountMall()
+	if table.getn(discountMallTab) <= 0 then
+		return 
+	end
+	
+	
+	local rankCount = Ranking.getRankItemCount(disMallBuyInfoRankPtr) 
+	for i = 1, rankCount do 
+		local buyInfoItemPtr = Ranking.getItemPtrByIndex(disMallBuyInfoRankPtr, i-1)
+		if buyInfoItemPtr then 
+			
+			for j = 1, DiscountMallConfig.itemCount do 
+				Ranking.setSub(buyInfoItemPtr, j-1, discountMallTab[2*(j-1)+1])
+				Ranking.setSub(buyInfoItemPtr, j+DiscountMallConfig.itemCount-1, discountMallTab[2*j])
+			end
+			
+			if isReset == true then
+				Ranking.setSub(buyInfoItemPtr, (DiscountMallConfig.itemCount)*2, 0)
+				Ranking.setSub(buyInfoItemPtr, (DiscountMallConfig.itemCount)*2+1, 0)
+				Ranking.setSub(buyInfoItemPtr, (DiscountMallConfig.itemCount)*2+2, 1)
+				Ranking.setSub(buyInfoItemPtr, (DiscountMallConfig.itemCount)*2+3, 0)
+			end
+			
+			local actorId = Ranking.getId(buyInfoItemPtr)
+			local actorPtr = System.getEntityPtrByActorID(actorId)
+			if actorPtr then
+				SendDiscountMallInfo(actorPtr)
+			end
+			
+		end
+		
+	end
+	
+end
+
+--获取折扣商城数据
+function GetDiscountMall()
+	local discountMallTab = {}
+	local disMallListRankPtr = Ranking.getRanking(Lang.Rank.DiscountMallListFile)
+	if not disMallListRankPtr then
+		return discountMallTab
+	end	
+	
+	for k = 1, DiscountMallConfig.itemCount do 
+		local mallListItemPtr = Ranking.getItemPtrByIndex(disMallListRankPtr, k-1)
+		if mallListItemPtr then
+			local itemIndex = tonumber(Ranking.getSub(mallListItemPtr, 0))
+			local discountIndex = tonumber(Ranking.getSub(mallListItemPtr, 1))
+			local val = 0
+			val = System.setIntWord(val, itemIndex, 1)
+			val = System.setIntWord(val, discountIndex, 0)
+			local discountTab = DiscountMallConfig[itemIndex].discountTab
+			local limitCount = discountTab[discountIndex].limitCount
+			
+			table.insert(discountMallTab, val)
+			table.insert(discountMallTab, limitCount)		
+		end			
+	end
+	
+	return discountMallTab
+
+end
+
+
+--登陆处理
+function DiscountMallLoginHandle(sysarg)
+	if System.isInDateRange(unpack(DiscountMallConfig.actTime)) == true then
+		if System.getDiscountMallFlag() ~= 1 then
+			System.setOpenDiscountMall(DiscountMallConfig.actStartTime, DiscountMallConfig.actDay)
+		else
+			SendDiscountMallStat(sysarg, 1)
+		end
+	else
+		if System.getDiscountMallFlag() == 1 then
+			SendDiscountMallStat(sysarg, 1)
+		else
+			SendDiscountMallStat(sysarg, 0)
+		end
+	end
+end
+
+--新一天处理
+function DiscountNewDayArrive(sysarg)
+	--[[
+	if System.isInDateRange(unpack(DiscountMallConfig.actTime)) == true then
+		--SendDiscountMallStat(sysarg, 1)
+		
+		if System.getDiscountMallFlag() == 0 then
+			System.setOpenDiscountMall(DiscountMallConfig.actStartTime, DiscountMallConfig.actDay)
+		end
+	else
+		SendDiscountMallStat(sysarg, 0)
+	end
+	--]]
+end 
+
+--发送开启状态,1开启，0关闭
+function SendDiscountMallStat(sysarg, stat)
+	local pack = DataPack.allocPacket(sysarg, 145, 43)
+	if pack ~= nil then
+		DataPack.writeChar(pack, stat) 
+		DataPack.flush(pack)
+	end 
+end
+
+--开启折扣商城
+function OnOpenDiscountMall()
+	System.setOpenDiscountMall(DiscountMallConfig.actStartTime, DiscountMallConfig.actDay)
+end

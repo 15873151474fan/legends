@@ -1,0 +1,385 @@
+--	30级攻击装备套装						
+	{						
+		itemID = 	272,		--	易筋戒指
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	273	,		--	易筋项链
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	283	,		--	忍者戒指
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	284	,		--	忍者项链
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	294	,		--	剑士戒指
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	295	,		--	剑士项链
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	305	,		--	气宗戒指
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	306	,		--	气宗项链
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	316	,		--	司命戒指
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	317	,		--	司命项链
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1392	, bind = true },		
+		}					
+	},						
+--	30级攻击装备						
+	{						
+		itemID = 	1281	,		--	易筋武器
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	3480	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1284	,		--	易筋护腕
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1286	,		--	易筋戒指
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1287	,		--	易筋项链
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1288	,		--	易筋饰品
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1291	,		--	忍者武器
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	3480	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1295	,		--	忍者护腕
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1297	,		--	忍者戒指
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1298	,		--	忍者项链
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1299	,		--	忍者饰品
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1302	,		--	剑士武器
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	3480	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1306	,		--	剑士护腕
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1308	,		--	剑士戒指
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1309	,		--	剑士项链
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1310	,		--	剑士饰品
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1313	,		--	气宗武器
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	3480	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1317	,		--	气宗护腕
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1319	,		--	气宗戒指
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1320	,		--	气宗项链
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1321	,		--	气宗饰品
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1324	,		--	司命武器
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	3480	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1328	,		--	司命护腕
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1330	,		--	司命戒指
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1331	,		--	司命项链
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1332	,		--	司命饰品
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	30	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	1160	, bind = true },		
+		}					
+	},						

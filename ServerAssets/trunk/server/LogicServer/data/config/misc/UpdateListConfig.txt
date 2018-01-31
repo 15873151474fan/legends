@@ -1,0 +1,8 @@
+--lua script
+
+SPUpdateLists = {
+	--ÄÚ·şÓÃ
+	["*"] = Lang.UpdateTips.u000001,
+	
+
+}

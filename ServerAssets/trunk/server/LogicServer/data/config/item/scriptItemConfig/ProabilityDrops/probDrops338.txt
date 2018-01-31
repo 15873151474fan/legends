@@ -1,0 +1,5 @@
+﻿drops=
+{
+	{ group = 0, type = 0, id = 797, count = 1, bind = 1, },
+	{ group = 0, type = 0, id = 355, count = 2, bind = 1, },
+}

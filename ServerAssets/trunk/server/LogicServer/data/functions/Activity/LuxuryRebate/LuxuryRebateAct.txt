@@ -1,0 +1,29 @@
+
+--lua script 
+--#include "data\config\activityconfig\LuxuryRebate\LuxuryRebateConfig.txt" once
+--#include "data\functions\Activity\LuxuryRebate\LuxuryRebate.txt" once
+
+--scriptTimer开启活动
+function OpenLuxuryRebate()
+	System.setLuxuryRebateStartDate(LuxuryRebateConfig.actStartTime, LuxuryRebateConfig.actDay)
+end
+
+--登陆处理
+function LuxuryRebateHandle(sysarg)	
+	local remainTime = System.getLuxuryRebateRemainTime()-60
+	if System.getLuxuryRebateFlag() == 1 and remainTime > 0 then
+		SendLuxuryRebateOpenFlag(sysarg, 1)
+	else
+		if System.isInDateRange(unpack(LuxuryRebateConfig.actTime)) == true then
+			System.setLuxuryRebateStartDate(LuxuryRebateConfig.actStartTime, LuxuryRebateConfig.actDay)
+		end
+	end
+end
+
+function SendLuxuryRebateOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 85)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end

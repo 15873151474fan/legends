@@ -1,0 +1,59 @@
+
+--使用南疆谷地活动道具
+
+--#include "data\functions\Activity\NanJiangGuDi\NanJiangGuDi.txt" once    
+
+--[[
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+function UseTreasureMapFunc(sysarg, itemidx, itemPtr, itemConfig)
+	
+	if Actor.getItemCount(sysarg,itemidx) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd001, ttFlyTip)      
+		return
+    end
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.njgd002, 1), ttFlyTip)     
+		return
+	end
+	
+	SendTreasurePos(sysarg, itemPtr) 
+	
+end
+
+function UseShovelFunc(sysarg,itemidx,itemPtr,ItemTable)
+	if Actor.getItemCount(sysarg,itemidx) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd001, ttFlyTip)   
+		return
+    end
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.njgd002, 1), ttFlyTip)   
+		return
+	end
+	
+	Item.removeItemDura(sysarg, itemPtr, 1, Lang.LogTips.njgd009, 974)
+	
+	GiveUseShovelAward(sysarg) --使用南翔铁铲给奖励
+	
+end
+
+
+function NanJiangGuDiItemInit(sysarg)
+	if NanJiangGuDiConfig.treasureMapId then --南疆藏宝图 
+		GlobalItemFn[NanJiangGuDiConfig.treasureMapId] = { func = UseTreasureMapFunc}
+	end
+	
+	if NanJiangGuDiConfig.shovelId then --南翔铁铲
+		GlobalItemFn[NanJiangGuDiConfig.shovelId] = { func = UseShovelFunc} 
+	end
+	
+
+end
+
+table.insert(InitFnTable,NanJiangGuDiItemInit)

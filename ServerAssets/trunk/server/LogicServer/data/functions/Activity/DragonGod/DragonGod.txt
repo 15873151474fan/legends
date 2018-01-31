@@ -1,0 +1,246 @@
+--lua script
+
+--#include "data\config\activityconfig\Festival\LanternFestival.txt" once
+--#include "data\functions\Activity\LuxuryRebate\LuxuryRebate.txt" once --豪华返利
+--#include "data\functions\Activity\NanJiangGuDi\NanJiangGuDi.txt" once --南疆谷地
+--#include "data\functions\Activity\BossDaZhaiMen\DaZhaiMenCommon.txt" once  --boss大寨门
+
+--获取龙神信息
+function GetDragonGodInfo(sysarg, packet)
+	local opCount1 = 0
+	local opCount2 = 0
+	local opCount3 = 0
+	local totalCount1 = 0
+	local totalCount2 = 0
+	local totalCount3 = 0
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local dragonGodRankPtr = Ranking.getRanking( Lang.Rank.dragonGodName ) 
+	if dragonGodRankPtr then
+		local dragonGodItemPtr = Ranking.getItemPtrFromId(dragonGodRankPtr, actorId)
+		if dragonGodItemPtr then
+			opCount1 = tonumber(Ranking.getSub(dragonGodItemPtr, 0))
+			opCount2 = tonumber(Ranking.getSub(dragonGodItemPtr, 1))
+			opCount3 = tonumber(Ranking.getSub(dragonGodItemPtr, 2))
+		end 
+	end 
+	
+	totalCount1 = GetTotalDagronCount(sysarg, 1)
+	totalCount2 = GetTotalDagronCount(sysarg, 2)
+	totalCount3 = GetTotalDagronCount(sysarg, 3)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 31) 
+	if pack ~= nil then
+		DataPack.writeByte(pack, opCount1)
+		DataPack.writeByte(pack, opCount2)
+		DataPack.writeByte(pack, opCount3)
+		DataPack.writeByte(pack, totalCount1)
+		DataPack.writeByte(pack, totalCount2)
+		DataPack.writeByte(pack, totalCount3)
+		DataPack.flush(pack)   
+	end  
+	
+end
+
+
+--请求祭拜
+function ReqWorship(sysarg, packet)
+	local opType = DataPack.readByte(packet)
+	local ret = -1
+	local config = LanternFestivalConfig.dragonGodWorship
+	if opType < 1 or opType > table.getn(config) then
+		return 
+	end
+	
+	if Actor.checkActorLevel(sysarg, config.level, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0007,config.level), ttFlyTip)
+		return 
+	end 
+	
+	local dragonGodCfg = config[opType]
+	if Actor.checkActorLevel(sysarg, 0, dragonGodCfg.circle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0008, dragonGodCfg.circle), ttFlyTip)
+		return 
+	end 
+	
+	local totalCount = GetTotalDagronCount(sysarg, opType)
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local opCount = 0
+	local needGold = 0
+	local award = 0
+	local dragonGodRankPtr = Ranking.getRanking( Lang.Rank.dragonGodName )
+	if dragonGodRankPtr then
+		local dragonGodItemPtr = Ranking.getItemPtrFromId(dragonGodRankPtr, actorId)
+		if dragonGodItemPtr then
+			opCount = tonumber(Ranking.getSub(dragonGodItemPtr, opType-1))
+		else
+			dragonGodItemPtr = Ranking.addItem(dragonGodRankPtr, actorId, 0)
+			if dragonGodItemPtr then
+				Ranking.setSub(dragonGodItemPtr, 0, 0)
+				Ranking.setSub(dragonGodItemPtr, 1, 0)
+				Ranking.setSub(dragonGodItemPtr, 2, 0)
+			end
+		end
+		
+		if dragonGodItemPtr then
+
+				if opCount >= totalCount then
+					Actor.sendTipmsg(sysarg, Lang.Activity.yx0009, ttFlyTip)
+					return 
+				end
+		
+				local Idx = 0
+				local awardLen = table.getn(dragonGodCfg)
+				if opCount + 1 >= awardLen then
+					Idx = awardLen
+				else
+					Idx = opCount + 1
+				end
+			
+				needGold = dragonGodCfg[Idx].gold
+				if Actor.checkConsume(sysarg, 15, 0, needGold) ~= true then
+					Actor.sendTipmsg(sysarg, Lang.Activity.yx0010, ttFlyTip)
+					return 
+				end
+				award = dragonGodCfg[Idx].award
+		
+		
+			giveDragonGodAward(sysarg, opType, needGold, award, opCount + 1)
+			Ranking.setSub(dragonGodItemPtr, opType-1, opCount+1)
+			ret = 0
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 32) 
+	if pack ~= nil then
+		DataPack.writeChar(pack, ret)
+		DataPack.flush(pack)  
+	end  
+end
+
+--给龙神奖励
+function giveDragonGodAward(sysarg, awardType, needGold, award, opCount)
+	local config = LanternFestivalConfig.dragonGodWorship 
+
+	local ret = false
+	if needGold > 0 then
+		ret = Actor.changeMoney(sysarg, 3, -needGold, 944, Lang.LogTips.yx0004) 
+	else
+		ret = true
+	end
+	
+	local curValue = 0
+	local ratio = 1
+
+	if ret == true then
+		if opCount > 0 then --判断是否可获得双倍奖励 
+			local awardTab = config[awardType]
+			local rate = awardTab[opCount].rate
+			local totalRate = awardTab[opCount].totalRate
+			local randVal = math.random(1, totalRate)
+			if randVal <= rate then
+				Actor.sendTipmsg(sysarg, Lang.Activity.yx0014, ttFlyTip)
+				ratio = config.awardRatio
+				local pack = DataPack.allocPacket(sysarg, 145, 38)
+				if pack ~= nil then
+					DataPack.writeByte(pack, awardType)
+					DataPack.flush(pack)
+				end
+			end
+		end 
+		
+		award = award*ratio
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local name = Actor.getName(sysarg)
+		if awardType == 1 then --增加荣誉 
+			curValue = Actor.getIntProperty(sysarg, PROP_ACTOR_HONOUR)
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_HONOUR, curValue + award)
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0011, award), ttFlyTip) 
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0066, award), ttTipmsgWindow)
+			local curValue = Actor.getIntProperty(sysarg, PROP_ACTOR_HONOUR)
+			System.sendCommonLog(944, actorId, name, award, curValue, curValue+award, " ",Lang.LogTips.yx0014)
+		elseif awardType == 2 then --增加灵力
+			curValue = Actor.getIntProperty(sysarg, PROP_ACTOR_MAGICPOWER)
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_MAGICPOWER, curValue + award)
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0012, award), ttFlyTip)
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0067, award), ttTipmsgWindow)
+			System.sendCommonLog(944, actorId, name, award, curValue, curValue+award, " ",Lang.LogTips.yx0015)
+		elseif awardType == 3 then --增加天赋
+			Actor.changeTalentValue(sysarg, award)
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0013, award), ttFlyTip)
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0068, award), ttTipmsgWindow)
+			System.sendCommonLog(944, actorId, name, award, 0, award, " ",Lang.LogTips.yx0016)
+		end
+		
+		if award > 1 and ratio > 1 then
+			local actorName = Actor.getName(sysarg)
+			local str = ""
+			if awardType == 1 then
+				str = Lang.Activity.yx0018
+			elseif awardType == 2 then
+				str = Lang.Activity.yx0019
+			elseif awardType == 3 then
+				str = Lang.Activity.yx0020
+			end
+				
+			System.broadcastTipmsg(string.format(str, actorName, award), 2 + 128)
+		end
+	end
+	
+end 
+
+--重置数据
+function ResetDagronData()
+	local dragonGodRankPtr = Ranking.getRanking( Lang.Rank.dragonGodName ) 
+	if dragonGodRankPtr then
+		Ranking.clearRanking(dragonGodRankPtr)
+	end
+
+	--豪华返利活动0点发放奖励
+	SendMailLuxuryRebateAward()
+	
+	--重置南疆谷地数据
+	ResetNanjiangGuDiData()
+	
+	--重置boss大寨门vip免费次数
+	ResetDaZhaiMenInfo()
+end
+
+--获取每个龙神祭拜的总次数
+function GetTotalDagronCount(sysarg, opType)
+	local totalCount = 0
+	local config = LanternFestivalConfig.dragonGodWorship
+	if opType < 1 or opType > table.getn(config) then
+		return totalCount
+	end
+	
+	local dragonGodCfg = config[opType]
+	if not dragonGodCfg then
+		return totalCount
+	end
+	
+	totalCount = dragonGodCfg.limit
+	local addCountCfg = config.vipLvlAddCount[opType] 
+	if not addCountCfg then
+		return totalCount
+	end
+	local addCount = 0
+	if Actor.isVip(sysarg) == true then
+		local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+		local len = table.getn(addCountCfg)
+		if vipLevel >= addCountCfg[len].level then
+			addCount = addCountCfg[len].count
+		else
+			for k, v in ipairs(addCountCfg) do
+				if vipLevel == v.level then
+					addCount = v.count
+					break
+				end
+			end
+		end
+	end
+
+	totalCount = totalCount + addCount
+	return totalCount
+end

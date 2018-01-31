@@ -1,0 +1,92 @@
+﻿--lua script
+--#include "..\..\language\LangCode.txt" once
+
+--小秘书
+
+HappyWork =
+{
+	{	--我要升级
+		title = Lang.XiaoMiShu.name0001,		--”我要升级“的文字配置
+		desc = Lang.XiaoMiShu.desc0001,			-- 上提示标题  //////////// 新
+		tips = Lang.XiaoMiShu.tips0001,			-- 下提示标题  //////////// 新
+		content	=
+		{
+			{
+				--30-34区间的配置	
+				minLv = 30,		
+				maxLv = 35,
+	
+				context = 
+				{--具体任务
+					{
+                                                showPlace =1,          --1 表示上  2表示下 ////////// 新增的
+
+						type = 1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.XiaoMiShu.title0001,		--对应类型的活动或者副本名字
+						id = 8,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 1,				--对应的页
+						activeName = Lang.XiaoMiShu.title0001,  --对应活动或者副本名字
+						awardDesc = Lang.XiaoMiShu.item0002,	--奖励描述名字
+						star = 5,                          --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.XiaoMiShu.cao0002,	   --超链接标题
+						pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 21, y = 43, entityName = Lang.EntityName.n01083},
+						        
+							
+					},
+					{
+                                                showPlace =1,          --1 表示上  2表示下 ////////// 新增的
+
+						type = 4,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.XiaoMiShu.title0002,		--对应类型的活动或者副本名字
+						id = 8,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 1,				--对应的页
+						activeName = Lang.XiaoMiShu.title0002,  --对应活动或者副本名字
+						awardDesc = Lang.XiaoMiShu.item0002,	--奖励描述名字
+						star = 5,                          --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.XiaoMiShu.cao0001,	   --超链接标题
+						pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 21, y = 43, entityName = Lang.EntityName.n00030},
+						        
+							
+					},
+
+						{
+                                                showPlace =2,          --1 表示上  2表示下 ////////// 新增的
+
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.XiaoMiShu.title0001,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 2,				--对应的页
+						activeName = Lang.ActivityName.name00038,  --对应活动或者副本名字
+						awardDesc = Lang.XiaoMiShu.item0002,	--奖励描述名字
+						star = 5,                          --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0035,	   --超链接标题
+						pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 21, y = 43, entityName = Lang.EntityName.n00129},
+						        
+							
+					},
+					  {
+                                                showPlace =2,          --1 表示上  2表示下 ////////// 新增的
+
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.XiaoMiShu.title0001,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 2,				--对应的页
+						activeName = Lang.ActivityName.name00041,  --对应活动或者副本名字
+						awardDesc = Lang.XiaoMiShu.item0002,	--奖励描述名字
+						star = 5,                          --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0035,	   --超链接标题
+						pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 21, y = 43, entityName = Lang.EntityName.n00155},
+						        
+							
+					},
+				},
+			},
+			
+		},
+	},
+	
+}

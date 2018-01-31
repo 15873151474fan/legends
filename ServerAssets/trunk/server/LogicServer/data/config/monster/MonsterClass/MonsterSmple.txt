@@ -1,0 +1,183 @@
+﻿{
+    entityid = 0,  --怪物的ID
+    name =Lang.EntityName.m0, --怪物的名字
+    modelid = 1, --外观模型id    (整数)
+    level =3,  -- 怪物的等级
+
+    nMaxHp=100,   --最大的血
+    nMaxMp=100, --最大蓝(内力)
+	
+	dir = -1,	--怪物初始朝向 -1为随机朝向 0-7 代表 上、右上、右、右下、下、左下、左、左上
+   
+
+	nPhysicalAttackMin=1, -- 最小物理攻击
+	nPhysicalAttackMax=10, -- 最大物理攻击
+
+	nMagicAttackMin=1,	 --最小魔法攻击
+	nMagicAttackMax=4,	 --最大魔法攻击
+
+	nWizardAttackMin= 0,	--最小道术攻击
+	nWizardAttackMax=1,	--最大道术攻击
+
+	nHysicalDefenceMin=1, --最小物理防御
+	nHysicalDefenceMax=5, --最大物理防御
+
+	nMagicDefenceMin=1, --最小魔法防御
+	nMagicDefenceMax=2, --最大魔法防御
+
+	nHitrate=2,		--准确
+	 nDogerate=3,		--敏捷
+	
+	fMagicHitRate=0.1,--魔法命中
+	fMagicDogerate=0.1,--魔法闪避
+	fToxicDogerate=0.0,--毒物闪避
+
+	fHpRenew=0.0,		-- 生命恢复
+	fMpRenew =0.0,		--魔法恢复
+	fToxicRenew =0.0,   --毒物恢复
+	
+	nLuck=0,			--幸运 
+	nCurse=0,			--诅咒
+	
+	nMoveOneSlotTime=600,	--移动速度，单位ms
+	nAttackSpeed=600,		--攻击速度，单位ms
+	
+	nMaxHardLevel = 10,		--最多在基础上升多少级
+    fLevelA=1,				--计算boss升到下一等级需死亡次数系数A
+	fLevelB=2,				--计算boss升到下一等级需死亡次数系数B
+	fLevelC=3,				--计算boss升到下一等级需死亡次数系数C
+
+	fPropA=1,				--计算boss在升级后的属性加成系数A
+	fPropB=2,				--计算boss在升级后的属性加成系数B
+	fPropC=3,				--计算boss在升级后的属性加成系数C
+
+    exp  =10,       --杀死怪物的基础经验，这个和玩家的等级差有关系
+    
+    entityType=1,    -- 怪物实体类型。普通怪=1；采集怪=12
+	
+					--怪物的种族（用于图腾怪等客户端需要特殊处理的怪物，配置entityType为普通怪物，race为特别的种类）如果不配置或者为0的话，使用entityType的值，
+    race =1,        --否则的话表示怪物里的种族，方便客户端显示，比如15表示图腾怪,以及其他后面其他方便扩展的其他怪物 
+					--暂时支持类型（15:图腾怪 16:人形怪,17：玩家随从，比如马车 18：只有一个方向,不会移动的怪物 19：真正的宠物,不能被选中,不显示血条 
+					--20；建筑怪用于处理点击消息处理
+	
+	--外观配置 衣服外观用modelid 用于人形怪
+	weaponid = 0,	--武器外观ID(非人形怪时,用于aInChgPet = 132变身状态BUFF的模型)
+	swingid = 0,	--翅膀外观ID
+	
+	
+    monsterType=1,   -- 怪物类型。1为普通怪；2为精英怪 3为头目 4为boss,5为护卫
+	
+
+    reSelTargetRate = 0, -- 怪物受击时改变目标支持概率配置（百分比，0-100， 默认为0，表明一直不改）
+    aiConfigId=1,   --在AI配置表里的ID； 具体怪物是主动还是被动在ai配置文件中的aiType设定。aiconfigid=0表明是无AI
+    attackLevel=1,	-- 攻击等级，用于决定怪物被攻击的优先等级,玩家是100，等级越高的越容易被攻击，数值没有上限
+    
+    attackInterval =500, --怪物的攻击间隔，比如使用技能或者肉搏后需要间隔多长时间才能使用，默认是500
+    maxDropHp =0,  --最大的掉血量，如果为0就是没有限制按正常流程，如果配置了每次掉的血最多这个数
+	
+	dropMaxPlayers = 0,	--怪物掉落地图最大人数，超过此人数 怪物不掉落包括经验 默认0不限制
+	
+    nNearAttackRate =2500,  --普通攻击的系数,4500表示45%
+   
+    
+    bCreateRank = false,	--创建怪物是否创建排行榜 创建为true
+    dontCountConsecutiveKill=false, -- 连斩是否计数。默认false，表示怪物被杀纳入连斩计数
+    --关于掉落部分 id=0表示金钱，其他的表示物品的ID,count表示数量,quality表示装备的品质
+    --strong表示装备的强化等级,
+    --propability表示怪物平均死亡几次掉落一次该物品，如果必掉就填1，如果有1%的概率掉落，那么就填100
+    -- group表示掉落组，如果groupid=0,那么这件没有组的概念。
+    -- 如果有组的话，那么在同一个组里的物品，是按概率掉落的，比如组里1个10%掉，一个20%掉，那么产出的话一个的概率为10%，另外一个为20%
+    --如果强化和品质填负数的话，比如strong=-3，那么将产生0-3之间等概率随机的一个强化等级物品，
+    --如果count配置了0，那么将随机数量
+	--mincount最小数目
+    --maxcount最大数目，如果配置了将在这个范围随机
+     --triggerEvent 表示是否触发脚本事件，如果是需要触发事件就为true，默认是false
+     --broadType =1, 广播的类型 0:不广播 1：附近  2：场景 3：副本  4：世界 5：同阵营广播, 10:发给自己
+     --LootTime		掉落在地上不可以拾取的时间，过了这个时间才能拾取 单位秒		默认为0
+     --ExpireTime	掉落在地上的存活时间 默认为全局配置里的时间，这里是针对需要特殊处理的 单位秒
+
+    --注意，同一个组的掉落配置要紧挨着！！！！！！！！！！！！！！！
+    drops= --掉落
+    {
+       { id=0,count=100,strong =0,quality =0,propability=1, group=0,LootTime=10,ExpireTime=90},
+       { id=1,count=1,strong =0,quality =-3,propability=2,group=1,LootTime=10,ExpireTime=90},
+       { id=1,count=1,strong =-4,quality =0,propability=3,group=1,LootTime=10,ExpireTime=90},
+   },
+
+   attackMusicId =0,  --攻击声音的id，最大都是255，不要超过
+   dieMusicId =0,     --死亡声音的id
+   targetMusicId =0,   --发现目标声音的id
+   damageMusicId =0,   --伤害的声音的id
+   
+
+   nMonsterAttackMusicRate =0,  --攻击声音出现的概率，1表示百分之1，0表示用默认的概率
+   dieMusicRate =0,     --死亡声音出现的概率，1表示百分之1，0表示用默认的概率
+   targetMusicTate =0,   --发现目标声音出现的概率，1表示百分之1，0表示用默认的概率
+   damageMusicRate =0,   --被伤害声音出现的概率，1表示百分之1，0表示用默认的概率
+
+   -- 怪物攻击怪物id列表，可配置多个
+   --当配置为 InitiativeAttackMonster = true,  priorTarget={}, 时则全部怪物攻击 ，
+   --如果配置了怪物id则只攻击怪物id里的怪物
+   priorTarget={14, 12,},
+   
+
+        --怪物的颜色
+	monstercolor = {
+ 		0,255,255,255, 
+	},
+
+	flags=
+	{
+		DenyMove =false,           --不能移动
+		DenyBeMove =false,         --不能被移动，比如牢门
+		DenyAttackActor= false,    --不攻击玩家
+		DenyBeAttack=false,        --不能被攻击
+		DenyAttackedByActor=false, --不能被玩家攻击
+		CanAttackMonster= false,   --能够攻击怪物
+		DenyBeTaunt =false,        --不能被嘲讽
+		DenyAutoAddHp= false,      --不能自动添加HP
+		DenyAutoAddMp =false,      --不能自动添加MP
+		CanSceneTelport =false,    --能跨场景传送
+		CanSeeHideActor =false,    --能看到隐身的玩家
+		DenyDieSubExp =false,      --不进行经验衰减(算经验的时候一般考虑等级差，如果=true不考虑等级差)	
+		DenyUseNearAttack =false,  --不使用肉搏技能，默认的是使用肉搏，如果不使用肉搏就配置为true	
+		DenyDizzyBuff =false,      --不能添加晕眩的buff
+		DenyMoveForbidBuff =false, --不能添加定身的Buff
+		DenyInnnerSkillForbidBuff =false,  --不能添加封的buff
+		DenyOutSkillForbidBuff =false,     --不能添加断的buff
+		DenyMoveSpeedSlowBuff  =false,    --能否添加减速的buff
+		DenySee  =false,           --不能被看到 
+
+		DenyShowMasterName =false,    --拒绝显示主人的名字，用于帮派的boss，虽然是玩家召唤出来的，但是不显示主人的名字
+		CanDropCoinGround=false,              --掉落金币在地上就配置true，默认的是掉落金币进包裹
+		CanAllLootItem=false,             --所有的人都能拾取这个怪物掉落的物品
+		CanGrowUp=false,              --能够成长，boss能够成长的话那么死亡次数越高的时候，属性越好
+		DenyInitiativeAttackActor=false, -- 主动怪是否不主动攻击玩家，默认是主动攻击玩家
+		AttackKiller=false,		--主动攻击红名玩家  配置 AttackKiller和AttackPet属性时将主动怪配置DenyInitiativeAttackActor=true
+		AttackPet=false,			--主动攻击道士宠物
+		ShowNameByNumber=false;		--怪物最后能显示为数字，默认不可以
+		DenyDropItemGround=false,          --掉的物品不掉在地上，如果配了true，物品只能在背包里掉
+		BeAttackStillMove=false,			--被攻击继续寻路 针对自动寻路的怪物 如行会镖车
+		CanAlwaysEnter=false,			--怪物不管什么情况，都能进入场景
+		DenyGather =false,           --拒绝被采集，用于采集怪
+		BeAttackNeedUseSkill=false,		--被攻击需要释放技能
+		DropForKiller=false,              --掉落的物品只有杀死他的人才能拾取，其他的人无权拾取
+		IdleUseSkill =false,              --空闲的时候也使用技能，一些怪物需要拉怪的配置这个为true
+		NeedSaveToLog = false,				--是否需要保存到统计后台 默认为false
+		PetNoAttact = false,				--宠物不攻击
+		DenyAddNumber = false,				--人数超过1千的时候不自动增加个数
+		DenyShowName = false,				--不显示名称
+		BeAttackBrownName = false,			--怪物被攻击攻击者褐名
+		DenyBeBreakGuard = false,			--怪物无视破防
+		AttackWarChariot = false,			--只攻击战车
+		BeAttackWarCharriot = false,		--能被战车攻击
+		InitiativeAttackMonster = false,	--支持主动怪主动攻击怪物（要与CanAttackMonster=true共用）
+
+		DenyToxic = false,			--不能对其放毒
+		FirstFireDamage = false,		--只接受火墙的第一次伤害
+		DenyDropHp = false,			--被攻击不掉血
+		
+	},
+--#include "..\talk\M0000.txt"
+
+},

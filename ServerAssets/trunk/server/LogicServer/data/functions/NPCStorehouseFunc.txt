@@ -1,0 +1,84 @@
+﻿--lua script
+--Do something about NPC store house
+
+local ADDTICK = 2592000  --一次扩展增加的时间 30日 * 86400 sec
+local NEEDYUANBAO = 88   --一次扩展所需元宝 默认非绑定
+
+--#include "data\language\LangCode.txt" once
+
+function OnStorage_Main(sysarg)
+	
+	local str = Lang.Talk.t00008
+	return str
+end
+
+function ShowStorageWin(sysarg)
+	if Actor.getDepotLockState(sysarg) == 2 then
+		Actor.openDialogs(sysarg, 102)
+	else
+		Actor.openDialogs(sysarg, 101)
+	end
+	Actor.closeNPCDialog(sysarg)
+end
+
+function openStoreHouseDailog(sysarg)
+     return Lang.Talk.t02457
+end
+
+--租用前准备
+function extendReady( sysarg, id )
+  return Lang.Talk.t02464..string.format( Lang.Talk.t02458, id )
+end
+function closeWindowFunc(sysarg)
+
+end
+--租用询问
+function extendQuery( sysarg, id, yuanbao )
+  --print("id and yuanbao:"..id..yuanbao)
+  local title = string.format(Lang.Misc.m000153, yuanbao, id)
+  local sbt1 = Lang.Misc.m000154.."/extendStoreHouse,"..id..","..yuanbao
+  local sbt2 = Lang.Misc.m000155.."/closeWindowFunc"
+  local queryresult = Actor.messageBox( sysarg, Actor.getNpc(sysarg), 0, title, sbt1, sbt2, "" )
+  Actor.closeNPCDialog(sysarg)
+end
+  
+--扩展NPC仓库
+function extendStoreHouse( sysarg, id, yuanbao )
+  local shid = tonumber(id)  --要扩展的仓库ID
+  --print("shid :"..shid)
+  local needyuanbao = tonumber(yuanbao)  --所需元宝
+  --local shdata = getActorData( sysarg, 135 )  --玩家仓库扩展数据
+  if ( Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO ) < needyuanbao ) then
+	--print("---NPC storehouse extend lack yuan bao.")
+	Actor.sendTipmsg(sysarg,Lang.ScriptTips.n00005,ttDialog)
+	return
+  end
+  --设置存储中的过期时刻 例如当前起30天后过期 那么存储的就是当前起30天后的一刻
+  --如果存储的已经超过当前时刻 那么再给他增加30天的分量
+  local nowtick = System.getCurrMiniTime()
+
+  --local addtick = ADDTICK
+  --local expiredtime = Item.getDepotExpiredTime( sysarg, shid )
+  --if ( expiredtime > nowtick ) then addtick = expiredtime + ADDTICK end
+  --local isextend = Item.changeDepotExpiredTime( sysarg, shid, ADDTICK )
+  local isextend = Item.changeDepotExpiredTime( sysarg, shid, ADDTICK )
+	--print(type(isextend))
+  --setActorData( sysarg, 135, shdata )
+  --支付元宝
+  local result = Actor.changeMoney( sysarg, mtYuanbao, -needyuanbao ,124,Lang.LogTips.l00040)
+  --135 NPC仓库扩展子系统 2
+  local npack = DataPack.allocPacket(sysarg,135,1)  --申请一个数据包
+  if (npack == nil) then
+	--print("npack:nil")
+	return
+  end
+  if isextend == true then
+  DataPack.writeByte(npack,1)
+  else 
+  DataPack.writeByte(npack,0)
+  end
+  DataPack.flush(npack)
+  --Actor.sendTipmsgWithId( sysarg, t )
+end
+
+--table.insert(MainFnTable, OnStorage_Main)

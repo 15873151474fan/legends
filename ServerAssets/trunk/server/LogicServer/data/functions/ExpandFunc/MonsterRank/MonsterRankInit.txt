@@ -1,0 +1,61 @@
+﻿--lua script
+--怪物排行榜 排行榜名单初始化
+
+--[[
+	去除析构排行榜，防止刷新脚本时撤销排行榜指针 造成C++里的Monster类的成员变量排行榜指针悬空。
+	此怪物排行榜初始化脚本因去除了引用计数，因此只能挂于单个NPC脚本上
+	不能挂于多个NPC脚本 只能通过 Ranking.getRanking(RankName)获取排行对象
+--]]
+
+--#include "MonsterRankPoint.txt" once --怪物排行榜指针
+
+function MonsterRanking_Init(npcobj)
+	for i=1, table.getn(MonsterRankId) do
+		--每场排行榜
+		local RankName = string.format(MonsterRankPattern, MonsterRankId[i])	--注册的怪物排行榜名称  名字要与服务端 Monster类的RegisterMonsterRank 对应
+		local RankNameList = Ranking.getRanking(RankName) --通过排行名称获取排行对象
+		if RankNameList == nil then  --没有排行对象则创建并加载数据
+			 RankNameList = Ranking.add(RankName,1000,0)	--创建排行榜
+			 --加载排行榜，如果加载失败则表示没有此数据，此时进行标题初始化
+			 if RankNameList ~= nil then
+				 local isLoad = Ranking.load(RankNameList,RankName)                --读取文件内容	--这里的 排行榜名称跟保存的文件使用同个文件
+				 if isLoad == false then
+					 Ranking.addColumn(RankNameList,"column0") --添加一个标题列 
+					 Ranking.addColumn(RankNameList,"column1") --添加一个标题列 
+					 Ranking.addColumn(RankNameList,"column2") --添加一个标题列 
+					 Ranking.addColumn(RankNameList,"column3") --添加一个标题列 
+					 Ranking.addColumn(RankNameList,"column4") --添加一个标题列 
+					 Ranking.addColumn(RankNameList,"column5") --添加一个标题列 
+					 Ranking.addColumn(RankNameList,"column6") --添加一个标题列
+					 Ranking.addColumn(RankNameList,"column7") --添加一个标题列 
+				 end
+			 end
+		end
+		--Ranking.addRef(RankNameList) --增加对此排行对象的引用计数	
+		
+	end
+end
+
+function MonsterRanking_Fina(npcobj)
+	for i=1, table.getn(MonsterRankId) do
+		--每场排行榜
+		local RankName = string.format(MonsterRankPattern, MonsterRankId[i])
+		local RankNameList = Ranking.getRanking(RankName) --通过排行名称获取排行对象
+		if RankNameList ~= nil then
+			--print(string.format("TIPS: Save MonsterRanking ... id = %d ", MonsterRankId[i]))
+			--ranking = nil
+			Ranking.save(RankNameList,RankName)       --保存排行榜进文件
+			--[[	--去除析构排行榜，防止刷新脚本时撤销排行榜指针 造成C++里的Monster类的成员变量排行榜指针悬空。
+			if Ranking.getRef(RankNameList) == 1 then
+				Ranking.removeRanking(RankName) 	      --如果引用计数减少至0，则对象自动被销毁
+			else
+				Ranking.release(RankNameList)			      --减少引用计数
+			end
+			--]]
+		end
+		RankNameList = nil
+	end
+end
+
+table.insert(InitFnTable,MonsterRanking_Init)
+table.insert(FinaFnTable,MonsterRanking_Fina)

@@ -1,0 +1,50 @@
+﻿--lua script
+--这里定义活动的主要业务逻辑相关的函数
+--
+--#include "data\functions\GlobalDefine.txt" once
+
+
+local GemSystemImpl = {}
+
+--[[
+    注册宝物子系统消息处理函数，函数的形式为function (sysarg, msgid, packet)
+]]
+GemSystemImpl.registerMsgHandler = function (msgid, proc)
+  if GemSystemImpl[msgid] then
+    return false
+  else
+    GemSystemImpl[msgid] = proc
+    return true
+  end
+end
+
+--[[
+    取消已注册的宝物子系统消息处理函数
+]]
+GemSystemImpl.unregisterMsgHandler = function (msgid, proc)
+  if GemSystemImpl[msgid] == proc then
+    GemSystemImpl[msgid] = nil
+    return true
+  else
+    return false
+  end
+end 
+
+
+GemSystemImpl.main = function (sysarg, systemid, msgid, packet)
+	if GemSystemImpl[msgid] then
+    GemSystemImpl[msgid](sysarg, msgid, packet)
+  end
+end
+
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.gemSystem, GemSystemImpl.main)
+
+--#include "GemUpGrade.txt" once
+--#include "GemRefineSpriteChar.txt" once
+--#include "GemRefineQuality.txt" once
+--#include "GemOpenHole.txt" once
+--#include "GemOpenSuitHole.txt" once
+--#include "GemComposeHandler.txt" once
+--#include "GemSmith.txt" once
+--#include "GemUpSS.txt" once

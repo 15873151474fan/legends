@@ -1,0 +1,65 @@
+--镖车换模型
+{
+
+	actions=
+	{
+		--{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s19L1Desc,--技能的描述
+	
+	iconID=19,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		
+	{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},	
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=45,id=272,rate=0,value=0,delay=0},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=26,keepTime=400,delay=0,always=true},					
+					},
+				},
+			},
+		},
+
+
+
+	
+	},
+
+	trainConds=
+	{
+		
+	},
+	
+	spellConds=
+	{
+
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

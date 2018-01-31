@@ -1,0 +1,6 @@
+﻿--跨服数据包ID
+CsPacketId = 
+{
+	csBossEnterFlag = 1,	--跨服BOSS进入标志
+
+}

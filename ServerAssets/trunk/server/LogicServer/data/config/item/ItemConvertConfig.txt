@@ -1,0 +1,23 @@
+
+
+-- convertType
+LingZhuUnpack = 0;
+
+ItemConvertConfig = {
+	-- 灵珠分解
+	[LingZhuUnpack] = {
+		needCoin = 10000;
+		debitedCoinFailed = Lang.ScriptTips.lz000007; 
+		-- 对白
+		description = Lang.ScriptTips.lz000002;
+		-- 选项菜单
+		["OptionsMenu"] = {
+			-- 源物品ID，目标物品ID，srcCount个源物品转换为destCount个目标物品
+			{srcId = 1402, destId = 283, srcCount = 1, destCount = 3, opt = Lang.ScriptTips.lz000003},			
+			{srcId = 283,  destId = 282, srcCount = 1, destCount = 3, opt = Lang.ScriptTips.lz000004},
+			{srcId = 282,  destId = 281, srcCount = 1, destCount = 3, opt = Lang.ScriptTips.lz000005},
+			{srcId = 281,  destId = 280, srcCount = 1, destCount = 3, opt = Lang.ScriptTips.lz000006},
+		};
+	},
+	
+};

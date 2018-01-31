@@ -1,0 +1,86 @@
+﻿--#include "data\config\activityconfig\fire.txt" once
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+--[[
+    函数名称：篝火
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function GouFire_Main(sysarg)
+  --获取排行榜指针
+  local pRank = Ranking.getRanking(FireRankPt.RankName)
+  if not pRank then return end
+  local ActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local pItems = Ranking.getItemPtrFromId(pRank, ActorId)
+  if pItems == nil then
+     pItems = Ranking.addItem(pRank,ActorId,0)
+  end
+  local Point = Ranking.getPoint(pItems) 
+  local Tb = ActFireConfig.Exp 
+  local Exp = Actor.getActivityExp(sysarg, Tb.id, Tb.count, 0)
+  local MacPoint = ActFireConfig.MaxTime
+  local str1 = string.format(Lang.Activity.w00176, Point, Exp)
+  local str2 = string.format(Lang.Activity.w00179, MacPoint)
+  local Str = ""
+  Str = Str.."\\"..str1 .. "\\".. str2 
+  Str = Str.."\\<#BL".."投入火柴".."/@OnEnterHuoChai>"  --<投入火柴>
+  --print("GouFire_Main:"..Str)
+  return Str
+end
+
+--投入火柴 
+function OnEnterHuoChai(sysarg)
+  local dVal = System.getDyanmicVar()
+  if dVal.StartFireFlag == nil then
+	dVal.StartFireFlag = 0 --篝火开启标志
+  end
+  if dVal.StartFireFlag == 0 then
+     Actor.sendTipmsg(sysarg,Lang.Activity.w00177,ttFlyTip)
+     return
+  end
+  local pRank = Ranking.getRanking(FireRankPt.RankName)
+  if not pRank then return end
+  local ActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local pItems = Ranking.getItemPtrFromId(pRank, ActorId)
+  if pItems == nil then
+     pItems = Ranking.addItem(pRank,ActorId,0)
+  end
+  local Point = Ranking.getPoint(pItems)
+  local MacPoint = ActFireConfig.MaxTime
+  --print("OnEnterHuoChai")
+  if Point >= MacPoint then
+     Actor.sendTipmsg(sysarg,Lang.Activity.w00178,ttFlyTip)
+     return
+  end 
+  --print("OnEnterHuoChai")
+  local itemCount = Actor.getItemCount(sysarg, ActFireConfig.FireItemId)
+  if itemCount <= 0 then
+     Actor.sendTipmsg(sysarg,Lang.Activity.w00180,ttFlyTip)
+     return
+  end
+  --print("OnEnterHuoChai")
+  Ranking.updateItem(pRank, ActorId, 1)
+  Actor.removeItem(sysarg, ActFireConfig.FireItemId, 1, -1, -1, -1, string.format(Lang.LogTips.l00163,Item.getItemName(ActFireConfig.FireItemId)), 92)
+  local Tb = ActFireConfig.Exp
+  Actor.giveAward(sysarg,Tb.type, Tb.id, Tb.count,0,0,0,0,995,"GouHuo of Exp")
+  return GouFire_Main(sysarg)
+  --Itemgeti 
+
+end
+
+function FireRanking_Init(npcobj)
+    --print("FireRanking")
+	local config = FireRankPt
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function FireRanking_Fina(npcobj)
+    --print("FireRanking_Fina")
+	local config = FireRankPt
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+end
+
+table.insert(InitFnTable,FireRanking_Init)
+table.insert(FinaFnTable,FireRanking_Fina)
+table.insert(MainFnTable, GouFire_Main)

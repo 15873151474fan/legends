@@ -1,0 +1,844 @@
+--天道酬勤
+
+LaborConfig = 
+{
+	limitCircle = 0,
+	limitLevel = 50,
+	maxWorkCount = 4,	--最大劳动数
+	
+	--刷新消耗
+	refreshConsumes =
+	{
+		{type = 15,count = 10},
+	},
+
+	--加速完成消耗(1分钟)
+	fastFinishConsumes =
+	{
+		{type = 15,count = 0.5},
+	},
+
+	--工作(1:挖矿 2:采药 3:打造 4:运货 5:耕耘 6:搬砖)
+	works =
+	{
+		{
+			--挖矿
+			id = 1,
+
+			rate = 1000,		--刷新工作出现此工作的概率
+			workTime = 28800,	--工作时间
+
+			--完成奖励
+			--isRarity = true 表示珍贵物品需要全服广播, false表示不用
+			finishAwards =
+			{
+				{
+					id = 1,
+					rate = 10,
+
+					awards =
+					{
+{type=0, id=781, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},				
+				{
+					id = 2,
+					rate = 10,
+
+					awards =
+					{
+{type=0, id=791, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 3,
+					rate = 10,
+
+					awards =
+					{
+{type=0, id=801, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 4,
+					rate = 10,
+
+					awards =
+					{
+{type=0, id=811, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 5,
+					rate = 80,
+
+					awards =
+					{
+{type=0, id=750, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 6,
+					rate = 80,
+
+					awards =
+					{
+{type=0, id=760, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 7,
+					rate = 80,
+
+					awards =
+					{
+{type=0, id=770, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 8,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=780, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 9,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=790, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 10,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=800, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 11,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=810, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 12,
+					rate = 400,
+
+					awards =
+					{
+{type=0, id=749, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 13,
+					rate = 400,
+
+					awards =
+					{
+{type=0, id=759, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 14,
+					rate = 400,
+
+					awards =
+					{
+{type=0, id=769, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 15,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=779, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 16,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=789, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 17,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=799, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 18,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=809, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 19,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=748, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 20,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=758, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 21,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=768, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+			},
+		},
+		{
+			--采药
+			id = 2,
+
+			rate = 3000,		--刷新工作出现此工作的概率
+			workTime = 10800,	--工作时间
+
+			--完成奖励
+			--isRarity = true 表示珍贵物品需要全服广播, false表示不用
+			finishAwards =
+			{
+				{
+					id = 1,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=2291, count=9, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},				
+				{
+					id = 2,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=1073, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 3,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=1075, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 4,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=1987, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 5,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=1022, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 6,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=2873, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 7,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=2872, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 8,
+					rate = 350,
+
+					awards =
+					{
+{type=0, id=3183, count=3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 9,
+					rate = 350,
+
+					awards =
+					{
+{type=0, id=3186, count=3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 10,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=3189, count=3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 11,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=1853, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 12,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=1854, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 13,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=1855, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 14,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=1047, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+			},		
+			
+		},
+		{
+			--打造
+			id = 3,
+
+			rate = 1000,		--刷新工作出现此工作的概率
+			workTime = 28800,	--工作时间
+
+			--完成奖励
+			--isRarity = true 表示珍贵物品需要全服广播, false表示不用
+			finishAwards =
+			{
+				{
+					id = 1,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=3450, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},				
+				{
+					id = 2,
+					rate = 1000,
+
+					awards =
+					{
+{type=0, id=2949, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 3,
+					rate = 1000,
+
+					awards =
+					{
+{type=0, id=2258, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 4,
+					rate = 1000,
+
+					awards =
+					{
+{type=0, id=1175, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 5,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=3247, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 6,
+					rate = 1000,
+
+					awards =
+					{
+{type=0, id=260 , count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 7,
+					rate = 350,
+
+					awards =
+					{
+{type=0, id=261 , count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 8,
+					rate = 10,
+
+					awards =
+					{
+{type=0, id=3299, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 9,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=1721, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 10,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=1426, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+			},
+		},
+		{
+			--运货
+			id = 4,
+
+			rate = 2000,		--刷新工作出现此工作的概率
+			workTime = 21600,	--工作时间
+
+			--完成奖励
+			--isRarity = true 表示珍贵物品需要全服广播, false表示不用
+			finishAwards =
+			{
+				{
+					id = 1,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=2136, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},				
+				{
+					id = 2,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=1991, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 3,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=2916, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 4,
+					rate = 50,
+
+					awards =
+					{
+{type=0, id=920 , count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 5,
+					rate = 400,
+
+					awards =
+					{
+{type=0, id=1031, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 6,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=918 , count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 7,
+					rate = 250,
+
+					awards =
+					{
+{type=0, id=2910, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 8,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=664 , count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 9,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=2982, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 10,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=2986, count=5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+			},		
+		},
+		{
+			--耕耘
+			id = 5,
+
+			rate = 500,		--刷新工作出现此工作的概率
+			workTime = 43200,	--工作时间
+
+			--完成奖励
+			--isRarity = true 表示珍贵物品需要全服广播, false表示不用
+			finishAwards =
+			{
+				{
+					id = 1,
+					rate = 1000,
+
+					awards =
+					{
+{type=0, id=2910, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},				
+				{
+					id = 2,
+					rate = 1000,
+
+					awards =
+					{
+{type=0, id=3450, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 3,
+					rate = 1200,
+
+					awards =
+					{
+{type=0, id=3099, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 4,
+					rate = 1200,
+
+					awards =
+					{
+{type=0, id=2747, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 5,
+					rate = 100,
+
+					awards =
+					{
+{type=0, id=3191, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 6,
+					rate = 500,
+
+					awards =
+					{
+						{type=0, id=2258, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+{type=0, id=920 , count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 7,
+					rate = 100,
+
+					awards =
+					{
+{type=0, id=729 , count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 8,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=549 , count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 9,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=550 , count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 10,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=551 , count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 11,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=453 , count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 12,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=454 , count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = true},
+					},
+				},
+				{
+					id = 13,
+					rate = 200,
+
+					awards =
+					{
+{type=0, id=455 , count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = true},
+					},
+				},
+			},
+		},
+		{
+			--搬砖
+			id = 6,
+
+			rate = 2500,		--刷新工作出现此工作的概率
+			workTime = 10800,	--工作时间
+
+			--完成奖励
+			--isRarity = true 表示珍贵物品需要全服广播, false表示不用
+			finishAwards =
+			{
+				{
+					id = 1,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=1371, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},				
+				{
+					id = 2,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=663 , count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 3,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=731 , count=5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 4,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=3231, count=5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 5,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=1990, count=5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 6,
+					rate = 800,
+
+					awards =
+					{
+						{type=0, id=2258, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+{type=0, id=2111, count=5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 7,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=3232, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 8,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=3370, count=3, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 9,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=3354, count=3, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 10,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=2627, count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 11,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=2603, count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 12,
+					rate = 500,
+
+					awards =
+					{
+{type=0, id=2895, count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 13,
+					rate = 800,
+
+					awards =
+					{
+{type=0, id=2984, count=5, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = false},
+					},
+				},
+				{
+					id = 14,
+					rate = 300,
+
+					awards =
+					{
+{type=0, id=1756, count=1, strong = 0, quality = 0, bind = 0, job = -1, sex = -1, isRarity = false},
+					},
+				},
+			},
+		},
+	},
+}

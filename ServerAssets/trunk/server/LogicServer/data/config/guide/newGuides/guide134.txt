@@ -1,0 +1,142 @@
+﻿--上古武灵镶嵌晶石的指引
+{
+  maxLevel = 60,
+  --触发条件
+	triggerList =
+	{
+		{ type = 5, valueList = {0,60,}},      --等级等于
+        { type = 6, valueList = {2,}},                   --职业为法师
+	} ,
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步  指向打开上古武灵
+    {
+      condList =
+      {
+                { type = 2, helpId = 222, dataList = {0,} },   --武灵窗口不可见
+                { type = 1,  helpId = 214, dataList = {0,} },    --上古武灵图标按钮可见
+                { type = 50, helpId = 0, dataList = {0,} },    --没有领取过武灵
+      },
+
+      --执行指向上古武灵图标按钮
+      action = { type = 1, helpId = 214, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc107 },
+    }, 
+
+    --第2步  指向领取武灵
+    {
+      condList =
+      {
+                { type = 1, helpId = 222, dataList = {0,} },   --武灵窗口可见
+                { type = 3,  helpId = 215, dataList = {1,} },		--武灵导航栏选中第1项
+                { type = 14, helpId = 0, dataList = {932,933,935,} },  --背包不存在物品
+                { type = 50, helpId = 0, dataList = {0,} },    --没有领取过武灵
+      },
+
+      --执行指向领取武灵
+      action = { type = 1, helpId = 223, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc108 },
+    },
+
+    --第3步 指向武灵觉醒项
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },		--上古武灵面板可见
+				{ type = 4,  helpId = 215, dataList = {2,} },		--武灵导航栏没选中第二项
+				{ type = 13,  helpId = 0, dataList = {932,933,935,} },    --身上有这些物品
+      },
+
+      --指向武灵觉醒项
+      action = { type = 2, helpId = 215, data = 2, pointerValue = 1, desc = Lang.GuideLang.desc96 },
+    },
+
+    --第4步 指向镶嵌第一颗石头
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },		--上古武灵面板可见
+				{ type = 3,  helpId = 215, dataList = {2,} },		--武灵导航栏选中第二项
+				{ type = 13,  helpId = 0, dataList = {932,933,935,} },    --身上有这些物品
+				{ type = 10,  helpId = 218, dataList = {0,} },      --1号孔没有sell数据
+                { type = 10,  helpId = 219, dataList = {0,} },      --2号孔没有sell数据
+                { type = 10,  helpId = 220, dataList = {0,} },      --3号孔没有sell数据
+      },
+
+      --指向晶石列表930物品
+      action = { type = 10, helpId = 216, data = {932,}, pointerValue = 1, desc = Lang.GuideLang.desc97 },
+    },
+
+    --第5步 指向镶嵌第二颗石头
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },		--上古武灵面板可见
+				{ type = 3,  helpId = 215, dataList = {2,} },		--武灵导航栏选中第二项
+				{ type = 13,  helpId = 0, dataList = {933,935,} },    --身上有这些物品
+				{ type = 9,  helpId = 218, dataList = {0,} },      --1号孔有sell数据
+                { type = 10,  helpId = 219, dataList = {0,} },      --2号孔没有sell数据
+                { type = 10,  helpId = 220, dataList = {0,} },      --3号孔没有sell数据
+      },
+
+      --指向晶石列表931物品
+      action = { type = 10, helpId = 216, data = {933,}, pointerValue = 1, desc = Lang.GuideLang.desc97 },
+    },
+
+    --第6步 指向镶嵌第三颗石头
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },		--上古武灵面板可见
+				{ type = 3,  helpId = 215, dataList = {2,} },		--武灵导航栏选中第二项
+				{ type = 13,  helpId = 0, dataList = {935,} },    --身上有这些物品
+				{ type = 9,  helpId = 218, dataList = {0,} },      --1号孔有sell数据
+                { type = 9,  helpId = 219, dataList = {0,} },      --2号孔有sell数据
+                { type = 10,  helpId = 220, dataList = {0,} },      --3号孔没有sell数据
+      },
+
+      --指向晶石列表935物品
+      action = { type = 10, helpId = 216, data = {935,}, pointerValue = 1, desc = Lang.GuideLang.desc97 },
+    },
+
+    --[[第6步 指向技能图鉴
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },    --上古武灵窗口可见
+                { type = 4,  helpId = 215, dataList = {4,} },		--武灵导航栏没选中第4项
+                { type = 3,  helpId = 215, dataList = {2,} },		--武灵导航栏选中第2项
+                { type = 14,  helpId = 0, dataList = {932,933,935,} },    --身上没有这些物品
+      },
+
+      action = { type = 2, helpId = 215, data = 4, pointerValue = 1, desc = Lang.GuideLang.desc104 },  --指向技能图鉴
+    }, ]]
+
+    --第7步 指向关闭
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },    --上古武灵窗口可见
+				{ type = 3,  helpId = 215, dataList = {2,} },		--武灵导航栏选中第四项
+                { type = 14,  helpId = 0, dataList = {932,933,935,} },    --身上没有这些物品
+                { type = 9,  helpId = 218, dataList = {0,} },      --1号孔有sell数据
+                { type = 9,  helpId = 219, dataList = {0,} },      --2号孔有sell数据
+                { type = 9,  helpId = 220, dataList = {0,} },      --3号孔有sell数据
+      },
+
+      action = { type = 1, helpId = 217, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc9 },  --指向关闭
+    },
+
+    --第10步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 222, dataList = {0,} },    --上古武灵窗口不可见
+      },
+
+      --无内容
+      action = { type = 0, helpId = 8050, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

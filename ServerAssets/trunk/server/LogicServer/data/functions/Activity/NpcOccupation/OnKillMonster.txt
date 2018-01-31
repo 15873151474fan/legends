@@ -1,0 +1,37 @@
+﻿
+--#include "NpcOccupation.txt" once
+--#include "data\config\activityconfig\NpcOccupation\NpcOccupationConfig.txt" once	--
+
+--击杀水晶怪物
+function MonDieDispatcher.OnKillCrystalMonster(pMonster, pKiller, monId)
+	OnKillCrystalMonster(pMonster, pKiller, monId)
+end
+
+--击杀BOSS怪物
+function MonDieDispatcher.OnKillNpcBossMonster(pMonster, pKiller, monId)
+	OnKillNpcBossMonster(pMonster, pKiller, monId)
+end
+
+--注册NPC占领怪物
+function RegisterCrystalMonsters()
+	local config = NpcOccupationConfig
+	if (not config) then
+		return
+	end
+
+	for k, city in ipairs(config.city or {}) do
+		--注册水晶怪
+		for j, monster in ipairs(city.crystalMonsters or {}) do
+			--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.OnKillCrystalMonster)
+		end
+		
+		--注册BOSS怪
+		for j, boss in ipairs(city.bossMonsters or {}) do
+			for i, monster in ipairs(boss or {}) do
+				--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.OnKillNpcBossMonster)
+			end
+		end
+	end
+end
+
+RegisterCrystalMonsters()

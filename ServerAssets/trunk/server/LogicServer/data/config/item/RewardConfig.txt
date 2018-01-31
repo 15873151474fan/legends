@@ -1,0 +1,954 @@
+--奖励配置表
+--当前开奖励需求不大的时候把这个模块独立出来可便于扩展
+--奖励行为将会是个量非常大的需求 开物品不仅开金钱物品 还可能开出其它点数奖励
+--从扩展性和可维护性的角度看 有必要把这个配置独立出来
+--rewardtype	奖励类型 1 物品 2 金钱 ... 其余可自定义
+--[[
+	 --奖励类型--
+	//物品或者装备	rewardtype: 1
+	//修为	rewardtype: 5
+	//角色经验值	rewardtype: 6
+	//帮派贡献值	rewardtype: 3
+	//阵营贡献	rewardtype: 4
+	//绑定银两 rewardtype: 2
+	//银两	rewardtype: 2
+	//绑定元宝	rewardtype: 2
+	//称谓	rewardtype: 8	itemid: 称号ID
+	//技能	rewardtype: 9	itemid：技能ID  amount：技能等级	
+	//战魂	rewardtype: 10	
+	//成就点	rewardtype: 11 
+	//声望	rewardtype: 12
+--]]
+--type		奖励内容的类型  目前只用作金钱类型
+--amount	奖励数量 物品数量  或者  金额
+--itemid	奖励的物品数量  如果奖励monster的话还可以用作monster id
+--奖励ID	目前对应NormalItemDatas的PresentItems的rewardsID 可扩展为机动配置索引
+
+RewardConfig = {
+-- 奖励ID 1
+--1：剑宗、2：气宗、3：灵华、4：司命、5：易筋、6：洗髓、7：剑士、8：忍者 
+     { 
+       { rewardtype = 1, type = 0, amount = 1, itemid = 1444, job = 0, quality=0, strong=0, bind=1 }, 		
+     },
+-- 奖励ID 2
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1445, quality=0, strong=0, bind=1 },
+	        { rewardtype = 1, type = 0, amount = 1, itemid = 612, quality=0, strong=0, bind=1  },
+	        { rewardtype = 1, type = 0, amount = 1, itemid = 615, quality=0, strong=0, bind=1  },
+	        { rewardtype = 1, type = 0, amount = 20, itemid = 1559, quality=0, strong=0, bind=1  },
+
+        },
+
+},
+-- 奖励ID 3 5级礼包
+  { 
+        {
+		  job = 0,
+		  sex = 2,
+	        { rewardtype = 2, type = 0, amount = 1000},
+                { rewardtype = 1, type = 0, amount = 6, itemid = 1559, quality=0, strong=0, bind=1  },
+                { rewardtype = 2, type = 2,amount = 20},
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1447, quality=0, strong=0, bind=1  },
+        },
+
+    },
+-- 奖励ID 4  10级礼包
+  {  
+        {
+		  job = 0,
+		  sex = 2,
+	         { rewardtype = 2, type = 0, amount = 2000},
+		 { rewardtype = 1, type = 0, amount = 2, itemid = 1559, quality=0, strong=0, bind=1  },
+		 { rewardtype = 1, type = 0, amount = 1, itemid = 1447, quality=0, strong=0, bind=1  },
+	},
+
+  },
+-- 奖励ID 5  15级礼包
+  {  
+        {
+	          job = 0,
+		  sex = 2,
+		  { rewardtype = 1, type = 0, amount = 8, itemid = 1559, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1442, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1002, quality=0, strong=0, bind=1  },
+		  { rewardtype = 2, type = 2,amount = 30},
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1449, quality=0, strong=0, bind=1  },
+	},
+
+  },
+  -- 奖励ID 6  20级礼包
+  {  
+        {
+	          job = 0,
+		  sex = 2, 
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1559, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1002, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1449, quality=0, strong=0, bind=1  },
+	},
+
+  },
+-- 奖励ID 7   25级礼包
+  {
+        {  
+	          job = 0,
+	     	  sex = 2,
+		  { rewardtype = 2, type = 0, amount = 10000},
+		  { rewardtype = 2, type = 2,amount = 40},
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1442, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1002, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 10, itemid = 1559, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1451, quality=0, strong=0, bind=1  },
+	},
+
+  },
+  -- 奖励ID 8  30级礼包
+  {  
+        {
+	          job = 0,
+		  sex = 2,
+                  { rewardtype = 1, type = 0, amount = 1, itemid = 1442, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1559, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1451, quality=0, strong=0, bind=1  },
+	},
+
+  },
+-- 奖励ID 9    35级礼包
+  {
+        {  
+	          job = 0,
+		  sex = 2,
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1442, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1002, quality=0, strong=0, bind=1  },
+		  { rewardtype = 2, type = 2,amount = 30},
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1548, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 15, itemid = 1559, quality=0, strong=0, bind=1  },
+	},
+
+    },
+-- 奖励ID 10    40级礼包
+    {  
+        {  
+	          job = 0,
+		  sex = 2,
+		  { rewardtype = 2, type = 0, amount = 20000},
+		  { rewardtype = 2, type = 1, amount = 5000},
+		  { rewardtype = 2, type = 2,amount = 200},
+		  { rewardtype = 12, type = 0, amount = 1000},
+		  { rewardtype = 1, type = 0, amount = 10, itemid = 1559, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1558, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1588, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1442, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 613, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 616, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1002, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1646, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1549, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 2241, quality=0, strong=0, bind=1  },
+	},
+
+   },
+-- 奖励ID 11   50级礼包
+    { 
+        {  
+	          job = 0,
+		  sex = 2,
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1588, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 2, itemid = 1646, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1558, quality=0, strong=0, bind=1  },
+		  { rewardtype = 2, type = 2,amount = 200},
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1550, quality=0, strong=0, bind=1  },
+	},
+
+   },
+-- 奖励ID 12   60级礼包
+    {  
+        {  
+	          job = 0,
+		  sex = 2,
+		  { rewardtype = 1, type = 0, amount = 4, itemid = 1442, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 10, itemid = 1559, quality=0, strong=0, bind=1  },
+		  { rewardtype = 1, type = 0, amount = 1, itemid = 1558, quality=0, strong=0, bind=1  },
+		  { rewardtype = 2, type = 2,amount = 200},
+	},
+
+    },
+	{  -- 奖励ID 13  3分钟在线时间奖励          1分钟在线时间奖励
+         
+		{
+                     {
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 690,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 655,  quality=0, strong=0, bind=1 }, 
+                     },
+
+		},
+
+		
+		{
+                    
+                     {
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 693,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 655,  quality=0, strong=0, bind=1 }, 
+                     },
+		},
+		
+		
+		{
+		        {
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 693,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 5, itemid = 655,  quality=0, strong=0, bind=1 }, 
+
+	            },
+		},
+	},
+	
+	
+	
+	
+	{  -- 奖励ID 14    3分钟在线时间奖励
+         
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 3, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 690,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 655,  quality=0, strong=0, bind=1 }, 
+
+                    },
+
+		},		
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 3, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 693,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 655,  quality=0, strong=0, bind=1 }, 
+	
+	                },
+		},
+		
+		{
+		            {
+						{ rewardtype = 1, type = 0, amount = 3, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 693,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 655,  quality=0, strong=0, bind=1 }, 
+
+	                },
+		},
+	},
+	
+	
+	
+	{  -- 奖励ID 15    6分钟在线时间奖励 
+         
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 4, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 690,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 655,  quality=0, strong=0, bind=1 }, 
+
+                    },
+		},	
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 4, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 693,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 655,  quality=0, strong=0, bind=1 }, 
+
+		            },
+		},
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 4, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 693,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 655,  quality=0, strong=0, bind=1 }, 
+	
+		             },
+		},
+	},
+	
+	
+	
+	
+	{  -- 奖励ID 16    15分钟在线时间奖励 
+         
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 6, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 658,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 662,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+                    },
+
+		},
+		
+		{
+					{
+						{ rewardtype = 1, type = 0, amount = 6, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 658,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 662,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+	
+					},
+		},
+		
+		{
+					{
+						{ rewardtype = 1, type = 0, amount = 6, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 658,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 662,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+	
+					},
+		},
+	},
+	
+	
+	
+	
+	{  -- 奖励ID 17   30分钟在线时间奖励 
+         
+		{
+                     {
+						{ rewardtype = 1, type = 0, amount = 7, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 613,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 729,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 748,  quality=0, strong=0, bind=1 }, 
+                     },
+
+		},
+		
+		{
+                     {
+						{ rewardtype = 1, type = 0, amount = 7, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 613,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 729,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 748,  quality=0, strong=0, bind=1 }, 
+
+                     },
+			
+		},
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 7, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 613,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 729,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 748,  quality=0, strong=0, bind=1 }, 
+
+					},
+
+		},
+	},
+	
+	
+	
+	
+	{  -- 奖励ID 18    45分钟在线时间奖励 
+         
+		{
+                     {
+						{ rewardtype = 1, type = 0, amount = 8, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 613,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 729,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 748,  quality=0, strong=0, bind=1 }, 
+
+                    },
+
+		},	
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 8, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 613,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 729,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 748,  quality=0, strong=0, bind=1 }, 
+
+					},
+
+		},
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 8, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 15, itemid = 613,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 729,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 748,  quality=0, strong=0, bind=1 }, 
+
+					},
+
+		},
+	},
+	
+	
+	{  -- 奖励ID 19   60分钟在线时间奖励
+         
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 690,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 622,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 748,  quality=0, strong=0, bind=1 }, 
+                    },
+
+		},	
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 693,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 622,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 748,  quality=0, strong=0, bind=1 }, 
+
+					},
+
+		},
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 693,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 622,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 748,  quality=0, strong=0, bind=1 }, 
+
+					},
+
+		},
+	},
+
+	
+	
+	{  -- 奖励ID 20   60分钟在线时间奖励
+         
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 690,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 782,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 756,  quality=0, strong=0, bind=1 }, 
+                    },
+
+		},	
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 693,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 782,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 756,  quality=0, strong=0, bind=1 }, 
+
+					},
+
+		},
+		
+		{
+                    {
+						{ rewardtype = 1, type = 0, amount = 10, itemid = 854,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 693,  quality=0, strong=0, bind=1 },
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 651,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 20, itemid = 655,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 1, itemid = 782,  quality=0, strong=0, bind=1 }, 
+						{ rewardtype = 1, type = 0, amount = 2, itemid = 756,  quality=0, strong=0, bind=1 }, 
+
+					},
+
+		},
+	},
+	
+	
+	
+--奖励19  
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1592, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1558, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1551, quality=0, strong=0, bind=1 },
+
+        },
+    },
+	
+	
+	
+--奖励20
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1593, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1002, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1009, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1003, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1442, quality=0, strong=0, bind=1 },
+
+        },
+    },
+--奖励21
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1594, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1002, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1003, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 613, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 616, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1559, quality=0, strong=0, bind=1 },
+
+        },
+    },
+--奖励22
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1595, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1009, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1004, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1563, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1562, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1552, quality=0, strong=0, bind=1 },
+
+        },
+    },
+--奖励23
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1596, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 798, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 808, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 818, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 828, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1571, quality=0, strong=0, bind=1 },
+
+        },
+    },
+--奖励24
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1002, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1003, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1443, quality=0, strong=0, bind=1 },
+
+        },
+    },
+--奖励25
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1558, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 15, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1552, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 618, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 621, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1610, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励26
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 15, itemid = 1002, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1009, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1003, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1442, quality=0, strong=0, bind=1 },
+		{ rewardtype = 2, type = 0, amount = 9191},
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1611, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励27
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 30, itemid = 1002, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1558, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 619, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 622, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1612, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励28
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1004, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1589, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 817, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 827, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1613, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励29
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1562, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 798, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 808, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 818, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 828, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1614, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励30
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 2, amount = 1000},
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1554, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励31   媒体礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1440, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1441, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1590, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 618, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 621, quality=0, strong=0, bind=1 },
+		{ rewardtype = 2, type = 0, amount = 9191},
+        },
+    },
+--奖励32   锦绣钱袋
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 2, amount = 18},
+        },
+    },
+--奖励33   富贵钱袋
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 2, amount = 58},
+        },
+    },
+--奖励34   满堂红钱袋
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 2, amount = 91},
+        },
+    },
+--奖励35   小型银两袋
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 1, amount = 100},
+        },
+    },
+--奖励36   绑定银两票
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 0, amount = 1000},
+        },
+    },
+--奖励37   绑定元宝袋
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 2, amount = 20},
+        },
+    },
+--奖励38   六一活动礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 61, itemid = 1558, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 6, itemid = 1554, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1562, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 16, itemid = 1559, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励39   首充礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1002, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1558, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1440, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 2044, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 2093, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1718, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1442, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1619, quality=0, strong=0, bind=1 },
+		{ rewardtype = 8, type = 1, amount = 0, itemid = 18 },
+		{ rewardtype = 6, type = 0, amount = 666666 },
+        },
+    },
+--奖励40   新手豪华礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1588, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1589, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1886, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1718, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1634, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1009, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 786, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励41   首服独家礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1440, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1441, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1589, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 786, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1686, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励42   限量白金礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1440, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1441, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1589, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 796, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1686, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励43   中型银两袋
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 1, amount = 1000},
+        },
+    },
+--奖励44   大型银两袋
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 1, amount = 10000},
+        },
+    },
+--奖励45   中型绑定银票
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 0, amount = 5000},
+        },
+    },
+--奖励46   大型绑定银票
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 0, amount = 50000},
+        },
+    },
+--奖励47   好评卡礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1002, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1588, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1442, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1634, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励48   VIP特权礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1718, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1625, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1626, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 612, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 615, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1588, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1442, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1589, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1002, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励49   王者礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1002, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1647, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1442, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1634, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1766, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1886, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 611, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1940, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1939, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1718, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1588, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1589, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 2041, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励50   新手卡礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1588, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1589, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1559, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1718, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1634, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1009, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 786, quality=0, strong=0, bind=1 },
+        },
+    },
+--奖励51   绑定银两箱
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 0, amount = 100000},
+
+        },
+    },
+--奖励51   银两宝箱
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 1, amount = 50000},
+
+        },
+    },
+	--奖励52   初级银两票
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 1, amount = 2000},
+
+        },
+    },
+	--奖励53   中级银两票
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 1, amount = 5000},
+
+        },
+    },
+	--奖励54   高级银两票
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 1, amount = 10000},
+
+        },
+    },
+	--奖励56   周年白金礼包
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+	
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1718, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1590, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1918, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 2241, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1558, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1899, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1922, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1647, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 6, itemid = 1442, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1557, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 2310, quality=0, strong=0, bind=1 },
+        },
+    },
+	--奖励57   绑定元宝箱
+    { 
+        {
+		  job = 0,
+		  sex = 2,
+		{ rewardtype = 2, type = 2, amount = 100},
+
+        },
+    },
+}

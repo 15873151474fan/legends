@@ -1,0 +1,48 @@
+--lua script
+--#include "data\config\beastsoul\BeastSoulConfig.txt" once 
+--#include "data\functions\Activity\Common\Consumes.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "BeastSoulCommon.txt" once
+
+--[[
+	cActBeast = 1,			//«Î«Ûº§ªÓ¡È ﬁ
+	cActNedan = 2,			//«Î«Ûº§ªÓƒ⁄µ§
+	cUpgradeBeast = 3,		//¡È ﬁ…˝Ω◊
+	cAttachBeast = 4,		//¡È ﬁ∏ΩªÍ		
+--]]
+
+BeastSoulOpFuncList = {}
+
+EventCallDispatcher.HandlerBeastSoulOp = function (sysarg, args) 
+	--print("≤Œ ˝£∫"..args[1])
+	if args[1] == nil then return end
+	local func = BeastSoulOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args) 
+	end
+end
+
+--«Î«Ûº§ªÓ¡È ﬁ
+BeastSoulOpFuncList[1] = function (sysarg,args)
+	ActBeast(sysarg,args)
+end
+
+--«Î«Ûº§ªÓƒ⁄µ§
+BeastSoulOpFuncList[2] = function (sysarg,args)
+	ActNedan(sysarg,args)
+end
+
+--¡È ﬁ…˝Ω◊
+BeastSoulOpFuncList[3] = function (sysarg,args)
+	UpgradeBeast(sysarg,args)
+end
+
+--¡È ﬁ∏ΩªÍ
+BeastSoulOpFuncList[4] = function (sysarg,args)
+	AttachBeast(sysarg,args)
+end
+
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeBeastSoul, EventCallDispatcher.HandlerBeastSoulOp)

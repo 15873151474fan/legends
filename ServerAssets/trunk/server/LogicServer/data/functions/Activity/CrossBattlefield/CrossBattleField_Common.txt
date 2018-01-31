@@ -1,0 +1,643 @@
+-- 跨服降魔战场通用处理
+--lua script
+
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\CrossBattlefield\CrossBattlefieldCfg.txt" once -- 配置文件
+
+--报名跨服降魔战场
+function OnSignUpCrossBattlefield(sysarg, args)
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+	
+	local nType = args[2]
+	if nType == 1 then					--报名
+		if Actor.checkActorLevel(sysarg,CrossBattlefieldCfg.needlev) == false then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0002,ttFlyTip)
+			return
+		end
+		
+		local nBattle = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+		if nBattle < CrossBattlefieldCfg.needbattle then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0001,ttFlyTip)
+			return
+		end
+
+		local nCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+		if nCoin < CrossBattlefieldCfg.needCoin then				--金币不够
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kf0003,CrossBattlefieldCfg.needCoin),ttFlyTip)
+			return
+		end
+
+		local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldName)
+		if ranking then
+			local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+			local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+			if pItem then
+				Actor.sendTipmsg(sysarg, Lang.Activity.kf0011,ttFlyTip)
+				return
+			end
+		end
+
+		local nTimes = Actor.getCrossSignUpTimes(sysarg)
+		if nTimes >= CrossBattlefieldCfg.nMaxSignUpTimes then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0010,ttFlyTip)
+			return
+		end
+
+		local nIndex = 0
+		local nWeek = System.getDayOfWeek()
+		for i=1,table.getn(CrossBattlefieldCfg.nTime) do
+			for j=1,table.getn(CrossBattlefieldCfg.nTime[i].week) do
+				if nWeek == CrossBattlefieldCfg.nTime[i].week[j] then
+					nIndex = i
+					break
+				end
+			end
+		end
+
+		if nIndex == 0 then			--不在报名时间内
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0004,ttFlyTip)
+			return
+		end
+		
+		local nHour,nMin,nSec = System.getTime(0,0,0)
+		if nHour < CrossBattlefieldCfg.nTime[nIndex].hour[1] or nHour > CrossBattlefieldCfg.nTime[nIndex].hour[2] then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0004,ttFlyTip)
+			return
+		end
+
+		Actor.changeMoney(sysarg,1,-CrossBattlefieldCfg.needCoin,140,Lang.Activity.kf0012)
+
+		Actor.onSendSignUpCrossBattle(sysarg)
+
+		local noticeStr = string.format(Lang.Activity.kf0018, Actor.getName(sysarg))
+		--System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+	elseif nType == 0 then				--取消报名
+		
+	end
+end
+
+--创建跨服战场副本
+function OnCreatBattleFuben()
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	local fhadle = Fuben.createFuBen(CrossBattlefieldCfg.FubenId)
+	if fhadle > 0 then
+		--print("OnCreatBattleFuben:"..fhadle)
+		Fuben.setSceneTime(fhadle,CrossBattlefieldCfg.ActivityTime)
+		local hScene = Fuben.getSceneHandleById(CrossBattlefieldCfg.SceneId, fhadle)
+		--Fuben.clearMonster(hScene,CrossBattlefieldCfg.nQizhiConfig[1].nMonsterID)
+		for i=1,table.getn(CrossBattlefieldCfg.nQizhiConfig) do
+			Fuben.createMonster(hScene, CrossBattlefieldCfg.nQizhiConfig[i].nMonsterID, CrossBattlefieldCfg.nQizhiConfig[i].nPosX, CrossBattlefieldCfg.nQizhiConfig[i].nPosY,  CrossBattlefieldCfg.nQizhiConfig[i].nLiveTime)
+		end
+		
+		--[[
+		for i=1,table.getn(CrossBattlefieldCfg.nShouweiConfig) do
+			Fuben.clearMonster(hScene,CrossBattlefieldCfg.nShouweiConfig[i].nMonsterID)
+			Fuben.createMonster(hScene, CrossBattlefieldCfg.nShouweiConfig[i].nMonsterID, CrossBattlefieldCfg.nShouweiConfig[i].nPosX,  CrossBattlefieldCfg.nShouweiConfig[i].nPosY, CrossBattlefieldCfg.nShouweiConfig[i].nLiveTime)
+		end
+		]]
+
+		System.sendBeginCrossBattle(fhadle)
+	end
+end
+
+--返回普通逻辑服
+function OnCrossReturnRawServerOp(sysarg)
+	if Actor.getSceneId(sysarg) == CrossBattlefieldCfg.SceneId then
+		Actor.enterFuBen(sysarg,0,CrossBattlefieldCfg.crossSceneId,CrossBattlefieldCfg.nEnterPosx,CrossBattlefieldCfg.nEnterPosY)
+		local pRanking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+		if pRanking then
+			local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+			local pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+			if pItem then
+				Ranking.removeId(pRanking,nActorId)
+			end
+		end
+	end
+	Actor.setUIntProperty(sysarg,PROP_ACTOR_PK_MOD,0)
+
+	Actor.reqTransmitToRawServer(sysarg)
+end
+
+function OnCrossBattleloginOut(sysarg)
+	if Actor.getSceneId(sysarg) == CrossBattlefieldCfg.SceneId then
+		Actor.enterFuBen(sysarg,0,CrossBattlefieldCfg.crossSceneId,CrossBattlefieldCfg.nEnterPosx,CrossBattlefieldCfg.nEnterPosY)
+		local pRanking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+		if pRanking then
+			local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+			local pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+			if pItem then
+				Ranking.removeId(pRanking,nActorId)
+			end
+		end
+
+		Actor.setUIntProperty(sysarg,PROP_ACTOR_PK_MOD,0)
+
+		Actor.reqTransmitToRawServer(sysarg)
+	end
+end
+
+--玩家开始降魔战场
+function OnStartCrossBattleField(sysarg, args)
+	Actor.enterFuBen(sysarg,0,CrossBattlefieldCfg.nEnterSeneId,CrossBattlefieldCfg.nEnterPosx,CrossBattlefieldCfg.nEnterPosY)
+	Actor.reqTransmitToCommonServer(sysarg)
+end
+
+--判断是否在跨服战场时间内
+function IsInCrossBattleTime()
+	local nIndex = 0
+	local nWeek = System.getDayOfWeek()
+	for i=1,table.getn(CrossBattlefieldCfg.nTime) do
+		for j=1,table.getn(CrossBattlefieldCfg.nTime[i].week) do
+			if nWeek == CrossBattlefieldCfg.nTime[i].week[j] then
+				nIndex = i
+				break
+			end
+		end
+	end
+
+	if nIndex == 0 then			--不在报名时间内
+		return false
+	end
+	
+	local nHour,nMin,nSec = System.getTime(0,0,0)
+	if nHour < CrossBattlefieldCfg.nTime[nIndex].hour[1] or nHour > CrossBattlefieldCfg.nTime[nIndex].hour[2] then
+		return false
+	end
+
+	return true
+end
+
+--登陆判断是否参加跨服战场
+function OnCrossBattleLoginOp(sysarg)
+	if IsInCrossBattleTime() == false then
+		return
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+
+	local pRanking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+	if pRanking then
+		local pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+		if pItem then
+			local nHandle = tonumber(Ranking.getSub(pItem,1))
+			local nType = tonumber(Ranking.getSub(pItem,3))
+			--print("OnCrossBattleLoginOp:"..nType)
+			if nHandle > 0 then
+				if nType == 1 then
+					Actor.setCampId( sysarg, 3 )
+					--Actor.enterFuBen(sysarg,nHandle,CrossBattlefieldCfg.SceneId,CrossBattlefieldCfg.XiangMoPos[1],CrossBattlefieldCfg.XiangMoPos[2])
+				elseif nType == 2 then
+					Actor.setCampId( sysarg, 4 )
+					--Actor.enterFuBen(sysarg,nHandle,CrossBattlefieldCfg.SceneId,CrossBattlefieldCfg.LieYaoPos[1],CrossBattlefieldCfg.LieYaoPos[2])
+				end
+				
+				Actor.setUIntProperty(sysarg,PROP_ACTOR_PK_MOD,6)
+				local nTime = Fuben.getSceneTime(nHandle)
+				local myScore = tonumber(Ranking.getSub(pItem,4))
+				if myScore == nil then
+					myScore = 0
+				end
+
+				local tagScore = tonumber(Ranking.getSub(pItem,5))
+				if tagScore == nil then
+					tagScore = 0
+				end
+
+				local nHoure = tonumber(Ranking.getSub(pItem,6))
+				if nHoure == nil then
+					nHoure = 0
+				end
+				
+				AotuTeamOpInCross(sysarg)
+				--Actor.initActivityWind(sysarg,Lang.Activity.kf0005,nTime,Lang.Activity.kf0006,Lang.Activity.kf0007,myScore,Lang.Activity.kf0008,tagScore,Lang.Activity.kf0009,nHoure)
+			end
+		end
+	end
+end
+
+
+--登陆判断自动组队
+function AotuTeamOpInCross(sysarg)
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local bTeam = false
+		local playerList = LuaHelp.getFbActorList(pFb)		--获取某场景玩家对象列表
+		if playerList ~= nil then
+			local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+			if ranking then
+				local nmyActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+				local nItem = Ranking.getItemPtrFromId(ranking,nmyActorId)
+				local nmyType = 0
+				if nItem then
+					nmyType = tonumber(Ranking.getSub(nItem,3))
+				end
+
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then	
+						local nActorId = Actor.getIntProperty(player, PROP_ENTITY_ID)
+						local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+						if pItem then
+							local nType = tonumber(Ranking.getSub(pItem,3))
+							if nmyType == nType and nmyActorId ~= nActorId then
+								bTeam = true
+								System.onAotuAddTeamOP(sysarg,player)
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+
+		if bTeam == false then
+			System.onAotuAddTeamOP(sysarg)
+		end
+	end
+end
+
+--在跨服战场被杀
+function OnKillInCrossBattleField(sysarg,killerPtr)
+	if IsInCrossBattleTime() == false then
+		return
+	end
+
+	if Actor.getSceneId(sysarg) == CrossBattlefieldCfg.SceneId then
+		local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+		if ranking then
+			local nActorId = Actor.getIntProperty(killerPtr, PROP_ENTITY_ID)
+			local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+
+			if pItem then
+				local nType = tonumber(Ranking.getSub(pItem,3))
+				local nHourn = tonumber(Ranking.getSub(pItem,6))
+				local nHandle = tonumber(Ranking.getSub(pItem,1))
+				local nScore = tonumber(Ranking.getSub(pItem,4))
+				if nHourn == nil then
+					nHourn = 0
+				end
+				Ranking.setSub(pItem,6,nHourn+CrossBattlefieldCfg.killOneHoure)
+				Ranking.updateItem(ranking,nActorId,1)
+
+				OnChangeCrossBattleScore(nType,nHandle,nScore+CrossBattlefieldCfg.killOneScore,0)
+
+				UpdateCrossFormInfo(killerPtr)
+				
+				if nType == 1 then
+					Fuben.sendMsgToFb(nHandle, string.format(Lang.Activity.kf0014,Actor.getName(killerPtr),Actor.getName(sysarg)), ttScreenCenter) 
+				else
+					Fuben.sendMsgToFb(nHandle, string.format(Lang.Activity.kf0015,Actor.getName(killerPtr),Actor.getName(sysarg)), ttScreenCenter) 
+				end
+
+				if nScore+CrossBattlefieldCfg.killOneScore >= CrossBattlefieldCfg.EndBattleScore then
+					OnCrossBattleOver(Actor.getFubenPrt(killerPtr))
+				end
+			end
+		end
+	end
+end
+
+--有积分变化
+function OnChangeCrossBattleScore(nType,nHandle,nScore,nTagScore)
+	local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+	if ranking then
+		local nCount = Ranking.getRankItemCount(ranking)
+		if nCount > 0 then
+			for i=0,nCount-1 do
+				local pItem = Ranking.getItemPtrByIndex(ranking,i)
+				if pItem then
+					local curHandle = tonumber(Ranking.getSub(pItem,1))
+					if curHandle == nHandle then
+						local nCurType = tonumber(Ranking.getSub(pItem,3))
+						if nCurType == nType then
+							Ranking.setSub(pItem,4,nScore)
+
+							local nCurTagScore = tonumber(Ranking.getSub(pItem,5))
+							nCurTagScore = nCurTagScore + nTagScore
+							if nCurTagScore < 0 then
+								nCurTagScore = 0
+							end 
+							Ranking.setSub(pItem,5,nCurTagScore)
+						else
+							local nMyScore = tonumber(Ranking.getSub(pItem,4))
+							nMyScore = nMyScore + nTagScore
+							if nMyScore < 0 then
+								nMyScore = 0
+							end 
+							Ranking.setSub(pItem,4,nMyScore)
+							Ranking.setSub(pItem,5,nScore)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+--发送更新活动面板信息
+function UpdateCrossFormInfo(sysarg)
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local playerList = LuaHelp.getFbActorList(pFb)		--获取某场景玩家对象列表
+		if playerList ~= nil then
+			local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+			if ranking then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then	
+						local nActorId = Actor.getIntProperty(player, PROP_ENTITY_ID)
+						local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+						if pItem then
+							local myScore = tonumber(Ranking.getSub(pItem,4))
+							local tagScore = tonumber(Ranking.getSub(pItem,5))
+							local npoint = Ranking.getPoint(pItem)
+							Actor.changeActivityProgress(player,myScore,tagScore,npoint)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+--安全复活处理
+function OnSafeAliveInCommonOp(sysarg)
+	if Actor.getSceneId(sysarg) ~= CrossBattlefieldCfg.SceneId then 
+		return false
+	end
+
+	local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		if pItem then
+			local nHandle = tonumber(Ranking.getSub(pItem,1))
+			local nType = tonumber(Ranking.getSub(pItem,3))
+			if nHandle > 0 then
+				if nType == 1 then
+					Actor.enterFuBen(sysarg,nHandle,CrossBattlefieldCfg.SceneId,CrossBattlefieldCfg.XiangMoPos[1],CrossBattlefieldCfg.XiangMoPos[2])
+				elseif nType == 2 then
+					Actor.enterFuBen(sysarg,nHandle,CrossBattlefieldCfg.SceneId,CrossBattlefieldCfg.LieYaoPos[1],CrossBattlefieldCfg.LieYaoPos[2])
+				end
+			end
+			local myScore = tonumber(Ranking.getSub(pItem,4))
+			local tagScore = tonumber(Ranking.getSub(pItem,5))
+			local npoint = Ranking.getPoint(pItem)
+			Actor.changeActivityProgress(sysarg,myScore,tagScore,npoint)
+		end
+	end
+
+	return true
+end
+
+--战场时间结束
+function OnCrossBattleOver(FbPtr)
+	if FbPtr == nil then return end
+	
+	local playerList = LuaHelp.getFbActorList(FbPtr)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+		
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				if Actor.getSceneId(player) == CrossBattlefieldCfg.SceneId then
+					OnSendCrossBattleResult(player,nil)
+				end
+			end
+		end
+
+		local nRate = 1
+		
+		local nHour,nMin,nSec = System.getTime(0,0,0)
+		if nHour >= CrossBattlefieldCfg.DoubleTime[1] and nHour <= CrossBattlefieldCfg.DoubleTime[2] then
+			nRate = 2
+		end
+
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				if Actor.getSceneId(player) == CrossBattlefieldCfg.SceneId then
+					if ranking then
+						local nActorId = Actor.getIntProperty(player, PROP_ENTITY_ID)
+						local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+						if pItem then
+							local nHoure =tonumber(Ranking.getSub(pItem,6))
+							if nHoure == nil then
+								nHoure = 0
+							end
+							--print("nHoure:"..nHoure)
+							for i=1,table.getn(CrossBattlefieldCfg.crossAward) do
+								if nHoure >= CrossBattlefieldCfg.crossAward[i].rangHounr[1] and nHoure < CrossBattlefieldCfg.crossAward[i].rangHounr[2] then
+									local nConfig = CrossBattlefieldCfg.crossAward[i]
+									local myScore =tonumber(Ranking.getSub(pItem,4))
+									local tagScore =tonumber(Ranking.getSub(pItem,5))
+
+									if myScore > tagScore then
+										for k=1,table.getn(nConfig.winAwards) do
+											Actor.giveAward(player,nConfig.winAwards[k].type,nConfig.winAwards[k].id,nConfig.winAwards[k].count * nRate,nConfig.winAwards[k].quality,nConfig.winAwards[k].strong,nConfig.winAwards[k].bind)
+										end
+									else
+										for k=1,table.getn(nConfig.awards) do
+											Actor.giveAward(player,nConfig.awards[k].type,nConfig.awards[k].id,nConfig.awards[k].count * nRate,nConfig.awards[k].quality,nConfig.awards[k].strong,nConfig.awards[k].bind)
+										end
+									end
+									break
+								end
+							end
+
+							Ranking.removeId(ranking,nActorId)
+						end
+						
+						Actor.setUIntProperty(player,PROP_ACTOR_PK_MOD,0)
+
+						Actor.enterFuBen(player,0,CrossBattlefieldCfg.crossSceneId,CrossBattlefieldCfg.nEnterPosx,CrossBattlefieldCfg.nEnterPosY)
+						Actor.reqTransmitToRawServer(player)
+					end
+				end
+			end
+		end
+	end
+end
+
+--获得跨服的战绩
+function OnSendCrossBattleResult(sysarg, args)
+	if System.isCommonServer() == false then return end
+	if Actor.getSceneId(sysarg) ~= CrossBattlefieldCfg.SceneId then return end
+
+	local pRanking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+	if pRanking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(pRanking,nActorId) 
+		
+		if pItem then
+			local pFb = Actor.getFubenPrt(sysarg)
+			if pFb then
+				local playerList = LuaHelp.getFbActorList(pFb)		--获取某场景玩家对象列表
+				if playerList ~= nil then
+					local npack = DataPack.allocPacket(sysarg,46, 8)
+					if npack == nil then return end
+					local nType = tonumber(Ranking.getSub(pItem,3))
+					local myScore = tonumber(Ranking.getSub(pItem,4))
+					local tagScore = tonumber(Ranking.getSub(pItem,5))
+					local nResult = nType
+					if myScore < tagScore then
+						if nType == 1 then
+							nResult = 2
+						else
+							nResult = 1
+						end
+					end
+
+					if nType == 1 then
+						DataPack.writeInt(npack,myScore)
+						DataPack.writeInt(npack,tagScore)
+					else
+						DataPack.writeInt(npack,tagScore)
+						DataPack.writeInt(npack,myScore)
+					end
+					
+					DataPack.writeByte(npack,nResult)
+					local nCount = #playerList
+					DataPack.writeInt(npack,nCount)
+
+					for j = 1, #playerList do
+						local player = playerList[j]
+						if player then	
+							local actorId = Actor.getIntProperty(player, PROP_ENTITY_ID)
+							local mItem = Ranking.getItemPtrFromId(pRanking,actorId) 
+							if mItem then
+								local ncurType = tonumber(Ranking.getSub(mItem,3))
+								DataPack.writeByte(npack,ncurType)
+								DataPack.writeString(npack,Actor.getName(player))
+								DataPack.writeInt(npack,Ranking.getPoint(mItem))
+								local nHoure = tonumber(Ranking.getSub(mItem,6))
+								DataPack.writeInt(npack,nHoure)
+							end
+						end
+					end
+
+					DataPack.flush(npack)
+				end
+			end
+		end
+	end
+end
+
+--请求跨服降魔战场的奖励列表
+function OnSendCorssAwardTips(sysarg)
+	local npack = DataPack.allocPacket(sysarg,46, 11)
+	if npack == nil then return end
+	DataPack.writeInt(npack,table.getn(CrossBattlefieldCfg.FormAwards))
+	for i=1,table.getn(CrossBattlefieldCfg.FormAwards) do
+		DataPack.writeByte(npack,CrossBattlefieldCfg.FormAwards[i].type)
+	end
+	DataPack.flush(npack)
+end
+
+--登陆发送是否弹出降魔战场的提示
+function OnSendCorssLoginTips(sysarg)
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	if IsInCrossBattleTime() == false then
+		return
+	end
+
+	if Actor.checkActorLevel(sysarg,CrossBattlefieldCfg.needlev) == false then return end
+
+	local npack = DataPack.allocPacket(sysarg,46, 12)
+	if npack == nil then return end
+	DataPack.writeByte(npack,1)
+	DataPack.flush(npack)
+end
+
+--积分排行榜初始化
+function CrossBattleFieldInit()
+	local RankNameList = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(CrossBattlefieldCfg.BattleFieldName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,CrossBattlefieldCfg.BattleFieldFile)
+			
+			if isLoad == false then
+				for i=1,9 do
+					Ranking.addColumn(RankNameList,"value"..i)
+				end
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function CrossBattleFieldFinality()
+	local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldName)
+	if ranking then
+		Ranking.save(ranking,CrossBattlefieldCfg.BattleFieldFile)
+	end
+end
+
+--积分排行榜初始化
+function CrossBattleResultInit()
+	local RankNameList = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(CrossBattlefieldCfg.BattleFieldResultName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,CrossBattlefieldCfg.BattleFieldResultFile)
+			
+			if isLoad == false then
+				for i=1,9 do
+					Ranking.addColumn(RankNameList,"value"..i)
+				end
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function CrossBattleResultFinality()
+	local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleFieldResultName)
+	if ranking then
+		Ranking.save(ranking,CrossBattlefieldCfg.BattleFieldResultFile)
+	end
+end
+
+--积分排行榜初始化
+function CrossBattleSignUpInit()
+	local RankNameList = Ranking.getRanking(CrossBattlefieldCfg.BattleSignUpName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(CrossBattlefieldCfg.BattleSignUpName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,CrossBattlefieldCfg.BattleSignUpFile)
+			
+			if isLoad == false then
+				for i=1,5 do
+					Ranking.addColumn(RankNameList,"value"..i)
+				end
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function CrossBattleSignUpFinality()
+	local ranking = Ranking.getRanking(CrossBattlefieldCfg.BattleSignUpName)
+	if ranking then
+		Ranking.save(ranking,CrossBattlefieldCfg.BattleSignUpFile)
+	end
+end
+
+table.insert(InitFnTable,CrossBattleFieldInit)
+table.insert(FinaFnTable,CrossBattleFieldFinality)
+
+table.insert(InitFnTable,CrossBattleResultInit)
+table.insert(FinaFnTable,CrossBattleResultFinality)
+
+table.insert(InitFnTable,CrossBattleSignUpInit)
+table.insert(FinaFnTable,CrossBattleSignUpFinality)

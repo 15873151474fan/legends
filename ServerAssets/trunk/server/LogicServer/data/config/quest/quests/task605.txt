@@ -1,0 +1,59 @@
+﻿{
+	id = 605,
+	name = Lang.Quest.q01205,
+	parentid = 604,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q01206,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00034,  
+    npc = Lang.EntityName.n00108,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00034,    
+	npc = Lang.EntityName.n00108,
+  },
+
+  target =
+  {
+      { type = 1, id = 721, count = 13,location={ sceneid=35,entityName=Lang.EntityName.m00153} }, --【羚羊肉】，羚羊掉落
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 504704,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 67747,  bind = true, job = 0, sex = -1, group=0 },
+ },
+  --任务条件表
+  conds =
+  {
+        { type = 0, id = 0,count = 30 }, 
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t02057,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t02059,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t02060,
+  }, 
+  
+  --用于完成任务后的从背包里删除任务物品
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {721, 13}, 
+},                             

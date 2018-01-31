@@ -1,0 +1,31 @@
+﻿--宝物0品质配置。品质是对宝物基础属性加成，不同宝物配置加成比例不同
+
+--1品
+{
+	name=Lang.Misc.m000350, -- 品质名称
+	consumeItemCount=4, 		-- 精粹到下一品所需消耗的'品质精粹符'数量
+	reqMoneyType=0, 				-- 升级到下一阶消耗金钱类型
+	reqMoneyCount=1000, 		-- 升级到下一阶消耗金钱数量
+	propAdd=10, -- 属性加成	
+	baseSuccRate=60, -- 品质精粹基础成功率	
+},
+
+--2品
+{
+	name=Lang.Misc.m000351, -- 品质名称
+	consumeItemCount=4, 		-- 精粹到下一品所需消耗的'品质精粹符'数量
+	reqMoneyType=0, 				-- 升级到下一阶消耗金钱类型
+	reqMoneyCount=1000, 		-- 升级到下一阶消耗金钱数量
+	propAdd=20, 						-- 属性加成
+	baseSuccRate=60, 				-- 品质精粹基础成功率
+},
+
+--3品
+{
+	name=Lang.Misc.m000352, -- 品质名称
+	consumeItemCount=4, 		-- 精粹到下一品所需消耗的'品质精粹符'数量
+	reqMoneyType=0, 				-- 升级到下一阶消耗金钱类型
+	reqMoneyCount=1000, 		-- 升级到下一阶消耗金钱数量
+	propAdd=30, 						-- 属性加成
+	baseSuccRate=60, 				-- 品质精粹基础成功率
+},

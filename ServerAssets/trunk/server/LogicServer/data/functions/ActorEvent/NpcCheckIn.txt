@@ -1,0 +1,11 @@
+--lua script
+
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once 
+
+EventCallDispatcher.OnNpcCheckIn = function(sysarg, arg)
+	
+	ParadeActNpcCheckIn(sysarg, arg) 
+
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeNpcCheckIn, EventCallDispatcher.OnNpcCheckIn) 

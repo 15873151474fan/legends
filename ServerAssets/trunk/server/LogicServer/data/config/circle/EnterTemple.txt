@@ -1,0 +1,11 @@
+
+--进入转生神殿配置
+
+EnterTemple = 
+{
+	reqLevel = 60,	--进入要求等级
+	consumes = 
+	{
+		{type = 0, id = 100, count = 1},
+	}
+}

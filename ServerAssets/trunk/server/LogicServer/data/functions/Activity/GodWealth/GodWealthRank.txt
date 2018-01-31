@@ -1,0 +1,160 @@
+--天下第一初始化
+--lua script
+--#include "data\config\godWealth\WealthEventConfig.txt" once
+
+--在跨服记录是否第一次进入擂台
+function GodWealthRankInit()
+	local RankNameList = Ranking.getRanking(WealthEventConfig.wealthRankName)		--通过排行名称获取排行对象
+	if RankNameList == nil then															--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(WealthEventConfig.wealthRankName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,WealthEventConfig.wealthRankFile)
+			
+			if isLoad == false then
+				for i=1, 9 do
+					Ranking.addColumn(RankNameList,"value")		--添加一个标题列  
+				end
+			end
+		end
+	end
+end
+
+function GodWealthRankFina()
+	local RankNameList = Ranking.getRanking(WealthEventConfig.wealthRankName)		--通过排行名称获取排行对象
+	if RankNameList then															--没有排行对象则创建并加载数据
+		Ranking.save(RankNameList,WealthEventConfig.wealthRankFile)
+	end
+end
+
+--积分排行榜初始化
+function ChristGiftRankInit()
+	--[[
+	local RankNameList = Ranking.getRanking("Charistmas2.txt")		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add("Charistmas2.txt",1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,"Charistmas2.txt")
+			if isLoad == false then
+				for i =1,8 do
+					Ranking.addColumn(RankNameList,"value"..i)
+				end
+			end
+		end
+	end
+	
+	local pRanking = Ranking.getRanking("CharistmasLast.txt")		--通过排行名称获取排行对象
+	if pRanking == nil then							--没有排行对象则创建并加载数据
+		pRanking = Ranking.add("CharistmasLast.txt",1000,0)		--创建排行榜
+		if pRanking ~= nil then
+			local isLoad = Ranking.load(pRanking,"CharistmasLast.txt")
+			
+			if isLoad == false then
+				for i =1,8 do
+					Ranking.addColumn(pRanking,"value"..i)
+				end
+			end
+		end
+	end
+
+	local cRanking = Ranking.getRanking("christmasEggRank.txt")		--通过排行名称获取排行对象
+	if cRanking == nil then							--没有排行对象则创建并加载数据
+		cRanking = Ranking.add("christmasEggRank.txt",1000,0)		--创建排行榜
+		if cRanking ~= nil then
+			local isLoad = Ranking.load(cRanking,"christmasEggRank.txt")
+			
+			if isLoad == false then
+				for i =1,5 do
+					Ranking.addColumn(cRanking,"value"..i)
+				end
+			end
+		end
+	end
+
+	local clRanking = Ranking.getRanking("christmasEggLastRank.txt")		--通过排行名称获取排行对象
+	if clRanking == nil then							--没有排行对象则创建并加载数据
+		clRanking = Ranking.add("christmasEggLastRank.txt",1000,0)		--创建排行榜
+		if clRanking ~= nil then
+			local isLoad = Ranking.load(clRanking,"christmasEggLastRank.txt")
+			
+			if isLoad == false then
+				for i =1,5 do
+					Ranking.addColumn(clRanking,"value"..i)
+				end
+			end
+		end
+	end
+	--]]
+	--[[
+	local cllRanking = Ranking.getRanking("AllChristmasEggRank.txt")		--通过排行名称获取排行对象
+	if cllRanking == nil then							--没有排行对象则创建并加载数据
+		cllRanking = Ranking.add("AllChristmasEggRank.txt",1000,0)		--创建排行榜
+		if cllRanking ~= nil then
+			local isLoad = Ranking.load(cllRanking,"AllChristmasEggRank.txt")
+			
+			if isLoad == false then
+				for i =1,5 do
+					Ranking.addColumn(cllRanking,"value"..i)
+				end
+			end
+		end
+	end
+	]]
+
+	local giftRanking = Ranking.getRanking("NewGradientGiftRank.txt")		--通过排行名称获取排行对象
+	if giftRanking == nil then							--没有排行对象则创建并加载数据
+		giftRanking = Ranking.add("NewGradientGiftRank.txt",1000,0)		--创建排行榜
+		if giftRanking ~= nil then
+			local isLoad = Ranking.load(giftRanking,"NewGradientGiftRank.txt")
+			
+			if isLoad == false then
+				for i =1,10 do
+					Ranking.addColumn(giftRanking,"value"..i)
+				end
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function ChristGiftRankFinality()
+	local ranking = Ranking.getRanking("Charistmas2.txt")
+	if ranking then
+		Ranking.save(ranking,"Charistmas2.txt")
+	end
+
+	local pRanking = Ranking.getRanking("CharistmasLast.txt")
+	if pRanking then
+		Ranking.save(pRanking,"CharistmasLast.txt")
+	end
+
+	local cRanking = Ranking.getRanking("christmasEggRank.txt")
+	if cRanking then
+		Ranking.save(cRanking,"christmasEggRank.txt")
+	end
+
+	local clRanking = Ranking.getRanking("christmasEggLastRank.txt")
+	if clRanking then
+		Ranking.save(clRanking,"christmasEggLastRank.txt")
+	end
+	
+	--[[
+	local cllRanking = Ranking.getRanking("AllChristmasEggRank.txt")
+	if cllRanking then
+		Ranking.save(cllRanking,"AllChristmasEggRank.txt")
+	end
+	]]
+
+	local giftRanking = Ranking.getRanking("NewGradientGiftRank.txt")
+	if giftRanking then
+		Ranking.save(giftRanking,"NewGradientGiftRank.txt",true)
+	end
+end
+
+
+table.insert(InitFnTable,GodWealthRankInit)
+table.insert(InitFnTable,ChristGiftRankInit)
+
+table.insert(FinaFnTable,GodWealthRankFina)
+
+table.insert(FinaFnTable,ChristGiftRankFinality)
+

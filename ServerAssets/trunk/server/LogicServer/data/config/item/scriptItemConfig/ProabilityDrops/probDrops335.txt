@@ -1,0 +1,15 @@
+﻿drops=
+{
+	{ group = 0, type = 20, id = 1, count = 3000, bind = 1, propability = 1, },
+	{ group = 0, type = 21, id = 0, count = 18888, bind = 1, propability = 1, },
+	{ group = 0, type = 0, id = 354, count = 3, bind = 1, propability = 1, },
+	{ group = 1, type = 0, id = 282, count = 1, bind = 1, propability = 10, },
+	{ group = 1, type = 0, id = 283, count = 1, bind = 1, propability = 5, },
+	{ group = 1, type = 0, id = 1402, count = 1, bind = 1, propability = 1, },
+	{ group = 0, type = 0, id = 1172, count = 1, bind = 1, propability = 1, },
+	{ group = 2, type = 0, id = 1172, count = 1, bind = 1, propability = 30, },
+	{ group = 2, type = 0, id = 1057, count = 1, bind = 1, propability = 1, },
+	{ group = 2, type = 0, id = 731, count = 1, bind = 1, propability = 50, },
+	{ group = 3, type = 0, id = 1466, count = 2, bind = 1, propability = 30, },
+	{ group = 3, type = 0, id = 1467, count = 1, bind = 1, propability = 1, },
+}

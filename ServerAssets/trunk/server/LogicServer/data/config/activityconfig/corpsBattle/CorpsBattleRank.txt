@@ -1,0 +1,7 @@
+--lua script
+--战队积分排行
+CorpsBattleRank =
+{
+	CorpsScoreName = "CorpsBattleScore",
+	CorpsScoreRanking = "CorpsBattleScore.txt",
+}

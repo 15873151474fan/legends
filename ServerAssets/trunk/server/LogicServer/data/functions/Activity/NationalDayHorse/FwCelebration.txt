@@ -1,0 +1,230 @@
+--lua script
+--烟花盛典 
+
+--#include "data\config\activityconfig\NationalDayHorse\NationalDayHorseAct.txt" once
+--#include "data\config\activityconfig\NationalDayHorse\CelebrationConfig.txt" once 
+--#include "data\functions\Activity\Common\Awards.txt" once 
+
+--请求烟花盛典信息
+function ReqFwCelebrationInfo(sysarg, packet) 
+	if System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) ~= true 
+		and System.getDoubleElevenActFlag(1) ~= 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0112, ttFlyTip)
+		return 
+	end
+	
+	local fwCelebrationPtr = Ranking.getRanking(Lang.Rank.FwCelebrationFile) 
+	if not fwCelebrationPtr then
+		return 
+	end
+	
+	local fwCelebrationPointPtr = Ranking.getRanking(Lang.Rank.FwCelebrationPointFile) 
+	if not fwCelebrationPointPtr then
+		return 
+	end
+	
+	local curPoint = 0
+	local needPoint = 0
+	local getTimesTab = {}
+	
+	local pointItemPtr = Ranking.getItemPtrFromId(fwCelebrationPointPtr, 1)
+	if pointItemPtr then
+		curPoint = tonumber(Ranking.getSub(pointItemPtr, 0)) or 0
+	end
+	local temp = math.floor(curPoint / CelebrationConfig.fireworksPoint)
+	needPoint = (temp + 1) * CelebrationConfig.fireworksPoint
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local itemPtr = Ranking.getItemPtrFromId(fwCelebrationPtr, actorId)
+	if not itemPtr then
+		for i = 1, table.getn(CelebrationConfig.celPacksList or {}) do
+			table.insert(getTimesTab, 0)
+			table.insert(getTimesTab, CelebrationConfig.celPacksList[i].limitTimes)
+		end
+	else
+		for i = 1, table.getn(CelebrationConfig.celPacksList or {}) do
+			local getTimes = tonumber(Ranking.getSub(itemPtr, i-1)) or 0
+			table.insert(getTimesTab, getTimes)
+			table.insert(getTimesTab, CelebrationConfig.celPacksList[i].limitTimes)
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 86)
+	if not pack then
+		return
+	end
+	
+	DataPack.writeUInt(pack, curPoint)
+	DataPack.writeUInt(pack, needPoint)
+	DataPack.writeWord(pack, CelebrationConfig.bossConfig.monsterid)
+	DataPack.writeByte(pack, table.getn(getTimesTab)/2)
+	for i = 1, table.getn(getTimesTab)/2 do 
+		if table.getn(getTimesTab) >= 2*i then
+			DataPack.writeByte(pack, getTimesTab[2*(i-1)+1])
+			DataPack.writeByte(pack, getTimesTab[2*(i-1)+2]) 
+		end
+	end
+	
+	DataPack.flush(pack)
+
+end 
+
+--请求烟花盛典操作
+function ReqFwCelebrationOp(sysarg, packet)
+	if System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) ~= true 
+		and System.getDoubleElevenActFlag(1) ~= 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0112, ttFlyTip)
+		return 
+	end
+	
+	local celPackIdx = DataPack.readByte(packet)
+	if celPackIdx <= 0 or table.getn(CelebrationConfig.celPacksList) <= 0 or celPackIdx > table.getn(CelebrationConfig.celPacksList) then
+		return 
+	end
+	
+	if Actor.checkActorLevel(sysarg, CelebrationConfig.level, CelebrationConfig.circle) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0111, ttFlyTip) 
+		return 
+	end
+	
+	local itemPtr = GetFwCelebrationInfo(sysarg)
+	if not itemPtr then
+		return 
+	end
+	
+	local curGetTimes = tonumber(Ranking.getSub(itemPtr, celPackIdx-1)) or 0
+	if curGetTimes >= CelebrationConfig.celPacksList[celPackIdx].limitTimes then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0105, ttFlyTip)
+		return 
+	end
+	
+	local resut, needCount = Awards.CheckBagGridCount(sysarg, CelebrationConfig.celPacksList[celPackIdx].awards)
+	if resut ~= true then
+		--Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mgq0106, needCount), ttFlyTip)
+		return 
+	end	
+	
+	local consumeYb = CelebrationConfig.celPacksList[celPackIdx].consumeYb
+	if consumeYb > 0 then
+		if Actor.changeMoney(sysarg, 3, -consumeYb, 973, Lang.LogTips.mgq106) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mgq0107, ttFlyTip)
+			return 
+		end
+	end
+	
+	curGetTimes = curGetTimes + 1
+	Ranking.setSub(itemPtr, celPackIdx-1, curGetTimes)
+	
+	Awards.Give(sysarg, CelebrationConfig.celPacksList[celPackIdx].awards, 973, Lang.LogTips.mgq107)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 87)
+	if not pack then
+		return 
+	end
+	
+	DataPack.writeByte(pack, celPackIdx)
+	DataPack.writeByte(pack, curGetTimes)
+	DataPack.flush(pack)
+
+end 
+
+--获取个人礼包信息
+function GetFwCelebrationInfo(sysarg)
+	local fwCelebrationPtr = Ranking.getRanking(Lang.Rank.FwCelebrationFile)  
+	if not fwCelebrationPtr then
+		return nil
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local itemPtr = Ranking.getItemPtrFromId(fwCelebrationPtr, actorId)
+	if not itemPtr then
+		itemPtr = Ranking.addItemExt(fwCelebrationPtr, actorId, 0, false)
+	end
+	
+	return itemPtr
+end
+
+--使用庆典烟花
+function PlayFireworks(sysarg) 
+	local actorName = Actor.getName(sysarg)
+	local awardIdx = getFwRandomAward(CelebrationConfig.fireworksAward)
+	if awardIdx > 0 and awardIdx <= table.getn(CelebrationConfig.fireworksAward) then 
+		for k, v in ipairs(CelebrationConfig.fireworksAward[awardIdx].awards) do 
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 973, Lang.LogTips.mgq108)
+			if v.type == 0 and v.id > 0 then
+				local itemName = Item.getAwardDesc(v.type, v.id)
+				System.broadcastTipmsg(string.format(Lang.Activity.mgq0110, actorName, itemName), ttScreenCenter+ttChatWindow)
+			end
+		end 	
+	end
+	
+	if System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) == true or System.getDoubleElevenActFlag(1) == 1 then 
+		local fwCelebrationPointPtr = Ranking.getRanking(Lang.Rank.FwCelebrationPointFile) 
+		if not fwCelebrationPointPtr then
+			return 
+		end
+
+		local curPoint = 0
+		local pointItemPtr = Ranking.getItemPtrFromId(fwCelebrationPointPtr, 1)
+		if not pointItemPtr then
+			pointItemPtr = Ranking.addItemExt(fwCelebrationPointPtr, 1, 0, false)
+		end
+		
+		if pointItemPtr then
+			curPoint = tonumber(Ranking.getSub(pointItemPtr, 0)) or 0
+			curPoint = curPoint + 1*CelebrationConfig.addPoint
+			Ranking.setSub(pointItemPtr, 0, curPoint) 
+		end
+		
+		if math.fmod(curPoint, CelebrationConfig.fireworksPoint) == 0 then
+			local bossConfig = CelebrationConfig.bossConfig
+			local hScene = Fuben.getSceneHandleById(bossConfig.sceneId,0)  --获得场景句柄
+			Fuben.createMonster(hScene,bossConfig.monsterid, bossConfig.posX, bossConfig.posY, bossConfig.liveTime)
+			System.broadcastTipmsg(string.format(Lang.Activity.mqg0108, bossConfig.posX, bossConfig.posY), ttScreenCenter+ttChatWindow)
+		end
+	end
+
+end
+
+--获取奖励序号
+function getFwRandomAward(infoTable)
+	local result = 0 
+	local totalVal = 0
+	for k, v in ipairs(infoTable or {}) do 
+		totalVal = totalVal + v.rate
+	end
+	
+	local randVal = System.getRandomNumber(totalVal)
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = i
+			break
+		end
+		
+	end
+	
+	return result
+end
+
+--重置礼包领取次数
+function ResetCelPackTimes()
+	local fwCelebrationPtr = Ranking.getRanking(Lang.Rank.FwCelebrationFile) 
+	if fwCelebrationPtr then
+		Ranking.clearRanking(fwCelebrationPtr)
+	end
+end
+
+--清除烟花盛典数据
+function ClearFwCelebration()
+	local fwCelebrationPtr = Ranking.getRanking(Lang.Rank.FwCelebrationFile) 
+	if fwCelebrationPtr then
+		Ranking.clearRanking(fwCelebrationPtr) 
+	end
+	
+	local fwCelebrationPointPtr = Ranking.getRanking(Lang.Rank.FwCelebrationPointFile) 
+	if fwCelebrationPointPtr then
+		Ranking.clearRanking(fwCelebrationPointPtr) 
+	end
+end

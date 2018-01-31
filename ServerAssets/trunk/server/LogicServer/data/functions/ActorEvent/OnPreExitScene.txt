@@ -1,0 +1,36 @@
+﻿
+
+OnPreExitSceneOpFuncList = {}
+
+--#include "data\functions\Activity\SnowArea\ExitSecretArea.txt" once	--离开雪域秘境
+--#include "data\config\activityconfig\WaKuang\WaKuangConfig.txt" once  --挖矿地图 
+
+EventCallDispatcher.OnPreExitScene = function (sysarg, args)
+	local nSceneId = args[1]	--场景ID
+	local nFubenId = args[2]	--副本ID
+	
+	local func = OnPreExitSceneOpFuncList[args[1]]
+	if func ~= nil then
+		return func(sysarg, args)
+	end
+	
+end    
+
+ --玩家主动出去挖矿地图
+OnPreExitSceneOpFuncList[WaKuangConfig.SrcnScene.nSceneId] = function(sysarg, args)
+   -- --print("Hello")
+   -- local NpcPtr = System.getGlobalNpc()
+   -- Actor.unregScriptCallback(NpcPtr, "OnTaketoWaKuang")
+   -- local Svar = Actor.getStaticVar(sysarg)
+   -- if not Svar.UseIntoWaKuangTime then
+   --    Svar.UseIntoWaKuangTime = 0
+   -- end
+   -- if not Svar.IntoWaKuangTime then
+   --    Svar.IntoWaKuangTime = 0
+   -- end
+   -- Svar.UseIntoWaKuangTime = Svar.UseIntoWaKuangTime + System.getCurrMiniTime() - Svar.IntoWaKuangTime --加十秒钟是想减少误差(懒得加了) 
+   --print("UseIntoWaKuangTime".. (Svar.UseIntoWaKuangTime))
+ end 
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aePreExitScene, EventCallDispatcher.OnPreExitScene)

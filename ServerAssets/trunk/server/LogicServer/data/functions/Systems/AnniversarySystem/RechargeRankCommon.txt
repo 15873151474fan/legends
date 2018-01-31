@@ -1,0 +1,1256 @@
+--通用充值排行 通用处理
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "data\config\rechargerank\RechargeRankConfig.txt" once
+--#include "data\functions\Activity\NpcOccupation\NpcOccupation.txt" once	--NPC占领
+--#include "data\functions\Activity\SpringFestivalHorse\ConsumePackage.txt" once	--消费豪礼
+--#include "data\functions\Systems\CardsSystem\CardsWar.txt" once	--卡牌对战
+--#include "data\functions\Activity\MidAutumn\MidAutumnLogin.txt" once	--马年中秋登录奖励
+--#include "data\functions\Activity\AnniversaryHorse\RechargePerDay.txt" once	--每日一充
+
+--加载充值排行
+--nFlag: 1 每日充值排行 2 充值排行领奖
+function LoadRechargeRankFile(sysarg, nTab, nFlag)
+	local nSubIndex = 0
+	local config = nil
+	local nValue = 0
+
+	nSubIndex, config = FindRechargeRankConfig(nTab)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return nValue
+	end
+
+	local fileName = nil
+	if nFlag == 1 then
+		fileName = config.rechargeRankDayFile
+	elseif nFlag == 2 then
+		fileName = config.rechargeRankAwardFile
+	end
+
+	if not fileName then
+		return nValue
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return nValue
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,config.column-1 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		--[[
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		if pItem then
+			for i=0,config.column-1 do
+				Ranking.setSub(pItem,i,"0")
+			end
+		end
+		]]
+	else
+		nValue = tonumber(Ranking.getSub(pItem,nSubIndex-1)) or 0
+	end
+	return nValue
+end
+
+--保存充值排行
+--nFlag: 1 每日充值排行 2 充值排行领奖
+function SaveRechargeRankFile(sysarg, nTab, nFlag, nValue)
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nTab)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+
+	local fileName = nil
+	if nFlag == 1 then
+		fileName = config.rechargeRankDayFile
+	elseif nFlag == 2 then
+		fileName = config.rechargeRankAwardFile
+	end
+
+	if not fileName then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,config.column-1 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		Ranking.setSub(pItem,nSubIndex-1,tostring(nValue))
+	end
+end
+
+--加载总充值排行
+function LoadRechargeRankTotalFile(sysarg, nTab)
+	local nSubIndex = 0
+	local config = nil
+	local nPoint = 0
+
+	nSubIndex, config = FindRechargeRankConfig(nTab)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return nPoint
+	end
+
+	local fileName = config.activity[nSubIndex].rechargeRankTotalFile
+	if not fileName then return nPoint end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return nPoint
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			Ranking.addColumn(ranking, "name")
+			Ranking.addColumn(ranking, "modeid")
+			Ranking.addColumn(ranking, "weapon")
+			Ranking.addColumn(ranking, "swing")
+			Ranking.addColumn(ranking, "sex")
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		--[[
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		if pItem then
+			Ranking.setSub(pItem,0,Actor.getName(sysarg))
+		end
+		]]
+	else
+		nPoint = Ranking.getPoint(pItem)
+	end
+
+	return nPoint
+end
+
+--保存总充值排行
+function SaveRechargeRankTotalFile(sysarg, nTab, nPoint)
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nTab)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+
+	local fileName = config.activity[nSubIndex].rechargeRankTotalFile
+	if not fileName then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			Ranking.addColumn(ranking, "name")
+			Ranking.addColumn(ranking, "modeid")
+			Ranking.addColumn(ranking, "weapon")
+			Ranking.addColumn(ranking, "swing")
+			Ranking.addColumn(ranking, "sex")
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	local nModeId, nWeaponApper, nWingAppear, nSwingLevel = Actor.getAppear(sysarg)
+	local nSex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		--[[
+		Ranking.setSub(pItem,0,Actor.getName(sysarg))
+		Ranking.setSub(pItem,0,nModeId)
+		Ranking.setSub(pItem,0,nWeaponApper)
+		Ranking.setSub(pItem,0,nWingAppear)
+		Ranking.setSub(pItem,0,nSex)
+		]]
+	end
+
+	if pItem then
+		Ranking.setItem(ranking,nActorId,nPoint)
+		Ranking.setSub(pItem,0,Actor.getName(sysarg))
+		Ranking.setSub(pItem,1,nModeId)
+		Ranking.setSub(pItem,2,nWeaponApper)
+		Ranking.setSub(pItem,3,nWingAppear)
+		Ranking.setSub(pItem,4,nSex)
+	end
+end
+
+--获取总充值排行名次
+function LoadRechargeRankTotalFileByIndex(nTab, nIndex)
+	local nSubIndex = 0
+	local config = nil
+	local nPoint = 0
+	local name = ""
+	local pItem = nil
+	local nRankCount = 0
+
+	nSubIndex, config = FindRechargeRankConfig(nTab)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return nPoint, name, pItem, nRankCount
+	end
+
+	local fileName = config.activity[nSubIndex].rechargeRankTotalFile
+	if not fileName then
+		return nPoint, name, pItem, nRankCount
+	end
+
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return nPoint, name, pItem, nRankCount
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			Ranking.addColumn(ranking, "name")
+			Ranking.addColumn(ranking, "modeid")
+			Ranking.addColumn(ranking, "weapon")
+			Ranking.addColumn(ranking, "swing")
+			Ranking.addColumn(ranking, "sex")
+		end
+	end
+
+	nRankCount = Ranking.getRankItemCount(ranking)
+	if (nIndex <= 0) or (nRankCount < nIndex) then
+		return nPoint, name, pItem, nRankCount
+	end
+
+	pItem = Ranking.getItemFromIndex(ranking, nIndex - 1)
+	if pItem then
+		nPoint = Ranking.getPoint(pItem)
+		name = Ranking.getSub(pItem,0)
+	end
+	return nPoint, name, pItem, nRankCount
+end
+
+--获取玩家总充值排行名次
+function LoadRechargeRankTotalFileByPtr(nTab, sysarg)
+	local nSubIndex = 0
+	local config = nil
+	local nPoint = 0
+	local nPos = 0
+	local pItem = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nTab)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return nPoint, nPos, pItem
+	end
+
+	local fileName = config.activity[nSubIndex].rechargeRankTotalFile
+	if not fileName then
+		return nPoint, nPos, pItem
+	end
+
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return nPoint, nPos, pItem
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			Ranking.addColumn(ranking, "name")
+			Ranking.addColumn(ranking, "modeid")
+			Ranking.addColumn(ranking, "weapon")
+			Ranking.addColumn(ranking, "swing")
+			Ranking.addColumn(ranking, "sex")
+		end
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+	if pItem then
+		nPoint = Ranking.getPoint(pItem)
+		nPos = Ranking.getIndexFromPtr(pItem) + 1
+	end
+	return nPoint, nPos, pItem
+end
+
+--获取今日充值人数
+function GetTodayRechargeCount(nTab)
+	local nSubIndex = 0
+	local config = nil
+	local nValue = 0
+	local nRankCount = 0
+
+	nSubIndex, config = FindRechargeRankConfig(nTab)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return nValue
+	end
+
+	local fileName = config.rechargeRankDayFile
+
+	if not fileName then
+		return nValue
+	end
+
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return nValue
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,config.column-1 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+
+	nRankCount = Ranking.getRankItemCount(ranking)
+	
+	for i=1, nRankCount do
+		local pItem = Ranking.getItemFromIndex(ranking, i - 1)
+		if pItem then
+			local nTodayRecharge = tonumber(Ranking.getSub(pItem,nSubIndex-1)) or 0
+			if nTodayRecharge > 0 then
+				nValue = nValue + 1
+			end
+		end
+	end
+
+	return nValue
+end
+
+--查找配置
+function FindRechargeRankConfig(nTab)
+	local nTotal = 0
+	local nLastTotal = 0
+	--local lastConfig = RechargeRankConfig[1]
+
+	for k, config in ipairs(RechargeRankConfig or {}) do
+		nTotal = nTotal + config.column
+		if nTotal >= nTab then
+			return nTab-nLastTotal, config
+		end
+		nLastTotal = nTotal
+		--lastConfig = config
+	end
+end
+
+--获取通用充值排行信息
+function OnGetRechargeCommonData(sysarg, args)
+	local nActivityId = args[2]
+
+	SendRechargeCommonData(sysarg, nActivityId)
+end
+
+--返回通用充值排行信息
+function SendRechargeCommonData(sysarg, nActivityId)
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nActivityId)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+
+	local nValue = LoadRechargeRankFile(sysarg, nActivityId, 2)
+	if not nValue then return end
+
+	local rechargeActivity = config.activity[nSubIndex]
+	if not rechargeActivity then return end
+
+--[[
+	if (not rechargeActivity.isUseActTime) or (rechargeActivity.isUseActTime == 1) then
+		if (System.isInDateRange(unpack(rechargeActivity.actTime)) ~= true) then
+			return
+		end
+	else
+		if (IsInCustomRechargeCommonDateRange(rechargeActivity) ~= true) then
+			return
+		end
+	end
+]]
+
+	local nPointFirst, nameFirst, pItemFirst, nRankAllCount = LoadRechargeRankTotalFileByIndex(nActivityId, 1)
+	local nServYB = 0
+	local nServStatus = 0
+	if (rechargeActivity.isUseServYB) and (rechargeActivity.isUseServYB == 1) then
+		for i = 1, nRankAllCount do
+			local nPointTmp = LoadRechargeRankTotalFileByIndex(nActivityId, i)
+			nServYB = nServYB + nPointTmp
+		end
+
+		local nPoint = LoadRechargeRankTotalFile(sysarg, nActivityId)
+
+		local nNewValue = nValue
+		for k, commonAward in ipairs(rechargeActivity.commonAwards or {}) do
+			if (nPoint >= commonAward.needYB) and nServYB >= commonAward.needServYB and (System.getIntBit(nNewValue, 16+k-1) ~= 1) then
+				nNewValue = System.setIntBit(nNewValue, 16+k-1, 1)
+			end
+		end
+		if nNewValue ~= nValue then
+			nValue = nNewValue
+			SaveRechargeRankFile(sysarg, nActivityId, 2, nValue)
+		end
+
+--[[
+		local ranking = Ranking.getRanking(config.rechargeRankAwardFile)
+		if not ranking then return end
+
+		local dval = System.getDyanmicVar()
+		if dval.HorseMidAutumnServYB == nil then
+			dval.HorseMidAutumnServYB = 0
+		end
+
+		if dval.HorseMidAutumnServRecharge == nil then
+			for k = 1, nRankAllCount do
+				local nPointTmp = LoadRechargeRankTotalFileByIndex(rechargeActivity.id, k)
+				local pItem = Ranking.getItemPtrByIndex(ranking, k-1)
+				if pItem then
+					local valTmp = Ranking.getSub(pItem, nSubIndex-1)
+					for x, commonAward in ipairs(rechargeActivity.commonAwards or {}) do
+						if (nServYB >= commonAward.needServYB) and (nPointTmp >= commonAward.needYB) and (System.getIntBit(valTmp, 16+x-1) ~= 1) then
+							valTmp = System.setIntBit(valTmp, 16+x-1, true)
+						end
+					end
+					Ranking.setSub(pItem,nSubIndex-1,valTmp)
+				end
+			end
+			dval.HorseMidAutumnServRecharge = 1
+		end
+]]
+		for k, v in ipairs(rechargeActivity.commonAwards or {}) do
+			if nServYB < v.needServYB then
+				break
+			end
+			nServStatus = k
+		end
+	end
+
+	local nAwardCount = table.getn(rechargeActivity.commonAwards)
+	local nRankCount = table.getn(rechargeActivity.rankAwards)
+
+	local pack = DataPack.allocPacket(sysarg, 52, 27)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeChar(pack, nAwardCount)
+		for i=1, nAwardCount do
+			DataPack.writeInt(pack, i)
+			DataPack.writeChar(pack, GetAwardStatus(nValue, i))
+		end
+		DataPack.writeChar(pack, nRankCount)
+		for i=1, nRankCount do
+			local nPoint, name = LoadRechargeRankTotalFileByIndex(nActivityId, i)
+			if nPoint < rechargeActivity.onRankNeedYB then
+				name = ""
+			end
+
+			DataPack.writeInt(pack, i)
+			DataPack.writeString(pack, name)
+		end
+		--需要全服充值数据
+		if (rechargeActivity.isUseServYB) and (rechargeActivity.isUseServYB == 1) then
+			DataPack.writeInt(pack, nServYB)
+			DataPack.writeChar(pack, nServStatus)
+		elseif (rechargeActivity.isPerDayRechargeYb) and (rechargeActivity.isPerDayRechargeYb == 1) then
+			DataPack.writeInt(pack, (LoadRechargeRankFile(sysarg, nActivityId, 1)))
+		elseif (rechargeActivity.isUseServRechargeCount) and (rechargeActivity.isUseServRechargeCount == 1) then
+			DataPack.writeInt(pack, (GetTodayRechargeCount(nActivityId)))
+		end
+		
+		DataPack.flush(pack)
+	end
+
+	if rechargeActivity and (rechargeActivity.nAppearCount) then
+		SendRechargeCommonAppear(sysarg, nActivityId, rechargeActivity.nAppearCount)
+	end
+end
+
+--获取领奖状态
+function GetAwardStatus(nValue, nIndex)
+	local canGetFlag = System.getIntBit(nValue, 16+nIndex-1)
+	local getFlag = System.getIntBit(nValue, nIndex-1)
+--[[
+	if canGetFlag == 0 then
+		canGetFlag = 1
+	else
+		canGetFlag = 0
+	end
+
+	return ((canGetFlag == 0) and (getFlag == 0) and 0 or 1)
+]]
+	if (canGetFlag == 0) then
+		return 2
+	elseif (canGetFlag == 1) and (getFlag == 0) then
+		return 0
+	else
+		return 1
+	end
+end
+
+--添加到通用充值排行榜
+function OnAddRechargeCommonRank(sysarg, args)
+	local nMoneyValue = args[2]
+
+	--添加到充值排行榜
+	OnAddRechargeMidAutumnLogin(sysarg, nMoneyValue)
+
+	--每日一充
+	OnAddRechargePerDay(sysarg, nMoneyValue)
+
+	local nTab = 1
+	for i, config in ipairs(RechargeRankConfig or {}) do
+		for j, activity in ipairs(config.activity or {}) do
+			local isInRechargeCommonDateRange = true
+			--活动期间才加入排行
+			if (not activity.isUseActTime) or (activity.isUseActTime == 1) then
+				isInRechargeCommonDateRange = System.isInDateRange(unpack(activity.actTime))
+			else
+				isInRechargeCommonDateRange = IsInCustomRechargeCommonDateRange(activity)
+			end
+			if isInRechargeCommonDateRange == true then
+				local nPoint = LoadRechargeRankTotalFile(sysarg, nTab)
+				nPoint = nPoint + nMoneyValue
+				SaveRechargeRankTotalFile(sysarg, nTab, nPoint)
+
+				local nDayMoneyValue = LoadRechargeRankFile(sysarg, nTab, 1)
+
+				nDayMoneyValue = nDayMoneyValue + nMoneyValue
+				SaveRechargeRankFile(sysarg, nTab, 1, nDayMoneyValue)
+
+				local nValue = LoadRechargeRankFile(sysarg, nTab, 2)
+				SaveRechargeRankFile(sysarg, nTab, 2, nValue)
+
+				local nPointFirst, nameFirst, pItemFirst, nRankAllCount = LoadRechargeRankTotalFileByIndex(activity.id, 1)
+				local nServYB = 0
+				if (activity.isUseServYB) and (activity.isUseServYB == 1) then
+				--[[
+					for k = 1, nRankAllCount do
+						local nPointTmp = LoadRechargeRankTotalFileByIndex(activity.id, k)
+						nServYB = nServYB + nPointTmp
+					end
+
+					local dval = System.getDyanmicVar()
+					if dval.HorseMidAutumnServYB == nil then
+						dval.HorseMidAutumnServYB = 0
+					else
+						for x, commonAward in ipairs(activity.commonAwards or {}) do
+							if (nServYB >= commonAward.needServYB) and (dval.HorseMidAutumnServYB < commonAward.needServYB) then
+								dval.HorseMidAutumnServYB = commonAward.needServYB
+								
+								System.broadcastTipmsg(commonAward.servBroadcast, ttScreenCenter+ttChatWindow)
+							end
+						end
+					end
+
+					local ranking = Ranking.getRanking(config.rechargeRankAwardFile)
+					if not ranking then return end
+
+					for k = 1, nRankAllCount do
+						local nPointTmp = LoadRechargeRankTotalFileByIndex(activity.id, k)
+						local pItem = Ranking.getItemPtrByIndex(ranking, k-1)
+						if pItem then
+							local valTmp = Ranking.getSub(pItem, j-1)
+							for x, commonAward in ipairs(activity.commonAwards or {}) do
+								if (nServYB >= commonAward.needServYB) and (nPointTmp >= commonAward.needYB) and (System.getIntBit(valTmp, 16+x-1) ~= 1) then
+									valTmp = System.setIntBit(valTmp, 16+x-1, true)
+								end
+							end
+							Ranking.setSub(pItem,j-1,valTmp)
+						end
+					end
+				]]
+				elseif (activity.isUseServRechargeCount) and (activity.isUseServRechargeCount == 1) then
+					local nValue = LoadRechargeRankFile(sysarg, nTab, 2)
+					if not nValue then return end
+
+					--先把自己加进去
+					SaveRechargeRankFile(sysarg, nTab, 2, nValue)
+
+					--每日充值
+					local fileName = config.rechargeRankDayFile
+
+					if not fileName then return end
+
+					local ranking = Ranking.getRanking(fileName)
+					if not ranking then
+						ranking = Ranking.add(fileName, 1000, 1, 10)
+						if not ranking then
+							return
+						end
+
+						if not Ranking.load(ranking, fileName) then
+							for k=0,config.column-1 do
+								Ranking.addColumn(ranking, string.format("value%d", k))
+							end
+						end
+					end
+					local nRankCount = Ranking.getRankItemCount(ranking)
+
+					--每日奖励
+					local awardFileName = config.rechargeRankAwardFile
+
+					if not awardFileName then return end
+
+					local awardRanking = Ranking.getRanking(awardFileName)
+					if not awardRanking then
+						awardRanking = Ranking.add(awardFileName, 1000, 1, 10)
+						if not awardRanking then
+							return
+						end
+
+						if not Ranking.load(awardRanking, awardFileName) then
+							for k=0,config.column-1 do
+								Ranking.addColumn(awardRanking, string.format("value%d", k))
+							end
+						end
+					end
+
+					local nTodayRechargeCount = GetTodayRechargeCount(activity.id)
+
+					for k, commonAward in ipairs(activity.commonAwards or {}) do
+						--全服充值人数符合
+						if (nTodayRechargeCount >= commonAward.needServRechargeCount) then
+							for m=1, nRankCount do
+								local pItem = Ranking.getItemFromIndex(ranking, m - 1)
+
+								local nTodayRecharge = 0
+								local nActorId = 0
+								if pItem then
+									nTodayRecharge = tonumber(Ranking.getSub(pItem,nTab-1) or 0)
+									nActorId = Ranking.getId(pItem)
+								end
+
+								if (nTodayRecharge > 0) and (nActorId ~= 0) then
+									local pAwardItem = Ranking.getItemPtrFromId(awardRanking, nActorId)
+
+									if pAwardItem then
+										local nAwardValue = Ranking.getSub(pAwardItem,nTab-1)
+
+										if (System.getIntBit(nAwardValue, 16+k-1) ~= 1) then
+											nAwardValue = System.setIntBit(nAwardValue, 16+k-1, true)
+
+											Ranking.setSub(pAwardItem,nTab-1,tostring(nAwardValue))
+										end
+									end
+								end
+							end
+						end
+
+						--全服播报，只播报一次
+						if (k == 1) and (commonAward.servBroadcast) and (nTodayRechargeCount == commonAward.needServRechargeCount) then
+							System.broadcastTipmsg(commonAward.servBroadcast, ttScreenCenter+ttChatWindow)
+						end
+					end
+				else
+					local nValue = LoadRechargeRankFile(sysarg, nTab, 2)
+					if not nValue then return end
+
+					if activity.isGiveCommonAwardsOnce and (activity.isGiveCommonAwardsOnce == 1) then
+						local nCommonAwardsCount = table.getn(activity.commonAwards or {})
+						for k=1,nCommonAwardsCount-1 do
+							if (nDayMoneyValue >= activity.commonAwards[k].needYB) and (nDayMoneyValue < activity.commonAwards[k+1].needYB) then
+								nValue = System.setIntBit(nValue, 16+k-1, true)
+							else
+								nValue = System.setIntBit(nValue, 16+k-1, false)
+							end
+						end
+						if (nDayMoneyValue >= activity.commonAwards[nCommonAwardsCount].needYB) then
+							nValue = System.setIntBit(nValue, 16+nCommonAwardsCount-1, true)
+						else
+							nValue = System.setIntBit(nValue, 16+nCommonAwardsCount-1, false)
+						end
+					else
+						for k, commonAward in ipairs(activity.commonAwards or {}) do
+							if (nDayMoneyValue >= commonAward.needYB) and (System.getIntBit(nValue, 16+k-1) ~= 1) then
+								nValue = System.setIntBit(nValue, 16+k-1, true)
+							end
+						end
+					end
+					SaveRechargeRankFile(sysarg, nTab, 2, nValue)
+				end
+			end
+			nTab = nTab + 1
+		end
+	end
+end
+
+--领取通用充值排行奖励
+function OnGetRechargeCommonAward(sysarg, args)
+	local nActivityId = args[2]
+	local nIndex = args[3]
+
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nActivityId)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+
+	local nValue = LoadRechargeRankFile(sysarg, nActivityId, 2)
+	if not nValue then return end
+
+	local rechargeActivity = config.activity[nSubIndex]
+	if not rechargeActivity then return end
+
+	if (not nIndex) or (nIndex <= 0) or (nIndex > table.getn(rechargeActivity.commonAwards)) then
+		return
+	end
+
+	if (not rechargeActivity.isUseActTime) or (rechargeActivity.isUseActTime == 1) then
+		local actTime = rechargeActivity.actTime
+		if rechargeActivity.actTimeAwards then
+			actTime = rechargeActivity.actTimeAwards
+		end
+		if (System.isInDateRange(unpack(actTime)) ~= true) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.cj0043, ttFlyTip)
+			return
+		end
+	else
+		if (IsInCustomRechargeCommonDateRange(rechargeActivity) ~= true) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.cj0043, ttFlyTip)
+			return
+		end
+	end
+
+	local nValue = LoadRechargeRankFile(sysarg, nActivityId, 2)
+	if not nValue then return end
+
+	if System.getIntBit(nValue, 16+nIndex-1) == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0033, ttFlyTip)
+		return
+	end
+
+	if System.getIntBit(nValue, nIndex-1) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0034, ttFlyTip)
+		return
+	end
+
+	local awards = rechargeActivity.commonAwards[nIndex].awards
+	if not awards then return end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+			end
+		end
+		nValue = System.setIntBit(nValue, nIndex-1, true)
+
+		SaveRechargeRankFile(sysarg, nActivityId, 2, nValue)
+
+		SendRechargeCommonAward(sysarg, nActivityId, nIndex)
+	end
+end
+
+--返回领取通用充值排行奖励
+function SendRechargeCommonAward(sysarg, nActivityId, nIndex)
+	local pack = DataPack.allocPacket(sysarg, 52, 28)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeInt(pack, nIndex)
+		DataPack.writeChar(pack, 1)
+		DataPack.flush(pack)
+	end
+end
+
+--重置充值排行每天数据
+function ResetRechargeCommon()
+	--重置NPC占领每天数据
+	ResetNpcOccupation()
+
+	--重置消费豪礼每天数据
+	ResetConsumePackage()
+
+	--重置卡牌对战
+	ResetCardsWar()
+
+	--重置马年中秋登录奖励数据
+	ResetMidAutumnLoginAward()
+
+	local nTab = 1
+	for i, config in ipairs(RechargeRankConfig or {}) do
+		for j, activity in ipairs(config.activity or {}) do
+			--活动期间才重置排行
+
+			local isInRechargeCommonDateRange = true
+			if (not activity.isUseActTime) or (activity.isUseActTime == 1) then
+				local activityTime = {}
+				for k, v in ipairs(activity.actTime or {}) do 
+					table.insert(activityTime, v)
+				end
+				activityTime[9] = activityTime[9] + 1
+
+				isInRechargeCommonDateRange = System.isInDateRange(unpack(activityTime))
+			else
+				isInRechargeCommonDateRange = IsInCustomRechargeCommonShowIconDateRange(activity)
+			end
+			if (isInRechargeCommonDateRange == true) and (activity.isNewDayFresh == 1) then
+				local pRank = Ranking.getRanking(config.rechargeRankDayFile)
+
+				local tRank = Ranking.getRanking(config.rechargeRankAwardFile)
+				if tRank then
+					local nCount = Ranking.getRankItemCount(tRank)
+					for k=0,nCount-1 do
+						local pItem = Ranking.getItemFromIndex(tRank,k)
+						if pItem then
+							if (activity.isNewDaySendOfflineMsg) and (activity.isNewDaySendOfflineMsg == 1) then
+								local nAwardCount = table.getn(activity.commonAwards)
+								local nValue = tonumber(Ranking.getSub(pItem,j-1)) or 0
+
+								for x=1, nAwardCount do
+									local canGetFlag = System.getIntBit(nValue, 16+x-1)
+									local getFlag = System.getIntBit(nValue, x-1)
+									--可领且未领，发送离线邮件
+									if (canGetFlag == 1) and (getFlag == 0) then
+										local title = ""
+										if activity.commonAwards[x].needServRechargeCount then
+											title = string.format(activity.commonAwards[x].offlineMsg, activity.commonAwards[x].needServRechargeCount)
+										else
+											title = string.format(activity.commonAwards[x].offlineMsg, activity.commonAwards[x].needYB)
+										end
+
+										local actorId = Ranking.getId(pItem)
+										local offlineNeedBagCount = activity.commonAwards[x].offlineNeedBagCount
+										if not offlineNeedBagCount then
+											offlineNeedBagCount = 6
+										end
+
+										local nParam5 = 0
+										local commonAwards = activity.commonAwards[x]
+										if (commonAwards.rebateRate) and (commonAwards.rebateRate > 0) then
+											local nYestRecharge = 0	
+											if pRank then
+												local yestItem = Ranking.getItemPtrFromId(pRank, actorId)
+
+												if yestItem then
+													nYestRecharge = tonumber(Ranking.getSub(yestItem,j-1)) or 0
+												end
+											end
+											nParam5 = math.floor(commonAwards.rebateRate / 10000 * nYestRecharge)
+											if (commonAwards.rebateLimit) and (nParam5 > commonAwards.rebateLimit) then
+												nParam5 = commonAwards.rebateLimit
+											end
+										end
+										System.addOfflineMsg(actorId, 55, title, 0, tonumber(nTab), x, 2, offlineNeedBagCount, nParam5)	-- 1 充值排行 2 每日领取
+									end
+								end
+							end
+
+							Ranking.setSub(pItem,j-1,tostring(0))
+						end
+					end
+				end
+				
+				if pRank then
+					local nCount = Ranking.getRankItemCount(pRank)
+					for k=0,nCount-1 do
+						local pItem = Ranking.getItemFromIndex(pRank,k)
+						if pItem then
+							Ranking.setSub(pItem,j-1,tostring(0))
+						end
+					end
+				end
+			end
+			nTab = nTab + 1
+		end
+	end
+end
+
+--充值活动结束
+function CloseRechargeCommon(nActivityId)
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(tonumber(nActivityId))
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+
+	local rechargeActivity = config.activity[nSubIndex]
+	if not rechargeActivity then return end
+
+	local nRankCount = table.getn(rechargeActivity.rankAwards)
+
+	for i=1, nRankCount do
+		local nPoint, name, pItem = LoadRechargeRankTotalFileByIndex(tonumber(nActivityId), i)
+
+		if nPoint >= rechargeActivity.onRankNeedYB then
+			local title = rechargeActivity.rankAwards[i].offlineMsg
+			local actorId = Ranking.getId(pItem)
+			local offlineNeedBagCount = rechargeActivity.rankAwards[i].offlineNeedBagCount
+			if not offlineNeedBagCount then
+				offlineNeedBagCount = 6
+			end
+			System.addOfflineMsg(actorId, 55, title, 0, tonumber(nActivityId), i, 1, offlineNeedBagCount)	-- 1 充值排行 2 每日领取
+		end
+	end
+
+	if (rechargeActivity.isLastDaySendCommonAwards) and (rechargeActivity.isLastDaySendCommonAwards == 1) then
+		local tRank = Ranking.getRanking(config.rechargeRankAwardFile)
+		if tRank then
+			local nCount = Ranking.getRankItemCount(tRank)
+			for k=0,nCount-1 do
+				local pItem = Ranking.getItemFromIndex(tRank,k)
+				if pItem then
+					local nAwardCount = table.getn(rechargeActivity.commonAwards)
+					local nValue = tonumber(Ranking.getSub(pItem,nSubIndex-1)) or 0
+
+					for x=1, nAwardCount do
+						local canGetFlag = System.getIntBit(nValue, 16+x-1)
+						local getFlag = System.getIntBit(nValue, x-1)
+						--可领且未领，发送离线邮件
+						if (canGetFlag == 1) and (getFlag == 0) then
+							local title = string.format(rechargeActivity.commonAwards[x].offlineMsg, rechargeActivity.commonAwards[x].needYB)
+							local actorId = Ranking.getId(pItem)
+							local offlineNeedBagCount = rechargeActivity.commonAwards[x].offlineNeedBagCount
+							if not offlineNeedBagCount then
+								offlineNeedBagCount = 6
+							end
+							System.addOfflineMsg(actorId, 55, title, 0, tonumber(nSubIndex), x, 2, offlineNeedBagCount)	-- 1 充值排行 2 每日领取
+						end
+					end
+
+					Ranking.setSub(pItem,nSubIndex-1,tostring(0))
+				end
+			end
+		end
+	end
+	
+	if (not rechargeActivity.isNeedShow) or (rechargeActivity.isNeedShow and rechargeActivity.isNeedShow == 0) then
+		ClearRechargeCommonActivityRank(tonumber(nActivityId)) 
+	end
+end
+
+--领取通用充值排行离线奖励
+function OnGetRechargeCommonRankAward(sysarg, args)
+	local nActivityId = args[2]
+	local nIndex = args[3]
+	local nType = args[4]	--1 充值排行 2 每日领取
+	local nParam5 = args[5]
+
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nActivityId)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+
+	local nValue = LoadRechargeRankFile(sysarg, nActivityId, 2)
+	if not nValue then return end
+
+	local rechargeActivity = config.activity[nSubIndex]
+	if not rechargeActivity then return end
+
+	if (not nIndex) or (nIndex <= 0) then
+		return
+	end
+	--1 充值排行 2 每日领取
+	if (nType <= 0) or (nType >= 3) then
+		return
+	end
+
+	local awards = nil
+	if nType == 1 then
+		if (nIndex > table.getn(rechargeActivity.rankAwards)) then return end
+
+		awards = rechargeActivity.rankAwards[nIndex].awards
+	elseif nType == 2 then
+		if (nIndex > table.getn(rechargeActivity.commonAwards)) then return end
+
+		awards = rechargeActivity.commonAwards[nIndex].awards
+
+		local commonAwards = rechargeActivity.commonAwards[nIndex]
+		if (commonAwards.rebateRate) and (commonAwards.rebateRate > 0) and (nParam5 > 0) then
+			Actor.changeMoney(sysarg,3,nParam5,192,Lang.Activity.cj0044)
+		end
+	end
+	if not awards then return end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+			end
+		end
+	end
+end
+
+--判断是否在自定义充值排行期间
+function IsInCustomRechargeCommonDateRange(rechargeActivity)
+	if rechargeActivity.id == 3 then	--百服
+		return System.isOpenHorseActById(11)
+	elseif rechargeActivity.id == 4 then --五一
+		return true
+	elseif rechargeActivity.id == 12 then --国庆，双十一
+		return (System.getDoubleElevenActFlag(3) == 1 and true or false)
+	elseif rechargeActivity.id == 18 then --羊年百服
+		return (System.getSheepHundredActFlag(3) and (System.isShowSheepHundredAct(3) ~= true))
+	end
+
+	return false
+end
+
+--判断是否在自定义充值排行ShowIcon期间
+function IsInCustomRechargeCommonShowIconDateRange(rechargeActivity)
+	if rechargeActivity.id == 3 then	--百服
+		return ((System.isOpenHorseActById(11) == true) or (System.isShowIconHorseActById(11) == true))
+	elseif rechargeActivity.id == 12 then --国庆，双十一
+		return (System.getDoubleElevenActFlag(3) == 1 and true or false)
+	elseif rechargeActivity.id == 18 then --羊年百服
+		return (System.getSheepHundredActFlag(3) == true)
+	end
+
+	return false
+end
+
+--清除某个活动排行
+function ClearRechargeCommonActivityRank(nActivityId)
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nActivityId)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+	
+	local pRank = Ranking.getRanking(config.rechargeRankDayFile)
+	if pRank then
+		local nCount = Ranking.getRankItemCount(pRank)
+		for k=0,nCount-1 do
+			local pItem = Ranking.getItemFromIndex(pRank,k)
+			if pItem then
+				Ranking.setSub(pItem,nSubIndex-1,tostring(0))
+			end
+		end
+	end
+
+	local tRank = Ranking.getRanking(config.rechargeRankAwardFile)
+	if tRank then
+		local nCount = Ranking.getRankItemCount(tRank)
+		for k=0,nCount-1 do
+			local pItem = Ranking.getItemFromIndex(tRank,k)
+			if pItem then
+				Ranking.setSub(pItem,nSubIndex-1,tostring(0))
+			end
+		end
+	end
+
+	local activity = config.activity[nSubIndex]
+	if not activity then return end
+
+	local ranking = Ranking.getRanking(activity.rechargeRankTotalFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+function GetRechargeCommonRank(sysarg, args)
+	local nActivityId = args[2]
+
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nActivityId)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+
+	LoadRechargeRankTotalFileByIndex(nActivityId, 1)
+
+	local rechargeActivity = config.activity[nSubIndex]
+	if not rechargeActivity then return end
+
+	local nRankCount = rechargeActivity.showRankCount
+	if not nRankCount then
+		nRankCount = table.getn(rechargeActivity.rankAwards)
+	end
+
+	local nMyPoint, nMyPos = LoadRechargeRankTotalFileByPtr(nActivityId, sysarg)
+
+	if rechargeActivity.isOnRankShowPos and (rechargeActivity.isOnRankShowPos == 1) then
+		if nMyPoint < rechargeActivity.onRankNeedYB then
+			nMyPos = 0
+		end
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 52, 35)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeChar(pack, nMyPos)
+		DataPack.writeInt(pack, nMyPoint)
+		DataPack.writeChar(pack, nRankCount)
+		for i=1, nRankCount do
+			local nPoint, name = LoadRechargeRankTotalFileByIndex(nActivityId, i)
+			if rechargeActivity.isUseNeedYBOnRank and rechargeActivity.isUseNeedYBOnRank == 1 then
+				if nPoint < rechargeActivity.onRankNeedYB then
+					name = ""
+				end
+			end
+			DataPack.writeChar(pack, i)
+			DataPack.writeString(pack, name)
+		end
+		DataPack.flush(pack)
+	end
+	
+	if rechargeActivity and (rechargeActivity.nAppearCount) then
+		SendRechargeCommonAppear(sysarg, nActivityId, rechargeActivity.nAppearCount)
+	end
+end
+
+--下发通用充值排行内观
+function SendRechargeCommonAppear(sysarg, nActivityId, nAppearCount)
+	if nAppearCount <= 0 then
+		return
+	end
+
+	local nSubIndex = 0
+	local config = nil
+
+	nSubIndex, config = FindRechargeRankConfig(nActivityId)
+	if (not nSubIndex) or (nSubIndex == 0) or (not config) then
+		return
+	end
+	
+	local rechargeActivity = config.activity[nSubIndex]
+	if not rechargeActivity then return end
+
+	local nPointFirst, nameFirst, pItemFirst, nRankAllCount = LoadRechargeRankTotalFileByIndex(nActivityId, 1)
+
+	if nAppearCount > nRankAllCount then
+		nAppearCount = nRankAllCount
+	end
+
+	local nOnRankCount = 0
+
+	for i = 1, nAppearCount do
+		local nPoint, name, pItem = LoadRechargeRankTotalFileByIndex(nActivityId, i)
+
+		if nPoint >= rechargeActivity.onRankNeedYB then
+			nOnRankCount = nOnRankCount + 1
+		end
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 52, 43)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeChar(pack, nOnRankCount)
+
+		for i = 1, nOnRankCount do
+			local nPoint, name, pItem = LoadRechargeRankTotalFileByIndex(nActivityId, i)
+
+			local nModeId = 0
+			local nWeaponApper = 0
+			local nWingAppear = 0
+			local nSex = 0
+
+			if pItem then
+				nModeId = Ranking.getSub(pItem, 1) or 0
+				nWeaponApper = Ranking.getSub(pItem, 2) or 0
+				nWingAppear = Ranking.getSub(pItem, 3) or 0
+				nSex = Ranking.getSub(pItem, 4) or 0
+			end
+			
+			DataPack.writeInt(pack, nModeId)
+			DataPack.writeInt(pack, nWeaponApper)
+			DataPack.writeInt(pack, nWingAppear)
+			DataPack.writeInt(pack, nSex)
+			DataPack.writeString(pack, name)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--通用充值排行榜初始化
+function RechargeCommonRankInit()	
+	local nTab = 1
+	for i, config in ipairs(RechargeRankConfig or {}) do
+		local tRanking = Ranking.getRanking(config.rechargeRankDayFile)
+		if not tRanking then
+			tRanking = Ranking.add(config.rechargeRankDayFile, 1000, 1, 10)
+			if not tRanking then
+				return
+			end
+
+			if not Ranking.load(tRanking, config.rechargeRankDayFile) then
+				for i=0,config.column-1 do
+					Ranking.addColumn(tRanking, string.format("value%d", i))
+				end
+			end
+		end
+
+		local pRanking = Ranking.getRanking(config.rechargeRankAwardFile)
+		if not pRanking then
+			pRanking = Ranking.add(config.rechargeRankAwardFile, 1000, 1, 10)
+			if not pRanking then
+				return
+			end
+
+			if not Ranking.load(pRanking, config.rechargeRankAwardFile) then
+				for i=0,config.column-1 do
+					Ranking.addColumn(pRanking, string.format("value%d", i))
+				end
+			end
+		end
+
+		for j, activity in ipairs(config.activity or {}) do
+			local ranking = Ranking.getRanking(activity.rechargeRankTotalFile)
+			if not ranking then
+				ranking = Ranking.add(activity.rechargeRankTotalFile, 1000, 1, 10)
+				if not ranking then
+					return
+				end
+
+				if not Ranking.load(ranking, activity.rechargeRankTotalFile) then
+					Ranking.addColumn(ranking, "name")
+					Ranking.addColumn(ranking, "modeid")
+					Ranking.addColumn(ranking, "weapon")
+					Ranking.addColumn(ranking, "swing")
+					Ranking.addColumn(ranking, "sex")
+				end
+			end
+			nTab = nTab + 1
+		end
+	end
+end
+
+table.insert(InitFnTable,RechargeCommonRankInit)

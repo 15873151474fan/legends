@@ -1,0 +1,40 @@
+--lua script
+--#include "data\config\item\TaskInThePlaceConfig.txt" once
+
+function UseTaskThingInThePlace(sysarg,itemidx,itemPtr,ItemTable)
+    
+    local DELAYTIME = 3000
+    local cursceneid = Actor.getSceneId(sysarg)
+    local x = Actor.getIntProperty(sysarg,PROP_ENTITY_POSX)
+    local y = Actor.getIntProperty(sysarg,PROP_ENTITY_POSY)
+    if(cursceneid == ItemTable.sceneid and x >= ItemTable.posx1 and x <= ItemTable.posx2 and y >= ItemTable.posy1 and y <= ItemTable.posy2) then
+	    if(Actor.hasQuest(sysarg,ItemTable.taskid)) then
+		    local result = false
+		    local postint,result = Actor.postEntityScriptDelayMsg(sysarg,DELAYTIME,result,ItemTable.DelayType,ItemTable.item_id,ItemTable.taskid,ItemTable.id,ItemTable.count)
+		    if not result then 
+		  		--print("post delay is false")
+		 			return 
+			  end
+			  local npack = DataPack.allocPacket(sysarg,139,4)
+			  if npack == nil then return end
+			  DataPack.writeInt(npack,postint)
+			  DataPack.writeInt(npack,DELAYTIME)
+			  DataPack.writeByte(npack,1)
+			  DataPack.writeByte(npack,1)
+			  DataPack.writeString(npack,Lang.ScriptTips.n00014)
+			  DataPack.flush(npack)
+	    end
+    else
+     Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00025,ttDialog )
+    end
+end
+
+
+function UseTaskInPlaceItemsInit(sysarg)
+  for i = 1,table.getn(UseTaskItems) do
+		local x = UseTaskItems[i]
+		GlobalItemFn[x.item_id] = { func = UseTaskThingInThePlace, params = x }
+  end
+end
+
+table.insert(InitFnTable,UseTaskInPlaceItemsInit)

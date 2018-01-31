@@ -1,0 +1,243 @@
+﻿--财神的配置
+
+--lua script
+--#include "..\..\language\LangCode.txt"
+
+GodWealthConfig =
+{
+	freeTimes = 15,			--免费投骰子的次数
+	bindYb = 99999999,				--增加摇骰子次数需要的礼卷
+	nYb = 25,				--增加摇骰子次数需要的元宝
+
+	clearTimebindYb = 0,		--清除冷却时间需要的礼卷
+	clearTimeNeedYb = 15,		--清除冷却时间需要的元宝
+
+	reSetEventNeedBindYb = 0,		--重置事件需要的礼卷
+	reSetEventNeedYb = 100,			--重置事件需要的元宝
+
+	MagicRollNeedGoldNum = 100,     --一次魔法骰子所需要的元宝数
+
+	reSetTip = Lang.Activity.resettip,                  --重置按钮提示
+	playDiceTip = Lang.Activity.playDiceTip,               --投骰子按钮提示
+	cooldownTip = Lang.Activity.cooldownTip,               --秒冷却时间提示
+	addTickTip = Lang.Activity.addTickTip,                --增加次数按钮提示
+	chuangGuanText = Lang.Activity.chuangGuanText,                                 --闯关说明
+
+
+	--所有关卡
+	CheckPoints =
+	{
+		--第一关
+		{
+			currLayerAward =
+			{
+				{ type = 0, id = 1151, count = 1, strong = 0, quality = 0, bind = 1, rate = 100,},
+			},
+
+			title = Lang.Activity.cs0001,      --关卡的名称
+			eventCount = 5,						--事件的个数
+
+			endPointDesc = Lang.Activity.lb0001,                 --终点礼包提示
+			nextPointDesc = Lang.Activity.gk0001,                --下一关提示
+
+			--显示下一关的情况,第一个是箭头,第二个是问号
+			endPoint =
+			{
+				{x=3, y=0, needArrow=false, arrowDir=6},
+				{x=2, y=0, needArrow=false, arrowDir=0},
+			},
+			--可走的点
+			points =
+			{
+				--x, y就是坐标,从0开始    needArrow 是否需要箭头   arrowDir  箭头的方向 0上 2右 4下 6左
+				{x=1, y=2, needArrow=false, arrowDir=0,childIndex=0},
+				{x=2, y=3, needArrow=false, arrowDir=0,childIndex=1},
+				{x=1, y=4, needArrow=false, arrowDir=0,childIndex=2},
+				{x=2, y=5, needArrow=false, arrowDir=0,childIndex=3},
+				{x=1, y=6, needArrow=false, arrowDir=0,childIndex=4},
+				{x=0, y=7, needArrow=false, arrowDir=0,childIndex=5},
+				{x=1, y=8, needArrow=false, arrowDir=0,childIndex=6},
+				{x=2, y=9, needArrow=false, arrowDir=0,childIndex=7},
+				{x=1, y=10, needArrow=false, arrowDir=0,childIndex=8},
+				{x=0, y=11, needArrow=false, arrowDir=0,childIndex=9},
+				{x=1, y=12, needArrow=false, arrowDir=0,childIndex=10},
+				{x=2, y=13, needArrow=false, arrowDir=0,childIndex=11},
+				{x=3, y=12, needArrow=false, arrowDir=0,childIndex=10},
+				{x=4, y=11, needArrow=false, arrowDir=0,childIndex=10},
+				{x=5, y=12, needArrow=false, arrowDir=0,childIndex=11},
+				{x=6, y=11, needArrow=false, arrowDir=0,childIndex=9},
+				{x=7, y=10, needArrow=false, arrowDir=0,childIndex=8},
+				{x=8, y=9, needArrow=false, arrowDir=0,childIndex=8},
+				{x=9, y=10, needArrow=false, arrowDir=0,childIndex=9},
+				{x=10, y=11, needArrow=false, arrowDir=0,childIndex=10},
+				{x=9, y=12, needArrow=false, arrowDir=0,childIndex=11},
+				{x=10, y=13, needArrow=false, arrowDir=0,childIndex=12},
+				{x=11, y=14, needArrow=false, arrowDir=0,childIndex=13},
+				{x=12, y=13, needArrow=false, arrowDir=0,childIndex=13},
+                {x=13, y=12, needArrow=false, arrowDir=0,childIndex=13},
+                {x=14, y=13, needArrow=false, arrowDir=0,childIndex=14},
+                {x=15, y=12, needArrow=false, arrowDir=0,childIndex=14},
+                {x=16, y=11, needArrow=false, arrowDir=0,childIndex=14},
+                {x=15, y=10, needArrow=false, arrowDir=0,childIndex=14},
+                {x=14, y=9, needArrow=false, arrowDir=0,childIndex=0},
+                {x=15, y=8, needArrow=false, arrowDir=0,childIndex=0},
+                {x=16, y=7, needArrow=false, arrowDir=0,childIndex=0},
+                {x=17, y=6, needArrow=false, arrowDir=0,childIndex=0},
+                {x=16, y=5, needArrow=false, arrowDir=0,childIndex=0},
+                {x=15, y=4, needArrow=false, arrowDir=0,childIndex=0},
+                {x=16, y=3, needArrow=false, arrowDir=0,childIndex=0},
+                {x=15, y=2, needArrow=false, arrowDir=0,childIndex=0},
+
+
+
+
+			},
+		},
+
+		--第二关
+		{
+
+		  	currLayerAward =
+			{
+				{ type = 0, id = 1152, count = 1, strong = 0, quality = 0, bind = 1, rate = 100,},
+			},
+
+			title = Lang.Activity.cs0002,      --关卡的名称
+			eventCount = 5,						--事件的个数
+
+      		endPointDesc = Lang.Activity.lb0002,                 --终点礼包提示
+			nextPointDesc = Lang.Activity.gk0002,                --下一关提示
+
+			--显示下一关的情况,第一个是箭头,第二个是问号
+			endPoint =
+			{
+				{x=10, y=0, needArrow=true, arrowDir=2},
+				{x=11, y=0, needArrow=false, arrowDir=0},
+			},
+
+			--可走的点
+			points =
+			{
+				--x, y就是坐标,从0开始    needArrow 是否需要箭头   arrowDir  箭头的方向 0上 2右 4下 6左
+				{x=2, y=1, needArrow=false, arrowDir=0,childIndex=0},
+				{x=3, y=2, needArrow=false, arrowDir=0,childIndex=1},
+				{x=2, y=3, needArrow=false, arrowDir=0,childIndex=2},
+				{x=1, y=4, needArrow=false, arrowDir=0,childIndex=3},
+				{x=0, y=5, needArrow=false, arrowDir=0,childIndex=4}, --5
+				{x=1, y=6, needArrow=false, arrowDir=0,childIndex=5},
+				{x=2, y=7, needArrow=false, arrowDir=0,childIndex=6},
+				{x=3, y=6, needArrow=false, arrowDir=0,childIndex=6},
+				{x=4, y=7, needArrow=false, arrowDir=0,childIndex=7},
+				{x=5, y=8, needArrow=false, arrowDir=0,childIndex=8}, --10
+				{x=4, y=9, needArrow=false, arrowDir=0,childIndex=9},
+				{x=3, y=10, needArrow=false, arrowDir=0,childIndex=10},
+				{x=2, y=11, needArrow=false, arrowDir=0,childIndex=11},  --13
+				{x=3, y=12, needArrow=false, arrowDir=0,childIndex=12},
+				{x=4, y=13, needArrow=false, arrowDir=0,childIndex=13},
+				{x=5, y=14, needArrow=false, arrowDir=0,childIndex=14},  --16
+				{x=6, y=13, needArrow=false, arrowDir=0,childIndex=14},
+				{x=7, y=12, needArrow=false, arrowDir=0,childIndex=14},
+				{x=8, y=11, needArrow=false, arrowDir=0,childIndex=14},  --19
+				{x=9, y=12, needArrow=false, arrowDir=0,childIndex=15},
+				{x=10, y=13, needArrow=false, arrowDir=0,childIndex=16},
+				{x=11, y=12, needArrow=false, arrowDir=0,childIndex=16},
+				{x=12, y=11, needArrow=false, arrowDir=0,childIndex=16},   --23
+				{x=13, y=12, needArrow=false, arrowDir=0,childIndex=17},
+                {x=14, y=11, needArrow=false, arrowDir=0,childIndex=17},
+                {x=15, y=12, needArrow=false, arrowDir=0,childIndex=18},
+                {x=16, y=13, needArrow=false, arrowDir=0,childIndex=19},  --27
+                {x=17, y=12, needArrow=false, arrowDir=0,childIndex=19},
+                {x=18, y=11, needArrow=false, arrowDir=0,childIndex=0},    --29
+                {x=17, y=10, needArrow=false, arrowDir=0,childIndex=0},
+                {x=16, y=9, needArrow=false, arrowDir=0,childIndex=0},
+                {x=15, y=8, needArrow=false, arrowDir=0,childIndex=0},    --32
+                {x=16, y=7, needArrow=false, arrowDir=0,childIndex=0},
+                {x=17, y=6, needArrow=false, arrowDir=0,childIndex=0},
+                {x=18, y=5, needArrow=false, arrowDir=0,childIndex=0},    --35
+                {x=17, y=4, needArrow=false, arrowDir=0,childIndex=0},
+                {x=16, y=3, needArrow=false, arrowDir=0,childIndex=0},    --37
+                {x=15, y=2, needArrow=false, arrowDir=0,childIndex=0},
+                {x=14, y=1, needArrow=false, arrowDir=0,childIndex=0},   --39
+                {x=13, y=2, needArrow=false, arrowDir=0,childIndex=0},
+			},
+		},
+
+		--第三关
+		{
+			currLayerAward =
+			{
+				{ type = 0, id = 1153, count = 1, strong = 0, quality = 0, bind = 1, rate = 100,},
+			},
+
+			title = Lang.Activity.cs0003,      --关卡的名称
+			eventCount = 5,						--事件的个数
+
+			endPointDesc = Lang.Activity.lb0003,                 --终点礼包提示
+			nextPointDesc = Lang.Activity.gk0003,                --下一关提示
+
+			--显示下一关的情况,第一个是箭头,第二个是问号
+			endPoint =
+			{
+				--{x=11, y=6, needArrow=true, arrowDir=4},
+				--{x=11, y=7, needArrow=false, arrowDir=4},
+			},
+
+			--可走的点
+			points =
+			{
+				--x, y就是坐标,从0开始    needArrow 是否需要箭头   arrowDir  箭头的方向 0上 2右 4下 6左
+				{x=4, y=3, needArrow=false, arrowDir=0,childIndex=0},
+				{x=3, y=4, needArrow=false, arrowDir=0,childIndex=1},
+				{x=2, y=3, needArrow=false, arrowDir=0,childIndex=1},
+				{x=1, y=4, needArrow=false, arrowDir=0,childIndex=2},
+				{x=0, y=5, needArrow=false, arrowDir=0,childIndex=3}, --5
+				{x=1, y=6, needArrow=false, arrowDir=0,childIndex=4},
+				{x=0, y=7, needArrow=false, arrowDir=0,childIndex=5},
+				{x=1, y=8, needArrow=false, arrowDir=0,childIndex=6},
+				{x=2, y=9, needArrow=false, arrowDir=0,childIndex=7},
+				{x=3, y=8, needArrow=false, arrowDir=0,childIndex=7}, --10
+				{x=4, y=7, needArrow=false, arrowDir=0,childIndex=7},
+				{x=5, y=8, needArrow=false, arrowDir=0,childIndex=8},
+				{x=6, y=9, needArrow=false, arrowDir=0,childIndex=9},  --13
+				{x=5, y=10, needArrow=false, arrowDir=0,childIndex=10},
+				{x=4, y=11, needArrow=false, arrowDir=0,childIndex=11},
+				{x=3, y=12, needArrow=false, arrowDir=0,childIndex=12},  --16
+				{x=4, y=13, needArrow=false, arrowDir=0,childIndex=13},
+				{x=5, y=14, needArrow=false, arrowDir=0,childIndex=14},
+				{x=6, y=13, needArrow=false, arrowDir=0,childIndex=13},  --19
+				{x=7, y=12, needArrow=false, arrowDir=0,childIndex=13},
+				{x=8, y=13, needArrow=false, arrowDir=0,childIndex=14},
+				{x=9, y=12, needArrow=false, arrowDir=0,childIndex=13},
+				{x=10, y=11, needArrow=false, arrowDir=0,childIndex=13},   --23
+				{x=9, y=10, needArrow=false, arrowDir=0,childIndex=12},
+                {x=10, y=9, needArrow=false, arrowDir=0,childIndex=12},
+                {x=11, y=8, needArrow=false, arrowDir=0,childIndex=12},
+                {x=12, y=9, needArrow=false, arrowDir=0,childIndex=13},  --27
+                {x=13, y=10, needArrow=false, arrowDir=0,childIndex=14},
+                {x=14, y=11, needArrow=false, arrowDir=0,childIndex=15},
+                {x=13, y=12, needArrow=false, arrowDir=0,childIndex=16},
+                {x=14, y=13, needArrow=false, arrowDir=0,childIndex=17},    --31
+                {x=15, y=14, needArrow=false, arrowDir=0,childIndex=18},
+                {x=16, y=13, needArrow=false, arrowDir=0,childIndex=0},
+                {x=17, y=12, needArrow=false, arrowDir=0,childIndex=0},    --34
+                {x=18, y=11, needArrow=false, arrowDir=0,childIndex=0},
+                {x=17, y=10, needArrow=false, arrowDir=0,childIndex=0},
+                {x=16, y=9, needArrow=false, arrowDir=0,childIndex=0},    --37
+                {x=17, y=8, needArrow=false, arrowDir=0,childIndex=0},
+                {x=18, y=7, needArrow=false, arrowDir=0,childIndex=0},
+                {x=17, y=6, needArrow=false, arrowDir=0,childIndex=0},
+                {x=16, y=5, needArrow=false, arrowDir=0,childIndex=0},
+                {x=15, y=4, needArrow=false, arrowDir=0,childIndex=0},
+                {x=14, y=3, needArrow=false, arrowDir=0,childIndex=0},
+
+
+			},
+		},
+	},
+
+	--所有事件配置
+	allEvent =
+	{
+--#include "GodWealthEvent.txt"
+	},
+}

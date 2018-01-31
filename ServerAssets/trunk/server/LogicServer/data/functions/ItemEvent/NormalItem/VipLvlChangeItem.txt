@@ -1,0 +1,58 @@
+--玩家可以使用特定道具时，可以增加对应的成长值，但是该类道具每天只能最多使用１０次。
+
+--#include "data\config\vip\vipLevel.txt" once
+--#include "data\functions\Systems\Miscs\VIPLevelSystemCommon.txt" once 
+
+function VipLvlChangeItemFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if not Actor.isVip(sysarg) then	
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.vipLvl003, ttFlyTip) 
+		return 
+	end
+	
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar then
+		return 
+	end
+	
+	if not actorVar.VipLvlItemCount then 
+		actorVar.VipLvlItemCount = 0
+	end
+	
+	local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+
+	if vipLevel > 0 then
+		if vipLevel >= table.getn(VIPLevelConfig) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.vipLvl004, ttFlyTip) 
+			return 
+		end
+		
+		if actorVar.VipLvlItemCount >= VIPLevelConfig.useProp.maxTimes then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.vipLvl002, VIPLevelConfig.useProp.maxTimes), ttFlyTip) 
+			return 
+		end
+	
+		local growValue = itemConfig.addValue or 0
+		if growValue > 0 then
+			local result = Actor.removeConsume(sysarg, itemConfig.type, itemConfig.id, itemConfig.count, itemConfig.quality, itemConfig.strong, itemConfig.bind, 0, 953, Lang.LogTips.l00207)
+			
+			if result > 0 then
+				local newVipLevel = AddVipGrowValue(sysarg, vipLevel, growValue)
+				if newVipLevel > vipLevel then
+					UpdateVipLevelInfo(sysarg, true) 
+				end
+				
+				actorVar.VipLvlItemCount = actorVar.VipLvlItemCount + 1
+				
+				actorVar.vipLvlTime = System.getCurrMiniTime() 
+			end
+		end
+	end 
+end 
+
+function VipLvlChangeItemInit(sysarg)  
+	for k, v in ipairs(VIPLevelConfig.useProp.propInfo or {}) do
+		GlobalItemFn[v.id] = { func = VipLvlChangeItemFunc, params = v } 
+	end
+end
+
+table.insert( InitFnTable, VipLvlChangeItemInit)

@@ -1,0 +1,292 @@
+--lua script
+--研发致谢信
+
+--#include "data\config\activityconfig\AnniversaryHorse\ThankYouLetterConfig.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\Celebration.txt" once --周年庆典
+--#include "data\functions\Activity\Festival\AnniversaryActShop.txt" once --周年活动祈福树购买相关
+
+--请求面板信息
+function ReqThankYouLetterInfo(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 89)
+	if not pack then return end
+
+	local times = ReadThankYouTimes()
+	local flag = ReadThankYouFlag(sysarg)
+	DataPack.writeInt(pack, times)
+	DataPack.writeByte(pack, flag)
+	DataPack.flush(pack)
+end
+
+--请求赞一下
+function ReqThankYouOneTime(sysarg)
+	if System.isInDateRange(unpack(ThankYouLetterConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse008, ttFlyTip)--不在活动时间范围内
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, ThankYouLetterConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse007, ttFlyTip)--等级不足
+		return
+	end
+
+	local flag = ReadThankYouFlag(sysarg)
+	if flag ~= 1 then 
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse006, ttFlyTip) --今天已赞
+		return
+	end
+	
+	--增加经验
+	local exptem = ThankYouLetterConfig.expNum
+	if exptem then
+		Actor.giveAward(sysarg, exptem.type, exptem.id, exptem.count , exptem.quality,exptem.strong,exptem.bind,0,197,Lang.LogTips.mzn212)
+	end 
+
+	local randRate = math.random(10000)
+	local bind = ThankYouLetterConfig.bind
+	local rate = ThankYouLetterConfig.giftRate
+	if rate >= randRate then
+		local awardRate = 0
+		local yfNameId
+		for k,v in ipairs(ThankYouLetterConfig.yfNameId) do
+			awardRate = awardRate + v.rate
+			if awardRate >= randRate then
+				yfNameId = v.id
+				break
+			end
+		end
+		local awardid = ThankYouLetterConfig.giftId
+		local newItem = Item.createItem(awardid, 1, 0, 0, bind, 0)--(award.id, nCount, quality, strong, bind, 0)
+		if not newItem then
+			return false
+		end
+		if (Item.addItem(sysarg, newItem, Lang.LogTips.mzn212, 197, 1) ~= 1) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu050, ttFlyTip) --背包已满
+			--判断仓库
+			local nGridCount= Dmkj.getStoreRestCount(sysarg) --获得有多少个格子
+			if nGridCount < 1 then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu049, ttFlyTip) --仓库空格不足
+				return false
+			end
+			--放入仓库
+			Dmkj.addItem(sysarg, awardid, 1,0,0,0,false,0,197,Lang.LogTips.mzn212)
+		end
+	end
+
+	SaveThankYouTimes(1)
+	SaveThankYouFlag(sysarg)
+	ReqThankYouLetterInfo(sysarg)
+end
+
+--请求研发员致谢词id
+function ReqThankYouWordId(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 95)
+	if not pack then return end
+	local randRate = math.random(10000)
+	local rate = ThankYouLetterConfig.giftRate
+	local awardRate = 0
+	local yfNameId = 1
+	for k,v in ipairs(ThankYouLetterConfig.yfNameId) do
+		awardRate = awardRate + v.rate
+		if awardRate >= randRate then
+			yfNameId = v.id
+			break
+		end
+	end
+	DataPack.writeByte(pack, yfNameId)
+	DataPack.flush(pack)
+
+end
+
+
+--请求领奖
+function ReqThankYouLetterAward(sysarg, yfNameId)
+	--判断等级
+	if Actor.checkActorLevel(sysarg, ThankYouLetterConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse007, ttFlyTip)--等级不足
+		return
+	end
+
+	local giftid = ThankYouLetterConfig.giftId
+	local giftNum = Actor.getItemCount(sysarg, giftid, -1, -1) or 0 --3219  礼包数量
+	if giftNum < 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse005, ttFlyTip) --礼包数量不足
+		return
+	end
+	local randRate = math.random(10000)
+	local rate = 0
+	local awardid
+	local broadcast = 0
+	local count = 0
+	local bind = 0
+	local type = 0
+	for k, v in ipairs(ThankYouLetterConfig.awards) do
+		rate = rate + v.rate
+		if rate >= randRate then
+			awardid = v.id
+			broadcast = v.broadcast
+			count = v.count
+			bind = v.bind
+			type = v.type
+			break
+		end
+	end
+
+	if type == 7 then--绑定元宝（礼券）
+		if Actor.changeMoney(sysarg, mtBindYuanbao, count, 197, Lang.LogTips.mzn212) ~= true then
+			return
+		end
+		Actor.removeItem(sysarg, giftid, 1, -1,-1,-1, Lang.LogTips.mzn212, 197)
+    else
+		if awardid then
+			local newItem = Item.createItem(awardid, count, 0, 0, bind, 0)
+			if not newItem then
+				return false
+			end
+			local num = Item.addItem(sysarg, newItem, Lang.LogTips.mzn212, 197, count)
+			if num ~= count then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu050, ttFlyTip) --背包已满
+				--判断仓库
+				local nGridCount= Dmkj.getStoreRestCount(sysarg) --获得有多少个格子
+				if nGridCount < count then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu049, ttFlyTip) --仓库空格不足
+					return false
+				end
+				--放入仓库
+				Dmkj.addItem(sysarg, awardid, count,0,0,0,false,0,197,Lang.LogTips.mzn212)
+			end
+			Actor.removeItem(sysarg, giftid, 1, -1,-1,-1, Lang.LogTips.mzn212, 197)
+		end
+	end
+
+	--世界播报
+	if broadcast == 1 then
+		local noticeId = Lang.ScriptTips.horse001
+		local YfName = " "
+		local item = Item.getItemName(awardid)
+
+		if noticeId then
+			local myName = Actor.getName(sysarg)
+			if ThankYouLetterConfig.tips[yfNameId] then
+				YfName =ThankYouLetterConfig.tips[yfNameId].name --研发名字
+			end
+			System.broadcastTipmsg(string.format(noticeId, myName, YfName, item), 128+2)
+		end
+	end
+end
+
+--读取文件赞的总次数
+function ReadThankYouTimes()
+	local ranking = Ranking.getRanking(Lang.Rank.ThankYouLetterTimesFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 0)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		else
+			item = Ranking.addItem(ranking,0,0)
+			local begtime = ThankYouLetterConfig.beginTimes
+			Ranking.setSub(item, 0, begtime)
+			return  begtime
+		end
+	end
+	return 0
+end
+
+--保存赞的总数+1
+function SaveThankYouTimes(num)
+	local ranking = Ranking.getRanking(Lang.Rank.ThankYouLetterTimesFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 0)
+			result = tonumber(result)
+			if result and result ~= 0 then
+				Ranking.setSub(item, 0, result+num)
+			else
+				local begtime = ThankYouLetterConfig.beginTimes
+				Ranking.setSub(item, 0, begtime+num)
+			end
+		else
+			item = Ranking.addItem(ranking,0,0)
+			local begtime = ThankYouLetterConfig.beginTimes
+			Ranking.setSub(item, 0, begtime+num)
+		end
+	end
+end
+
+--读取文件是否可赞  1 yes, 0 no
+function ReadThankYouFlag(sysarg)
+	local ranking = Ranking.getRanking(Lang.Rank.ThankYouLetterFlagFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local result = Ranking.getSub(item, 0)
+			result = tonumber(result)
+			if result then
+				local times = ThankYouLetterConfig.times
+				if result < times then
+					return 1
+				end
+			end
+		else
+			local item = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(item, 0, 0)
+			return 1
+		end
+	end
+	return 0
+end
+
+--保存个人赞的次数+1
+function SaveThankYouFlag(sysarg)
+	local ranking = Ranking.getRanking(Lang.Rank.ThankYouLetterFlagFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local result = Ranking.getSub(item, 0)
+			result = tonumber(result)
+			if result and result ~= 0 then
+				Ranking.setSub(item, 0, result+1)
+			else
+				Ranking.setSub(item, 0, 1)
+			end
+		else
+			item = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(item, 0, 1)
+		end
+	end
+end
+
+
+--0点清零
+function ClearThankYouFlag()
+	local ranking = Ranking.getRanking(Lang.Rank.ThankYouLetterFlagFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	
+	ClearCelebration() --周年庆典
+	--每天0点赞的次数自增n
+	local add = ThankYouLetterConfig.addTimes
+	SaveThankYouTimes(add)
+	--0点清零购买次数
+	ClearBuyTimes()
+end
+
+--活动结束清数据
+function ClearThankYouActEnd()
+	local ranking = Ranking.getRanking(Lang.Rank.ThankYouLetterTimesFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	local flagRanking = Ranking.getRanking(Lang.Rank.ThankYouLetterFlagFile)
+	if flagRanking then
+		Ranking.clearRanking(flagRanking)
+	end
+end
+

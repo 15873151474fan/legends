@@ -1,0 +1,5 @@
+
+
+HundredServer = {
+	BigGiftBagMinLv = 40,			--领取豪华大礼包最低等级
+}

@@ -1,0 +1,95 @@
+--全天：千里护镖(例子)
+   {
+       --活动的名字
+       name =Lang.ActivityName.name00003,
+       --活动的描述
+       desc=Lang.ActivityName.desc00003,
+	   
+       --时间的描述,如果是11:00~12:00这样的就不需要记录到语言包，如果是"全天"就需要记录到语言包
+       timeDesc = Lang.ActivityName.timeDesc00001,
+	   
+       level =30, --活动的等级
+       circle = 0, --转数
+       icon =6,
+	type = 2,  --1是今日活动 2 是每日必做
+	seckillId = 0,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+	mainAwardDesc = Lang.ActivityName.mainAward002,    --主要奖励	
+       --活动的开启时间
+       openTimes=
+       {
+            {
+                 
+                 --时间的配置，如果按星期配置，月份和日期不用配置
+                 months={},  --月份，如果是所有的月份都开启就填0，否则填写开启的月份,比如1，3,5开启{1,3,5}；如果不启用月份(使用星期)就使用一个空表
+                 days ={},   --一个月里的哪天开启的时间，比如1,3,5日开启就用{1,3,5}，如果每天都开启就用{0}；如果不启用月份(使用星期)就使用一个空表
+                 weeks={0}, --表示一个星期的星期几开启，如果不启用星期，就不填，如果每天都开启使用{0},否则使用星期几，1-7有效
+                 minutes=  --时和分，使用起始和结束的时间格式,这个一定要填，	全天开放使用00:00-33:59
+                 {
+                    "00:00-23:59",
+                  }
+             },
+        },
+       
+        --[[
+        qatEquipment=0,//0、装备，道具
+		qatXiuwei = 1,	//1、修为
+		qatExp = 2,	//2、角色经验值
+		qatGuildContribution = 3,	//3、帮派贡献值
+		qatZYContribution = 4,//4、阵营贡献
+		qatBindMoney = 5,	//5、绑定银两
+		qatMoney = 6,	//6、银两
+		qatLiJin = 7,	//7、礼金
+		qatTitle = 8,	//8、称谓
+		qatSkill = 9,	//9奖励技能
+		qatZhanhun = 10,	//10奖励战魂
+          127：自定义奖励，id必须为nil，count必须为nil，data为奖励描述字符串，用于客户端显示。自定义奖励的给予是通过脚本完成的；
+        ]]
+        --活动的奖励，奖励的类型上面的类型,id，如果是物品或者称号的话就id,否则填0，数量表示数量，其他的bind,strong,quality都是物品用的
+       awards=
+       {
+	--银两
+            {type=6,id=0,count=3500,bind=0,strong=0,quality=0},   -- 奖励3500银两
+            {type=6,id=0,count=4500,bind=0,strong=0,quality=0},   -- 奖励4500银两
+            {type=6,id=0,count=8000,bind=0,strong=0,quality=0},   -- 奖励8000银两
+            {type=6,id=0,count=9000,bind=0,strong=0,quality=0},   -- 奖励9000银两
+            {type=6,id=0,count=12000,bind=0,strong=0,quality=0},   -- 奖励12000银两
+       },
+ 	   --因为需要不同条件下的npc不同，比如阵营不同，需要的npc不同，门派不同，npc不同，这里设置不同的条件，npc不填写客户端使用-表示没有
+           --如果没有条件conds ={}就行了，否则填写条件，条件支持多个条件的与
+	   --condType 表示条件的类型 
+	        --1表示是阵营,values表示阵营的id列表,1 无忌，2逍遥， 3日月，比如无忌和逍遥就用{1,2}
+	        --2表示是门派,values表示门派的id列表,1华山,2水月宫, 3少林,4御神流
+                --3表示职业,values表示职业的id列表,  1剑宗,2 气宗,3 灵华,4司命,5易筋,6洗髓,7 剑士,8忍者
+                --4表示等级区间,values表示起始的等级到结束等级，比如{10,20}表示10到20级
+                --5表示时间区间，values表示起始的时间点到结束的时间点
+            --
+	   --sceneId 表示场景的id
+	   --name表示npc的名字
+       npc= 
+       {
+          --[[ {
+              sceneId=49,
+               name=Lang.EntityName.n00141, --洛阳 镇远镖头
+               conds=
+	               {
+		              {condType=4,values={20,29}}
+                 },
+	             },  ]]
+           {
+               sceneId=49,
+               name=Lang.EntityName.n00141, --洛阳 镇远镖头
+               conds=
+	       {
+		{condType=4,values={30,39}}
+               },
+	    },
+           {
+               sceneId=51,
+               name=Lang.EntityName.n00142, --福州 福威镖头
+               conds=
+	       {
+		{condType=4,values={40,60}}
+               },
+	    },
+       },
+   },

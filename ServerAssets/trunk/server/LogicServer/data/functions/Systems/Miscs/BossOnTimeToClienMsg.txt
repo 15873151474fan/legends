@@ -1,0 +1,47 @@
+﻿
+MiscsImplement.bossOnTimeToClientMsg = function (sysarg,msgid, packet)
+	local ranking = Ranking.getRanking(Lang.ScriptTips.x00052) --通过排行名称获取排行对象
+	if ranking then
+		local ncount = Ranking.getRankItemCount(ranking)
+		if ncount > 0 then 
+			local npack = DataPack.allocPacket(sysarg,139,10)
+			if npack == nil then return end
+			DataPack.writeByte(npack,ncount)  --怪物数量
+			DataPack.writeByte(npack, "0")  --是否通知客户端弹出提示
+			DataPack.writeByte(npack, "1")	--是否显示速传
+			DataPack.writeInt(npack, 0)	--弹窗时间
+			DataPack.writeString(npack, "")	--弹窗名称
+			for i = 0 ,ncount-1 do
+				local item = Ranking.getItemFromIndex(ranking,i)
+				if item then 
+					--0状态 1出现场景 2击杀者 3刷新时间
+					local mid = Ranking.getId(item)
+					local state = Ranking.getSub(item,0)   --0为已消失   1为已击杀  2为等待刷新  3为已出现
+					local scene = Ranking.getSub(item,1) 
+					local killname = Ranking.getSub(item,2)
+					local mobtime = Ranking.getSub(item,3)
+					local posx = tonumber(Ranking.getSub(item,4))
+					local posy = tonumber(Ranking.getSub(item,5))
+					if not posx then posx = 0 end
+					if not posy then posy = 0 end
+					DataPack.writeWord(npack,mid)    --怪物ID 
+					DataPack.writeString(npack,"")	--怪物名称
+					DataPack.writeByte(npack,state)  --刷新状态 
+					DataPack.writeString(npack,scene)       --刷新场景
+					DataPack.writeWord(npack, posx+5)	--刷新x
+					DataPack.writeWord(npack, posy)	--刷新y
+					DataPack.writeString(npack,killname)    --击杀者 
+					DataPack.writeString(npack, mobtime)    --怪物刷新时间
+					local maxExp, growLv, curExp = System.getMonsterGrowInfo(mid, 0, 0)
+					DataPack.writeByte(npack, growLv)
+					DataPack.writeByte(npack, curExp)
+					DataPack.writeByte(npack, maxExp)
+				end
+			end
+			DataPack.flush(npack)
+		end
+	end
+end
+
+
+MiscsImplement.registerMsgHandler(12,MiscsImplement.bossOnTimeToClientMsg)

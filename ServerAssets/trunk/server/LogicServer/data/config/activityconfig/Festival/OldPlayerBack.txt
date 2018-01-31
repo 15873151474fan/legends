@@ -1,0 +1,77 @@
+
+
+OldPlayerBackConfig = {
+	MinLevel = 65,		--最小等级
+	RankCount = 5,		--显示排行数量
+	MinDays = 7,		--最小天数
+	InvitedAward = {	--邀请人的奖励
+		{
+			ybMin = 1000, ybMax=2999,
+			award = {
+					{ type = 0, id = 1616, count = 1, bind = 1, },
+					
+			},
+		},
+		{
+			ybMin = 3000, ybMax=4999,
+			award = {
+					{ type = 0, id = 1617, count = 1, bind = 1, },
+					
+			},
+		},
+		{
+			ybMin = 5000, ybMax=9999,
+			award = {
+					{ type = 0, id = 1618, count = 1, bind = 1, },
+					
+			},
+		},
+		{
+			ybMin = 10000, ybMax=999999999,
+			award = {
+					{ type = 0, id = 1619, count = 1, bind = 1, },
+			},
+		},
+	},
+
+	TopRankAward = {		--排名奖励
+		{
+			{ type = 0, id = 1541, count = 1, bind = 1, },
+		},
+		{
+			{ type = 0, id = 1541, count = 1, bind = 1, },
+		},
+		{
+			{ type = 0, id = 1541, count = 1, bind = 1, },
+		},
+		{
+			{ type = 0, id = 1541, count = 1, bind = 1, },
+		},
+		{
+			{ type = 0, id = 1541, count = 1, bind = 1, },
+		},
+	},
+
+	ActivityAward  = { --活跃度奖励
+		[5] = {
+			{ type = 0, id = 1371, count = 3, bind = 1, },
+		},
+		[40] = {
+			{ type = 0, id = 918, count = 1, bind = 1, },
+			{ type = 0, id = 1122, count = 1, bind = 1, },
+		},
+		[70] = {
+			{ type = 0, id = 1037, count = 1, bind = 1, },
+			{ type = 0, id = 918, count = 1, bind = 1, },
+			{ type = 0, id = 355, count = 3, bind = 1, },
+		},
+	},
+
+	--活动时对应的成就id，只能存在一个
+	acheIds = {
+		225,226,227,228,
+		229,230,231,232,
+		233,234,235,236,
+		237,238,239,240,
+	},
+}

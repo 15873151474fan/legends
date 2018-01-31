@@ -1,0 +1,206 @@
+--穷奇，自身加血，爆伤
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+
+	desc=Lang.Skill.s14L1Desc,--技能的描述
+
+	iconID=14,--图标的ID
+
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+						{cond = 48,value =1566},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=13,delay=200,rate=0,value=1000000},
+					},
+					specialEffects=
+					{
+						{type=4,mj=0,id=229,keepTime=500,delay=300,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+			rangeType=3,		
+			rangeCenter=1,			
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value = 1},
+						{cond = 48,value =1566},
+					},
+					--针对目标的实际作用,
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=200,rate=15000,value=3000,interval=8000},
+						{mj=0,timeParam=1,type=29,ignoreTargetDis=1,delay=0,value=3},
+					},
+					specialEffects=
+					{
+						--{type=3,mj=0,id=274,keepTime=400,delay=200,always=false},
+						{type=4,mj=0,id=320,keepTime=400,delay=300,always=false},
+					},
+				},
+			},
+		}, 
+
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+						{cond = 48,value =1567},
+						{cond = 51,value =1573},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=202},--技能说话
+						{mj=0,timeParam=1,type=17,id=1573,delay=300,interval=180,value=6,buffType=1,rate=8},
+					},
+					specialEffects=
+					{
+						{type=4,mj=0,id=88,keepTime=500,delay=200,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+			rangeType=3,		
+			rangeCenter=1,			
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value = 1},
+						{cond = 48,value =1567},
+					},
+					--针对目标的实际作用,
+					results=
+					{
+						{mj=0,timeParam=1,type=1,delay=200,buffType=147,id=220,interval=8,vt=0,effectType=6,effectId=262},
+					},
+					specialEffects=
+					{
+						--{type=3,mj=0,id=274,keepTime=400,delay=200,always=false},
+						{type=4,mj=0,id=87,keepTime=400,delay=300,always=false},
+					},
+				},
+			},
+		},
+
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+						{cond = 48,value =1568},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=204},--技能说话
+						{mj=0,timeParam=1,type=1,delay=200, buffType=60,id=64,interval=15,vt=0,effectType=6,effectId=333},
+					},
+					specialEffects=
+					{
+						{type=4,mj=0,id=100,keepTime=500,delay=200,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=-5,--相对于中心点x左边的相对坐标
+			xEnd=5,--相对于中心点x右边的相对坐标
+			yStart=-5,--相对于中心点y上边的相对坐标
+			yEnd=5,--相对于中心点y下边的相对坐标
+			rangeType=3,		
+			rangeCenter=1,			
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value = 1},
+						{cond = 48,value =1568},
+					},
+					--针对目标的实际作用,
+					results=
+					{
+						{mj=0,timeParam=1,type=1,delay=0,buffType=56,id=45,rate=0,value=1,interval=5,vt=0,effectType=6,effectId=50 },
+					},
+					specialEffects=
+					{
+						--{type=3,mj=0,id=274,keepTime=400,delay=200,always=false},
+						{type=4,mj=0,id=99,keepTime=400,delay=300,always=false},
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		--{cond=1,value=30,consume=false},--表示等级要1级
+		--{cond=3,value=437,consume=true,exceptVip=true },--表示书本
+	},
+
+	spellConds=
+	{
+		{cond=13,value=13,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,
+	cooldownTime=45000,
+
+},

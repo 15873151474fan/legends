@@ -1,0 +1,16 @@
+﻿
+--#include "data\functions\Systems\CircleSystem\ChangeCommon.txt" once --转职业 性别
+
+EventCallDispatcher.PictureGuideOverHandler = function (sysarg, args)
+	
+	local guideId = args[1]
+	--guideId = 2
+	if not sysarg or not guideId or guideId <= 0 then return end
+	
+	ChangeVocationOrSex(sysarg, guideId)
+	
+end
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aePictureGuideOver, EventCallDispatcher.PictureGuideOverHandler)

@@ -1,0 +1,206 @@
+﻿--[[Teleporter.txt]]--
+
+--#include "data\config\activityconfig\SnowArea\SnowArea.txt" once
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function SnowTeleporterMain(sysarg)
+	local config = SnowAreaConfig
+	if (not config) then return "" end
+	
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.sa001.."/@EnterSnowTeleporter>"  --<进入随机传送门>
+	str = str.."\\<#BL"..Lang.Activity.sa002.."/@AboutSnowTeleporter>"  --<详情>
+	str = str.."\\<#BL"..Lang.Activity.sa003.."/@exit>"  --<离开>
+	return str
+end
+
+function EnterSnowTeleporter(sysarg)
+	local config = SnowAreaConfig
+	local dvar = System.getDyanmicVar()
+	local SnowTeleport = tonumber(dvar.SnowTeleport)
+	
+	if not SnowTeleport or SnowTeleport > table.getn(config.dest) then
+		return Lang.Activity.sa004
+	end
+
+	if not Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00183, config.limitCircle, config.limitLevel), ttFlyTip)
+		return
+	end
+    local pRank = Ranking.getRanking(SnowAreaRankPt.RankName)
+    if not pRank then return end
+    local ActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+    local pItems = Ranking.getItemPtrFromId(pRank, ActorId)
+    if pItems == nil then
+       pItems = Ranking.addItem(pRank,ActorId,0)
+    end
+    local Point = Ranking.getPoint(pItems)
+    if Point > 0 then
+       Actor.sendTipmsg(sysarg,Lang.Activity.sa023,ttFlyTip)
+       return
+    end
+	
+	local dest = config.dest[SnowTeleport].enterPos
+	
+	if Actor.enterScene(sysarg, dest.sid, dest.x, dest.y, dest.width, dest.height) then
+		local leftTime = GetSnowCloseTime()
+		if leftTime <= 0 then return end
+		local onePiece = tonumber(dvar.SnowOnePiece)
+		if not onePiece or onePiece <= 0 then 
+			onePiece = 0
+		end
+		Actor.initActivityWind(sysarg, config.dest[SnowTeleport].actName, leftTime, config.dest[SnowTeleport].actTips, Lang.Activity.sa020, onePiece)
+	end
+end
+
+function AboutSnowTeleporter(sysarg)
+	return Lang.Activity.sa005.."<#BL"..Lang.Activity.a00101.."/@main>"
+end
+
+function BeginSnowTeleporter()
+	local config = SnowAreaConfig
+	if not config or not thisNPC then return end
+	
+	local npcName = Actor.getName(thisNPC)
+	if npcName ~= config.npcName then return end
+	
+	if not InitSnowAreaActivity() then return end
+	
+	--注销脚本回调函数
+	--Actor.unregScriptCallback(thisNPC, "CloseSnowTeleporter")
+	--延时清除NPC
+	--Actor.regScriptCallback(thisNPC, thisNPC, config.liveTime*1000, config.liveTime*1000, 1, "CloseSnowTeleporter") 
+	--传送NPC
+	local rand = math.random(table.getn(config.randomMove))
+	local move = config.randomMove[rand]
+	local sceneId = Actor.getSceneId(thisNPC)
+	--print("BeginSnowTeleporter:"..sceneId..","..(move.x)..","..(move.y)..","..(move.width)..","..(move.height)) 
+	if not Actor.enterScene(thisNPC, sceneId, move.x, move.y, move.width, move.height) then return end
+	--显示NPC
+	Actor.setEntityVisibleFlag(thisNPC, true)
+	ResetSnowAreaData()
+	System.broadcastTipmsg(Lang.Activity.sa006, ttScreenCenter+ttChatWindow)
+end
+
+--重置雪域秘境数据
+function ResetSnowAreaData()
+  --print("ResetFireData")
+  local config = SnowAreaRankPt
+  local Rank = Ranking.getRanking( config.RankName )
+  if Rank then
+	 Ranking.clearRanking(Rank)
+  end
+  Ranking.save(Rank, config.RankFile)
+end
+
+
+function CloseSnowTeleporter()
+	Actor.setEntityVisibleFlag(thisNPC, false)
+	local dvar = System.getDyanmicVar()
+	
+	ClearSnowAreaPlayers(dvar.SnowTeleport)
+	
+	dvar.SnowTeleport = nil
+	dvar.SnowTeleportTime = nil
+	dvar.islandsPos = nil
+	dvar.SnowOnePiece = nil
+	
+	System.broadcastTipmsg(Lang.Activity.sa007, ttScreenCenter+ttChatWindow)
+end
+
+function GetSnowCloseTime()
+	local dvar = System.getDyanmicVar()
+	local beginTime = dvar.SnowTeleportTime
+	if beginTime then
+		local nNowTime = System.getCurrMiniTime()
+		local leftTime = tonumber(beginTime) - nNowTime
+		if leftTime > 0 then
+			return leftTime
+		end
+	end
+	return 0
+end
+
+function InitSnowAreaActivity()
+	local config = SnowAreaConfig
+	
+	local actIndex = math.random(table.getn(config.dest))
+	local actConfig = config.dest[actIndex]
+	if not actConfig then return false end
+	
+	local dvar = System.getDyanmicVar()
+	dvar.SnowTeleport = actIndex
+	dvar.SnowTeleportTime = System.getCurrMiniTime() + config.dest[actIndex].actTime
+	dvar.SnowOnePiece = 0
+	
+	ClearSnowAreaPlayers(actIndex)
+	
+	if actConfig.trapMon then
+		local hScene = Fuben.getSceneHandleById(actConfig.enterPos.sid, 0)
+		Fuben.clearMonster(hScene, 0)	--清掉原来的怪
+		for k, v in ipairs(actConfig.trapMon) do
+			local rand = math.random(table.getn(v))
+			for m, n in ipairs(v[rand]) do
+				Fuben.createMonster(hScene, n.mid, n.x, n.y, n.live)
+			end
+		end
+	end
+	
+	if actConfig.onePiece then
+		local onePiece = 0
+		for k, v in ipairs(actConfig.onePiece) do
+			local hScene = Fuben.getSceneHandleById(v.sid, 0)
+			Fuben.clearMonster(hScene, v.mid)	--清掉原来的怪
+			Fuben.createMonstersInRange(hScene, v.mid, v.x1, v.y1, v.x2, v.y2, v.count, v.live)
+			onePiece = onePiece + Fuben.getLiveMonsterCount(hScene, v.mid)
+		end
+		dvar.SnowOnePiece = onePiece
+	end
+	
+	-- if actConfig.islands then
+	-- 	dvar.islandsPos = {}
+	-- 	for k, v in ipairs(actConfig.islands) do
+	-- 		local posCount = #(v.telPos)
+	-- 		local rand = math.random(posCount)
+	-- 		dvar.islandsPos[k] = rand
+	-- 	end
+	-- end
+	
+	return true
+end
+
+function ClearSnowAreaPlayers(actIndex)
+	local actIndex = tonumber(actIndex)
+	local config = SnowAreaConfig.dest[actIndex]
+	if not config then return end
+	
+	for k, v in ipairs(config.actScene) do
+		local playerList = LuaHelp.getSceneActorListById(v)		--获取某场景玩家对象列表
+		if playerList ~= nil then
+			for m, n in ipairs(playerList) do
+				if n then
+					local Pos = LuaHelp.getReloadMapPos(n) 
+					Actor.enterScene(n,Pos[1],Pos[2],Pos[3])
+				end
+			end
+		end
+	end
+end
+
+function SnowAreaRanking_Init(npcobj)
+    --print("SnowAreaRanking_Init")
+	local config = SnowAreaRankPt
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function SnowAreaRanking_Fina(npcobj)
+    --print("SnowAreaRanking_Fina")
+	local config = SnowAreaRankPt
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+end
+
+table.insert(InitFnTable,SnowAreaRanking_Init)
+table.insert(FinaFnTable,SnowAreaRanking_Fina)
+table.insert(MainFnTable, SnowTeleporterMain)

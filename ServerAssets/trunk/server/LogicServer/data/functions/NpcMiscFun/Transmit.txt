@@ -1,0 +1,52 @@
+﻿--lua script
+-- 传送脚本
+TransmitModule = {
+	GetDestServerId = function (sysarg)
+		local comm_srv_id = System.getCommonServerId()
+		local raw_srv_id = Actor.getActorRawServerId(sysarg)
+		local dest_srv_id = 0
+		local is_in_raw_srv = Actor.isInRawServer(sysarg)
+		if (is_in_raw_srv) then
+			dest_srv_id = comm_srv_id
+		else
+			dest_srv_id = raw_srv_id
+		end
+		
+		return is_in_raw_srv, dest_srv_id
+	end,
+	
+	-- NPC交互主函数
+	Main = function (sysarg)
+		local is_in_raw_srv, dest_srv_id = TransmitModule.GetDestServerId(sysarg)
+		if (dest_srv_id == 0) then
+			print("invalid dest transmit id:" .. dest_srv_id)
+			return
+		end
+		
+		local npc_dialog = {
+			Lang.NormalTalk.n02000,
+			Lang.NormalTalk.n02001,
+		}
+				
+		local str
+		if (not is_in_raw_srv) then			
+			str = npc_dialog[1]
+		else
+			str = npc_dialog[2]
+		end
+		
+		return str .. "/@transmitToServer>"
+	end,
+}
+
+function transmitToServer(sysarg)
+	local is_in_raw_srv, dest_srv_id = TransmitModule.GetDestServerId(sysarg)
+	if (dest_srv_id == 0) then
+		print("invalid dest transmit id:" .. dest_srv_id)
+		return
+	end
+	print(dest_srv_id)
+	Actor.reqTransmitTo(sysarg, dest_srv_id)
+end
+
+table.insert(MainFnTable, TransmitModule.Main)

@@ -1,0 +1,56 @@
+﻿--lua script
+{
+	id = 1652,
+	parentid = 1651,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	randomTarget = false,
+	name = Lang.Quest.q03304,
+	content = Lang.Quest.q03305,
+
+	prom = { type = 0, scene = Lang.SceneName.s00038, npc = Lang.EntityName.n00125 },
+	comp = { type = 0, scene = Lang.SceneName.s00038, npc = Lang.EntityName.n00125 },
+	target = {
+		{
+			type = 0, id = 226, count = 1, rewardId = 0,useList = true,
+			location = {
+				sceneid = 132, x= 0,y = 0,entityName = Lang.EntityName.m00226,hideFastTransfer = true,
+				pass = {
+					{ sceneid=38,entityName = Lang.EntityName.n00125, actionDesc = Lang.Talk.t10064,},
+				},
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 60 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 1194533, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+			{ type = 5, id = 0, count = 46787, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+			{ type = 12, id = 0, count = 45, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,},
+			{ type = 0, id = 1065, count = 1, group = 0,strong = 0,quality = 1,job = 2,sex = -1,bind = true,},
+			{ type = 0, id = 1076, count = 1, group = 0,strong = 0,quality = 1,job = 4,sex = -1,bind = true,},
+			{ type = 0, id = 1032, count = 1, group = 0,strong = 0,quality = 1,job = 5,sex = -1,bind = true,},
+			{ type = 0, id = 1054, count = 1, group = 0,strong = 0,quality = 1,job = 7,sex = -1,bind = true,},
+			{ type = 0, id = 1043, count = 1, group = 0,strong = 0,quality = 1,job = 8,sex = -1,bind = true,},
+		},
+	},
+	PromMsTalks = {
+		Lang.Talk.t04956,
+	},
+	CompMsTalks = {
+		Lang.Talk.t04957,
+	},
+	CompMsTip = {
+		Lang.Talk.t04956,
+	},
+	PassMsTip = {
+	},
+	PromCallBack = "OnPromEnterFuben",
+	PromCallBackArg = {
+		 15,
+	},
+},

@@ -1,0 +1,43 @@
+--lua script
+--for item present bag
+
+--#include "data\config\item\NormalItemDatas.txt" once
+--#include "NormalItemRewards.txt" once
+
+--[[
+--删除buff的药品效果
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+function GivePresentItem(sysarg,itemidx,itemPtr,ItemTable)
+  --奖励检查
+  local rewardid = ItemTable.rewardsID
+  
+  local rewardcheck,needspace = rewardCheck( sysarg, rewardid )
+  --print("reward check:"..rewardcheck.." "..needspace)
+  if ( rewardcheck ~= 0 ) then
+		if ( rewardcheck == 2 ) then 
+			--local str = Lang.ScriptTips.f00011..needspace..Lang.ScriptTips.f00012
+			local str = string.format(Lang.ScriptTips.f00016,needspace)
+			Actor.sendTipmsg( sysarg, str,ttDialog )
+		end
+		return
+  end
+  doReward( sysarg, rewardid )
+  --需要删除
+  if(ItemTable.needDelete) then
+	Actor.removeItemByPtr(sysarg,itemPtr,1,true," ",5)      --删除一个物品
+  end
+end
+
+function PresentItemInit(sysarg)
+  for i = 1,table.getn(PresentItems) do
+	local x = PresentItems[i]
+	GlobalItemFn[x.item_id] = { func = GivePresentItem, params = x }
+  end
+end
+
+table.insert(InitFnTable,PresentItemInit)

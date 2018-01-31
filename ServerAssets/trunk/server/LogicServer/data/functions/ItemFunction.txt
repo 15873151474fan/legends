@@ -1,0 +1,44 @@
+﻿--[[File: ItemFunction.txt]]
+
+--全局NPC的脚本文件，游戏重要的语法逻辑全部挂在这个NPC下面
+--功能物品独立出 物品功能npc脚本 
+--如果进行使用读条延时的物品操作 则在全局功能NPC 参考经验
+
+thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+--脚本子模块使用的局部函数或常量存放位置，避免使用全局对象 
+local LocalDT = {}
+
+
+--#include "data\language\LangCode.txt" once
+
+--#include "GlobalDefine.txt" once
+--#include "ItemEvent/ItemEventHandler.txt" once
+
+--使用一个物品
+function OnUseFuncItem(sysarg, ...)
+	return HandlerUseFunctionItems(sysarg, arg)
+end
+
+function main(sysarg)
+	return "global"
+end
+
+--[[初始化函数]]--
+function initialization(npcobj)
+	thisNPC = npcobj
+	for i = 1, table.getn(InitFnTable) do
+		InitFnTable[i]( npcobj )
+	end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+	for i = 1, table.getn(FinaFnTable) do
+		FinaFnTable[i]( npcobj )
+	end
+	thisNPC = nil
+end

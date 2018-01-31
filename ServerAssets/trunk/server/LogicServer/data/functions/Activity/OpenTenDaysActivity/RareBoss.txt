@@ -1,0 +1,66 @@
+--稀有boss
+
+--稀有boss活动预告
+function BroadRareBossNotice()
+	System.broadcastTipmsg(Lang.Activity.t00012,2+128)
+end
+
+--刷稀有boss
+function FreshRareBoss()
+	local hScene = Fuben.getSceneHandleById(UnusualBossConfig.nSceenId, 0)
+
+	Fuben.createMonsters(hScene, UnusualBossConfig.monsters[1].nMonsterID, UnusualBossConfig.monsters[1].posX1, UnusualBossConfig.monsters[1].posX2, UnusualBossConfig.monsters[1].posY, UnusualBossConfig.monsters[1].nCount, UnusualBossConfig.monsters[1].nLiveTime)
+
+	System.broadcastTipmsg(Lang.Activity.t00062,2+128)
+end
+
+--提前预告
+function PreFreshRareBoss()
+	System.broadcastTipmsg(Lang.Activity.t00054,2+128)
+end
+
+--最后十分钟播报
+function LastBroadFreshBoss()
+	System.broadcastTipmsg(Lang.Activity.t00061,2+128)
+end
+
+--播报1分钟后的刷boss公告
+function BroadFreshBossOne()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+		if pItem then
+			System.broadcastTipmsg(Lang.Activity.t00091,2+128)
+		end
+	end
+end
+
+--获奖的播报
+function BroadLootDropItemTips()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+	
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+
+		if pItem then
+			local sname = Ranking.getSub(pItem,0)
+			local str1 = string.format(Lang.Activity.t00065,sname)
+			System.broadcastTipmsg(str1,2+128)
+		end
+	end
+end
+
+--庆典boss 
+function FreshAwardRareBoss()
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+	
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+
+		if pItem then
+			local hScene = Fuben.getSceneHandleById(OpenServerConfig.activitys[7].monster[1].nSceenId, 0)
+			local monsterConfig = OpenServerConfig.activitys[7].monster[1]
+			local nMonster = Fuben.createOneMonsters(hScene, monsterConfig.nMonsterID, monsterConfig.posX1, monsterConfig.posX2, monsterConfig.posY, monsterConfig.nCount, monsterConfig.nLiveTime)
+		end
+	end
+end

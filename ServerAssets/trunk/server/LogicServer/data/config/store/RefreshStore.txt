@@ -1,0 +1,397 @@
+﻿--热销商品，0元，1元商品的刷新的配置表
+--配置定期刷新商品的ID和数目
+--商品的刷出是优先开服时间来算的，比如开服第1天卖什么，第2天卖什么...
+--星期的限制只要用来后期的，如果开服时间比较久了，按星期来，每天不同
+--筛选物品的优先级以配置的顺序来判断，如果在配置前面的命中数量足够则不会选择后面的
+
+--id表示商品的ID,
+--count表示刷出来的数目,如果没有限制，就放一个很大的数字，比如100000000
+--percent表示命中的概率，每个物品概率独立随机 以10000为模，即1/10000 不配置则不会进行随机，100%选中物品，但是否命中还要看优先级问题
+--weekDay表示星期几, -1表示不限制星期几，0表示周日，1表示周1 ,...6表示周6，不配置则不会选中
+--openServerDay 开服的第几天 ,1表示开服第1天，2第2天，-1表示不做开服的限制，不配置则不会选中
+--mergeServerDay 合服第几天，1表示合服的第1天，-1表示不做合服限制，不配置则不会选中
+--beforeMergeDay 合服前第几天，1表示合服前的第1天，-1表示不做合服前限制，不配置则不会选中，这个时间需要后台开启
+--month表示特殊的月，如果没有限制就配置为-1,否则比如1月有效就是month=1，不配置则不会选中
+--day表示特殊的天，如果没有限制就配置为-1，1号就是day=1，不配置则不会选中
+--openActivityDay 开启活动的第几天
+--筛选物品的优先级以配置的顺序来判断，如果在配置前面的命中数量足够则不会选择后面的
+      
+RefreshStore=
+{
+	{
+		--分类ID=1  限时抢购
+		count=3,	--每次刷新刷出来的商品的数目，从下面的列表选择这个数目的个数
+		items=
+		{
+--指定日期
+--[[
+	{ id= 90033, count = 999, month = 4, day = 29, },
+	{ id= 90040, count = 99, month = 4, day = 29, },
+	{ id= 90036, count = 99, month = 4, day = 29, },
+	{ id= 90034, count = 300, month = 4, day = 30, },
+	{ id= 90041, count = 99, month = 4, day = 30, },
+	{ id= 90039, count = 30, month = 4, day = 30, },
+	{ id= 90035, count = 99, month = 5, day = 1, },
+	{ id= 90001, count = 68, month = 5, day = 1, },
+	{ id= 90042, count = 99, month = 5, day = 1, },
+	{ id= 90001, count = 99, month = 6, day = 10, },
+	{ id= 90003, count = 99, month = 6, day = 10, },
+	{ id= 90043, count = 99, month = 6, day = 10, },
+--]]
+--开服十天
+{ id= 90002, count = 99, openServerDay = 1, },
+{ id= 90005, count = 68, openServerDay = 1, },
+{ id= 90001, count = 99, openServerDay = 1, },
+{ id= 90020, count = 38, openServerDay = 2, },
+{ id= 90003, count = 99, openServerDay = 2, },
+{ id= 90007, count = 99, openServerDay = 2, },
+{ id= 90004, count = 68, openServerDay = 3, },
+{ id= 90021, count = 38, openServerDay = 3, },
+{ id= 90024, count = 68, openServerDay = 3, },
+{ id= 90002, count = 68, openServerDay = 4, },
+{ id= 90020, count = 99, openServerDay = 4, },
+{ id= 90001, count = 99, openServerDay = 4, },
+{ id= 90008, count = 99, openServerDay = 5, },
+{ id= 90023, count = 99, openServerDay = 5, },
+{ id= 90022, count = 38, openServerDay = 5, },
+{ id= 90006, count = 38, openServerDay = 6, },
+{ id= 90002, count = 38, openServerDay = 6, },
+{ id= 90020, count = 38, openServerDay = 6, },
+{ id= 90015, count = 38, openServerDay = 7, },
+{ id= 90021, count = 38, openServerDay = 7, },
+{ id= 90020, count = 38, openServerDay = 7, },
+{ id= 90001, count = 38, openServerDay = 8, },
+{ id= 90020, count = 99, openServerDay = 8, },
+{ id= 90002, count = 99, openServerDay = 8, },
+{ id= 90015, count = 99, openServerDay = 9, },
+{ id= 90023, count = 99, openServerDay = 9, },
+{ id= 90024, count = 99, openServerDay = 9, },
+{ id= 90016, count = 38, openServerDay = 10, },
+{ id= 90025, count = 68, openServerDay = 10, },
+{ id= 90017, count = 38, openServerDay = 10, },
+
+
+
+--合服后五天
+{ id= 90025, count = 68, mergeServerDay = 1, },
+{ id= 90023, count = 99, mergeServerDay = 1, },
+{ id= 90024, count = 99, mergeServerDay = 1, },
+{ id= 90001, count = 99, mergeServerDay = 2, },
+{ id= 90002, count = 99, mergeServerDay = 2, },
+{ id= 90003, count = 99, mergeServerDay = 2, },
+{ id= 90015, count = 38, mergeServerDay = 3, },
+{ id= 90001, count = 99, mergeServerDay = 3, },
+{ id= 90023, count = 99, mergeServerDay = 3, },
+{ id= 90024, count = 99, mergeServerDay = 4, },
+{ id= 90002, count = 99, mergeServerDay = 4, },
+{ id= 90001, count = 88, mergeServerDay = 4, },
+{ id= 90016, count = 38, mergeServerDay = 5, },
+{ id= 90025, count = 68, mergeServerDay = 5, },
+{ id= 90017, count = 38, mergeServerDay = 5, },
+
+
+--合服前几天
+	--[[{ id= 90039, count = 30, beforeMergeDay = -1, percent = 300, },
+	{ id= 90001, count = 20, beforeMergeDay = -1, percent = 1000, },
+	{ id= 90002, count = 10, beforeMergeDay = -1, percent = 500, },
+	{ id= 90003, count = 10, beforeMergeDay = -1, percent = 1000, },
+	{ id= 90032, count = 10, beforeMergeDay = -1, percent = 1000, },
+	{ id= 90026, count = 20, beforeMergeDay = -1, percent = 1500, },
+	{ id= 90024, count = 30, beforeMergeDay = -1, percent = 1000, },
+	{ id= 90010, count = 60, beforeMergeDay = -1, percent = 2000, },
+	{ id= 90046, count = 99, beforeMergeDay = -1, percent = 10000, },
+	{ id= 90028, count = 99, beforeMergeDay = -1, percent = 10000, },
+	{ id= 90029, count = 99, beforeMergeDay = -1, percent = 10000, },]]
+--每日常规
+{ id= 90023, count = 99, weekDay = 1, },
+{ id= 90024, count = 99, weekDay = 2, },
+{ id= 90001, count = 99, weekDay = 3, },
+{ id= 90002, count = 99, weekDay = 4, },
+{ id= 90003, count = 68, weekDay = 5, },
+{ id= 90004, count = 38, weekDay = 6, },
+{ id= 90016, count = 38, weekDay = 0, },
+{ id= 90020, count = 99, weekDay = -1, },
+{ id= 90021, count = 999, weekDay = -1, },
+
+
+		}
+	},
+
+	{
+	--分类ID=2 0元特价
+		count=4,
+		items=
+		{
+		}
+	},
+
+	{
+	--分类ID=3  1元特价
+		count=4,
+		items=
+		{
+		}
+	},
+	{
+	--分类ID=4  超值抢购
+		count=6,
+		items=
+		{
+			{ id= 95001, count = 99, openActivityDay = 1, },
+			{ id= 95002, count = 99, openActivityDay = 1, },
+			{ id= 95003, count = 999, openActivityDay = 1, },
+			{ id= 95004, count = 999, openActivityDay = 1, },
+			{ id= 95005, count = 999, openActivityDay = 1, },
+			{ id= 95006, count = 999, openActivityDay = 1, },
+
+			{ id= 95007, count = 99, openActivityDay = 2, },
+			{ id= 95008, count = 99, openActivityDay = 2, },
+			{ id= 95009, count = 999, openActivityDay = 2, },
+			{ id= 95010, count = 999, openActivityDay = 2, },
+			{ id= 95011, count = 999,  openActivityDay = 2 ,},
+			{ id= 95012, count = 999,  openActivityDay = 2,},
+
+			{ id= 95013, count = 99, openActivityDay = 3, },
+			{ id= 95014, count = 99, openActivityDay = 3, },
+			{ id= 95015, count = 999, openActivityDay = 3, },
+			{ id= 95016, count = 999, openActivityDay = 3, },
+			{ id= 95017, count = 999, openActivityDay = 3, },
+			{ id= 95018, count = 999, openActivityDay = 3, },
+
+			{ id= 95019, count = 99, openActivityDay = 4, },
+			{ id= 95020, count = 99, openActivityDay = 4, },
+			{ id= 95021, count = 999, openActivityDay = 4, },
+			{ id= 95022, count = 999, openActivityDay = 4, },
+
+			{ id= 95001, count = 99, openActivityDay = 5, },
+			{ id= 95002, count = 99, openActivityDay = 5, },
+			{ id= 95003, count = 999, openActivityDay = 5, },
+			{ id= 95004, count = 999, openActivityDay = 5, },
+			{ id= 95005, count = 999, openActivityDay = 5, },
+			{ id= 95006, count = 999, openActivityDay = 5, },
+
+			{ id= 95007, count = 99, openActivityDay = 6, },
+			{ id= 95008, count = 99, openActivityDay = 6, },
+			{ id= 95009, count = 999, openActivityDay = 6, },
+			{ id= 95010, count = 999, openActivityDay = 6, },
+			{ id= 95011, count = 999,  openActivityDay = 6 ,},
+			{ id= 95012, count = 999,  openActivityDay = 6,},
+
+			{ id= 95013, count = 99, openActivityDay = 7, },
+			{ id= 95014, count = 99, openActivityDay = 7, },
+			{ id= 95015, count = 999, openActivityDay = 7, },
+			{ id= 95016, count = 999, openActivityDay = 7, },
+			{ id= 95017, count = 999, openActivityDay = 7, },
+			{ id= 95018, count = 999, openActivityDay = 7, },
+
+			{ id= 95019, count = 99, openActivityDay = 8, },
+			{ id= 95020, count = 99, openActivityDay = 8, },
+			{ id= 95021, count = 999, openActivityDay = 8, },
+			{ id= 95022, count = 999, openActivityDay = 8, },
+
+
+			{ id= 95001, count = 99, openActivityDay = 9, },
+			{ id= 95002, count = 99, openActivityDay = 9, },
+			{ id= 95003, count = 999, openActivityDay = 9, },
+			{ id= 95004, count = 999, openActivityDay = 9, },
+			{ id= 95005, count = 999, openActivityDay = 9, },
+			{ id= 95006, count = 999, openActivityDay = 9, },
+
+			{ id= 95007, count = 99, openActivityDay = 10, },
+			{ id= 95008, count = 99, openActivityDay = 10, },
+			{ id= 95009, count = 999, openActivityDay = 10, },
+			{ id= 95010, count = 999, openActivityDay = 10, },
+			{ id= 95011, count = 999,  openActivityDay = 10 ,},
+			{ id= 95012, count = 999,  openActivityDay = 10,},
+
+			{ id= 95013, count = 99, openActivityDay = 11, },
+			{ id= 95014, count = 99, openActivityDay = 11, },
+			{ id= 95015, count = 999, openActivityDay = 11, },
+			{ id= 95016, count = 999, openActivityDay = 11, },
+			{ id= 95017, count = 999, openActivityDay = 11, },
+			{ id= 95018, count = 999, openActivityDay = 11, },
+
+			{ id= 95019, count = 99, openActivityDay = 12, },
+			{ id= 95020, count = 99, openActivityDay = 12, },
+			{ id= 95021, count = 999, openActivityDay = 12, },
+			{ id= 95022, count = 999, openActivityDay = 12, },
+
+
+		},
+	},
+	{
+	--分类ID=5  稀世珍宝
+		count=7,
+		items=
+		{
+			{ id= 96001, count = 999, openActivityDay = 1, },
+			{ id= 96002, count = 999, openActivityDay = 1, },
+			{ id= 96003, count = 99, openActivityDay = 1, },
+			{ id= 96004, count = 999, openActivityDay = 1, },
+			{ id= 96005, count = 99, openActivityDay = 1, },
+			{ id= 96006, count = 99, openActivityDay = 1, },
+			{ id= 96007, count = 999, openActivityDay = 1, },
+			{ id= 96008, count = 999, openActivityDay = 1, },
+			{ id= 96009, count = 99, openActivityDay = 1, },
+			{ id= 96010, count = 999, openActivityDay = 1, },
+			{ id= 96011, count = 99, openActivityDay = 1, },
+			{ id= 96012, count = 99, openActivityDay = 1, },
+
+			{ id= 96007, count = 999, openActivityDay = 2, },
+			{ id= 96008, count = 99, openActivityDay = 2, },
+			{ id= 96009, count = 99, openActivityDay = 2, },
+			{ id= 96010, count = 999, openActivityDay = 2, },
+			{ id= 96011, count = 999,  openActivityDay = 2 ,},
+			{ id= 96012, count = 99,  openActivityDay = 2,},
+			{ id= 96013, count = 999, openActivityDay = 2, },
+			{ id= 96014, count = 99, openActivityDay = 2, },
+			{ id= 96015, count = 99, openActivityDay = 2, },
+			{ id= 96016, count = 999, openActivityDay = 2, },
+			{ id= 96017, count = 999,  openActivityDay = 2 ,},
+			{ id= 96018, count = 99,  openActivityDay = 2,},
+
+			{ id= 96013, count = 999, openActivityDay = 3, },
+			{ id= 96014, count = 999, openActivityDay = 3, },
+			{ id= 96015, count = 99, openActivityDay = 3, },
+			{ id= 96016, count = 999, openActivityDay = 3, },
+			{ id= 96017, count = 99, openActivityDay = 3, },
+			{ id= 96018, count = 99, openActivityDay = 3, },
+			{ id= 96019, count = 999, openActivityDay = 3, },
+			{ id= 96020, count = 999, openActivityDay = 3, },
+			{ id= 96021, count = 99, openActivityDay = 3, },
+			{ id= 96022, count = 999, openActivityDay = 3, },
+			{ id= 96023, count = 99, openActivityDay = 3, },
+			{ id= 96024, count = 99, openActivityDay = 3, },
+
+			{ id= 96023, count = 999, openActivityDay = 4, },
+			{ id= 96024, count = 99, openActivityDay = 4, },
+			{ id= 96019, count = 99, openActivityDay = 4, },
+			{ id= 96020, count = 999, openActivityDay = 4, },
+			{ id= 96021, count = 99, openActivityDay = 4, },
+			{ id= 96022, count = 99, openActivityDay = 4, },
+			{ id= 96001, count = 999, openActivityDay = 4, },
+			{ id= 96002, count = 99, openActivityDay = 4, },
+			{ id= 96003, count = 99, openActivityDay = 4, },
+			{ id= 96004, count = 999, openActivityDay = 4, },
+			{ id= 96005, count = 99, openActivityDay = 4, },
+			{ id= 96006, count = 99, openActivityDay = 4, },
+
+			{ id= 96001, count = 999, openActivityDay = 5, },
+			{ id= 96002, count = 999, openActivityDay = 5, },
+			{ id= 96003, count = 99, openActivityDay = 5, },
+			{ id= 96004, count = 999, openActivityDay = 5, },
+			{ id= 96005, count = 99, openActivityDay = 5, },
+			{ id= 96006, count = 99, openActivityDay = 5, },
+			{ id= 96007, count = 999, openActivityDay = 5, },
+			{ id= 96008, count = 999, openActivityDay = 5, },
+			{ id= 96009, count = 99, openActivityDay = 5, },
+			{ id= 96010, count = 999, openActivityDay = 5, },
+			{ id= 96011, count = 99, openActivityDay = 5, },
+			{ id= 96012, count = 99, openActivityDay = 5, },
+
+			{ id= 96007, count = 999, openActivityDay = 6, },
+			{ id= 96008, count = 99, openActivityDay = 6, },
+			{ id= 96009, count = 99, openActivityDay = 6, },
+			{ id= 96010, count = 999, openActivityDay = 6, },
+			{ id= 96011, count = 999,  openActivityDay = 6 ,},
+			{ id= 96012, count = 99,  openActivityDay = 6,},
+			{ id= 96013, count = 999, openActivityDay = 6, },
+			{ id= 96014, count = 99, openActivityDay = 6, },
+			{ id= 96015, count = 99, openActivityDay = 6, },
+			{ id= 96016, count = 999, openActivityDay = 6, },
+			{ id= 96017, count = 999,  openActivityDay = 6 ,},
+			{ id= 96018, count = 99,  openActivityDay = 6,},
+
+			{ id= 96013, count = 999, openActivityDay = 7, },
+			{ id= 96014, count = 999, openActivityDay = 7, },
+			{ id= 96015, count = 99, openActivityDay = 7, },
+			{ id= 96016, count = 999, openActivityDay = 7, },
+			{ id= 96017, count = 99, openActivityDay = 7, },
+			{ id= 96018, count = 99, openActivityDay = 7, },
+			{ id= 96019, count = 999, openActivityDay = 7, },
+			{ id= 96020, count = 999, openActivityDay = 7, },
+			{ id= 96021, count = 99, openActivityDay = 7, },
+			{ id= 96022, count = 999, openActivityDay = 7, },
+			{ id= 96023, count = 99, openActivityDay = 7, },
+			{ id= 96024, count = 99, openActivityDay = 7, },
+		},
+	},
+	
+	{
+	--分类ID=6  
+		count=0,
+		items=
+		{
+		}
+	},
+	
+	{
+	--分类ID=7  
+		count=0,
+		items=
+		{
+		}
+	},
+	
+	{
+	--分类ID=8  爵位特权商城
+		count=12,
+		items=
+		{
+			{ id= 97001, count = 1, },
+			{ id= 97002, count = 1, },
+			{ id= 97003, count = 3, },
+			{ id= 97004, count = 3, },
+			{ id= 97005, count = 10, },
+			{ id= 97006, count = 10, },
+			{ id= 97007, count = 20, },
+			{ id= 97008, count = 20, },
+			{ id= 97009, count = 40, },
+			{ id= 97010, count = 40, },
+			{ id= 97011, count = 40, },
+			{ id= 97012, count = 40, },
+		},
+	},
+	
+	{
+	--分类ID=9  购物狂欢
+		count=18,
+		items=
+		{
+			{ id= 98001, count = 9999, },
+			{ id= 98002, count = 9999, },
+			{ id= 98003, count = 9999, },
+			{ id= 98004, count = 9999, },
+			{ id= 98005, count = 9999, },
+			{ id= 98006, count = 9999, },
+			{ id= 98007, count = 9999, },
+			{ id= 98008, count = 9999, },
+			{ id= 98009, count = 9999, },
+			{ id= 98010, count = 9999, },
+			{ id= 98011, count = 9999, },
+			{ id= 98012, count = 9999, },
+			{ id= 98013, count = 9999, },
+			{ id= 98014, count = 9999, },
+			{ id= 98015, count = 9999, },
+			{ id= 98016, count = 9999, },
+			{ id= 98017, count = 9999, },
+			{ id= 98018, count = 9999, },
+		},
+	},
+	{
+	--分类ID=10  每日次数限购
+		count=6,
+		items=
+		{
+			{ id= 125001, count = 0X7FFFFFFF, },
+			{ id= 125002, count = 0X7FFFFFFF, },
+			{ id= 125003, count = 0X7FFFFFFF, },
+			{ id= 125004, count = 0X7FFFFFFF, },
+			{ id= 125005, count = 0X7FFFFFFF, },
+			{ id= 125006, count = 0X7FFFFFFF, },
+		},
+	},
+
+
+
+}

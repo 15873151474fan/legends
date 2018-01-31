@@ -1,0 +1,610 @@
+﻿--lua script
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\combat\combatAward.txt"  once
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "CombatPkCommonOp.txt" once
+
+--增加挑战次数
+function AddChanllageTimesOp( sysarg, args )
+	if CombatRanking == nil then return end
+	
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO) < CombatRanking.AddChanllangeNeedYb then
+		local str1 = string.format(Lang.ScriptTips.cj00001,CombatRanking.AddChanllangeNeedYb)
+		Actor.sendTipmsg(sysarg, str1, ttFlyTip)
+		return nil
+	end
+	
+	--可以挑战的总次数
+	local totaTimes = Actor.getAllChanageTimes(sysarg) + CombatRanking.CanChanllangeTimes
+	
+	--已经挑战的次数
+	local curTimes = Actor.getChanllageTimesToDay(sysarg)
+
+	--每天最大能够增加的挑战次数
+	if (totaTimes-curTimes) >= CombatRanking.MaxAddChaganeTimes then
+		--local str1 = string.format(Lang.ScriptTips.cj00006,CombatRanking.MaxAddChaganeTimes)
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.cj00006, ttFlyTip)
+		return nil
+	end
+
+	if Actor.changeMoney(sysarg, 3, -CombatRanking.AddChanllangeNeedYb, 156,  Lang.LogTips.z00004) == true then 
+		Actor.changeChanllageTimes(sysarg,1)		
+
+		local pack = DataPack.allocPacket(sysarg, 38, 4)
+
+		if (pack ~= nil) then	
+			DataPack.writeInt(pack, totaTimes-curTimes+1)
+			DataPack.flush(pack)  		
+		end
+	end
+end
+
+--刷新下次可以挑战的时间
+function RefreshNextChanllageTime( sysarg, args )
+	if CombatRanking == nil then return end
+
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_COIN) < CombatRanking.RefreshChanageTimeNeedYb then
+		local str1 = string.format(Lang.ScriptTips.cj00002,CombatRanking.RefreshChanageTimeNeedYb)
+		Actor.sendTipmsg(sysarg, str1, ttFlyTip)
+		return nil
+	end
+	
+	if Actor.changeMoney(sysarg, 0, -CombatRanking.RefreshChanageTimeNeedYb, 156,  Lang.LogTips.z00005)  then 
+		Actor.cleanChallageTime(sysarg)
+
+		local pack = DataPack.allocPacket(sysarg, 38, 5)
+
+		if (pack ~= nil) then	
+			DataPack.writeChar(pack, 1)
+			DataPack.flush(pack)  		
+		end
+	end
+end
+
+--刷新战力
+function RefreshChanllagePower( sysarg, args )
+	if CombatRanking == nil then return end
+	
+	local rType = args[2]
+	
+	local gType = Actor.getFreshCombatType(sysarg)
+	if gType == 6 then	--如果是无敌了就不刷新了
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.cj00007, ttDialog)
+		return
+	end
+
+	local randNum = System.getRandomNumber(100)  -- 返回[0-100]的随机数
+	
+	local randCnt = 0
+
+	if rType ==  1 then
+		for i =1,table.getn(CombatRanking.CoinRandRate) do
+			if randNum < CombatRanking.CoinRandRate[i] then
+				randCnt = i
+				break
+			end
+		end
+	elseif rType ==  2 then
+		for i =1,table.getn(CombatRanking.YbRandRate) do
+			if randNum < CombatRanking.YbRandRate[i] then
+				randCnt = i
+				break
+			end
+		end
+	end
+
+	if randCnt <=0 then
+		randCnt = 1
+	end
+
+	if randCnt >=7  or rType == 3 then
+		randCnt = 6
+	end
+	
+	local mPower = Actor.getActorBattlePower(sysarg)
+	local addPower = 0
+	
+	--当前银两刷新的次数
+	local aTimes = Actor.getAdditionTimes(sysarg)
+	
+	--银两刷新
+	if rType == 1 then
+	    --金币改成绑金 
+		if Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_COIN) < CombatRanking.needMoney then
+			local str1 = string.format(Lang.ScriptTips.cj00003,CombatRanking.needMoney)
+			Actor.sendTipmsg(sysarg, str1, ttFlyTip)
+			return nil
+		end
+
+		if aTimes >= CombatRanking.MaxRefreshTimes then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.cj00004, ttFlyTip)
+			return nil	
+		end
+
+		if Actor.changeMoney(sysarg, 0, -CombatRanking.needMoney, 156,  Lang.LogTips.z00006) == true then 
+			addPower = math.ceil(mPower * CombatRanking.RefreshType[randCnt] / 100)
+			Actor.setAdditionPower(sysarg,addPower)
+			Actor.setFreshCombatType(sysarg,randCnt)
+			Actor.addAdditionTimes(sysarg,1)
+		end
+	elseif rType == 2 then		--元宝刷新
+		if Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO) < CombatRanking.needYuBao then
+			local str2 = string.format(Lang.ScriptTips.cj00005,CombatRanking.needYuBao)
+			Actor.sendTipmsg(sysarg, str2, ttFlyTip)
+			return nil
+		end
+		
+		if Actor.changeMoney(sysarg, 3, -CombatRanking.needYuBao, 156,  Lang.LogTips.z00007) == true then 
+			addPower = math.ceil(mPower * CombatRanking.RefreshType[randCnt] / 100)
+			Actor.setAdditionPower(sysarg,addPower)
+			Actor.setFreshCombatType(sysarg,randCnt)
+		end
+	elseif rType == 3 then		--一剑无敌
+		if Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO) < CombatRanking.OneKeyFreshNeedYB then
+			local str2 = string.format(Lang.ScriptTips.cj00005,CombatRanking.needYuBao)
+			Actor.sendTipmsg(sysarg, str2, ttFlyTip)
+			return nil
+		end
+
+		if Actor.changeMoney(sysarg, 3, -CombatRanking.OneKeyFreshNeedYB, 156,  Lang.LogTips.z00007) == true then 
+			addPower = math.ceil(mPower * CombatRanking.RefreshType[randCnt] / 100)
+			Actor.setAdditionPower(sysarg,addPower)
+			Actor.setFreshCombatType(sysarg,randCnt)
+		end
+	end
+	
+	--刷到无敌
+	if randCnt == 6 then
+		--local campName = Camp.getCampName(Actor.getCamp(sysarg))
+		local userName = Actor.getName(sysarg)
+		System.broadcastTipmsgLimitLev(string.format(Lang.ScriptTips.cj00008, userName), ttScreenCenter,CombatRanking.LevLimit)
+	end
+	
+	local curTimes = Actor.getAdditionTimes(sysarg)
+	if addPower>0 then
+		local pack = DataPack.allocPacket(sysarg, 38, 6)
+		if (pack ~= nil) then	
+			DataPack.writeInt(pack, curTimes)
+			DataPack.writeChar(pack,randCnt)
+			DataPack.writeInt(pack, addPower)
+			DataPack.flush(pack)  		
+		end
+	end
+end
+
+--下发刷新的结果
+function SendFereshCombatPower(sysarg)
+	local gType = Actor.getFreshCombatType(sysarg)
+
+	if gType <= 0 then
+		Actor.setFreshCombatType(sysarg,1)
+		gType = 1
+	end
+	
+	local mPower = Actor.getActorBattlePower(sysarg)
+	local addPower = math.ceil(mPower * CombatRanking.RefreshType[gType] / 100)
+	local curTimes = Actor.getAdditionTimes(sysarg)
+	if addPower>0 then
+		local pack = DataPack.allocPacket(sysarg, 38, 6)
+		if (pack ~= nil) then	
+			DataPack.writeInt(pack, curTimes)
+			DataPack.writeChar(pack,gType)
+			DataPack.writeInt(pack, addPower)
+			DataPack.flush(pack)  		
+		end
+	end
+end
+
+--挑战后给予奖励
+function GiveCombatAwardOp( sysarg, args )
+	local wType = args[2]
+	
+	local nExp
+	local nCoin
+	local bCoin
+	local nScore
+	
+	local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	--战胜
+	if wType == 1 then
+		Awards.Give(sysarg,CombatRefreshPower.winningAward,822,Lang.ScriptTips.c00035)
+	--失败
+	elseif wType == 0 then
+		Awards.Give(sysarg,CombatRefreshPower.lostAward,822,Lang.ScriptTips.c00035)
+	end
+
+	local cType = args[3]		--连胜场次
+	local bIndex = 0
+	for i=1,table.getn(CombatRefreshPower.winTimes) do
+		if CombatRefreshPower.winTimes[i] == cType then
+			bIndex = i
+			break
+		end
+	end
+	
+	local bRate = 0
+	if bIndex >0 then		--连胜的奖励
+		bRate = 1
+		for i=2,bIndex do
+			bRate = bRate * CombatRefreshPower.conRate / 100
+		end
+
+		--CombatRefreshPower.continousAward[1].count = CombatRefreshPower.continousAward[1].count * bRate
+		--AddAthleticsPointByPtr(sysarg,0)
+		--Awards.Give(sysarg,CombatRefreshPower.continousAward,201,"combat award")
+		Actor.giveAward(sysarg,CombatRefreshPower.continousAward[1].type,CombatRefreshPower.continousAward[1].id,CombatRefreshPower.continousAward[1].count * bRate,0,0,0,0,0,Lang.ScriptTips.c00035)
+
+		local userName = Actor.getName(sysarg)
+		System.broadcastTipmsgLimitLev(string.format(Lang.ScriptTips.cj00009, userName, cType), ttScreenCenter + ttChatWindow,CombatRanking.LevLimit)
+	end
+end
+
+--领取定时给的排行榜奖励
+function GiveCombatAwardOnTime(sysarg,args)
+	local ranking = Ranking.getRanking(CombatRanking.RankName)
+	
+	local bType = 0
+
+	if ranking then
+		--local nIndex = Actor.getAwardRanking(sysarg)
+		local nIndex = args[2]
+
+		if  nIndex == nil then	
+			nIndex = Ranking.getItemIndexFromId(ranking,Actor.getIntProperty(sysarg,PROP_ENTITY_ID)) + 1
+		end
+
+		if nIndex<=0 then return end
+		
+		local item = Ranking.getItemFromIndex( ranking, 0 )
+		
+		local nLevel = 0
+		if item then
+			nLevel = tonumber(Ranking.getSub(item,3))
+		else
+			nLevel = 30
+		end
+
+		if  nIndex == nil or nIndex > CombatRefreshPower.nAwardCount then		--判断上限
+			nIndex = Ranking.getItemIndexFromId(ranking,Actor.getIntProperty(sysarg,PROP_ENTITY_ID)) + 1
+		end
+
+		local maxIndex = nIndex
+		if nIndex > 0 and nIndex <= 10 then
+			local userName = Actor.getName(sysarg)
+			System.broadcastTipmsgLimitLev(string.format(Lang.ScriptTips.cj00010, userName, nIndex), ttScreenCenter + ttChatWindow,CombatRanking.LevLimit)
+			--maxIndex = nIndex - 1
+		end
+
+		for i=1,table.getn(CombatRefreshPower.levRange) do
+			if nIndex < CombatRefreshPower.levRange[i] then
+				maxIndex = i - 1
+				break
+			end
+		end
+		--local item = Ranking.getItemFromIndex( ranking, nIndex )
+
+		if nIndex >= 0 then
+			local nRate = 1.0
+			for i = 1,maxIndex do
+				nRate = nRate * CombatRefreshPower.rate / 100
+			end
+
+			--Awards.Give(sysarg,CombatRefreshPower.awardPerDay,201,"combat award")
+			for j=1,table.getn(CombatRefreshPower.awardPerDay) do
+				Actor.giveAward(sysarg,CombatRefreshPower.awardPerDay[j].type,CombatRefreshPower.awardPerDay[j].id,math.ceil(CombatRefreshPower.awardPerDay[j].count * nRate),0,0,0,0,0,Lang.ScriptTips.c00035)
+			end
+
+			bType = 1
+			Actor.setAwadRanking(sysarg,0)
+		end
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 38, 10)
+	if (pack ~= nil) then	
+		DataPack.writeByte(pack,bType)
+
+		DataPack.flush(pack)  		
+	end
+end
+
+--下发排名的奖励信息
+function SendCombatAwardOnTime(sysarg,args)
+	local ranking = Ranking.getRanking(CombatRanking.RankName)
+	
+	if ranking then
+		--local nIndex = Ranking.getItemIndexFromId(ranking,Actor.getIntProperty(sysarg,PROP_ENTITY_ID))
+
+		--if nIndex < 0 then return end
+		
+		local item = Ranking.getItemFromIndex( ranking, 0 )
+		
+		local nLevel = 0
+		if item then
+			nLevel = tonumber(Ranking.getSub(item,3))
+		else
+			nLevel = 30
+		end
+
+		local nIndex = Actor.getAwardRanking(sysarg)
+		
+		--if nIndex<=0 then return end
+		
+		local maxIndex = nIndex
+		if nIndex <= 10 then
+			maxIndex = nIndex - 1
+		else
+			for i=1,table.getn(CombatRefreshPower.levRange) do
+				if nIndex < CombatRefreshPower.levRange[i] then
+					maxIndex = 10 + i - 1
+					break
+				end
+			end
+		end
+
+		local var = System.getStaticVar()
+
+		if var.NextGetCmobatAwardTime == nil then
+			var.NextGetCmobatAwardTime = 0
+		end
+
+		local LeftTime = 0 
+		
+		--初始化下次刷新的时间
+		if var.NextGetCmobatAwardTime == 0 then
+			var.NextGetCmobatAwardTime = System.getToday() + 23 * 60 * 60
+
+			if var.NextGetCmobatAwardTime < System.getCurrMiniTime() then
+				var.NextGetCmobatAwardTime = var.NextGetCmobatAwardTime + 24 * 60 * 60
+			end
+		end
+		
+		if var.NextGetCmobatAwardTime > System.getCurrMiniTime() then
+			LeftTime = var.NextGetCmobatAwardTime - System.getCurrMiniTime()
+		end
+
+		local pack = DataPack.allocPacket(sysarg, 38, 9)
+		
+		local sendNum = 0
+		if nIndex <= 0  then
+			sendNum = 0
+		end
+		sendNum = 0
+		if (pack ~= nil) then	
+			DataPack.writeInt(pack, LeftTime)
+			DataPack.writeInt(pack,sendNum)
+			
+			for i =1,sendNum do
+				DataPack.writeInt(pack,CombatRefreshPower.awardPerDay[i].type)
+				DataPack.writeInt(pack,0)
+			end
+			DataPack.flush(pack)  		
+		end
+	end
+end
+
+--定时给予战力竞技的提示
+function CombatNoticeOnTime()
+	local var = System.getStaticVar()
+
+	if var.NextGetCmobatAwardTime == nil then
+		var.NextGetCmobatAwardTime = 0
+	end
+	
+	local curTime = System.getCurrMiniTime() + 40 * 60
+	
+	if curTime > var.NextGetCmobatAwardTime then
+		System.broadcastTipmsgLimitLev(Lang.ScriptTips.cj00012, ttScreenCenter + ttChatWindow,CombatRanking.LevLimit)
+	end
+
+end
+
+--定时刷新奖励信息
+function FreshCombatAward()
+	local var = System.getStaticVar()
+
+	if var.NextGetCmobatAwardTime == nil then
+		var.NextGetCmobatAwardTime = 0
+	end
+		
+	local ranking = Ranking.getRanking(CombatRanking.RankName)
+
+	if ranking then
+		local nCount = CombatRefreshPower.nAwardCount	--Ranking.getRankItemCount(ranking)
+		
+		System.clearCombatAward()
+		local bValue = false
+		--清除领取奖励的标记
+		for i = 0,nCount do
+			local item = Ranking.getItemFromIndex( ranking, i )
+			
+			if item then
+				--Ranking.setSub(item,4,tostring(0))
+
+				if i < (nCount-1) then
+					bValue = false
+				else
+					bValue = true
+				end
+
+				System.addToCombatAwardInfo(Ranking.getId(item),Ranking.getIndexFromPtr(item) + 1,bValue)
+			end
+		end
+
+		System.setSaveCombatAward(true)
+	end
+end
+
+--发起PK
+function BeginCombatOp(sysarg,args)
+	local tJop = args[2]		--他人的职业
+	local tagetPower = args[3]	--他人的战力
+	local nActorId = args[4]	--他人的id
+	local myPower = Actor.getTotalPower(sysarg)	--自己的战力
+	
+	CombatPkCommon(sysarg,myPower,tagetPower,nActorId,tJop)
+end
+
+--下发当前排名的奖励  现在用的
+function SendCurAwardOp(sysarg,args)
+	local ranking = Ranking.getRanking(CombatRanking.RankName)
+	
+	if ranking then
+		local item = Ranking.getItemFromIndex( ranking, 0 )
+		
+		local nLevel = 0
+		if item then
+			nLevel = tonumber(Ranking.getSub(item,3))
+		else
+			nLevel = 30
+		end
+
+		local nIndex = Ranking.getItemIndexFromId(ranking,Actor.getIntProperty(sysarg,PROP_ENTITY_ID)) + 1
+
+		--if nIndex<=0 then return end
+		
+		if nIndex > CombatRefreshPower.nAwardCount then
+			nIndex = 0
+		end
+		local maxIndex = nIndex
+		--if nIndex <= 10 then
+			--maxIndex = nIndex - 1
+		--else
+		for i=1,table.getn(CombatRefreshPower.levRange) do
+			if nIndex < CombatRefreshPower.levRange[i] then
+				maxIndex = i - 1
+				break
+			end
+		end
+		--end
+		
+		local nRate = 1.0
+		for i = 1,maxIndex do
+			nRate = nRate * CombatRefreshPower.rate / 100
+		end
+
+		local var = System.getStaticVar()
+
+		if var.NextGetCmobatAwardTime == nil then
+			var.NextGetCmobatAwardTime = 0
+		end
+
+		local LeftTime = 0
+
+		if System.getCurrMiniTime() > System.getToday() + 23 * 60 * 60 then
+			LeftTime = System.getToday() + 23 * 60 * 60 + 24 * 60 * 60 - System.getCurrMiniTime()
+		else
+			LeftTime = System.getToday() + 23 * 60 * 60 - System.getCurrMiniTime()
+		end
+
+		local pack = DataPack.allocPacket(sysarg, 38, 11)
+		if (pack ~= nil) then	
+			DataPack.writeInt(pack,LeftTime)
+			if nIndex > 0 then
+				local nSemdNum = table.getn(CombatRefreshPower.awardPerDay)
+				DataPack.writeInt(pack,nSemdNum)
+				
+				for i=1,nSemdNum do
+					DataPack.writeInt(pack,CombatRefreshPower.awardPerDay[i].type)
+					local nAward = CombatRefreshPower.awardPerDay[i].count
+					if CombatRefreshPower.awardPerDay[i].type == 20 then
+						nAward = Actor.getActivityExp(sysarg,CombatRefreshPower.awardPerDay[i].id,math.ceil(CombatRefreshPower.awardPerDay[i].count * nRate),CombatRefreshPower.awardPerDay[i].quality)
+					else
+						nAward = math.ceil(nAward * nRate)
+					end
+					DataPack.writeInt(pack,nAward)
+				end
+			else
+				DataPack.writeInt(pack,0)
+			end
+			DataPack.flush(pack)  		
+		end
+	end
+
+	SendFereshCombatPower(sysarg)
+end
+
+--每半个小时给玩家发经验
+function GiveCombatExpOnTime()
+	local ranking = Ranking.getRanking(CombatRanking.RankName)
+
+	if ranking then		
+		local nCount = CombatRefreshPower.awardRankOnTime - 1
+
+		for i = 0,nCount do
+			local item = Ranking.getItemFromIndex( ranking, i )
+			if item then
+				local maxIndex = 0
+				for j=1,table.getn(CombatRefreshPower.levRange) do
+					if (i+1) < CombatRefreshPower.levRange[j] then
+						maxIndex = j - 1
+						break
+					end
+				end
+		
+				local nRate = 1.0
+				for j = 1,maxIndex do
+					nRate = nRate * CombatRefreshPower.rate / 100
+				end
+
+				local sname = Ranking.getSub(item,0)
+				local pActor = Actor.getActorByName(sname)
+				if pActor then
+					for j=1,table.getn(CombatRefreshPower.giveRankOnTime) do
+						Actor.giveAward(pActor,CombatRefreshPower.giveRankOnTime[j].type,CombatRefreshPower.giveRankOnTime[j].id,CombatRefreshPower.giveRankOnTime[j].count * nRate,0,0,0,0,0,Lang.ScriptTips.cj00016)
+					end
+					local nAward = Actor.getActivityExp(pActor,CombatRefreshPower.giveRankOnTime[1].id,CombatRefreshPower.giveRankOnTime[1].count * nRate,CombatRefreshPower.giveRankOnTime[1].quality)
+					local mRanking = Ranking.getItemIndexFromId(ranking,Ranking.getId(item)) + 1
+					Actor.sendTipmsg(pActor, string.format(Lang.ScriptTips.cj00015,mRanking,nAward), ttFlyTip)
+				end
+			end
+		end
+
+	end
+end
+
+--请求排名前三名的信息和奖励信息
+function SendCombatAwardRankInfo(sysarg,args)
+	local nCount = args[2]
+	if nCount < 0 or nCount > 1000 then 
+		nCount = 1000
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 38, 14)
+	if (pack ~= nil) then	
+		DataPack.writeInt(pack,nCount)
+		local ranking = Ranking.getRanking(CombatRanking.RankName)
+
+		for i=0,nCount do
+			DataPack.writeInt(pack,i+1)
+			local item = Ranking.getItemFromIndex( ranking, i )
+			if item then
+				local sname = Ranking.getSub(item,0)
+				DataPack.writeString(pack,sname)
+			else
+				DataPack.writeString(pack,"")
+			end
+
+			local nSemdNum = table.getn(CombatRefreshPower.awardPerDay)
+			DataPack.writeInt(pack,nSemdNum)
+			
+			local nRate = 1.0
+			for k = 1,i do
+				nRate = nRate * CombatRefreshPower.rate / 100
+			end
+
+			for j=1,nSemdNum do
+				DataPack.writeInt(pack,CombatRefreshPower.awardPerDay[j].type)
+				local nAward = CombatRefreshPower.awardPerDay[j].count
+				if CombatRefreshPower.awardPerDay[j].type == 20 then
+					nAward = Actor.getActivityExp(sysarg,CombatRefreshPower.awardPerDay[j].id,math.ceil(CombatRefreshPower.awardPerDay[j].count * nRate),CombatRefreshPower.awardPerDay[j].quality)
+				else
+					nAward = math.ceil(nAward * nRate)
+				end
+				DataPack.writeInt(pack,nAward)
+			end
+		end
+
+		DataPack.flush(pack)  		
+	end
+end

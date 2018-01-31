@@ -1,0 +1,64 @@
+--宠物资质强化的引导
+{
+  maxLevel = 40,
+  --触发条件
+  triggerList =
+  {
+       { type = 1, valueList = {1981,}},      --有这个任务
+  },
+  
+
+  --引导的步骤 
+  steps = 
+  {
+
+    --第1步 灵兽界面没打开
+    {
+      condList = 
+      {
+		{ type = 29,  helpId = 33, dataList = {1981,} },    --任务进行中
+		{ type = 2,  helpId = 30, dataList = {0,} },     --宠物窗口不可见
+		{ type = 14,  helpId = 22, dataList = {0,} },    --有宠物
+      },
+
+      action = { type = 1, helpId = 4, data = 0, desc = Lang.GuideLang.desc9 },
+    },
+
+
+    --第2步 点击资质强化按钮
+    {
+      condList = 
+      {
+				{ type = 29,  helpId = 33, dataList = {1981,} },    --任务进行中
+				{ type = 1,  helpId = 30, dataList = {0,} },    --宠物窗口可见
+				{ type = 2,  helpId = 33, dataList = {0,} },    --宠物强化窗口不可见
+				{ type = 14,  helpId = 30, dataList = {0,} },   --有宠物
+      },
+
+      action = { type = 1, helpId = 32, data = 0, desc = Lang.GuideLang.desc54 },
+    },
+
+    --第3步 指向资质面板的强化按钮
+    {
+      condList = 
+      {
+				{ type = 29,  helpId = 33, dataList = {1981,} },    --任务进行中
+				{ type = 1,  helpId = 33, dataList = {0,} },    --宠物强化窗口可见
+      },
+
+      action = { type = 1, helpId = 34, data = 0, desc = Lang.GuideLang.desc55 },
+    },
+    
+    --第4步 关闭窗口
+    {
+      condList = 
+      {
+				{ type = 29,  helpId = 33, dataList = {1981,} },    --任务进行中
+				{ type = 1,  helpId = 33, dataList = {0,} },    --宠物强化窗口可见
+      },
+
+      --引导玩家关闭窗口
+      action = { type = 4, helpId = 33, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+  } 
+}

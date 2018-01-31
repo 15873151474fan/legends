@@ -1,0 +1,160 @@
+--五行宝库通用处理
+--#include "data\config\activityconfig\FiveTreasure\FiveTreasureConfig.txt" once
+
+--进入五行宝库初始化处理
+function OnEnterInitTreasure(sysarg, fbHandle, fubenId)
+	local hScene = Fuben.getSceneHandleById(FiveTreasureConfig.nSceenId, fbHandle)
+	
+	--创建boss
+	for i=1,table.getn(FiveTreasureConfig.nMonsterId) do
+		local nMonster = Fuben.createMonster(hScene, FiveTreasureConfig.nMonsterId[i].nMonsterID, FiveTreasureConfig.nMonsterId[i].posX, FiveTreasureConfig.nMonsterId[i].posY, 
+			FiveTreasureConfig.nMonsterId[i].nLiveTime)
+		if nMonster then
+			Actor.setDyanmicValue(nMonster,i)
+		end
+	end
+	
+	local nRundomNum = System.getRandomNumber(table.getn(FiveTreasureConfig.nBossId)) + 1
+	if nRundomNum <= 0 then
+		nRundomNum = 1
+	end
+	
+	if nRundomNum > table.getn(FiveTreasureConfig.nBossId) then
+		nRundomNum = table.getn(FiveTreasureConfig.nBossId)
+	end
+	
+	local pMonster = Fuben.createMonster(hScene, FiveTreasureConfig.nBossId[nRundomNum].nMonsterID, FiveTreasureConfig.nBossId[nRundomNum].posX, 
+		FiveTreasureConfig.nBossId[nRundomNum].posY, FiveTreasureConfig.nBossId[nRundomNum].nLiveTime)
+
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb and pMonster then
+		local sVal = Fuben.getDyanmicVar(pFb)
+		sVal.monsterHandle = Actor.getHandle(pMonster)
+		sVal.CreatemonsterTimes = 1
+	end
+end
+
+--大boss死亡修改
+function FiveBigBossTreasure(sysarg,nIndex)
+	local nBossIndex = 0
+	if nIndex <= 0 then 
+		nBossIndex = 1
+	end
+	
+	if nIndex >= table.getn(FiveTreasureConfig.nBossId) then
+		nBossIndex = 1
+	end
+
+	if nBossIndex == 0 then
+		nBossIndex = nIndex + 1
+	end
+	
+	local fbHandle = Actor.getFubenHandle(sysarg)
+
+	local pFb = Actor.getFubenPrt(sysarg)
+	local sVal = nil
+	if pFb then
+		sVal = Fuben.getDyanmicVar(pFb)
+		if sVal.CreatemonsterTimes == nil then
+			sVal.CreatemonsterTimes = 1
+		end
+
+		if sVal.CreatemonsterTimes >= table.getn(FiveTreasureConfig.nBossId) then
+			Fuben.sendMsgToFb(fbHandle,Lang.Activity.war0012,2+128)
+			return
+		end
+	end
+
+	local hScene = Fuben.getSceneHandleById(FiveTreasureConfig.nSceenId, fbHandle)
+
+	local pMonster = Fuben.createMonster(hScene, FiveTreasureConfig.nBossId[nBossIndex].nMonsterID, FiveTreasureConfig.nBossId[nBossIndex].posX, 
+		FiveTreasureConfig.nBossId[nBossIndex].posY, FiveTreasureConfig.nBossId[nBossIndex].nLiveTime)
+	
+	if sVal and pMonster then
+		sVal.monsterHandle = Actor.getHandle(pMonster)
+		if sVal.CreatemonsterTimes == nil then
+			sVal.CreatemonsterTimes = 1
+		end
+
+		sVal.CreatemonsterTimes = sVal.CreatemonsterTimes + 1
+	end
+end
+
+--小boss死亡
+function SmallBossTreasure(sysarg,monster,monId)
+	local nIndex = Actor.getDyanmicValue(monster)
+	if nIndex <= 0 or nIndex > table.getn(FiveTreasureConfig.nMonsterId) then
+		nIndex = 1
+	end
+	
+	local nCurIndex = 0
+	for i=1,table.getn(FiveTreasureConfig.nMonsterId) do
+		if monId == FiveTreasureConfig.nMonsterId[i].nMonsterID then
+			nCurIndex = i+1
+		end
+	end
+
+	if nCurIndex <= 0 then
+		nCurIndex = 1
+	end
+
+	if nCurIndex > table.getn(FiveTreasureConfig.nMonsterId) then
+		nCurIndex = 1
+	end
+	
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	local hScene = Fuben.getSceneHandleById(FiveTreasureConfig.nSceenId, fbHandle)
+
+	if nCurIndex == 0 then
+		nCurIndex = nIndex + 1
+	end
+	
+	local pMonster = Fuben.createMonster(hScene, FiveTreasureConfig.nMonsterId[nCurIndex].nMonsterID, FiveTreasureConfig.nMonsterId[nIndex].posX, 
+		FiveTreasureConfig.nMonsterId[nIndex].posY, FiveTreasureConfig.nMonsterId[nCurIndex].nLiveTime)
+	Actor.setDyanmicValue(pMonster,nIndex)
+
+	local nCount = Fuben.getLiveMonsterCount(hScene,FiveTreasureConfig.nMonsterId[nCurIndex].nMonsterID)
+	if nCount == table.getn(FiveTreasureConfig.nMonsterId) then
+		local pFb = Actor.getFubenPrt(sysarg)
+		local sVal = Fuben.getDyanmicVar(pFb)
+		local nMonster = Actor.getEntity(sVal.monsterHandle)
+
+		local bFlag = false
+		if nMonster then
+			local nBossIndex = 0
+			local nMonsterId = Actor.getIntProperty(nMonster,PROP_ENTITY_ID)
+			for i=1,table.getn(FiveTreasureConfig.nBossId) do
+				if nMonsterId == FiveTreasureConfig.nBossId[i].nMonsterID then
+					nBossIndex = i
+					break
+				end
+			end
+			
+			if nCurIndex < 5 and nCurIndex+1 == nBossIndex then
+				bFlag = true
+			elseif nCurIndex == 5 and nBossIndex ==  1 then
+				bFlag = true
+			end
+		end
+
+		if pFb and nMonster and bFlag==true then
+			Fuben.sendMsgToFb(fbHandle,Lang.Activity.war0011,2+128)
+
+			local playerList = LuaHelp.getFbActorList(pFb)		--获取某场景玩家对象列表
+			if playerList ~= nil then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then
+						for i=1,table.getn(FiveTreasureConfig.DelBuff) do
+							local nConfig = FiveTreasureConfig.DelBuff[i]
+							if nConfig then
+								Actor.addBuff(nMonster,nConfig.buffType,nConfig.buffGroup, nConfig.value, nConfig.times, nConfig.interval, nConfig.buffName, nConfig.timeOverlay)
+							end
+						end
+					end
+				end
+			end
+		end
+
+	end
+end

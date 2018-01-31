@@ -1,0 +1,13 @@
+--子系统：Misc(139)  消息号：12
+--玩家新加下属
+
+MiscsImplement.AddFollower = function (sysarg,msgid, packet)
+	--print("remove delay msg!!")
+	local postint = DataPack.readInt(packet)
+	--print("postint:"..postint)
+	if postint ~= nil then 
+	  Actor.removeEntityScriptDelayMsg(sysarg,postint)
+	end
+end
+
+MiscsImplement.registerMsgHandler(8, MiscsImplement.removeScriptDelayMsg)

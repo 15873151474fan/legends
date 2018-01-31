@@ -1,0 +1,91 @@
+﻿--水域龙都
+{
+	scenceid = 80,
+	scencename = Lang.SceneName.s00080,
+	mapfilename = "80ShuiYueLongDu",
+	minlevel = 50,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0, 
+	music = "fengmogu.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 188,
+	sceneHeight = 176,
+	sceneType=2,
+	seckillId = 23,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+
+
+	--挂机的点 ,通常副本才配置 
+	autoFightPoints =
+	{
+		{x = 87 , y = 122},
+		{x = 103 , y = 134},
+		{x = 143 , y = 90},
+		{x = 111 , y = 52},
+		{x = 87 , y = 28},
+		{x = 53 , y = 76},
+		{x = 67 , y = 90},
+		{x = 85 , y = 90},
+		{x = 103 , y = 94},
+	},
+
+
+
+	area =
+	{
+		{ name = Lang.SceneName.s00080, range = { 10,10,20,20,60,50}, center = { 75,112},attri = {{type=46,value = {}},{type=80,value = {}},{type=18,value = {}},{type=19,value = {}},{type=3,value = {}},{type=50,value = {1}},{type = 34,  value = {316,822,386,2272,2273,2274}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },}},	--默认配置场景，禁止行会的召集，传送，行会回程卷
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh80.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00156, posx = 82 , posy = 111,script = "data/script/FuBenScriptNpc/FuBenJieYinRen.txt",modelid = 1,icon = 1,funcId = 0},
+		{name = Lang.EntityName.n00146, posx = 99 , posy = 89,script = "data/script/FuBenScriptNpc/ShuiYuLongDuJiGuan.txt",modelid = 55,icon = 1,funcId = 0,title=Lang.NpcTitle.n00028, idleInterval = 20000},
+	},
+
+  teleport =
+  {
+     --{ posx =  111, posy = 97,toSceneid =  2,toPosx = 231, toPosy =  231,modelid = 50000,name = Lang.SceneName.s00002 },  --水域龙都→王城
+
+  },
+ landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=81,posy1=114,posx2=81,posy2=114,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=89,posy1=126,posx2=89,posy2=126,modelid=58,xinterval=1,yinterval=1},  --水泡	
+		{posx1=91,posy1=138,posx2=91,posy2=138,modelid=58,xinterval=1,yinterval=1},  --水泡	
+		{posx1=101,posy1=136,posx2=101,posy2=136,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=111,posy1=126,posx2=111,posy2=126,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=123,posy1=111,posx2=123,posy2=111,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=150,posy1=81,posx2=150,posy2=81,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=138,posy1=77,posx2=138,posy2=77,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=110,posy1=65,posx2=110,posy2=65,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=108,posy1=46,posx2=108,posy2=46,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=98,posy1=36,posx2=98,posy2=36,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=80,posy1=25,posx2=80,posy2=25,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=84,posy1=39,posx2=84,posy2=39,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=66,posy1=47,posx2=66,posy2=47,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=55,posy1=55,posx2=55,posy2=55,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=51,posy1=75,posx2=51,posy2=75,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=64,posy1=84,posx2=64,posy2=84,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=78,posy1=81,posx2=78,posy2=81,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=104,posy1=85,posx2=104,posy2=85,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=104,posy1=95,posx2=104,posy2=95,modelid=58,xinterval=1,yinterval=1},  --水泡
+	 
+ },
+
+},

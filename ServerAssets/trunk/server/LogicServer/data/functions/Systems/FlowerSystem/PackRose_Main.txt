@@ -1,0 +1,158 @@
+--[[File:PackRose_Main.txt]]
+
+--#include "RoseRanking.txt" once
+--#include "ItemConvert.txt" once
+
+function PackRose_Main( sysarg )
+	-- 王城：打捆商人 主菜单
+	local dlgStr = string.format("\\<#BL%s/@PackRoseOtp,%d>", Lang.ScriptTips.c000031, RedRose)
+	--dlgStr = string.format("%s\\<#BL%s/@PackRoseOtp,%d>", dlgStr, Lang.ScriptTips.c000037, BlueRose)
+	dlgStr = string.format("%s\\<#BL%s/@UnPackRoseOtp,%d>", dlgStr, Lang.ScriptTips.c000043, RedRose)
+	--dlgStr = string.format("%s\\<#BL%s/@UnPackRoseOtp,%d>", dlgStr, Lang.ScriptTips.c000049, BlueRose)
+	dlgStr = string.format("%s\\<#BL%s/@AboutPackRose>", dlgStr, Lang.ScriptTips.c000061)
+	dlgStr = string.format("%s\\<#BL%s/@ConvertOtp,%d>", dlgStr, Lang.ScriptTips.lz000001, LingZhuUnpack);  -- 灵珠分解
+	return dlgStr
+end
+
+function AboutPackRose( sysarg )
+	return Lang.ScriptTips.c000062
+end
+
+function PackRoseOtp( sysarg, roseType )
+	local dlgStr = ""
+	roseType = tonumber(roseType)
+	local subCfg = GiveRoseConfig.PackRose[roseType]
+	for k, v in ipairs(subCfg or {}) do
+		dlgStr = string.format("%s\\<#BL%s/@DoPackRose,%d,%d>", dlgStr, v.opt, roseType, v.srcId)
+	end
+	dlgStr = string.format("%s\\<#BL%s/@main>", dlgStr, Lang.Activity.a00101)
+	return dlgStr
+end
+
+function UnPackRoseOtp( sysarg, roseType )
+	local dlgStr = ""
+	roseType = tonumber(roseType)
+	local subCfg = GiveRoseConfig.UnpackRose[roseType]
+	for k, v in ipairs(subCfg or {}) do
+		dlgStr = string.format("%s\\<#BL%s/@DoUnpackRose,%d,%d>", dlgStr, v.opt, roseType, v.srcId)
+	end
+	dlgStr = string.format("%s\\<#BL%s/@main>", dlgStr, Lang.Activity.a00101)
+	return dlgStr
+end
+
+function GetPackCfgByType( roseType, roseId )
+	for k, tab in ipairs(GiveRoseConfig.PackRose[roseType] or {}) do
+		if tab.srcId == roseId then
+			return tab
+		end
+	end
+	return nil
+end
+
+function GetUnpackCfgByType( roseType, roseId )
+	for k, tab in ipairs(GiveRoseConfig.UnpackRose[roseType] or {}) do
+		if tab.srcId == roseId then
+			return tab
+		end
+	end
+	return nil
+end
+
+--打捆
+function DoPackRose(sysarg, roseType, roseId )
+	roseType = tonumber(roseType)
+	roseId = tonumber(roseId)
+	local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_COIN)
+	if myCoin < GiveRoseConfig.PackCoin then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000059, GiveRoseConfig.PackCoin), ttFlyTip)
+		return
+	end
+	local packCfg = GetPackCfgByType( roseType, roseId )
+	if packCfg then
+		local srcItName = Item.getItemName(packCfg.srcId)
+		local destItName = Item.getItemName(packCfg.destId)
+		local nBindFlag = 0
+		local srcItCnt = Actor.getItemCount( sysarg,  packCfg.srcId, -1, -1, nBindFlag)
+		if srcItCnt < packCfg.srcCount then
+			nBindFlag = 1
+			local bindSrcItCnt = Actor.getItemCount( sysarg, packCfg.srcId, -1, -1, nBindFlag)
+			if bindSrcItCnt + srcItCnt < packCfg.srcCount then
+				local noticeStr = string.format(Lang.ScriptTips.c000055, srcItName)
+				Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+				return
+			end
+			if packCfg.noBind then
+				nBindFlag = 0
+			end
+		end
+		local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+		local needGrid = Item.getAddItemNeedGridCount(sysarg, packCfg.destId, 1)
+		if bagIdxs < needGrid then
+			local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+			Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+			return
+		end
+		if GiveRoseConfig.PackCoin > 0 and not Actor.changeMoney(sysarg, mtCoin, -GiveRoseConfig.PackCoin, 127, Lang.LogTips.yb017) then
+			return
+		end
+		local remNoBindCnt = Actor.removeItem( sysarg, packCfg.srcId, packCfg.srcCount, -1,-1, 0, "pack rose", 5 )
+		if remNoBindCnt < packCfg.srcCount then
+			local diffCnt = packCfg.srcCount - remNoBindCnt
+			if Actor.removeItem( sysarg, packCfg.srcId, diffCnt, -1,-1, 1, "pack rose", 5 ) ~= diffCnt then
+				return
+			end
+		end
+		Actor.addItem(sysarg, packCfg.destId, 0, 0, 1, nBindFlag)
+		local noticeStr = string.format(Lang.ScriptTips.c000057, destItName)
+		Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+	end
+end
+
+--解捆
+function DoUnpackRose( sysarg, roseType, roseId )
+	roseType = tonumber(roseType)
+	roseId = tonumber(roseId)
+	if GiveRoseConfig.UnpackCoin > 0 then
+		local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_COIN)
+		if myCoin < GiveRoseConfig.UnpackCoin then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000060, GiveRoseConfig.UnpackCoin), ttFlyTip)
+			return
+		end
+	end
+	local unPackCfg = GetUnpackCfgByType( roseType, roseId )
+	if unPackCfg then
+		local srcItName = Item.getItemName(unPackCfg.srcId)
+		local destItName = Item.getItemName(unPackCfg.destId)
+		local nBindFlag = 0
+		local srcItemCount = Actor.getItemCount( sysarg, unPackCfg.srcId, -1, -1, nBindFlag)
+		if srcItemCount < 1 then
+			nBindFlag = 1
+			local bindItemCount = Actor.getItemCount( sysarg, unPackCfg.srcId, -1, -1, nBindFlag)
+			if bindItemCount < 1 then
+				local noticeStr = string.format(Lang.ScriptTips.c000056, srcItName)
+				Actor.sendTipmsg(sysarg,noticeStr, ttFlyTip)
+				return
+			end
+		end
+		local bagIdxs = Item.getBagEmptyGridCount(sysarg)
+		local needGrid = Item.getAddItemNeedGridCount( sysarg, unPackCfg.destId, unPackCfg.destCount, -1, -1, nBindFlag)
+		if bagIdxs < needGrid then
+			local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+			Actor.sendTipmsg(sysarg,noticeStr, ttFlyTip)
+			return
+		end
+		if GiveRoseConfig.UnpackCoin > 0 then
+			if not Actor.changeMoney(sysarg, mtCoin, -GiveRoseConfig.UnpackCoin, 35, Lang.LogTips.yb018) then
+				return
+			end
+		end
+		if Actor.removeItem( sysarg, unPackCfg.srcId, 1, -1, -1, nBindFlag, "unpack rose", 5) > 0 then
+			Actor.addItem( sysarg, unPackCfg.destId, 0, 0, unPackCfg.destCount, nBindFlag)
+			local noticeStr = string.format(Lang.ScriptTips.c000058, destItName)
+			Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+		end
+	end
+end
+
+
+table.insert(MainFnTable, PackRose_Main)

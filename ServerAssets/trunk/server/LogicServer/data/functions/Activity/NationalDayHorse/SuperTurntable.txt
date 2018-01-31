@@ -1,0 +1,871 @@
+--lua script
+
+--#include "data\config\activityconfig\NationalDayHorse\NationalDayHorseAct.txt" once
+--#include "data\config\activityconfig\NationalDayHorse\SuperTurntableConfig.txt" once  
+		
+--请求转盘信息
+function ReqTurntableInfo(sysarg, packet) 
+	if System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) ~= true 
+		and System.getDoubleElevenActFlag(2) ~= 1 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0112, ttFlyTip)
+		return 
+	end
+	
+	InitTurntable()
+	local infoRankPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)  
+	if not infoRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+	
+	if not infoItemPtr then
+		SendTurntableInfo(sysarg, false)  
+	else
+		SendTurntableInfo(sysarg, true)  
+	end
+	SendTurntablePointInfo(sysarg)
+end 
+
+--请求转盘操作 1刷新，2抽奖1次，3抽奖励10次
+function ReqTurntableOp(sysarg, packet)
+	if System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) ~= true 
+		and System.getDoubleElevenActFlag(2) ~= 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0112, ttFlyTip)
+		return 
+	end
+	
+	local opType = DataPack.readByte(packet)
+	if opType ~= 1 and opType ~= 2 and opType ~= 3 then
+		return 
+	end
+	
+	if opType == 1 then
+		RefreshTurntableInfo(sysarg)
+	else
+		StartTurntable(sysarg, opType)
+	end
+end
+
+--刷新转盘信息
+function RefreshTurntableInfo(sysarg)
+	if System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) ~= true 
+		and System.getDoubleElevenActFlag(2) ~= 1 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0112, ttFlyTip)
+		return 
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)
+	if not turntableInfoPtr then
+		return 
+	end
+	
+	if Actor.checkConsume(sysarg, 15, 0, SuperTurntableConfig.refreshYb) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0101, ttFlyTip) 
+		return 
+	end
+		
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableItemPtr = AddPersonTurntableInfo(sysarg) --增加玩家转盘数据 
+	if not turntableItemPtr then
+		return 
+	end
+
+	if Actor.changeMoney(sysarg, 3, -SuperTurntableConfig.refreshYb, 973, Lang.LogTips.mgq101) == true then
+		ProducePersonTurntableList(sysarg) 
+	end
+		
+	SendTurntableInfo(sysarg, true) 	 
+end
+
+--开始转盘
+function StartTurntable(sysarg, opType)
+	local consumeYb = 0
+	local needBagCount = 0
+	if opType == 2 then
+		consumeYb = SuperTurntableConfig.drawYb
+		needBagCount = 1
+	elseif opType == 3 then
+		consumeYb = SuperTurntableConfig.drawAllYb
+		needBagCount = 10
+	end
+	
+	if Dmkj.getStoreRestCount(sysarg) < needBagCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mqg0206, needBagCount), ttFlyTip)
+		return 
+	end
+	
+	if Actor.changeMoney(sysarg, 3, -consumeYb, 973, Lang.LogTips.mgq102) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0102, ttFlyTip)
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableItemPtr = AddPersonTurntableInfo(sysarg) --增加玩家转盘数据 
+	if not turntableItemPtr then
+		return 
+	end
+	
+	local awardTab = {}
+	local paramTab = {} 
+
+	local drawIdx = 0
+	if opType == 2 then
+		drawIdx = ProduceTurntableAward(awardTab, paramTab, actorId)
+	elseif opType ==  3 then
+		for i = 1, 10 do
+			drawIdx = ProduceTurntableAward(awardTab, paramTab, actorId)
+		end
+	end
+	
+	if opType == 3 then
+		drawIdx = 0
+	end
+
+	
+	local itemLists = SuperTurntableConfig.itemLists
+	local count = 0
+    if table.getn(awardTab)/2 > 0 then
+		count = table.getn(awardTab)/2
+	end
+	
+	local actorName = Actor.getName(sysarg)
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx]
+			local itemIdx = awardTab[2*(j-1)+2] 
+			local itemConfig = storeConfig.itemList[itemIdx]
+			Dmkj.addItem(sysarg, itemConfig.id, itemConfig.count, itemConfig.quality, itemConfig.strong, itemConfig.bind, false, 0, 973, Lang.LogTips.mgq103)  	
+			
+			local itemName = Item.getAwardDesc(itemConfig.type, itemConfig.id)
+			if itemConfig.isBrocast and itemConfig.isBrocast == true then
+				System.broadcastTipmsg(string.format(Lang.Activity.mgq0103, actorName, itemName), ttScreenCenter+ttChatWindow)
+			end
+			
+		end
+	end
+	
+	UpdateTurntableConsumYb(consumeYb)
+	UpdateTurntablePoint(actorId, consumeYb)
+	SendTurntablePointInfo(sysarg)
+	SendTurntableAwardInfo(sysarg, drawIdx, awardTab)
+end 
+
+--产生抽到的奖品，awardTab奖品列表，paramTab已经产生过的奖品列表，param参数
+function ProduceTurntableAward(awardTab, paramTab, param)	
+	local drawIdx = 0
+	for  i=1,10000 do
+		drawIdx = GetTurntableRandomInfo(SuperTurntableConfig.itemLists, paramTab) 
+	    if CheckDrawAward(drawIdx, param) == true then 
+			break 
+		end
+	end
+	
+	if drawIdx <= 0 then
+		drawIdx = table.getn(SuperTurntableConfig.itemLists) 
+	end
+	
+	local itemLists = SuperTurntableConfig.itemLists
+	if drawIdx > 0 and drawIdx <= table.getn(itemLists) then
+		local itemList = itemLists[drawIdx].itemList
+		local awardIdx = GetTurntableItemIdx(drawIdx, param)
+		if awardIdx > 0 and awardIdx <= table.getn(itemList) then
+			table.insert(awardTab, drawIdx)
+			table.insert(awardTab, awardIdx)
+		else
+			table.insert(awardTab, drawIdx)
+			table.insert(awardTab, table.getn(itemList))
+		end
+		
+		--table.insert(paramTab, drawIdx)
+	end
+	
+	return drawIdx
+end
+
+--检测物品是否可以抽到
+function CheckDrawAward(drawIdx, param)
+	if drawIdx <= 0 or drawIdx > table.getn(SuperTurntableConfig.itemLists) then
+		return false
+	end 
+	
+	local awardConfig = SuperTurntableConfig.itemLists[drawIdx]
+	if not awardConfig then
+		return false
+	end
+	
+	local totalConsumeYb = 0
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.TurntableParamFile) 
+	if turntableParamPtr then
+		local ybItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, SuperTurntableConfig.turntableCount + 1)
+		if ybItemPtr then
+			totalConsumeYb = tonumber(Ranking.getSub(ybItemPtr, 0)) or 0
+		end 
+		
+		local paramItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, drawIdx)
+		if paramItemPtr then
+			if GetTurntableConsumYb(param) >= awardConfig.startYb then
+				local needYb = tonumber(Ranking.getSub(paramItemPtr, 0)) or 0
+				if awardConfig.ybCircle and awardConfig.ybCircle > 0 then
+					if totalConsumeYb >= needYb then
+						Ranking.setSub(paramItemPtr, 0, needYb+awardConfig.ybCircle)
+					else
+						return false
+					end
+				end
+				return true 
+			end
+		end
+	end
+	
+	return false
+end
+
+--获取抽到的物品序号
+
+function GetTurntableItemIdx(drawIdx, actorId)
+	local awardIdx = 0
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)
+	if not turntableInfoPtr then
+		return awardIdx
+	end
+	
+	local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	if not turntableInfoItemPtr then
+		return awardIdx
+	end
+	awardIdx = tonumber(Ranking.getSub(turntableInfoItemPtr, drawIdx-1)) or 0
+	return awardIdx
+end
+
+
+--增加的玩家的转盘信息    
+function AddPersonTurntableInfo(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)
+	if not turntableInfoPtr then
+		return nil
+	end
+	
+	local turntableItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	if turntableItemPtr then
+		return turntableItemPtr
+	end
+		
+	turntableItemPtr = Ranking.addItem(turntableInfoPtr, actorId, 0, false)
+	if not turntableItemPtr then
+		return nil
+	end
+	
+	local turntableListPtr = Ranking.getRanking(Lang.Rank.TurntableListFile)
+	if turntableListPtr then
+		local itemCount = Ranking.getRankItemCount(turntableListPtr)
+		
+		if itemCount < SuperTurntableConfig.turntableCount then 
+			return nil
+		end
+		
+		itemCount = SuperTurntableConfig.turntableCount
+		for j = 1, itemCount do 
+			local itemPtr = Ranking.getItemPtrByIndex(turntableListPtr, j-1)
+			if itemPtr then
+				local itemIndex = Ranking.getId(itemPtr) 
+				itemIndex = math.fmod(itemIndex, j*SuperTurntableConfig.itemCount)
+				Ranking.setSub(turntableItemPtr, j-1, itemIndex) 
+			end
+		end
+	end
+	
+	local actorName = Actor.getName(sysarg)
+	Ranking.setSub(turntableItemPtr, SuperTurntableConfig.turntableCount, actorName) 
+
+	
+	return turntableItemPtr
+	
+end
+
+--更新消耗的元宝
+function UpdateTurntableConsumYb(addConsumYb) 
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.TurntableParamFile)
+	if turntableParamPtr then
+		local turntableParamItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, SuperTurntableConfig.turntableCount+1)
+		if turntableParamItemPtr then
+			local consumeYb = tonumber(Ranking.getSub(turntableParamItemPtr, 0)) or 0
+			Ranking.setSub(turntableParamItemPtr, 0, consumeYb+addConsumYb)
+		end
+	end
+
+end
+
+function UpdateTurntablePoint(actorId, addConsumYb)
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)
+	if turntableInfoPtr then
+		local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+		if turntableInfoItemPtr then
+			local curYb = tonumber(Ranking.getSub(turntableInfoItemPtr, SuperTurntableConfig.turntableCount+1)) or 0
+			Ranking.setSub(turntableInfoItemPtr, SuperTurntableConfig.turntableCount+1, curYb + addConsumYb)
+			local curPoint = Ranking.getPoint(turntableInfoItemPtr) 
+			local result = curPoint + addConsumYb*SuperTurntableConfig.ybToPoint
+			Ranking.setItem(turntableInfoPtr, actorId, curPoint + addConsumYb*SuperTurntableConfig.ybToPoint)
+			
+		end
+	end
+end
+
+--获取抽奖花费元宝
+function GetTurntableConsumYb(actorid)
+	local consumeYb = 0
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile) 
+	if turntableInfoPtr then
+		local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorid)
+		if turntableInfoItemPtr then
+			consumeYb = tonumber(Ranking.getSub(turntableInfoItemPtr, SuperTurntableConfig.turntableCount+1)) or 0
+		end
+	end
+	
+	return consumeYb
+
+end
+
+--产生个人转盘信息
+function ProducePersonTurntableList(sysarg)  
+	
+	if not SuperTurntableConfig or not SuperTurntableConfig.itemLists then 
+		return 
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)
+	if not turntableInfoPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	if not turntableInfoItemPtr then
+		return 
+	end
+		
+	local itemProduceTab = {}  
+	local itemIndex = 0
+	for i = 1, SuperTurntableConfig.turntableCount do  
+		itemIndex = ProduceTurntableItem(itemProduceTab, false, 0, SuperTurntableConfig.itemLists[i])   
+		if itemIndex > 0 then
+			Ranking.setSub(turntableInfoItemPtr, i-1, itemIndex)
+		end
+	end
+end
+
+--初始化转盘相关信息,
+function InitTurntable() 
+	
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.TurntableParamFile) 
+	if turntableParamPtr then
+		if Ranking.getRankItemCount(turntableParamPtr) > 0 then 
+			return 
+		end 
+		
+		local itemPtr = Ranking.getItemPtrFromId(turntableParamPtr, SuperTurntableConfig.turntableCount+1)  
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(turntableParamPtr, SuperTurntableConfig.turntableCount+1, 0, false)  --这里用个很大的数表示id
+		end
+		
+		local itemLists = SuperTurntableConfig.itemLists
+		if not itemLists or table.getn(itemLists) <= 0 then
+			return 
+		end
+		
+		InitTurntableParamData()
+		
+	end
+	
+	local turntableListPtr = Ranking.getRanking(Lang.Rank.TurntableListFile)
+	if turntableListPtr then
+		if Ranking.getRankItemCount(turntableListPtr) > 0 then  
+			return 
+		end
+
+		ProduceTurntableList()   
+	end
+
+end
+
+--初始化转盘参数
+function InitTurntableParamData()
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.TurntableParamFile) 
+	if not turntableParamPtr then 
+		return 
+	end
+	
+	local itemLists = SuperTurntableConfig.itemLists
+	if not itemLists then
+		return 
+	end
+	
+	for i = 1, table.getn(itemLists) do 
+		local itemPtr = Ranking.getItemPtrFromId(turntableParamPtr, i)
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(turntableParamPtr, i, 0, false)
+		end 
+		if itemPtr then
+			if itemLists[i] then
+				Ranking.setSub(itemPtr, 0, itemLists[i].startYb)
+			end
+		end 
+	end
+end
+
+--产生转盘物品列表
+function ProduceTurntableList()
+	if not SuperTurntableConfig or not SuperTurntableConfig.itemLists then 
+		return 
+	end
+	
+	local turntableListPtr = Ranking.getRanking(Lang.Rank.TurntableListFile)
+	if not turntableListPtr then
+		return 
+	end
+	
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.TurntableParamFile)  
+	if not turntableParamPtr then
+		return 
+	end
+		
+	local itemProduceTab = {}  
+	local itemIndex = 0
+	for i = 1, SuperTurntableConfig.turntableCount do  
+		itemIndex = ProduceTurntableItem(itemProduceTab, true, 0, SuperTurntableConfig.itemLists[i])   
+		if itemIndex > 0 then
+			ProduceTurntableListItem(turntableListPtr, SuperTurntableConfig.itemCount * i + itemIndex)
+		end
+	end
+	
+
+end
+
+--产生转盘物品序号
+--isAllProduce (true产生全服的，false个人刷新产生)，param(全服的传0，个人的传玩家id), checkFlag为0不需要检测测剩余个数，为1检测A区，为2检测B区
+function ProduceTurntableItem(itemProduceTab, isAllProduce, param, storeConfig)  
+	local itemList = storeConfig.itemList
+	local itemIndex = GetTurntableRandomInfo(storeConfig.itemList, {})	
+	if itemIndex <= 0 then
+		itemIndex = table.getn(storeConfig.itemList)
+	end
+	
+	return itemIndex
+	
+end
+
+--根据概率获取物品库的物品序号
+function GetTurntableRandomInfo(infoTable, paramTable)
+	local result = 0 
+	local totalVal = 0
+	for k, v in ipairs(infoTable or {}) do 
+		totalVal = totalVal + v.rate
+	end
+	
+	local randVal = System.getRandomNumber(totalVal)
+	local tmpValue = 0
+
+	for i = 1, table.getn(infoTable or {}) do
+		local checkFlag = true
+		
+		for j = 1, table.getn(paramTable or {}) do 
+			if i == paramTable[j] then
+				checkFlag = false 
+				break
+			end
+		end 
+		
+		if checkFlag then
+			tmpValue = tmpValue + infoTable[i].rate
+			if tmpValue >= randVal then
+				result = i
+				break
+			end
+		end
+	end
+	
+	return result
+end 
+
+
+--产生转盘列表的商品信息
+function ProduceTurntableListItem(turntableListPtr, itemIndex)
+	local itemPtr = Ranking.getItemPtrFromId(turntableListPtr, itemIndex)
+	if not itemPtr then
+		itemPtr = Ranking.addItemExt(turntableListPtr, itemIndex, 0, false)
+	end 
+end 
+
+--发送转盘的数据, hFlag为false表示没有玩家购买信息
+function SendTurntableInfo(sysarg, hFlag)
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)
+	if not turntableInfoPtr then
+		return 
+	end
+	
+	local turntableListPtr = Ranking.getRanking(Lang.Rank.TurntableListFile)
+	if not turntableListPtr then
+		return 
+	end
+	
+	if Ranking.getRankItemCount(turntableListPtr) < SuperTurntableConfig.turntableCount then
+		return 
+	end
+	
+	local turntableInfoItemPtr	= nil
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	if hFlag == true then
+		turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+		if not turntableInfoItemPtr then
+			return 
+		end		
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 81) 
+	if not pack then
+		return 
+	end
+	
+	local todayTime = System.getToday()
+	local curTime = System.getCurrMiniTime()
+	curTime = curTime - todayTime
+	local temp = math.floor(curTime / (SuperTurntableConfig.refreshInterval)) 
+	local remainFreshTime = (temp + 1) * SuperTurntableConfig.refreshInterval - curTime
+	
+	--local remainTime = System.getDouDisMallRemainTime() 
+	--DataPack.writeUInt(pack, remainTime) 
+	DataPack.writeUInt(pack, remainFreshTime)
+	
+	local itemCount = SuperTurntableConfig.turntableCount
+	DataPack.writeByte(pack, SuperTurntableConfig.turntableCount)
+	
+	local itemLists = SuperTurntableConfig.itemLists
+	if itemCount > 0 then
+		for i = 1, itemCount do 
+			local itemIndex = 0
+			if hFlag == true then
+				itemIndex = tonumber(Ranking.getSub(turntableInfoItemPtr, i-1)) or 0 
+			else
+				local turntableListItemPtr = Ranking.getItemPtrByIndex(turntableListPtr, i-1)
+				if turntableListItemPtr then
+					itemIndex = Ranking.getId(turntableListItemPtr) 
+					itemIndex = math.fmod(itemIndex, i*SuperTurntableConfig.itemCount)
+				end
+			end
+
+			if i > table.getn(itemLists) then
+				return 
+			end
+
+			local storeConfig = itemLists[i]
+			if itemIndex <= 0 or itemIndex > table.getn(storeConfig.itemList) then
+				return 
+			end
+
+			local itemConfig = storeConfig.itemList[itemIndex]
+			if not itemConfig then
+				return 
+			end
+		
+			DataPack.writeInt(pack, itemConfig.id)
+			DataPack.writeByte(pack,  itemConfig.count)
+		end
+	end
+
+	DataPack.flush(pack)
+
+end
+
+--发送积分信息
+function SendTurntablePointInfo(sysarg)
+	local consumeIdTab, consumeNameTab = GetBeforeFiveRank()
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local myRank = 0
+	for i = 1, table.getn(consumeIdTab) do 
+		if actorId == consumeIdTab[i] then
+			myRank = i 
+			break
+		end
+	end
+	local myPoint = GetMyTurntablePoint(actorId, nType)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 82)
+	if pack == nil then
+		return 
+	end
+	
+	DataPack.writeInt(pack, myPoint)
+	DataPack.writeByte(pack, myRank)
+	DataPack.writeByte(pack, table.getn(consumeNameTab)/2 )
+	
+	for i = 1, table.getn(consumeNameTab)/2 do 
+		DataPack.writeString(pack, consumeNameTab[2*(i-1)+1])
+		DataPack.writeInt(pack, consumeNameTab[2*(i-1)+2])
+	end
+	
+	DataPack.flush(pack)
+	
+end
+
+--发送抽到的奖励信息
+function SendTurntableAwardInfo(sysarg, drawIdx, awardTab) 
+	local pack = DataPack.allocPacket(sysarg, 145, 83)
+	if not pack then
+		return 
+	end
+
+	DataPack.writeByte(pack, drawIdx)
+	
+	local count = 0
+	if table.getn(awardTab)/2 > 0 then
+		count =  table.getn(awardTab)/2
+	end
+
+	DataPack.writeByte(pack, count)
+	
+	local itemLists = SuperTurntableConfig.itemLists
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx]
+			local itemIdx = awardTab[2*(j-1)+2]
+			local itemConfig = storeConfig.itemList[itemIdx]
+			DataPack.writeInt(pack, itemConfig.id)
+			DataPack.writeByte(pack, itemConfig.count)
+		end
+	end
+	
+	DataPack.flush(pack)
+
+end
+
+--获取前面5名
+function GetBeforeFiveRank()
+	local resultIdTab = {}
+	local resultNameTab = {}
+	
+	local rankPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)
+	local rankConsume = SuperTurntableConfig.accConsume 
+	
+	if rankPtr then
+		local itemCount = Ranking.getRankItemCount(rankPtr)
+		if itemCount > SuperTurntableConfig.accRank then
+			itemCount = SuperTurntableConfig.accRank
+		end
+	
+		for i = 1, itemCount do 
+			local itemPtr = Ranking.getItemPtrByIndex(rankPtr, i-1)
+			if itemPtr then
+				local id = Ranking.getId(itemPtr)
+				local point = Ranking.getPoint(itemPtr)
+				local name = Ranking.getSub(itemPtr, SuperTurntableConfig.turntableCount)
+				if point >= rankConsume then
+					table.insert(resultIdTab, id)
+					table.insert(resultNameTab, name)
+					table.insert(resultNameTab, point) 
+				end
+			end
+		end
+	end
+	
+	return resultIdTab, resultNameTab
+
+end
+
+--获取自己的积分
+function GetMyTurntablePoint(actorId) 
+	local myPoint = 0
+	local rankPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)
+	
+	if rankPtr then
+		local itemPtr = Ranking.getItemPtrFromId(rankPtr, actorId)
+		if itemPtr then
+			myPoint = Ranking.getPoint(itemPtr)
+		end
+	end
+	
+	return myPoint
+end
+
+
+--获取转盘列表数据
+function GetTurntableList() 
+	local turntableList = {}  
+	
+	local turntableListPtr = Ranking.getRanking(Lang.Rank.TurntableListFile)
+	if not turntableListPtr then
+		return turntableList
+	end	
+	
+	for i = 1, SuperTurntableConfig.turntableCount do 
+		local turntableListItemPtr = Ranking.getItemPtrByIndex(turntableListPtr, i-1)
+		if turntableListItemPtr then
+			local itemIdx = Ranking.getId(turntableListItemPtr)
+			itemIdx = math.fmod(itemIdx, i*SuperTurntableConfig.itemCount)
+			table.insert(turntableList, itemIdx)
+				
+		end			
+	end
+
+	return turntableList
+
+end
+
+--系统刷新转盘物品
+function OnRefreshTurntable() 
+	if System.getDoubleElevenActFlag(2) ~= 1 then --活动开启才需要重置
+		return
+	end 
+	
+	local turntableListPtr = Ranking.getRanking(Lang.Rank.TurntableListFile)
+	if not turntableListPtr then
+		return 
+	end
+	
+	Ranking.clearRanking(turntableListPtr) 
+	ProduceTurntableList()
+	
+	if Ranking.getRankItemCount(turntableListPtr) > 0 then
+		ResetTurntableInfo(false) 
+	end
+
+end
+
+--重置, isReset=false(定时刷新), isReset=true(零点重置)
+function ResetTurntableInfo(isReset)
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.TurntableInfoFile)  
+	if not turntableInfoPtr then
+		return 
+	end 
+	
+	local turntableList = GetTurntableList()
+	if table.getn(turntableList) <= 0 then
+		return 
+	end
+	
+	local rankCount = Ranking.getRankItemCount(turntableInfoPtr)  
+	for i = 1, rankCount do 
+		local turntableInfoItemPtr = Ranking.getItemPtrByIndex(turntableInfoPtr, i-1)
+		if turntableInfoItemPtr then 
+			for j = 1, SuperTurntableConfig.turntableCount do 
+				if table.getn(turntableList) >= j then
+					Ranking.setSub(turntableInfoItemPtr, j-1, turntableList[j])
+				else
+					Ranking.setSub(turntableInfoItemPtr, j-1, 0)
+				end
+			end
+			
+			local actorId = Ranking.getId(turntableInfoItemPtr)
+			local actorPtr = System.getEntityPtrByActorID(actorId)
+			if actorPtr then
+				SendTurntableInfo(actorPtr, true)
+			end
+			
+		end
+		
+	end
+end
+
+--活动结束发排行奖励
+function OnGiveTurntableRankAward()
+	local resultIdTab = {}
+	local resultNameTab = {}
+	local resultIdTab, resultNameTab = GetBeforeFiveRank()
+	
+	local title = SuperTurntableConfig.accAwards.awardTips
+	
+	for i = 1, table.getn(resultIdTab) do 
+		local awardIdx, needBagCount = GetTurntableRankAwardIdx(i, false, SuperTurntableConfig)
+		if awardIdx > 0 then
+			local str = string.format(title, i)
+			local actorId = resultIdTab[i]
+			System.addOfflineMsg(actorId, 67, str, 0, awardIdx, needBagCount)
+			
+			local name = "-"
+			if table.getn(resultNameTab) >= 2*i then
+				name = resultNameTab[2*(i-1)+1]
+			end
+			System.sendCommonLog(973, actorId, name, i, 0, 0, Lang.LogTips.mgq105)
+		end
+	end
+	
+	ClearTurntableData()
+
+end
+
+--领取奖励
+function OnGetTurntableRankAward(sysarg, args)
+	local nAwardIdx = args[2]
+	local nNeedBagCount = args[3]
+	
+	if Item.getBagEmptyGridCount(sysarg) < nNeedBagCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mgq0104, nNeedBagCount), ttFlyTip)
+		return
+	end
+	
+	local awards = SuperTurntableConfig.accAwards
+	if nAwardIdx > 0 and nAwardIdx <= table.getn(awards or {}) then
+		local awardConfig = awards[nAwardIdx]
+		Actor.giveAward(sysarg, awardConfig.type, awardConfig.id, awardConfig.count, awardConfig.quality, awardConfig.strong, awardConfig.bind,0,973, Lang.LogTips.mgq104)
+	end
+
+end
+
+--获取奖励序号
+function GetTurntableRankAwardIdx(rankIdx, isReverser, config)
+	local awardIdx = 0
+	local needBagCount = 0
+	local awards = config.accAwards
+	
+	if awards then
+		if isReverser and isReverser == true then
+			for k = table.getn(awards.awardIndexs), 1, -1 do
+				if rankIdx >= awards.awardIndexs[k].beginVal and rankIdx >= awards.awardIndexs[k].endVal then
+					awardIdx = k
+					break
+				end
+			end
+		else
+			for k, v in ipairs(awards.awardIndexs or {}) do
+				if rankIdx >= v.beginVal and  rankIdx <= v.endVal then
+					awardIdx = k
+					break
+				end
+			end
+		end
+	end
+	
+	local needBagCount = 0
+	if awardIdx > 0 and awardIdx <= table.getn(awards) then
+		needBagCount = awards[awardIdx].needBagCount
+	end
+	
+	return awardIdx, needBagCount
+	
+end
+
+--清除数据
+function ClearTurntableData()
+	local turntableListPtr = Ranking.getRanking( Lang.Rank.TurntableListFile )		
+	if turntableListPtr then
+		Ranking.clearRanking(turntableListPtr)
+	end
+	
+	local turntableParamPtr = Ranking.getRanking( Lang.Rank.TurntableParamFile )		
+	if turntableParamPtr then
+		Ranking.clearRanking(turntableParamPtr)
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking( Lang.Rank.TurntableInfoFile )		
+	if turntableInfoPtr then
+		Ranking.clearRanking(turntableInfoPtr)
+	end
+	
+	
+end
+
+

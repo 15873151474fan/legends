@@ -1,0 +1,118 @@
+﻿
+--#include "RankPointer.txt" once
+--#include "data\functions\Activity\Common\Scene.txt" once --活动通用 场景
+--#include "RankInit.txt" once
+--#include "VipBoss_common.txt" once
+
+--开始活动
+function VipBossStart()
+	local config = VipBossConfig
+	if (not config) then return end
+	
+	local pRank = Ranking.getRanking(VipBossRankPt.RankName)
+	if not pRank then return end
+	Ranking.clearRanking(pRank)
+	
+	--设定场景时间
+	local hScene = Fuben.getSceneHandleById(config.enterScene.sid, 0)
+	Fuben.setSceneTime(hScene, config.actTime)
+	
+	local leftTime = Fuben.getSceneTime(hScene)
+	--print(leftTime)
+	
+	local boss = config.boss
+	Fuben.createMonstersInRange(hScene, boss.mid, boss.x1, boss.y1, boss.x2, boss.y2, boss.count, boss.liveTime)
+	
+	--产生随机BUFF
+	--RandomAreaBuff()
+	
+	Actor.unregScriptCallback(thisNPC, "BroadcastVipBossRank")
+	--注册个时间
+	local result = Actor.regScriptCallback(thisNPC, thisNPC, 0, 5000, -1, "BroadcastVipBossRank")
+
+	if not result then
+		return end
+	
+	local dval = System.getDyanmicVar()
+	dval.VipBossStart = 1
+	
+	local sval = System.getStaticVar()
+	sval.VipBossHit = nil
+
+	local y = 0
+	local m = 0
+	local d = 0
+	y,m,d = System.getDate( y, m, d )
+	sval.VipBossDate = d
+	
+	System.broadcastTipmsg(Lang.Activity.vb0014, ttScreenCenter+ttChatWindow)
+	
+end
+
+
+
+--结束活动
+function VipBossOver()
+	local config = VipBossConfig
+	if (not config) then return end
+	
+	Scene.ClearActorToReloadMap({config.enterScene.sid})
+	
+	local dval = System.getDyanmicVar()
+	if dval.VipBossStart == nil then
+		return
+	end
+	
+	dval.VipBossStart = nil	--
+	
+	local hScene = Fuben.getSceneHandleById(config.enterScene.sid, 0)
+	
+	local sval = System.getStaticVar()
+	if sval.VipBossHit ~= 1 then
+		local pMonster = Fuben.getMonsterPtrById(hScene, config.boss.mid)
+		if pMonster then
+			local nMaxHp = Actor.getIntProperty(pMonster, PROP_CREATURE_MAXHP)
+			local nCurHp = Actor.getIntProperty(pMonster, PROP_CREATURE_HP)
+			local hpRate = (nCurHp / nMaxHp)
+			--print("hpRate:"..hpRate)
+			if hpRate < config.hpRate then 
+				sval.VipBossHit = 1
+			end
+		end
+	end
+	
+	Fuben.clearMonster(hScene, config.boss.mid)
+	
+	local tips = Lang.Activity.vb0015
+	if sval.VipBossHit ~= 1 then
+		tips = Lang.Activity.vb0016
+	end
+
+	Actor.unregScriptCallback(thisNPC, "BroadcastVipBossRank")	
+	
+	System.broadcastTipmsg(tips, ttScreenCenter+ttChatWindow)
+	
+	local playerList = LuaHelp.getSceneActorListById(config.enterScene.sid)  --获取某场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player then
+				--直接把玩家传出来
+				ExitVipBossMap(player)
+			end
+		end
+	end
+end	
+
+--广播排行
+function BroadcastVipBossRank()
+	local playerList = LuaHelp.getSceneActorListById(VipBossConfig.enterScene.sid)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				UpdateVipBossActivityForm(player,2)
+			end
+		end
+	end
+end

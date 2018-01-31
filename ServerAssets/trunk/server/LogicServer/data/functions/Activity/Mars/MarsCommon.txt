@@ -1,0 +1,449 @@
+﻿--[[File:MarsCommon.txt]]
+
+--#include "data\functions\GlobalDefine.txt" once
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+--#include "data\config\activityconfig\Mars\MarsCfg.txt" once
+
+-- 显示我的战神令数量的字符串
+function GetGameGirdNum(sysarg, nType ) --1 经验，2装备
+	local strDlg = "";
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.GameGird = actorVar.GameGird or 0; --  战神令数量
+	strDlg = string.format(Lang.Activity.lfg0011, actorVar.GameGird);
+	if Actor.getFubenId(sysarg ) == MarsCfg.ExpMars.FubenId then
+		local pFuben = Actor.getFubenPrt(sysarg);
+		local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+		if curGrade == #(MarsCfg.ExpMars.Awards) then return strDlg end;
+	end
+	strDlg = string.format("%s\\<#BL%s/@BuyGameGirdMenu,%d>", strDlg, Lang.Activity.lfg0001, nType);
+	
+	return strDlg;
+end
+
+
+-- 兑换灵符
+function BuyGameGirdMenu(sysarg, nType)
+	nType = tonumber(nType);
+	local strDlg = "";
+	for k, v in pairs(MarsCfg.GameGird or {}) do
+		local str = string.format(Lang.Activity.lfg0005, v.yb, v.nCount);
+		strDlg = string.format("%s\\<#BL%s/@BuyGameGird,%d,%d>",strDlg, str, k, nType);
+	end
+	return strDlg .. Lang.ScriptTips.back001;
+end
+
+-- 购买灵符
+function BuyGameGird(sysarg, id, nType)
+	id = tonumber(id);
+	nType = tonumber(nType);
+	local v = MarsCfg.GameGird[id];
+	if not YuanBaoToGameGird(sysarg, v) then return end;
+	if 1 == nType then
+		UpdateExpActivityBoard(sysarg);
+	elseif 2 == nType then
+		UpdateEquipActivityBoard(sysarg);		 
+	end
+	return main(sysarg);
+end
+
+-- 元宝换战神令
+--v = {yb = 10,   nCount = 1}
+function YuanBaoToGameGird(sysarg, v)
+	local nYb =  Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO);
+	if nYb < v.yb then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00205,ttFlyTip )
+		return false;
+	end
+	local itemName = Lang.Activity.lfg0006;
+	if not Actor.changeMoney(sysarg, 3, -v.yb, 842, itemName) then -- print("扣取元宝" .. needYb .. "成功");
+		local msg = string.format(Lang.ScriptTips.x00207, v.yb, itemName);
+		Actor.sendTipmsg( sysarg, msg, ttFlyTip );
+		return false;
+	end
+	-- 
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.GameGird = actorVar.GameGird or 0; -- 
+	actorVar.GameGird = actorVar.GameGird + v.nCount; -- 得到战神令
+	local msg = string.format(Lang.Activity.lfg0007, v.nCount);
+	Actor.sendTipmsg( sysarg, msg, ttFlyTip );	
+	return true;
+end
+
+-- 如果玩家主动退出队伍将会被踢出战场
+function OnExitExpMarsMenu(sysarg)		
+	Actor.messageBox(sysarg, Actor.getHandle(thisNPC),0,Lang.Activity.lfg0037,Lang.GuildLang.z00040.."/ExitFubenAndAutoPathToNpc",Lang.GuildLang.z00041.."/OnCancleButton",NULL);
+end
+
+-- 退出副本 菜单
+function GetExitFubenOption(sysarg)
+	local strDlg = "";
+	strDlg = string.format("%s\\<#BL%s/@onExitFubenFunc>", strDlg, Lang.Activity.lfg0012);
+	return strDlg;
+end
+
+-- 更新活动面板
+function UpdateExpActivityBoard(sysarg)
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	--print("当前处于第几层" .. curGrade);
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.GameGird = actorVar.GameGird or 0; 
+	Fuben.setFubenProgressListVal(pFuben, 1, actorVar.GameGird); -- 战神令数量	      
+	--print("战神令数量" .. actorVar.GameGird);
+	Fuben.setFubenProgressListVal(pFuben, 2, Fuben.getLiveMonsterCount(Actor.getSceneHandle(sysarg))); -- 剩余怪物数
+	--print("剩余怪物数" .. Fuben.getLiveMonsterCount(Actor.getSceneHandle(sysarg)));
+	local v = MarsCfg.ExpMars.Awards[curGrade];
+	if not v then		
+		--print(string.format("错误:经验奖励配置%d < 当前层%d", #(MarsCfg.ExpMars.Awards), curGrade ));
+		return;
+	end
+	local count = v.count;
+	local value = 0;
+	if v.type == 20 then
+		value = Actor.getActivityExp(sysarg, v.id, count, v.quality);
+	else
+		value = count
+	end
+	Fuben.setFubenProgressListVal(pFuben, 3, value); -- 可获经验
+	--print("可获经验" .. MarsCfg.ExpMars.Exp[curGrade]);
+	
+	--[[local str = string.format(Lang.Activity.lfg0013, actorVar.GameGird, Fuben.getLiveMonsterCount(Actor.getSceneHandle(sysarg)), 100000000000000);
+	Actor.initActivityWind(sysarg, Fuben.getFubenName(Actor.getFubenHandle(sysarg)), Fuben.getFbTime(pFuben), Lang.FBTalk.ts0022
+		, "88888888888", actorVar.GameGird
+		, "99999999999", actorVar.GameGird
+		, "00000000000", actorVar.GameGird
+	);--]]
+end
+
+-- 更新活动面板 - 装备
+function UpdateEquipActivityBoard(sysarg)
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	--print("当前处于第几层" .. curGrade);
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.GameGird = actorVar.GameGird or 0; 
+	Fuben.setFubenProgressListVal(pFuben, 0, actorVar.GameGird); -- 战神令数量	 
+end
+-- 扣钱
+function SubMoney(sysarg, moneyType, count, lackTips)
+	-- 获取玩家金钱数量
+	local nYb =  Actor.getIntProperty(sysarg,moneyTypeMap[moneyType])
+	local needYb = count or 0;
+	if needYb >= 0 then
+		if nYb < needYb or (not Actor.changeMoney(sysarg, moneyType, -needYb, 842, Lang.Activity.lfg0049 or "")) then				
+			Actor.sendTipmsg( sysarg, lackTips, ttFlyTip );
+			-- print(moneyType .. lackTips);
+			return false;
+		end
+	end	
+	return true;
+end
+
+-- 扣取东西
+function Defray(sysarg, CfgType, nType, opType, ...) -- opType=1、战神令， 2、元宝
+	nType  = tonumber(nType);
+	opType = tonumber(opType); -- 元宝支付烈火令差额
+	local CfgTbl = {};
+	if 1 == CfgType then -- 一键秒杀
+		CfgTbl = MarsCfg.ExpMars.Seckill;
+	elseif 2 == CfgType then -- 
+		CfgTbl = MarsCfg.ExpMars.GotoNextGrade;
+	elseif 3 == CfgType then -- 
+		CfgTbl = MarsCfg.ExpMars.EnterConsume;
+	end
+	local v = CfgTbl[nType];
+	
+	if 1 == nType then	
+		if 2 == opType then
+			-- 扣取玩家元宝数量
+			local value = v.count[2] or 0;
+			local actorVar = Actor.getStaticVar(sysarg);
+			if actorVar.GameGird > 0 then 
+				local gg = MarsCfg.GameGird[1];
+				value = value - actorVar.GameGird * (gg.yb / gg.nCount) ;
+			end;
+			-- print("value = ",value);
+			if not SubMoney(sysarg, mtYuanbao, value, v.lackTips) then return false end;
+			if actorVar.GameGird > 0 then actorVar.GameGird = 0 end;
+			-- print("扣取玩家元宝数量成功 " .. v.count[2] or 0);
+			return true;
+		else
+			local actorVar = Actor.getStaticVar(sysarg);
+			actorVar.GameGird = actorVar.GameGird or 0; --  战神令数量
+			if v.count[1] <= actorVar.GameGird then
+				actorVar.GameGird = actorVar.GameGird - v.count[1];
+			else
+				-- 弹框扣元宝			
+				local value = v.count[2] or 0;
+				if actorVar.GameGird > 0 then 
+					local gg = MarsCfg.GameGird[1];
+					value = value - actorVar.GameGird * (gg.yb / gg.nCount) ;
+				end
+				
+				Actor.closeNPCDialog(sysarg);
+				local h = Actor.getHandle(thisNPC);	
+				if 3 == CfgType and arg[1] then --
+					Actor.messageBox(sysarg, h, 0,string.format(Lang.Activity.lfg0046, value), string.format("%s/OnPayMessageBox,%d,%d", Lang.GuildLang.z00040, CfgType,tonumber(arg[1])), string.format("%s/OnCancleButton", Lang.Activity.t00166) );
+				else	
+					Actor.messageBox(sysarg, h, 0,string.format(Lang.Activity.lfg0046, value), string.format("%s/OnPayMessageBox,%d", Lang.GuildLang.z00040, CfgType), string.format("%s/OnCancleButton", Lang.Activity.t00166) );
+				end
+				return false;
+			end
+		end
+	elseif 2 == nType then		
+		-- 扣取玩家礼券数量
+		if not SubMoney(sysarg, mtBindYuanbao, v.count[1] or 0, v.lackTips) then return false end;
+	elseif 3 == nType then	
+		-- 获取玩家荣誉数量
+		--if not SubMoney(sysarg, mtHonour, v.count[1] or 0, v.lackTips) then return end;
+		local nValue = Actor.getIntProperty(sysarg,PROP_ACTOR_HONOUR)
+		if nValue <(v.count[1] or 0) then
+			-- print("nValue  = " .. nValue .. "(v.count[1] or 0)=" .. (v.count[1] or 0));
+			Actor.sendTipmsg( sysarg, v.lackTips, ttFlyTip );
+			return false;
+		end
+		-- 扣取玩家荣誉数量
+		Actor.setUIntProperty(sysarg,PROP_ACTOR_HONOUR, nValue- (v.count[1] or 0) )
+	elseif 4 == nType then
+	else
+		--print("Fun EnterExpMars, param nType error,nType = ", nType); return false;
+	end
+	return true;
+end
+
+--
+function OnPayMessageBox(sysarg, CfgType, ... )
+	CfgType = tonumber(CfgType);
+	if Defray(sysarg, CfgType, 1, 2) then
+		if 1  == CfgType then
+			RealSeckillAllMonsters(sysarg);
+		elseif 2  == CfgType then
+			RealGotoNextGrade(sysarg);
+		elseif 3  == CfgType then
+			RealEnterExpMarsFromgGuideNPC(sysarg,arg[1]);
+		end
+	end
+end
+
+-- 计算 a*x^2 + b*x + c
+function ComputeQE(x, a, b, c)
+	return (a*x^2 + b*x + c) ;
+end
+
+-- 进入哪一关
+function EnterOneGrade(sysarg, nGrade)
+	--print("进入哪一关 = " ..nGrade);
+	local pFuben = Actor.getFubenPrt(sysarg);
+	--print("EnterOneGrade 副本名称 =" .. Fuben.getFubenNameByPtr(pFuben));
+	Fuben.setFubenProgressListVal(pFuben, 0, nGrade);
+	local nSceneId = 0;
+	local pNpc = 0;
+	if 0 == (nGrade % 10) then
+		-- 将玩家传送至下一层地图中的NPC“经验战神闯关使者”处。
+		nSceneId = MarsCfg.ExpMars.ExpNpcSpecial[1];
+		Actor.enterFuBen(sysarg, Actor.getFubenHandle(sysarg), nSceneId, -1, -1);
+		AutoPathFinding(sysarg, unpack(MarsCfg.ExpMars.ExpNpcSpecial));
+		--pNpc = Fuben.getNpcPtrFromAllScenes(MarsCfg.ExpMars.ExpNpcSpecial[2]);-- print("pNpc = " ..pNpc);
+		Actor.sendTipmsg( sysarg, Lang.Activity.lfg0040, ttFlyTip );		
+	else
+		-- 将玩家传送至下一层地图中的NPC“经验战神闯关使者”处。
+		nSceneId = MarsCfg.ExpMars.ExpNpcNormal[1];
+		Actor.enterFuBen(sysarg, Actor.getFubenHandle(sysarg), nSceneId, -1, -1);
+		AutoPathFinding(sysarg, unpack(MarsCfg.ExpMars.ExpNpcNormal));
+		pNpc = Fuben.getNpcPtrFromAllScenes(MarsCfg.ExpMars.ExpNpcNormal[2]);--print("pNpc = " ..pNpc);
+	end
+	
+	--local npcSceName,npcX,npcY = Actor.getSceneName(pNpc, 0, 0); print("npcSceName=" .. npcSceName,npcX,npcY);
+	--MoveToFbNpc( sysarg, npcSceName, npcX, npcY )
+	--AutoPathFinding(sysarg, unpack(MarsCfg.ExpMars.ExpNpcSpecial));
+	local hScene = Fuben.getSceneHandleById(nSceneId, Actor.getFubenHandle(sysarg))
+
+	--创建怪物
+	--local idx = nGrade % #(MarsCfg.ExpMars.Monsters); print("idx = " .. idx, "#(MarsCfg.ExpMars.Monsters) = " .. #(MarsCfg.ExpMars.Monsters));	
+	local v = MarsCfg.ExpMars.Monsters[nGrade]; -- print(v);
+	--Fuben.createMonsters(hScene, v.nMonsterID, v.posX1, v.posX2, v.posY, v.nCount, v.nLiveTime);
+	Fuben.createMonstersInRange(hScene, v.nMonsterID, v.posX1, v.posY1, v.posX2, v.posY2, v.nCount, v.nLiveTime);
+	UpdateExpActivityBoard(sysarg);
+	--return ExpMarsNPC_Main(sysarg);
+	--return main(sysarg);		
+	local var = Actor.getStaticVar(sysarg);
+	var.HasGotSpecialAward = nil;
+	Actor.closeNPCDialog(sysarg);
+end
+
+function ExitFubenAndAutoPathToNpc(sysarg)
+	--print("ExitFubenAndAutoPathToNpc1")
+	--Fuben.closeFuben(Actor.getFubenHandle(sysarg));
+	ExitEquipFuben(sysarg);
+	AutoPathFinding(sysarg, unpack(MarsCfg.ExpMars.GuidNpc));		
+	local var = Actor.getStaticVar(sysarg);
+	var.HasGotSpecialAward = nil;
+end
+
+-- 取消按钮
+function OnCancleButton(sysarg)	
+end
+
+-- 装备战神的计时器
+function RegisteTimers(sysarg)
+	--local h = Actor.getNpc(sysarg); print("RegisteTimers " .. h);
+	Actor.regScriptCallback(sysarg, thisNPC, MarsCfg.EquipMars.GameGirdInterval * 1000, MarsCfg.EquipMars.GameGirdInterval * 1000, -1, "SubGameGridTimer");
+	Actor.regScriptCallback(sysarg, thisNPC, MarsCfg.EquipMars.CreateMonstersInterval * 1000, MarsCfg.EquipMars.CreateMonstersInterval * 1000, -1, "CreateMonstersTimer");
+	Actor.regScriptCallback(sysarg, thisNPC, MarsCfg.EquipMars.CreateBossInterval * 1000, MarsCfg.EquipMars.CreateBossInterval * 1000, -1, "CreateBossTimer");
+end
+
+function OneKeyBuyGameGird(sysarg, nType)
+	nType = tonumber(nType);
+	local v = MarsCfg.EquipMars.GameGird[nType];
+	if not YuanBaoToGameGird(sysarg, v) then return end;
+	UpdateEquipActivityBoard(sysarg);
+	--bModalMessageBox = false; 
+end
+--bModalMessageBox = false;
+-- 扣战神令
+function SubGameGridTimer(sysarg)
+	-- print("SubGameGridTimer")
+	if Actor.getFubenId(sysarg) ~= MarsCfg.EquipMars.FubenId then
+		UnRegisteTimers(sysarg);
+		return;
+	end
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.GameGird = actorVar.GameGird or 0; 
+	local value = actorVar.GameGird;
+	if value < MarsCfg.EquipMars.AlertCout then		
+		-- 提醒
+		local btns = {};
+		for i = 1,2 do
+			table.insert(btns,string.format("%s/OneKeyBuyGameGird,%d", string.format(Lang.Activity.lfg0036, MarsCfg.EquipMars.GameGird[i].nCount) , i) );
+		end		
+		local h = Actor.getHandle(thisNPC);
+		Actor.messageBox(sysarg, h, 0,Lang.Activity.lfg0035, btns[1], btns[2], string.format("%s/OnCancleButton", Lang.Activity.t00166) ); --, (MarsCfg.EquipMars.GameGirdInterval-5) * 1000
+		--bModalMessageBox = true;
+	end
+	--if bModalMessageBox then return end;
+	if value >= MarsCfg.EquipMars.SubGameGirdCount then
+		actorVar.GameGird = value - MarsCfg.EquipMars.SubGameGirdCount;
+		--print(string.format("用户 %s :扣前 %d, 扣取 %d, 扣后 %d", Actor.getName(sysarg), value, MarsCfg.EquipMars.SubGameGirdCount, actorVar.GameGird));
+	else
+		ExitEquipFuben(sysarg);
+		return;
+	end
+	UpdateEquipActivityBoard(sysarg);
+end
+
+-- 刷boss
+function CreateMonstersTimer(sysarg)
+	local nFubenId =Actor.getFubenId(sysarg);
+	-- print("nFubenId = " .. nFubenId);
+	
+	if nFubenId ~= MarsCfg.EquipMars.FubenId then
+		UnRegisteTimers(sysarg);
+		return;
+	end
+	
+	if 0 == nFubenId then 
+		--print("已经进入普通副本，不创建怪物")
+		return  
+	end;
+	-- local v = MarsCfg.EquipMars.Monsters[math.random(1, #(MarsCfg.EquipMars.Monsters))]; 	
+	for _, v in pairs(MarsCfg.EquipMars.Monsters) do
+		local hScene = Actor.getSceneHandle(sysarg);
+		if v.nFloor > Fuben.getLiveMonsterCount(hScene, v.nMonsterID) then
+			--Fuben.createMonsters(Actor.getSceneHandle(sysarg), v.nMonsterID, v.posX1, v.posX2, v.posY, v.nCount, v.nLiveTime);
+			Fuben.createMonstersInRange(hScene, v.nMonsterID, v.posX1, v.posY1, v.posX2, v.posY2,v.nCount, v.nLiveTime);
+		end
+	end
+	UpdateEquipActivityBoard(sysarg);
+end
+
+function ExitEquipFuben(sysarg)
+	UnRegisteTimers(sysarg);
+	onExitFubenFunc(sysarg);	
+	--MoveToFbNpc( sysarg, unpack(MarsCfg.EquipMars.SafeArea) );
+	--System.telportSceneByName(sysarg, unpack(MarsCfg.EquipMars.SafeArea))
+	--AutoPathFinding(sysarg, unpack(MarsCfg.ExpMars.GuidNpc));
+	--System.telportScene()
+	--Actor.exitFuben(sysarg);
+	--Actor.enterScene(sysarg, Actor.getSceneId(sysarg), unpack(MarsCfg.EquipMars.SafeArea));	
+end
+
+function UnRegisteTimers(sysarg)
+	Actor.unregScriptCallback(sysarg, "SubGameGridTimer");
+	Actor.unregScriptCallback(sysarg, "CreateMonstersTimer");
+	Actor.unregScriptCallback(sysarg, "CreateBossTimer");
+end
+
+function CreateBossTimer(sysarg)
+	local nFubenId =Actor.getFubenId(sysarg);
+	-- print("nFubenId = " .. nFubenId);
+	
+	if nFubenId ~= MarsCfg.EquipMars.FubenId then
+		UnRegisteTimers(sysarg);
+		return;
+	end
+	
+	local hScene = Actor.getSceneHandle(sysarg);
+	for _, v in pairs(MarsCfg.EquipMars.Boss) do
+		if 0 < Fuben.getLiveMonsterCount(hScene, v.nMonsterID) then
+			return;
+		end
+	end
+	
+	local weightTbl = {};
+	for _, v in pairs(MarsCfg.EquipMars.Boss) do table.insert(weightTbl, v.weight or 0) end;
+	local v = MarsCfg.EquipMars.Boss[GetRandIndex(weightTbl)];	
+	--local v = MarsCfg.EquipMars.Boss[math.random(1, #(MarsCfg.EquipMars.Boss))];
+	if not v then print("In Fun CreateBossTimer: v got nil") return end;		
+	--Fuben.createMonsters(hScene, v.nMonsterID, v.posX1, v.posX2, v.posY, v.nCount, v.nLiveTime);
+	Fuben.createMonstersInRange(hScene, v.nMonsterID, v.posX1, v.posY1, v.posX2, v.posY2, v.nCount, v.nLiveTime);
+	UpdateEquipActivityBoard(sysarg);	
+	Actor.sendTipmsg( sysarg,Lang.Activity.lfg0047,ttFlyTip );
+end
+
+
+function GetRandIndex(tbl) -- 权重表,例如 {1,3,7}
+	local totalWeight = 0;
+	for i = 1, #(tbl) do
+		totalWeight = totalWeight + tbl[i] or 0;
+	end
+	local r = math.random(totalWeight);
+	local s = 0;
+	for i = 1, #(tbl) do
+		s = s + tbl[i] or 0;
+		if s >= r then
+			return i;
+		end
+	end
+end
+
+function CheckLfgFuben(sysarg, FbID)
+	if not checkEnterFbTimes( sysarg, FbID ) then
+		-- print ("checkEnterFbTimes failed") ;
+		NoticeNoTimeToFb(sysarg, FbID)
+		return false;
+	end
+	local fbdata = FuBen[FbID]
+	if ( fbdata == nil ) then
+		-- print ("fbdata == nil") ;
+		return false;
+	end
+	local groupid = fbdata.groupId
+	local circleVal = fbdata.circle or 0
+	--进入单人副本模式
+	if fbdata.minPlayCount == 1 and fbdata.maxPlayCount == 1 then
+		if Actor.checkActorLevel(sysarg, fbdata.minLevel, circleVal) then
+			if not checkEnterFbTimes(sysarg, FbID, circleVal) then
+				NoticeNoTimeToFb(sysarg, FbID)
+				return false;
+			end
+			if not CanEnterFuben(sysarg, sysarg) then
+				return false;
+			end		
+			return true;
+		else 
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00011, ttFlyTip)                   --输出提示由于等级不够进入不了副本
+			return false;
+		end		
+	end	
+	return false;
+end

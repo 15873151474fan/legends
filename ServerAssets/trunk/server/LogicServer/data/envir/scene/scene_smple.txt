@@ -1,0 +1,119 @@
+﻿--场景相关的配置
+{
+	--场景1
+	--这个id必须每次递增，比如第一个场景id是0，下一个一定是1，类推
+	scenceid = 1,
+	--场景名称，用语言包标识
+	scencename = Lang.SceneName.s00001,
+	--场景对应的地图,只需要填文件名，不需要写路径和后缀名，比如这个地图文件是map/Huashanpai_1.jxm，只需要写Huashanpai_1
+	mapfilename = "Huashanpai_1",
+		
+	--需要达到的进度值，用在副本系统中，当玩家的副本进度值小于这个值，则不能进入这个场景,为0表示无限制，
+	--如果是常规场景，这个直接配置成0
+	progress = 0,
+	
+	seckillId = 0,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+		
+	--注意：area配置至少要有一项，作为默认区域配置:
+	--表示此地图属于什么阵营，无此字段表示不属于任何阵营,1 无忌 ,2 逍遥,3日月
+	zyType = 1,
+
+	--是否开启连斩计数。默认为不开启
+	isDurKill = false,    
+
+    sceneType=0, --场景类型,0表示普通场景，1表示活动场景，2表示副本场景,3挂机地图, 4温泉地图, 5九天冰宫, 6深渊烈域, 7雪域秘境, 8Boss大寨门
+	
+	--挂机的点 ,通常副本才配置 
+	autoFightPoints =
+	{
+		{x = 69 , y = 100},
+		{x = 42 , y = 104},
+		{x = 30 , y = 86},
+		{x = 26 , y = 57},
+		{x = 53 , y = 35},
+		{x = 94 , y = 43},
+		{x = 71 , y = 66},
+	},
+
+	area =
+	{
+		--range表示多边形的区域范围，用多个点表示，每个点由2个整数数字（对应地图的xy坐标）构成（最少3个点，即6个数字），多个点构成一个区域,每个点与下个点相连，最后一个点与第一个点相连
+		--name表示这个区域的名称
+		--center 通常center配置用来作为传送点，或者默认的进入场景的起始点
+		{ 
+			name = "西门",range = { 10,10,20,20,60,50,120,30}, center = { 35,35} ,
+			--区域的属性配置，type表示属性的类型，value表示对应的值
+			--type类型对应的值以及参数见《区域属性定义说明.txt》
+			--value根据type的不同，可能是整数，也可能多个整数
+			attri = 
+			{
+				{ type = 1, value = {}  },			--value即使是没有或者1个数字，也用{}包起来
+				{ type = 12, value = {30}  },		--12是自动减HP，30表示每秒钟减少的HP
+				{ type = 33, value = {10,22,40}  },	--33是限制技能，所以value是技能id的列表
+				{ type = 2, value = {2,11,21,5,-1,20,61,21,10,-1,20}}, --进入这个区域会自动增加2个buff，5秒增20HP和10秒增20经验
+			}
+		},
+	},
+        magicPassPoints={1,2,56,32}, --可以魔法穿透的障碍点的列表，比如小的石头，是可以魔法穿透的，这里是x1,y1,x2,y2,...这种格式
+
+	--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh_smple.txt"
+	--如果还有其他刷怪点，在这里继续include
+	},
+	--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--name表示npc的名称，
+		--posx和posy分别表示出现的位置坐标
+		--script是对应的脚本名字，需要用相对路径
+		--modelid表示外观模型id
+		--icon头像图标(整数)
+		--title NPC头顶标题，默认""
+        --hideLocation 用于客户端地图中隐藏NPC用，如果在地图中不显示NPC则配置true，默认false
+		--funcId NPC头顶的功能的图标ID,1帮派 2仓库 3传送 4装备 5武器 6修理 7药店  8副本 9杂货 11护送，默认是0可以不配置
+		--classId NPC在地图中分类的ID 功能=0，副本=1 活动=3 任务=4，用于大地图分类显示，默认不配置就是0（功能）
+		--idleInterval = 120000 --空闲时执行逻辑操作间隔，单位为毫秒默认为120000（120s）
+		--bCanHide	--在场景内是否可以在程序内被设置为隐藏（默认为false、true是可以被设置，主要在沙巴克活动隐藏npc用）
+		--bHide 是否在创建的时候隐藏 默认false
+		--nShowNpcForm  在婚车上是否显示npc对话窗体  0 关闭 1 开启
+    { 
+        name=Lang.EntityName.n00002, posx = 88 , posy = 10,script="data/script/Huashanpai/ZhaoTianYuan.txt",
+	modelid=1,icon = 1,title="铁匠",hideLocation =false, idleInterval = 120000,
+	
+    },
+  },
+  --teleport 是用来配置这个场景出现的传送点实体，如果有多个传送点，则配置多项（行）
+  teleport = 
+  {
+  	--posx和posy表示传送门出现的位置
+     --toSceneid表示要传送的目的场景id
+     --toPosx和toPosy分别要传送的目的坐标，此坐标必须是位于toSceneid场景里的
+     --script是传送点关联的脚本文件，
+     --modelid表示外观模型的id
+     --passid 1 表示只有占领沙巴克城的行会才能通过  默认为0所有都能通过
+     --dist 传送门的xy坐标往外nDist距离的点都算传送点 默认为1
+     --mapHide =false表示在地图是否显示，true的话表示大地图上不显示
+     { posx = 102, posy = 15,toSceneid = 2,toPosx = 102, toPosy = 15,modelid = 1 ,name="去武当山",passid = 1,dist = 3,mapHide =false},
+
+  },
+
+  --场景装饰，比如安全区的装饰，模型在jxClient/data/otherEntity
+  --[[
+      如下图，分别是左上角和右下角的坐标，将在这个范围里打点
+      A.....
+      .    .
+      .    .
+      .....B
+ 
+  --]]
+ landscape=
+ {
+
+    --posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点 name 路灯的名字 默认为空
+	{posx1=24,posy1=22,posx2=24,posy2=30,modelid=2,xinterval=2,yinterval=2,name = ""},
+    
+ },
+
+},

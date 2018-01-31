@@ -1,0 +1,160 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+--#include "data\config\activityconfig\OpenServerTenDays\FirstDayActivity.txt" once
+
+--第一天 练级狂人（烟花）
+--全民活动播报
+function FirstWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00022,2+128)
+end
+
+--从开服后的每个整点都进行活动宣传播报：
+function LevelingNotice()
+	--System.broadTopLevelMsgToClient(0)
+	System.broadcastTipmsg(Lang.Activity.w00079,2+128)
+end
+
+--19点后播报
+function LevelingStartNotice()
+	--System.broadTopLevelMsgToClient(1)
+end
+
+--22点后播报
+function LevelingLastNotice()
+	--System.broadTopLevelMsgToClient(2)
+end
+
+--更新第一天等级排名的名单
+function UpdateLevelMainRank()
+	System.broadTopLevelMsgToClient(0)
+end
+
+--播报消息
+function BroadLevelingMsg()
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[1].rankName)
+
+	if RankNameList ~= nil then
+		local str1 = ""
+		local str2 = ""
+		local str3 = ""
+		
+		local bBroadFlag = false
+		for i=0,2 do
+			local nJob = 0
+			local sName
+			local pItem = Ranking.getItemFromIndex(RankNameList,i)
+			
+			if pItem then
+				if Ranking.getPoint(pItem) > 0 then
+					if i == 0 then
+						sName = Ranking.getSub(pItem,1)
+						nJob = tonumber(Ranking.getSub(pItem,0))
+						str1 =  GetJobName(nJob).."<(n"..sName..")>,"
+					elseif i == 1 then
+						sName = Ranking.getSub(pItem,1)
+						nJob = tonumber(Ranking.getSub(pItem,0))
+						str2 =  GetJobName(nJob).."<(n"..sName..")>,"
+					elseif i == 2 then
+						sName = Ranking.getSub(pItem,1)
+						nJob = tonumber(Ranking.getSub(pItem,0))
+						str3 =  GetJobName(nJob).."<(n"..sName..")>"
+					end
+
+					bBroadFlag = true
+				end
+			end
+
+		end
+		local str = str1..str2..str3
+		
+		local tmpStr = string.format(Lang.Activity.w00083,str,Item.getItemName(OpenServerConfig.activitys[1].awards[1].id))
+
+		if bBroadFlag == true then
+			System.broadcastTipmsg(tmpStr,2+128)
+			BroadBrationEffect()
+		else
+			System.broadcastTipmsg(Lang.Activity.k00036,2+128)
+		end
+	end
+end
+
+
+--获取职业名称
+function GetJobName(nJob)
+	if nJob == 1 then
+		return Lang.Activity.w00080
+	elseif nJob == 2 then
+		return Lang.Activity.w00081
+	elseif nJob == 3 then
+		return Lang.Activity.w00082
+	end
+end
+
+--结束活动 23点结算
+function EndLevelingActivty()
+	--System.accountTopLevelActivity()
+
+	System.onAccountAllActivity(OpenServerConfig.activitys[1].openDays,OpenServerConfig.activitys[1].needValue)		--全民活动结算
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+
+	--BroadBrationEffect()
+	--BroadLevelingMsg()
+end
+
+--播放庆典烟花
+function BroadBrationEffect()
+	System.broadcastTipmsg(Lang.Activity.t00068,2+128)
+	local playerList = LuaHelp.getAllActorList()		
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.playScrEffectCode(player,OpenServerConfig.activitys[1].effectId,OpenServerConfig.activitys[1].lastTime)
+			end
+		end
+	end
+end
+
+--第五天结束
+function EndFirstDayActivty()
+	System.accountFirstDayActivity()
+	System.finishTenDaysToFile(1)
+end
+
+
+--等级提升给提示
+function UpLevelGiveTips(sysarg,nLevel)
+	if System.getActivityFinishDays(1) > 0 then return end
+
+	if System.getDaysSinceOpenServer() > 5 then return end
+	
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE) > 0 then return end
+
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[1].rankName)
+
+	local nJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	if RankNameList ~= nil then
+		for i=0,2 do
+			local nTagJob = 0
+			local pItem = Ranking.getItemFromIndex(RankNameList,i)
+			
+			if pItem then
+				if Ranking.getPoint(pItem) > 0 then
+					nTagJob = tonumber(Ranking.getSub(pItem,0))
+					if nTagJob == nJob then
+						return
+					end
+				end
+			end
+		end
+	end
+	
+	for i=1,table.getn(OpenFirstDayActivity.tipLevel) do
+		if OpenFirstDayActivity.tipLevel[i] == nLevel then
+			local str = string.format(Lang.Activity.k00037,GetJobName(nJob),Actor.getName(sysarg),nLevel)
+			System.broadcastTipmsg(str,2+128)
+			return
+		end
+	end
+end

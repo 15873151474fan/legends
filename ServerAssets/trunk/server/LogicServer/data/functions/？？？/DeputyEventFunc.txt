@@ -1,0 +1,93 @@
+﻿--lua script
+--Do something about deputy
+--#include "GlobalDefine.txt" once
+  --#include "data\functions\ActorDataFunc.txt" once
+--#include "data\config\skill\SkillLearn\DeputySkillLearn.txt" once
+
+--学习副职物品制作
+function learnDeputyMake(sysarg,args)
+  local flag = args[2]  --副职技能ID
+  local deputy = args[3]  --副职物品ID
+  --金钱过滤
+  local reqMoney = 0 --所需金钱
+  local reqMoneyType = 0
+  for v = 1, #DeputySkillLearn do
+	if ( DeputySkillLearn[v].itemid == deputy ) then
+		reqMoney = DeputySkillLearn[v].money
+		reqMoneyType = DeputySkillLearn[v].moneyType
+	end
+  end
+  if ( Actor.getIntProperty( sysarg, moneyTypeMap[reqMoneyType] ) < reqMoney ) then
+	print("Learn deputy item make lack money."..reqMoney)
+	return false
+  end
+  --获得副职可制作物品数据
+  local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local deputyMakeAble = getActorData( sysarg, 130 )
+  --是否有副职技能
+  local tl = table.getn(deputyMakeAble)
+  local index = 0
+  local dmdata = {}
+  if ( tl <= 0 ) then
+	print( "Not learn any deputy skill."..deputy )
+	return false
+  end
+  for x = 1, tl do
+	if (deputyMakeAble[x].skillID == deputy) then
+		index = x
+		dmdata = deputyMakeAble[x]
+	end
+  end
+  if ( dmdata == nil ) then
+	print("---Deputy Skill Item Learn no Skill")
+	return
+  end
+  --设置副职可制作物品
+  for i = 1, flag do
+	if ( dmdata[i] == nil ) then dmdata[i] = false end
+  end
+  dmdata[flag] = true
+  deputyMakeAble[index] = dmdata
+  setActorData( sysarg, 130, deputyMakeAble )
+  --金钱消耗
+  if ( reqMoney > 0 ) then Actor.changeMoney( sysarg, reqMoneyType, -reqMoney, 101, Lang.LogTips.yb030 ) end
+  print("Deputy item make learn success."..deputy)
+end
+
+
+
+--学习副职技能
+function learnDeputySkill( sysarg, args )
+  local skillidx = args[2]
+  --金钱过滤
+  local reqMoney = 0 --所需金钱
+  local reqMoneyType = 0
+  for v = 1, #DeputySkillLearn do
+	if ( DeputySkillLearn[v].id == deputy ) then
+		reqMoney = DeputySkillLearn[v].money
+		reqMoneyType = DeputySkillLearn[v].moneyType
+	end
+  end
+  if ( Actor.getIntProperty( sysarg, moneyTypeMap[reqMoneyType] ) < reqMoney ) then
+	print("Learn deputy skill lack money."..reqMoney)
+	return false
+  end
+  --获得副职可制作物品数据
+  local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local deputyMakeAble = getActorData( sysarg, 130 )
+  --是否有副职技能
+  local tl = table.getn(deputyMakeAble)
+  if ( tl > 0 ) then
+	for x = 1, tl do
+		if (deputyMakeAble[x].skillID == skillidx) then
+			print("Deputy skill has learned."..skillidx)
+			return
+		end
+	end
+  end
+  table.insert( deputyMakeAble, { skillID = skillidx } )
+  setActorData( sysarg, 130, deputyMakeAble )
+  --金钱消耗
+  if ( reqMoney > 0 ) then Actor.changeMoney( sysarg, reqMoneyType, -reqMoney, 101,Lang.LogTips.yb031 ) end
+  print("Deputy skill learn success."..skillidx)
+end

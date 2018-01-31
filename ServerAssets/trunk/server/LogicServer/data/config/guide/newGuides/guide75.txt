@@ -1,0 +1,65 @@
+﻿--七天登录
+{
+  maxLevel = 55,
+  triggerList =
+  {
+		{ type = 5, valueList = {0,55,}},      --等级等于这个级数
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步  指向七天图标 
+    {
+      condList =
+      {
+                { type = 2, helpId = 196, dataList = {0,} },   --窗口不可见
+                { type = 14,  helpId = 0, dataList = {644,} },    --身上没有这些物品 
+      },
+
+      --执行指向七天图标 
+      action = { type = 1, helpId = 195, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc92 },   --指向七天按钮
+    },
+
+    --第2步指向第一天
+    {
+      condList =
+      {
+                { type = 1, helpId = 196, dataList = {0,} },  --窗口可见
+                { type = 37, helpId = 198, dataList = {0,} },  --按钮不可点击
+                { type = 14,  helpId = 0, dataList = {644,} },    --身上没有这些物品
+      },
+
+      --执行指向领取按钮
+      action = { type = 1, helpId = 197, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc93 },  --指向第一天
+    },
+
+    --第3步指向领取
+    {
+      condList =
+      {
+                { type = 1, helpId = 196, dataList = {0,} },   --窗口可见
+                { type = 38, helpId = 198, dataList = {0,} },  --按钮可点击
+                { type = 14,  helpId = 0, dataList = {644,} },    --身上没有这些物品
+      },
+
+      --执行指向打开兑换窗口按钮
+      action = { type = 1, helpId = 198, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc89 },   --指向领取按钮
+    },
+
+    
+
+    --第4步 结束指引
+    {
+      condList =
+      {
+				
+				{ type = 13,  helpId = 0, dataList = {644,} },    --身上有这些物品
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

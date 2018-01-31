@@ -1,0 +1,171 @@
+--lua script
+--凌云宝阁
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\cloudstreasure\cloudstreasureconfig.txt" once
+--#include "data\config\cloudstreasure\MoneyInvested.txt" once
+--#include "data\config\activityconfig\MoneyInvested\ThanksConsume.txt" once
+--#include "data\config\SuperInverst\SuperInverstConfig.txt" once
+--#include "data\config\christmas\christmasConfig.txt" once
+
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "CollectCommon.txt" once
+--#include "InvestedCommon.txt" once
+--#include "SuperInvestCommon.txt" once
+--#include "ChristmasCommon.txt" once
+--#include "GradientGiftCommon.txt" once
+
+--[[
+local   cGetCollectAward = 1,			--领取凌云宝阁奖励
+local   cFinishCollectNowOp = 2,		--立即完成凌云宝阁事件
+local   cGetInvestDataOp = 3,			--返回投资计划的信息
+local   cGetInvestAwardOp = 4,			--领取奖励
+local   cOpenMoneyInvestOp = 5,			--开启投资计划
+local   cGetThanksConsumeAwardOP = 6,	--领取惠民消费活动的奖励
+local   cChangeTalentOP = 7,			--经验转换天赋点操作
+local   cOpenSuperInvestOp = 8,			--开启超值投资
+local   cGetSuperInvestAwardOp = 9,		--领取超值投资的奖励
+local   cMsgGetInvestAward = 10,		--离线消息领取奖励
+local   cLoginSendChristData = 11,		--登陆发送点亮圣诞信息
+local   cLoginSendAccpetRole = 12,		--登陆接任务
+local   cFinishChristMas = 13,			--完成圣诞任务
+local   cGetCharistAward = 14,			--领取层的奖励
+local   cUseChristEgg = 15,				--砸金蛋排行
+local   cGetChristEggAward = 16,		--领取砸蛋排行奖励
+local   cGetChristmasRankOP = 17,		--获取砸蛋排行数据
+local   cClearNewDayData = 18,			--清除跨天数据
+local	cGetGradientAwardOp = 19,		--领取梯度性礼包
+local	cSendGradientDataOp = 20,		--发送梯度性礼包数据	
+local   cCloseVersionUpdateTipsOP = 21,	--关闭更新公告弹出指引
+local   cGetGradientAwardByMsg = 22,	--活动结束后通过邮件领取礼包
+--]]
+
+CollectOpFuncList = {}
+
+EventCallDispatcher.HandlerCollectOp = function (sysarg, args)
+  --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = CollectOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--领取凌云宝阁奖励
+CollectOpFuncList[1] = function (sysarg,args)
+	OnGetCollectAward(sysarg,args)
+end
+
+--立即完成凌云宝阁事件
+CollectOpFuncList[2] = function (sysarg,args)
+	OnFinishCollectOp(sysarg,args)
+end
+
+--返回投资计划的信息
+CollectOpFuncList[3] = function (sysarg,args)
+	OnGetInvestDataOp(sysarg,args)
+
+	--发送梯度性的时段
+	OnSendGradientOnLogin(sysarg)
+end
+
+--领取奖励
+CollectOpFuncList[4] = function (sysarg,args)
+	OnGetInvestAwardOp(sysarg,args)
+end
+
+--开启投资计划
+CollectOpFuncList[5] = function (sysarg,args)
+	OnOpenMoneyInvestedOp(sysarg,args)
+end
+
+--领取惠民消费活动的奖励
+CollectOpFuncList[6] = function (sysarg,args)
+	OnGetThanksConsumeAward(sysarg,args)
+end
+
+--经验转换天赋点操作
+CollectOpFuncList[7] = function (sysarg,args)
+	OnChangeTalentOP(sysarg,args)
+end
+
+--开启超值投资
+CollectOpFuncList[8] = function (sysarg,args)
+	OnOpenSuperInvest(sysarg,args)
+end
+
+--领取超值投资奖励
+CollectOpFuncList[9] = function (sysarg,args)
+	OnGetSuperinvestFlag(sysarg,args)
+end
+
+--离线消息领取奖励
+CollectOpFuncList[10] = function (sysarg,args)
+	OnGetsuperInvestByMsg(sysarg,args)
+end
+
+--登陆发送点亮圣诞信息
+CollectOpFuncList[11] = function (sysarg,args)
+	OnSendLightUpChristData(sysarg,args)
+end
+
+--登陆发送点亮圣诞信息
+CollectOpFuncList[12] = function (sysarg,args)
+	local nStars = args[2]
+	local nLevel = args[3]
+
+	--OnAccpetRoleOnlogin(sysarg,nStars,nLevel)
+end
+
+--完成圣诞任务
+CollectOpFuncList[13] = function (sysarg,args)
+	OnFinishChristMas(sysarg,args)
+end
+
+--领取层的奖励
+CollectOpFuncList[14] = function (sysarg,args)
+	OnGetCengAward(sysarg,args)
+end
+
+--设置砸金蛋排行
+CollectOpFuncList[15] = function (sysarg,args)
+	OnChristmasEggOp(sysarg,args)
+end
+
+--领取砸蛋排行奖励
+CollectOpFuncList[16] = function (sysarg,args)
+	GetChristmasEggAward(sysarg,args)
+end
+
+--发送砸蛋排行奖励
+CollectOpFuncList[17] = function (sysarg,args)
+	OnSendChristmasEggAward(sysarg,args)
+end
+
+--清除跨天数据
+CollectOpFuncList[18] = function (sysarg,args)
+	OnClearNewDayDataOp(sysarg,args)
+end
+
+--领取梯度性礼包
+CollectOpFuncList[19] = function (sysarg,args)
+	OnGetGradientAwardOp(sysarg,args)
+end
+
+--发送梯度性礼包数据
+CollectOpFuncList[20] = function (sysarg,args)
+	OnSendGradientDataOp(sysarg,args)
+end
+
+--关闭更新公告弹出指引
+CollectOpFuncList[21] = function (sysarg,args)
+	OnCloseVersionTipsOp(sysarg,args)
+end
+
+--活动结束后通过邮件领取礼包
+CollectOpFuncList[22] = function (sysarg,args)
+	OnGetGradientOffGift(sysarg,args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeCollectOp, EventCallDispatcher.HandlerCollectOp)
+

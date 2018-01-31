@@ -1,0 +1,64 @@
+﻿--使用百年雪莲，引导玩家使用物品
+{
+  maxLevel = 65,
+  --触发条件
+  triggerList =
+  {
+		{ type = 1, valueList = {17,64,132,}},     --有这个任务
+		{ type = 4, valueList = {661,},},   --有百年雪莲
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步 指向导航背包按钮
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 20, dataList = {0,} },    --背包不可见
+				{ type = 13,  helpId = 21, dataList = {661,} }, --有物品:百年雪莲
+				{ type = 5,  helpId = 0, dataList = {17,63,132,} },		--存在任务
+      },
+
+      action = { type = 1, helpId = 2, data = 0, desc = Lang.GuideLang.desc7 },
+    },
+
+    --第2步 双击使用道具
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 20, dataList = {0,} },    --背包可见
+				{ type = 13,  helpId = 21, dataList = {661,} }, --有物品:百年雪莲
+				{ type = 5,  helpId = 0, dataList = {17,63,132,} },		--存在任务
+      },
+
+      action = { type = 10, helpId = 21, data = 661, desc = Lang.GuideLang.desc8 },
+    },
+
+    --第3步 关闭窗口
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 20, dataList = {0,} },    --背包窗口可见
+				{ type = 14,  helpId = 21, dataList = {661,} }, --没有物品:百年雪莲
+				{ type = 5,  helpId = 0, dataList = {17,63,132,} },		--存在任务
+      },
+
+      --引导玩家关闭窗口
+      action = { type = 4, helpId = 20, data = 0, desc = Lang.GuideLang.desc9 },
+    },
+
+    --第4步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 20, dataList = {0,} },    --背包窗口不可见
+				{ type = 12,  helpId = 0, dataList = {2,} }, --不存在可接任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc9 },
+    },
+	},
+},

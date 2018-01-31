@@ -1,0 +1,436 @@
+--lua script
+--封印兽碑
+
+--#include "..\..\language\LangCode.txt"
+
+guildBoss =
+{
+	nTimes = 1,				--个人挑战的次数
+
+	nAddTimes = 2,			--vip玩家可以增加的次数
+	nNeedYb = {50,50},		--增加次数需要的元宝，对应第一次和第二次
+	
+	bossConfig = 
+	{
+		--封印兽碑 第一级
+		{
+			nLevel = 1,						--封印兽碑 第一级			
+			posx = 100,					--怪物的位置显示
+			posy = 100,
+      nStartLevel = 
+      {
+      --一星
+        {
+        	nBattle = 3000,					--推荐个人战力
+		nlevel = 40,					--推荐个人等级
+		needGx = 230,					--个人挑战需要的贡献
+		guildNeedCoin = 500000,			--行会挑战消耗的行会资金
+
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=740,count=1,strong=0,quality=0},			--大铜锭
+		},
+
+        },
+       --二星
+        {
+        	nBattle = 3000,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 240,					--个人挑战需要的贡献
+					guildNeedCoin = 1000000,			--行会挑战消耗的行会资金
+ 
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+ 			{type=0,id=740,count=1,strong=0,quality=0},			--大铜锭
+
+		},
+
+	},
+       --三星
+        {
+        	nBattle = 3100,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 250,					--个人挑战需要的贡献
+					guildNeedCoin = 1500000,			--行会挑战消耗的行会资金
+ 
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=740,count=1,strong=0,quality=0},			--大铜锭
+			{type=0,id=741,count=1,strong=0,quality=0},			--大银锭
+
+		},
+
+	},
+         --四星
+        {
+        	nBattle = 3900,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 270,					--个人挑战需要的贡献
+					guildNeedCoin = 2000000,			--行会挑战消耗的行会资金
+ 
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=740,count=1,strong=0,quality=0},			--大铜锭
+			{type=0,id=741,count=1,strong=0,quality=0},			--大银锭
+
+		},
+
+	},
+         --5星
+        {
+        	nBattle = 4100,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 290,					--个人挑战需要的贡献
+					guildNeedCoin = 2500000,			--行会挑战消耗的行会资金
+  
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=740,count=1,strong=0,quality=0},			--大铜锭
+			{type=0,id=741,count=1,strong=0,quality=0},			--大银锭
+
+		},
+
+	},
+         --6星
+        {
+        	nBattle = 4300,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 310,					--个人挑战需要的贡献
+					guildNeedCoin = 3000000,			--行会挑战消耗的行会资金
+   
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=740,count=1,strong=0,quality=0},			--大铜锭
+			{type=0,id=741,count=1,strong=0,quality=0},			--大银锭
+
+		},
+
+	},
+         --7星
+        {
+        	nBattle = 5500,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 320,					--个人挑战需要的贡献
+					guildNeedCoin = 3500000,			--行会挑战消耗的行会资金
+   
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=740,count=1,strong=0,quality=0},			--大铜锭
+			{type=0,id=741,count=1,strong=0,quality=0},			--大银锭
+
+		},
+
+	},
+         --8星
+        {
+        	nBattle = 5900,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 350,					--个人挑战需要的贡献
+					guildNeedCoin = 4000000,			--行会挑战消耗的行会资金
+   
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=740,count=1,strong=0,quality=0},			--大铜锭
+			{type=0,id=741,count=1,strong=0,quality=0},			--大银锭
+
+		},
+
+	},
+         --9星
+        {
+        	nBattle = 6400,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 380,					--个人挑战需要的贡献
+					guildNeedCoin = 4500000,			--行会挑战消耗的行会资金
+
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=280,count=1,strong=0,quality=0},			--一级灵珠
+			{type=0,id=745,count=1,strong=0,quality=0},			--1级物攻魂石
+			{type=0,id=755,count=1,strong=0,quality=0},			--1级魔攻魂石
+			{type=0,id=765,count=1,strong=0,quality=0},			--1级道攻魂石
+
+		},
+
+	},
+         --10星
+        {
+        	nBattle = 7000,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 410,					--个人挑战需要的贡献
+					guildNeedCoin = 5000000,			--行会挑战消耗的行会资金
+ 
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=280,count=1,strong=0,quality=0},			--一级灵珠
+			{type=0,id=745,count=1,strong=0,quality=0},			--1级物攻魂石
+			{type=0,id=755,count=1,strong=0,quality=0},			--1级魔攻魂石
+			{type=0,id=765,count=1,strong=0,quality=0},			--1级道攻魂石
+
+		},
+
+	},
+      },
+
+			monsterId = 784,				--怪物id
+			guildMonsterId = 774,				--行会怪物id
+			nIcon = 784,					--怪物头像id
+
+	},
+
+
+		{
+			nLevel = 11,
+			
+			posx = 100,
+			posy = 100,
+
+      nStartLevel = 
+      {
+      --一星
+        {
+        	nBattle = 9400,					--推荐个人战力
+		nlevel = 40,					--推荐个人等级
+		needGx = 430,					--个人挑战需要的贡献
+		guildNeedCoin = 5500000,			--行会挑战消耗的行会资金
+  
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=280,count=1,strong=0,quality=0},			--一级灵珠
+			{type=0,id=745,count=1,strong=0,quality=0},			--1级物攻魂石
+			{type=0,id=755,count=1,strong=0,quality=0},			--1级魔攻魂石
+			{type=0,id=765,count=1,strong=0,quality=0},			--1级道攻魂石
+
+		},
+
+	},
+
+       --二星
+        {
+        	nBattle = 10300,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 470,					--个人挑战需要的贡献
+					guildNeedCoin = 6000000,			--行会挑战消耗的行会资金
+
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=281,count=1,strong=0,quality=0},			--二级灵珠
+			{type=0,id=745,count=1,strong=0,quality=0},			--1级物攻魂石
+			{type=0,id=755,count=1,strong=0,quality=0},			--1级魔攻魂石
+			{type=0,id=765,count=1,strong=0,quality=0},			--1级道攻魂石
+
+		},
+
+	},
+
+       --三星
+        {
+        	nBattle = 11200,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 500,					--个人挑战需要的贡献
+					guildNeedCoin = 6500000,			--行会挑战消耗的行会资金
+
+		--掉落
+		Awards = 
+		{
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=281,count=1,strong=0,quality=0},			--二级灵珠
+			{type=0,id=1744,count=1,strong=0,quality=0},			--转生技能残页
+			{type=0,id=746,count=1,strong=0,quality=0},			--2级物攻魂石
+			{type=0,id=756,count=1,strong=0,quality=0},			--2级魔攻魂石
+			{type=0,id=766,count=1,strong=0,quality=0},			--2级道攻魂石
+
+		},
+
+	},
+
+         --四星
+        {
+        	nBattle = 13300,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 540,					--个人挑战需要的贡献
+					guildNeedCoin = 7000000,			--行会挑战消耗的行会资金
+
+		--掉落
+		Awards = 
+		{
+			{type=6,id=0,count=100000,strong=0,quality=0},			--金币
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=281,count=1,strong=0,quality=0},			--二级灵珠
+			{type=0,id=1744,count=1,strong=0,quality=0},			--转生技能残页
+			{type=0,id=746,count=1,strong=0,quality=0},			--2级物攻魂石
+			{type=0,id=756,count=1,strong=0,quality=0},			--2级魔攻魂石
+			{type=0,id=766,count=1,strong=0,quality=0},			--2级道攻魂石
+
+		},
+
+	},
+         --5星
+        {
+        	nBattle = 14500,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 580,					--个人挑战需要的贡献
+					guildNeedCoin = 7500000,			--行会挑战消耗的行会资金
+
+		--掉落
+		Awards = 
+		{
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=281,count=1,strong=0,quality=0},			--二级灵珠
+			{type=0,id=1744,count=1,strong=0,quality=0},			--转生技能残页
+			{type=0,id=746,count=1,strong=0,quality=0},			--2级物攻魂石
+			{type=0,id=756,count=1,strong=0,quality=0},			--2级魔攻魂石
+			{type=0,id=766,count=1,strong=0,quality=0},			--2级道攻魂石
+
+		},
+
+	},
+         --6星
+        {
+        	nBattle = 15700,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 620,					--个人挑战需要的贡献
+					guildNeedCoin = 8000000,			--行会挑战消耗的行会资金
+
+		--掉落
+		Awards = 
+		{
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=282,count=1,strong=0,quality=0},			--三级灵珠
+			{type=0,id=1744,count=1,strong=0,quality=0},			--转生技能残页
+			{type=0,id=1755,count=1,strong=0,quality=0},			--灵力丹（小）
+			{type=0,id=746,count=1,strong=0,quality=0},			--2级物攻魂石
+			{type=0,id=756,count=1,strong=0,quality=0},			--2级魔攻魂石
+			{type=0,id=766,count=1,strong=0,quality=0},			--2级道攻魂石
+
+		},
+
+	},
+         --7星
+        {
+        	nBattle = 18700,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 670,					--个人挑战需要的贡献
+					guildNeedCoin = 8500000,			--行会挑战消耗的行会资金
+
+		--掉落
+		Awards = 
+		{
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=282,count=1,strong=0,quality=0},			--三级灵珠
+			{type=0,id=1744,count=1,strong=0,quality=0},			--转生技能残页
+			{type=0,id=1755,count=1,strong=0,quality=0},			--灵力丹（小）
+ 			{type=0,id=747,count=1,strong=0,quality=0},			--3级物攻魂石
+			{type=0,id=757,count=1,strong=0,quality=0},			--3级魔攻魂石
+			{type=0,id=767,count=1,strong=0,quality=0},			--3级道攻魂石
+
+		},
+
+	},
+         --8星
+        {
+        	nBattle = 20200,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 710,					--个人挑战需要的贡献
+					guildNeedCoin = 9000000,			--行会挑战消耗的行会资金
+ 
+		--掉落
+		Awards = 
+		{
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=282,count=1,strong=0,quality=0},			--三级灵珠
+			{type=0,id=1744,count=1,strong=0,quality=0},			--转生技能残页
+			{type=0,id=1755,count=1,strong=0,quality=0},			--灵力丹（小）
+			{type=0,id=1756,count=1,strong=0,quality=0},			--灵力丹（中）
+			{type=0,id=747,count=1,strong=0,quality=0},			--3级物攻魂石
+			{type=0,id=757,count=1,strong=0,quality=0},			--3级魔攻魂石
+			{type=0,id=767,count=1,strong=0,quality=0},			--3级道攻魂石
+
+		},
+
+	},
+         --9星
+        {
+        	nBattle = 21900,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 760,					--个人挑战需要的贡献
+					guildNeedCoin = 9500000,			--行会挑战消耗的行会资金
+  
+		--掉落
+		Awards = 
+		{
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=282,count=1,strong=0,quality=0},			--三级灵珠
+			{type=0,id=1744,count=1,strong=0,quality=0},			--转生技能残页
+			{type=0,id=1755,count=1,strong=0,quality=0},			--灵力丹（小）
+			{type=0,id=1756,count=1,strong=0,quality=0},			--灵力丹（中）
+			{type=0,id=747,count=1,strong=0,quality=0},			--3级物攻魂石
+			{type=0,id=757,count=1,strong=0,quality=0},			--3级魔攻魂石
+			{type=0,id=767,count=1,strong=0,quality=0},			--3级道攻魂石
+
+		},
+
+	},
+         --10星
+        {
+        	nBattle = 24700,					--推荐个人战力
+					nlevel = 40,					--推荐个人等级
+					needGx = 810,					--个人挑战需要的贡献
+					guildNeedCoin = 10000000,			--行会挑战消耗的行会资金
+   
+		--掉落
+		Awards = 
+		{
+			{type=0,id=354,count=1,strong=0,quality=0},			--红玫瑰
+			{type=0,id=283,count=1,strong=0,quality=0},			--四级灵珠
+			{type=0,id=1744,count=1,strong=0,quality=0},			--转生技能残页
+			{type=0,id=1755,count=1,strong=0,quality=0},			--灵力丹（小）
+			{type=0,id=1756,count=1,strong=0,quality=0},			--灵力丹（中）
+			{type=0,id=747,count=1,strong=0,quality=0},			--3级物攻魂石
+			{type=0,id=757,count=1,strong=0,quality=0},			--3级魔攻魂石
+			{type=0,id=767,count=1,strong=0,quality=0},			--3级道攻魂石
+
+		},
+
+	},
+      },
+			monsterId = 807,	
+			guildMonsterId = 797,
+			nIcon = 807,					
+
+		},
+	},
+
+}

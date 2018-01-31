@@ -1,0 +1,71 @@
+--炸弹
+{
+
+	actions=
+	{
+		{act=1,effect=0,}
+	},
+	
+	desc=Lang.Skill.s19L1Desc,--技能的描述
+	
+	iconID=19,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+				
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=0,				
+			rangeCenter=0,			
+
+		acts=
+			{
+				{
+					targetType=0,
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 6,value=1},
+					--	{cond = 17,value =23,param=34},		
+					--	{cond = 17,value =27,param=35},								
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=3,value=2,id=165}, 
+						{mj=0,timeParam=1,type=24,buffType=3,value=2,id=165},
+						{mj=0,timeParam=1,type=24,buffType=3,value=2,id=165},--技能说话
+						{mj=0,timeParam=1,type=1,delay=0, buffType=62,id=64,rate=0,value=53,level=5,interval=15,effectType =6,effectId =123},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},
+
+		
+		
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		--{cond=13,value=2,consume=false},
+		--{cond=18,value=40,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=23000,
+
+},

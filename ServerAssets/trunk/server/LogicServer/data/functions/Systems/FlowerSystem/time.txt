@@ -1,0 +1,79 @@
+﻿--[[File:time.txt]]
+--这里定义npc的构造函数和析构函数
+
+hourtime = nil	--每小时刷新榜单
+
+
+--初始化操作,注册定时事件
+function flowerInit(sysarg)
+	--hourtime = System.registerTimeCall(thisNPC,"refreshRank","2011-05-17 15:00:00",3600,false)	--每小时执行一次
+
+	for i=1,6 do
+		local ranking = Ranking.getRanking(FlowerConfig.rankName[i]) --通过排行名称获取排行对象
+		if ranking == nil then  --没有排行对象则创建并加载数据
+			 if i == 5 or i == 6 then --屏蔽每日排行榜
+					ranking = Ranking.add(FlowerConfig.rankName[i],30,1)	--创建排行榜
+			 else
+				  ranking = Ranking.add(FlowerConfig.rankName[i],100,0)	--创建排行榜
+			 end
+		   --加载排行榜，如果加载失败则表示没有此数据，此时进行标题初始化
+		   if not Ranking.load(ranking,FlowerConfig.rankName[i]..".txt") then
+				Ranking.addColumn(ranking,Lang.Flower.f016) --角色名
+				Ranking.addColumn(ranking,Lang.Flower.f017) --阵营
+				Ranking.addColumn(ranking,FlowerConfig.award_CN[i])	--称号或者奖励
+		   end
+		   Ranking.setDisplayName(ranking,FlowerConfig.rankName_CN[i])
+		   Ranking.setIdTitle(ranking,Lang.Flower.f013)
+		   Ranking.setPointTitle(ranking,FlowerConfig.point_CN[i])
+		   Ranking.setColumnDisplay(ranking,0,1)
+		   Ranking.setColumnDisplay(ranking,1,1)
+		   Ranking.setColumnDisplay(ranking,2,1)
+		end
+		Ranking.addRef(ranking) --增加对此排行对象的引用计数	
+	end
+	
+	local ranking = Ranking.getRanking(FlowerConfig.awardRank) --通过排行名称获取排行对象
+	if ranking == nil then
+	   ranking = Ranking.add(FlowerConfig.awardRank,100)	--创建排行榜
+	   if not Ranking.load(ranking,FlowerConfig.awardRank..".txt") then
+			Ranking.addColumn(ranking,"name") --玩家名字
+			Ranking.addColumn(ranking,"award")	--是否领取了奖励，未领是“-" 
+			Ranking.addColumn(ranking,"title") --玩家
+			Ranking.addColumn(ranking,"value") --玩家魅力值
+	   end
+	end
+	Ranking.addRef(ranking) --
+end
+
+function flowerFinal(sysarg)
+	
+	if hourtime then
+		System.unregisterTimeCall(hourtime)
+	end
+	hourtime = nil
+	for i = 1,6 do
+		local ranking = Ranking.getRanking(FlowerConfig.rankName[i]) --通过排行名称获取排行对象
+		if ranking ~= nil then
+			if Ranking.getRef(ranking) == 1 then
+				Ranking.save(ranking,FlowerConfig.rankName[i]..".txt")
+				--Ranking.removeRanking(QgzsConfig.rankName) 	--如果引用计数减少至0，则对象自动被销毁
+			else 
+				Ranking.release(ranking)			--减少引用计数
+			end
+		end
+	end
+	local ranking = Ranking.getRanking(FlowerConfig.awardRank) --通过排行名称获取排行对象
+	if ranking ~= nil then
+		if Ranking.getRef(ranking) == 1 then
+			Ranking.save(ranking,FlowerConfig.awardRank..".txt")
+			--Ranking.removeRanking(QgzsConfig.rankName) 	--如果引用计数减少至0，则对象自动被销毁
+		else 
+			Ranking.release(ranking)			--减少引用计数
+		end
+	end
+end
+
+
+table.insert(InitFnTable,flowerInit)
+table.insert(FinaFnTable,flowerFinal)
+

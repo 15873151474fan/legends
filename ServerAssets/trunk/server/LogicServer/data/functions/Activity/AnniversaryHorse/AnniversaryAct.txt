@@ -1,0 +1,137 @@
+
+--lua script 
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryHorseAct.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\AnniversaryStore.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\RechargePerDay.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\FireworksFeast.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\AnniversaryTurntable.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\ThankYouLetter.txt" once --研发致谢信
+--#include "data\functions\Activity\AnniversaryHorse\BirthdayCake.txt" once --生日蛋糕
+--#include "data\functions\Activity\AnniversaryHorse\Celebration.txt" once --周年庆典
+--#include "data\functions\Activity\Festival\AnniversaryActShop.txt" once --周年活动祈福树购买相关
+
+--登陆处理
+function AnniversaryHorLoginHandle(sysarg)
+	local activityTime = {}
+	for k, v in ipairs(AnniversaryHorActConfig.actTime) do 
+		table.insert(activityTime, v)
+	end
+	activityTime[9] = activityTime[9] + 1
+
+	if System.isInDateRange(unpack(activityTime)) == true then
+		SendAnniversaryHorOpenFlag(sysarg, 1)
+	end
+
+	--如果不在活动时间 则屏蔽蛋糕
+	local sysVar = System.getDyanmicVar()
+	if System.isInDateRange(unpack(BirthdayCakeConfig.actTime)) == false then
+		local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+		local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00323) --  NPC名字 周公
+		if npcPtr then
+			if not sysVar.BirthdayCakeFlag then
+				--Actor.setEntityVisibleFlag(npcPtr, false) --这个周公很多地方用到！
+				--sysVar.BirthdayCakeFlag = true
+			end
+		end
+	end
+	
+	--登录判断蛋糕模型
+	if System.isInDateRange(unpack(BirthdayCakeConfig.actTime)) == true then
+		if not sysVar.cakeID then
+			LoginSetBirthdayCakeID()
+			sysVar.cakeID = true
+		end
+	end
+end
+
+--新的一天处理
+function AnniversaryHorNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(AnniversaryHorActConfig.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(AnniversaryHorActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendAnniversaryHorOpenFlag(sysarg, 1)
+		end		
+	else
+		local activityTime = {}
+		for k, v in ipairs(AnniversaryHorActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[1] = activityTime[7]
+		activityTime[2] = activityTime[8]
+		activityTime[3] = activityTime[9] + 2
+		activityTime[9] = activityTime[9] + 2
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendAnniversaryHorOpenFlag(sysarg, 0)
+		end
+	end
+
+end
+
+function SendAnniversaryHorOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 90)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end
+
+
+--马年周年活动0点重置
+function ResetAnniversaryHor()
+	--周年专场
+	local ranking = Ranking.getRanking(AnniversaryHorRankPt.AnniversaryStorePt.File)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	
+	--0点清零 研发致谢信活动，周年庆典活动，祈福树购买次数
+	ClearThankYouFlag()
+	
+end
+
+--马年周年活动结束清除数据
+function OnClearAnniversaryHor()
+	--周年专场
+	local ranking = Ranking.getRanking(AnniversaryHorRankPt.AnniversaryStorePt.File)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+
+	--每日一充
+	ranking = Ranking.getRanking(AnniversaryHorRankPt.RechargePerDayPt.File)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	
+	--充值排行
+	ClearRechargeCommonActivityRank(13)
+	
+	ClearFireworksFeast() --清除周年烟花盛宴数据
+	ClearAnniverTurntable() --清除周年转盘数据
+	ClearThankYouActEnd()  --清除研发致谢信赞总数和个人赞的次数
+	ClearBirthdayCakeActEnd() --清除生日蛋糕活动数据
+	
+end
+
+--马年周年活动发放奖励
+function OnGiveAwardAnniversaryHor()
+	--每日一充
+	GiveAwardRechargePerDay()
+
+	--充值排行
+	CloseRechargeCommon(13)
+
+	GiveFireworksRankAward() --发周年烟花盛宴排名数据
+	ClearCelebration()--活动结束后发放忘记领取的在线奖励
+	ClearBuyTimes()--福树购买相关活动结束清数据
+	
+end

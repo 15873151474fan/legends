@@ -1,0 +1,37 @@
+
+
+function ViewSysState()
+	
+	local svrId = System.getServerId()
+	local str = string.format(Lang.ScriptTips.state001, svrId)
+	
+	local rate, delayTime = System.getSysExpRate(0)
+	str = str..string.format(Lang.ScriptTips.state002, rate, delayTime)
+	
+	local spId, nStart, nOver = System.getSurpriseRetData(0,0,0)
+	local sStart = System.decodeTime(nStart)
+	local sOver = System.decodeTime(nOver)
+	str = str..string.format(Lang.ScriptTips.state003, spId, sStart, sOver)
+	
+	local comId, nOver = System.getCompensateData(0,0)
+	local sOver = System.decodeTime(nOver)
+	str = str..string.format(Lang.ScriptTips.state004, comId, sOver)
+	
+	local sAct = System.getHundredAct()
+	str = str..string.format(Lang.ScriptTips.state005, sAct)
+	
+	local cSvrId = System.getCommonServerId()
+	str = str..string.format(Lang.ScriptTips.state006, cSvrId)
+	
+	local gId, nStart, nOver, nBuyCount = System.getGroupOnData(0,0,0,0)
+	local sStart = System.decodeTime(nStart)
+	local sOver = System.decodeTime(nOver)
+	str = str..string.format(Lang.ScriptTips.state007, gId, sStart,sOver,nBuyCount)
+	
+	local v1,v2,v3,v4,v5 = System.getPlugInData(0,0,0,0,true)
+	if v5 then v5 = 1 else v5 = 0 end
+	str = str..string.format(Lang.ScriptTips.state008, v1,v2,v3,v4,v5)
+	
+	System.setSysState(str)
+	
+end

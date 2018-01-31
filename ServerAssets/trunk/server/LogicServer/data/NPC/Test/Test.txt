@@ -1,0 +1,54 @@
+﻿--lua script
+--村长 
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+  thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+
+--#include "data\language\LangCode.txt" once          
+
+--[[此NPC中标准任务发行表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = Lang.NormalTalk.h00001, },
+
+}
+
+
+
+
+--[[脚本主函数]]--
+function main(sysarg)
+    return "<测试发送邮件/@TestSendMail>\\"
+end
+
+function TestSendMail(sysarg)
+  local Award = {
+  {type = 15 , itemid = 1,count = 15000,strong = 0 ,quality =0, bind = 0},
+  }  
+
+  System.addMail(sysarg,"美女","这是一封测试邮件","恭喜您邮件系统工作正常",24*3600,Award)
+  print("测试发送邮件")
+end 
+
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

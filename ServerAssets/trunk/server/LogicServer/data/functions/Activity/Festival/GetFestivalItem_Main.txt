@@ -1,0 +1,220 @@
+﻿--世界贡献榜
+
+
+--#include "data\config\activityconfig\Festival\GetFestivalItem.txt" once --配置
+--#include "data\config\activityconfig\Festival\HandUpFestivalItem.txt" once --上交配置
+--#include "data\functions\Activity\Common\Consumes.txt" once --活动通用 消耗
+--#include "data\functions\Activity\Common\Awards.txt" once --活动通用 获取
+
+
+--[[
+    函数名称：main
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function GetFestivalItem_Main(sysarg)	
+	local config = GetFestivalItemConfig
+	if (not config) then return "" end
+	local str = ""
+	for k, v in ipairs(config) do
+		if System.isInDateRange(unpack(v.actTime)) == true then
+			str = str.."\\<#BL"..v.title.."/@GetFestivalItem,"..k..">"  --<活动标题>
+		end
+		
+	end
+	return str
+end
+
+function GetFestivalItem(sysarg, idx)
+	local idx = tonumber(idx) or 0
+	
+	local config = GetFestivalItemConfig[idx]
+	if not config then return end
+	
+	local str = config.desc or ""
+	
+	local svar = System.getStaticVar()
+	if not svar.consumesCount then
+		svar.consumesCount = 0
+	end
+	local name = Item.getItemName(HandUpFestivalItemConfig[1].subMenu[1].consumes[1].id)
+	str = str..string.format(Lang.Activity.a00185, name, svar.consumesCount)  --显示上交物品数量
+	
+	for k, v in ipairs(config.subMenu) do
+		str = str.."\\<#BL"..v.title.."/@OnGetFestivalItem,"..idx..","..k..">"  --<活动标题>
+	end
+
+	--上交节日物品
+	for k, v in ipairs(HandUpFestivalItemConfig[idx].subMenu) do
+		str = str.."\\<#BL"..v.title.."/@OnHandUpFestivalItem,"..idx..","..k..">"  --<活动标题>
+	end
+
+
+	
+	local about = config.about or ""
+	if about ~= "" then
+		str = str.."\\<#BL"..Lang.Activity.dwj001.."/@AboutGetFestivalItem,"..idx..">"  --<活动标题>
+	end
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+	
+end
+
+function AboutGetFestivalItem(sysarg, idx)
+	local idx = tonumber(idx) or 0
+	
+	local config = GetFestivalItemConfig[idx]
+	if not config then return end
+	
+	local str = config.about or ""
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@GetFestivalItem,"..idx..">"  --<返回>
+	return str
+end
+
+
+function OnGetFestivalItem(sysarg, idx1, idx2)
+	-- local idx1 = tonumber(idx1) or 0
+	-- local idx2 = tonumber(idx2) or 0
+	
+	-- local config = GetFestivalItemConfig[idx1]
+	-- if not config then return end
+	
+	-- if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00125, config.limitLevel), ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- if System.isInDateRange(unpack(config.actTime)) ~= true then
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.dwj002, ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- local menu = config.subMenu[idx2]
+	
+	
+
+	-- if Awards.CheckBagGridByCount(sysarg, menu.needBagCount) ~= true then return end
+	
+	-- if menu.consumes and table.getn(menu.consumes) > 0 then
+	-- 	if Consumes.Check(sysarg, menu.consumes) ~= true then
+	-- 		return 
+	-- 	end
+	-- end
+	
+	-- if menu.limitPerDay and config.id then
+	-- 	--local saveStr = "getFestivalItem_"..config.id.."_"..menu.limitPerDay.id
+		
+	-- 	local svar = Actor.getStaticVar(sysarg)
+	-- 	--local getFestivalItem = svar[saveStr]
+	-- 	--svar.getFestivalItem = nil
+	-- 	if not svar.getFestivalItem then
+	-- 		--svar[saveStr] = 0
+	-- 		svar.getFestivalItem = {}
+	-- 	end
+	-- 	if not svar.getFestivalItem[config.id] then
+	-- 		svar.getFestivalItem[config.id] = {}
+	-- 	end
+	-- 	if not svar.getFestivalItem[config.id][menu.limitPerDay.id] then
+	-- 		svar.getFestivalItem[config.id][menu.limitPerDay.id] = 0
+	-- 	end
+		
+	-- 	local getFestivalItem = svar.getFestivalItem[config.id][menu.limitPerDay.id]
+		
+	-- 	if getFestivalItem >= menu.limitPerDay.count then
+	-- 		Actor.sendTipmsg(sysarg, Lang.Activity.dwj003, ttFlyTip)
+	-- 		return
+	-- 	end
+		
+	-- 	--getFestivalItem = getFestivalItem + 1
+	-- 	--svar[saveStr] = getFestivalItem
+	-- 	svar.getFestivalItem[config.id][menu.limitPerDay.id] = getFestivalItem + 1
+	-- end
+	
+	-- -------------
+	-- if menu.consumes and table.getn(menu.consumes) > 0 then
+	-- 	if Consumes.Remove(sysarg, menu.consumes) ~= true then
+	-- 		return 
+	-- 	end
+	-- end
+	
+	-- if menu.awards and table.getn(menu.awards) > 0 then
+	-- 	Awards.Give(sysarg, menu.awards)
+	-- end
+	
+	-- local tips = menu.successTips or ""
+	-- if tips ~= "" then
+	-- 	Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+	-- end
+	
+	
+end
+
+--上交节日物品
+function OnHandUpFestivalItem(sysarg, idx1, idx2)
+	local idx1 = tonumber(idx1) or 0
+	local idx2 = tonumber(idx2) or 0
+	
+	local config = HandUpFestivalItemConfig[idx1]
+	if not config then
+		return
+	end
+	
+	if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00125, config.limitLevel), ttFlyTip)
+		return
+	end
+	
+	if System.isInDateRange(unpack(config.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.dwj002, ttFlyTip)
+		return
+	end
+	
+	local menu = config.subMenu[idx2]
+	
+	local consumes = menu.consumes[1]
+	local count = Actor.getItemCount(sysarg, consumes.id)
+	local name = Item.getItemName(consumes.id)
+	if count <= 0 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00187, name), ttFlyTip)
+		return
+	end
+	
+	--扣除上交物品
+	if Actor.removeItem(sysarg, consumes.id, count) >= count then
+		local svar = System.getStaticVar()
+		local consumesCount = svar.consumesCount
+		consumesCount = consumesCount + count
+		if consumesCount >= consumes.count then
+			consumesCount = consumesCount - consumes.count
+			--召唤BOSS
+			boss = menu.boss
+			if boss then
+				local hScene = Fuben.getSceneHandleById(boss.sid, 0)
+				local hMoster = Fuben.createMonstersInRange(hScene, boss.mid, boss.x1, boss.y1, boss.x2, boss.y2, boss.count, boss.liveTime)
+				System.broadcastTipmsg(Lang.Activity.zq0001, ttScreenCenter+ttChatWindow)
+			end
+		end
+		svar.consumesCount = consumesCount
+
+		--奖励
+		local awards = {}
+		for k, v in ipairs(menu.awards) do
+			local atype = v.type
+			local acount = v.count * count
+			if v.type == 20 then
+				atype = 2
+				acount = Actor.getActivityExp(sysarg, v.id, v.count, v.quality) * consumesCount
+			end
+			
+			local award = {type = atype, id = v.id, count = acount, quality = v.quality}
+			table.insert(awards, award)
+		end
+		
+		Awards.Give(sysarg, awards, 205, Lang.LogTips.l00092)
+	end
+	
+	Actor.sendTipmsg(sysarg, Lang.Activity.a00188, ttFlyTip)
+	Actor.closeNPCDialog(sysarg)
+end
+
+table.insert(MainFnTable, GetFestivalItem_Main)

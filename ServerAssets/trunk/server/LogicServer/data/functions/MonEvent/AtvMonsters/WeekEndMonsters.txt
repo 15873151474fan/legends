@@ -1,0 +1,23 @@
+
+
+--ÖÜÄ©»î¶¯
+--#include "data\functions\Activity\WeekEnd\HuntingCommon.txt" once
+
+function MonDieDispatcher.HuntingMonsterDie(monster, sysarg, monId)
+	HuntMonsterDie(monster, sysarg, monId)
+end
+
+function MonDieDispatcher.HuntingBossDie(monster, sysarg, monId)
+	HuntBossDie(monster, sysarg, monId)
+end
+
+for k, monId in ipairs(HuntingConfig.MonsIds) do
+	--MonDieDispatcher.register(monId, MonDieDispatcher.HuntingMonsterDie)
+end
+
+for k, monId in ipairs(HuntingConfig.BossIds) do
+	--MonDieDispatcher.register(monId, MonDieDispatcher.HuntingBossDie)
+end
+
+
+

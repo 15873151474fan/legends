@@ -1,0 +1,8 @@
+
+--保存网址配置
+SaveGameAddressConfig =
+{
+	LimitLevel = 25,	--开始显示等级
+	MoneyType = 2,	--奖励金钱类型
+	MoneyCount = 180,	--奖励金钱数量
+}

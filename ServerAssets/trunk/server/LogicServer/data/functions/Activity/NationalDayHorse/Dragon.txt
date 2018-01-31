@@ -1,0 +1,253 @@
+--lua script
+--盛世龙腾活动
+--#include "data\config\activityconfig\NationalDayHorse\DragonConfig.txt" once
+--请求面板信息
+function ReqDragonInfo(sysarg)
+	if System.getDoubleElevenActFlag(8) ~= 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0112, ttFlyTip)
+		return 
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 99)
+	if not pack then return end
+
+	local totalConsume = ReadDragonTotalConsume()
+	local actorConsume = ReadDragonActorConsume(sysarg, 0)
+	DataPack.writeInt(pack, totalConsume)
+	DataPack.writeInt(pack, actorConsume)
+	DataPack.writeByte(pack, 5)
+	for i=1,5 do
+		local actorValue = ReadDragonActorConsume(sysarg, i)
+		DataPack.writeByte(pack, actorValue)
+	end
+	DataPack.flush(pack)
+end
+
+--请求领奖
+function ReqDragonAward(sysarg, index)
+	if System.getDoubleElevenActFlag(8) ~= 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0112, ttFlyTip)
+		return 
+	end
+
+	local totalConsume = ReadDragonTotalConsume()
+	local totalNeedYb = DragonConfig.totalNeedYb[index]
+	if totalConsume < totalNeedYb then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mnssy002, ttFlyTip)
+		return false
+	end
+	local ret = ReadDragonActorConsume(sysarg, index) --2未达，0已达，1已领
+	if ret == 2 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mnssy002, ttFlyTip)
+		return false
+	elseif ret == 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mnssy001, ttFlyTip)
+		return false
+	end
+
+	--判断背包
+	local needbag = 0
+	for k, v in ipairs(DragonConfig.accAwards[index].awardList) do
+		local itemid = v.id
+		local itemcount = v.count
+		needbag = needbag + Item.getAddItemNeedGridCount(sysarg, itemid, itemcount)
+	end
+
+	local nGridCount = Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if needbag > nGridCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+		return
+	end
+	--保存数据
+	SaveDragonActorConsume(sysarg, index, 1)
+	
+	--给奖励
+	for k,v in ipairs(DragonConfig.accAwards[index].awardList) do
+		local newItem = Item.createItem(v.id, v.count, 0, 0, v.bind, 0)
+		if not newItem then
+			return false
+		end
+
+		if (Item.addItem(sysarg, newItem, Lang.LogTips.ssy001, 973, v.count) ~= v.count) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+			return false
+		end
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 100)
+	if not pack then return end
+	DataPack.writeByte(pack, index)
+	DataPack.flush(pack)
+end
+
+--读取全服消费数
+function ReadDragonTotalConsume()
+local ranking = Ranking.getRanking(Lang.Rank.DragonTotalConsumeFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 0)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		end
+	end
+	return 0
+end
+
+
+--保存全服消费数
+function SaveDragonTotalConsume(num)
+	if System.getDoubleElevenActFlag(8) ~= 1 then
+		return 
+	end
+
+	local ranking = Ranking.getRanking(Lang.Rank.DragonTotalConsumeFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 0)
+			result = tonumber(result)
+			if result and result ~= 0 then
+				Ranking.setSub(item, 0, result+num)
+			else
+				Ranking.setSub(item, 0, num)
+			end
+		else
+			item = Ranking.addItem(ranking,0,0)
+			Ranking.setSub(item, 0, num)
+		end
+	end
+end
+
+--读取个人消费,领奖数
+function ReadDragonActorConsume(sysarg, index)
+	local ranking = Ranking.getRanking(Lang.Rank.DragonActorConsumeFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local result = Ranking.getSub(item, index)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		end
+	end
+	if index == 0 then
+		return 0
+	else
+		return 2 --未达
+	end
+end
+
+--保存个人消费数
+function SaveDragonActorConsume(sysarg, index, value) --0消费,1-5领奖  --2未达，0已达，1已领
+	if System.getDoubleElevenActFlag(8) ~= 1 then
+		return 
+	end
+
+	local ranking = Ranking.getRanking(Lang.Rank.DragonActorConsumeFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		local sum = 0
+		if item then
+			if index == 0 then
+				local result = Ranking.getSub(item, index)
+				result = tonumber(result)
+				if result and result ~= 0 then
+					sum = result+value
+				else
+					sum = value
+				end
+				Ranking.setSub(item, 0, sum)
+			else
+				Ranking.setSub(item, index, value)
+			end
+		else
+			sum = value
+			item = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(item, index, value)
+		end
+		if item then
+			for i=1,5 do
+				if sum >= DragonConfig.actorNeedYb[i] then
+					local flag = Ranking.getSub(item, i)
+					flag = tonumber(flag) or 2
+					if flag ~= 1 and flag ~= 0 then
+						Ranking.setSub(item, i, 0)
+					end
+				end
+			end
+		end
+	end
+end
+
+
+--发放礼券和元宝
+function SendDragonAward()
+	if System.getDoubleElevenActFlag(8) ~= 1 then
+		return 
+	end
+
+	local totalYb = ReadDragonTotalConsume()
+	local needYb = DragonConfig.totalNeedYb[5]
+	if totalYb >= needYb then
+		local playerList = LuaHelp.getAllActorList()
+		local onlinePlayer = #playerList
+		local tem = DragonConfig.sendbindYb.awardIndexs
+		local index = 1
+		for i=1, #tem do
+			if i <#tem then
+				if onlinePlayer >= tem[i].beginVal and onlinePlayer < tem[i+1].beginVal then
+					index = i
+				end
+			end
+			if i == #tem then
+				if onlinePlayer >= tem[i].beginVal then
+					index = i
+				end
+			end
+		end
+		
+		--发放礼券元宝
+		local avg = math.modf(DragonConfig.sendbindYb.award[index].bindYbNum / onlinePlayer)
+		local getYbNum = DragonConfig.sendbindYb.award[index].getYbNum
+		local beginYb = DragonConfig.sendbindYb.award[index]. beginYb 
+		local endYb = DragonConfig.sendbindYb.award[index]. endYb
+		local awardYb = math.random(beginYb, endYb)
+
+		if avg >0 then
+			for k, actorPtr in ipairs(playerList or {}) do
+				--判断等级
+				if Actor.checkActorLevel(actorPtr, DragonConfig.sendbindYb.level) == true then
+					Actor.changeMoney(actorPtr, mtBindYuanbao, avg , 973, Lang.LogTips.ssy001)
+					if getYbNum > 0 then
+						Actor.changeMoney(actorPtr, mtYuanbao, awardYb , 973, Lang.LogTips.ssy001)
+						local noticeYb = Lang.ScriptTips.mnssy003
+						local myName = Actor.getName(actorPtr)
+						System.broadcastTipmsg(string.format(noticeYb, myName, awardYb), 128+2)
+						getYbNum = getYbNum-1
+					end
+				end
+			end
+			local noticeBindYb = Lang.ScriptTips.mnssy004
+			System.broadcastTipmsg(noticeBindYb, 128+2)
+		end
+	end
+end
+
+--活动结束清数据
+function ClearDragonActEnd()
+	local actorPtr = Ranking.getRanking(Lang.Rank.DragonActorConsumeFile)
+	if actorPtr then
+		Ranking.clearRanking(actorPtr)
+	end
+	local totalPtr = Ranking.getRanking(Lang.Rank.DragonTotalConsumeFile)
+	if totalPtr then
+		Ranking.clearRanking(totalPtr)
+	end
+end
+

@@ -1,0 +1,69 @@
+﻿--伏魔谷
+{
+	scenceid = 21,
+	scencename = Lang.SceneName.s00021,
+	mapfilename = "21FuMoGu",
+	minlevel = 41,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "fengmogu.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+    --场景的长宽,是指格子数的长宽
+	sceneWidth = 300,
+	sceneHeight = 304,
+	posx = 212,
+	posy = 195,
+	area =
+	{
+		{ name = Lang.SceneName.s00021, range = { 10,10,20,20,60,50}, center = { 170,160},attri = {{type=18,value = {}},{type=19,value = {}},}},	--默认配置场景
+		{ name = Lang.SceneName.a00000, range = { 162,161,183,161,183,179,162,179 }, center = { 176,170 }, attri = {{type=39,value = {}},{type=1,value = {}},{type=46,value = {}},}},	--安全复活区，城镇
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh21.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货  10 书店，默认是0可以不配置
+	{name = Lang.EntityName.n00009, posx = 151 , posy = 175,script= "data/script/FengMoGu/TieJiang.txt",modelid=72,icon = 72,funcId=5},
+	{name = Lang.EntityName.n00010, posx = 176 , posy = 157,script= "data/script/FengMoGu/FuZhuangDianZhangGui.txt",modelid=56,icon = 56,funcId=4},
+	{name = Lang.EntityName.n00011, posx = 143 , posy = 146,script= "data/script/FengMoGu/ShouShiDianZhangGui.txt",modelid=88,icon = 88,funcId=4},
+	{name = Lang.EntityName.n00012, posx = 154 , posy = 206,script= "data/script/FengMoGu/ShuDianLaoBan.txt",modelid=86,icon = 86,funcId=10},
+	{name = Lang.EntityName.n00028, posx = 181 , posy = 162,script= "data/script/FengMoGu/ZaHuoShang.txt",modelid=79,icon = 79,funcId=9},
+	{name = Lang.EntityName.n00042, posx = 201 , posy = 159,script= "data/script/FengMoGu/YaoDianZhangGui.txt",modelid=78,icon = 78,funcId=7},
+	{name = Lang.EntityName.n00013, posx = 147, posy = 123,script= "data/script/FengMoGu/CangKuGuanLiYuan.txt",modelid=95,icon = 95,funcId=2},
+    {name = Lang.EntityName.n00039, posx = 116 , posy = 152,script= "data/script/FengMoGu/FuMoYuanShuai.txt",modelid=98,icon = 98,funcId=0},
+    {name = Lang.EntityName.n00040, posx = 122 , posy = 155,script= "data/script/FengMoGu/XingZhengGuan.txt",modelid=134,icon = 134,funcId=0},
+    {name = Lang.EntityName.n00046, posx = 187 , posy = 139,script= "data/script/FengMoGu/LaoBanNiang.txt",modelid=137,icon = 137,funcId=0},
+    --{name = Lang.EntityName.n00030, posx = 152 , posy = 136,script= "data/script/FengMoGu/RenWuGongGaoBan.txt",modelid=15,icon = 15,funcId=0},
+	{name = Lang.EntityName.n00158, posx = 173, posy = 165,script = "data/script/MengZhongTuCheng/ChuanSongShi.txt",modelid=141,icon = 12,funcId=3},--传送
+
+	},
+
+  teleport =
+  {
+		--传送点设置
+		{ posx = 265, posy = 280,toSceneid =  8,toPosx =  94, toPosy =  75,modelid = 50000,name = Lang.SceneName.s00008 },  --伏魔谷→土城
+		{ posx = 272, posy = 41,toSceneid = 22,toPosx = 38, toPosy = 102,modelid = 50000,name = Lang.SceneName.s00022 },  --伏魔谷→火龙洞
+		{ posx = 28, posy = 15,toSceneid = 26,toPosx = 41, toPosy = 60,modelid = 50000,name = Lang.SceneName.s00026 },  --伏魔谷→幽灵船
+		{ posx = 45, posy = 260,toSceneid = 30,toPosx =  15, toPosy = 83,modelid = 50000,name = Lang.SceneName.s00030 },  --伏魔谷→蛮荒
+		{ posx = 87, posy = 280,toSceneid = 232,toPosx =  178, toPosy = 127,modelid = 50000,name = Lang.SceneName.s00232 },  --伏魔谷→南疆谷地
+  },
+
+landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=162,posy1=161,posx2=183,posy2=179,modelid=3,xinterval=2,yinterval=2},  --安全区的路灯
+ },
+
+},

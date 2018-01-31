@@ -1,0 +1,18 @@
+﻿-- 排行榜指针变量 
+
+--个人膜拜数据
+WorshipRankPt =
+{
+	RankName = "SbkCityWorship",
+	RankFile = "SbkCityWorship.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+		{"C0", 0}, 	--{标题, 是否客户端显示}	--已刷新次数
+		{"C1", 0}, 	--{标题, 是否客户端显示}	--已添加的膜拜次数
+		{"C2", 0}, 	--{标题, 是否客户端显示}	--奖励的倍率
+		{"C3", 0}, 	--{标题, 是否客户端显示}	--鄙视次数
+		{"C4", 0}, 	--{标题, 是否客户端显示}	--惊喜奖励的编号
+	},	
+	ClinetShowCount = 10,
+	ClientShow = 0,
+}

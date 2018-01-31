@@ -1,0 +1,39 @@
+--¿ç·þbossËÀÍö
+--#include "CrossBoss_Main.txt" once
+
+MonDieDispatcher.Mon653Die = function(monster,sysarg,monId)
+	CreateBossCommon(2)
+	OnAfterCrossBossDie(sysarg,monster,1)
+end
+
+MonDieDispatcher.Mon650Die = function(monster,sysarg,monId)
+	CreateBossCommon(3)
+	OnAfterCrossBossDie(sysarg,monster,2)
+end
+
+MonDieDispatcher.Mon651Die = function(monster,sysarg,monId)
+	CreateBossCommon(4)
+	OnAfterCrossBossDie(sysarg,monster,3)
+end
+
+MonDieDispatcher.Mon652Die = function(monster,sysarg,monId)
+	--CreateBossCommon(4)
+	OnAfterCrossBossDie(sysarg,monster,4)
+end
+
+--[[
+MonDieDispatcher.register(653, MonDieDispatcher.Mon653Die )
+MonDieDispatcher.register(650, MonDieDispatcher.Mon650Die )
+MonDieDispatcher.register(651, MonDieDispatcher.Mon651Die )
+MonDieDispatcher.register(652, MonDieDispatcher.Mon652Die ) 
+--]]
+
+
+--MonDieDispatcher.register(650, MonDieDispatcher.Mon653Die )
+--MonDieDispatcher.register(1566, MonDieDispatcher.Mon650Die )
+--MonDieDispatcher.register(1567, MonDieDispatcher.Mon651Die )
+--MonDieDispatcher.register(1568, MonDieDispatcher.Mon652Die )
+
+
+
+

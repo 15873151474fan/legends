@@ -1,0 +1,53 @@
+﻿  
+function FubenChallengeBookItem(sysarg,itemidx,itemPtr,ItemTable)
+  
+   --副本挑战书 
+   --print("fuben challenge book !!")
+ --  local var = Actor.getStaticVar(sysarg)
+ --  local fbBC = var.fbBC
+ --  if fbBC == nil then 
+ --  	var.fbBC = {}
+ --  	fbBC = var.fbBC
+ --  	fbBC[1] = 2
+ --  	fbBC[2] = 1
+ --  	fbBC[3] = 1
+ --  end 
+ --  local fbBT = var.fbBT 
+ --  if fbBT == nil then 
+ --  	var.fbBT = {}
+ --  	fbBT = var.fbBT
+ --  end
+ --  local t = System.getCurrMiniTime()
+ --  if fbBT[ItemTable.type] == nil then
+ --     fbBT[ItemTable.type] = t
+ --  end  
+     
+ --  if ( math.floor(fbBT[ItemTable.type]/LocalDT.TimeRewardConst.DAYTIME) ~= math.floor(t/LocalDT.TimeRewardConst.DAYTIME) ) then
+ --  	fbBC[1] = 2
+ --  	fbBC[2] = 1
+ --  	fbBC[3] = 1
+ --  end
+ --  if fbBC[ItemTable.type] < 1 then 
+ --  	Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00027,ttTipmsgWindow)
+ --    return
+ --  end
+ --  --print(Actor.getDayFubenCount(sysarg,ItemTable.type))
+	-- local count = Actor.getDayFubenCount(sysarg,ItemTable.type)
+ --  Actor.setDayFubenCount(sysarg,ItemTable.type,count+1)
+ --  --print(Actor.getDayFubenCount(sysarg,ItemTable.type))
+ --  fbBT[ItemTable.type] = t 
+ --  fbBC[ItemTable.type] = fbBC[ItemTable.type] - 1
+ --  if(ItemTable.needDelete) then --需要删除
+ --    Actor.removeItemByPtr(sysarg,itemPtr,1,true," ",5)      --删除一个物品
+ --  end
+
+end
+
+function AddFubenCountInit(sysarg)
+  for i = 1,table.getn(AddFubenCountItems) do
+	local x = AddFubenCountItems[i]
+	GlobalItemFn[x.item_id] = { func = FubenChallengeBookItem, params = x }
+  end
+end
+
+table.insert(InitFnTable,AddFubenCountInit)

@@ -1,0 +1,50 @@
+--lua script
+
+--幸运宝箱
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\LuckyBox\LuckyBoxConfig.txt" once
+
+--刷宝箱
+function FreshLuckyBox()	
+	local nRandNum1 = System.getRandomNumber(LuckyBoxConfig.maxRandomMaps) + 1		--随机最大的场景数
+	local mapList = {}
+	
+	local MaxMap = table.getn(LuckyBoxConfig.nSceeneGroup)
+	local randNum = System.getRandomNumber(MaxMap) + 1				
+
+	for i=1,nRandNum1 do					--在那些场景刷箱子
+		mapList[i] = randNum
+		local nBoxNum = System.getRandomNumber(LuckyBoxConfig.maxRandomBox) + 1			--在某个场景内刷的最大个数宝箱
+
+		local bHandle = Fuben.getSceneHandleById(LuckyBoxConfig.nSceeneGroup[randNum],0)
+		local maxWidth = Fuben.getSceenWidth(bHandle)
+		local maxHeight = Fuben.getScenHeight(bHandle)
+		
+		if maxWidth == 0 or maxHeight == 0 then 
+			break
+		end
+
+		for i=1,nBoxNum do
+			for j=1,1000 do
+				local randX = System.getRandomNumber(maxWidth) + 1
+				local randY = System.getRandomNumber(maxHeight) + 1
+				if Fuben.onCanMove(bHandle,randX,randY) == true then
+					Fuben.createMonster(bHandle,LuckyBoxConfig.monsterConig.id,randX,randY,LuckyBoxConfig.monsterConig.liveTime)
+					local str = string.format(Lang.Activity.t00092,Fuben.getSceneNameById(LuckyBoxConfig.nSceeneGroup[randNum]),randX,randY)
+					System.broadcastTipmsg(str,ttTipmsgWindow)
+					break
+				end
+			end
+		end
+
+		randNum = randNum + 1
+		if randNum > MaxMap then
+			randNum =  1
+		end
+	end
+end
+
+--百服活动中，昨天的消费排名清空
+function ResetDayHundredServerRank()
+	System.ClearHundredYestodayRank()
+end

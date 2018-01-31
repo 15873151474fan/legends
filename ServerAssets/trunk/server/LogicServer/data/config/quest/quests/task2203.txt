@@ -1,0 +1,67 @@
+﻿{
+	id = 2203,
+	name = Lang.Quest.q02862,
+	parentid = 2202,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q02863,
+
+	prom =
+  {
+    type = 0,
+	scene = Lang.SceneName.s00039,
+	npc = Lang.EntityName.n01040,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00039,
+	npc = Lang.EntityName.n01040,
+  },
+
+  target =
+  {
+     {type = 127, id = 31144,count = 1 ,data = Lang.Talk.t10026,location={ sceneid=39, x= 81,y =31}},
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 108480,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 1930,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 12, id = 0,count = 26 }, 
+},
+  --任务条件表
+  conds =
+  {
+
+    { type = 0, id = 0,count = 30 },  --1级可接
+    { type = 4, id = 0,count = 2 },
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t04293,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t04294,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t04295,
+  }, 
+
+  PromCheck = "OnAddItem",
+    PromCheckArg = {730, 1},
+  
+  
+  --送物类的任务，需要加上此函数获取任务物品。
+  
+  PromCallBack =  "OnPromAddItem",
+	PromCallBackArg = { 730,0,0,1,1},  
+},

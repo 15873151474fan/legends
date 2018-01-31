@@ -1,0 +1,452 @@
+﻿--楼层传送概率相关的定义
+--各个楼层对应一组配置 目前最大只支持20层 需要增加层数需程序支持修改rank配置
+--各楼层除了 sid与range 必须配置 与楼层1必须配置conds 外 其他楼层如不需其功能可以适当删除
+
+GiveFlootExp = {
+	Mins = 600,  --10分钟给一次经验
+	TabIdx = 2,		--任务库索引
+	ExpRates = {10,20,30,50,70,90,120,150,180,240,300,300},	--每层得到总经验比率
+	VipRate = 0,
+}
+
+
+FloorConfig = 
+{
+	--层数1 
+	[1] = 	--[层数ID] = {}
+	{
+		sid = 56,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围 
+		retScene = {sid = 4, range = {95,165,1,1}},	--sid层场景ID  range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h} 
+		actTime = 3600, --活动总时间（秒）
+		--传送所需条件 如 MustCount配置(2)，Condition配置 ({PROP_CREATURE_LEVEL, 60},{PROP_ACTOR_BATTLE_POWER, 10000}) ，
+		--则表示会检测玩家等级与战力是否同是满足，不满足显示CannotTips提示，如配置MustCount配置(1)，则检测等级 或 战力是否满足
+		conds =	--用于进入活动场景判断条件 仅需1层配置 其他层不用配置
+		{
+			MustCount = 1,						--需要最少的条件数
+			CannotTips = Lang.Activity.a00055,	--没有达到条件提示
+			Condition = 						--条件表
+			{
+				{PROP_CREATURE_LEVEL, 45},			--属性ID，条件值
+			},
+		},
+		upConsumes = {{type = 15, id = 0, count = 50},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 1, rate = {1,50}},
+			{fid = 2, rate = {51,100}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}	
+		},
+	},
+	
+	--层数2
+	[2] = 	--[层数ID] = {}
+	{
+		sid = 77,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 100},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 2, rate = {1,67}},
+			{fid = 3, rate = {68,100}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+		},
+	},
+	
+	--层数3
+	[3] = 	--[层数ID] = {}
+	{
+		sid = 78,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 150},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 3, rate = {1,75}},
+			{fid = 4, rate = {76,100}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+		},
+		floorAward =	--层奖励 如果配置floorAward = {}则不会显示领取菜单
+		{
+			{type = 20, id = 2, count = 240},
+		},
+		rankAward =		--排行榜奖励 配置floorAward = {} 或去掉则不会奖励
+		{
+			{
+				rankInterval = {1,1},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 300},
+					--{type = 0, id = 1, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+			{
+				rankInterval = {2,2},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 200},
+					--{type = 0, id = 2, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+			{
+				rankInterval = {3,3},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 100},
+					--{type = 0, id = 3, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+		},
+	},
+	
+	--层数4
+	[4] = 	--[层数ID] = {}
+	{
+		sid = 79,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 200},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 4, rate = {1,81}},
+			{fid = 5, rate = {82,100}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+		},
+	},
+	
+	--层数5
+	[5] = 	--[层数ID] = {}
+	{
+		sid = 80,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 250},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 5, rate = {1,82}},	
+			{fid = 6, rate = {83,100}},	
+		},
+	},
+	
+	--层数6
+	[6] = 	--[层数ID] = {}
+	{
+		sid = 81,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 300},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 5, rate = {1,5}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+			{fid = 6, rate = {6,79}},	
+			{fid = 7, rate = {80,100}},	
+		},
+		floorAward =	--层奖励 如果配置floorAward = {}则不会显示领取菜单
+		{
+			{type = 20, id = 2, count = 480},
+		},
+		rankAward =		--排行榜奖励 配置floorAward = {} 或去掉则不会奖励
+		{
+			{
+				rankInterval = {1,1},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 600},
+					--{type = 0, id = 1, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+			{
+				rankInterval = {2,2},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 400},
+					--{type = 0, id = 2, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+			{
+				rankInterval = {3,3},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 200},
+					--{type = 0, id = 3, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+		},
+
+	},
+	
+	--层数7
+	[7] = 	--[层数ID] = {}
+	{
+		sid = 82,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 350},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 6, rate = {1,5}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+			{fid = 7, rate = {6,82}},	
+			{fid = 8, rate = {83,100}},	
+		},
+	},
+	
+	--层数8
+	[8] = 	--[层数ID] = {}
+	{
+		sid = 83,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 400},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 7, rate = {1,5}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+			{fid = 8, rate = {6,82}},	
+			{fid = 9, rate = {83,100}},	
+		},
+	},
+	
+	--层数9
+	[9] = 	--[层数ID] = {}
+	{
+		sid = 84,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 450},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 8, rate = {1,5}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+			{fid = 9, rate = {6,82}},	
+			{fid = 10, rate = {83,100}},	
+		},
+		floorAward =	--层奖励 如果配置floorAward = {}则不会显示领取菜单
+		{
+			{type = 20, id = 2, count = 720},
+		},
+		rankAward =		--排行榜奖励 配置floorAward = {} 或去掉则不会奖励
+		{
+			{
+				rankInterval = {1,1},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 900},
+					--{type = 0, id = 1, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+			{
+				rankInterval = {2,2},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 600},
+					--{type = 0, id = 2, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+			{
+				rankInterval = {3,3},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 300},
+					--{type = 0, id = 3, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+		},
+
+	},
+	
+	--层数10
+	[10] = 	--[层数ID] = {}
+	{
+		sid = 85,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count =500},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 9, rate = {1,5}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+			{fid = 10, rate = {6,82}},	
+			{fid = 11, rate = {83,100}},		
+		},
+	},
+	
+	--层数11
+	[11] = 	--[层数ID] = {}
+	{
+		sid = 86,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+		upConsumes = {{type = 15, id = 0, count = 550},},		--爬上一层消耗
+		randConsumes = {{type = 5, id = 0, count = 100000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 10, rate = {1,5}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+			{fid = 11, rate = {6,82}},
+			{fid = 12, rate = {83,100}},	
+		},
+	},
+	
+	--层数12 
+	[12] = 	--[层数ID] = {}
+	{
+		sid = 87,        	--层数1 当前层场景ID 
+		range = {
+        {39,32,8,8},
+        {72,32,8,8},
+        {74,68,8,8},
+        {37,68,8,8},
+        },	--range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}随机传送点，可配置多个，但是知道其中一个范围
+--[[
+		randConsumes = {{type = 6, id = 0, count = 10000 },},	--percent = 0.5, rate = {1, 50},随机爬消耗 percent:随机爬返还% count*percent, rate:几率命中范围总范围(1-100)
+		trans = 
+		{
+			{fid = 11, rate = {1,3}},	--要传送的层配置 {fid:层数id,rate:概率命中范围{1,100}则取[1, 100] 总范围(1-100)}
+			{fid = 10, rate = {4,6}},	
+			{fid = 9,  rate = {7,10}},
+			{fid = 12, rate = {11,100}},	
+		},
+]]
+		oneCard = 		--星座卡兑换
+		{
+			consumes = 	--兑换消耗
+			{
+				{type = 0, id = 758, count = 1},
+				{type = 0, id = 759, count = 1},
+				{type = 0, id = 760, count = 1},
+				{type = 0, id = 761, count = 1},
+				{type = 0, id = 762, count = 1},
+				{type = 0, id = 763, count = 1},
+				{type = 0, id = 764, count = 1},
+				{type = 0, id = 765, count = 1},
+				{type = 0, id = 766, count = 1},
+				{type = 0, id = 767, count = 1},
+				{type = 0, id = 768, count = 1},
+				{type = 0, id = 769, count = 1},
+
+			},
+			awards =	--兑换产出
+			{
+				{type = 20, id = 2, count = 100},
+			},
+		},
+		allCard = 		--星宫卡兑换
+		{
+			consumes = 	--兑换消耗
+			{
+				{type = 0, id = 758, count = 1},
+				{type = 0, id = 759, count = 1},
+				{type = 0, id = 760, count = 1},
+				{type = 0, id = 761, count = 1},
+				{type = 0, id = 762, count = 1},
+				{type = 0, id = 763, count = 1},
+				{type = 0, id = 764, count = 1},
+				{type = 0, id = 765, count = 1},
+				{type = 0, id = 766, count = 1},
+				{type = 0, id = 767, count = 1},
+				{type = 0, id = 768, count = 1},
+				{type = 0, id = 769, count = 1},
+				
+			},
+			awards =	--兑换产出
+			{
+				{type = 20, id = 2, count = 1600},
+			},
+		},
+		
+		floorAward =	--层奖励 如果配置floorAward = {}则不会显示领取菜单
+		{
+			{type = 20, id = 2, count = 960},
+		},
+		rankAward =		--排行榜奖励 配置floorAward = {} 或去掉则不会奖励
+		{
+			{
+				rankInterval = {1,1},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 1200},
+					--{type = 0, id = 1, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+			{
+				rankInterval = {2,2},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 800},
+					--{type = 0, id = 2, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+			{
+				rankInterval = {3,3},		--排名区间
+				--奖励
+				awards=
+				{
+					{type = 20, id = 2, count = 400},
+					--{type = 0, id = 3, count = 1, quality = 0, strong = 0, bind = 1},		--积分第一名领取的奖励物品
+				},
+			},
+		}
+		
+	},
+	
+ 
+}

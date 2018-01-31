@@ -1,0 +1,14 @@
+﻿-- 排行榜指针变量 
+
+--领取补偿数据
+BackCompensateRankPt =
+{
+	RankName = "BackCompensate",
+	RankFile = "BackCompensate.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+		
+	},	
+	ClinetShowCount = 10,
+	ClientShow = 0,
+}

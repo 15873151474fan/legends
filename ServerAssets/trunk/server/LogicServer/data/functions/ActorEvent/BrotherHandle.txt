@@ -1,0 +1,138 @@
+﻿--lua script
+--处理结拜相关的操作
+
+BrotherOpFuncList = {}
+
+EventCallDispatcher.handlerBrotherOp = function ( sysarg, arg )
+  if arg[1] == nil then return end
+	local func = BrotherOpFuncList[arg[1]]
+	if func ~= nil then
+		func(sysarg,arg)
+	end
+end
+
+--修改称谓
+BrotherOpFuncList[bChangeName] = function(sysarg,arg)
+	local itemId = 1879	--”易名狼毫“的物品id
+	local name = arg[2]	--要改的新名字
+	if Actor.getBrotherGroupUpdateTime(sysarg) ~= 0 then
+		if Actor.getItemCount(sysarg,itemId) <= 0 then
+			Actor.messageBox(sysarg,0,0,Lang.ScriptTips.jb001,Lang.ScriptTips.x00078.."/buyThisItem,"..itemId,Lang.ScriptTips.x00069.."/cancelFunction",NULL)
+			return
+		end
+		Actor.removeItem(sysarg,itemId,1)
+	end
+	Actor.setBrotherName(sysarg,name)	--设置名字
+	Actor.sendBrotherMsg(sysarg,Lang.ScriptTips.jb002..name,ttScreenCenter)
+end
+
+--testbrothername = BrotherOpFuncList[bChangeName]
+
+--召唤
+BrotherOpFuncList[bCallBrother] = function(sysarg,arg)
+	local itemid1 = 1553			--召集令有两个，1553和1664 
+	local itemid2 = 1664 			--召集令有两个，1553和
+
+	local name = arg[2]				--被召唤人的名字
+	
+	local ActorPtr = System.getActorPtr(name)
+	if ActorPtr == nil then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb025,ttDialog)
+		return
+	end
+	if Actor.getBrotherGroupHandle(sysarg) ~= Actor.getBrotherGroupHandle(ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb029,ttTipmsgWindow)
+		return
+	end
+	
+	local fbid = Actor.getFubenId(sysarg)
+	local mfbid = Actor.getFubenId(ActorPtr)
+	if  fbid > 0  then 
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00007,ttDialog)
+		return
+	end
+	if mfbid > 0 then 
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00008,ttDialog)
+		return 
+	end
+	
+	local itemid = itemid1
+
+	if Actor.getItemCount(sysarg,itemid1) < 1 then								--判断是否有召唤令物品 
+		if Actor.getItemCount(sysarg,itemid2) < 1 then
+			Actor.messageBox(sysarg,0,0,Lang.ScriptTips.jb026,Lang.ScriptTips.x00078.."/buyThisItem,"..itemid2,Lang.ScriptTips.x00069.."/cancelFunction",NULL)
+			return
+		else
+			itemid = itemid2
+		end
+	end
+	
+	if not Actor.canUseItem(sysarg,itemid) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb028,ttDialog)
+		return
+	end
+	--通知对方
+	local npack = DataPack.allocPacket(ActorPtr,31,3)  --申请一个数据包
+	DataPack.writeString(npack,Actor.getName(sysarg))
+	DataPack.flush(npack)
+	
+	Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb027,ttTipmsgWindow)
+end
+
+--testfunc = BrotherOpFuncList[bCallBrother]
+
+--召唤回复
+BrotherOpFuncList[bCallResult] = function(sysarg,arg)
+	local itemid1 = 1553			--召集令有两个，1553和1664 
+	local itemid2 = 1664 			--召集令有两个，1553和
+
+	local name = arg[2]				--召唤人的名字
+
+	
+	local ActorPtr = System.getActorPtr(name)
+	if ActorPtr == nil then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb025,ttDialog)
+		return
+	end
+	if arg[3] == 0 then
+		local str = string.format(Lang.ScriptTips.jb034,Actor.getName(sysarg))
+		Actor.sendTipmsg(ActorPtr,str,ttTipmsgWindow+ttScreenCenter)
+		return	--拒绝
+	end
+	
+	if Actor.getBrotherGroupHandle(sysarg) ~= Actor.getBrotherGroupHandle(ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb029,ttTipmsgWindow)
+		return
+	end
+	
+	local fbid = Actor.getFubenId(sysarg)
+	local mfbid = Actor.getFubenId(ActorPtr)
+	if  fbid > 0  then 
+		return
+	end
+	if mfbid > 0 then 
+		return 
+	end
+	
+	local itemid = itemid1
+
+	if Actor.getItemCount(ActorPtr,itemid1) < 1 then								--判断是否有召唤令物品 
+		if Actor.getItemCount(ActorPtr,itemid2) < 1 then
+			return
+		else
+			itemid = itemid2
+		end
+	end
+	local fhandle = Actor.getFubenHandle(ActorPtr)
+	local sceneid = Actor.getSceneId(ActorPtr)
+	local posx = Actor.getIntProperty(ActorPtr,PROP_ENTITY_POSX)
+	local posy = Actor.getIntProperty(ActorPtr,PROP_ENTITY_POSY)
+	if Actor.enterFuBen(sysarg,fhandle,sceneid,posx,posy) then 
+		Actor.removeItem(ActorPtr,itemid,1,-1,-1,-1,"brother 召唤",2)
+	end
+end
+
+--测试完要及时去掉
+--testfunc1 = BrotherOpFuncList[bCallResult]
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeBrother, EventCallDispatcher.handlerBrotherOp)

@@ -1,0 +1,736 @@
+-- 春节活动
+-- 活动类型
+
+MultiPropDropItemConfig = 
+{
+	-- 领取喜庆爆竹
+	--[FestiveFirecrackers] = 
+	{
+		item_id = 1552, -- 喜庆爆竹id
+		attribute = { type = 0, id = 1552, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1, 
+		needDelete = true,
+		needYuanBao = 0,			--使用需要身上的最低元宝数
+		MinLevel = 50, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=1, day=28, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=2, day=28, hour=23,min=59,sec=59}}, -- 结束时间
+				
+		-- 使用items时间
+		UseTime = {startTime = {year=2013, month=1, day=28, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=2, day=28, hour=23,min=59,sec=59}}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 1, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops318.txt",
+			},
+			-- 18元宝领取
+			{
+				needMinBagGrid =2 ,
+				needYuanBao = 18,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops319.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops320.txt",
+			},
+			-- 188元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 188,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops321.txt",
+			},
+		}
+	},
+	-- 领取财神礼包
+	--[SpringFestivalGift] =
+	{
+		item_id = 1554,
+		attribute = { type = 0, id = 1554, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=1, day=28, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=2, day=8, hour=23,min=59,sec=59}}, -- 结束时间
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 4, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops322.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops323.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops324.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops325.txt",
+			},
+		}
+	},	
+	-- 黄金粽子
+	--[SpringFestivalGift] =
+	{
+		item_id = 2103,
+		attribute = { type = 0, id = 2103, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=1, day=28, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=2, day=8, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 4, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops508.txt",
+			},
+			-- 38元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 38,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops509.txt",
+			},
+			-- 188元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 188,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops510.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops511.txt",
+			},
+		}
+	},
+	-- 中秋礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 2431,
+		attribute = { type = 0, id = 2431, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=9, day=17, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=10, day=10, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 2, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops571.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =3 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops572.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops573.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops574.txt",
+			},
+		}
+	},
+	-- 国庆礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 2432,
+		attribute = { type = 0, id = 2432, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=9, day=17, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=10, day=10, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 2, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops575.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =3 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops576.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops577.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops578.txt",
+			},
+		}
+	},
+	-- 周年礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 2591,
+		attribute = { type = 0, id = 2591, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=11, day=20, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=11, day=30, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 2, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops591.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =3 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops592.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops593.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops594.txt",
+			},
+		}
+	},
+		--节日礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 2777,
+		attribute = { type = 0, id = 2777, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 50, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=12, day=20, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2014, month=1, day=10, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 3, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops621.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops622.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =6 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops623.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =6,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops624.txt",
+			},
+		}
+	},
+		--情人节礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 2839,
+		attribute = { type = 0, id = 2839, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 50, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个礼盒需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2014, month=2, day=14, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2014, month=2, day=18, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 3, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops638.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops639.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =6 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops640.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =6,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops641.txt",
+			},
+		}
+	},
+
+
+	--五一礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 2965,
+		attribute = { type = 0, id = 2965, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 50, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个礼盒需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2014, month=4, day=29, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2014, month=5, day=5, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 3, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops661.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops662.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =6 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops663.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =6,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops664.txt",
+			},
+		}
+	},
+
+
+	--八宝香粽
+	--[SpringFestivalGift] =
+	{
+		item_id = 2977,
+		attribute = { type = 0, id = 2977, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 50, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个礼盒需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2014, month=6, day=5, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2014, month=6, day=15, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 3, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops667.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =4 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops668.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =6 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops669.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =6,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops670.txt",
+			},
+		}
+	},
+	-- 国庆庆典礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 3147,
+		attribute = { type = 0, id = 3147, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2014, month=9, day=26, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2014, month=10, day=10, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 2, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops695.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =3 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops696.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops697.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops698.txt",
+			},
+		}
+	},
+	-- 双11 祈缘礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 3260,
+		attribute = { type = 0, id = 3260, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2014, month=11, day=10, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2014, month=11, day=14, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 2, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops709.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =3 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops710.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops711.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops712.txt",
+			},
+		}
+	},
+	-- 盛世礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 3298,
+		attribute = { type = 0, id = 3298, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2014, month=11, day=10, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2014, month=11, day=20, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 2, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops716.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =3 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops717.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops718.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops719.txt",
+			},
+		}
+	},
+	-- 清明礼盒
+	--[SpringFestivalGift] =
+	{
+		item_id = 3471,
+		attribute = { type = 0, id = 3471, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 50, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2015, month=4, day=4, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2015, month=4, day=8, hour=23,min=59,sec=59}}, -- 结束时间	
+				
+		-- 使用items时间
+		UseTime = {}, -- 结束时间
+		-- 选项
+		items =
+		{
+			-- 免费领取
+			{
+				needMinBagGrid = 2, -- 需要多少个格子
+				needYuanBao = 0,	--使用需要扣取元宝数
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops758.txt",
+			},
+			-- 88元宝领取
+			{
+				needMinBagGrid =3 ,
+				needYuanBao = 88,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops759.txt",
+			},
+			-- 388元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 388,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops760.txt",
+			},
+			-- 888元宝领取
+			{
+				needMinBagGrid =5 ,
+				needYuanBao = 888,			
+				dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops761.txt",
+			},
+		}
+	},
+
+}
+
+-- 领取开门利是
+	MoneyPacketConfig =
+	{
+		item_id = 1553,
+		attribute = { type = 0, id = 1553, count = 1, strong = 0, quality = 0, bind = 1 },
+		itemCount = 1,
+		needDelete = true,
+		MinLevel = 40, -- 50级以后才能领取
+		Circle = 0, -- 转数
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=2, day=17, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=2, day=19, hour=23,min=59,sec=59}}, -- 结束时间
+				
+		-- 使用items时间
+		UseTime = {startTime = {year=2013, month=1, day=30, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=3013, month=2, day=28, hour=23,min=59,sec=59}}, -- 结束时间
+		-- 选项
+		items = nil; -- 这个是没有选项面板的
+	}
+	--]]
+	-- 驱年兽
+NianConfig = { 
+		item_id = 1555,  -- 年兽角Id
+		-- itemCount = 1,
+		needDelete = true,
+		MinLevel = 1, -- 50级以后才能领取
+		--needMinBagGrid = 1, -- 领取一个爆竹需要多少格子
+		BigFestiveFirecrackers = {item_id = 1557,Price = 3,skillId = 157; skillLevel = 2}; -- 购买大爆竹需要多少元宝 
+		SmallFestiveFirecrackers = {item_id = 1558,Price = 10000,skillId = 157; skillLevel = 3}; -- 购买小爆竹需要多少金币 
+		SupremeJinlongId = 1388; -- 至尊金龙Id
+		-- 活动时间
+		ActivityTime = {startTime = {year=2013, month=4, day=18, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2023, month=2, day=28, hour=23,min=59,sec=59}}, -- 结束时间
+				
+		-- 使用items时间
+		UseTime = {startTime = {year=2013, month=1, day=28, hour=0,min=0,sec=0} -- 开始时间
+				,endTime = {year=2013, month=2, day=28, hour=23,min=59,sec=59}}, -- 结束时间
+		-- 选项
+		items = 
+
+		{	-- 年兽角数量    元宝数量       兑换到的物品id
+			{NianCount = 8,YuanBao = 1, Coin = 0, awards = {
+					-- 第一条奖励
+					{ type = 0, id = 545, count = 1, strong = 0, quality = 0, bind = 1 },
+					-- 第二条奖励
+					-- 在这里添加
+				}
+			},
+			{NianCount = 16,YuanBao = 0, Coin = 0, awards = {
+					{ type = 0, id = 276, count = 1, strong = 0, quality = 0, bind = 1 },
+				}
+			},
+			{NianCount = 888,YuanBao = 0, Coin = 0, awards = {
+					{ type = 0, id = 1388, count = 1, strong = 0, quality = 0, bind = 1 },
+				}
+			},
+			{NianCount = 88,YuanBao = 888, Coin = 0, awards = {
+					{ type = 0, id = 1388, count = 1, strong = 0, quality = 0, bind = 1 },
+				}
+			},
+		},
+	nSceenId = 2,			--刷怪的场景id
+	--采花大盗刷怪配置
+	monsters =
+	{
+		--每波怪物
+		{
+			--不同等级的配置
+			{nMonsterID = 882, posX1 = 315, posX2 = 320,  posY = 375, nCount = 1, nLiveTime = 3600,},	--BOSS
+
+			{nMonsterID = 883, posX1 = 290, posX2 = 315,  posY = 350, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 884, posX1 = 325, posX2 = 340,  posY = 360, nCount = 2, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 295, posX2 = 315,  posY = 370, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 884, posX1 = 310, posX2 = 330,  posY = 380, nCount = 2, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 302, posX2 = 322,  posY = 395, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 884, posX1 = 295, posX2 = 315,  posY = 385, nCount = 2, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 300, posX2 = 325,  posY = 375, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 285, posX2 = 300,  posY = 365, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 325, posX2 = 340,  posY = 395, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 315, posX2 = 340,  posY = 370, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 285, posX2 = 310,  posY = 390, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 285, posX2 = 305,  posY = 375, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 300, posX2 = 320,  posY = 355, nCount = 5, nLiveTime = 3600,},	--小怪
+			{nMonsterID = 883, posX1 = 280, posX2 = 300,  posY = 360, nCount = 4, nLiveTime = 3600,},	--小怪
+
+
+		},
+		-- 其他在后面添加
+	},
+	}
+	--]]

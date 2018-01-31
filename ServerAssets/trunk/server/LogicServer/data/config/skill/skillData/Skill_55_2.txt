@@ -1,0 +1,96 @@
+--火光
+{
+
+	actions=
+	{
+		{act=0,effect=65,},
+	},
+	
+	desc=Lang.Skill.s13L1Desc,--技能的描述
+	
+	iconID=13,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+				
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+                  
+					conds=
+					{
+						{cond = 13,value =1},
+					},
+					results=
+					{
+			     	{mj=0,timeParam=1,type=4,delay=0, rate=12000,value=105,interval=105},
+					{mj=0,timeParam=1,type=28,value=3},
+					},
+
+					specialEffects=
+					{
+					--{type=4,mj=0,id=46,keepTime=400,delay=200,always=true},				
+					},
+				},
+			},
+		},
+		
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+                     targetType=1,
+					conds=
+					{
+						{cond = 13,value =1},
+					},
+					results=
+					{
+			     	--{mj=0,timeParam=1,type=4,delay=0, rate=12000,value=105,interval=105},
+					--{mj=0,timeParam=1,type=28,value=3},
+					},
+
+					specialEffects=
+					{
+					{type=4,mj=0,id=46,keepTime=400,delay=200,always=false},				
+					},
+				},
+			},
+		},
+		
+	},
+
+	trainConds=
+	{
+		--{cond=1,value=26,consume=false},--表示等级要1级
+		--{cond=3,value=436,consume=true,exceptVip=true },--表示书本
+	},
+	
+	spellConds=
+	{
+		--{cond=35,value=1,consume=false},
+		{cond=13,value=8,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=10000,
+
+},

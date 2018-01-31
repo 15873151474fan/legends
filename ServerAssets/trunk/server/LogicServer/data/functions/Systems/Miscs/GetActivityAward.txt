@@ -1,0 +1,158 @@
+--玩家领取活跃度奖励
+--#include "data\config\store\ActivityConfig.txt" once
+--#include "data\functions\Activity\Festival\OldPlayerBack.txt" once  --老玩家回归
+
+MiscsImplement.getActivltyAwardFunc = function (sysarg,msgid, packet)
+  local type = DataPack.readByte(packet)
+	--print("type:"..type)
+  --if type == nil then return end
+  local bMask = Actor.getSocialMask(sysarg, 8)		--今天是否领取奖励
+  --print(bMask)
+  if bMask == true then
+	local npack = DataPack.allocPacket(sysarg,139,36)      
+	if npack == nil then return end
+	DataPack.writeByte(npack,0)
+	DataPack.flush(npack)
+	Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00169,ttDialog )
+	return
+  end
+
+ local bType = 1
+ if bMask == false then
+	local drawAcitivity = Actor.getIntProperty(sysarg,PROP_ACTOR_ACTIVITY)	--活跃度
+		
+	local newActivity = drawAcitivity
+	local iStyle = 0
+	local count = table.getn(ActivityAwardConfig.needActivity)
+	
+	if count == 0 then return end
+
+	if (drawAcitivity < ActivityAwardConfig.needActivity[1]) then
+		local str1 = Lang.ScriptTips.x00170
+		Actor.sendTipmsg( sysarg, str1,ttDialog ) 
+		bType = 0
+	end
+	--print("btype"..bType)
+	if bType == 1 then
+		for i=1,count do
+			if (drawAcitivity >= ActivityAwardConfig.needActivity[i]) then
+				iStyle = i
+				newActivity = ActivityAwardConfig.needActivity[i]
+			end
+		end
+	end
+	
+	--背包不够
+	local nGridCount= Item.getBagEmptyGridCount(sysarg)
+	local needBag = 1
+
+	if(nGridCount < needBag) then
+		local tipmsg= string.format(Lang.ScriptTips.x00074,needBag) --通知用户，需要空出多少个空格
+		Actor.sendTipmsg( sysarg, tipmsg,ttDialog )
+		return
+	end
+
+	if iStyle>0 and iStyle <= table.getn(ActivityAwardConfig.items) then
+		local itemID = ActivityAwardConfig.items[iStyle].itemID
+		local itemQuality = ActivityAwardConfig.items[iStyle].quality
+		local itemStrong = ActivityAwardConfig.items[iStyle].strong
+		local itemCount =1-- ActivityAwardConfig.items[iStyle].price.count
+		local itemName = Item.getItemName(itemID) or ""
+
+		Actor.addItem(sysarg,itemID,itemQuality,itemStrong,itemCount,0)
+		--Actor.setUIntProperty(sysarg, PROP_ACTOR_ACTIVITY,newActivity)
+		Actor.setSocialMask(sysarg, 8,true)
+		--print(itemName)
+		local str2 =  string.format(Lang.ScriptTips.x00186,itemName,newActivity)
+		Actor.sendTipmsg( sysarg, str2,ttDialog )
+
+		bType = 1
+	else
+		bType = 0
+	end
+       
+       	local spack = DataPack.allocPacket(sysarg,139,36)      
+	if spack == nil then return end
+	DataPack.writeByte(spack,bType)
+	DataPack.flush(spack)
+	return
+    end
+ end 
+
+
+function MiscsImplement.OnOldPlayerBack(sysarg,msgid, packet)
+	local nType = DataPack.readByte(packet)
+	if nType == 1 then
+		local netPack = DataPack.allocPacket(sysarg,139,67)
+		if netPack then
+			local sVar = Actor.getStaticVar( sysarg ) 
+			local days = sVar.oldPlyBackDays or 0
+			local inviteName = GetMyJoinTimes(sysarg)
+			local drawYbCount = Actor.getIntProperty(sysarg, PROP_ACTOR_DRAW_YB_COUNT)
+			DataPack.writeWord(netPack, days)
+			DataPack.writeUInt(netPack, drawYbCount)
+			DataPack.writeString(netPack, inviteName)
+			for k, v in pairs(OldPlayerBackConfig.ActivityAward) do
+				local flag = 0
+				if sVar.OldPlayerActivity then
+					flag = sVar.OldPlayerActivity[k] or 0
+				end
+				DataPack.writeByte(netPack, flag)
+			end
+
+			local rankName = Lang.Rank.oldPlayerBack 
+			local ranking = Ranking.getRanking( rankName )
+			if ranking then
+				local count = Ranking.getRankItemCount(ranking)
+				if count > OldPlayerBackConfig.RankCount then
+					count = OldPlayerBackConfig.RankCount
+				end
+				DataPack.writeByte(netPack, count)
+				for i = 0, count-1 do
+					local pItem = Ranking.getItemFromIndex(ranking, i)
+					if pItem then
+						local point = Ranking.getPoint(pItem)
+						DataPack.writeString(netPack, Ranking.getSub(pItem, 0))
+						DataPack.writeWord(netPack, point)
+					end
+				end
+				DataPack.flush(netPack)
+			end
+		end
+	elseif nType == 2 then
+		local nVal = 0
+		nVal = DataPack.readByte(packet)
+		GetActivityAward(sysarg, nVal)
+	elseif nType == 3 then
+		if GetMyJoinTimes(sysarg) ~= "" then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.opback02, ttFlyTip)
+			return
+		end
+		local sName = DataPack.readString(packet)
+		if sName == Actor.getName(sysarg) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.opback11, ttFlyTip)
+			return
+		end
+		if CheckOldPlayer(sysarg) then
+			local actorPtr = Actor.getActorPtrByName(sName)
+			if actorPtr then
+				AddMyJoinTimes(sysarg, sName)
+				SendMsgToOldPlayer(sysarg, sName)
+			else
+				Actor.queryActorName(sysarg, sName)
+			end
+		end
+	end
+end
+
+function MiscsImplement.OnSimulatCross(sysarg,msgid, packet)
+	--print("msgid",msgid,Actor.getName(sysarg))
+	System.telportScene(sysarg, 8, 117, 189)
+	Actor.reqTransmitToCommonServer(sysarg)
+
+end
+
+
+ MiscsImplement.registerMsgHandler(37, MiscsImplement.getActivltyAwardFunc)
+ MiscsImplement.registerMsgHandler(74, MiscsImplement.OnOldPlayerBack)
+--MiscsImplement.registerMsgHandler(75, MiscsImplement.OnSimulatCross)

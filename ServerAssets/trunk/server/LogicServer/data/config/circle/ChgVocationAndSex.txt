@@ -1,0 +1,36 @@
+
+--转职转性配置
+
+ChgVocationAndSex = 
+{
+	openDay = 6,	--开放功能 开服天数
+	combineDay = 6,		--合服后天数
+
+	minLev = 40,		--一键升技能的等级
+
+	scene = {id = 116, x = 77, y = 70},	--转换场景
+	
+	vocation = --转职业
+	{
+		reqLevel = 1,	--转职等级
+		reqCircle = 1,	--转职转数
+		guideId = 12,	--电影ID
+		consumes = 
+		{
+			{type = 0, id = 956, count = 1, buyTip = 1},	--buyTip:道具不足，提示玩家购买必须为商城物品 
+			
+		},
+	},
+	
+	sex = 	--变性别
+	{
+		reqLevel = 65,	--转换等级
+		reqCircle = 0,
+		guideId = 11,	--电影ID
+		consumes = 
+		{
+			{type = 0, id = 957, count = 1, buyTip = 1},
+		},
+	},
+
+}

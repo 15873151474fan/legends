@@ -1,0 +1,109 @@
+﻿--#include "data\config\activityconfig\SnowArea\SnowArea.txt" once
+
+--#include "data\functions\Activity\Common\Consumes.txt" once --活动通用 消耗
+--#include "data\functions\Activity\Common\Awards.txt" once --活动通用 奖励
+
+
+function WealthMain(sysarg)
+	
+	local dvar = System.getDyanmicVar()
+	local SnowTeleport = tonumber(dvar.SnowTeleport)
+	
+	if not SnowTeleport or SnowTeleport > table.getn(SnowAreaConfig.dest) then
+		return Lang.Activity.sa004
+	end
+	
+	local config = SnowAreaConfig.dest[SnowTeleport]
+	if (not config or not config.floors) then return "" end
+	
+	local nSid = Actor.getSceneId(sysarg)
+	local fIndex = GetFloorIndex(config.actScene, nSid)
+	
+	
+	local floorConfig = config.floors[fIndex]
+	if not floorConfig then return "" end
+	
+	local consume = floorConfig.consume
+	local desc = Item.getAwardDesc(consume.type, consume.id)
+	local str = ""
+	str = str.."\\<#BL"..string.format(Lang.Activity.sa008,consume.count,desc).."/@ThrowDice>"  --<投掷骰子>
+	str = str.."\\<#BL"..Lang.Activity.sa003.."/@exit>"  --<离开>
+	return str
+end
+
+--投掷骰子
+function ThrowDice(sysarg)
+	local dvar = System.getDyanmicVar()
+	local SnowTeleport = tonumber(dvar.SnowTeleport)
+	
+	if not SnowTeleport or SnowTeleport > table.getn(SnowAreaConfig.dest) then
+		return Lang.Activity.sa004
+	end
+	
+	local config = SnowAreaConfig.dest[SnowTeleport]
+	if (not config) then return "" end
+	
+	local nSid = Actor.getSceneId(sysarg)
+	local fIndex = GetFloorIndex(config.actScene, nSid)
+	
+	local floorConfig = config.floors[fIndex]
+	if not floorConfig then return end
+	
+	--随机判断
+	local randNum = math.random(10000)
+	local rate = 0
+	local point = 1		--默认为1 以防没命中的情况
+	for k, v in ipairs(floorConfig.points) do
+		rate = rate + v
+		if rate >= randNum then
+			point = k
+			break
+		end
+	end
+	
+	local transFloor = fIndex + point
+	local totalFloor = table.getn(config.floors)+1
+	--print(totalFloor)
+	if transFloor > totalFloor then
+		transFloor = totalFloor - (transFloor - (totalFloor))
+	end
+	
+	if not config.actScene[transFloor] then
+		transFloor = 1
+	end
+	
+	if Awards.CheckBagGridCount(sysarg, {floorConfig.award}) ~= true then return end
+	
+	--消耗
+	if Consumes.CheckAndRemove(sysarg, {floorConfig.consume}, 924, Lang.LogTips.l00183) ~= true then return end
+	
+	Awards.Give(sysarg, {floorConfig.award}, 924, Lang.LogTips.l00183)
+	
+	local davar = Actor.getDyanmicVar(sysarg)
+	davar.SnowFloor = transFloor
+	
+	--OnThrowDice(sysarg)
+	local pack = DataPack.allocPacket(sysarg,139,74)      
+	if pack == nil then return end
+	DataPack.writeByte(pack, point)
+	DataPack.writeByte(pack, 1)
+	DataPack.flush(pack)
+	
+	Actor.closeNPCDialog(sysarg) 
+end
+
+
+
+--获取当前层数
+function GetFloorIndex(floorConfig, sceneId)
+	for k, v in pairs(floorConfig) do
+		if v == sceneId then
+			return k
+		end
+	end
+	System.trace("Error:Can't find floor config!")
+	return 0
+end
+
+
+table.insert(MainFnTable, WealthMain)

@@ -1,0 +1,70 @@
+﻿--驯兽擂台
+{
+	scenceid = 234,
+	scencename = Lang.SceneName.s00234,
+	mapfilename = "234Xunshouleitai",
+	minlevel = 70,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,  
+	music = "leitai.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 144,
+	sceneHeight = 120,
+	--posx = 168,
+	--posy = 126,
+	sceneType=1, --场景类型,0表示普通场景，1表示活动场景，2表示副本场景,3挂机地图, 4温泉地图, 5九天冰宫, 6深渊烈域
+	area =
+	{
+		{ name = Lang.SceneName.s00234, range = { 10,10,20,20,30,25 }, center = { 74,76 }, 
+		  attri = {
+				{type=18,value = {}},
+				{type=19,value = {}},
+				{type=40,value = {}},
+				{type=3,value = {}},
+				{ type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274} },
+		    	{ type = 33,  value = {56,57,58} },
+			    { type = 23,  value = {1,2,3,4} },
+			    { type = 30,  value = {1,2,3,4} },
+				{type=36,value = {60,12}},--等级、转数
+		    	{type=50,value = {4}},--全体模式
+				{type=102,value = {8,148,179}},--切场景改变安全复活点
+				--{type=76,value = {159,-1}},
+			}
+		},	--默认配置场景，可以穿怪
+		{ name = Lang.SceneName.a00000, range = { 65,72,81,72,81,84,65,84 }, center = { 74,79 }, attri = {{type=1,value = {}},{type=46,value = {}},{type=83,value = {}},{type=60,value = {}},}},	--安全复活区
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+----#include "refresh234.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+        {name = Lang.EntityName.n00327, posx = 74, posy = 78,script = "data/script/Xunshouleitai/Xunshoushi.txt",modelid = 52,icon = 1,funcId = 0}, 
+	},
+
+  teleport =
+  {
+  --传送点设置
+	--{ posx = 24, posy = 33,toSceneid = 233,toPosx = 69, toPosy = 172,modelid = 50000,name = Lang.SceneName.s00233 },  --驯兽擂台→海妖城
+  },
+  
+  landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=65,posy1=72,posx2=81,posy2=84,modelid=3,xinterval=2,yinterval=2},  --安全区的路灯
+		
+ },
+
+},

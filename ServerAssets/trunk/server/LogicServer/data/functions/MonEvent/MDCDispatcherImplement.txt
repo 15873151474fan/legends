@@ -1,0 +1,60 @@
+﻿--#ifndef _MONSTER_DIE_DISPATCHER_INCLUDED_
+--#define _MONSTER_DIE_DISPATCHER_INCLUDED_
+
+local MonDieDispatcher = {}
+
+MonDieDispatcher.register = function (monId, proc)
+  --if proc then
+     --print("MonDieDispatcher.register proc  with monId "..monId)
+  --end
+  if not proc then
+    print("MonDieDispatcher.register proc is nil with monId "..monId)
+  end
+  monId = tonumber(monId)
+  local i
+  local callTable = MonDieDispatcher[monId]
+  if not callTable or type(callTable) ~= "table" then
+    MonDieDispatcher[monId] = {}
+      --注册这个怪物死亡需要触发脚本 
+      System.registerMonsterDeath(monId,true)
+  else
+    for i = 1, #callTable do
+      if callTable[i] == proc then
+        return false
+      end
+    end
+  end
+  --这里不能用局部table插入，否则不会修改到MonDieDispatcher中
+  table.insert(MonDieDispatcher[monId], proc)
+  return true
+end
+
+MonDieDispatcher.unregister = function (monId, proc)  
+  monId = tonumber(monId)   
+  local i
+  local callTable = MonDieDispatcher[monId]
+  for i = 1, #callTable do
+    if callTable[i] == proc then
+      --这里不能从局部table中删除，否则不会修改到MonDieDispatcher中
+      table.remove(MonDieDispatcher[monId], i)
+      return true
+    end
+  end
+  return false
+end
+
+MonDieDispatcher.dispatch = function (monster, sysarg, monId, ...)  
+  local i
+  --print("monId:"..monId)
+  local callTable = MonDieDispatcher[monId]
+  --print("len:"..table.getn(callTable))
+  if callTable then
+    --print("---------------")
+    for i = 1, #callTable do
+      
+      callTable[i](monster, sysarg, monId, ...)
+    end
+  end
+end
+
+--#endif //_MONSTER_DIE_DISPATCHER_INCLUDED_

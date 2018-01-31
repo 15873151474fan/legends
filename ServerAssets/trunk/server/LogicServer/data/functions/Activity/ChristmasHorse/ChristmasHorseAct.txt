@@ -1,0 +1,120 @@
+
+--lua script 
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasHorseAct.txt" once
+--#include "data\functions\Activity\ChristmasHorse\ChristmasSnowman.txt" once -- 圣诞节全民堆雪
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseTurntable.txt" once --圣诞转盘 
+--#include "data\functions\Activity\AnniversaryHorse\Celebration.txt" once --圣诞礼物（周年庆典）
+--#include "data\functions\Activity\ChristmasHorse\ChristmasSnowman.txt" once --全民堆雪人
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseLuckDraw.txt" once --圣诞老虎机  
+
+--登陆处理
+function ChristmasHorseLoginHandle(sysarg)
+	local activityTime = {}
+	for k, v in ipairs(ChristmasHorseActConfig.actTime) do 
+		table.insert(activityTime, v)
+	end
+
+	if System.isInDateRange(unpack(activityTime)) == true then
+		SendChristmasHorseOpenFlag(sysarg, 1)
+	end
+	
+	--如果不在活动时间 则屏蔽雪人
+	local sysVar = System.getDyanmicVar()
+	if System.isInDateRange(unpack(ChristmasHorseActConfig.actTime)) == false then
+		if not sysVar.SnowManFlag then
+			for i=1,5 do
+				local npcPtr = SnowManGetNpcPtr(i)
+				if npcPtr then
+					--Actor.setEntityVisibleFlag(npcPtr, false)
+				end
+			end
+			sysVar.SnowManFlag = true
+		end
+	else
+		if sysVar.SnowManFlag then --如果是活动时间则仅仅处理一次，显示雪人
+			for i=1,5 do
+				local npcPtr = SnowManGetNpcPtr(i)
+				if npcPtr then
+					Actor.setEntityVisibleFlag(npcPtr, true)
+				end
+			end
+			sysVar.SnowManFlag = nil
+		end
+	end
+
+	--登录判断雪人模型
+	if System.isInDateRange(unpack(ChristmasHorseActConfig.actTime)) == true then
+		if not sysVar.SnowManID then
+			LoginSetSnowManID()
+			sysVar.SnowManID = true
+		end
+	end
+end
+
+--新的一天处理
+function ChristmasHorseNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(ChristmasHorseActConfig.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(ChristmasHorseActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendChristmasHorseOpenFlag(sysarg, 1)
+		end		
+	else
+		local activityTime = {}
+		for k, v in ipairs(ChristmasHorseActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[1] = activityTime[7]
+		activityTime[2] = activityTime[8]
+		activityTime[3] = activityTime[9] + 1
+		activityTime[9] = activityTime[9] + 1
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendChristmasHorseOpenFlag(sysarg, 0)
+		end
+	end
+
+end
+
+function SendChristmasHorseOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 105)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end
+
+
+--马年圣诞活动0点重置
+function ResetChristmasHorse()
+	ClearXMasBuyItemData() --堆雪人活动 
+	ClearCelebration() --圣诞礼物活动
+	
+	ResetLuckDrawData(1) --重置圣诞老虎机  
+	
+end
+
+--马年圣诞活动结束清除数据
+function OnClearChristmasHorse()
+	ClearXMasData() --堆雪人活动
+
+	--清除圣诞充值
+	CloseRechargeCommon(14)
+	--清除圣诞转盘数据  
+	ClearChrTurntableData(1) 
+	--清除圣诞老虎机数据
+	ClearLuckDrawData(1) 
+	
+
+	ClearCelebration()--活动结束后发放忘记领取的在线奖励
+
+end
+
+

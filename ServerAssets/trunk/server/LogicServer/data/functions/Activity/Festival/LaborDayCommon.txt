@@ -1,0 +1,103 @@
+--lua script
+--#include "data\config\activityconfig\Festival\LaborDayHorseActive.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "LanternFestivalCommon.txt" once
+
+--登录处理
+function LaborDayLoginHandle(sysarg)
+	if System.isInDateRange(unpack(LaborDayHorseActiveConfig.actTime)) == true then
+		SendLaborDayOpenFlag(sysarg, 1)
+		--SendShoppingStat(sysarg, 2, 0)
+	end
+end
+
+--新一天处理
+function LaborDayNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(LaborDayHorseActiveConfig.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(LaborDayHorseActiveConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendLaborDayOpenFlag(sysarg, 1)
+			--SendShoppingStat(sysarg, 2, 0)
+		end
+	else
+		local activityTime = {}
+		for k, v in ipairs(LaborDayHorseActiveConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[3] = activityTime[9]
+		activityTime[9] = activityTime[9] + 1
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendLaborDayOpenFlag(sysarg, 0)
+			--SendShoppingStat(sysarg, 2, 1)
+		end
+	end
+end
+
+--下发五一活动开启状态
+function SendLaborDayOpenFlag(sysarg, nOpenFlag)
+	local pack = DataPack.allocPacket(sysarg, 52, 32)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nOpenFlag)
+		DataPack.flush(pack)
+	end
+end
+
+--领取五一礼包
+function GetLaborDayGift(sysarg)
+	-- local config = LaborDayHorseActiveConfig
+	-- if not config then return end
+
+	-- if System.isInDateRange(unpack(config.actTime)) ~= true then
+	-- 	return
+	-- end
+	
+	-- local laborDayGift = config.laborDayGift
+	-- if not laborDayGift then return end
+
+	-- if Actor.checkActorLevel(sysarg, laborDayGift.limitLevel, laborDayGift.limitCircle) ~= true then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.wy0003,laborDayGift.limitCircle,laborDayGift.limitLevel), ttFlyTip)
+	-- 	return
+	-- end
+
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- if not svar then
+	-- 	return
+	-- end
+
+	-- local y = 0
+	-- local m = 0
+	-- local d = 0
+	-- y,m,d = System.getDate( y, m, d )
+
+	-- --今天已经领取过
+	-- if svar.getLaborGiftDay == d then  
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.wy0004, ttFlyTip)
+	-- 	return
+	-- end
+
+	-- local awards = config.laborDayGift.awards
+	-- if not awards then return end
+
+	-- if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+	-- 	for i=1,table.getn(awards) do
+	-- 		Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,962,Lang.Activity.wy0005)
+	-- 	end
+	-- 	svar.getLaborGiftDay = d
+	-- end
+end
+
+--详情
+function AboutLaborDay(sysarg)
+	local str = ""
+	str = str..Lang.Activity.wy0006
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@LaborDay_main>"  --<返回>
+	return str
+end

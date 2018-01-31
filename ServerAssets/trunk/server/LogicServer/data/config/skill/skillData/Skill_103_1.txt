@@ -1,0 +1,98 @@
+﻿--马场图腾3	定时向周围一定范围的玩家释放雷电术，被击中的玩家，血量减少10%
+{
+
+	actions=
+	{
+	--	{act=1,effect=9,},
+	},
+	
+	desc=Lang.Skill.s7L1Desc,--技能的描述
+	
+	iconID=7,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+				    targetType=1,--没有目标筛选也可以施放，如果有always 
+					conds=
+					{
+					--	{cond = 3,value =1},
+					},
+					results=
+					{
+						--{mj=0,timeParam=1,type=1,delay=0,  buffType=56,id=45,rate=0,value=1,interval=5,vt=0,effectType=6,effectId=50 },
+					},
+
+					specialEffects=
+					{
+						--{type=3,mj=0,id=6,keepTime=60,delay=300,always=false},
+						{type=4,mj=0,id=9,keepTime=400,delay=0,always=false},	
+					},
+				},
+			},
+		},
+		
+		
+		
+		
+		{
+
+			xStart=-10,--相对于中心点x左边的相对坐标
+			xEnd=10,--相对于中心点x右边的相对坐标
+			yStart=-10,--相对于中心点y上边的相对坐标
+			yEnd=10,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=21},--技能说话					
+						{mj=0,timeParam=1,type=47,delay=0, id=1,rate=-1000},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=10,keepTime=400,delay=0,always=false},				
+					},
+				},
+			},
+		},
+		
+	
+		
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=6,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=10000,
+
+},

@@ -1,0 +1,262 @@
+--抽奖记录公共处理
+
+--lua script
+
+--下发全服抽奖的记录
+--config 活动配置
+--logType 类型 1.全部 2.抽1个 3.抽10个
+--allDrawLogTab 往新日志新添加的日志数据
+--globalAllDrwaLog 全局全服日志表
+--msgId 消息id
+--subMsgId 子消息id
+function SendAllDrawLog(sysarg, config, logType, allDrawLogTab, globalAllDrwaLog, msgId, subMsgId)
+	--local count = table.getn(chrAllLuckDrawLog) 
+	local count = table.getn(globalAllDrwaLog)   	
+	if count <= 0 then
+		return
+	end
+	
+	--local pack = DataPack.allocPacket(sysarg, 145, 116) 
+	local pack = DataPack.allocPacket(sysarg, msgId, subMsgId) 
+	if not pack then
+		return 
+	end
+	
+	DataPack.writeByte(pack, config.ldIdx)
+	DataPack.writeByte(pack, logType)
+	if logType == 1 then  --发全部
+		local perActTempTab = GetAllDrawLog(config, globalAllDrwaLog)   
+		if table.getn(perActTempTab.logTab or {}) > 0 then
+			DataPack.writeByte(pack, table.getn(perActTempTab.logTab))
+			for i = 1, table.getn(perActTempTab.logTab) do
+				local tmpTab = perActTempTab.logTab[i]
+				DataPack.writeString(pack, (tmpTab[1] or ""))
+				DataPack.writeInt(pack, (tmpTab[2] or 0))   
+			end
+		else
+			DataPack.writeByte(pack, 0)
+		end
+		DataPack.flush(pack)
+	else
+		local addCount = table.getn(allDrawLogTab) or 0  
+		DataPack.writeByte(pack, addCount)
+		if addCount > 0 then
+			for i = 1, addCount do  
+				local tmpTab = allDrawLogTab[i]
+				DataPack.writeString(pack, tmpTab[1] or " ")  
+				DataPack.writeInt(pack, tmpTab[2]) 
+			end
+		end
+		DataPack.flush(pack)		
+	end
+	 
+end
+ 
+--下发单个抽奖的记录
+--config 活动配置
+--logType 类型 1.全部 2.抽1个 3.抽10个
+--perDrawLogTab 往新日志新添加的日志数据
+--globalPerDrwaLog 全局个人日志表
+--msgId 消息id
+--subMsgId 子消息id
+function SendPersonDrawLog(sysarg, config, logType, perDrawLogTab, globalPerDrwaLog, msgId, subMsgId)  
+	--local count = table.getn(chrPersonLuckDrawLog)  
+	local count = table.getn(globalPerDrwaLog)  
+	if count <= 0 then 
+		return
+	end
+	
+	--local pack = DataPack.allocPacket(sysarg, 145, 117) 
+	local pack = DataPack.allocPacket(sysarg, msgId, subMsgId) 
+	if not pack then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	DataPack.writeByte(pack, config.ldIdx)
+	DataPack.writeByte(pack, logType)
+	if logType == 1 then --发全部
+		local perActorTempTab = GetPersonDrawLog(config, actorId, globalPerDrwaLog)
+		if table.getn(perActorTempTab.logTab or {}) > 0 then	
+			DataPack.writeByte(pack, table.getn(perActorTempTab.logTab))
+			for i = 1, table.getn(perActorTempTab.logTab) do
+				DataPack.writeInt(pack, (perActorTempTab.logTab[i] or 0)) 
+			end
+		else
+			DataPack.writeByte(pack, 0)   
+		end
+		DataPack.flush(pack)
+	else 
+		local addCount = table.getn(perDrawLogTab) or 0
+		DataPack.writeByte(pack, addCount)
+		if addCount > 0 then
+			for k, v in ipairs(perDrawLogTab) do 
+				DataPack.writeInt(pack, v) 
+			end
+		end
+		DataPack.flush(pack)
+	end
+			
+end
+
+
+--chrAllDrawLog = { {idx = 1, logTab = {{name, itemid},}},  }
+--更新全服抽奖记录
+--config 配置
+--actorName 玩家名称
+--itemId 物品id
+--globalAllDrwaLog 全局全服日志表
+function UpdateAllDrawLog(config, actorName, itemId, globalAllDrwaLog)  
+	local perActTempTab = {} --每个活动的全服抽奖记录
+	local isExit = false
+	
+	--for k, v in ipairs(chrAllLuckDrawLog) do
+	for k, v in ipairs(globalAllDrwaLog) do
+		if v.idx == config.ldIdx then
+			perActTempTab = v
+			isExit = true
+			break
+		end
+	end
+	
+	if isExit == false then
+		perActTempTab.idx = config.ldIdx
+		perActTempTab.logTab = {}
+		--table.insert(chrAllLuckDrawLog, perActTempTab) 	
+		table.insert(globalAllDrwaLog, perActTempTab) 
+	end
+	
+	local tempTab = {}
+	table.insert(tempTab, actorName)
+	table.insert(tempTab, itemId)
+	table.insert(perActTempTab.logTab, tempTab)	
+	if table.getn(perActTempTab.logTab) > config.maxLogCount then  
+		table.remove(perActTempTab.logTab, 1)
+	end
+	
+end
+
+--清除全服抽奖记录
+--config 配置
+--globalAllDrwaLog 全局全服日志表
+function ClearAllDrawLog(config, globalAllDrwaLog)
+	--for k, v in ipairs(chrAllLuckDrawLog) do
+	for k, v in ipairs(globalAllDrwaLog) do
+		if v.idx == config.ldIdx then   
+			v.logTab = {}
+			break
+		end
+	end
+end
+
+
+--获取全服抽奖记录
+--config 配置
+--globalAllDrwaLog 全局全服日志表
+function GetAllDrawLog(config, globalAllDrwaLog) 
+	local perActTempTab = {} --每个活动的全服抽奖记录 
+	local isExit = false
+	--for k, v in ipairs(chrAllLuckDrawLog) do
+	for k, v in ipairs(globalAllDrwaLog) do
+		if v.idx == config.ldIdx then
+			perActTempTab = v
+			isExit = true
+			break
+		end
+	end
+	
+	return perActTempTab
+end
+
+--chrPersonDrawLog = { {idx = 1, val = { {id = actorId, logTab = {itemid,}}, }}},   }
+--更新个人抽奖记录
+--config
+--actorId 
+--itemId
+--globalPerDrwaLog 全局个人日志表
+function UpdatePersonDrawLog(config, actorId, itemId, globalPerDrwaLog)
+	local perActTempTab = {} --每个活动的抽奖记录
+	local perActorTempTab = {} --每个玩家的抽奖记录
+	local isExit = false
+
+	--for k, v in ipairs(chrPersonLuckDrawLog) do
+	for k, v in ipairs(globalPerDrwaLog) do
+		if v.idx == config.ldIdx then
+			perActTempTab = v
+			isExit = true
+			break
+		end
+	end
+	
+	if isExit == false then
+		perActTempTab.idx = config.ldIdx
+		perActTempTab.val = {}
+		--table.insert(chrPersonLuckDrawLog, perActTempTab)
+		table.insert(globalPerDrwaLog, perActTempTab) 
+	end
+	
+	local isActorExit = false 
+	for k, v in ipairs(perActTempTab.val) do
+		if v.id == actorId then
+			perActorTempTab = v
+			isActorExit = true 
+			break
+		end
+	end
+
+	if isActorExit == false then
+		perActorTempTab.id = actorId
+		perActorTempTab.logTab = {}
+		table.insert(perActTempTab.val, perActorTempTab)
+	end
+					
+	table.insert(perActorTempTab.logTab, itemId)
+	if table.getn(perActorTempTab.logTab) > config.maxLogCount then
+		table.remove(perActorTempTab.logTab, 1)  
+	end
+	
+end
+
+--清除个人记录
+--config
+--globalPerDrwaLog 全局个人日志表
+function ClearPersonDrawLog(config, globalPerDrwaLog)
+	--for k, v in ipairs(chrPersonLuckDrawLog) do
+	for k, v in ipairs(globalPerDrwaLog) do
+		if v.idx == config.ldIdx then
+			v.val = {}
+			break
+		end
+	end
+end
+
+--获取个人抽奖记录
+--config
+--actorId
+--globalPerDrwaLog 全局个人日志表
+function GetPersonDrawLog(config, actorId, globalPerDrwaLog)  
+	local perActTempTab = {} --每个活动的抽奖记录
+	local perActorTempTab = {} --每个玩家的抽奖记录
+	local isExit = false
+
+	--for k, v in ipairs(chrPersonLuckDrawLog) do
+	for k, v in ipairs(globalPerDrwaLog) do
+		if v.idx == config.ldIdx then
+			perActTempTab = v
+			isExit = true
+			break
+		end
+	end
+	
+	if isExit == true then
+		for k, v in pairs(perActTempTab.val) do
+			if v.id == actorId then
+				perActorTempTab = v  
+				break
+			end
+		end
+	end
+	
+	return perActorTempTab or {} 
+end

@@ -1,0 +1,168 @@
+﻿
+--#include "HuntingCommon.txt" once
+--#include "data\functions\Activity\Festival\FestivalAct.txt" once
+
+function Hunting_Main(sysarg)
+	local dlgStr = string.format("<#BL%s/@EnterHunting><#BL%s/@GetHuntingAward><#BL%s/@CloseHuntDialog>", Lang.ScriptTips.week01,Lang.ScriptTips.week02,Lang.Activity.w00037)
+	return dlgStr
+end
+
+function EnterHunting(sysarg)
+	if not Actor.checkActorLevel(sysarg, HuntingConfig.MinLevel, 0) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.week05, HuntingConfig.MinLevel), ttFlyTip)
+		return
+	end
+	if not IsHuntingAct() then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.week11, ttFlyTip)
+		return
+	end
+	local leftSecs = GetLeftTime()
+	if leftSecs == 0 or leftSecs < HuntingConfig.ActiveTimes - HuntingConfig.StopEnterSecs then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.week06, ttFlyTip)
+		return
+	end
+	local cfgInfo = HuntingConfig.SceneIds[1]
+	if cfgInfo then
+		local x = math.random(cfgInfo.x1, cfgInfo.x2)
+		local y = math.random(cfgInfo.y1, cfgInfo.y2)
+		SetMyHuntPoint(sysarg, 0)
+		System.telportScene(sysarg, cfgInfo.sceneId, x, y)
+		Actor.initActivityWind(sysarg, Lang.Activity.week01, leftSecs, cfgInfo.tips, Lang.Activity.week02, 0)
+	end
+end
+
+function GetHuntingAward(sysarg)
+	local nMyPoint = 0
+	local nMyIndex = 0
+	local ranking = Ranking.getRanking( Lang.Rank.huntingRank )
+	if ranking then		
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+		if pItem then
+			nMyPoint = Ranking.getPoint(pItem)
+			nMyIndex = Ranking.getIndexFromPtr(pItem)
+		end
+	end
+	local dlgStr = string.format(Lang.Activity.week07, nMyPoint)
+	for i = 1, HuntingConfig.RankCount do
+		local topItem = Ranking.getItemFromIndex(ranking,i-1)
+		local name = "-"
+		local point = 0
+		if topItem then
+			name = Ranking.getSub(topItem, 0)
+			point = Ranking.getPoint(topItem)
+			if point > 0 then
+				dlgStr = string.format("%s\\%d   %s   %d", dlgStr,i, name, point)
+			end
+		end		
+	end
+	if nMyIndex >= 0 and nMyIndex <= HuntingConfig.RankCount then
+		dlgStr = string.format("%s<#BL%s/@RealGetHuntingAward>", dlgStr, Lang.Activity.week08)
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function RealGetHuntingAward(sysarg)
+	if IsHuntingAct() then
+		Actor.sendTipmsg(sysarg, Lang.Activity.week11, ttFlyTip)
+		return
+	end
+	local ranking = Ranking.getRanking( Lang.Rank.huntingRank )
+	if not ranking then		
+		return
+	end
+	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+	if pItem then
+		local myPoint = Ranking.getPoint(pItem)
+		if myPoint == 0 then
+			return
+		end
+		if Ranking.getSub(pItem, 2) ~= "0" then
+			Actor.sendTipmsg(sysarg, Lang.Activity.week09, ttFlyTip)
+			return
+		end
+		local myIdx = Ranking.getIndexFromPtr(pItem)
+		if myIdx > HuntingConfig.RankCount then
+			return
+		end
+		local awardCfg = HuntingConfig.Award[myIdx + 1]
+		if not awardCfg then
+			awardCfg = HuntingConfig.NormalAward
+		end
+		local count = 0
+		for k, v in ipairs(awardCfg) do
+			if v.type == 0 then
+				count = count + Item.getAddItemNeedGridCount( sysarg, v.id, v.count, v.quality, v.strong, v.bind)
+			end
+		end
+		local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+		if bagIdxs < count then
+			Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+			return false
+		end
+		Ranking.setSub(pItem, 2, "1")
+		for k, v in ipairs(awardCfg) do
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.strong, v.qulity, v.bind, 0, 835, Lang.LogTips.l00114)
+		end
+		if myIdx == 0 then
+			local noticeStr = string.format(Lang.ScriptTips.week12, Actor.getName(sysarg))
+			System.broadcastTipmsg(noticeStr, ttScreenCenter+ttChatWindow)   
+		end
+		--SaveHuntRanking()
+	end
+	return true	
+end
+
+function CloseHuntDialog(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+function NoticePreHunting()
+	System.broadcastTipmsg(Lang.ScriptTips.week07,ttScreenCenter + ttChatWindow)
+end
+
+function OpenHuntingAct()
+	local nNowDt = System.getCurrMiniTime()
+	SetHuntingActFlag(nNowDt + HuntingConfig.ActiveTimes)
+	System.broadcastTipmsg(Lang.ScriptTips.week09,ttScreenCenter + ttChatWindow)
+	ClearHuntingInfo()
+end
+
+function CloseHuntingAct()
+	SetHuntingActFlag(nil)
+	
+	for k, info in ipairs(HuntingConfig.SceneIds) do
+		local playerList = LuaHelp.getSceneActorListById(info.sceneId)
+		for k, ptr in ipairs(playerList or {}) do
+			ExitHuntingScene(ptr)
+		end
+	end
+	System.broadcastTipmsg(Lang.ScriptTips.week10,ttScreenCenter + ttChatWindow)
+end
+
+function InitHuntRanking()
+	local ranking = Ranking.getRanking( Lang.Rank.huntingRank )
+	if  ranking ~= nil then
+		--print("remove"..Lang.Rank.huntingRank)
+		Ranking.removeRanking(Lang.Rank.huntingRank)
+	end
+	ranking = Ranking.getRanking( Lang.Rank.huntingRank )
+	if not ranking then
+		--print("ranking is null");
+		ranking = Ranking.add( Lang.Rank.huntingRank, HuntingConfig.RankCount )
+		if ranking and not Ranking.load(ranking, Lang.Rank.huntingRank) then
+			Ranking.addColumn(ranking, "name")
+			Ranking.addColumn(ranking, "level")
+			Ranking.addColumn(ranking, "award")
+			Ranking.addRef( ranking )
+		end
+		Ranking.save(ranking, Lang.Rank.huntingRank )		
+	else
+		--print("ranking not null")
+	end
+end
+
+table.insert(MainFnTable, Hunting_Main)
+table.insert(InitFnTable, InitHuntRanking)
+table.insert(FinaFnTable, SaveHuntRanking)

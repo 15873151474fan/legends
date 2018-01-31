@@ -1,0 +1,181 @@
+﻿--蛮力突撞1级
+{
+	actions=
+	{	
+        
+	},
+	
+	desc=Lang.Skill.s5L1Desc,
+	iconID=5,
+
+	actRange=
+	{
+		--前方的目标推走
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=-1,
+			yEnd=-1,
+			
+			rangeType=2,
+			rangeCenter=1,
+			acts=
+			{
+				{
+					--目标的等级比自己低，就推开一个
+					conds=
+					{
+						{cond=15,value=-1}, 
+						{cond=3,value=0}, 
+						{cond=13,value=1}, 
+
+						
+					},
+
+					results=
+					{
+						{mj=0,timeParam=200,type=38,ignoreTargetDis=1,delay=0,id=5,value=1,interval=150},
+					},
+					specialEffects=
+					{	
+					},
+				},
+				
+				--延迟
+				{
+					--目标的等级比自己低，就推开一个
+					conds=
+					{
+						{cond=15,value=-1}, 
+					
+						--{cond=22,value=5},  --自己身上不存在技能标记
+						--{cond=20,value=5}, 
+						{cond=3,value=0}, 
+						{cond=13,value=1}, 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=200,type=21,delay=0, value=5}, --先要删除技能标记
+						{mj=0,timeParam=200,type=38,ignoreTargetDis=1,delay=0,id=5,value=1,interval=150},
+					},
+					specialEffects=
+					{	
+					},
+				},
+				--延迟
+				[[{
+					--目标的等级比自己低，就推开一个
+					conds=
+					{
+						{cond=15,value=-1}, 
+						
+						--{cond=22,value=5},  --自己身上不存在技能标记
+						--{cond=20,value=5}, 
+						{cond=3,value=0}, 
+						{cond=13,value=1}, 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=200,type=21,delay=0, value=5}, --先要删除技能标记
+						{mj=0,timeParam=1,type=38,ignoreTargetDis=1,delay=0,id=0,value=1,interval=150},
+					},
+					specialEffects=
+					{	
+					},
+				},]]
+			},
+		},
+		
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+			
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=3,value=1}, 
+					},
+
+					results=
+					{
+						
+						{mj=0,timeParam=200,id=5,type=37,delay=0, value=1,interval=150,vt=0,rate=30,buffType=1}, --自己往前走一步,失败了给自己加一个技能标记,id=5,时间是timeParam 200ms
+					},
+					
+					specialEffects=
+					{
+                    {type=1,mj=0,id=393,keepTime=150,delay=0,always=false},	
+					},
+				},
+				
+				{
+					conds=
+					{
+						{cond=22,value=5},  --自己身上不存在技能标记
+						{cond=3,value=1}, 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=200,type=21,delay=0, value=5}, --先要删除技能标记
+						{mj=0,timeParam=1,id=5,type=37,delay=0, value=1,interval=150,vt=1,rate=30}, --自己往前走一步,失败了给自己加一个技能标记
+						
+					},
+					
+					specialEffects=
+					{
+                    {type=1,mj=0,id=393,keepTime=150,delay=150,always=false},	
+					},
+				},
+				
+				{
+					conds=
+					{
+						{cond=22,value=5},  --自己身上不存在技能标记
+						{cond=3,value=1}, 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=200,type=21,delay=0, value=5}, --先要删除技能标记
+						{mj=0,timeParam=1,id=0,type=37,delay=0, value=1,interval=150,vt=0,rate=30}, --自己往前走一步,失败了给自己加一个技能标记
+						
+					},
+					
+					specialEffects=
+					{
+                    {type=1,mj=0,id=393,keepTime=150,delay=300,always=false},	
+					},
+				},
+				
+				
+			},
+		},
+			
+	},
+
+
+	trainConds=
+	{
+		{cond=1,value=32,consume=false},--要求等级30
+		{cond=3,value=566,consume=true,exceptVip=true},--表示书本
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=2,consume=true},--消耗蓝120
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,
+	
+	--冷却时间,单位是毫秒
+	cooldownTime=5000,
+},

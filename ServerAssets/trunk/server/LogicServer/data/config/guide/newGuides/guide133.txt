@@ -1,0 +1,90 @@
+﻿--上古武灵镶嵌晶石的指引
+{
+  maxLevel = 65,
+  --触发条件
+	triggerList =
+	{
+		{ type = 4, valueList = {1178,1179,1180,}},      --有这些物品
+		{ type = 6, valueList = {1,}},                   --职业为战士
+	} ,
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步  指向第二栏
+    {
+      condList =
+      {
+                { type = 1, helpId = 222, dataList = {0,} },   --武灵窗口可见
+                { type = 13,  helpId = 0, dataList = {1178,1179,1180,} },    --身上有这些物品
+				{ type = 4,  helpId = 215, dataList = {2,} },		--武灵导航栏没选中第二项
+      },
+
+      --执行指向导航栏第二栏 
+      action = { type = 2, helpId = 215, data = 2, pointerValue = 1, desc = Lang.GuideLang.desc96 },   --指向武灵按钮
+    },
+
+    --第2步 指向晶石列表1169物品 
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },		--上古武灵面板可见
+				{ type = 3,  helpId = 215, dataList = {2,} },		--武灵导航栏选中第二项
+				{ type = 13,  helpId = 0, dataList = {1178,1179,1180,} },    --身上有这些物品
+				{ type = 10,  helpId = 218, dataList = {0,} },      --1号孔没有sell数据
+                { type = 10,  helpId = 219, dataList = {0,} },      --2号孔没有sell数据
+                { type = 10,  helpId = 220, dataList = {0,} },      --3号孔没有sell数据
+      },
+
+      --指向晶石列表1169物品
+      action = { type = 10, helpId = 216, data = {1178,}, pointerValue = 1, desc = Lang.GuideLang.desc97 },
+    },
+
+    --第3步 指向晶石列表1170物品
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },		--上古武灵面板可见
+				{ type = 3,  helpId = 215, dataList = {2,} },		--武灵导航栏选中第二项
+				{ type = 13,  helpId = 0, dataList = {1178,1179,1180,} },    --身上有这些物品
+				{ type = 9,  helpId = 218, dataList = {0,} },      --1号孔有sell数据
+                { type = 10,  helpId = 219, dataList = {0,} },      --2号孔没有sell数据
+                { type = 10,  helpId = 220, dataList = {0,} },      --3号孔没有sell数据
+      },
+
+      --指向晶石列表1170物品
+      action = { type = 10, helpId = 216, data = {1179,}, pointerValue = 1, desc = Lang.GuideLang.desc102 },
+    },
+
+    --第4步 指向晶石列表1171物品
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 222, dataList = {0,} },		--上古武灵面板可见
+				{ type = 3,  helpId = 215, dataList = {2,} },		--武灵导航栏选中第二项
+				{ type = 13,  helpId = 0, dataList = {1178,1179,1180,} },    --身上有这些物品
+				{ type = 9,  helpId = 218, dataList = {0,} },      --1号孔有sell数据
+                { type = 9,  helpId = 219, dataList = {0,} },      --2号孔有sell数据
+                { type = 10,  helpId = 220, dataList = {0,} },      --3号孔没有sell数据
+      },
+
+      --指向晶石列表1171物品
+      action = { type = 10, helpId = 216, data = {1180,}, pointerValue = 1, desc = Lang.GuideLang.desc103 },
+    },
+
+
+    --第7步 结束指引
+    {
+      condList =
+      {
+				{ type = 30, helpId = 0, dataList = {0,} },   	--没玩过 战力竞技
+				{ type = 6,  helpId = 0, dataList = {205,} },		--不存在任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 205, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+
+	},
+},

@@ -1,0 +1,102 @@
+--lua script
+--生日蛋糕配置
+BirthdayCakeConfig =
+{
+	actTime = {2014, 10, 25, 0, 0, 0,  2014, 11, 8, 23, 59, 59}, --活动时间范围
+	sugarid = 3220, --白糖id
+	eggid = 3221,   --鸡蛋id
+	flourid = 3222, --面粉id
+	candleid = 3223,--蜡烛id
+	level = 50, --要求等级
+	effectId = 2, --金钱雨特效id
+	effectSecs = 10, --特效持续时间
+
+	ybAwardNum = 10, --奖励人数
+	ybAwardList = --发元宝   
+	{
+		{rate = 30, yb = 5},--概率和为100
+		{rate = 35, yb = 10},
+		{rate = 30, yb = 20},
+		{rate = 5,  yb = 50},
+	},
+	
+	--蛋糕的进度
+	cakeprogress = 
+	{
+		{cakeid = 184, num = 500}, --兑换材料需要达到的数量
+		{cakeid = 185, num = 1500},
+		{cakeid = 186, num = 3000},
+		{cakeid = 187, num = 5000},
+	},
+	
+	change =
+	{
+		--兑换1
+		{
+			needItem = --消耗的物品id,数量
+			{
+				{id = 3220, count = 2},
+				{id = 3221, count = 3},
+			},
+
+			awards = --奖品
+			{
+				{type = 0, id = 1990, count = 2, bind = 1},
+				{type = 0, id = 2111, count = 2, bind = 1},
+			},
+		},
+		--兑换2
+		{
+			needItem = --消耗的物品id,数量
+			{
+				{id = 3220, count = 2},
+				{id = 3221, count = 5},
+				{id = 3222, count = 10},
+			},
+
+			awards = --奖品
+			{
+				{type = 0, id = 2836, count = 2, bind = 1},
+				{type = 0, id = 2627, count = 1, bind = 1},
+				{type = 0, id = 2603, count = 1, bind = 1},
+
+			},
+		},
+		--兑换3
+		{
+			needItem = --消耗的物品id,数量
+			{
+				{id = 3220, count = 3},
+				{id = 3221, count = 5},
+				{id = 3222, count = 10},
+				{id = 3223, count = 3},
+			},
+
+			awards = --奖品
+			{
+				{type = 0, id = 2836, count = 2, bind = 1},
+				{type = 0, id = 2627, count = 1, bind = 1},
+				{type = 0, id = 2949, count = 1, bind = 1},
+			},
+		},
+		--兑换4
+		{
+			needItem = --消耗的物品id,数量
+			{
+				{id = 3220, count = 5},
+				{id = 3221, count = 15},
+				{id = 3222, count = 25},
+				{id = 3223, count = 15},
+			},
+
+			awards = --奖品
+			{
+				{type = 0, id = 2836, count = 5, bind = 1},
+				{type = 0, id = 3247, count = 1, bind = 1},
+				{type = 0, id = 2603, count = 2, bind = 1},
+				{type = 0, id = 2627, count = 2, bind = 1},
+			},
+		},
+	},
+
+}

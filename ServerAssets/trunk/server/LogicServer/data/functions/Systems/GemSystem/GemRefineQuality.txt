@@ -1,0 +1,161 @@
+﻿--lua script
+-- 宝物品质精粹脚本处理逻辑
+--#include "GemCommon.txt" once
+
+local function OnRefineQualityEnd(sysarg, gemSlotIdx)	
+	local packet = DataPack.allocPacket(sysarg, 141, 1)
+  if (packet == nil) then		
+		return
+  end
+  DataPack.writeInt(packet, gemSlotIdx)
+  DataPack.flush(packet)
+end
+
+
+local function sendUpQualityBulletin(sysarg, gemId, gemGrade, quality)
+	local campName 	= Camp.getCampName(Actor.getCamp(sysarg))
+	local actorName = Actor.getName(sysarg)
+	local gemCfg		= GemConfig[gemId+1]
+	local gradeCfg 	= GetGemGradeConfig(gemCfg, gemGrade)
+	local gemName 	= gradeCfg.name
+	local qualityName = getQualityDesc(gemGrade, quality);		
+	local str = string.format(Lang.Gem.t00025, campName, actorName, gemName, qualityName)
+	System.broadcastTipmsg(str, ttScreenCenter + ttChatWindow)	
+end
+
+
+local function GemRefineQualityImpl(sysarg, gemSlotIdx, useLuckyItemCnt)
+	--print("----------GemRefineQualityImpl---------- gemSlotIdx=" .. gemSlotIdx .. " useLuckyItemCnt=" .. useLuckyItemCnt)
+	local gemItemPtr = Actor.getGemItemBySlot(sysarg, gemSlotIdx)
+	if (not gemItemPtr) then	return	end
+	
+	--检测是否为限时宝物
+	if GemItem.isLimitTimeGem(gemItemPtr) then return end
+	
+	local gemId = GemItem.getGemItemId(gemItemPtr)
+	if (gemId < 0) then	return	end
+	--print("gemid=" .. gemId)
+		
+	if (useLuckyItemCnt > GemGlobalConfig.gemUpQualityConfig.canuseMaxLuckyItemCount) then
+		print("use too much lucky item")
+		return
+	end
+	
+	local curQuality = GemItem.getGemItemQuality(gemItemPtr)
+	if (curQuality <= 0) then
+		print("error gemptr")
+		return
+	end
+		
+	local gemCfg = GemConfig[gemId+1]
+	if (gemCfg == nil) then
+		print(string.format("can't find config of gem[id=%d]", gemId))
+		return
+	end
+	
+	local gemGrade = GemItem.getGemItemGrade(gemItemPtr)
+	local gemQualityUpCfg = GemGlobalConfig.gemUpQualityConfig.gemQualityConfig[gemGrade]
+	if (not gemQualityUpCfg) then
+		print(string.format("can't find qualityUp[id=%d] config of gem[id=%d grade=%d]", curQuality, gemId, gemGrade))
+		return
+	end
+	local gemQualityCfg = gemQualityUpCfg[curQuality];
+	if (gemQualityCfg == nil) then
+		print(string.format("can't find quality[id=%d] config of gem[id=%d]", curQuality, gemId))
+		return
+	end
+	if (curQuality+1 > table.getn(gemQualityUpCfg)) then
+		--print("current quality is topmost")
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00009, ttTipmsgWindow)
+		return
+	end
+		
+	local reqItemId 		= GemGlobalConfig.gemUpQualityConfig.consumeItemId	-- 消耗品质萃精粹符物品ID
+	local reqItemCount 	= gemQualityCfg.consumeItemCount										-- 消耗进阶符数量
+	local reqMoneyType 	= gemQualityCfg.reqMoneyType													-- 消耗金钱类型
+	local reqMoneyCount = gemQualityCfg.reqMoneyCount													-- 消耗金钱数目
+	local luckyItemId		= GemGlobalConfig.gemUpQualityConfig.luckyItemId			-- 幸运物品Id	
+	--print(string.format("reqItemId:%d, reqItemCount=%d, reqMontyType=%d, reqMoneyCount=%d", reqItemId, reqItemCount, reqMoneyType, reqMoneyCount))
+	
+	-- 检测所需品质萃精符是否存在
+	if (not CheckItemReq(sysarg, reqItemId, reqItemCount)) then return end	
+	
+	-- 检测金钱消耗
+	if (CheckMoneyReq(sysarg, reqMoneyType, reqMoneyCount) == false) then
+		--print("not enough money")
+		return
+	end
+	
+	-- 检测幸运符
+	--print("GemGlobalConfig.upquality_luckyItemId=" .. luckyItemId)
+	if (useLuckyItemCnt > 0) then
+		if (not CheckItemReq(sysarg, luckyItemId, useLuckyItemCnt)) then 
+			return 
+		end
+	end
+	
+	-- 消耗（品质萃精符、幸运符、金钱消耗）
+	if (reqItemCount > 0) then
+		if (reqItemCount ~= Actor.removeItem(sysarg, reqItemId, reqItemCount, -1, -1, -1, "gem refine quality", 72)) then
+			print("remove consume item failed")
+			return		
+		end 
+	end
+	
+	if (useLuckyItemCnt > 0) then
+		if (Actor.removeItem(sysarg, luckyItemId, useLuckyItemCnt, -1, -1, -1, "gem refine quality", 72) ~= useLuckyItemCnt) then	
+			print("remove lucky item failed")
+			return
+		end
+	end
+	
+	local bindFrist = false
+	if (reqMoneyType == 0) then
+		bindFrist = true
+	end	
+	if (false == Actor.consumeCoin(sysarg, reqMoneyCount, 146, "gem refine quality", true, bindFrist)) then
+		print("money not enough")
+		return
+	end
+		
+	-- 计算概率
+	local rate = gemQualityCfg.baseSuccRate + GemGlobalConfig.gemUpQualityConfig.luckyItemUpSuccRate * useLuckyItemCnt
+	--print("rate=" .. rate)
+	if (rate > 100) then rate = 100 end	
+	
+	local randNum = System.getRandomNumber(100)+1  -- [1, 100]	
+	if (randNum <= rate) then		
+		GemItem.setGemItemQuality(gemItemPtr, curQuality+1, 653, "gem refine quality succ")
+		local newQuality = GemItem.getGemItemQuality(gemItemPtr)
+		local gemCfg		= GemConfig[gemId+1]
+		local gradeCfg 	= GetGemGradeConfig(gemCfg, gemGrade)
+		local gemName 	= gradeCfg.name
+		local campName 	= Camp.getCampName(Actor.getCamp(sysarg))
+		local actorName = Actor.getName(sysarg)
+		local str = string.format(Lang.Gem.t00007, campName, actorName, gemName, getQualityDesc(gemGrade, newQuality))				
+		--Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+		System.broadcastTipmsg(str,ttScreenCenter+ttChatWindow)
+		if (newQuality >=4) then
+			sendUpQualityBulletin(sysarg, gemId, gemGrade, newQuality)
+		end
+	else		
+		if (curQuality > 1) then
+			GemItem.setGemItemQuality(gemItemPtr, curQuality-1, 653, "gem refine quality fail")
+			local newQuality = GemItem.getGemItemQuality(gemItemPtr)
+			local str = string.format(Lang.Gem.t00020, getQualityDesc(gemGrade, newQuality))
+			Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)		
+		else
+			Actor.sendTipmsg(sysarg, Lang.Gem.t00008, ttTipmsgWindow)
+		end		
+	end
+	OnRefineQualityEnd(sysarg, gemSlotIdx)
+end
+
+GemSystemImpl.GemUpGradeHandler = function (sysarg, msgid, packet)
+	local gemSlotIdx 				= DataPack.readInt(packet)		-- 宝物槽位号
+	local useLuckyItemCnt		= DataPack.readInt(packet)		-- 品质精粹使用的幸运符数量
+	
+	GemRefineQualityImpl(sysarg, gemSlotIdx, useLuckyItemCnt)	
+end
+
+GemSystemImpl.registerMsgHandler(3, GemSystemImpl.GemUpGradeHandler)

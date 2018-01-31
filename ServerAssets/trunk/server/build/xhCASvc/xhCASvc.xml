@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="GB2312"?>
+<Config>
+	<Server>
+		<HttpServer address="0.0.0.0" port="8089"/>
+		<AmountServer address="0.0.0.0" port="5660"/>
+	</Server>
+	
+	<Products>
+		<Product id="1" name="djrm" caption="烈火腾讯">
+			<SP id="wyi">
+				<!--ammaster/123456abc-->
+				<UserDB host="192.168.1.102" port="3306" db="amdb" user="HMREXkwF1I764xK1F+g64w==" pass="WEvopqlIswRh3TR7DM1vaQ==" charset="utf8"/>
+				<!--和充值平台约定的key用于对充值进行签名MD5验证-->
+				<HttpKey>
+					<PayKey>GAmqXI8ao8kGAOIQmjFVqg==</PayKey>
+					<AwdKey>GAmqXI8ao8kGAOIQmjFVqg==</AwdKey>
+				</HttpKey>
+				<!--允许投递充值消息的主机地址,防止虚假模拟充值-->  
+				<Hosts>
+					<Host>127.0.0.1</Host>
+                    <Host>192.168.1.102</Host>
+				</Hosts>			
+			</SP>
+		</Product>
+		
+	</Products>
+</Config>

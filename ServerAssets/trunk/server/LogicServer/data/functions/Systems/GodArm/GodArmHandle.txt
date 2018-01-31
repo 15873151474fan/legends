@@ -1,0 +1,62 @@
+--lua script
+--神臂系统
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\GodArm\GodArmUpLevel.txt" once 
+--#include "data\config\activityconfig\GodArm\GodPowerItem.txt" once
+--#include "data\config\activityconfig\GodArm\GodArmConfig.txt" once 
+
+--#include "GodArmCommon.txt" once
+
+--[[
+	cOnStartUpLevelOp = 1,			--开始升阶
+	cOnUpGodArmLevelOp = 2,		--开始升级
+	cOnActiveGodArmOp = 3,			--激活神臂
+	cUpgradeGodArmSavvyOp = 4,	--心法升阶
+	cUpLevelGodArmSavvyOp = 5,	--心法升级
+	cPutOnSavvyOp = 6,			--镶嵌心法
+]]
+
+GodArmOpFuncList = {}
+
+EventCallDispatcher.HandlerGodArmOp = function (sysarg, args)
+ --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = GodArmOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--开始升阶
+GodArmOpFuncList[1] = function (sysarg,args)
+	OnStartUpGodArm(sysarg,args)
+end
+
+--开始升级
+GodArmOpFuncList[2] = function (sysarg,args)
+	OnUpGodArmLevel(sysarg,args)
+end
+
+--激活神臂
+GodArmOpFuncList[3] = function (sysarg,args)
+	OnActiveGodArm(sysarg,args)
+end
+
+--心法升阶
+GodArmOpFuncList[4] = function (sysarg,args)
+	OnStartUpGodArmSavvy(sysarg,args)
+end
+
+--心法升级
+GodArmOpFuncList[5] = function (sysarg,args)
+	OnUpGodArmSavvyLevel(sysarg,args)
+end
+
+--镶嵌心法
+GodArmOpFuncList[6] = function (sysarg,args)
+	OnPutOnSavvy(sysarg,args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeGodArm, EventCallDispatcher.HandlerGodArmOp)
+

@@ -1,0 +1,270 @@
+﻿
+
+--#include "data\config\boss\boss.txt" once
+--#include "data\config\boss\BossConfig.txt" once
+
+BossRankName = "monbossontime.txt"
+ShowDialogTime = 180 
+
+function RankingBossInit( sysarg )
+	local ranking = Ranking.getRanking(Lang.ScriptTips.x00052) --通过排行名称获取排行对象
+	if ranking then
+		return
+	end
+	ranking = Ranking.add(Lang.ScriptTips.x00052, 50)	--创建排行榜
+		--加载排行榜，如果加载失败则表示没有此数据，此时进行标题初始化
+	if not Ranking.load(ranking, BossRankName) then
+		Ranking.addColumn(ranking,Lang.ScriptTips.x00059) --添加一个标题列 --0状态 
+		Ranking.addColumn(ranking,Lang.ScriptTips.x00060) --添加一个标题列 --1出现场景 
+		Ranking.addColumn(ranking,Lang.ScriptTips.x00058) --添加一个标题列 --2击杀者
+		Ranking.addColumn(ranking,Lang.ScriptTips.x00080) --添加一个标题列 --3刷新时间
+		Ranking.addColumn(ranking,"X", -1, true) --添加一个标题列 --坐标X
+		Ranking.addColumn(ranking,"Y", -1, true) --添加一个标题列 --坐标Y
+		SetBossToRanking()
+	else
+		UpdateBossRanking()
+	end
+	Ranking.addRef(ranking) --增加对此排行对象的引用计数
+end
+
+function UpdateBossRanking()
+	local ranking = Ranking.getRanking(Lang.ScriptTips.x00052) --通过排行名称获取排行对象
+	if ranking then
+		for idx, bossTab in ipairs(BossConfig.Boss) do
+			local item = Ranking.getItemPtrFromId(ranking, bossTab.entityId)  --以怪物ID为基准
+			if item then
+				local state = tonumber(Ranking.getSub(item, 0))
+				Ranking.setSub(item, 1, bossTab.sceneName)
+				if bossTab.bossType  == 1 then
+					local oneBoss = GetWorldBossCfg(bossTab.entityId)
+					if oneBoss then
+						if state == 3 then
+							Ranking.setSub(item,0, 0)
+						end
+						if state ~= 1 then
+							Ranking.setSub(item,2,"")
+						end
+						Ranking.setSub(item,3, oneBoss.mobTime )
+						Ranking.setSub(item,4, "-" )  --出现坐标X	
+						Ranking.setSub(item,5, "-")  --出现坐标Y
+					end
+				else
+					Ranking.setSub(item,0, 3)
+					Ranking.setSub(item,2,"")
+				end
+			else
+				item = Ranking.addItem(ranking, bossTab.entityId,0)  --以怪物ID为基准
+				if item then
+					--0状态 1出现场景 2击杀者 3刷新时间 
+					Ranking.setSub(item,0, 2)    ----0为已消失   1为已击杀  2为等待刷新  3为已出现
+					Ranking.setSub(item,1, bossTab.sceneName)  --
+					Ranking.setSub(item,2,"")
+					Ranking.setSub(item,3, bossTab.mobTime )
+					Ranking.setSub(item,4, bossTab.pos_x )  --出现坐标X	
+					Ranking.setSub(item,5, bossTab.pos_y)  --出现坐标Y
+					Ranking.save(ranking, BossRankName) --保存排行榜
+				end
+			end
+		end
+	end
+end
+
+function SetBossToRanking()
+	local ranking = Ranking.getRanking(Lang.ScriptTips.x00052) --通过排行名称获取排行对象
+	if ranking then
+		Ranking.clearRanking(ranking)  --清除排行榜名单
+	    for idx, bossTab in ipairs(BossConfig.Boss) do
+			--保存状态信息在列表里，用于初始化每天怪物数据表 返回给客户端
+			local item = Ranking.addItem(ranking, bossTab.entityId,0)  --以怪物ID为基准
+			if item then
+				--0状态 1出现场景 2击杀者 3刷新时间 
+				Ranking.setSub(item,0, 2)    ----0为已消失   1为已击杀  2为等待刷新  3为已出现
+				Ranking.setSub(item,1, bossTab.sceneName)  --
+				Ranking.setSub(item,2,"")
+				if bossTab.bossType  == 1 then
+					local oneBoss = GetWorldBossCfg(bossTab.entityId)
+					if oneBoss then
+						Ranking.setSub(item,3, oneBoss.mobTime )
+						Ranking.setSub(item,4, oneBoss.pos_x )  --出现坐标X	
+						Ranking.setSub(item,5, oneBoss.pos_y)  --出现坐标Y
+					end
+				end
+			end
+		end
+		Ranking.save(ranking, BossRankName) --保存排行榜
+    end
+end
+
+--开始提示
+function StartBossNotice( bossIdx, minTime )
+	bossIdx = tonumber(bossIdx)
+	minTime = tonumber(minTime)
+	local bossTab = WorldBossConfig[bossIdx]
+	for idx, boss in ipairs(bossTab or {}) do
+	--	BeforeNotice(boss.monsterid, boss.sceneid, minTime)
+	end
+end
+
+function BeforeNotice(bossId, sceneId, minTime)
+	local monsterName = System.getMonsterNameById(bossId)
+	local sceneName = Fuben.getSceneNameById(sceneId)
+	local noticeStr = string.format(Lang.ScriptTips.c000015, monsterName, minTime, sceneName)
+	--System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+end
+
+function CreateBossNotice( bossId, sceneId, item )
+	local monsterName = System.getMonsterNameById(bossId)
+	local sceneName = Fuben.getSceneNameById(sceneId)
+	local noticeStr = string.format(Lang.ScriptTips.c000016, monsterName, sceneName)
+	--System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+	--0状态 1出现场景 2击杀者 3刷新时间
+	local mid = Ranking.getId(item)
+	local state = Ranking.getSub(item,0)   --0为已消失   1为已击杀  2为等待刷新  3为已出现
+	local killname = Ranking.getSub(item,2)
+	local mobtime = Ranking.getSub(item,3)
+	local x = Ranking.getSub(item, 4)
+	local y = Ranking.getSub(item, 5)
+	local maxExp, growLv, curExp = System.getMonsterGrowInfo(tonumber(mid), 0, 0)
+   --[[
+	local playerList = LuaHelp.getAllActorList() --获取所有的在线玩家的指针
+	for idx, player in ipairs(playerList or {}) do
+		local level = Actor.getIntProperty(player, PROP_CREATURE_LEVEL)
+		if level >= 40 then --增加等级限制
+			local npack = DataPack.allocPacket(player,139,10)
+            if npack then
+				DataPack.writeByte(npack, 1)  --怪物数量
+				DataPack.writeByte(npack, "2")  --是否通知客户端弹出提示  0不弹出 1弹出 2更新BOSS列表
+				DataPack.writeByte(npack, "1")	--是否显示速传
+				DataPack.writeInt(npack, ShowDialogTime)	--弹窗时间
+				DataPack.writeString(npack, Lang.ScriptTips.boss001)	--弹窗名称
+				DataPack.writeWord(npack,mid)    --怪物ID
+				DataPack.writeString(npack, monsterName)	--怪物名称
+				DataPack.writeByte(npack,state)  --刷新状态
+				DataPack.writeString(npack, sceneName)       --刷新场景
+				DataPack.writeWord(npack, x)	--刷新x
+				DataPack.writeWord(npack, y)	--刷新y
+				DataPack.writeString(npack, killname)    --击杀者
+				DataPack.writeString(npack, mobtime)    --怪物刷新时间
+				DataPack.writeByte(npack, growLv)
+				DataPack.writeByte(npack, curExp)
+				DataPack.writeByte(npack, maxExp)
+            end
+			DataPack.flush(npack)  
+		end
+	end --]]
+end
+
+function GetWorldBossCfg( monId )
+	for idx, mons in ipairs(WorldBossConfig) do
+		for _, oneMon in ipairs(mons) do
+			if oneMon.monsterid == monId then
+				return oneMon
+			end
+		end
+	end
+	return nil
+end
+
+function FlushWorldBoss( bossIdx )
+	bossIdx = tonumber(bossIdx)
+	local bossTab = WorldBossConfig[bossIdx]
+	for k, boss in ipairs(bossTab or {}) do
+		local hScene = Fuben.getSceneHandleById(boss.sceneid,0)  --获得场景句柄
+		if hScene then
+			local x = math.random(boss.pos_x1, boss.pos_x2)
+			local y = math.random(boss.pos_y1, boss.pos_y2)
+			local monsterPtr = Fuben.createMonster(hScene, boss.monsterid, x, y, boss.liveTime)
+			local ranking = Ranking.getRanking(Lang.ScriptTips.x00052) --通过排行名称获取排行对象
+			if ranking then
+				local item = Ranking.getItemPtrFromId(ranking, boss.monsterid)
+				if item then
+			--		CreateBossNotice(boss.monsterid, boss.sceneid, item)
+				end
+			end
+		--	Actor.regScriptCallback(monsterPtr, nil, 1000*(boss.liveTime - 5*60), 0, 1, "onBossLast5Min")
+		--	Actor.regScriptCallback(monsterPtr, nil, 1000*boss.liveTime, 0, 1, "onBossRemove", boss.monsterid)
+		end
+	end
+end
+
+--怪最后5分钟
+function onBossLast5Min(monsterPtr)
+	local monsterName = Actor.getName(monsterPtr)
+	if monsterName then
+		local noticeStr = string.format(Lang.ScriptTips.c000017, monsterName)
+		System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+	end
+end
+
+function onBossRemove( monsterPtr, monsId )	
+	local monsterName = Actor.getName(monsterPtr)
+	if monsterName then
+		local noticeStr = string.format(Lang.ScriptTips.c000018, monsterName)
+		System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+	end
+	local ranking = Ranking.getRanking(Lang.ScriptTips.x00052) --通过排行名称获取排行对象
+	if ranking then
+		local item = Ranking.getItemPtrFromId(ranking, monsId)
+		if item then
+			--sub 0状态 1出现场景 2击杀者 3刷新时间 
+			Ranking.setSub(item,0, 0) --0为已消失   1为已击杀  2为等待刷新  3为已出现
+			Ranking.setSub(item,1,"-")     --场景置"-"
+			Ranking.setSub(item,2,"")   
+			Ranking.setSub(item, 4, "-")
+			Ranking.setSub(item, 5, "-")
+		end
+	end
+end
+
+--boss创建时
+function OnBossCreate(monster, monId, sceneId, x, y)
+	local ranking = Ranking.getRanking(Lang.ScriptTips.x00052) --通过排行名称获取排行对象
+	if ranking then
+		local item = Ranking.getItemPtrFromId(ranking, monId)
+		if item then
+			local sceneName = Fuben.getSceneNameById(sceneId)
+			Ranking.setSub(item, 0, 3) --0为已消失   1为已击杀  2为等待刷新  3为已出现
+			Ranking.setSub(item, 1, sceneName)     --场景置
+			Ranking.setSub(item, 2, "")
+			Ranking.setSub(item, 4, x)
+			Ranking.setSub(item, 5, y)
+		end
+		Ranking.save(ranking, BossRankName) --保存排行榜
+	end
+end
+
+--boss死时
+function OnBossDead( monster,sysarg,monId )
+	Actor.unregScriptCallback(monster, "OnBossLast5Min")
+	Actor.unregScriptCallback(monster, "OnBossDisapper")
+	local name = Actor.getName(sysarg)
+	local ranking = Ranking.getRanking(Lang.ScriptTips.x00052) --通过排行名称获取排行对象
+	if ranking then 
+		local item = Ranking.getItemPtrFromId(ranking,monId)
+		if item then
+			--sub 0状态 1出现场景 2击杀者 3刷新时间 
+			Ranking.setSub(item,0,1) --0为已消失   1为已击杀  2为等待刷新  3为已出现
+			--Ranking.setSub(item,1,"-")     --场景置"-"
+            if monster == sysarg then
+				name = ""
+            end
+			Ranking.setSub(item,2,name)   -- 
+		end
+	end
+	local monsterName = Actor.getName(monster)
+	local noticeStr = string.format(Lang.ScriptTips.x00041, monsterName, name)
+	System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+	Ranking.save(ranking, BossRankName) --保存排行榜
+
+	--[[附近的玩家都可以完成相关的任务
+	local actorList = LuaHelp.getVisiActorList(monster)
+	if actorList == nil then return end
+	for i = 1, #actorList do
+		if actorList[i] ~= nil then
+			for j = 1, #KillBossQuest do
+				local data = KillBossQuest[j]
+				Actor.setQuestValue(actorList[i],data.qid,data.id,data.count)
+			end
+		end
+	end]]
+end

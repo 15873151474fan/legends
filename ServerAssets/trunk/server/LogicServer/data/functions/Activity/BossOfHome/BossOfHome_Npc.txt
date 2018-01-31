@@ -1,0 +1,24 @@
+﻿--#include "data\config\BossSystem\MapBossConfig.txt" once
+
+--[[
+    函数名称：Boss之家 
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function BossOfHome_Main(sysarg)
+  Str = "\\<#BL".."进入Boss之家".."/@OnEnterBossOf>"  --<进入Boss之家>
+  --print("GouFire_Main:"..Str)
+  return Str
+end
+
+function OnEnterBossOf(sysarg)   
+  local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+  if VipLevel <= 0 then
+     Actor.sendTipmsg(sysarg, Lang.NewVip.tip016, ttFlyTip)
+     return
+  end
+  Actor.enterScene(sysarg, UnderGroundBossOtherConfig.BossOfHomeMapId, UnderGroundBossOtherConfig.BossOfHomex, UnderGroundBossOtherConfig.BossOfHomey, 3, 3)
+  System.broadcastTipmsg(string.format(Lang.NewVip.tip017, Actor.getName(sysarg)), ttScreenCenter+ttChatWindow)
+end
+
+table.insert(MainFnTable, BossOfHome_Main)

@@ -1,0 +1,900 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--5e2.0 game engine internal functions-->
+<functions>
+	<fn name="printf" class="0" type="1">
+		<desc>输出消息到控制台</desc><args><arg name="msg" desc="消息内容"/></args></fn>
+	<fn name="SaveTableToFile" class="0" type="1"><desc>将表对象序列化为脚本并保存到文件中
+文件的根目录是envir。
+\color{clRed}表中的函数、用户对象、线程对象都将被忽略</desc><args><arg name="t" desc="表对象"/><arg name="file" desc="文件路径（根目录是envir）"/></args></fn>
+	<space name="Actor"><fn name="hasQuest" class="0" type="0"><desc>检测玩家角色是否有这个任务
+
+返回值类型：bool
+
+有返回 ：true
+没有返回 ：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="mission" desc="系统参数"/></args></fn><fn name="addQuest" class="0" type="0"><desc>给玩家增加一个任务
+
+返回值 ：bool
+
+增加成功返回： true
+失败返回 ： false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="finishQuest" class="0" type="0"><desc>完成玩家角色身上的一个任务
+
+返回值: bool
+
+完成任务成功返回： true 
+完成任务失败返回：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="mission" desc="任务id"/></args></fn><fn name="setTargetValue" class="0" type="1"><desc>设置玩家角色一个任务需要完成的条件的值
+
+无返回值</desc><args><arg name="sysarg" desc="系统参数"/><arg name="mission" desc="任务id"/><arg name="nTargetId" desc="任务的类型"/><arg name="nId" desc="需求目标的id"/><arg name="nValue" desc="需求目标的数量"/></args></fn><fn name="addTargetValue" class="0" type="0"><desc>增加玩家角色一个任务的需求值</desc><args><arg name="sysarg" desc="系统参数"/><arg name="mission" desc="任务id"/><arg name="nTargetId" desc="任务的类型"/><arg name="nId" desc="需求目标的id"/><arg name="nValue" desc="需求目标的数量"/></args></fn><fn name="getTargetValue" class="0" type="0"><desc>取得一个任务的需求值，如果没有这个任务或者任务
+错误返回0
+
+返回值类型：number</desc><args><arg name="sysarg" desc="系统参数"/><arg name="mission" desc="任务id"/><arg name="nTargetId" desc="任务的类型"/><arg name="nId" desc="需求目标的id"/></args></fn><fn name="formatQuestState" class="0" type="0"><desc>返回玩家角色在当前NPC中的任务信息
+
+返回值类型：string</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setRTIntValue" class="0" type="0"><desc>设置玩家对象中相对位置的值
+在玩家的身上有100的变量空间提供脚本调用，可以通过此接
+口设置相关的值
+例如 位置 0 记录的是任务的ID 
+                  1 记录任务在任务表中的索引值</desc><args><arg name="sysarg" desc="系统参数"/><arg name="position" desc="位置（整型数）"/><arg name="number" desc="需要设置的值"/></args></fn><fn name="getRTIntVaue" class="0" type="0"><desc>返回玩家对象中相对位置的值</desc><args><arg name="sysarg" desc="系统参数"/><arg name="position" desc="玩家对象变量中的相对位置"/></args></fn><fn name="closeNPCDialog" class="0" type="0"><desc>关闭当前NPC的对话框</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="openDialogs" class="0" type="0"><desc>打开指定类型的对话框</desc><args><arg name="sysarg" desc="系统参数"/><arg name="type" desc="对话框类型"/></args></fn><fn name="formatQuestNeeds" class="0" type="0"><desc>返回任务需要达成的条件
+
+返回值 ：string</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="formatQuestAWards" class="0" type="0"><desc>返回任务的奖励信息
+
+返回值 ： string</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getQuestStateType" class="0" type="0"><desc>获得玩家任务的状态
+
+返回值 bool
+
+没有任务返回 ：false
+
+其他情况返回：true</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getMenPai" class="0" type="0"><desc>返回玩家所在的门派
+
+返回值类型：number
+
+0：无门派  1：华山派  2：水月宫  3：少林  4： 御神流</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="enterFuBen" class="0" type="0"><desc>传送玩家进入副本（通过副本的对象进入）
+
+返回值：bool   
+成功返回：true 
+失败返回：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="hFbHandle" desc="副本对象"/><arg name="nSecnceId" desc="地图场景的ID"/><arg name="posX" desc="需要传送地图X坐标"/><arg name="posY" desc="需要传送地图的Y坐标"/></args></fn><fn name="enterFuBenWithId" class="0" type="0"><desc>传送玩家进入副本（通过副本的ID）
+
+返回值类型：bool
+成功返回：true
+失败返回：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nFbId" desc="副本的ID"/><arg name="nSecnceId" desc="地图场景的ID"/><arg name="posX" desc="需要传送的X坐标"/><arg name="posY" desc="需要传送的Y坐标"/></args></fn><fn name="getEntity" class="0" type="0"><desc>通过handle获取实体的指针</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getName" class="0" type="0"><desc>通过实体指针返回实体名字
+
+返回值：char
+返回实体名字</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getHandle" class="0" type="0"><desc>获取实体的Handle
+
+返回类型：double</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="canFinishQuest" class="0" type="0"><desc>判断任务是否达到完成条件
+
+int nQuestId：任务Id
+
+返回值：bool
+
+成功返回: true 失败返回：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nQusetId" desc="任务Id"/></args></fn><fn name="getQusetCount" class="0" type="0"><desc>获取任务的总数</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setQuestValue" class="0" type="0"><desc>设置任务的进度值
+
+nQid：任务Id
+nId：怪物i或者物品Id
+nVlude：设置任务的值，会覆盖原来的值</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nQid" desc="任务Id"/><arg name="nId" desc="怪物或者物品Id"/><arg name="nValue" desc="设置任务的值，会覆盖原来的值"/></args></fn><fn name="addQuestValue" class="0" type="0"><desc>在原来的任务进度值增加
+
+nQid：任务Id号
+nId：怪物id或者物品Id
+nValue：要增加的值，在原来的值的基础上增加
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nQid" desc="任务Id号"/><arg name="nId" desc="怪物id或者物品Id"/><arg name="nValue" desc="要增加的值，在原来的值的基础上增加"/></args></fn><fn name="getQuestValue" class="0" type="0"><desc>获取任务的进度值
+
+nQId：任务Id
+nId：怪物或者物品Id</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nQid" desc="任务Id"/><arg name="nId" desc="怪物Id或者物品Id"/></args></fn><fn name="getExpLastLogout" class="0" type="0"><desc>获取角色上次下线那天获取的经验值
+
+返回类型：int</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="enterScene" class="0" type="0"><desc>进入场景
+
+返回类型：bool
+
+成功返回：true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSceneId" desc=" 场景Id"/><arg name="x" desc="x坐标点"/><arg name="y" desc="y坐标点"/></args></fn><fn name="isFinishQuest" class="0" type="0"><desc>判断是否完成某个任务，这个只判断主线任务
+
+返回类型：bool
+
+成功返回：true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="learnSkill" class="0" type="0"><desc>学习一个技能已经学会，这个主要给怪物使用
+
+返回类型：int
+
+返回学习技能的错误码，如果没有错误返回0</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nId" desc="技能Id"/><arg name="nLevel" desc="技能等级"/></args></fn><fn name="delSkill" class="0" type="0"><desc>删除某个技能
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nId" desc="技能Id"/></args></fn><fn name="removeItem" class="0" type="0"><desc>删除某个物品
+
+返回类型：int
+
+返回删除物品的数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="wItemId" desc="物品Id"/><arg name="btCount" desc="数目"/><arg name="btQuality" desc="品质"/><arg name="btStrong" desc="强化"/><arg name="bBindFlag" desc="是否绑定,如果是-1表示绑定和非绑定都可以"/><arg name="sComment" desc="添加物品的运营日志"/><arg name="nLogID" desc="添加物品的日志号"/></args></fn><fn name="addItem" class="0" type="0"><desc>添加一个物品
+
+返回类型：int
+
+返回实际增加的物品数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="wItemId" desc="物品Id"/><arg name="btQuality" desc="品质"/><arg name="btStrong" desc="强化值"/><arg name="btCount" desc="数量"/><arg name="btBindFlag" desc="是否绑定"/><arg name="nLeftTime" desc="物品剩余时间"/><arg name="sComment" desc="添加物品的运营日志"/><arg name="nLogId" desc="添加物品的运营日志Id"/></args></fn><fn name="getIntProperty" class="0" type="0"><desc>获取实体指针的属性值
+
+返回类型：int
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pid" desc="属性id，属性id见PropertyDef.h里的定义"/></args></fn><fn name="setUIntProperty" class="0" type="0"><desc>获取实体的无符号整形属性值，用于战魂值,pk值(杀戮值) 
+等少数几个属性用
+
+返回类型：bool
+
+成功返回：true  失败返回false</desc><args><arg name="sysarg " desc="系统参数"/><arg name="nPropID" desc="属性的ID"/><arg name="nValue" desc="属性的值"/></args></fn><fn name="removeItemByPtr" class="0" type="0"><desc>通过一个物品的指针和数量来删除
+
+返回类型：int
+
+返回删除的数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pUserItem" desc="物品指针"/><arg name="nCount" desc="需要删除的数量"/><arg name="bNeedFreeMemory" desc="需要释放的内存"/><arg name="sComment" desc="运营日志"/><arg name="nWayLogID" desc="日志Id"/></args></fn><fn name="isHpFull" class="0" type="0"><desc>玩家的血是否满了
+
+返回类型：bool
+
+满血返回：true，负责返回false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="isMpFull" class="0" type="0"><desc>玩家的蓝是否是满了</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="addBuff" class="0" type="0"><desc>添加Buff
+
+返回类型：void
+
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nBuffType" desc="buff类型"/><arg name="nGroupID" desc="buff的分组"/><arg name="dValue" desc="buff的值"/><arg name="nTimes" desc="作用的次数"/><arg name="nInterval" desc="作用的间隔，单位秒"/><arg name="buffName" desc="buff名字"/><arg name="timeOverlay" desc="时间是否叠加,如果是true表示叠加，否则表示不叠加"/><arg name="pGiver" desc="Buff给予者"/><arg name="param" desc="辅助参数"/></args></fn><fn name="delBuff" class="0" type="0"><desc>删除一个BUFF
+
+返回void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nBuffType" desc="buff类型"/><arg name="nGroupID" desc="buff的组"/></args></fn><fn name="hasBuff " class="0" type="0"><desc>玩家身上是否存在某种buff
+
+返回类型：bool
+
+如果存在buff返回：true，否则返回：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nBuffType" desc="buff的类型"/><arg name="nGroup" desc="buff的组，如果任何组的话，使用-1"/></args></fn><fn name="changeHp" class="0" type="0"><desc>改变HP
+
+Return void:
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nValue" desc="改变的HP值，比如加100，这里就是100，减100就是-100"/></args></fn><fn name="changeMp" class="0" type="0"><desc>修改玩家的MP
+
+Return void
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nValue" desc="改变的MP值，比如加100，这里就是100，减100就是-100"/></args></fn><fn name="changeCharm" class="0" type="0"><desc>修改玩家的魅力值</desc><args><arg name="sysarg" desc="系统参数"/><arg name=" nValue" desc=" 改变的活力值，比如加100，这里就是100，减100就是-100"/></args></fn><fn name="getItemCount " class="0" type="0"><desc>统计指定物品的数量
+
+返回类型：int
+返回匹配的物品的总数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="wItemId" desc="物品ID"/><arg name="nQuality" desc="物品品质，-1表示匹配所有品质"/><arg name="nStrong" desc="物品强化等级，-1表示匹配所有强化等级;"/><arg name="nBind" desc="是否绑定，如果-1表示不判断是否绑定"/></args></fn><fn name="canAddItem" class="0" type="0"><desc>能否添加物品
+
+返回类型：bool
+
+成功返回：true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name=" nItemID" desc="物品的id"/><arg name="nCount" desc="物品的数量"/><arg name="nQuality" desc="物品的品质"/><arg name="nStrong" desc="物品的强化等级"/><arg name="isBinded" desc="物品是否绑定"/></args></fn><fn name="sendTipmsgWithId" class="0" type="0"><desc>根据系统提示ID发送系统提示
+
+返回：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nTipmsgID" desc="系统提示ID"/><arg name="nTipmsgType" desc="系统提示的类型"/></args></fn><fn name="sendTipmsgWithParams" class="0" type="0"><desc>带参数发送tipmsg,在配置里需要用%s标示参数，比如 %s 将
+装备强化到%s级</desc><args><arg name="sysarg " desc="系统参数"/><arg name="nTipmsgID" desc="tipmsgID"/><arg name="nTipmsgType" desc="tipmsg的类型,ttTipmsgWindow等"/></args></fn><fn name="sendTipmsg " class="0" type="0"><desc>发送系统提示消息,自己组装好了，不需要组装就调用这个接口
+
+返回：int</desc><args/></fn><fn name="changeMoney" class="0" type="0"><desc>修改玩家的金钱数量
+
+返回类型：bool
+
+成功返回：true，失败返回：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMoneyType" desc="金钱的类型,eMoneyType 里定义的"/><arg name="nValue" desc="金钱的数值"/><arg name="nLogid" desc="日志id"/><arg name="sComment" desc="备注"/></args></fn><fn name="hasEquiment" class="0" type="0"><desc>判断玩家身上有没有这个装备
+
+返回类型：bool
+
+有就返回：true，否则：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="wItemId" desc="装备的id"/></args></fn><fn name="getDayFubenCount" class="0" type="0"><desc>获取当天进入不同副本的副本的总次数
+
+return ：int</desc><args><arg name="sysarg" desc="系统参数"/><arg name="type" desc="副本的模式"/></args></fn><fn name="subDaySingleCount" class="0" type="0"><desc>减少当天不同副本的次数，每调用一次减1</desc><args><arg name="sysarg" desc="系统参数"/><arg name="type" desc="副本的模式"/></args></fn><fn name="isInTeam" class="0" type="0"><desc>获取这个玩家是否已经加入了某个队伍
+
+返回类型：bool
+
+有则返回:true，否则:false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="exitTeam" class="0" type="0"><desc>使玩家退出当前队伍，如果有加入的话</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="addToTeam" class="0" type="0"><desc>把玩家加入到一个队伍中，主要是副本队伍中使用</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nTeamId" desc="队伍Id"/></args></fn><fn name="getFubenId" class="0" type="0"><desc>获取玩家当前所在的副本Id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getSceneId" class="0" type="0"><desc>获取玩家所在的场景id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getSceneName" class="0" type="0"><desc>获取所在的场景名称，和坐标
+
+返回类型：char</desc><args><arg name="sysarg" desc="系统参数"/><arg name="y" desc="y坐标"/><arg name="x" desc="x坐标"/></args></fn><fn name="exitFuben" class="0" type="0"><desc>玩家退出副本，如果玩家当前正在普通场景，则函数不处理，
+如果正在副本，则退回普通场景</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getSkillProperty" class="0" type="0"><desc>获取技能的属性
+
+返回类型：int
+返回技能的属性</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSkillID" desc="技能的ID"/><arg name="nPropID" desc="属性的ID,1表示等级，2表示经验"/></args></fn><fn name="setSkillProperty" class="0" type="0"><desc>设置玩家的技能的属性
+
+返回类型：bool
+成功返回true，否则返回false
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSkillID" desc="技能的ID"/><arg name="nPropID" desc="属性的ID,1表示等级，2表示经验"/><arg name="nValue" desc="新的数值"/></args></fn><fn name="getFubenHandle" class="0" type="0"><desc>获取角色当前副本的handle</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getSceneHandle " class="0" type="0"><desc>获取角色当前场景的handle</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="messageBox" class="0" type="0"><desc>本功能用于 角色A向角色B发送信息，角色B界面弹出一个对话
+框（有多个按钮），当角色B点击某个按钮后，执行相应的脚
+本函数
+
+返回类型：int
+返回0表示成功，1表示参数有错，2表示对方不在线</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nActorId" desc="接收这个消息的角色id，如果是0，则表示发送给自己"/><arg name="hNpc" desc="将要执行脚本的npc的handle"/><arg name="sTitle" desc="对话框的标题"/><arg name="sBtn1" desc="脚本（按钮）的内容，文本内容为包含了按钮要显示的文字，以及点击后要执行的函数名，中间用 “/”隔开，比如&quot;确定/commonAcceptMissions,1"/><arg name="sBtn2" desc="如果只一个按钮，sbtn2和sbtn3可传NULL，或者空字符串(&quot;&quot;)"/><arg name="sBtn3" desc="如果只2个按钮，sbtn3可传NULL，或者空字符串(&quot;&quot;)"/><arg name="nTimeOut" desc="对话框的存在时间，单位：秒。如果不限制时间，填 0"/><arg name="msgType:" desc="0：直接弹出	1：停在屏幕中央，用户点击才弹出"/><arg name="char*" desc="鼠标移上去的tip，弹出类型是1才有用"/></args></fn><fn name="getNpcdle" class="0" type="0"><desc>获取玩家当前正在聊天的npc的han
+
+Return unsigned long long:如果没有，则返回0
+
+</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getMateId " class="0" type="0"><desc>获取伴侣的id
+
+
+Return unsigned int:如果返回0表示没伴侣，否则返回对方的id
+</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getMasterId  " class="0" type="0"><desc>获取师傅的id  
+
+unsigned int:如果返回0表示没师傅，否则返回对方的id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="clearMateId " class="0" type="0"><desc>把伴侣id设为0，即离婚</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="merried  " class="0" type="0"><desc>和某人结婚</desc><args><arg name="pActor" desc="对方指针，由于对方必须是在线的，所以这里用指针"/></args></fn><fn name="getBrotherCount" class="0" type="0"><desc>获取结拜兄弟的数量</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getApprenticeCount" class="0" type="0"><desc>获取徒弟的数量</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setInterActionParam " class="0" type="0"><desc>交互系统中设置参数，主要提供给脚本用，作为脚本操作中
+保存一些数据</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nRsType" desc="关系类型，见tagRelationShip定义"/><arg name="nParam" desc="系统参数"/></args></fn><fn name="getInterActionParam" class="0" type="0"><desc>获取脚本设置的参数
+
+Return unsigned int
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nRsType" desc="关系类型，见tagRelationShip定义"/></args></fn><fn name="getRelationShip  " class="0" type="0"><desc>获取两个玩家的关系
+
+Return int:
+返回值见tagRelationShip的定义</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nActorId" desc="角色Id"/></args></fn><fn name="isInSameScreen" class="0" type="0"><desc>判断两个玩家是否在同一屏
+
+返回类型：bool
+
+在同一屏幕返回：true 否则：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="other" desc="系统参数"/></args></fn><fn name="master  " class="0" type="0"><desc>向pActor拜师
+
+返回 void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pActor*" desc="对家一定要在线"/></args></fn><fn name="unMaster" class="0" type="0"><desc>脱离师傅</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="addBrother  " class="0" type="0"><desc>增加一个结拜兄弟</desc><args><arg name="sysarg" desc="系统参数"/><arg name="* pActor" desc="对方id"/></args></fn><fn name="delBrother" class="0" type="0"><desc>删除一个结拜兄弟</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nActorid" desc="角色Id"/></args></fn><fn name="addApprentice" class="0" type="0"><desc>增加一个徒弟</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pActor" desc="这个是徒弟"/></args></fn><fn name="delApprentice" class="0" type="0"><desc>删除一个徒弟</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pActorId" desc="这个是徒弟Id"/></args></fn><fn name="getTeamMemberCount  " class="0" type="0"><desc>获取队友的数量,包含自己，比如自己加另外一个队友就是2个人
+
+返回类型：int
+返回队友的数量</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getOnlineTeamMemberCount" class="0" type="0"><desc> 获得玩家在线的队友的数量(包括自己)
+
+返回类型：int
+
+返回队伍里在线的队员的数量，包含玩家自己</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getTeammemberByIndex" class="0" type="0"><desc>获取第nIndex个队友的信息(不包含自己)[0-3有效]
+注意：队友包含不在线的，如果不在线的话nActorID不为0，
+但是返回的指针为NUL
+
+返回类型：void*
+返回队友的指针</desc><args><arg name="sysargL" desc="系统参数"/><arg name="nIndex" desc="0-3的数字"/><arg name="nActorID" desc="队友的actorID"/></args></fn><fn name="getActorPtrByName  " class="0" type="0"><desc>根据角色的名称获取指针，如果不在线或没有这个名称的，
+则返回NULL</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="createMonster" class="0" type="0"><desc>创建一个怪物,创建出来后，怪物的拥有者是玩家
+
+返回：void
+
+如果成功创建，返回怪物的指针，失败返回null</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMonsterid" desc="怪物id，对应怪物配置表中的id"/><arg name="posX" desc="怪物出现的x坐标，注意：怪物出现的场景和副本和玩家是一样的"/><arg name="posY" desc="怪物出现的y坐标"/><arg name="nLiveTime" desc="怪物存活的时间"/></args></fn><fn name="setMonsterOwer" class="0" type="0"><desc>设置怪物的归属者成自己
+
+返回：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pMonster" desc="怪物的指针"/></args></fn><fn name="getMonsterOwner " class="0" type="0"><desc>获取怪物归属者
+
+返回：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setReliveTimeOut" class="0" type="0"><desc>判断复活时间是否超时（用户超过5分钟没有选择回城复活
+还是原地复活），如果到达，脚本处理，送回主城复活
+
+返回：void</desc><args><arg name="sysarg " desc="系统参数"/><arg name="nTimeOut" desc="超时时间，策划文档写是5分钟，即 5x60 = 300 .这个单位是秒"/></args></fn><fn name="clearReliveTimeOut" class="0" type="0"><desc>把复活超时时间变成0
+
+返回：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getReliveTimeOut" class="0" type="0"><desc>获取玩家复活的剩余超时时间
+
+返回：unsigned int</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="returnCity" class="0" type="0"><desc>回城！你懂的 - -
+
+返回：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="relive " class="0" type="0"><desc>复活！如果现在在普通场景，则复活到上一个普通场景的复活
+点，否则复活在副本里
+
+返回：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getLastLogoutTime" class="0" type="0"><desc>获取角色上次下线的时间
+
+返回：unsigned int
+</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="resetFubenTimes" class="0" type="0"><desc>重置角色每日凌晨要清空的数据，这个是副本时间
+
+返回：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setFubenTimes" class="0" type="0"><desc>设置数据要重置的时间(第二日凌晨）
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="createFubenTeam" class="0" type="0"><desc>提供给脚本创建副本队伍，脚本应该在判断玩家的等级、
+进入副本的次数等条件符合的时候才调用那个这个接口
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nFbid" desc="要进入的副本id"/></args></fn><fn name="getTeamId" class="0" type="0"><desc>获取队伍id，如果不在队伍，返回0
+
+返回类型：unsigned int</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGuildZzTime" class="0" type="0"><desc>获取在帮派的在职时间，给脚本保存数据用
+
+返回类型：unsigned int</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setGuildZzTime" class="0" type="0"><desc>设置帮派的在职时间，如果上次没保存的数据，直接设置成0
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nTime" desc="在职时间"/></args></fn><fn name="getGuildWealTime" class="0" type="0"><desc>获取在帮派的获取福利时间，给脚本保存数据用
+
+返回类型：unsigned int</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setGuildWealTime" class="0" type="0"><desc>设置帮派的获取福利时间，如果上次没保存的数据，直接设
+置成0</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nTime" desc="时间"/></args></fn><fn name="clearGuildZjItem" class="0" type="0"><desc>清除召集令，召集令在每日凌晨定期清理，因此用户登陆时
+如果上次下线时间是昨天，则调用这个函数
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getPkMode" class="0" type="0"><desc>获取玩家的pk模式
+
+返回类型：int</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setPkMode" class="0" type="0"><desc>设置玩家的pk模式
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMode" desc="PK模式"/></args></fn><fn name="isKillAllMonster" class="0" type="0"><desc>测试玩家所在的场景所有怪物是否被杀死
+
+返回类型：bool
+
+怪物死了返回：true，否则：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMonsterId" desc="0表示所有怪物，否则表示指定的怪物id"/></args></fn><fn name="getLiveMonsterCount" class="0" type="0"><desc>获取玩家所在场景某种怪物的剩余数量
+
+返回类型：int
+返回怪物剩余的数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMonsterId" desc="怪物id"/></args></fn><fn name="getMyMonsterCount" class="0" type="0"><desc>获取玩家所在场景某种怪物属于本人的剩余数量
+
+返回类型：int
+
+返回剩余怪物的数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMonsterId" desc="怪物id，如果是0，表示计算所有怪物"/></args></fn><fn name="setDefaultPracticeTime" class="0" type="0"><desc>设置默认操（打坐）练剩余时间，用于每日重设操练时间
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSecond" desc="操练剩余时间，单位为秒"/></args></fn><fn name="clearPracticeAward" class="0" type="0"><desc>清空操练奖励设置
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="isPracticing" class="0" type="0"><desc>判断是否打坐中
+
+返回类型：bool
+
+打断返回：true，否则：false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="addPracticeAward  " class="0" type="0"><desc>添加操练奖励项
+
+返回类型：bool
+添加奖励是否成功。导致失败的原因有设置了不允许的奖励
+类型（元宝等属性ID）或者已经具有了
+MaxPracticeAwardCount(8)个奖励项</desc><args><arg name="sysarg " desc="系统参数"/><arg name="nPropId:" desc="奖励类型，值为角色属性ID（并非支持所有属性）。属性id见PropertyIDDef.h里的定义"/><arg name="nIntervalOfSec" desc="以秒为周期的奖励间隔"/><arg name="nCount" desc="每间隔奖励的数量"/></args></fn><fn name="startPractice" class="0" type="0"><desc>使玩家开始操练
+
+返回类型：bool
+成功返回：true，否则：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nModleId" desc="操练的模型ID"/><arg name="nCustomTime" desc=" 自定义操练的持续时间，如果值为0则消耗默认操练时间，否则不消耗默认操练时间"/><arg name="pActor" desc="角色指针"/></args></fn><fn name="stopPractice  " class="0" type="0"><desc>停止操练</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="addExp" class="0" type="0"><desc>给一个玩家增加经验
+
+返回类型:void
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nValue" desc="增加经验的值,减少就填负数"/><arg name="nWay" desc="经验的来源,比如任务，排名，工会等,在GameLog里定义"/><arg name="nParam" desc="如果是任务，这个就填写任务的ID，其他的话填关键的有意义的参数，如果没有就填写0"/></args></fn><fn name="changeXiuwei" class="0" type="0"><desc>修改玩家的修为值
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nValue:" desc="当是负数为减少"/></args></fn><fn name="getDyanmicVar" class="0" type="0"><desc>获取动态变量，动态变量仅在运行时有效，玩家下线将清空
+且不会保存
+
+sysarg为 lua_state*</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getStaticVar" class="0" type="0"><desc>获取静态变量，静态变量在玩家下线时会保存且在玩家上线
+时会加载
+
+sysarg为lua_state*类型</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="hasMapAreaAttri" class="0" type="0"><desc>判断玩家所在的地图区域是否含有指定的属性</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nAttriValue" desc="见tagMapAreaAttribute的定义"/></args></fn><fn name="HasTitle" class="0" type="0"><desc>玩家是否有这个称号
+
+返回类型：bool
+有这个称号返回：true，否则返回：false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nTitleID" desc="称号的id"/></args></fn><fn name="GiveTitle" class="0" type="0"><desc>给玩家一个称号
+
+返回类型：bool
+成功返回true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nTitleID" desc="称号的id"/></args></fn><fn name="GiveupTitle" class="0" type="0"><desc>放弃一个称号
+
+返回类型：bool
+成功返回true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nTitleID" desc="称号Id"/></args></fn><fn name="addChallenge" class="0" type="0"><desc>增加一个擂台到列表
+
+返回类型：int
+返回擂台的Id，成功返回非0</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nType" desc="擂台的类型，单人或者队伍,如果是队伍，本人必须是队长"/></args></fn><fn name="exitChallenge" class="0" type="0"><desc>退出自己的擂台
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="challenge" class="0" type="0"><desc>把自己加到某个擂台，即在判断达到挑战某个擂台的条件后，
+调用这个
+
+返回类型：bool
+
+成功返回true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nChallengeId" desc="加入的擂台id"/></args></fn><fn name="getChallenge" class="0" type="0"><desc>获取本人所在的擂台的id,本擂台可能是单人也可能是队伍的
+
+返回类型：int
+没有则返回0</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setChallenge" class="0" type="0"><desc>设置本人的擂台id
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nChalllengeId" desc="擂台id"/></args></fn><fn name="triggerAchieveEvent" class="0" type="0"><desc>触发成就事件,比如玩家强化装备等，用于玩家获得成就
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nEventID" desc="成就事件的ID"/><arg name="pParam1" desc="可变参数1"/><arg name="pParam2" desc="可变参数2"/><arg name="pParam3" desc="可变参数3"/></args></fn><fn name="sendCanChallengeList" class="0" type="0"><desc>发送可挑战的擂台列表给客户端
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nType" desc="擂台类型"/></args></fn><fn name="sendAllChallengeList" class="0" type="0"><desc>发送所有的擂台列表给客户端
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nType" desc="擂台类型"/></args></fn><fn name="getTalkNpcName" class="0" type="0"><desc>获取正在对话的npc的名字，注意：没有则会返回null
+
+返回类型：char
+没有返回null</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setEscortMonsterDestPoint" class="0" type="0"><desc>设置护送怪物目标点
+
+返回类型：bool
+成功返回true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pEntity" desc="护送怪对象指针"/><arg name="nX " desc="目标点位置X"/><arg name="nY" desc="目标点位置Y"/></args></fn><fn name="setMonsterPathPoint" class="0" type="0"><desc>设置怪物路径点
+
+返回类型：int
+位置坐标。参数为一系列的点坐标。例如x1, y1, x2, y2, x3, y3....</desc><args><arg name="sysarg " desc="系统参数"/></args></fn><fn name="getActorFriendsCount" class="0" type="0"><desc>获取玩家好友数量
+
+返回类型：int
+
+sysarg 为玩家指针</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getActorFriend" class="0" type="0"><desc>获取玩家第idx个好友actorid
+
+返回类型：int
+返回第几个好友
+
+sysarg为玩家指针</desc><args><arg name="sysarg" desc="系统参数"/><arg name="idx" desc="好友索引"/></args></fn><fn name="postEntityScriptDelayMsg" class="0" type="0"><desc>往实体身上投递一个延迟回调消息。延迟时间到了之后，
+会在此实体身上触发事件
+
+返回类型：int
+返回消息编号唯一表示（采用GetTickCount）</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nDelayTime" desc="延迟时间(ms)"/><arg name="result" desc="返回操作结果。成功返回true，失败返回false"/><arg name="param1 " desc="返回操作结果。成功返回true，失败返回false"/><arg name="param2" desc="返回操作结果。成功返回true，失败返回false"/><arg name="param3" desc="返回操作结果。成功返回true，失败返回false"/><arg name="param4" desc="返回操作结果。成功返回true，失败返回false"/><arg name="param5" desc="返回操作结果。成功返回true，失败返回false"/><arg name="bForceCallWhenDestroy" desc="是否实体销毁时强制执行。实体可能在某些消息还没执行就被销毁，此标记用于决定是否实体销毁前强制执行此消息"/></args></fn><fn name="removeEntityScriptDelayMsg" class="0" type="0"><desc>从实体消息队列中移除一个脚本延迟消息
+
+返回类型：bool
+成功返回true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMsgIndex" desc="消息编号"/></args></fn><fn name="canUseItem" class="0" type="0"><desc>判断某个物品能否使用，通常是判断角色的区域是否有这个
+限制
+
+返回类型：bool
+成功返回true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nItemId" desc="物品id"/></args></fn><fn name="isAchieveFinished" class="0" type="0"><desc>玩家成就是否完成
+
+返回类型：bool
+已经完成返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nAchieveID" desc="成就的id"/></args></fn><fn name="addVIPTimeByType" class="0" type="0"><desc>延长VIP时间
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="vipType" desc="VIP类型"/><arg name="nTime" desc="延长的时常，秒为单位"/></args></fn><fn name="isVIPByType" class="0" type="0"><desc>判断玩家是否开通了指定类型的VIP功能
+
+返回类型：bool
+开通指定类型VIP返回true，否则false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="vipType" desc="VIP类型"/></args></fn><fn name="getPositionByDir" class="0" type="0"><desc>根据实体的朝向点
+
+返回类型：bool
+返回false，表示唔可放点，否则 true</desc><args><arg name="sysarg" desc="系统参数"/><arg name="radio" desc="半径范围，多少个网格"/><arg name="nX" desc="获取到的位置x,返回值"/><arg name="nY" desc="获取到的位置y,返回值"/></args></fn><fn name="monsterSay" class="0" type="0"><desc>怪物发言
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name=" pMsg" desc="发言内容"/><arg name="nBCType" desc="发言广播类型，参见MonsterSayBCType类型定义"/></args></fn><fn name="followActor" class="0" type="0"><desc>跟随某个玩家
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pActor" desc="被跟随的玩家"/><arg name="nMinDist" desc="跟随保持最小距离"/><arg name="nMaxDist" desc="跟随最大距离超过这个距离就停止跟随，并且通知玩家跟随失败"/><arg name="bStopWhenFailed" desc="是否跟随失败后停止跟随。true表示跟随失败后停止跟随"/></args></fn><fn name="addSlave" class="0" type="0"><desc>添加一个宝宝
+
+返回类型：void*
+返回创建的下属</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMonsterId" desc="怪物Id"/><arg name="nLevel" desc="怪物级别。如果大于0，就表明采取默认的等级"/><arg name="nLiveTime" desc="存活时间"/><arg name="nMinDist" desc="最小跟随距离"/><arg name="nMaxDist" desc="最大跟随距离"/></args></fn><fn name="getSlave" class="0" type="0"><desc>获取某个宝宝
+
+返回类型：void*
+返回指定名称的第一宝宝对象</desc><args><arg name="sysarg" desc="系统参数"/><arg name="szName:" desc="宝宝名称"/></args></fn><fn name="getSlaveCount" class="0" type="0"><desc>获取宝宝数量
+
+返回类型：int
+返回宝宝的数量</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getSlaveCountEx" class="0" type="0"><desc>获取指定名称宝宝的数量
+
+返回类型：int
+返回指定名称宝宝的数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="szName" desc="宝宝名称"/></args></fn><fn name="removeSlave" class="0" type="0"><desc>删除指定名称的宝宝
+
+返回类型：int
+返回实际删除的宝宝数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="szName" desc="宝宝名称"/><arg name="nCount" desc="指定要删除的宝宝数量。如果为-1表明删除所有此名称的宝宝"/></args></fn><fn name="addToWatchList" class="0" type="0"><desc>将指定宝宝怪添加到其拥有者的监控列表。拥有者只能是
+玩家，不能是其他类型实体
+
+返回类型：bool
+
+成功返回true，失败返回false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="hasMonsterNear" class="0" type="0"><desc>判断可视范围内是否有指定的怪物存在
+
+返回类型：bool
+存在指定的怪物，并且数量大于nCount则返回true</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMonsterId" desc="怪物id"/><arg name="nCount" desc="怪物的数量，比如只要有1只就行，传1"/></args></fn><fn name="queryServicesAddCard" class="0" type="0"><desc>玩家查询增值卡
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="*pSN" desc="增值卡序列号字符串"/><arg name="bQueryOrUse" desc="查询还是使用。true表示查询，false表示使用"/></args></fn><fn name="userServicesAddCard" class="0" type="0"><desc>玩家使用增值卡
+
+返回类型void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="seriesNo" desc="增值卡序列号（这个是查询结果返回的卡号）"/></args></fn><fn name="setFubenData" class="0" type="0"><desc>设置角色的副本数据（给脚本用于存储数据的空间）
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nIndex" desc="数组的索引，不超过8"/><arg name="nValue" desc="数值"/></args></fn><fn name="getFubenData" class="0" type="0"><desc>获取角色的副本数据
+
+返回类型：int
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nIndex" desc="数组的索引，不超过8"/></args></fn><fn name="isMonster" class="0" type="0"><desc>判断是否怪物
+
+返回类型：bool
+是返回true</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getEntityPosition" class="0" type="0"><desc>获取实体所在的xy坐标
+
+返回类型：void
+
+这类型的函数调用方法是：local x,y =
+ getEntityPosition(npcPointer,0,0) 参数0，0不重要</desc><args><arg name="sysarg" desc="系统参数"/><arg name="x" desc="返回值x坐标"/><arg name="y" desc="返回值y坐标"/></args></fn><fn name="setEntityTelByOwnderAttr" class="0" type="0"><desc>设置实体是否跟着归属者传送
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="bSet" desc="true表示跟着归属者一起传送；否则不跟着归属者传送"/></args></fn><fn name="setEntityLazyFollow" class="0" type="0"><desc>设置实体是否惰性跟随
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="bSet" desc="true表示惰性跟随；否则为非惰性跟随"/></args></fn><fn name="setEntityCanAttackMonster" class="0" type="0"><desc>设置实体能攻击怪物属性
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="bSet " desc="true表示可以攻击怪物；否则为不可攻击怪物"/></args></fn><fn name="setDenyAttackedByActor" class="0" type="0"><desc>设置实体是否可被玩家攻击
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="bSet" desc="true表示不可被玩家攻击；否则为可被玩家攻击"/></args></fn><fn name="triggerPictureGuide" class="0" type="0"><desc>触发图文引导
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nGuildId" desc="引导的id"/></args></fn><fn name="clearKillMonsterCount" class="0" type="0"><desc>清零角色的杀怪个数，通常是在进入副本的时候由脚本清空</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getKillMonsterCount " class="0" type="0"><desc>返回在副本中杀死怪物的个数</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setGetFbAwardFlag" class="0" type="0"><desc>是否已获取副本奖励</desc><args><arg name="sysarg" desc="系统参数"/><arg name="flag" desc="1表示获取，否则没获取"/></args></fn><fn name="getGetFbAwardFlag " class="0" type="0"><desc>
+判断是否获取了奖励</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="onRelive" class="0" type="0"><desc>当复活时候触发</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="sendCountdown" class="0" type="0"><desc>给客户端发送倒计时时间，客户端收到这个消息，显示一个
+倒计时的特效
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="giveAward" class="0" type="0"><desc>给玩家奖励</desc><args><arg name="sysarg" desc="系统参数"/><arg name="Type" desc="奖励的类型id，通用的"/><arg name="nValue" desc="奖励的数值，比如经验的话就是经验的数值"/><arg name="nLogId" desc="记录日志的id"/><arg name="auxParam" desc="辅助参数，比如学习技能的话就是技能的等级"/></args></fn><fn name="useSkill" class="0" type="0"><desc>使用技能
+
+返回类型：void
+
+如果没错就返回0，否则返回使用技能的错误</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSkillID" desc="技能ID"/><arg name="nPosX" desc="作用点的x"/><arg name="nPosY" desc="作用点的y"/><arg name="needLearn" desc="是否需要学习才能 使用，特殊的技能不学习也能使用的"/><arg name="nSkillLevel" desc="技能的等级，这个一般可以不配置，特殊的技能使用"/></args></fn><fn name="getCamp" class="0" type="0"><desc>获取实体阵营对象
+
+返回类型：void*</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getCampId" class="0" type="0"><desc>获取阵营的id
+
+返回类型：int
+返回阵营的Id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setCampId" class="0" type="0"><desc>设置阵营的Id
+
+返回类型：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nCampId" desc="阵营的id"/></args></fn><fn name="getCampTitle" class="0" type="0"><desc>获取玩家的阵营职位Id
+
+返回类型：int
+返回阵营职位Id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getCampJHDW" class="0" type="0"><desc>获取阵营的江湖地位
+
+返回类型：int
+返回江湖地位Id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGuildPos" class="0" type="0"><desc>获取帮派的地位
+
+返回类型：int
+返回帮派Id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGuildLeaderId" class="0" type="0"><desc>获取玩家所在帮派的帮主的角色id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGuildLevel" class="0" type="0"><desc>获取帮派等级
+
+返回类型：int</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGuildFr" class="0" type="0"><desc>返回当前帮派的繁荣度
+
+返回类型：int</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGuildName" class="0" type="0"><desc>获取帮派的名字
+
+返回类型：char*</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="upGuildLevel" class="0" type="0"><desc>提升帮派等级</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="sendGuildMsg" class="0" type="0"><desc>给所在的帮派发送消息
+
+返回类型void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="guildPos" desc="大于等于这个职位的人才可以收到"/><arg name="sMsg:" desc="消息内容"/></args></fn><fn name="giveGuildUpLevelAchieve" class="0" type="0"><desc>给帮派所有的人增加帮派升级的成就</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="notifyUpdateGuildInfo" class="0" type="0"><desc>提醒帮派成员的客户端更新帮派信息</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="refreshActorObserveList" class="0" type="0"><desc>刷新玩家的观察列表
+
+Return bool: 成功返回true；失败返回false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="plantYb" class="0" type="0"><desc>种植元宝
+
+Return bool: 成功返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPlantId" desc="种植的id,1,2,3"/><arg name="nCount" desc="种植的数量"/><arg name="nGainLevel" desc="收获的等级"/><arg name="rate" desc="收获的比例"/></args></fn><fn name="getPlantedYb" class="0" type="0"><desc>获得种植的元宝
+
+Return int:种植的数量</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPlantId" desc="种植的id，只有1，2,3有效"/></args></fn><fn name="setGainYbParam" class="0" type="0"><desc>设置收元宝的参数
+
+Return bool:成功设置返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPlantId" desc="种植元宝的id,1,2,3有效"/><arg name="nLevel" desc="多少级能够收获"/><arg name="rate" desc="收获的比例，比如1.1表示1.1倍去收取"/></args></fn><fn name="isFirstLogin" class="0" type="0"><desc>是否是第1次登陆游戏
+
+Return bool:如果是第1次登陆返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="sendLearnSkill" class="0" type="0"><desc>下发玩家已经学习的技能</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="changeZYCount" class="0" type="0"><desc>修改阵营贡献值</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nVal" desc="阵营贡献值"/></args></fn><fn name="sendSceneTime" class="0" type="0"><desc>使客户端可以显示一个剩余时间的倒计时</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="enlargeBag" class="0" type="0"><desc>扩展玩家的背包
+
+Return bool:如果成功的扩展就返回true，否则返回false,
+tipmsg由引擎负责发送</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nGridCount " desc="扩展的格子的数目"/></args></fn><fn name="sendPrivateChatMsg" class="0" type="0"><desc>发送私聊信息</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pActor" desc="对方玩家指针"/><arg name="sMsg" desc="信息内容"/></args></fn><fn name="playScrEffect" class="0" type="0"><desc>播放全屏特效</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nEffId" desc="特效id"/><arg name="nSec" desc="持续时间"/></args></fn><fn name="playScrEffectCode" class="0" type="0"><desc>播放全屏特效，与消息18的区别是，这个是代码实现的特效</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nEffId" desc="特效id"/><arg name="nSec" desc="持续时间"/></args></fn><fn name="addState " class="0" type="0"><desc>设置玩家某个状态
+
+Return void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="state" desc="玩家状态"/></args></fn><fn name="removeState" class="0" type="0"><desc>去掉某个状态</desc><args><arg name="sysarg" desc="系统参数"/><arg name="State" desc="状态"/></args></fn><fn name="consumeCoin" class="0" type="0"><desc>消耗银两(绑定的，非绑定的都可以)
+
+ Return bool:成功消耗返回true，否则不够的话不会扣除并
+返回false</desc><args><arg name="sysarg " desc="系统参数"/><arg name="nCount" desc="消耗的数目，是正数，比如消耗100银两就是传入100"/><arg name="nlogId" desc="日志的od"/><arg name="comment" desc="日志里的备注"/><arg name="needLog" desc="是否需要日志"/><arg name="bindFirst" desc="true表示绑定的优先消耗，否则表示非绑定的优先消耗"/></args></fn><fn name="worldBroadCastMsg " class="0" type="0"><desc>世界广播消息
+
+packet（sysarg）: 数据包CActorPacket对象指针</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getMiscData " class="0" type="0"><desc>获取玩家的一些杂项数据
+
+ Return int: 返回对应类型的数据值</desc><args><arg name="sysarg" desc="系统参数"/><arg name="enMiscDataType mdType" desc="杂项数据类型"/></args></fn><fn name="setMiscData" class="0" type="0"><desc>设置玩家的一些杂项数据
+
+返回void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="enMiscDataType mdType" desc="杂项数据类型"/><arg name="nVal" desc="值"/></args></fn><fn name="setNpcIdleTime" class="0" type="0"><desc>设置npc的执行idle的间隔时间</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nTime" desc="间隔时间，最小是30000（30秒），单位毫秒"/></args></fn><fn name="setEntityVisibleFlag" class="0" type="0"><desc>设置一个实体是否可见，通过添加实体的标记来实现
+
+Return bool: 成功返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="canSee" desc="能看到的话是true，否则是false"/></args></fn><fn name="getAcupointInfo" class="0" type="0"><desc>获取经脉穴位的信息</desc><args><arg name="sysarg" desc="系统参数"/><arg name="jmId" desc="经脉id"/><arg name="acuId" desc="穴位id"/><arg name="nLevel" desc="等级"/><arg name="nStrong" desc="强化值"/></args></fn><fn name="setAcupointLevel" class="0" type="0"><desc>设置经脉的等级或强化值
+
+返回：void</desc><args><arg name="sysarg" desc="系统参数"/><arg name="jmId" desc="静脉Id"/><arg name="acuId" desc=""/><arg name="nLevel" desc=""/><arg name="nStrong" desc=""/><arg name="type" desc="1表示是升级，2是强化"/></args></fn><fn name="sendAcupointInfo" class="0" type="0"><desc>发送经脉的数据</desc><args><arg name="sysarg" desc="系统参数"/><arg name="jmId" desc="系统参数"/><arg name="acuId" desc="系统参数"/></args></fn><fn name="sendActorAcupointInfo" class="0" type="0"><desc>下发其他玩家的经脉信息</desc><args><arg name="sysarg" desc="系统参数"/><arg name="jmId" desc="经脉id"/><arg name="sName" desc="玩家指针"/></args></fn><fn name="changeIcon" class="0" type="0"><desc>更换头像</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nIcon" desc="头像id"/></args></fn><fn name="getGemItemBySlot" class="0" type="0"><desc>获取指定槽位的宝物对象</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSlotIdx" desc="槽位索引"/></args></fn><fn name="getCurrEquipedGem" class="0" type="0"><desc>获取当前装备的宝物
+
+Return CGemItem*: 返回玩家当前装备的宝物对象。如果没有
+装备傲物，返回NULL</desc><args><arg name="sysarg " desc="系统参数"/></args></fn><fn name="isGemSlotOpened" class="0" type="0"><desc>获取玩家指定索引的宝物槽是否开启
+
+ Return bool: 如果已经开启返回true；否则返回false</desc><args><arg name="sysarg " desc="系统参数"/><arg name="nSlotIdx" desc="宝物槽索引"/></args></fn><fn name="SetGemSuitSlotOpen" class="0" type="0"><desc>开启玩家宝物命盘槽位
+
+Return bool:
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSlotIdx" desc="宝物槽索引"/></args></fn><fn name="isGemSuitSlotOpened" class="0" type="0"><desc>获取玩家宝物命盘指定槽位是否开启
+
+Return bool
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSlotIdx" desc="宝物槽索引"/></args></fn><fn name="addGemItem" class="0" type="0"><desc>玩家添加一个宝物
+
+Return bool: 成功返回true；失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nGemId" desc="宝物物品id"/><arg name="nGrade" desc="宝物档次"/></args></fn><fn name="getAvailGemSlot" class="0" type="0"><desc>获取玩家可用的宝物槽
+
+Return int: 返回可用的空闲宝物槽位</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setGemSlotOpen" class="0" type="0"><desc>开启宝物槽</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSlotIdx" desc="宝物槽索引"/></args></fn><fn name="mount" class="0" type="0"><desc>驾驭飙舞</desc><args><arg name="sysarg" desc="系统参数"/><arg name="bCast" desc="是否吟唱"/></args></fn><fn name="sendBrotherMsg  " class="0" type="0"><desc>给在线兄弟发信息</desc><args><arg name="sysarg" desc="系统参数"/><arg name="sMsg" desc="消息内容"/></args></fn><fn name="setBrotherName" class="0" type="0"><desc>设置兄弟团的名称 </desc><args><arg name="sysarg" desc="系统参数"/><arg name="sName" desc="名称"/></args></fn><fn name="getBrotherGroupUpdateTime  " class="0" type="0"><desc>获取上次改结拜名称的时间
+
+Return int:没改过返回0</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getBrotherGroupHandle" class="0" type="0"><desc>获取兄弟团的handle，通常是判断是否有结拜
+
+返回兄弟团</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="addBrotherGroup" class="0" type="0"><desc>把玩家所在的队伍的成员结拜</desc><args><arg name="sysarg" desc="系统参数"/><arg name="sName" desc="结拜的默认称谓"/></args></fn><fn name="leftBrother" class="0" type="0"><desc>脱离结拜</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="inviteJoinTeam" class="0" type="0"><desc>邀请某人组团</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pActor" desc="队友指针"/></args></fn><fn name="setPracticeXiuweiRate " class="0" type="0"><desc>设置打坐时修为的加成值</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="isDoublePracticeing" class="0" type="0"><desc>是否在双休
+
+Return void:0表示不在双修，1表示同性双修，2表示异性双修</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getDoublePracticePlace" class="0" type="0"><desc>获取本人旁边有没有双修的位置
+
+Return bool:有返回true</desc><args><arg name="sysarg" desc="系统参数"/><arg name="x" desc="坐标"/><arg name="y" desc="坐标"/></args></fn><fn name="setDir" class="0" type="0"><desc>设置朝向</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nDir" desc="方向"/></args></fn><fn name="addEffect" class="0" type="0"><desc>给实体增加一个特效</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nEffId" desc="特效id"/><arg name="nEffType" desc="特效类型"/><arg name="nTime" desc="持续时间，如果是负数，表示无限"/></args></fn><fn name="delAllEffect" class="0" type="0"><desc>删除所有特效</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="isDeath" class="0" type="0"><desc>实体是否死亡
+
+死亡返回true，否则false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="isOnBoard" class="0" type="0"><desc>判断玩家是否在交通工具上
+
+在返回true，否false</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="onBoard" class="0" type="0"><desc>上交通工具</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nVehicleId" desc="交通工具Id"/><arg name="nPathNo " desc="路径编号"/></args></fn><fn name="npcTalk" class="0" type="0"><desc>模拟点击某个npc，激活对话</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pNpc" desc="npc指针"/><arg name="sFunc" desc="函数名"/></args></fn><fn name="addSceneEffect" class="0" type="0"><desc>添加场景特效</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nEffId" desc="特效的id"/><arg name="nEffType" desc="特效的类型"/><arg name="nTime" desc="特效的持续时间，单位毫秒"/><arg name="nRelX" desc="相对于玩家的坐标x"/></args></fn><fn name="regScriptCallback " class="0" type="0"><desc>注销脚本回调函数
+
+Return unsigned int: 返回脚本回调的句柄</desc><args><arg name="L" desc="lua_State指针"/></args></fn><fn name="unregScriptCallback" class="0" type="0"><desc>注销脚本回调函数</desc><args><arg name="sysarg" desc="系统参数"/><arg name="handle" desc="脚本回调句柄"/></args></fn><fn name="unregScriptCallbacks" class="0" type="0"><desc>注销脚本回调函数
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pFnName" desc="脚本回调函数名称"/></args></fn><fn name="getFubenPrt" class="0" type="0"><desc>获取角色所在的副本的指针</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getScenePtr" class="0" type="0"><desc>获取角色所在的场景的指针</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getNpc" class="0" type="0"><desc>获取玩家当前正在聊天的npc的handle</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getMapAttriValu" class="0" type="0"><desc>获取区域属性的属性值，只适用于只有一个参数的区域属性，比如经验加成、修为加成</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nAttriValue" desc="属性ID 见tagMapAreaAttribute的定义"/></args></fn><fn name="getPkKillerTimeData" class="0" type="0"><desc>获取玩家击杀某玩家的时间数据
+返回击杀获取时间</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nActorId" desc="被杀玩家ID"/><arg name="nType" desc="1 击杀获取战魂时间  2 击杀获取经验时间"/></args></fn><fn name="setPkKillerTimeDate" class="0" type="1"><desc>设置玩家击杀某玩家的时间数据
+true 设置成功 false 失败</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nActorId" desc="被杀玩家ID"/><arg name="nType" desc="1 击杀获取战魂时间  2 击杀获取经验时间"/><arg name="nTime" desc="所要设置的时间"/></args></fn><fn name="getEntityType" class="0" type="0"><desc>获取实体类型。对应于tagEntityType定义的类型，玩家为0，怪物为1，npc为2，宠物为4
+</desc><args><arg name="pEntity" desc="实体对象指针"/></args></fn><fn name="InvalidVIP" class="0" type="0"><desc>使得指定类型的VIP失效</desc><args><arg name="sysarg" desc="玩家对象指针"/><arg name="enVIPType" desc="VIP类型。"/></args></fn><fn name="getVipType" class="0" type="0"><desc>获取玩家的VIP类型</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getItemLeftTime" class="0" type="0"><desc>获取物品过期时间</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pUserItem" desc="用户物品指针"/></args></fn><fn name="setRandomBossFlag" class="0" type="0"><desc>设置是否狩猎BOSS 这个接口只为 狩猎BOSS而用！</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setGuildSosFuBenHandle" class="0" type="1"><desc>设置劫狱副本的副本句柄</desc><args><arg name="sysarg" desc="系统参数"/><arg name="Handle" desc="句柄副本"/></args></fn><fn name="getGuildSosFuBenHandle" class="0" type="0"><desc>获取劫狱副本句柄</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="initActivityWind" class="0" type="1"><desc>初始化活动窗口</desc><args><arg name="sysarg" desc="系统参数"/><arg name="ActivityName" desc="活动名字"/><arg name="Time" desc="剩余时间"/><arg name="Notice" desc="提示信息"/><arg name="Title1" desc="标题1"/><arg name="Value1" desc="值1"/><arg name="Title2" desc="标题2"/><arg name="Value2" desc="值2"/><arg name="Title3" desc="标题3"/><arg name="Value3" desc="值3"/></args></fn><fn name="changeActivityProgress" class="0" type="1"><desc>更新活动面板进度-1表示参数无线,-2表示参数有效但是前端不更新</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nValue1" desc="面板进度值1"/><arg name="nValue2" desc="面板进度值2"/><arg name="nValue3" desc="面板进度值3"/><arg name="nValue4" desc="面板进度值4"/><arg name="nValue5" desc="面板进度值5"/><arg name="nValue6" desc="面板进度值6"/></args></fn></space><space name="System"><fn name="getDayOfWeek" class="0" type="0"><desc>得到星期的周期
+
+（星期日为： 0 ，星期六为：6）</desc><args/></fn><fn name="getTime" class="0" type="0"><desc>得到系统当前的时间
+
+（时，分，秒）</desc><args/></fn><fn name="getDate" class="0" type="0"><desc>得到系统当前的日期
+
+（年，月，日）</desc><args/></fn><fn name="getRandomNumber" class="0" type="0"><desc>让服务器随机得到随机数 从 0 ~ max</desc><args><arg name="max" desc="需要随机的最大值"/></args></fn><fn name="telportSceneByName" class="0" type="0"><desc>通过地图名和地图坐标传送地图
+
+返回值类型：bool
+成功返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="sSceneName" desc="场景地图的名字"/><arg name="nPosX" desc="需要传送地图的X坐标"/><arg name="nPosY" desc="需要传送地图的Y坐标"/></args></fn><fn name="telportSceneDefaultPoint" class="0" type="0"><desc>通过场景地图名传送到默认ID的地图位置
+
+返回值类型：bool</desc><args><arg name="sysarg" desc="系统参数"/><arg name="sSceneName" desc="地图场景的名字"/><arg name="nPointId" desc="默认地图位置的ID"/></args></fn><fn name="createFuBen" class="0" type="0"><desc>通过副本的ID创建一个副本
+
+返回值类型：副本的对象</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nFubenId" desc="需要创建副本的ID"/></args></fn><fn name="getCurrMiniTime" class="0" type="0"><desc>获取当前的mini时间，单位秒</desc><args/></fn><fn name="isSameWeek" class="0" type="0"><desc>判断两个时间是否是同一周
+Return bool: 如果t1和t2是同一周，返回true；否则返回false</desc><args><arg name="t1" desc="CMiniDateTime格式"/><arg name="t2" desc="CMiniDateTime格式"/></args></fn><fn name="telportScene" class="0" type="0"><desc>传送到场景的一个点去
+Return bool:成功返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSceneId" desc="场景的id"/><arg name="nPosX" desc="位置x"/><arg name="nPosY" desc="位置y"/></args></fn><fn name="telportSceneDelay" class="0" type="0"><desc>延迟多少时间后进行传送</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nSceneId" desc="场景Id"/><arg name="nPosX" desc="坐标X"/><arg name="nPosY" desc="坐标Y"/><arg name="nTime" desc="延迟时间：单位毫秒"/></args></fn><fn name="getActorPtr" class="0" type="0"><desc>根据玩家的名字获取玩家的指针</desc><args><arg name="sName" desc="角色名字"/></args></fn><fn name="registerTimeCall" class="0" type="0"><desc>注册一个定时回调函数
+返回值为会定时器对象指针</desc><args><arg name="npcobj" desc="所属NPC"/><arg name="FunctionName" desc="函数名称"/><arg name="sNextCall" desc="下次执行时间 &quot;2015-9-1 15:00:00&quot;"/><arg name="IntervalSec" desc="间隔时间(秒) 脚本内小时间为 60 秒"/><arg name="CallOnNextBoot" desc="下次服务器启动是否调用"/><arg name="..." desc="无限个参数"/></args></fn><fn name="getIntBit" class="0" type="0"><desc>判断32位整形数nBitPos位是为0/1</desc><args><arg name="nValue" desc="整形数"/><arg name="nBitPos" desc="位数"/></args></fn><fn name="getStaticVar" class="0" type="0"><desc>获取全局静态变量，静态变量在会保存到数据库</desc><args><arg name="l" desc="lua 指针"/></args></fn><fn name="refreshStore" class="0" type="0"><desc>刷新各种商城的动态道具</desc><args><arg name="nLabel" desc="系统参数"/></args></fn><fn name="isSameDay" class="0" type="0"><desc>判断两个时间是否是同一日
+如果t1和t2是同一周，返回true；否则返回false</desc><args><arg name="t1" desc=" CMiniDateTime格式"/><arg name="t2" desc=" CMiniDateTime格式"/></args></fn><fn name="getDaysSinceOpenServer" class="0" type="0"><desc>获取现在是开服的第几天
+0表示还没开服（比如开服前的测试），
+1表示今天是开服当前，2表示开服第2天，</desc><args/></fn><fn name="unregisterTimeCall" class="0" type="0"><desc>解除自动执行函数</desc><args><arg name="Handle" desc="自动执行函数句柄"/></args></fn><fn name="getMaxCircleTimes" class="0" type="0"><desc>获得引擎最大转生等级</desc><args/></fn><fn name="getDyanmicVar" class="0" type="0"><desc>获取引擎运行期变量</desc><args/></fn><fn name="runNpcFunction" class="0" type="0"><desc>目标函数的接受方式为(sysarg...无限个参数)
+注意无限个参数类型 只能为 string int 和 userdata类型</desc><args><arg name="npcobj" desc="目标NPC"/><arg name="FName" desc="函数名称"/><arg name="sysarg" desc="怪物或者人物指针"/><arg name="..." desc="无限个参数"/></args></fn><fn name="getSosFubenFreshTimes" class="0" type="0"><desc>得到行会劫狱副本的开启状态(0为关闭,1为开启)</desc><args><arg name="nGuild" desc="行会Id"/></args></fn>
+<fn name="addMail" class="0" type="0"><desc>给玩家发送邮件
+附件Table的结构体为
+{
+{type,itemid,count,strong,quality,bind}，
+}
+奖励最多一次性发送25个(多余部分会被丢弃) </desc><args><arg name="sysarg|name|actorid" desc="玩家指针|玩家名称|玩家ID 三者可选其一"/><arg name="sendname" desc="发送者的名称"/><arg name="title" desc="邮件标题"/><arg name="content" desc="邮件内容"/><arg name="LiveSec" desc="有效时间(从此邮件发出后多久有效)"/><arg name="awardTable" desc="附件Table"/></args></fn>
+<fn name="setSosFubenFreshTimes" class="0" type="1"><desc>设置劫狱副本的开启状态(0为关闭，1位开启)</desc><args><arg name="GuildId" desc="行会ID"/><arg name="times" desc="开启状态(0,1)"/></args></fn><fn name="getGuildIdBySosFuben" class="0" type="0"><desc>通过行会劫狱副本句柄找到行会ID</desc><args><arg name="fhandle" desc="劫狱副本句柄"/></args></fn><fn name="setGuildSosFuBenHandle" class="0" type="1"><desc>设置劫狱副本句柄</desc><args><arg name="GuildId" desc="副本ID"/><arg name="fhandle" desc="劫狱副本句柄"/></args></fn><fn name="addOfflineMsg" class="0" type="0"><desc>添加邮件</desc><args><arg name="ActorId" desc="玩家ID"/><arg name="nType" desc="消息类型"/><arg name="msg" desc="消息内容"/><arg name="SrcActorId" desc="发送者"/><arg name="AwardType" desc="奖项类型"/><arg name="AwardId" desc="奖项标号"/><arg name="BagCount" desc="需要背包空格"/></args></fn></space><space name="ScoreRecorder"><fn name="create" class="0" type="0"><desc>创建一个计分器对象
+当计分器对象不再使用时，必须调用\color{clRed}release\color{clBlack}函数解除引用</desc><args><arg name="name" desc="计分器名称"/></args></fn><fn name="addRef" class="0" type="1"><desc>增加计分器对象的引用计数
+\color{clRed}必须在不再使用此对象的时候调用相同次数的release以便完整的解除引用</desc><args><arg name="recorder" desc="计分器对象"/></args></fn><fn name="release" class="0" type="1"><desc>解除计分器对象的引用计数</desc><args><arg name="recorder" desc="计分器对象"/></args></fn><fn name="joinTeam" class="0" type="1"><desc>将一个队伍对象加入到计分器的通知列表中
+队伍中的每个在线玩家均会当计分器数据变更的时候得到通知
+
+将对象加入到计分器的通知列表后不用关心对象的生存期，
+对象被销毁时逻辑引擎会自动将对象从计分器通知列表中移除。
+仅在你需要显示的将对象立刻从计分器通知列表移除的时候才需调用leave函数。</desc><args><arg name="recorder" desc="计分器对象"/><arg name="target" desc="队伍对象"/></args></fn><fn name="joinGuild" class="0" type="1"><desc>将一个帮会对象加入到计分器的通知列表中
+帮会中的每个在线玩家均会当计分器数据变更的时候得到通知
+
+将对象加入到计分器的通知列表后不用关心对象的生存期，
+对象被销毁时逻辑引擎会自动将对象从计分器通知列表中移除。
+仅在你需要显示的将对象立刻从计分器通知列表移除的时候才需调用leave函数。</desc><args><arg name="recorder" desc="计分器对象"/><arg name="target" desc="帮会对象"/></args></fn><fn name="joinCamp" class="0" type="1"><desc>将一个阵营对象加入到计分器的通知列表中
+阵营中的每个在线玩家均会当计分器数据变更的时候得到通知
+
+将对象加入到计分器的通知列表后不用关心对象的生存期，
+对象被销毁时逻辑引擎会自动将对象从计分器通知列表中移除。
+仅在你需要显示的将对象立刻从计分器通知列表移除的时候才需调用leave函数。</desc><args><arg name="recorder" desc="计分器对象"/><arg name="target" desc="阵营对象"/></args></fn><fn name="joinFuBen" class="0" type="1"><desc>将一个副本对象加入到计分器的通知列表中
+副本中的每个在线玩家均会当计分器数据变更的时候得到通知
+
+将对象加入到计分器的通知列表后不用关心对象的生存期，
+对象被销毁时逻辑引擎会自动将对象从计分器通知列表中移除。
+仅在你需要显示的将对象立刻从计分器通知列表移除的时候才需调用leave函数。</desc><args><arg name="recorder" desc="计分器对象"/><arg name="target" desc="副本对象"/></args></fn><fn name="leave" class="0" type="1"><desc>将一个通知对象从计分器中脱离关系</desc><args><arg name="recorder" desc="计分器对象"/><arg name="target" desc="通知对象（可以是队伍、帮会、阵营、副本）"/></args></fn><fn name="stop" class="0" type="1"><desc>停止计分器
+
+计分器被停止后将无法再修改分值，修改结果将不会被通知任何对象</desc><args><arg name="recorder" desc="计分器对象"/></args></fn><fn name="incScore" class="0" type="1"><desc>为计分器中的一个计分项加分
+
+分数传递正数则加分，传递负数则减分。
+函数返回增加分数后的最终分值。</desc><args><arg name="recorder" desc="计分器对象"/><arg name="itemName" desc="计分项名称"/><arg name="valToInc" desc="要增加的分值"/></args></fn><fn name="setScore" class="0" type="1"><desc>修改一个计分项的分值</desc><args><arg name="recorder" desc="计分器对象"/><arg name="itemName" desc="计分项名称"/><arg name="value" desc="分值"/></args></fn><fn name="getScore" class="0" type="0"><desc>获取一个计分项的分值</desc><args><arg name="recorder" desc="计分器对象"/><arg name="itemName" desc="计分项名称"/></args></fn><fn name="itemExists" class="0" type="0"><desc>判断一个计分项是否存在</desc><args><arg name="recorder" desc="计分器对象"/><arg name="itemName" desc="计分项名称"/></args></fn><fn name="getScoreData" class="0" type="0"><desc>获取计分器中的计分项详细数据表
+表格式为：
+{
+  { name = "计分项名称", value = 分值 },
+  ...
+}</desc><args><arg name="recorder" desc="计分器对象"/></args></fn></space><space name="Dmkj"><fn name="isTimeOk" class="0" type="0"><desc>是否到了刷新时间
+</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setNextTime" class="0" type="0"><desc>设置成下个正点刷新时间</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setItemData" class="0" type="0"><desc>保存玩家刷新的物品
+
+nType：梦境类型
+nIndex：20个物品的索引，0-19
+nLevel：什么档次的物品
+nIndex：物品库中的第几个
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nType" desc="梦境类型"/><arg name="nIndex" desc="物品索引"/><arg name="nLevel" desc="物品档次"/><arg name="nItemIdx" desc="物品库中的第几个"/></args></fn><fn name="getItemList" class="0" type="0"><desc>获取刷新的物品数据
+
+lua_State *L:玩家指针，和梦境类型</desc><args><arg name="L" desc="玩家指针，和梦境类型"/></args></fn><fn name="getStoreRestCount" class="0" type="0"><desc>获取仓库剩余数量</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="addItem" class="0" type="0"><desc>往仓库添加个物品
+
+nItemId：物品的Id
+cout：数量
+quality：品质
+strong：强化
+bing:绑定
+isAward：是否是赠送的</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nItemId" desc="物品的Id"/><arg name="count" desc="物品数目"/><arg name="quality" desc="品质"/><arg name="strong" desc="强化"/><arg name="bind" desc="绑定"/><arg name="isAward" desc="是否赠送"/></args></fn><fn name="getStoreCount" class="0" type="0"><desc>获取仓库的大小</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="addLog" class="0" type="0"><desc>添加一个物品
+
+nMJ：梦境类型
+nType：类型（不知是什么类型）
+nItemId：物品的类型</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nMj" desc="梦境的类型"/><arg name="nType" desc="类型"/><arg name="nItemId" desc="物品的类型Id"/></args></fn><fn name="sendAllLog" class="0" type="0"><desc>下发日志</desc><args><arg name="sysarg" desc="系统参数"/><arg name="type" desc="类型"/></args></fn><fn name="clearStore" class="0" type="0"><desc>清楚所有物品</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setDmkjTimeLimitItem" class="0" type="0"><desc>设置有时间限制的物品信息</desc><args><arg name="nItem1" desc="系统参数"/><arg name="nItem2" desc="系统参数"/><arg name="nHour" desc="系统参数"/></args></fn><fn name="canGetThisItem" class="0" type="0"><desc>判断能否获取这个物品，用于判断限制产出的物品
+
+MJ：梦境类型
+nIndex：18个物品里的第级个
+nLevel：档次
+nItemId：物品Id
+nItemIdx：物品库中的第几个
+
+返回类型：
+成功 true 失败flase</desc><args><arg name="sysarg" desc="系统参数"/><arg name="mj" desc="梦境类型"/><arg name="nIndex" desc="物品索引"/><arg name="nLevel" desc="等级"/><arg name="nItemId" desc="物品Id"/><arg name="nItemIdx" desc="物品库中的第几个"/></args></fn></space><space name="GemItem"><fn name="getCurrEquipedGem" class="0" type="0"><desc>获取当前装配的宝物对象
+
+void* pEntity:玩家对象指针
+</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGemItemId" class="0" type="0"><desc>获取宝物Id
+
+void *pItem ：宝物对象指针
+Return int：返回宝物Id</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGemItemLevel" class="0" type="0"><desc>获取宝物等级
+
+void *pItem 宝物对象指针
+
+Return int：返回宝物等级</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setGemItemLevel" class="0" type="0"><desc>设置宝物的等级
+
+void *pItem：宝物对象指针
+nLevel：宝物等级
+nLodId：日志Id
+sComment：注释
+Return int：成功返回之前设置的级别，否则返回-1</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nLevel" desc="宝物等级"/><arg name="nLogId" desc="日志Id"/><arg name="sCommen" desc="注释"/></args></fn><fn name="getGemItemWishVal" class="0" type="0"><desc>获取宝物祝福值
+
+ void * pItem: 宝物对象指针</desc><args><arg name="sysarg" desc="宝物对象指针"/></args></fn><fn name="onGemItemUpgradeSucc" class="0" type="0"><desc>宝物档次进阶成功处理
+
+void * pItem: 宝物对象指针
+nNewQuality: 新的品质。如果为-1，表明是不改变品质
+
+
+bool: 成功返回true；失败返回false</desc><args><arg name="sysarg" desc="系统参数  "/><arg name="nNewQuality" desc="新的品质。如果为-1，表明是不改变品质"/></args></fn><fn name="onGemItemUpgradeFailed" class="0" type="0"><desc>宝物档次进阶失败处理
+
+* pItem: 宝物对象指针
+ nDownLevel: 下降的等级
+
+bool: 成功返回true；失败返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nDownLevel" desc="下降的等级"/></args></fn><fn name="getGemItemGrade" class="0" type="0"><desc>获取宝物档次</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getGemItemSpriteChar" class="0" type="0"><desc>获取宝物对应类型的灵性值
+
+pItem: 宝物对象指针
+scType: 宝物灵性类型
+
+int: 返回对应类型的灵性值</desc><args><arg name="sysarg" desc="系统参数 "/><arg name="scType" desc="宝物灵性类型"/></args></fn><fn name="addGemItemSpriteChar" class="0" type="0"><desc>添加宝物指定类型的灵性值
+
+pItem: 宝物对象指针
+scType: 宝物灵性类型
+nVal: 添加的灵性值
+nLogId: 日志Id
+sComment: 注释
+bool: 成功返回true；失败返回false
+</desc><args><arg name="sysarg" desc="系统参数 "/><arg name="scType" desc="宝物灵性类型"/><arg name="nVal" desc="添加的灵性值"/><arg name="nLogId" desc="日志Id"/><arg name="sComment" desc="注释"/></args></fn><fn name="changeGemItemSpriteStren" class="0" type="0"><desc>获取宝物的灵力值
+
+pItem: 宝物对象指针
+nVal: 变化值
+nLogId: 日志Id
+sComment: 注释
+bool: 成功返回true；失败返回false
+</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nVal" desc="变化值"/><arg name="nLogId" desc="日志Id"/><arg name="sComment" desc="注释"/></args></fn><fn name="getGemItemQuality" class="0" type="0"><desc>获取宝物品质</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="setGemItemQuality" class="0" type="0"><desc>设置宝物的品质
+
+pItem: 宝物对象指针
+nQuality: 新的品质
+nLogId: 日志Id
+sComment: 注释
+bool: 成功返回true；失败返回false
+</desc><args><arg name="pItem" desc="系统参数"/><arg name="nQuality" desc="新的品质"/><arg name="nLogId" desc="日志Id"/><arg name="sComment" desc="注释"/></args></fn><fn name="smithGemItem" class="0" type="0"><desc>宝物开光
+
+pItem: 宝物对象指针
+bool: 成功返回true；失败悒返回false
+</desc><args><arg name="pItem" desc="系统参数"/></args></fn><fn name="getGemItemSmithCount" class="0" type="0"><desc>获取宝物的精炼次数
+
+pItem 宝物指针
+
+
+int： 返回精炼的次数</desc><args><arg name="pItem" desc="系统参数"/></args></fn><fn name="isGemLevelUpLmt " class="0" type="0"><desc>判断宝物是否达到等级上限
+
+pItem: 宝物对象指针
+
+
+bool: 宝物达到等级上限返回true；否则返回false</desc><args><arg name="pItem" desc="系统参数"/></args></fn><fn name="isExpUpLmt " class="0" type="0"><desc> 判断宝物是否经验达到上限
+
+ pItem: 宝物对象指针
+
+bool: 宝物达到经验上限返回true；否则返回false</desc><args><arg name="pItem" desc="系统参数"/></args></fn><fn name="addExp" class="0" type="0"><desc>为宝物添加经验
+
+pItem: 宝物对象指针
+nExp: 添加的经验值
+nLogId: 日志Id
+char* sComment: 日志描述
+bShowTipMsg: 是否在达到等级上限的时候给出提示
+
+bool: 成功返回true；失败返回false</desc><args><arg name="pItem" desc="系统参数"/><arg name="nExp" desc="添加的经验值"/><arg name="nLogId" desc="日志Id"/><arg name="sComment" desc="日志描述"/><arg name="bShowTipMsg" desc="是否在达到等级上限的时候给出提示"/></args></fn><fn name="setGemLeftTime" class="0" type="1"><desc>设置宝物过期时间</desc><args><arg name="pItem" desc="系统参数"/><arg name="nLeftTime" desc="宝物过期短时间"/></args></fn><fn name="isLimitTimeGem" class="0" type="0"><desc>Comments: 判断是否为限时宝物
+Param void *pItem: 宝物对象指针
+@Return bool: 是返回true</desc><args><arg name="pItem" desc="系统参数"/></args></fn></space><space name="Camp"><fn name="getCampById" class="0" type="0"><desc>根据阵营Id获取阵营对象</desc><args><arg name="nCampId" desc="阵营Id"/><arg name="void*" desc="阵营对象指针"/></args></fn><fn name="getCampId" class="0" type="0"><desc>获取阵营Id
+
+Return int: 返回阵营Id</desc><args><arg name="*pCamp" desc="阵营对象指针"/></args></fn><fn name="getCampName" class="0" type="0"><desc>获取阵营名称
+
+Return const char*: 返回阵营指针。</desc><args><arg name="*pCamp" desc="阵营对象指针"/></args></fn><fn name="getKingInfo" class="0" type="0"><desc>获取阵营的盟主名称</desc><args><arg name="pCamp" desc="阵营对象指针"/><arg name="nActorId" desc="盟主角色Id。如果返回0表示没有盟主"/><arg name="nGuildId" desc="盟主角色公会Id"/><arg name="char" desc="如果有盟主，则返回盟主名称；否则返回NULL"/></args></fn><fn name="getOfficer" class="0" type="0"><desc>获取指定职位的官员信息
+
+Return const char*: 官员名称</desc><args><arg name="pCamp" desc="阵营指针"/><arg name="nTitleId" desc="职位Id"/><arg name="nActorId" desc="官员角色Id"/><arg name="nGuildId" desc="官员公会Id"/></args></fn><fn name="setOfficer" class="0" type="0"><desc>任命官员
+
+Return bool: 成功返回true；失败返回false</desc><args><arg name="pCamp" desc="阵营指针"/><arg name="pLeader" desc="任命者（又称之为领导）对象指针，用于检测是否有权限任命。如果为空，表明是不检测权限"/><arg name="nTitleId" desc="职位Id"/><arg name="pEntity" desc="被任命者对象指针。如果为空，表明是将此职位的原有官员卸任"/></args></fn><fn name="addCampBuff" class="0" type="0"><desc>添加一个阵营Buff</desc><args><arg name="pCamp" desc="营对象"/><arg name="nBuffType" desc="buff的类型"/><arg name="nGroupID" desc="buff的分组"/><arg name="dValue" desc="buff的值"/><arg name="nTimes" desc="作用的次数"/><arg name="nInterval" desc="作用的间隔，单位秒"/><arg name="buffName" desc=" buff名字"/><arg name="timeOverlay" desc=" 时间是否叠加,如果是true表示叠加，否则表示不叠加"/><arg name="pGiver" desc="Buff给予者"/><arg name="param" desc="辅助参数"/></args></fn><fn name="delCampBuff" class="0" type="0"><desc>删除一个阵营Buff</desc><args><arg name="pCamp" desc="阵营对象指针"/><arg name="nBuffType" desc="buff的类型"/><arg name="nGroupID" desc="buff的分组"/></args></fn><fn name="hasCampBuff" class="0" type="0"><desc>玩家身上是否存在某种阵营Buff</desc><args><arg name="pCamp" desc="阵营对象指针"/><arg name="nBuffType" desc="buff的类型"/><arg name="nGroup" desc="buff的分组"/></args></fn><fn name="getAllyCamp" class="0" type="0"><desc>获取阵营A的结盟阵营
+
+Return CCamp*: 返回阵营A的结盟阵营对象指针。如果没有
+同盟阵营，返回为空</desc><args><arg name="pCamp" desc="阵营A对象指针"/><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getCampStrength" class="0" type="0"><desc>获取阵营实力
+
+Return int: 返回阵营实力值</desc><args><arg name="pCamp" desc="阵营对象指针"/></args></fn><fn name="changeKingNPCName" class="0" type="0"><desc>阵营盟主NPC改名</desc><args><arg name="sysarg" desc="系统参数"/><arg name="szName" desc="名称如果为NULL，就恢复默认NPC的名称"/></args></fn><fn name="getCampKingDeclaration" class="0" type="0"><desc>获取阵营盟主宣言</desc><args><arg name="pCamp" desc="阵营对象指针"/></args></fn><fn name="setCampKingDeclaration" class="0" type="0"><desc>设置阵营盟主宣言</desc><args><arg name="pCamp" desc="阵营对象指针"/><arg name="content" desc="宣言内容"/></args></fn><fn name="getJHDW" class="0" type="0"><desc>获取玩家的江湖地位</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="broadCastMsg" class="0" type="0"><desc>阵营广播数据</desc><args><arg name="pCamp" desc="阵营对象"/><arg name="packet" desc="数据包CActorPacket对象指针"/></args></fn></space><space name="ChallengeFun"><fn name="deleteChallenge" class="0" type="0"><desc>删除某个擂台</desc><args><arg name="nChallengeId" desc="擂台id"/></args></fn><fn name="getChallengeStatus" class="0" type="0"><desc>获取某个擂台的状态
+
+ Return int:看tagChallengeStatus定义</desc><args><arg name="nChallengeId" desc="擂台的id"/></args></fn><fn name="getChallengeType" class="0" type="0"><desc>获取擂台的类型tagChallengeType</desc><args><arg name="nChallengeId" desc="擂台的id"/></args></fn><fn name="setChallengeLimit" class="0" type="0"><desc>设置擂台的人数限制</desc><args><arg name="nChallengeId" desc="擂台id"/></args></fn><fn name="getChallengeLimit" class="0" type="0"><desc>获取擂台的人数限制</desc><args><arg name="nChallengeId" desc="擂台id"/></args></fn><fn name="getChallengeCount" class="0" type="0"><desc>获取现在所有擂台的个数。因为擂台的总数是有限制的</desc><args><arg name="nType" desc="擂台的类型，个人或者队伍的"/></args></fn><fn name="getPlayCount" class="0" type="0"><desc>获取本擂台的对手数，擂台分A、B两方，如果两方都有人，
+则返回2，如果只有一个对手在擂台，返回1，如果返回0，
+则说明擂台没有人，这种擂台通常是要定期清理的
+</desc><args><arg name="nChallengeId" desc="擂台id"/></args></fn><fn name="getChallenger" class="0" type="0"><desc>获取擂台的对手</desc><args><arg name="nChallengeId" desc="擂台Id"/><arg name="nIndex" desc="1表示获得A方，2表示B方"/></args></fn><fn name="setChallengeNextTime" class="0" type="0"><desc>设置擂台当前的状态，以及下一个状态变化的时间</desc><args><arg name="nChallengeId" desc="擂台Id"/><arg name="nStatus" desc="状态"/><arg name="nTime" desc="单位：秒"/></args></fn><fn name="getNextChallenge" class="0" type="0"><desc>获取下一个准备开始的擂台，这个是在上一个擂台结束后脚
+本调用
+
+Return unsigned int:如果有正在擂台战斗中的，则肯定返回0，
+否则如果有等待中，并且配对完成的擂台，则返回擂台的id，
+否则返回0</desc><args><arg name="nType" desc="系统参数"/></args></fn><fn name="getTeamAvgLevel" class="0" type="0"><desc>获取队伍的平均等级
+
+Return int:有可能返回，如果队伍不存在</desc><args><arg name="nTeamId" desc="队伍的id"/></args></fn><fn name="getChallengeId" class="0" type="0"><desc>获取擂台的id</desc><args><arg name="pChallenge" desc="擂台的指针"/></args></fn><fn name="getFighting" class="0" type="0"><desc>获取正在战斗的擂台id
+
+Return unsigned int:无正在战斗的擂台返回0</desc><args><arg name="nType" desc="擂台的类型"/></args></fn><fn name="clearAllChallenge" class="0" type="0"><desc>清除所有擂台，确保在没有人在打擂台的时候执行这个</desc><args><arg name="nType" desc="擂台的类型"/></args></fn><fn name="onChallengeStartOrEnd" class="0" type="0"><desc>开始|结束擂台</desc><args><arg name="nChallengeId" desc="擂台ID"/><arg name="bStart" desc="为true表明是开始；否则是结束"/></args></fn></space><space name="DataPack"><fn name="allocPacket" class="0" type="0"><desc>申请一个数据包
+
+Return void *: 返回数据包的指针，如果有没有发生的数据，
+返回空</desc><args><arg name="pEntity" desc="玩家的指针"/><arg name="nSystemID" desc="子系统的ID"/><arg name="nCmdID  " desc="消息码"/></args></fn><fn name="flush" class="0" type="0"><desc>向客户端发送刚刚打包进去的数据</desc><args><arg name="pActorPacket" desc="数据包的指针"/></args></fn><fn name="writeString" class="0" type="0"><desc>向一个网络包里写字符串</desc><args><arg name="pPack" desc="数据包的指针"/><arg name="str" desc="字符串"/></args></fn><fn name="readString" class="0" type="0"><desc>从网络包里读取字符串</desc><args><arg name="pPack" desc="数据包"/></args></fn><fn name="readByte" class="0" type="0"><desc>读取无符号的1字节</desc><args><arg name="pPack" desc="字节包"/></args></fn><fn name="readChar" class="0" type="0"><desc>读取带符号的1字节</desc><args><arg name="pPack" desc="字节包"/></args></fn><fn name="readWord" class="0" type="0"><desc>读取无符号的2字节</desc><args><arg name="pPack" desc="字节包"/></args></fn><fn name="readShort" class="0" type="0"><desc>读取带符号的2字节</desc><args><arg name="pPack" desc="字节包指针"/></args></fn><fn name="readInt" class="0" type="0"><desc>读取带符号的4字节</desc><args><arg name="pPack" desc="字节包指针"/></args></fn><fn name="readUInt" class="0" type="0"><desc>读取无符号的4字节</desc><args><arg name="pPack" desc="字节包指针"/></args></fn><fn name="readUint64" class="0" type="0"><desc>读取无符号的8字节</desc><args><arg name="pPack" desc="字节包指针"/></args></fn><fn name="readInt64" class="0" type="0"><desc>读取有符号的8字节</desc><args><arg name="pPack" desc="字节包指针"/></args></fn><fn name="writeByte" class="0" type="0"><desc>写入无符号的1字节</desc><args><arg name="pPack" desc="字节包指针"/><arg name="btValue" desc="写入的数据"/></args></fn><fn name="writeChar" class="0" type="0"><desc>写入带符号的1字节</desc><args><arg name="pPack" desc="字节包指针"/><arg name="cValue" desc="写入的值"/></args></fn><fn name="writeWord" class="0" type="0"><desc>写入无符号的2字节</desc><args><arg name="pPack" desc="字节包指针"/><arg name="wValue" desc="写入的值"/></args></fn><fn name="writeShort" class="0" type="0"><desc>写入带符号的2字节
+</desc><args><arg name="pPack" desc="字节包指针"/><arg name="wValue" desc="写入的值"/></args></fn><fn name="writeInt" class="0" type="0"><desc>写入带符号的4字节</desc><args><arg name="pPack" desc="字节包指针"/><arg name="nValue" desc="写入的值"/></args></fn><fn name="writeUInt" class="0" type="0"><desc>写入无符号的4字节</desc><args><arg name="pPack" desc="字节包指针"/><arg name="uValue" desc="写入的值"/></args></fn><fn name="writeUint64" class="0" type="0"><desc>写入无符号的8字节</desc><args><arg name="pPack" desc="字节包指针"/><arg name="value" desc="写如的值"/></args></fn><fn name="writeInt64" class="0" type="0"><desc>写入有符号的8字节</desc><args><arg name="pPack" desc="字节包指针"/><arg name="value" desc="写入的值"/></args></fn><fn name="allocPacketEx" class="0" type="0"><desc>申请一个数据包</desc><args/></fn><fn name="freePacketEx" class="0" type="0"><desc>释放创建的数据包
+
+Remark: 和allocPacketEx()配对使用，不能对allocPack返回的
+包对象使用</desc><args><arg name="pack" desc="数据包指针"/></args></fn></space><space name="Fuben"><fn name="getMinLevel" class="0" type="0"><desc>获取本副本能进入的最低等级限制
+
+返回类型：int
+返回角色等级数</desc><args><arg name="nFbid" desc="副本的id"/></args></fn><fn name="createFuBen" class="0" type="0"><desc>通过副本的ID创建一个副本
+
+Return unsigned int:副本的handle
+
+</desc><args><arg name="nFbID" desc="副本的ID"/></args></fn><fn name="getFbValue" class="0" type="0"><desc>副本有专门给脚本存储数据的空间，一个32个int的数组这个
+函数用于取出对应的数值
+
+Return int</desc><args><arg name="pFb" desc="副本的指针"/><arg name="nIndex" desc="索引值"/></args></fn><fn name="setFbValue" class="0" type="0"><desc>设置副本的存储内容
+
+Return void
+</desc><args><arg name="pFb" desc="副本指针"/><arg name="nIndex" desc="索引值"/><arg name="nValue" desc="设置的值"/></args></fn><fn name="getFubenMode" class="0" type="0"><desc>获取副本的模式
+
+Return int
+</desc><args><arg name="nFbid" desc="副本的id"/></args></fn><fn name="getTeamOnlineMemberCount" class="0" type="0"><desc>获取副本队伍的队员数目</desc><args><arg name="pTeam" desc="队伍的指针"/></args></fn><fn name="getTeamMemberCount" class="0" type="0"><desc>获取队伍的总人数，包括不在线的
+
+返回队伍总人数</desc><args><arg name="nTeamId" desc="队伍Id"/></args></fn><fn name="getTeamFubenStatus" class="0" type="0"><desc>获取本队伍在副本中的状态,返回值见tagTeamStatus的定义</desc><args><arg name="pTeam" desc="队伍指针"/></args></fn><fn name="getTeamFubenId" class="0" type="0"><desc>获取这个队伍要进入的副本的id</desc><args><arg name="nTeamId" desc="副本Id"/></args></fn><fn name="getTeamMaxMemberCount" class="0" type="0"><desc>获取队伍允许加入的队员的人数，总队员数不能超过，用于
+加入副本队伍的判断</desc><args><arg name="nTeamId" desc="队伍id"/></args></fn><fn name="isRefuseActor" class="0" type="0"><desc>判断这个角色能否进入这个副本,主要用于结婚系统中，新郎
+（新娘）拒绝捣乱的人进入结婚副本
+
+Return bool:如是被拒绝的返回true，否则返回false</desc><args><arg name="hFbHandle" desc="副本的handle"/><arg name="nAcotid" desc="角色id"/></args></fn><fn name="addRefuseActor" class="0" type="0"><desc>把一个玩家加入到这个副本的拒绝名单中</desc><args><arg name="hFbHandle" desc="副本的handle"/><arg name="nAcotid" desc="角色id"/></args></fn><fn name="setFubenName" class="0" type="0"><desc>设置副本的名字</desc><args><arg name="hFbHandle" desc="副本的handle"/><arg name="name" desc="名字"/></args></fn><fn name="getFubenName" class="0" type="0"><desc>获取副本的名字
+
+返回char类型指针</desc><args><arg name="hFbHandle" desc="副本的handle"/></args></fn><fn name="getFubenNameByPtr" class="0" type="0"><desc>获取副本名称
+
+返回char类型指针</desc><args><arg name="pFb" desc="副本指针"/></args></fn><fn name="closeFuben" class="0" type="0"><desc>踢出所有的玩家，玩家将返回到普通场景，如果本副本是常
+规副本，这函数不起作用,同时这个副本占用的内存也会被释
+放掉</desc><args><arg name="hFuben" desc="副本的handle"/></args></fn><fn name="getFubenType" class="0" type="0"><desc>获取副本的类型值
+
+Return int:返回类型值</desc><args><arg name="hFuben" desc="副本的handle"/></args></fn><fn name="setFubenType" class="0" type="0"><desc>设置副本的类型值
+
+返回 void</desc><args><arg name="hFuben" desc="副本的handle"/><arg name="bType" desc="类型值"/></args></fn><fn name="getFubenHandle" class="0" type="0"><desc>根据副本指针获取handle</desc><args><arg name="pFuben" desc="副本指针"/></args></fn><fn name="getStaticFubenHandle" class="0" type="0"><desc>获取普通副本的handle</desc><args/></fn><fn name="getFubenProgress" class="0" type="0"><desc>获取副本的进度值
+
+Return unsigned int</desc><args><arg name="pFuben" desc="副本指针"/></args></fn><fn name="setFubenProgress" class="0" type="0"><desc>设置副本的进度值，所有副本创建时进度值都是1</desc><args><arg name="pFuben" desc="副本指针"/><arg name="nProgress" desc="进度值"/></args></fn><fn name="createMonster" class="0" type="0"><desc>创建一个怪物
+
+Return void*:如果成功创建，返回怪物的指针，失败返回NULL
+一般失败的原因是 xy坐标不正确</desc><args><arg name="hScene" desc="场景的handle"/><arg name="nMonsterid" desc="怪物id，对应怪物配置表中的id"/><arg name="posX" desc="怪物出现的x坐标，注意：怪物出现的场景和副本和玩家是一样的。"/><arg name="posY" desc="怪物出现的y坐标"/><arg name="nLiveTime" desc="怪物存活的时间"/></args></fn><fn name="createMonsters" class="0" type="0"><desc>在指定的坐标范围内生成N个怪物</desc><args><arg name="hScene" desc="场景的handle"/><arg name="nMonsterid" desc="怪物id，对应怪物配置表中的id"/><arg name="posX1" desc="坐标范围的x起始坐标"/><arg name="posX2" desc="坐标范围的x终止坐标,posx2必须大于等于posx1，否则产生不了正确的怪物"/><arg name="posY" desc="y坐标， 这3个值表示在x1-x2的水平线上随机位置产生N个怪物"/><arg name="nCount" desc="需要生成的怪物数量"/><arg name="nLiveTime" desc="怪物存活的时间"/></args></fn><fn name="createMonstersAndSetPathpoint" class="0" type="0"><desc>在制定的坐标范围内生产N个怪物。如果是护送怪，设置怪物
+的路径点
+
+Param int ...(vararg) 位置坐标。每一个点包含x,y两个坐标，
+数目不限制。</desc><args><arg name="hScene" desc="场景句柄"/><arg name="nMonsterId" desc="怪物Id"/><arg name="nPosX1" desc="坐标范围的x起始坐标"/><arg name="nPosX2" desc="坐标范围的x终止坐标,posx2必须大于等于posx1，否则产生不了正确的怪物"/><arg name="nPosY" desc="y坐标， 这3个值表示在x1-x2的水平线上随机位置产生N个怪物"/><arg name="nCount" desc="刷怪的数量"/><arg name="nLiveTime" desc="怪物存活时间"/></args></fn><fn name="getSceneHandleByName" class="0" type="0"><desc>根据名字获取场景的handle，没有找到则返回0
+
+Return unsigned int:没有找到则返回0</desc><args><arg name="sSceneName" desc="场景名字"/><arg name="hFuben" desc="指定的副本handle，如果是普通场景的，则写0"/></args></fn><fn name="getSceneHandleById" class="0" type="0"><desc>根据id获取场景的handle，没有找到则返回0</desc><args><arg name="nSceneID" desc="场景id"/><arg name="hFuben" desc="指定的副本handle，如果是普通场景的，则写0"/></args></fn><fn name="getMyMonsterCount" class="0" type="0"><desc>获取场景某种怪物属于的剩余数量</desc><args><arg name="hScene" desc="场景handle"/><arg name="nMonsterId" desc="怪物id，如果是0，表示计算所有怪物"/></args></fn><fn name="clearMonster" class="0" type="0"><desc>让指定的怪物全部退出当前场景</desc><args><arg name="hScene" desc="场景句柄"/><arg name="nMonsterId" desc="怪物Id"/></args></fn><fn name="clearMonsters" class="0" type="0"><desc>让指定怪退出场景（消失）</desc><args><arg name=" handle: " desc="怪物句柄"/><arg name="bDelayDestroy" desc="是否延迟删除"/></args></fn><fn name="sendMsgToScene" class="0" type="0"><desc>给场景内的所有玩家发信息</desc><args><arg name="hScene" desc="场景handle"/><arg name="sMsg" desc="信息内容"/><arg name="type" desc="系统提示显示的类型"/></args></fn><fn name="sendCountDown" class="0" type="0"><desc>给全场景的人发个倒计时</desc><args><arg name="hScene" desc="场景句柄"/><arg name="nTime" desc="倒计时"/></args></fn><fn name="sendMsgToFb" class="0" type="0"><desc>给副本内所有玩家发信息</desc><args><arg name="hFb" desc="副本handle"/><arg name="sMsg" desc="信息内容"/><arg name="type" desc="系统提示显示的类型"/></args></fn><fn name="getNpcPtrByName" class="0" type="0"><desc>根据npc的名字获取指针</desc><args><arg name="hScene" desc="场景句柄"/><arg name="szName" desc="npc的名字"/></args></fn><fn name="getFbActorPtr" class="0" type="0"><desc>获取副本内其中一个玩家的指针</desc><args><arg name="hFb" desc="副本handle"/></args></fn><fn name="getMonsterPtrById" class="0" type="0"><desc>根据怪物id获取场景内的怪物指针，只返回一个
+
+返回 void*</desc><args><arg name="hScene" desc="场景句柄"/><arg name="nMonsterId" desc="怪物Id"/></args></fn><fn name="isKillAllMonster" class="0" type="0"><desc>测试玩家所在的场景所有怪物是否被杀死
+
+怪物被杀死返回true，否则false</desc><args><arg name="hScene" desc="场景句柄"/><arg name="nMonsterId" desc="0表示所有怪物，否则表示指定的怪物id"/></args></fn><fn name="getLiveMonsterCount" class="0" type="0"><desc>获取玩家所在场景某种怪物的剩余数量</desc><args><arg name="hScene" desc="场景句柄"/><arg name="nMonsterId" desc="怪物id"/></args></fn><fn name="setSceneTime" class="0" type="0"><desc>设置场景的剩余时间，通常用于限时的活动</desc><args><arg name="hScene" desc="场景handle"/><arg name="nTime" desc="剩余时间，单位秒，通常只设置一次"/></args></fn><fn name="getSceneNameById" class="0" type="0"><desc>根据场景id获取名字
+
+返回 char*</desc><args><arg name="nSceneId" desc="场景id"/></args></fn><fn name="setSceneAreaAttri" class="0" type="0"><desc>设置区域属性
+
+Return bool:设置是否成功，失败的原因都是nIndex或者nType
+越界,或者参数有误</desc><args><arg name="hScene" desc="场景的handle"/><arg name="nIndex" desc="区域的索引值，对应场景的配置表中区域索引，不能超过总区域的数量"/><arg name="nType" desc="区域属性类型，见tagmapattribute定义"/><arg name="sValues" desc="属性的参数，如&quot;1,2,10&quot;等，函数内会分解成多个整数保存,最多支持256个整数"/><arg name="sFunc" desc="如果是进入区域执行脚本的类型，这个要写执行的脚本函数,以下两个参数只有触发脚本的属性才有效"/><arg name="hNpc" desc="执行的NPC的handle"/></args></fn><fn name="getKillBossCount" class="0" type="0"><desc>获取杀死boss的玩家的个数</desc><args><arg name="pfb" desc="副本指针"/></args></fn><fn name="getKillBossActorName" class="0" type="0"><desc>获取副本中杀死过boss的玩家的名字
+
+Return const char*:玩家名字</desc><args><arg name="pfb" desc="副本指针"/><arg name="index" desc="玩家索引"/></args></fn><fn name="getFbTime" class="0" type="0"><desc>获取副本的剩余时间
+
+返回剩余时间</desc><args><arg name="pfb" desc="副本指针"/></args></fn><fn name="getActorDieCount" class="0" type="0"><desc>获取副本中，玩家死亡的总次数</desc><args><arg name="pfb" desc="副本指针"/></args></fn><fn name="getFbMonsterTotal" class="0" type="0"><desc>获取副本内出现过的怪物的总数，包括已死亡的</desc><args><arg name="pfb:" desc="副本指针"/></args></fn><fn name="getKillMonsterCount" class="0" type="0"><desc>获取副本中被杀死的怪物的数量
+
+返回杀死怪的数量</desc><args><arg name="pfb" desc="副本指针"/></args></fn><fn name="getDyanmicVar" class="0" type="0"><desc>获取动态变量，动态变量仅在运行时有效,参数是副本指针
+</desc><args><arg name="L" desc="副本指针"/></args></fn><fn name="setFbTime" class="0" type="1"><desc>设置副本剩余时间</desc><args><arg name="fbPtr" desc="副本指针"/></args></fn></space><space name="Guild"><fn name="getGuildName" class="0" type="0"><desc>获取帮派的名字
+
+Return char*:帮派的名字</desc><args><arg name="nGuidID" desc="帮派的名字"/></args></fn><fn name="getGuildLeader" class="0" type="0"><desc>根据帮派id获取帮主指针，如果不在线，返回NULL</desc><args><arg name="nGuildID" desc="帮派Id"/></args></fn><fn name="getGuildLeaderId" class="0" type="0"><desc>根据帮派id返回帮主的角色id</desc><args><arg name="nGuildID" desc="帮派Id"/></args></fn></space><space name="Item"><fn name="setItemProperty" class="0" type="0"><desc>设置物品的属性
+Return bool: 成功返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pUserItem" desc="物品的指针"/><arg name="nPropertyID" desc="属性id tagItemProperty 定义"/><arg name="nValue" desc="新的数值"/></args></fn><fn name="getItemProperty" class="0" type="0"><desc>获取物品的属性</desc><args><arg name="sysarg" desc="系统参数"/><arg name="pItem" desc="物品的指针"/><arg name="propID" desc="属性id  SystemParamDef.h 的tagItemProperty里定义的"/><arg name="nAuxRetValue" desc="辅助返回参数"/></args></fn><fn name="getItemPropertyById" class="0" type="0"><desc>通过物品的ID查找物品的属性
+
+返回属性值</desc><args><arg name="nItemID" desc="物品的ID"/><arg name="nPropID" desc="SystemParamDef.h 的tagItemProperty里定义的"/></args></fn><fn name="getItemGuid" class="0" type="0"><desc>获得物品的GUID
+
+Return long long:返回物品的guid</desc><args><arg name="pItem" desc="物品的指针"/></args></fn><fn name="sendItemProcessResult" class="0" type="0"><desc>设置装备处理的结果（强化，打孔等操作）
+
+return void</desc><args><arg name="pEntity" desc="系统参数"/><arg name="pUserItem" desc="装备的指针"/><arg name="nProceccType" desc="处理的类型"/><arg name="bResult" desc="成功用true,否则用false"/></args></fn><fn name="sendItemProcessConsume" class="0" type="0"><desc>通知客户端处理一件装备需要的消耗(比如强化，镶嵌等)</desc><args><arg name="pEntity" desc="系统参数"/><arg name="pUserItem" desc="装备的指针"/><arg name="nProcessType" desc="处理的类型 tagItemProcessType里定义"/><arg name="nItemID" desc="需要消耗的物品的ID(强化石)"/><arg name="nCount" desc="需要消耗的金钱的种类"/><arg name="nMoneyCount" desc="需要消耗的金钱的数量"/></args></fn><fn name="sendItemConfig" class="0" type="0"><desc>向客户端发送一件装备的处理的参数(这里要改为vector)</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nGetConfigParamID" desc="获取ID,tagGetItemConfigParam 里定义的"/></args></fn><fn name="createItem" class="0" type="0"><desc>创建一个物品
+Return void *: 如果是空表示失败</desc><args><arg name="nItemID" desc="物品的ID"/><arg name="nCount" desc="数量"/><arg name="nStrong" desc="强化"/><arg name="nQuality" desc="品质"/><arg name="nBind" desc="绑定标记"/><arg name="nLeftTime" desc="物品剩余时间"/></args></fn><fn name="removeItem" class="0" type="0"><desc>删除玩家背包里的一个物品
+
+Return int: 删除的数量</desc><args><arg name="pEntity" desc="系统参数"/><arg name="pItem" desc="物品的指针"/><arg name="nCount" desc="删除物品数量"/><arg name="sComment" desc="备注"/><arg name="nLogID" desc="物品的日志号"/><arg name="bNeedFreeMemory" desc="是否需要释放内存"/></args></fn><fn name="removeItemByType" class="0" type="0"><desc>删除玩家背包或者装备栏上的物品
+Return int:返回删除的物品数量</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nType" desc="物品类型"/><arg name="bIncEquipBar" desc="为true表明删除装备栏中的制定类型物品；否则只删除背包中的指定类型物品"/><arg name="sComment" desc="备注"/><arg name="nLogID" desc="物品的日志号"/></args></fn><fn name="removeEquip" class="0" type="0"><desc>删除玩家身上装备
+Return int: 返回删除的物品数量</desc><args><arg name="pEntity" desc="系统参数"/><arg name="pItem" desc="物品对象指针"/><arg name="sComment" desc="备注"/><arg name="nLogId" desc="日志Id"/></args></fn><fn name="getItemByType" class="0" type="0"><desc>获取背包或者装备中的指定类型的物品
+
+Return void*: 返回搜索到的物品</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nType" desc="装备类型"/><arg name="bIncEquipBar" desc="是否在装备栏搜索。如果为true，在背包中没找到的话就会在装备栏中搜索；否则不在装备栏搜索"/><arg name="bInEquipBar" desc="返回搜索到的位置。如果找到了，返回true表明是在装备栏，否则在背包栏"/></args></fn><fn name="addItem" class="0" type="0"><desc>添加物品
+Return int: 返回添加好的个数</desc><args><arg name="pEntity" desc="系统参数"/><arg name="pItem" desc="物品的指针"/><arg name="comment" desc="记录日志用的描述"/><arg name="nLogWay" desc="物品的获得/失去途径,在LogDef.h里定义的"/><arg name="nItemCount" desc="物品的数量"/></args></fn><fn name="getItemLinkMsg" class="0" type="0"><desc>获取物品的链接
+Return char *:返回物品的链接</desc><args><arg name="nItemID" desc="物品的ID"/><arg name="pUserItem" desc="物品的指针，非装备=NULL就行；装备并需要显示动态数据这里不能为空"/></args></fn><fn name="changeDepotExpiredTime" class="0" type="0"><desc>增加仓库的有效时间
+Return bool: 成功返回true,否则返回false</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nDepotID" desc="仓库ID,1-4有效,1是永久有效背包"/><arg name="nExpiredTime" desc="追加的有效时间，单位为秒"/></args></fn><fn name="getDepotExpiredTime" class="0" type="0"><desc>获取一个仓库的过期时间
+Return unsigned int: 返回仓库的 过期时间</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nDepotID" desc="仓库的ID,1-4有效,1是永久有效背包"/></args></fn><fn name="getEquipCount" class="0" type="0"><desc>返回玩家当前身上有几件装备</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getEquipBySortID" class="0" type="0"><desc>通过装备的排序返回身上装备的指针
+
+返回装备的指针</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nSortID" desc="排序号，比如玩家身上有6件装备，使用nSortID在[1,6]的范围里有效"/></args></fn><fn name="getBagItemCount" class="0" type="0"><desc>玩家背包里的物品的数量
+Return int:返回物品的数量</desc><args><arg name="pEntity" desc="系统参数"/></args></fn><fn name="getBagItemBySortID" class="0" type="0"><desc>获取背包里的物品的指针
+Return void *: 返回背包里的物品的指针</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nSortID" desc="排序号，比如玩家背包里有6件装备，那么[1,6有效]"/></args></fn><fn name="getBagItemPtrByGuid" class="0" type="0"><desc>通过背包物品的guid返回物品的指针
+Return void *:物品的指针</desc><args><arg name="pEntity" desc="系统参数"/><arg name="lItemGuid" desc="物品的guid"/></args></fn><fn name="getEquipPtrByGuid" class="0" type="0"><desc>通过身上装备物品的guid返回装备的指针
+Return void *:身上装备的指针</desc><args><arg name="pEntity" desc="系统参数"/><arg name="lItemGuid" desc="身上装备的guid"/></args></fn><fn name="releaseItemPtr" class="0" type="0"><desc>回收装备的内存指针,这个只能用于玩家商店卖东西的回购功
+能，谨慎使用</desc><args><arg name="pItem" desc="物品的指针"/></args></fn><fn name="getBagEmptyGridCount" class="0" type="0"><desc>获得一个玩家背包空余的格子数量
+Return int:返回背包空余的格子数量</desc><args><arg name="pEntity" desc="系统参数"/></args></fn><fn name="getAddItemNeedGridCount" class="0" type="0"><desc>添加该物品需要多少个格子
+Return int: 返回需要多少个格子才能容纳这个物品
+</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nItemID" desc="物品的id"/><arg name="nItemCount" desc="物品的数量"/><arg name="nQuality" desc="物品的品质"/><arg name="nStrong" desc="物品的强化"/><arg name="nBind" desc="物品的绑定标记"/></args></fn><fn name="getItemName" class="0" type="0"><desc>通过物品的id获取物品的名字</desc><args><arg name="nItemId" desc="物品的id"/></args></fn><fn name="addSellItem" class="0" type="0"><desc>添加一个卖给商店的物品，如果没有回购，玩家下线将回收
+Return unsigned bool:成功返回true，否则返回false</desc><args><arg name="pEntity" desc="系统参数"/><arg name="itemPtr" desc="物品的指针"/><arg name="nItemCount" desc="物品的数量(因为物品的数量在删除的时候会被清0，这里把物品的数量放这里保存)"/></args></fn><fn name="delSellItem" class="0" type="0"><desc>删除一个卖给商店的指针，回购完了调用
+Return bool:成功返回true</desc><args><arg name="pEntity" desc="系统参数"/><arg name="pItem" desc="卖给商店的物品的指针，回购以后要把这个删除"/></args></fn><fn name="getSellItem" class="0" type="0"><desc>通过guid获得卖给商店的物品的指针
+Return void *: 物品的指针
+</desc><args><arg name="pEntity" desc="系统参数"/><arg name="lItemGuid" desc="卖给商店物品物品的guid"/></args></fn><fn name="getItemHoleCount" class="0" type="0"><desc>获取物品已打孔的个数</desc><args><arg name="itemPtr" desc="物品指针"/></args></fn><fn name="getItemHoleItemCount" class="0" type="0"><desc>取物品已镶嵌的个数</desc><args><arg name="itemPtr" desc="物品指针"/></args></fn><fn name="isForgeItem" class="0" type="0"><desc>物品是否被精锻过</desc><args><arg name="itemPtr" desc="物品指针"/></args></fn><fn name="isStrongLevel" class="0" type="0"><desc>是否有装备强化达到了指定的等级</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nLevel" desc="等级"/></args></fn><fn name="isHoleCount" class="0" type="0"><desc>是否有物品打孔的数量达到指定值</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nCount" desc="打孔数量"/></args></fn><fn name="isHoleItemCount" class="0" type="0"><desc>是否有物品镶嵌的数量达到指定值，一般任务系统使用到</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nCount" desc="镶嵌的数量"/></args></fn><fn name="hasForgeItem" class="0" type="0"><desc>是否有精锻过的物品，一般任务系统使用到</desc><args><arg name="pEntity" desc="系统参数"/></args></fn><fn name="getDuraFullItemFromBag" class="0" type="0"><desc>背包获取耐久度满的指定的物品
+Return void*:返回null表示没有</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nItemId" desc="物品Id"/></args></fn><fn name="getSuitIdByItemId" class="0" type="0"><desc>根据物品id获取所属的套装id</desc><args><arg name="nItemId" desc="物品Id"/></args></fn><fn name="isGetAllSuitEquip" class="0" type="0"><desc>判断是否装备齐全某个套装的所有装备
+Return bool:
+</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nSuit" desc="套装id"/><arg name="nCount" desc="要收集的套装的数量"/></args></fn></space><space name="LuaHelp"><fn name="getTeamMemberList" class="0" type="0"><desc>获取角色所在队伍的队员的列表
+Return int:返回1，是一个表</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getTeamMemberListByPtr" class="0" type="0"><desc>通过队伍的指针，获取队伍成员的列表</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getFbFromId" class="0" type="0"><desc>根据副本的id获取全服中这个副本的所有copy,返回副本的
+handle列表</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getReloadMapPos" class="0" type="0"><desc>获取玩家重配地图的坐标点
+Return int:返回一个表，里面3个数字，分别是场景id，坐标X，
+坐标Y</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getNearEntityList" class="0" type="0"><desc>获取周围的实体的指针列表
+返回类型：int
+返回一个表，包含所有的实体指针</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getNearEntityListFromXY" class="0" type="0"><desc>获取周围的实体的指针列表
+Return int:
+返回一个表，包含所有的实体指针</desc><args><arg name="sysarg" desc="系统参数（[场景指针][x][y][半径范围]）"/></args></fn><fn name="getNearEntityListFromRange" class="0" type="0"><desc>获取周围的实体的指针列表
+返回一个表，包含所有的实体指针。获取到的区域范围是 
+(2*宽度半径)*(2*高度半径)</desc><args><arg name="sysarg" desc="系统参数[场景指针][x][y][宽度半径][高度半径]"/></args></fn><fn name="getAllActorList" class="0" type="0"><desc>获取所有的在线玩家的指针
+返回一个表，包含所有的实体指针</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getSceneActorListById" class="0" type="0"><desc>获取场景的在线玩家的指针
+返回一个表，包含所有的实体指针</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getRankingItemList" class="0" type="0"><desc>获取排行榜前N名的数据
+返回一个表，包含排行榜项的指针</desc><args><arg name="sysarg" desc="系统参数[排行榜的指针][数量，表示要获取前N名]"/></args></fn><fn name="getFbActorList" class="0" type="0"><desc>获取副本内所有玩家的列表
+返回一个表，包含所有玩家的指针</desc><args><arg name="sysarg" desc="系统参数[副本的指针]"/></args></fn><fn name="getVisiActorList" class="0" type="0"><desc>获取实体可见范围内玩家的列表</desc><args><arg name="sysarg" desc="系统参数[实体指针]"/></args></fn></space><space name="Pet"><fn name="addPet" class="0" type="0"><desc>添加宠物
+
+Return bool:成功返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetConfigId" desc="宠物配置表里的ID"/><arg name="nCircle" desc="宠物的转数，也就是品质"/><arg name="nStrong" desc="宠物的强化等级"/><arg name="nLevel" desc="宠物的初始化的等级"/><arg name="nAttackType" desc="攻击类型，1为内功，2为外功，其他的就随机"/></args></fn><fn name="setPetStrong" class="0" type="0"><desc>宠物的强化
+
+Return bool:成功返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPertId" desc="宠物的id"/><arg name="nStrong" desc="宠物的强化"/></args></fn><fn name="petSmith" class="0" type="0"><desc>宠物洗资质
+
+Return bool:成功返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetId" desc="宠物的ID"/></args></fn><fn name="addExp" class="0" type="0"><desc>宠物添加经验
+
+Return int:成功添加的经验，如果没有添加进去会返回0</desc><args><arg name="pEntity" desc="玩家肢体指针"/><arg name="nPetId" desc="宠物的id"/><arg name="nExp" desc="经验的数值，比如添加100经验就是要100"/></args></fn><fn name="addLoyalty" class="0" type="0"><desc>宠物添加忠诚度
+
+Return bool:成功返回true，否则返回false</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nPetId" desc="宠物的ID"/><arg name="nValue" desc="忠诚度的数值"/></args></fn><fn name="getPetProperty" class="0" type="0"><desc>获取宠物的属性</desc><args><arg name="pEntity" desc="系统参数"/><arg name="nPetId" desc="宠物的ID"/><arg name="nPropId" desc="宠物的属性的ID，在tagPetProperty里定义"/></args></fn><fn name="canAddPet" class="0" type="0"><desc>判断一个玩家能否添加一个宠物
+Return bool:能够添加返回true，否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetConfigId" desc="宠物的配置ID"/></args></fn><fn name="enlargePetSlot" class="0" type="0"><desc>扩展宠物的槽位
+Return bool:成功返回true，否则返回false</desc><args><arg name="pEntity" desc="玩家的指针"/><arg name="nGridCount" desc="宠物的格子的数目"/></args></fn><fn name="setCircle" class="0" type="0"><desc>设置宠物的转数
+Return bool: 成功返回true，返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetID" desc="宠物的id"/><arg name="nCircle" desc="宠物的转数"/></args></fn><fn name="learnSkill" class="0" type="0"><desc>给宠物学习技能
+Return bool:成功返回true,否则返回false</desc><args><arg name="pEntity" desc="玩家的指针"/><arg name="nPetID" desc="宠物的id"/><arg name="nSkillID" desc="技能的id"/><arg name="nSlotId" desc="技能的巢位的id,槽位是1,2,3,4,5,6,7"/></args></fn><fn name="getLearnSkillId" class="0" type="0"><desc>获取玩家的一个宠物的一个槽位上学习的技能的id
+Return int:如果存在技能返回技能的id,否则返回-1</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPet" desc="宠物的id"/><arg name="nSkillSlot" desc="技能的槽位的id，槽位是1,2,3,4,5,6,7"/></args></fn><fn name="forgetSkill" class="0" type="0"><desc>遗忘一个技能
+Return int:如果存在技能返回技能的id,否则返回-1</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPet" desc="宠物的id"/><arg name="nSkillSlot" desc="技能的槽位的id，槽位是1,2,3,4,5,6,7"/></args></fn><fn name="hasLearnSkill" class="0" type="0"><desc>当前宠物的技能列表里是否有该技能
+Return bool:当前宠物的技能列表里有该技能返回true,否则返回
+false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetId" desc="宠物的id"/><arg name="nSkillId" desc="技能的ID"/></args></fn><fn name="delPet" class="0" type="0"><desc>删除一个宠物
+Return bool:成功返回true,否则返回false</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetId" desc="宠物的id"/></args></fn><fn name="getBattlePetId" class="0" type="0"><desc>获取放出来战斗中的宠物的id
+
+Return int:获取放出来的宠物的id，如果没有放出来的宠物就
+返回-1</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="getMergePetId" class="0" type="0"><desc>获取附体中的宠物的id
+
+Return int:获取附体的宠物的id，如果没有附体的宠物就返回-1</desc><args><arg name="sysarg" desc="系统参数"/></args></fn><fn name="sendPetOpResult" class="0" type="0"><desc>设置宠物的结果</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetId" desc="宠物的id"/><arg name="nOpId" desc="操作码"/><arg name="result" desc="结果，成功为true，否则为"/></args></fn><fn name="changeAttackType" class="0" type="0"><desc>修改C宠物的攻击类型
+Return bool:成功返回true</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetId" desc="宠物的ID"/></args></fn><fn name="setPetSkin" class="0" type="0"><desc>宠物换皮肤</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetId" desc="宠物的ID"/><arg name="configId" desc="配置的ID"/><arg name="nQuality" desc="宠物的品质"/></args></fn><fn name="setPetMergeRate" class="0" type="0"><desc>设置宠物的附体比例加成</desc><args><arg name="sysarg" desc="系统参数"/><arg name="nPetId" desc="宠物的ID"/></args></fn></space><space name="Ranking"><fn name="addRef" class="0" type="0"><desc>增加引用值
+
+return void</desc><args><arg name="pRank" desc="系统参数"/></args></fn><fn name="release" class="0" type="0"><desc>减少引用值</desc><args><arg name="pRank" desc="系统参数"/></args></fn><fn name="getRef" class="0" type="0"><desc>获取引用值
+
+return int</desc><args><arg name="pRank" desc="系统参数"/></args></fn><fn name="getRanking" class="0" type="0"><desc>获取排行指针</desc><args><arg name="sName" desc="排行榜的名称"/></args></fn><fn name="add" class="0" type="0"><desc>增加一个排行榜
+
+Return void*:添加成功会返回排行榜的指针，返回NULL</desc><args><arg name="sName" desc="排行榜的名称"/><arg name="nMax" desc="发送给客户端最多的行数"/><arg name="boDisplay" desc="是否在客户端显示，默认是0不显示，1显示"/></args></fn><fn name="load" class="0" type="0"><desc>排行榜从文件中读入数据
+
+Return bool:如果文件存在并读取成功返回true</desc><args><arg name="pRank" desc="系统参数"/><arg name="sFile" desc="指定的文件，文件保存在当前目录的 ph/XXX,传入XXX就行"/></args></fn><fn name="save" class="0" type="0"><desc>排行榜保存数据到文件
+Return bool:是否保存成功</desc><args><arg name="pRank" desc="系统参数"/><arg name="sFile" desc="文件名，不需要包含路径"/></args></fn><fn name="addColumn" class="0" type="0"><desc>增加一列
+
+return void
+</desc><args><arg name="pRank" desc="系统参数"/><arg name="sTitle" desc="列的标题名称"/><arg name="nIndex" desc="-1表示在最后增加，否则在指定的列前增加"/></args></fn><fn name="setColumnTitle" class="0" type="0"><desc>设置列的标题
+
+return void</desc><args><arg name="pRank" desc="排行榜指针"/><arg name="sTitle" desc="列的标题名称"/><arg name="nIndex" desc="列的索引 由0开始"/></args></fn><fn name="addItem" class="0" type="0"><desc>增加一个排行榜项
+
+Return void*:成功返回排行榜项，否则返回NULL,如果已经存在
+对应的id，会加入失败
+
+</desc><args><arg name="pRank" desc="排行榜的指针"/><arg name="nId" desc="id值"/><arg name="nPoint" desc="初始的分值"/></args></fn><fn name="getItemIndexFromId" class="0" type="0"><desc>获取某个id在排行榜中的位置，第一位是0，不在这个返回-1
+
+return int</desc><args><arg name="pRank" desc="排行榜指针"/><arg name="nId" desc="id"/></args></fn><fn name="getItemPtrFromId" class="0" type="0"><desc>根据id获取排行榜项的指针
+
+Return void*:不存在返回NULL</desc><args><arg name="pRank" desc="排行榜指针"/><arg name="nId" desc="id"/></args></fn><fn name="updateItem" class="0" type="0"><desc>更新排行榜项的分值
+
+Return void*:成功会返回对应的排行榜项，失败（不存在）
+返回NULL</desc><args><arg name="pRank" desc="排行榜指针"/><arg name="nId" desc="id"/><arg name="nPoint" desc="分值"/></args></fn><fn name="setItem" class="0" type="0"><desc>设置排行榜项的分值
+
+Return void*:成功会返回对应的排行榜项，失败（不存在）
+返回NULL</desc><args><arg name="pRank" desc="排行榜指针"/><arg name="nId" desc="id"/><arg name="nPoint" desc="分值"/></args></fn><fn name="setColumnDisplay" class="0" type="0"><desc>设置某列是否显示在客户端</desc><args><arg name="pRank" desc="排行榜指针"/><arg name="nIndex" desc="列索引，第一列是0"/><arg name="boDisplay" desc="是否显示，1显示，0不显示，注意：默认是显示的"/></args></fn><fn name="setSub" class="0" type="0"><desc>设置排行榜项的列的显示内容</desc><args><arg name="pRankItem" desc="排行榜项的指针"/><arg name="nIndex" desc="第几列"/><arg name="sData" desc="字符串内容"/></args></fn><fn name="removeRanking" class="0" type="0"><desc>删除指定的排版榜</desc><args><arg name="sName" desc="排行榜名称"/></args></fn><fn name="getRankItemCount" class="0" type="0"><desc>获取本排行榜名单的数量</desc><args><arg name="pRank" desc="排行榜指针"/></args></fn><fn name="getPoint" class="0" type="0"><desc>获取玩家的分数</desc><args><arg name="pRankItem" desc="排行榜分值指针"/></args></fn><fn name="getId" class="0" type="0"><desc>获取排行榜项的id</desc><args><arg name="pRankItem" desc="排行榜指针"/></args></fn><fn name="getIndexFromPtr" class="0" type="0"><desc>获取名次
+
+Return int:第一名是0
+</desc><args><arg name="pRankItem" desc="系统参数"/></args></fn><fn name="getSub" class="0" type="0"><desc>获取某列的字符串数据
+Return char*
+</desc><args><arg name="pRankItem" desc="排行榜项的指针"/><arg name="nIndex" desc="列索引"/></args></fn><fn name="clearRanking" class="0" type="0"><desc>清除排行榜所有的名单数据
+
+Return void
+</desc><args><arg name="pRank" desc="排行榜的指针"/></args></fn><fn name="getItemFromIndex" class="0" type="0"><desc>获取排行榜某个位置的排行榜项
+Return void*:
+</desc><args><arg name="pRank" desc="排行榜的指针"/><arg name="nIndex" desc="名词，0表示第一名"/></args></fn><fn name="setDisplayName" class="0" type="0"><desc>设置排行榜的显示在客户端的名称</desc><args><arg name="pRank" desc="排行榜的指针"/><arg name="sName" desc="名称"/></args></fn><fn name="setIdTitle" class="0" type="0"><desc>设置id的显示标题</desc><args><arg name="pRank" desc="标题名称"/></args></fn><fn name="setPointTitle" class="0" type="0"><desc>设置分值的显示标题</desc><args><arg name="pRank" desc="名称"/></args></fn><fn name="removeId" class="0" type="0"><desc>删除id
+</desc><args><arg name="pRank" desc="排行榜指针"/><arg name="id" desc="id"/></args></fn></space><space name="TeamFun"><fn name="getTeamCaptain" class="0" type="0"><desc>获取队伍的队长指针
+
+Return void*</desc><args><arg name="nTeamId" desc="队伍Id"/></args></fn><fn name="getTeamCaptains" class="0" type="0"><desc>获取队伍的队长指针
+</desc><args><arg name="pTeam" desc="队伍指针"/></args></fn><fn name="getChallenge" class="0" type="0"><desc>获取本人所在的擂台的id,本擂台可能是单人也可能是队伍的
+
+Return unsigned int:没有则返回0</desc><args><arg name="nTeamId" desc="队伍Id"/></args></fn><fn name="setChallenge" class="0" type="0"><desc>设置本人的擂台id</desc><args><arg name="nTeamId" desc="队伍Id"/><arg name="nChalllengeId" desc="擂台Id"/></args></fn><fn name="setTeamFubenId" class="0" type="0"><desc>设置队伍的副本id，如果队伍不在副本中，设置成0</desc><args><arg name="nTeamId" desc="队伍Id"/><arg name="nFbId" desc="副本Id"/></args></fn></space></functions>

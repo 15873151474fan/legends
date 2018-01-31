@@ -1,0 +1,36 @@
+﻿--五行副本对话
+
+--#include "data\config\activityconfig\FiveTreasure\FiveTreasureConfig.txt" once
+--#include "data\functions\Systems\FlowerSystem\RoseCommon.txt" once 
+
+function FiveTreasure_Main( sysarg )
+	local dlgStr = ""
+	local str = string.format(Lang.Activity.war0009,FiveTreasureConfig.nItem.needYb)
+	dlgStr = string.format("%s\\<#BL%s/@BuyFiveItemOP>",  dlgStr, str)
+	--dlgStr = string.format("%s\\<#BL%s/@BuyRedRose>",  dlgStr, Lang.ScriptTips.c000020)
+	return dlgStr
+end
+
+--购买五行丹
+function BuyFiveItemOP(sysarg)
+	local myYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	if myYb < FiveTreasureConfig.nItem.needYb then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.war0010, ttFlyTip)
+		return
+	end
+
+	if checkBagGrids(sysarg, FiveTreasureConfig.nItem.id, FiveTreasureConfig.nItem.ncount, FiveTreasureConfig.nItem.nBind) and Actor.changeMoney(sysarg, mtYuanbao, -FiveTreasureConfig.nItem.needYb, 115, Lang.Activity.war0009) then
+		Actor.addItem(sysarg, FiveTreasureConfig.nItem.id, 0, 0, FiveTreasureConfig.nItem.ncount, FiveTreasureConfig.nItem.nBind, 0, Lang.Activity.war0009, 115)
+	end
+end
+
+--检查背包格子数是否够
+function checkFiveBagGrids( sysarg, itemId, itemCount, bindFlag )
+	local count = Item.getAddItemNeedGridCount( sysarg, itemId, itemCount, 0, 0, bindFlag)
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+		return false
+	end
+	return true
+end

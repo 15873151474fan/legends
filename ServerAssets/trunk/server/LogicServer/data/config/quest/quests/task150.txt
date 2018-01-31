@@ -1,0 +1,45 @@
+﻿--lua script
+{
+	id = 150,			-- 成长之后
+	parentid = 149,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name150,
+	content = Lang.Quest.desc150,
+
+	prom = { type = 0, scene = Lang.SceneName.s00021, npc = Lang.EntityName.n00034 },
+	comp = { type = 0, scene = Lang.SceneName.s00021, npc = Lang.EntityName.n00034 },
+	target = {
+		{
+			type = 0, id = 79, count = 15, rewardId = 0,useList = false,
+			location = {
+				sceneid = 21, x= 117,y = 75,entityName = Lang.EntityName.m79,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 138261719, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 80000, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 613, count = 50, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk1501,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk1501,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip1501,
+	},
+	PassMsTip = {
+	},
+},

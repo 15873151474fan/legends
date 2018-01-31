@@ -1,0 +1,53 @@
+﻿--青墓穴二层
+{
+	scenceid = 11,
+	scencename = Lang.SceneName.s00011,
+	mapfilename = "11Qingmuxueerceng",
+	minlevel = 30,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "qingmuxue.mp3",
+	musicInterval = 5,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 192,
+	sceneHeight = 192,
+	posx = 38,
+	posy = 115,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00011, range = {15,71,75,8,94,23,107,16,182,95,109,177}, center = { 79,83},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+					{ type = 87, value = {} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh11.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00364, posx = 59, posy = 74, script = "data/NPC/RenwuNPC/longzizi.txt", modelid = 374,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00029, posx = 115, posy = 102, script = "data/NPC/RenwuNPC/huangfuyu.txt", modelid = 308,icon = 12,funcId = 0, classId = 4 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 85, posy = 75, toSceneid = 10, toPosx = 174, toPosy =  134, modelid = 50000, name = Lang.SceneName.s00010, dist = 1, mapHide = false },  --青墓穴二层→青墓穴
+		{ posx = 131, posy = 90, toSceneid = 12, toPosx = 37, toPosy =  40, modelid = 50000, name = Lang.SceneName.s00012, dist = 1, mapHide = false },  --青墓穴二层→青墓穴三层
+
+	},
+},

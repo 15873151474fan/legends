@@ -1,0 +1,86 @@
+LogicServer =
+{
+
+	ServerName = "凡帅哥的私服", 
+	ServerIndex = 1,	
+    ServerOpenTime  = "2016-5-1 17:00:00", --"2013-06-02 14:00:00",  --服务器的开区时间，必须按照这个格式写
+	--ServerCombineTime = "2015-11-28 1:00:00",	--服务器合区时间，必须按照这个格式写
+	--FilePath = "./data/runtime1",	--文件的存储路径
+
+	--连接到的公共服务器ID
+	--CommonServerId = 100,
+
+	spguid = 1,
+        ForceAdmin = true,
+	--是否连接到跨服服务器
+	--IsStartCommonServer = true,
+
+	--数据网关绑定地址和端口
+	GateService = 
+	{ 
+		Address = "127.0.0.1", 
+		Port = 23000
+	},
+
+	--会话服务器地址和端口
+	SessionServer = 
+	{ 
+		Address = "127.0.0.1", 
+		Port = 31000
+	},
+	
+	--Log服务器绑定地址和端口
+	LogServer = 
+	{ 
+		Address = "127.0.0.1",		
+		Port = 34000
+	},
+		
+	--数据服务器绑定地址和端口
+	DbServer = 
+	{ 
+
+		Address = "127.0.0.1", 
+		Port = 32000
+	},
+		
+	--AM服务器地址和端口
+	AMServer = 
+	{ 
+		Host = "127.0.0.1", 
+		Port = 5660
+	},
+		
+	--好友服务器配置
+	FriendServer = 
+	{ 
+		--好友服务器地址和端口
+		Server = 
+		{
+			Host = "192.168.10.250", 
+			Port = 5900
+		},
+		--好友网关地址和端口（用户连接）
+		Gate = 
+		{
+			Host = "0.0.0.0", 
+			Port = 15908
+		},
+	},
+	
+	--后台服务器
+	MgrServer = 
+	{ 
+		Host = "127.0.0.1",
+	
+		Port = 8600
+	},
+
+	--本地日志服务器
+	LocalLogServer = 
+	{
+		Address = "127.0.0.1", 
+
+		Port = 33000
+	},
+}

@@ -1,0 +1,263 @@
+--lua script
+--中式婚礼 梦飞
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\friend\MarriedConfig.txt" once
+--#include "MarryCommon.txt" once
+
+function ChinaMarryMengFei_Main(sysarg)
+	local str = ""
+	
+	str = str.."\\<#BL"..Lang.GuildLang.m00011.."/@OnProposeMarriage>"			--求婚
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00009.."/@OnLaySceenOp>"				--布置场景
+	str = str.."\\<#BL"..Lang.GuildLang.m00095.."/@OnFlyLoveFowersOp>"			--爱的代价
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00012.."/@SendInviteToMarried>"			--邀请人参加婚宴
+	str = str.."\\<#BL"..Lang.GuildLang.m00014.."/@OnBuyDress>"				--购买礼服
+	--str = str.."\\<#BL"..Lang.GuildLang.m00015.."/@OnBuyFlowers>"				--购买手捧花
+	str = str.."\\<#BL"..Lang.GuildLang.m00013.."/@OnBuyWeddingRing>"			--结婚戒指
+	str = str.."\\<#BL"..Lang.GuildLang.m00016.."/@OnBuyFireWorks>"				--购买烟花
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00017.."/@OnBuyBroadFlowers>"			--散花
+	str = str.."\\<#BL"..Lang.GuildLang.m00018.."/@OnSendRedBag>"				--红包发放
+	--str = str.."\\<#BL"..Lang.GuildLang.m00019.."/@OnBuyWeddingDrunk>"			--购买喜酒和喜糖
+	str = str.."\\<#BL"..Lang.GuildLang.m00020.."/@OnBuyWeddingWend>"			--乐队
+	str = str.."\\<#BL"..Lang.GuildLang.m00144.."/@OnCallAllActor>"				--召集
+	str = str.."\\<#BL"..Lang.GuildLang.m00162.."/@OnTraceChinaMarried>"				--传送到婚礼大使
+	str = str.."\\<#BL"..Lang.GuildLang.m00021.."/@OnLeftSceenOp>"				--离开场景
+	
+	return str
+end
+
+--邀请人参加婚宴
+function SendInviteToMarried(sysarg)
+	local str = Lang.GuildLang.m00042
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00043.."/@InviteToMyMariage>"		--发送邀请
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--布置场景
+function OnLaySceenOp(sysarg)
+	local str = Lang.GuildLang.m00030
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00031.."/@OnBuyOneFlowers>"				--购买普通花篮1个（5元宝）
+	str = str.."\\<#BL"..Lang.GuildLang.m00032.."/@OnBuyTenFlowers>"				--购买普通花篮10个（48元宝）
+	str = str.."\\<#BL"..Lang.GuildLang.m00033.."/@OnBuyGuildFlowers>"				--购买行会花篮1个（10元宝）
+	str = str.."\\<#BL"..Lang.GuildLang.m00034.."/@OnBuyTenGuildFlowers>"				--购买行会花篮10个（88元宝）
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00035.."/@OnBuyAllSceenFlowers>"				--全场普通花篮（888元宝）
+	str = str.."\\<#BL"..Lang.GuildLang.m00036.."/@OnBuyAllSceenGuildFlowers>"			--全场行会花篮（1888元宝）
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--爱的代价
+function OnFlyLoveFowersOp(sysarg)
+	local str = Lang.GuildLang.m00166
+	
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00126,MarriedConfig.loveEffect.needYb).."/@OnBroadLoveEffect>"					--爱的代价
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--发送邀请
+function InviteToMyMariage(sysarg)
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	
+	if nCoin < MarriedConfig.inviteToMarryCoin then		--金币不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00044,ttFlyTip)
+		return
+	end
+	
+	Actor.changeMoney(sysarg,1,-MarriedConfig.inviteToMarryCoin,823,Lang.GuildLang.m00041)
+
+	local sceenName = Fuben.getSceneNameById(Actor.getSceneId(sysarg))
+	local str = string.format(Lang.GuildLang.m00045,Actor.getName(sysarg),sceenName)
+	System.broadcastTipmsg(str,128)
+end
+
+--购买礼服
+function OnBuyDress(sysarg)
+	local str = Lang.GuildLang.m00046
+	
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00047,MarriedConfig.DressConfig[1].needYb).."/@OnBuyChinaManDress>"		--购买中式礼服（男）（1000元宝）
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00048,MarriedConfig.DressConfig[2].needYb).."/@OnBuyChinaWomanDress>"	--购买中式礼服（女）（1000元宝）
+
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00049,MarriedConfig.DressConfig[3].needYb).."/@OnBuyWestManDress>"		--购买西式礼服（男）（%d元宝）
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00050,MarriedConfig.DressConfig[4].needYb).."/@OnBuyWestWoManDress>"	
+	
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00051,MarriedConfig.DressConfig[5].needYb).."/@OnBuySkyManDress>"	
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00052,MarriedConfig.DressConfig[6].needYb).."/@OnBuySkyWomanDress>"		--购买天宫礼服（女）
+
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--购买手捧花
+function OnBuyFlowers(sysarg)
+	local str = Lang.GuildLang.m00055
+
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00054,MarriedConfig.ButHandFlowersNeedYb).."/@BuyHandFlowers>"
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--结婚戒指
+function OnBuyWeddingRing(sysarg)
+	local str = Lang.GuildLang.m00057
+	
+	str = str.."\\<#BL"..Lang.GuildLang.m00058.."/@BuyWeddingRing>"			--购买永恒钻戒
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--购买烟花
+function OnBuyFireWorks(sysarg)
+	local str = Lang.GuildLang.m00059
+	
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00060,MarriedConfig.saluteNeedYb).."/@BuyWeddingSalute>"		--购买结婚礼炮
+	--str = str.."\\<#BL"..Lang.GuildLang.m00061.."/@main>"		--购买烟花
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--购买结婚礼炮
+function BuyWeddingSalute(sysarg)
+	local gVar = System.getDyanmicVar()
+	if gVar.BuySaluteCdTime == nil then
+		gVar.BuySaluteCdTime = 0
+	end
+
+	if gVar.BuySaluteCdTime > System.getCurrMiniTime() then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00169,ttFlyTip)
+		return
+	end
+
+	gVar.BuySaluteCdTime = System.getCurrMiniTime() + MarriedConfig.BuySaluteCdTime
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+
+	if nCoin < MarriedConfig.saluteNeedYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00168,ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,1,-MarriedConfig.saluteNeedYb,823,Lang.GuildLang.m00075)
+	
+	local bHandle = Actor.getSceneHandle(sysarg)
+	for i=1,table.getn(MarriedConfig.saluteList[1]) do
+		Fuben.destroyLandscape(bHandle,MarriedConfig.saluteList[1][i].effectId)
+	end
+
+	for i=1,table.getn(MarriedConfig.saluteList[1]) do
+		Fuben.createLandscape(bHandle,MarriedConfig.saluteList[1][i].effectId,MarriedConfig.saluteList[1][i].x,MarriedConfig.saluteList[1][i].y,MarriedConfig.saluteList[1][i].liveTime)
+	end
+	
+	local nSceneid = Actor.getSceneId(sysarg)
+	local sname = Fuben.getSceneNameById(nSceneid)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00119,Actor.getName(sysarg),sname),2)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00120,Actor.getName(sysarg),sname,Actor.getName(sysarg)),128)
+
+	--[[
+	local actList = LuaHelp.getSceneActorListById(MarriedConfig.chinaSceendId)
+	
+	if actList ~= nil then
+		for i = 1, #actList do
+			local pActor = actList[i]
+
+			if pActor ~= nil then
+				
+			end
+		end
+	end
+
+	Actor.unregScriptCallback(thisNPC, "OnBroadWeddingFireWorks")
+	Actor.regScriptCallback(thisNPC, thisNPC, 5000, 5000, 119, "OnBroadWeddingFireWorks")
+	]]
+end
+
+--定时播放烟花
+function OnBroadWeddingFireWorks()
+	local actList = LuaHelp.getSceneActorListById(MarriedConfig.chinaSceendId)
+	
+	if actList ~= nil then
+		for i = 1, #actList do
+			local pActor = actList[i]
+
+			if pActor ~= nil then
+				for i=1,table.getn(MarriedConfig.saluteList) do
+					--Actor.broadSceneEffect(pActor,MarriedConfig.saluteList[i].effectId,MarriedConfig.saluteList[i].effectType,MarriedConfig.saluteList[i].liveTime,0,MarriedConfig.saluteList[i].x,MarriedConfig.saluteList[i].y)
+				end
+				--break
+			end
+		end
+	end
+end
+
+--散花
+function OnBuyBroadFlowers(sysarg)
+	local str = Lang.GuildLang.m00062
+
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00063,MarriedConfig.RoseFlowersNeedYb).."/@BuyRoseFlowers>"
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--红包发放
+function OnSendRedBag(sysarg)
+	local str = Lang.GuildLang.m00064
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00065.."/@SendWeddingRedBag1>"
+	str = str.."\\<#BL"..Lang.GuildLang.m00066.."/@SendWeddingRedBag2>"
+	str = str.."\\<#BL"..Lang.GuildLang.m00067.."/@SendWeddingRedBag3>"
+	str = str.."\\<#BL"..Lang.GuildLang.m00068.."/@SendWeddingRedBag4>"
+
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--购买喜酒和喜糖
+function OnBuyWeddingDrunk(sysarg)
+	local str = Lang.GuildLang.m00069
+	
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00070,MarriedConfig.buyCandyNeedCoin).."/@BuyWeddingCandy>"		--购买喜糖
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00071,MarriedConfig.buyWindNeedYb).."/@BuyWeddingWind>"		--购买喜酒
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--乐队
+function OnBuyWeddingWend(sysarg)
+	local str = Lang.GuildLang.m00039
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00040.."/@BuyWeddingBand>"					--购买乐队
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+	
+	return str
+end
+
+--离开场景
+function OnLeftSceenOp(sysarg)
+	Actor.enterScene(sysarg, MarriedConfig.exitSceenId, unpack(MarriedConfig.exitRange))
+end
+
+--传送婚礼大使
+function OnTraceChinaMarried(sysarg)
+	Actor.enterScene(sysarg, MarriedConfig.chinaSceendId, unpack(MarriedConfig.chinaRange))
+end
+
+table.insert(MainFnTable, ChinaMarryMengFei_Main)

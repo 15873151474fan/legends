@@ -1,0 +1,35 @@
+
+
+
+function SendCheckAnswer(sysarg)
+	local config = PasswordConfig
+	local rankIndex = PwdRankItemIndex
+	local pRanking = Ranking.getRanking(PasswordRankPt.RankName)
+	if not pRanking then return end
+	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+	if not pRankItem then return end
+	
+	local tQuestions = {}
+	for i = rankIndex.answer1, rankIndex.answer3 do
+		local answer = Ranking.getSub(pRankItem, i)
+		local sPos, ePos = string.find(answer, "_")
+		local qid = tonumber(string.sub(answer, 1, sPos-1))
+		if qid then
+			--local question = {id = qid, question = config.Questions[qid]}
+			--table.insert(tQuestions, question)
+			table.insert(tQuestions, qid)
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 146, 3)
+	DataPack.writeByte(pack, table.getn(tQuestions))
+	for k, v in ipairs(tQuestions) do
+		print(v)
+		DataPack.writeByte(pack, v)
+		--DataPack.writeByte(pack, v.id)
+		--DataPack.writeString(pack, v.question)
+	end
+	DataPack.flush(pack)
+end

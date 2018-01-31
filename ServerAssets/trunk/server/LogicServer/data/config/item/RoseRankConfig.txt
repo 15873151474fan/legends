@@ -1,0 +1,115 @@
+
+
+
+RoseRankConfig = {
+	RankData = {
+		{ 
+			rankFile = "weekCharming.txt", showName = Lang.Rank.r12, pointName = Lang.Rank.i28, titles = {4, 5, 6}, noticeStr = Lang.ScriptTips.c000081,
+			weekAward = {  --…œ÷‹≈≈––Ω±¿¯
+				{type = 0,id=948,count=1,strong=0,quality=0,bind=1},
+			},
+		},
+		{ 
+			rankFile = "weekHandsome.txt", showName = Lang.Rank.r13, pointName = Lang.Rank.i29, titles = {7, 8, 9}, noticeStr = Lang.ScriptTips.c000082,
+			weekAward = {  --…œ÷‹≈≈––Ω±¿¯
+				{type = 0,id=947,count=1,strong=0,quality=0,bind=1},
+			},
+		},
+	},
+}
+
+RedRose = 0
+BlueRose = 1
+
+GiveRoseConfig = {
+	Coin = 0,
+	Rose = {     --atomRoseId±Ì æ‘˘ÀÕ9∂‰µƒª®£¨ø…“‘ «“ª∏ˆ9∂‰µƒŒÔ∆∑ªÚ9∏ˆ1∂‰µƒŒÔ∆∑
+		[RedRose] = {
+			-- ˝¡ø£¨√µπÂid£¨ «∑Òπ´∏Ê£¨¥˙ÃÊµƒ‘™±¶£¨∏¯»´∑˛≤•∑≈£¨Ãÿ–ß≥÷–¯√Î ˝£¨∏¯◊‘º∫≤•∑≈
+			{roseNum = 1, roseItemId = 354, tips = false, gold = 1, toAll = false, toSelf = false},
+			{roseNum = 9, roseItemId = 355, atomRoseId = 354, tips = false, gold = 3, toAll = false, toSelf = false },
+			{roseNum = 99, roseItemId = 356, tips = true, gold = 33, toAll = false, effectSec = 15, toSelf = true },
+			{roseNum = 999, roseItemId = 357, tips = true, gold = 333, toAll = true, effectSec = 20, toSelf = true },
+			--{roseNum = 9999, roseItemId = 358, tips = true, gold = 9999, toAll = true, effectSec = 20, toSelf = true  },
+		},
+		[BlueRose] = {
+			{roseNum = 1, roseItemId = 359, tips = false, gold = 1, toAll = false, toSelf = false },
+			{roseNum = 9, roseItemId = 360, atomRoseId = 359,tips = false, gold = 3, toAll = false, toSelf = false },
+			{roseNum = 99, roseItemId = 361, tips = true, gold = 33, toAll = false, effectSec = 10,toSelf = true  },
+			{roseNum = 999, roseItemId = 362, tips = true, gold = 333, toAll = true, effectSec = 15,toSelf = true  },
+			--{roseNum = 9999, roseItemId = 363, tips = true, gold = 9999, toAll = true, effectSec = 5,toSelf = true  },
+		},
+	},
+	--≤•∑≈µƒÃÿ–ßid
+	RoseData = {
+		[RedRose] = {1, 1},  --≤Œ ˝1 «√µπÂÃÿ–ßid£¨≤Œ ˝2 «˜»¡¶/Àß∆¯÷µ±∂ ˝
+		[BlueRose] = {7, 1},
+	},
+
+	--Ã·»°√µπÂ,∑÷±±Ì æµƒ ˝¡ø
+	PickRose = {1, 3, 10},
+
+	PackCoin =  10000,			--¥Ú¿¶ ÷–¯∑—
+	UnpackCoin = 0,				--Ω‚¿¶ ÷–¯∑—
+	PackRose = {
+		--¥Ú¿¶√µπÂid,  ˝¡ø£¨¥Ú¿¶∫Û√µπÂid
+		--¥Ú¿¶∫Ï√µπÂ
+		[RedRose] =  {
+			{srcId=354, srcCount = 9, destId = 355, opt = Lang.ScriptTips.c000032 },		--9∂‰∫Ï√µπÂªª≥…1¿¶9∂‰∫Ï√µπÂ
+			{srcId=355, srcCount = 10, destId = 356, opt = Lang.ScriptTips.c000033},		--10¿¶9∂‰∫Ï√µπÂªª≥…1¿¶99∂‰∫Ï√µπÂ
+			{srcId=356, srcCount = 10, destId = 357, opt = Lang.ScriptTips.c000034},		--10¿¶99∂‰∫Ï√µπÂªª≥…1¿¶999∂‰∫Ï√µπÂ
+			{srcId=357, noBind = true,srcCount = 10, destId = 358, opt = Lang.ScriptTips.c000035},		--10¿¶999∂‰∫Ï√µπÂªª≥…1¿¶9999∂‰∫Ï√µπÂ
+			{srcId=358, noBind = true,srcCount = 10, destId = 287, opt = Lang.ScriptTips.c000036},		--10¿¶9999∂‰∫Ï√µπÂªª≥…1¿¶99999∂‰∫Ï√µπÂ
+		},
+
+		--¥Ú¿¶¿∂√µπÂ
+		--[[
+		[BlueRose] = {
+			{srcId=359, srcCount = 9, destId = 360, opt = Lang.ScriptTips.c000038},			--9∂‰¿∂√µπÂªª≥…1¿¶9∂‰¿∂√µπÂ
+			{srcId=360, srcCount = 10, destId = 361, opt = Lang.ScriptTips.c000039},		--10¿¶9∂‰¿∂√µπÂªª≥…1¿¶99∂‰¿∂√µπÂ
+			{srcId=361, srcCount = 10, destId = 362, opt = Lang.ScriptTips.c000040},		--10¿¶99∂‰¿∂√µπÂªª≥…1¿¶999∂‰¿∂√µπÂ
+			{srcId=362, noBind = true,srcCount = 10, destId = 363, opt = Lang.ScriptTips.c000041},		--10¿¶999∂‰¿∂√µπÂªª≥…1¿¶9999∂‰¿∂√µπÂ
+			{srcId=363, noBind = true,srcCount = 10, destId = 288, opt = Lang.ScriptTips.c000042},		--10¿¶9999∂‰¿∂√µπÂªª≥…1¿¶99999∂‰¿∂√µπÂ
+		},
+		]]
+	},
+
+	UnpackRose = {
+		--Ω‚¿¶√µπÂid£¨Ω‚¿¶∫Û√µπÂid£¨Ω‚¿¶∫Û ˝¡ø
+		--Ω‚¿¶∫Ï√µπÂ
+		[RedRose] =  {
+			{srcId = 355, destId = 354, destCount = 9, opt = Lang.ScriptTips.c000044},		--1¿¶9∂‰∫Ï√µπÂΩ‚¿¶≥…9∂‰∫Ï√µπÂ
+			{srcId = 356, destId = 355, destCount = 10, opt = Lang.ScriptTips.c000045},		--1¿¶99∂‰∫Ï√µπÂΩ‚¿¶≥…10¿¶9∂‰∫Ï√µπÂ
+			{srcId = 357, destId = 356, destCount = 10, opt = Lang.ScriptTips.c000046},		--1¿¶999∂‰∫Ï√µπÂΩ‚¿¶≥…10¿¶99∂‰∫Ï√µπÂ
+			{srcId = 358, destId = 357, destCount = 10, opt = Lang.ScriptTips.c000047},		--1¿¶9999∂‰∫Ï√µπÂΩ‚¿¶≥…10¿¶999∂‰∫Ï√µπÂ
+			{srcId = 287, destId = 358, destCount = 10, opt = Lang.ScriptTips.c000048},		--1¿¶99999∂‰∫Ï√µπÂΩ‚¿¶≥…10¿¶9999∂‰∫Ï√µπÂ
+		},
+		--Ω‚¿¶¿∂√µπÂ
+		--[[
+		[BlueRose] = {
+			{srcId = 360, destId = 359, destCount = 9, opt = Lang.ScriptTips.c000050},		--1¿¶9∂‰¿∂√µπÂΩ‚¿¶≥…9∂‰¿∂√µπÂ
+			{srcId = 361, destId = 360, destCount = 10, opt = Lang.ScriptTips.c000051},		--1¿¶99∂‰¿∂√µπÂΩ‚¿¶≥…10¿¶9∂‰¿∂√µπÂ
+			{srcId = 362, destId = 361, destCount = 10, opt = Lang.ScriptTips.c000052},		--1¿¶999∂‰¿∂√µπÂΩ‚¿¶≥…10¿¶99∂‰¿∂√µπÂ
+			{srcId = 363, destId = 362, destCount = 10, opt = Lang.ScriptTips.c000053},		--1¿¶9999∂‰¿∂√µπÂΩ‚¿¶≥…10¿¶999∂‰¿∂√µπÂ
+			{srcId = 288, destId = 363, destCount = 10, opt = Lang.ScriptTips.c000054},		--1¿¶99999∂‰¿∂√µπÂΩ‚¿¶≥…10¿¶9999∂‰¿∂√µπÂ
+		},
+		]]
+	},
+	--π∫¬Ú√µπÂ
+	BuyRose = {
+		[RedRose] =  {   --π∫¬Ú∫Ï√µπÂ≈‰÷√	
+			{id=354, count = 3, gold = 1,str=Lang.ScriptTips.c000064,},		
+			{id=354, count = 9, gold = 3,str=Lang.ScriptTips.c000064,},		
+			{id=2291, count = 1, gold = 2,str=Lang.ScriptTips.c000089,},		
+			{id=2291, count = 9, gold = 18,str=Lang.ScriptTips.c000089,},		
+		},
+
+		[BlueRose] = {   --π∫¬Ú¿∂√µπÂ≈‰÷√
+			{id=359, count = 1, gold = 4, },			
+			{id=359, count = 3, gold = 12,},		
+			{id=359, count = 9, gold = 36,},		
+			{id=359, count = 15, gold = 60,},		
+			{id=359, count = 27, gold = 108,},		
+		},
+	},
+}

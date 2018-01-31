@@ -1,0 +1,36 @@
+--常量定义 
+local LUCKYROLLAWARDINDEX = 30   --31保存组数 32保存结果
+local GETLUCKYROLLAWARDING = 33   --幸运滚轮抽奖进行标识
+local DROPNAME = "LuckyRollAward"   --掉落名字对象标识
+------------------- 
+
+--此奖励 出现 转轮界面 
+--成就礼盒这种物品，玩家点击能够按照爆率获取物品
+LuckyRollAwardItemConfig=
+{
+--[[
+--成就礼盒
+{
+		item_id = 1572,     --item_id表示物品的id
+		needDelete = true,  --needDelete 表示是否需要删除
+		needMinBagGrid = 1, --至少需要多少个背包格子的数量
+		drop = 1, --  1为按照总概率Roll物品  2为按怪物的死亡爆率掉落物品(默认)  不同的爆率 对应不同的配置 
+    		interfaceName = Lang.ScriptTips.x00091,  --抽奖界面显示标题 
+		onlyDoRoll = true, --是否只执行爆物品的操作，如果程序还有其他的业务逻辑处理，这里使用false(自身注册函数单独处理)，否则使用true,
+		dropName =   --爆率的配置文件，同怪物的掉落 用于控制掉落所得  顺序与dropInclude对应
+    		{
+      			"data/config/item/scriptItemConfig/LuckyRollAwardItemDrops/drops1.txt",
+     		 	
+   		},
+   	 dropInclude = --爆率的配置文件，同怪物的掉落 用于发送给客户端配置  顺序与dropName对应 
+    	{
+     	   {
+--#include "data/config/item/scriptItemConfig/LuckyRollAwardItemDrops/drops1.txt",  --必须顶格才生效 
+      	   },
+
+       },     
+
+},
+--]]
+
+}

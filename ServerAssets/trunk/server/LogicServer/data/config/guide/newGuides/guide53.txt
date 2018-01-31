@@ -1,0 +1,66 @@
+﻿--惊艳羽翼（指引玩家提升翅膀）
+{
+  maxLevel = 65,
+  guidePlace = 1,
+  triggerList =
+  {
+		{ type = 5, valueList = {0,64,}},      --等级等于 
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+    
+
+    --第2步 指向翅膀按钮
+    {
+      condList =
+      {
+                { type = 1, helpId = 151, dataList = {0,} },  --翅膀按钮可见
+                { type = 2, helpId = 161, dataList = {0,} },  --翅膀窗口不可见
+                { type = 13, helpId = 0, dataList = {463,} },  --背包存在物品
+                { type = 41, helpId = 161, dataList = {0,} },   --窗口之前没有开过 
+      },
+
+      action = { type = 1, helpId = 151, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc73 }, --指向坐骑按钮
+    },
+
+    --第3步 指向提升翅膀按钮
+    {
+      condList =
+      {
+                { type = 13, helpId = 0, dataList = {463,} },  --背包存在物品 
+                { type = 1, helpId = 161, dataList = {0,} },  --翅膀窗口可见
+                { type = 41, helpId = 161, dataList = {0,} },   --窗口之前没有开过
+      },
+
+      action = { type = 1, helpId = 171, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc74 }, --指向坐骑按钮
+    },
+
+    --第4步 指向翅膀窗口关闭按钮
+    {
+      condList =
+      {
+                
+                { type = 14, helpId = 0, dataList = {463,} },  --背包不存在物品 
+                { type = 1, helpId = 161, dataList = {0,} },  --翅膀窗口可见
+                { type = 41, helpId = 161, dataList = {0,} },   --窗口之前没有开过
+      },
+
+      action = { type = 1, helpId = 181, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc9 }, --指向坐骑窗口关闭按钮
+    },
+
+    --第5步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 12, helpId = 0, dataList = {79,} },      --不存在可接任务 
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

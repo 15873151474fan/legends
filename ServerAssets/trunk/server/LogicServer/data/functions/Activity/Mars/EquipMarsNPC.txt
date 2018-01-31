@@ -1,0 +1,21 @@
+﻿--[[File:EquipMarsNPC.txt]]
+-- 装备战神闯关使者
+
+--#include "data\functions\NpcTradeEventFunc.txt" once
+--#include "MarsCommon.txt" once
+
+function EquipMarsNPC_Main(sysarg)	
+	local strDlg = "";	
+	-- 兑换战神令
+	strDlg = strDlg .. GetGameGirdNum(sysarg, 2);
+	-- 购买药品
+	strDlg = strDlg .. Lang.Activity.a00004;
+	--strDlg = string.format("%s%s", strDlg, GetExitFubenOption(sysarg));
+	--strDlg = string.format("%s\\<#BL%s/@ExitEquipFuben>", strDlg, Lang.Activity.lfg0034);
+	strDlg = string.format("%s\\<#BL%s/@OnExitExpMarsMenu>", strDlg, Lang.Activity.lfg0012);
+	strDlg = string.format("%s\\<#BL%s/@exit>", strDlg, Lang.Activity.lfg0004);
+	return strDlg;
+end
+
+
+table.insert(MainFnTable, EquipMarsNPC_Main);

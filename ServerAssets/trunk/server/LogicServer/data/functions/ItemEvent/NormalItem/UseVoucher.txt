@@ -1,0 +1,40 @@
+﻿
+--#include "data\config\item\Voucher.txt" once
+
+--[[
+    函数名称：UseVoucher_Func
+    函数描述：使用道具刷怪函数
+    参数 sysarg 的描述：使用者指针
+    参数 itemidx 的描述：道具ID
+    参数 itemPtr 的描述：道具指针
+    参数 ItemTable 的描述：物品表
+]]
+function UseVoucher_Func(sysarg,itemidx,itemPtr,ItemTable)
+	if ItemTable == nil then return end
+	if ItemTable.item_id ~= itemidx then return end
+	local itemGuid = Item.getItemGuid(itemPtr)
+	if itemGuid == 0 then return end
+	local npack = DataPack.allocPacket(sysarg, 139, 55)
+	if npack == nil then return end
+	DataPack.writeInt64(npack, itemGuid)
+	DataPack.writeWord(npack, ItemTable.value)
+	DataPack.writeByte(npack, table.getn(ItemTable.goods))
+	for k, v in ipairs(ItemTable.goods) do
+		DataPack.writeInt(npack, v)
+	end
+	DataPack.flush(npack)
+	
+	--BuyVoucherItem(sysarg, itemGuid, 282)
+  
+end
+
+
+
+function UseVoucher_Init(sysarg)
+	for i = 1,table.getn(Voucher) do
+		local x = Voucher[i]
+		GlobalItemFn[x.item_id] = { func = UseVoucher_Func, params = x }
+	end
+end
+
+table.insert(InitFnTable,UseVoucher_Init)

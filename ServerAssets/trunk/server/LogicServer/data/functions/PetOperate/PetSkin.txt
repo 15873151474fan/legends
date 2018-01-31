@@ -1,0 +1,36 @@
+﻿--lua script
+
+--#include "OperateFunctioins.txt" once --通用函数
+
+--玩家开始强化宠物, args = [操作的类型,宠物的ID]
+function OnPetChangeSkin( sysarg, args )
+	local petId = args[2] --宠物的ID
+	local consItemId =  args[3] --消耗道具的ID
+  if(petId == nil or consItemId ==nil) then return end --输入不合法 
+   
+  if (not PetChangeSkin ) then return end
+  local config = PetChangeSkin[consItemId]
+  if(config ==nil ) then
+    print("OnPetChangeSkin ,no pet skill item="..consItemId)
+    return
+  end
+  local petConfigId   = config.petId
+  local quality = config.quality
+  if(quality == nil or petConfigId ==nil  ) then
+    print("OnPetChangeSkin quality == nil or petConfigId ==nil ")
+    return
+  end
+  
+  local consume={{type=0,id=consItemId,count=1},} --类型 
+  
+  local canCons, tips= checkConsumes(sysarg,consume)
+  if( canCons == false or canCons == nil) then
+    if(tips ~=nil) then
+      Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.x00173,tips),ttDialog )
+    end
+    return false
+  end
+  canCons, tips= getConsumes(sysarg,consume,18) 
+  if   canCons == false then return  end
+  Pet.setPetSkin(sysarg,petId,petConfigId,quality)  
+end

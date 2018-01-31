@@ -1,0 +1,50 @@
+--lua script
+
+--#include "data\config\friend\FlowersItem.txt" once
+--使用花篮
+
+--[[
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+function UseFlowersItem(sysarg,itemidx,itemPtr,ItemTable)
+	if(Actor.getItemCount(sysarg,ItemTable.itemId) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttFlyTip )
+		return
+	end
+	
+	local nSceneId = Actor.getSceneId(sysarg)
+	local bCanUse = false
+	for i=1,table.getn(ItemTable.canUseSceneId) do
+		if ItemTable.canUseSceneId[i] == nSceneId then
+			bCanUse = true
+			break
+		end
+	end
+
+	if bCanUse == false then
+		Actor.sendTipmsg( sysarg,Lang.GuildLang.m00094,ttFlyTip )
+		return
+	end
+
+	local nSceenHandle = Actor.getSceneHandle(sysarg)
+	local x, y = Actor.getEntityPosition(sysarg, 0, 0)
+
+	for i=1,table.getn(ItemTable.FlowersMonster) do
+		local nMonster = Fuben.createMonster(nSceenHandle,ItemTable.FlowersMonster[i].nMonsterID,x,y,ItemTable.FlowersMonster[i].nLiveTime)
+		--Actor.setMonsterName(nMonster,Actor.getName(sysarg))
+	end
+
+	Actor.removeItemByPtr(sysarg,itemPtr,1,true,"Flowers",5)
+end
+
+function UseFlowersItemInit(sysarg)
+	for i = 1,table.getn(FlowersItemConfig) do
+		local x = FlowersItemConfig[i]
+		GlobalItemFn[x.itemId] = { func = UseFlowersItem, params = x }
+	end
+end
+
+table.insert(InitFnTable,UseFlowersItemInit)

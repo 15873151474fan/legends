@@ -1,0 +1,145 @@
+--lua script 
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasTreasureConfig.txt" once
+--圣诞宝箱
+
+--请求购买钥匙
+function ReqXmasTreasureBuy(sysarg, index, num)
+	if System.isInDateRange(unpack(ChristmasTreasureCfg.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0108, ttFlyTip)
+		return
+	end
+
+	if Actor.checkActorLevel(sysarg, ChristmasTreasureCfg.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0109, ttFlyTip)--等级不足
+		return
+	end
+
+	--判断空格
+	local needGrid = math.modf(num/200)+1
+
+	local type = ChristmasTreasureCfg.buyKey[index].awards.type
+	local id = ChristmasTreasureCfg.buyKey[index].awards.id
+	local bind = ChristmasTreasureCfg.buyKey[index].awards.bind
+	local count = ChristmasTreasureCfg.buyKey[index].awards.count*num
+
+	--判断背包空格
+	local nGridCount= Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if nGridCount < needGrid then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0110, ttFlyTip)
+		return
+	end
+
+	--扣除材料
+	local consumetype = ChristmasTreasureCfg.buyKey[index].consumes.type
+	local consumenum = ChristmasTreasureCfg.buyKey[index].consumes.count*num
+
+	if consumetype == 15 then --元宝
+        if Actor.changeMoney(sysarg, mtYuanbao, -consumenum, 979, Lang.LogTips.msd0108) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.msd0118, ttFlyTip)
+			return
+		end
+	elseif consumetype == 6 then --金币
+	   	if Actor.changeMoney(sysarg, mtCoin, -consumenum, 979, Lang.LogTips.msd0108) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.msd0119, ttFlyTip)
+			return
+		end
+	elseif consumetype == 7 then --绑定元宝（礼券）
+		if Actor.changeMoney(sysarg, mtBindYuanbao, -consumenum, 979, Lang.LogTips.msd0108) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.msd0120, ttFlyTip)
+			return
+		end
+    end
+	Actor.giveAward( sysarg, type, id, count,0, 0, bind, 0,979, Lang.LogTips.msd0109)
+end
+
+--使用钥匙打开宝箱
+function Usekey(sysarg, keyId)
+	if System.isInDateRange(unpack(ChristmasTreasureCfg.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0108, ttFlyTip)
+		return
+	end
+
+	if Actor.checkActorLevel(sysarg, ChristmasTreasureCfg.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0109, ttFlyTip)--等级不足
+		return
+	end
+	if keyId == ChristmasTreasureCfg.keyId[4] then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0132, ttFlyTip) --不能双击宝箱
+		return
+	end
+	
+	--判断钥匙
+	if Actor.getItemCount(sysarg, keyId) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0117, ttFlyTip)		
+		return
+	end
+	--判断宝箱
+	if Actor.getItemCount(sysarg, ChristmasTreasureCfg.keyId[4]) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0131, ttFlyTip)		
+		return
+	end
+
+	local index = 0
+	for k,v in ipairs(ChristmasTreasureCfg.keyId) do
+		if keyId == v then
+			index = k
+			break
+		end
+	end
+	if index == 0 then return end
+
+	--判断空格
+	local needCount = ChristmasTreasureCfg.actiList[index].needBagCount
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	local nDmkCount= Dmkj.getStoreRestCount(sysarg) --获得仓库有多少个格子
+	if nBagCount < needCount and  nDmkCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0123, ttFlyTip)
+		return
+	end
+	
+	--扣除
+	Actor.removeItem(sysarg, keyId, 1, -1,-1,-1, Lang.LogTips.msd0106, 979)
+	Actor.removeItem(sysarg, ChristmasTreasureCfg.keyId[4], 1, -1,-1,-1, Lang.LogTips.msd0110, 979)
+
+	local tab = ChristmasTreasureCfg.actiList[index]
+	--判断概率
+	local randVal = System.getRandomNumber(10000)+1
+	local awardid = nil
+	local tmpValue = 0
+	for k,v in ipairs(tab.awards) do
+		tmpValue = tmpValue + v.rate
+		if tmpValue >= randVal  then
+			awardid = k
+			break
+		end
+	end
+
+	if not tab then return end
+	local id = tab.awards[awardid].id
+	local count = tab.awards[awardid].count
+	local bind = tab.awards[awardid].bind
+	local broadcast = tab.awards[awardid].broadcast
+	local type = tab.awards[awardid].type
+	
+	
+	--发放物品
+	local newItem = Item.createItem(id, count, 0, 0, bind, 0)
+	if not newItem then
+		return false
+	end
+	local num = Item.addItem(sysarg, newItem, Lang.LogTips.msd0107, 979, count)
+	if num ~= count then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0124, ttFlyTip)
+		--放入仓库
+		Dmkj.addItem(sysarg, id, count, 0, 0, bind,false,0,979,Lang.LogTips.msd0107)
+	end
+
+	if broadcast == 1 then
+		local actorName = Actor.getName(sysarg)
+		local keyName = Item.getAwardDesc(0, keyId)	
+		local itemName = Item.getAwardDesc(type, id)
+		local noticeId = Lang.Activity.msd0116
+		System.broadcastTipmsg(string.format(noticeId, actorName, keyName, itemName), 128+2)
+	end
+end
+

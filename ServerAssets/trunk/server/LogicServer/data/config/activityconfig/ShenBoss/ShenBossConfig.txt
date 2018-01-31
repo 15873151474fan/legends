@@ -1,0 +1,135 @@
+--神都海域配置
+ShenBossConfig = 
+{
+	nSceneid = 216,					--神都海域地图id
+	range = {83,123,3,3},
+
+	nTime = 3600,					--活动时间1个小时
+	
+	outseneId = 8,					--时间到踢出场景的id
+	outRang = {136,168,3,3},
+	
+	nCircle = 3,					--进入需要的转数
+
+	nItemId = 2559,					--上交龙王的精魄的物品id
+	AwardExp = { type = 20, id = 1, count = 100, strong = 0, quality = 0, bind = 0, },				--上交一个龙王的精魄获得的经验
+	
+	needNum = 3,					--至少上交3个才可以进入
+	maxNum = 50,					--一次最多上交50个
+
+	ShenDuScoreFile = "ShenDuScoreFile.txt",			--神都龙王的精魄的积分
+
+	ShenDuThisWeek = "ShenDuThisWeek.txt",		--这个星期龙王的精魄排名
+	ShenDuLastWeek = "ShenDuLastWeek.txt",		--上个星期龙王的精魄排名
+	
+	--召唤boss的配置
+	CallBoss = 
+	{	
+		--普通
+		{
+			needSorce = 100,					--需要上交的数量
+			monsters = 
+			{
+				{nMonsterID = 1237, posX1 = 77, posX2 = 82,  posY = 57, nCount = 1, nLiveTime = 3600,},
+			},
+		},
+
+		--白金
+		{
+			needSorce = 300,					--需要上交的数量
+			monsters = 
+			{
+				{nMonsterID = 1238, posX1 = 77, posX2 = 82,  posY = 57, nCount = 1, nLiveTime = 3600,},
+			},
+		},
+
+		--至尊
+		{
+			needSorce = 600,					--需要上交的数量
+			monsters = 
+			{
+				{nMonsterID = 1239, posX1 = 77, posX2 = 82,  posY = 57, nCount = 1, nLiveTime = 3600,},
+			},
+		},
+	},
+
+	--精英怪
+	smallBoss =
+	{
+		{nMonsterID = 1233, posX1 = 109, posX2 = 123,  posY = 47, nCount = 6, nLiveTime = 3600,},				--精英怪
+		{nMonsterID = 1234, posX1 = 108, posX2 = 123,  posY = 69, nCount = 6, nLiveTime = 3600,},
+		{nMonsterID = 1235, posX1 = 104, posX2 = 113,  posY = 88, nCount = 5, nLiveTime = 3600,},
+		{nMonsterID = 1233, posX1 = 96, posX2 = 106,  posY = 107, nCount = 5, nLiveTime = 3600,},
+		{nMonsterID = 1235, posX1 = 68, posX2 = 75,  posY = 80, nCount = 4, nLiveTime = 3600,},
+		{nMonsterID = 1234, posX1 = 95, posX2 = 101,  posY = 62, nCount = 3, nLiveTime = 3600,},
+		{nMonsterID = 1233, posX1 = 50, posX2 = 62,  posY = 69, nCount = 5, nLiveTime = 3600,},
+		{nMonsterID = 1234, posX1 = 58, posX2 = 73,  posY = 101, nCount = 6, nLiveTime = 3600,},
+		{nMonsterID = 1235, posX1 = 40, posX2 = 56,  posY = 58, nCount = 5, nLiveTime = 3600,},
+		{nMonsterID = 1233, posX1 = 93, posX2 = 107,  posY = 35, nCount = 5, nLiveTime = 3600,},
+		{nMonsterID = 1233, posX1 = 67, posX2 = 81,  posY = 47, nCount = 4, nLiveTime = 3600,},
+		{nMonsterID = 1235, posX1 = 55, posX2 = 65,  posY = 43, nCount = 5, nLiveTime = 3600,},
+		{nMonsterID = 1234, posX1 = 35, posX2 = 47,  posY = 39, nCount = 4, nLiveTime = 3600,},
+		{nMonsterID = 1235, posX1 = 81, posX2 = 91,  posY = 89, nCount = 4, nLiveTime = 3600,},
+
+	},
+
+	awardRank = 50,							--前50名有奖励
+	--前50名的奖励
+	AllAwards = 
+	{
+		{
+			rank = {1,1},				--1名奖励
+			awards =
+			{
+				{ type = 0, id = 2558, count = 30, strong = 0, quality = 0, bind = 1, },
+				{ type = 0, id = 2575, count = 3, strong = 0, quality = 0, bind = 1, },
+			}
+		},
+
+		{
+			rank = {2,2},				--2名奖励
+			awards =
+			{
+				{ type = 0, id = 2558, count = 25, strong = 0, quality = 0, bind = 1, },
+				{ type = 0, id = 2575, count = 2, strong = 0, quality = 0, bind = 1, },
+			}
+		},
+
+		{
+			rank = {3,3},				--3名奖励
+			awards =
+			{
+				{ type = 0, id = 2558, count = 20, strong = 0, quality = 0, bind = 1, },
+				{ type = 0, id = 2575, count = 2, strong = 0, quality = 0, bind = 1, },
+			}
+		},
+
+		{
+			rank = {4,10},				--4到10名奖励
+			awards =
+			{
+				{ type = 0, id = 2558, count = 15, strong = 0, quality = 0, bind = 1, },
+				{ type = 0, id = 2575, count = 1, strong = 0, quality = 0, bind = 1, },
+			}
+		},
+
+		{
+			rank = {11,20},				--11到20名奖励
+			awards =
+			{
+				{ type = 0, id = 2558, count = 12, strong = 0, quality = 0, bind = 1, },
+				
+			}
+		},
+
+		{
+			rank = {21,50},				--21到50名奖励
+			awards =
+			{
+				{ type = 0, id = 2558, count = 10, strong = 0, quality = 0, bind = 1, },
+				
+			}
+		},
+	},
+}
+

@@ -1,0 +1,45 @@
+﻿--lua script
+{
+	id = 341,			-- 必备圣药
+	parentid = 55,type = 0,level = 0,circle = 0,entrust = 2,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name341,
+	content = Lang.Quest.desc341,
+
+	prom = { type = 0, scene = Lang.SceneName.s00008, npc = Lang.EntityName.n00042 },
+	comp = { type = 0, scene = Lang.SceneName.s00008, npc = Lang.EntityName.n00042 },
+	target = {
+		{
+			type = 127, id = 50091, count = 1, rewardId = 0,useList = false, data = Lang.Quest.data3410,
+			location = {
+				sceneid = 8, x= 0,y = 0,entityName = Lang.EntityName.n00042,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+		{ type = 3, id = 1, count = 450 },
+		{ type = 3, id = 453, count = 0 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count =15167, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk3411,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk3411,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip3411,
+	},
+	PassMsTip = {
+	},
+},

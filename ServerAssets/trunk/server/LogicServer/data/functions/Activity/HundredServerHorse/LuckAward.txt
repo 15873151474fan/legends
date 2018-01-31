@@ -1,0 +1,243 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\HundredServerHorse\HundredServerHorse.txt" once
+--#include "data\functions\Activity\HundredServerHorse\RankPointer.txt" once
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once
+
+--下发马年幸运抽奖总积分排行
+function OnGetLuckAwardTotalScoreRank(sysarg, args)
+	local config = HundredServerHorseConfig
+	if not config then return end
+--[[
+	if (System.isOpenHorseActById(1) ~= true) then
+		return
+	end
+]]
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(HorseHundredServerRankPt.LuckAwardFile)
+	if ranking then
+		local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 8, 36)
+	if (pack ~= nil) then
+		if ranking then
+			local nTotalScore = 0
+			local nRankCount = 0
+			local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+			if pItem then
+				nTotalScore = Ranking.getPoint(pItem)
+				nRankCount = Ranking.getItemIndexFromId(ranking,nActorId) + 1
+			end
+			if nTotalScore < config.LuckAward.onRankNeedScore then
+				nRankCount = 0
+			end
+			local nLen = table.getn(config.LuckAward.rankAwards or {})
+			local rankList = LuaHelp.getRankingItemList(ranking, nLen)
+			--先计算长度
+			nLen = 0
+			for k, v in pairs(rankList or {}) do
+				local nPoint = 0
+				local tItem = Ranking.getItemFromIndex(ranking, k - 1)
+				if tItem then
+					nPoint = Ranking.getPoint(tItem)
+				end
+				if nPoint < config.LuckAward.onRankNeedScore then
+					break
+				end
+				nLen = nLen + 1
+			end
+
+			DataPack.writeInt(pack, nTotalScore)
+			DataPack.writeInt(pack, nRankCount)
+			DataPack.writeChar(pack, nLen)
+
+			for k, v in pairs(rankList or {}) do
+				local name = "-"
+				local nPoint = 0
+				local tItem = Ranking.getItemFromIndex(ranking, k - 1)
+				if tItem then
+					name = Ranking.getSub(v, 0)
+					nPoint = Ranking.getPoint(tItem)
+				end
+				if nPoint < config.LuckAward.onRankNeedScore then
+					name = ""
+					nPoint = 0
+				end
+				DataPack.writeChar(pack, k)
+				DataPack.writeString(pack, name)
+				DataPack.writeInt(pack, nPoint)
+			end
+		else
+			DataPack.writeInt(pack, 0)
+			DataPack.writeInt(pack, 0)
+			DataPack.writeChar(pack, 0)			
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--马年积分兑换
+function OnGetLuckAwardScoreExchange(sysarg, args)
+	local nIndex = args[2]
+
+	if (System.isOpenHorseActById(1) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hhs0005, ttFlyTip)
+		return
+	end
+
+	local config = HundredServerHorseConfig
+	if (not config) or (not config.LuckAward) or (not config.LuckAward.exchangeAwards) then return end
+
+	local LuckAward = config.LuckAward
+
+	if (nIndex <= 0) or (nIndex > table.getn(LuckAward.exchangeAwards or {})) then
+		return
+	end
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(HorseHundredServerRankPt.LuckAwardFile)
+	if not ranking then return end
+
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+	if not pItem then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hhs0004, ttFlyTip)
+		return
+	end
+
+	local nLastScore = tonumber(Ranking.getSub(pItem, 1))
+	local exchangeAward = LuckAward.exchangeAwards[nIndex]
+	
+	local canExchange = 1
+
+	--先检查消耗是否足够
+	for k, consume in ipairs(exchangeAward.consumes or {}) do
+		if consume.type== 39 then
+			if nLastScore < consume.count then
+				canExchange = 0
+			end
+		end
+	end
+
+	if canExchange == 1 then
+		local awards = exchangeAward.awards
+		if not awards then return end
+
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--消耗
+			for k, consume in ipairs(exchangeAward.consumes or {}) do
+				if consume.type== 39 then
+					nLastScore = nLastScore - consume.count
+				end
+			end
+
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,956,Lang.LogTips.l00218, -1, awards[i].expireTime)
+				end
+			end
+
+			SendHorseLuckAwardExchangeResult(sysarg, nLastScore)
+
+			Ranking.setSub(pItem, 1, tostring(nLastScore))
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.hhs0006, ttFlyTip)
+	end
+end
+
+--下发马年幸运抽奖积分兑换结果
+function SendHorseLuckAwardExchangeResult(sysarg, nLastScore)
+	local pack = DataPack.allocPacket(sysarg, 8, 39)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nLastScore)
+		DataPack.flush(pack)
+	end
+end
+
+--马年幸运抽奖累计积分离线消息
+function AddLuckAwardOfflineMsg()
+	if (not HundredServerHorseConfig) or (not HundredServerHorseConfig.LuckAward) or
+	(not HundredServerHorseConfig.LuckAward.rankAwards) or (not HorseHundredServerRankPt) then
+		return
+	end
+
+	local ranking = Ranking.getRanking(HorseHundredServerRankPt.LuckAwardFile)
+	if not ranking then return end
+
+	local rankAwards = HundredServerHorseConfig.LuckAward.rankAwards
+
+	local nRankCount = table.getn(rankAwards)
+
+	for i=1, nRankCount do
+		local pItem = Ranking.getItemFromIndex(ranking, i - 1)
+		--分数不足不发奖励
+		if (not pItem) or (Ranking.getPoint(pItem) < HundredServerHorseConfig.LuckAward.onRankNeedScore) then
+			break
+		end
+		local title = rankAwards[i].offlineMsg
+		local actorId = Ranking.getId(pItem)
+		local offlineNeedBagCount = rankAwards[i].offlineNeedBagCount
+		if not offlineNeedBagCount then
+			offlineNeedBagCount = 6
+		end
+		System.addOfflineMsg(actorId, 56, title, 0, i, offlineNeedBagCount)
+	end
+end
+
+--领取马年幸运抽奖累计积分奖励
+function OnGetLuckAwardRankAward(sysarg, args)
+	local nIndex = args[2]
+
+	if (not HundredServerHorseConfig) or (not HundredServerHorseConfig.LuckAward) or
+	(not HundredServerHorseConfig.LuckAward.rankAwards) or (not HorseHundredServerRankPt) then
+		return
+	end
+
+	local ranking = Ranking.getRanking(HorseHundredServerRankPt.LuckAwardFile)
+	if not ranking then return end
+
+	local rankAwards = HundredServerHorseConfig.LuckAward.rankAwards
+
+	if (nIndex > table.getn(rankAwards)) then return end
+
+	local awards = rankAwards[nIndex].awards
+	if not awards then return end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+			end
+		end
+	end
+end
+
+--清除百服排行（只是做内存操作）
+function ClearHorseHundredServerRank()
+	if not HorseHundredServerRankPt then return end
+
+	local ranking = Ranking.getRanking(HorseHundredServerRankPt.LuckAwardFile)
+	if ranking and (Ranking.getRankItemCount(ranking) > 0) then
+		Ranking.clearRanking(ranking)
+		Ranking.save(ranking, HorseHundredServerRankPt.LuckAwardFile, true)
+	end
+
+	local pRanking = Ranking.getRanking(HorseHundredServerRankPt.LoginAwardFile)
+	if pRanking and (Ranking.getRankItemCount(pRanking) > 0) then
+		Ranking.clearRanking(pRanking)
+		Ranking.save(pRanking, HorseHundredServerRankPt.LoginAwardFile, true)
+	end
+
+	ClearRechargeCommonActivityRank(3)
+end

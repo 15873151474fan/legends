@@ -1,0 +1,344 @@
+--梯度性的时段礼包
+
+--#include "data\config\activityconfig\Festival\GradientGift.txt" once
+--#include "data\config\versionupdatetip\versionUpdateTipConfig.txt" once
+
+--开始梯度性的时段礼包活动
+function OpenGradientActivity()
+	--[[
+	local pRanking = Ranking.getRanking(GradientGiftConfig.rankName)
+	if pRanking then
+		Ranking.clearRanking(pRanking)
+	end
+	--]]
+	
+	local playerList = LuaHelp.getAllActorList()
+	
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				SendOpenorCloseGradient(player,1)
+			end
+		end
+	end
+end
+
+--scriptTimer开启活动
+function OpenGradientActivityExt()
+	System.setGradientGiftStartDate(GradientGiftConfig.actStartTime, GradientGiftConfig.actDay)
+end
+
+--结束梯度性的时段礼包活动
+function CloseGradientActivity()
+	OnSendGradientAwardByMile()
+
+	local playerList = LuaHelp.getAllActorList()
+	
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				SendOpenorCloseGradient(player,0)
+			end
+		end
+	end
+	
+	local pRanking = Ranking.getRanking(GradientGiftConfig.rankName)
+	if pRanking then
+		Ranking.clearRanking(pRanking)
+	end
+end
+
+--发送开启或者关闭 梯度性的时段礼包 nType 0 关闭 1 开启
+function SendOpenorCloseGradient(sysarg,nType)
+	local npack = DataPack.allocPacket(sysarg, 50, 19)
+	if not npack then return false end
+	DataPack.writeByte(npack, nType)
+	DataPack.flush(npack)
+end
+
+--发送梯度性的时段
+function OnSendGradientOnLogin(sysarg)
+	if System.isInDateRange(unpack(GradientGiftConfig.timeRang)) == false and System.getGradientGiftFlag() ~= 1 then return end		--不在活动时间内
+
+	SendOpenorCloseGradient(sysarg,1)
+end
+
+--提取元宝处理
+function OnGradientWithDrawYb(sysarg,nYuanBao)
+	if System.isInDateRange(unpack(GradientGiftConfig.timeRang)) == false and System.getGradientGiftFlag() ~= 1  then return end		--不在活动时间内
+
+	if nYuanBao <= 0 then return end
+
+	local pRanking = Ranking.getRanking(GradientGiftConfig.rankName)
+	if pRanking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId( pRanking, nActorId )
+		if pItem == nil then
+			pItem = Ranking.addItem(pRanking,nActorId,nYuanBao)
+			if pItem then
+				for i=1,10 do
+					Ranking.setSub(pItem,i-1,tostring(0))
+				end
+			end
+
+		else
+			Ranking.updateItem(pRanking,nActorId,nYuanBao)
+		end
+	end
+end
+
+--结束已邮件发送给玩家奖励
+function OnSendGradientAwardByMile()
+	local pRanking = Ranking.getRanking(GradientGiftConfig.rankName)
+	if pRanking then
+		local nCount = Ranking.getRankItemCount(pRanking)
+		for i=1,nCount do
+			local pItem = Ranking.getItemFromIndex(pRanking,i-1)
+			if pItem then
+				local nPoint = Ranking.getPoint(pItem)
+				for j=1,table.getn(GradientGiftConfig.AllGift) do
+					if nPoint >= GradientGiftConfig.AllGift[j].needYb then
+						local nTimes = tonumber(Ranking.getSub(pItem,j-1)) or 0
+						if j < table.getn(GradientGiftConfig.AllGift) then
+							if nTimes < GradientGiftConfig.AllGift[j].count then
+								local nActorId = Ranking.getId(pItem)
+								System.addOfflineMsg(nActorId,57,string.format(Lang.Activity.td0004,GradientGiftConfig.AllGift[j].needYb),0,j,1)
+							end
+						else
+							local AllTimes = math.floor(nPoint/GradientGiftConfig.AllGift[j].needYb)
+							if AllTimes > GradientGiftConfig.AllGift[j].count then
+								AllTimes = GradientGiftConfig.AllGift[j].count
+							end
+
+							if nTimes < AllTimes then
+								local nActorId = Ranking.getId(pItem)
+								System.addOfflineMsg(nActorId,57,string.format(Lang.Activity.td0004,GradientGiftConfig.AllGift[j].needYb),0,j,AllTimes-nTimes)
+							end
+						end
+					else
+						break
+					end
+				end
+			end
+		end
+	end
+
+end
+
+--活动结束后通过邮件领取礼包
+function OnGetGradientOffGift(sysarg,args)
+	local nIndex = args[2]
+	local nTimes = args[3]
+
+	local nConfig = GradientGiftConfig.AllGift[nIndex]
+	if nConfig == nil then return end
+
+	if nTimes > nConfig.count then
+		nTimes = nConfig.count
+	end
+
+	if Awards.CheckBagGridCount(sysarg,nConfig.awards) == true then
+		local pRanking = Ranking.getRanking(GradientGiftConfig.rankName)
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		if pRanking then
+			local pItem = Ranking.getItemPtrFromId( pRanking, nActorId )
+			if pItem then
+				local nCurTimes = tonumber(Ranking.getSub(pItem,nIndex-1)) or 0
+				if nCurTimes >= nConfig.count then
+					return
+				end
+			end
+		end
+
+		for i=1,nTimes do
+			Awards.Give(sysarg,nConfig.awards,946,Lang.Activity.td0003,0)
+		end
+		local pRanking = Ranking.getRanking(GradientGiftConfig.rankName)
+		if pRanking then
+			local pItem = Ranking.getItemPtrFromId( pRanking, nActorId )
+			if pItem then
+				Ranking.setSub(pItem,nIndex-1,tostring(nTimes))
+			end
+		end
+	end
+
+end
+
+--领取梯度性礼包
+function OnGetGradientAwardOp(sysarg,args)
+	local nIndex = args[2]
+
+	if nIndex <= 0 or nIndex > table.getn(GradientGiftConfig.AllGift) then return end
+	
+	local pRanking = Ranking.getRanking(GradientGiftConfig.rankName)
+	if pRanking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId( pRanking, nActorId )
+		if pItem == nil then
+			Actor.sendTipmsg(sysarg, Lang.Activity.td0001, ttFlyTip)
+			return
+		end
+		
+		local nValue = Ranking.getPoint(pItem)
+		local nConfig = GradientGiftConfig.AllGift[nIndex]
+		if nConfig == nil then return end
+
+		if nValue < nConfig.needYb then
+			Actor.sendTipmsg(sysarg, Lang.Activity.td0001, ttFlyTip)
+			return
+		end
+
+		local nTimes = tonumber(Ranking.getSub(pItem,nIndex-1)) or 0
+		if nTimes >= nConfig.count then
+			Actor.sendTipmsg(sysarg, Lang.Activity.td0002, ttFlyTip)
+			return
+		end
+
+		if nIndex < table.getn(GradientGiftConfig.AllGift) then
+			if Awards.CheckBagGridCount(sysarg,nConfig.awards) == true then
+				Awards.Give(sysarg,nConfig.awards,946,Lang.Activity.td0003,0)
+				Ranking.setSub(pItem,nIndex-1,tostring(nConfig.count))
+			end
+		else
+			local nMaxTimes = math.floor(nValue/nConfig.needYb)
+			if nMaxTimes <= nTimes then
+				Actor.sendTipmsg(sysarg, Lang.Activity.td0001, ttFlyTip)
+				return
+			end
+
+			if Awards.CheckBagGridCount(sysarg,nConfig.awards) == true then
+				Awards.Give(sysarg,nConfig.awards,946,Lang.Activity.td0003,0)
+				Ranking.setSub(pItem,nIndex-1,tostring(nTimes+1))
+			end
+		end
+
+		local npack = DataPack.allocPacket(sysarg, 50, 20)
+		if not npack then return false end
+		DataPack.writeByte(npack, nIndex)
+		DataPack.writeByte(npack, nTimes+1)
+		DataPack.writeByte(npack, GetCanGetGradientAward(nValue,nIndex,nTimes+1))
+		DataPack.flush(npack)
+	end
+end
+
+--发送梯度性礼包数据
+function OnSendGradientDataOp(sysarg,args)
+	local pRanking = Ranking.getRanking(GradientGiftConfig.rankName)
+	if pRanking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId( pRanking, nActorId )
+		if pItem then
+			local npack = DataPack.allocPacket(sysarg, 50, 21)
+			if not npack then return false end
+			DataPack.writeInt(npack, Ranking.getPoint(pItem))
+			DataPack.writeInt(npack, table.getn(GradientGiftConfig.AllGift))
+			for i=1,table.getn(GradientGiftConfig.AllGift) do
+				DataPack.writeByte(npack, i)
+				local nTimes = tonumber(Ranking.getSub(pItem,i-1)) or 0
+				DataPack.writeByte(npack, nTimes)
+				DataPack.writeByte(npack, GetCanGetGradientAward(Ranking.getPoint(pItem),i,nTimes))
+			end
+			local remainTime = 0
+			if System.getGradientGiftFlag() == 1 then
+				remainTime = System.getGradientGiftRemainTime()
+			end
+			DataPack.writeUInt(npack, remainTime)
+			DataPack.flush(npack)
+		else
+			SendNoGradientData(sysarg)
+		end
+	else
+		SendNoGradientData(sysarg)
+	end
+end
+
+--获取状态
+function GetCanGetGradientAward(nYb,nIndex,nTimes)
+	local nConfig = GradientGiftConfig.AllGift[nIndex]
+	if nConfig == nil then
+		return 0
+	end
+	
+	if nIndex < table.getn(GradientGiftConfig.AllGift) then
+		if nYb >= nConfig.needYb then
+			if nTimes >= nConfig.count then
+				return 2
+			else
+				return 1
+			end
+		end
+	else
+		local nCurTimes = math.floor(nYb/nConfig.needYb)
+		if nCurTimes <= 0 then
+			return 0
+		end
+		
+		if nTimes >= nConfig.count then
+			return 2
+		end
+
+		if nCurTimes > nTimes then
+			return 1
+		else
+			return 2
+		end
+	end
+
+	return 0
+end
+
+function SendNoGradientData(sysarg)
+	local npack = DataPack.allocPacket(sysarg, 50, 21)
+	if not npack then return false end
+	DataPack.writeInt(npack, 0)
+	DataPack.writeInt(npack, table.getn(GradientGiftConfig.AllGift))
+	for i=1,table.getn(GradientGiftConfig.AllGift) do
+		DataPack.writeByte(npack, i)
+		DataPack.writeByte(npack, 0)
+		DataPack.writeByte(npack, 0)
+	end
+	local remainTime = 0
+	if System.getGradientGiftFlag() == 1 then
+		remainTime = System.getGradientGiftRemainTime()
+	end
+	DataPack.writeUInt(npack, remainTime)
+	DataPack.flush(npack)
+end
+
+
+--新的一天登陆更新公告处理
+function OnNewDayLoginVersionTips(sysarg)
+	if System.isInDateRange(unpack(config.timeRang)) == false then return end
+	if Actor.checkActorLevel(sysarg,40,0) == false then return end
+
+	local npack = DataPack.allocPacket(sysarg, 50, 22)
+	if not npack then return false end
+	DataPack.writeByte(npack, 1)
+	DataPack.flush(npack)
+end
+
+--登陆发送更新公告
+function OnSendLoginVersionTips(sysarg)
+	-- if System.isInDateRange(unpack(config.timeRang)) == false then return end
+	
+	-- if Actor.checkActorLevel(sysarg,40,0) == false then return end
+
+	-- local sysVar = Actor.getStaticVar(sysarg)
+	-- if sysVar.GetUpdateVersionTipTime ~= nil and sysVar.GetUpdateVersionTipTime > System.getToday() then
+	-- 	return
+	-- end
+
+	-- local npack = DataPack.allocPacket(sysarg, 50, 22)
+	-- if not npack then return false end
+	-- DataPack.writeByte(npack, 1)
+	-- DataPack.flush(npack)
+end
+
+--关闭更新公告弹出指引
+function OnCloseVersionTipsOp(sysarg,args)
+	-- local sysVar = Actor.getStaticVar(sysarg)
+	-- sysVar.GetUpdateVersionTipTime = System.getCurrMiniTime()
+end
+

@@ -1,0 +1,107 @@
+﻿--[[File:ItemEventHandler.txt]]
+local GlobalItemFn = {}
+
+	
+
+
+--#include "./NormalItem\ReduceKillValueItem.txt" once  --降低红名值
+--#include "./NormalItem\RollItem.txt" once     --爆率物品
+--#include "./NormalItem\ProabilityItem.txt" once     --爆率物品
+--#include "./NormalItem\MultiPropDrop.txt" once     -- 新春活动
+--#include "./NormalItem\EnlargeBagItem.txt" once     --扩展背包的物品
+
+--#include "./NormalItem\UseExpBox.txt" once     --使用经验宝盒
+
+--#include "./NormalItem\VIPChargeItem.txt" once  --VIP道具物品
+--#include "./NormalItem\LuckyRollAward.txt" once  --转轮 抽奖
+--#include "./NormalItem\EnlargeStallGrid.txt" once  --增加摆摊格子
+--#include "./NormalItem\CQUseItemFunc.txt" once          --传奇使用物品实现函数
+--#include "./NormalItem\UseSkillBook.txt" once          --使用技能书学习技能
+--#include "./NormalItem\UseExpJade.txt" once		--使用经验玉
+--#include "./NormalItem\UseAlarmItem.txt" once		--使用报警器
+--#include "./NormalItem\UseNewbieBook.txt" once
+--#include "data\functions\guildOperate\UseGuildCityBack.txt" once		--使用行会回城卷
+--#include "./NormalItem\ItemAcceptQuest.txt" once
+--#include "./NormalItem\AddBuffEffectItem.txt" once --添加buff和特效的道具,比如烟花
+--#include "data\functions\Systems\RideSystem\UseRideItem.txt" once
+--#include "data\functions\Systems\RideSystem\UsegoldSilkItem.txt" once
+--#include "data\functions\Activity\GrowRose\UseSeedItem.txt" once --玫瑰种植
+--#include "data\functions\Systems\MarrySystem\UseFlowersItem.txt" once
+--#include "data\functions\ActorEvent\NormalItem\UseVoucher.txt" once
+--#include "./NormalItem\PetItem.txt" once --宠物相关
+--#include "./NormalItem\UseEquipChange.txt" once	--使用装备装换道具
+
+	--#include "UseBroadcast.txt" once --使用祝福符随机发送祝福语
+	--#include "AddExpBufferItem.txt" once --经验丹
+
+	--#include "data\functions\Tasks\FestivalTasks\PrayTree\UseBlessItem.txt" once --祝福卡
+
+	--#include "AddXiuWeiBufferItem.txt" once --修为丹
+	--#include "AddWineBufferItem.txt" once --擂台篝火酒
+	
+	--#include "UseNomalBox.txt" once --随机礼盒奖励物品
+	--#include "UseMiZongDongReward.txt" once --迷踪洞奖励物品
+	--#include "UseHuaShanLunJianReward.txt" once --华山论剑奖励物品
+	--#include "./NormalItem\AddQuestItems.txt" once	--添加任务
+	--#include "./NormalItem\ChuanSongItem.txt" once         --传送
+	--#include "./NormalItem\SulfurItems.txt" once
+	--#include "./NormalItem\ResurrectionItem.txt" once
+	--#include "./NormalItem\PresentBagItem.txt" once
+	--#include "./NormalItem\AddPhysicalItem.txt" once
+	--#include "./NormalItem\FubenChallengeBookItem.txt" once
+	--#include "./NormalItem\UseTaskThingInThePlace.txt" once
+	--#include "./NormalItem\DeputyLearnItem.txt" once
+	--#include "./NormalItem\RapidEffectItem.txt" once
+
+	--#include "./NormalItem\AddBufferItem.txt" once
+	--#include "./NormalItem\DelBufferItem.txt" once
+
+
+	--#include "./NormalItem\CompositeKeyItems.txt" once
+
+	--#include "./NormalItem\PowderPacketItems.txt" once
+
+	--#include "./NormalItem\taskItemInclude.txt" once
+
+	--#include "./NormalItem\XiuweiBox.txt" once     --使用修为宝盒
+
+
+ 	--#include "./NormalItem\GemSpriteStrenItem.txt" once -- 宝物灵力道具物品
+
+ 	--#include "./NormalItem\GemFuncItem.txt" once --宝物物品道具
+ 	--#include "./NormalItem\GemExpFunItem.txt" once --宝物经验物品道具
+ 	--#include "./NormalItem\GemUpLevelFunItem.txt" once --宝物升级物品道具
+	--#include "./NormalItem\CallFlagMsger.txt" once
+
+
+
+
+
+EventCallDispatcher.handlerUseFunctionItems = function (sysarg, arg)
+	if not arg then
+		return false
+	end 
+	--物品ID和物品的指针
+	local itemidx = arg[1]  --物品的ID
+	local itemPtr = arg[2] --物品的指针
+	local delType = arg[3]	--物品删除类型  如果为0则在脚本删除物品 1则扣除耐久(次数)
+	local param = arg[4]
+
+	local fnt = GlobalItemFn[itemidx]
+	
+	local npack = DataPack.allocPacket(sysarg,8,10);
+	if npack == nil then return end
+	DataPack.writeWord(npack,itemidx); --物品的ID
+
+	if fnt and fnt.func( sysarg, itemidx, itemPtr, fnt.params, delType, param) then
+		DataPack.writeByte(npack,1); -- 使用物品失败成功
+		DataPack.flush(npack)
+		return true
+	end
+	DataPack.writeByte(npack,0); -- 使用物品失败
+	DataPack.flush(npack)
+	return false
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUseItem, EventCallDispatcher.handlerUseFunctionItems)

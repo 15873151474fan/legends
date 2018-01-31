@@ -1,0 +1,952 @@
+﻿--#include "..\..\language\LangCode.txt"
+--电影引导的配置
+MovieGuide =
+{
+	--表现的类型定义   xxAction
+	-- 1 显示武器
+	-- 2 装备物品
+	-- 3 退出副本
+
+	--电影1 测试
+	--[[{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置 （头像ID配置路径jxClient\data\lang\zh-cn\interface\guide\face） 
+				faceWidth = 210,   --头像宽度
+				faceHeight = 220,  --头像高度
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00001,      --说话者名字
+				say = Lang.MovieGuide.m00002,         --说的话
+				clickEffHide = false,   --是否隐藏点击特效
+
+				--特殊的表现(例如出现屠龙刀)
+				actions =
+				{
+					{action = 1, data = "21,<font color='#FFFF00' size='24'>Equip</font>"},
+				}
+
+			},
+
+			--步骤2
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				faceWidth = 210,   --头像宽度
+				faceHeight = 220,  --头像高度
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00003,      --说话者名字
+				say = Lang.MovieGuide.m00004,         --说的话
+				clickEffHide = false,   --是否隐藏点击特效
+
+				--特殊的表现(例如出现屠龙刀)
+				actions =
+				{
+					{action = 1, data = "21,<font color='#FFFF00' size='24'>Equip</font>"},
+				}
+
+			},
+		},
+
+		--结束时特殊的表现(例如装备物品)
+		endMovieActions =
+		{
+			{action = 2, data = "573,1"},
+		}
+	},]]
+
+
+	--电影0 屠龙刀出现
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00001,      --说话者名字
+				say = Lang.MovieGuide.m00002,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = 2,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00003,      --说话者名字
+				say = Lang.MovieGuide.m00004,         --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00005,      --说话者名字
+				say = Lang.MovieGuide.m00006,         --说的话
+
+			},
+      --步骤4
+			{
+				faceId = 2,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00007,      --说话者名字
+				say = Lang.MovieGuide.m00008,         --说的话
+
+			},
+
+			--步骤5
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00009,      --说话者名字
+				say = Lang.MovieGuide.m00010,         --说的话
+
+				--特殊的表现(例如出现屠龙刀)
+				actions =
+				{
+					{action = 1, data = Lang.MovieGuide.m00017},
+				}
+
+			},
+		},
+
+		--结束时特殊的表现(例如装备物品)
+		endMovieActions =
+		{
+			{action = 2, data = "905,1"},
+		}
+	},
+
+
+	--电影1 主线白猪王 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 9,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00143,      --说话者名字
+				say = Lang.MovieGuide.m00138,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00144,      --说话者名字
+				say = Lang.MovieGuide.m00139,         --说的话
+
+			},
+			
+			--步骤3
+			{
+				faceId = 9,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00143,      --说话者名字
+				say = Lang.MovieGuide.m00140,         --说的话
+
+			},
+            
+            --步骤4
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00144,      --说话者名字
+				say = Lang.MovieGuide.m00141,         --说的话
+
+			},
+            
+            --步骤5
+			{
+				faceId = 9,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00143,      --说话者名字
+				say = Lang.MovieGuide.m00142,         --说的话
+
+			}, 
+
+		},
+
+	},
+
+	--电影2 主线玛沙克 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 11,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00145,      --说话者名字
+				say = Lang.MovieGuide.m00146,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00144,      --说话者名字
+				say = Lang.MovieGuide.m00147,         --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = 11,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00145,      --说话者名字
+				say = Lang.MovieGuide.m00148,         --说的话
+
+			},
+
+            --步骤4
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00144,      --说话者名字
+				say = Lang.MovieGuide.m00149,         --说的话
+
+			},
+
+		},
+
+	},
+
+	--电影3主线监狱副本 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 21,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00143,      --说话者名字
+				say = Lang.MovieGuide.m00150,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00144,      --说话者名字
+				say = Lang.MovieGuide.m00151,         --说的话
+
+			},
+			
+			--步骤5
+			{
+				faceId = 21,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00143,      --说话者名字
+				say = Lang.MovieGuide.m00154,         --说的话
+
+			},
+
+		},
+
+	},
+
+	--电影4 主线监狱副本开头 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00144,      --说话者名字
+				say = Lang.MovieGuide.m00153,         --说的话
+
+			},
+		},
+	},
+
+	--电影5 烈火斗士
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 11,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00022,      --说话者名字
+				say = Lang.MovieGuide.m00023,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = 0,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00024,      --说话者名字
+				say = Lang.MovieGuide.m00025,         --说的话
+
+				--出现原画
+				actions =
+				{
+					--{action = 3, data = "19,99999999999999999999,"},
+				}
+
+			},
+		},
+	},
+
+	--电影6 财神
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 13,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00026,      --说话者名字
+				say = Lang.MovieGuide.m00027,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = 0,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00028,      --说话者名字
+				say = Lang.MovieGuide.m00029,         --说的话
+
+				--出现原画
+				actions =
+				{
+					--{action = 3, data = "19,99999999999999999999,"},
+				}
+
+			},
+		},
+	},
+
+	--电影7 福神
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 14,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00030,      --说话者名字
+				say = Lang.MovieGuide.m00031,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = 0,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00032,      --说话者名字
+				say = Lang.MovieGuide.m00033,         --说的话
+
+				--出现原画
+				actions =
+				{
+					--{action = 3, data = "19,99999999999999999999,"},
+				}
+
+			},
+		},
+	},
+
+	--电影8 穷神
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 15,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00034,      --说话者名字
+				say = Lang.MovieGuide.m00035,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = 0,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00036,      --说话者名字
+				say = Lang.MovieGuide.m00037,         --说的话
+
+				--出现原画
+				actions =
+				{
+					--{action = 3, data = "19,99999999999999999999,"},
+				}
+
+			},
+		},
+	},
+
+	--电影9 衰神
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 16,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00038,      --说话者名字
+				say = Lang.MovieGuide.m00039,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = 0,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00040,      --说话者名字
+				say = Lang.MovieGuide.m00041,         --说的话
+
+				--出现原画
+				actions =
+				{
+					--{action = 3, data = "19,99999999999999999999,"},
+				}
+
+			},
+		},
+	},
+	
+	--电影10沙城战
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 9,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00042,      --说话者名字
+				say = Lang.MovieGuide.m00043,         --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00044,      --说话者名字
+				say = Lang.MovieGuide.m00045,         --说的话
+
+			},
+						--步骤3
+			{
+				faceId = 9,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00046,      --说话者名字
+				say = Lang.MovieGuide.m00047,         --说的话
+
+			},
+
+						--步骤4
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00048,      --说话者名字
+				say = Lang.MovieGuide.m00049,         --说的话
+
+			},
+		},
+
+
+		--结束时特殊的表现(退出副本)
+		endMovieActions =
+		{
+			--{action = 3, data = ""},
+		}
+	},
+
+	--电影11 变性
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 12,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00050,      --说话者名字
+				say = Lang.MovieGuide.m00051,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00052,      --说话者名字
+				say = Lang.MovieGuide.m00053,           --说的话
+
+			},
+            
+			--步骤3
+			{
+				faceId = 12,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00054,      --说话者名字
+				say = Lang.MovieGuide.m00055,           --说的话
+
+			},
+			--步骤4
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00056,      --说话者名字
+				say = Lang.MovieGuide.m00057,           --说的话
+
+			},
+			--步骤5
+			{
+				faceId = 12,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00058,      --说话者名字
+				say = Lang.MovieGuide.m00059,           --说的话
+
+			},
+
+		},
+
+	},
+
+   --电影12 转职
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00060,      --说话者名字
+				say = Lang.MovieGuide.m00061,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId = 9,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00062,      --说话者名字
+				say = Lang.MovieGuide.m00063,           --说的话
+
+			},
+            
+			--步骤3
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00064,      --说话者名字
+				say = Lang.MovieGuide.m00065,           --说的话
+
+			},
+			--步骤4
+			{
+				faceId = 9,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00066,      --说话者名字
+				say = Lang.MovieGuide.m00067,           --说的话
+
+			},
+			--步骤5
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00068,      --说话者名字
+				say = Lang.MovieGuide.m00069,           --说的话
+
+			},
+			--步骤6
+			{
+				faceId = 9,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00070,      --说话者名字
+				say = Lang.MovieGuide.m00071,           --说的话
+
+			},
+
+		},
+
+	},
+	
+    --电影13 任务493 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00072,      --说话者名字
+				say = Lang.MovieGuide.m00073,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId =20,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00074,      --说话者名字
+				say = Lang.MovieGuide.m00075,           --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00076,      --说话者名字
+				say = Lang.MovieGuide.m00077,           --说的话
+
+			},
+			--步骤4
+			{
+				faceId = 7,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00078,      --说话者名字
+				say = Lang.MovieGuide.m00079,           --说的话
+
+			},
+		},
+	},
+	
+	   --电影14 任务526真情告白 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 20,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00080,      --说话者名字
+				say = Lang.MovieGuide.m00081,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId =22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00082,      --说话者名字
+				say = Lang.MovieGuide.m00083,           --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = 20,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00084,      --说话者名字
+				say = Lang.MovieGuide.m00085,           --说的话
+
+			},
+			--步骤4
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00086,      --说话者名字
+				say = Lang.MovieGuide.m00087,           --说的话
+
+			},
+			--步骤5
+			{
+				faceId = 21,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00088,      --说话者名字
+				say = Lang.MovieGuide.m00089,           --说的话
+
+			},
+		},
+	},
+
+     --电影15 云栈洞除妖 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00090,      --说话者名字
+				say = Lang.MovieGuide.m00091,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId =3,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00092,      --说话者名字
+				say = Lang.MovieGuide.m00093,           --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00094,      --说话者名字
+				say = Lang.MovieGuide.m00095,           --说的话
+
+			},
+			--步骤4
+			{
+				faceId = 8,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00096,      --说话者名字
+				say = Lang.MovieGuide.m00097,           --说的话
+
+			},
+			--步骤5
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00098,      --说话者名字
+				say = Lang.MovieGuide.m00099,           --说的话
+
+			},
+		},
+	},
+	
+	     --电影16 掌中佛狱 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00100,      --说话者名字
+				say = Lang.MovieGuide.m00101,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId =21,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00102,      --说话者名字
+				say = Lang.MovieGuide.m00103,           --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00104,      --说话者名字
+				say = Lang.MovieGuide.m00105,           --说的话 
+
+			},
+					--步骤4
+			{
+				faceId = 21,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00106,      --说话者名字
+				say = Lang.MovieGuide.m00107,           --说的话
+				
+				--特殊的表现(例如出现屠龙刀)
+				actions =
+				{
+					{action = 1, data = Lang.MovieGuide.m00017},
+				}
+
+			},
+		},
+		--结束时特殊的表现(例如装备物品)
+		endMovieActions =
+		{
+			{action = 2, data = "905,1"},
+		}	
+		
+	},
+	
+	--电影17 水寨1 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00108,      --说话者名字
+				say = Lang.MovieGuide.m00109,           --说的话
+			},
+		},
+	},
+	--电影18 水寨2 
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00110,      --说话者名字
+				say = Lang.MovieGuide.m00111,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId =22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00112,      --说话者名字
+				say = Lang.MovieGuide.m00113,           --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = 20,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00114,      --说话者名字
+				say = Lang.MovieGuide.m00115,           --说的话
+
+			},
+					--步骤4
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00116,      --说话者名字
+				say = Lang.MovieGuide.m00117,           --说的话
+
+			},
+		},
+	},
+	
+	--电影19 高家店1
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00118,      --说话者名字
+				say = Lang.MovieGuide.m00119,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId =20,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00120,      --说话者名字
+				say = Lang.MovieGuide.m00121,           --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00122,      --说话者名字
+				say = Lang.MovieGuide.m00123,           --说的话
+
+			},
+		},
+	},
+	
+		--电影20 高家店2
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00124,      --说话者名字
+				say = Lang.MovieGuide.m00125,           --说的话
+
+			},
+
+		},
+	},
+	
+		--电影21 五指山下1
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00126,      --说话者名字
+				say = Lang.MovieGuide.m00127,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId =20,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00128,      --说话者名字
+				say = Lang.MovieGuide.m00129,           --说的话
+
+			},
+
+		},
+	},
+	
+		--电影22 五指山下2
+	{
+		steps =
+		{
+			--步骤1
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00130,      --说话者名字
+				say = Lang.MovieGuide.m00131,           --说的话
+
+			},
+
+			--步骤2
+			{
+				faceId =20,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00132,      --说话者名字
+				say = Lang.MovieGuide.m00133,           --说的话
+
+			},
+
+			--步骤3
+			{
+				faceId = 22,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 0,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00134,      --说话者名字
+				say = Lang.MovieGuide.m00135,           --说的话
+
+			},
+		},
+	},
+	--电影23 年兽
+	{
+		steps =
+		{
+			--步骤2
+			{
+				faceId = -1,    --头像id   -1表示根据自身性别选择头像  -2标示与自身性别相反, 其他按配置
+				facePos = 1,       --头像位置 0左  1右
+				whoSay = Lang.MovieGuide.m00136,      --说话者名字
+				say = Lang.MovieGuide.m00137,         --说的话
+
+				--出现原画
+				actions =
+				{
+					--{action = 3, data = "19,99999999999999999999,"},
+				}
+
+			},
+		},
+	},
+
+
+   --保留结束符，无逗号
+}

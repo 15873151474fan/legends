@@ -1,0 +1,128 @@
+
+--#include "data\config\activityconfig\Festival\Demons.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+function Demonser_Main(sysarg)
+	local sceneId = Actor.getSceneId(sysarg)
+	local telpotrStr = ""
+	local dlgStr = string.format("<#BL%s/@CallEliteDemonser>", Lang.ScriptTips.wst0015)
+	if sceneId == 160 then
+		dlgStr = string.format("%s<#BL%s/@BuyBuddha>", dlgStr, Lang.ScriptTips.wst0016)
+	elseif sceneId == 159 then
+		telpotrStr = string.format("<#BL%s/@TelTo3>", Lang.ScriptTips.wst0022)
+	end
+	dlgStr = string.format("%s<#BL%s/@BuyMedicine>%s", dlgStr, Lang.ScriptTips.wst0004,telpotrStr)
+	return dlgStr ..  Lang.Activity.a00004
+end
+
+function TelTo3(sysarg)
+	local sceneId = Actor.getSceneId(sysarg)
+	local sceneInfo = DemonsConfig.BossList[sceneId]
+	if sceneInfo then
+		local hScene = Actor.getSceneHandle(sysarg)
+		if Fuben.getLiveMonsterCount(hScene, sceneInfo.bossId) > 0  then
+			Actor.sendTipmsg( sysarg,Lang.ScriptTips.wst0023,ttFlyTip )
+			return
+		end
+		Actor.enterScene(sysarg, sceneInfo.telPos[1], sceneInfo.telPos[2], sceneInfo.telPos[3])
+	end
+end
+
+function BuyMedicine(sysarg)
+	local dlgStr = ""
+	for k, v in ipairs(DemonsConfig.BuyMedicine.Items) do
+		dlgStr = string.format("\\%s<#BL%s(%s)/@RealBuyMedicine,%d>", dlgStr, Item.getItemName(v.id), v.tips, k)
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function RealBuyMedicine(sysarg, itemIdx )
+	itemIdx = tonumber(itemIdx)
+	local itemInfo = DemonsConfig.BuyMedicine.Items[itemIdx]
+	local YbCfg = DemonsConfig.BuyMedicine.Yb
+	if YbCfg[2] <= 0 then
+		return
+	end
+	local moneyCount = Actor.getMoneyCount(sysarg, YbCfg[1])
+	if moneyCount < YbCfg[2] then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.wst0008, Item.getItemName(itemInfo.id), YbCfg[2]), ttFlyTip )
+		return
+	end
+	local needCount = Item.getAddItemNeedGridCount( sysarg, itemInfo.id, itemInfo.count, itemInfo.quality, itemInfo.strong)
+	local emptyCount = Item.getBagEmptyGridCount( sysarg )
+	if needCount > emptyCount then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, needCount),ttFlyTip )
+		return
+	end
+	if Actor.changeMoney(sysarg, YbCfg[1], -YbCfg[2], 899, Lang.LogTips.yb043) then
+		Actor.addItem(sysarg,itemInfo.id,itemInfo.quality,itemInfo.strong,itemInfo.count,itemInfo.bind,0,Lang.LogTips.l00140,899)
+	end
+end
+
+function CallEliteDemonser(sysarg)
+	local info = DemonsConfig.CallElitePlayer
+	local coinCount = Actor.getMoneyCount(sysarg, info.Yb[1])
+	if coinCount < info.Yb[2] then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.wst0018, info.Yb[2]), ttFlyTip )
+		return
+	end
+	local sceneId = Actor.getSceneId(sysarg)
+	local hScene = Actor.getSceneHandle(sysarg)
+	if Fuben.getLiveMonsterCount(hScene, info.PlayerId) >= info.MaxCount  then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.wst0019, ttFlyTip)
+		return
+	end
+	local scene = Actor.getScenePtr(sysarg)
+	local pos = nil
+	for k, v in ipairs(info.Pos[sceneId]) do
+		local monsterList = LuaHelp.getNearEntityListFromRange(scene, v[1], v[2], 1, 1, 1)
+		if monsterList then
+			local boPos = true
+			for _, monsPtr in ipairs(monsterList) do
+				local id = Actor.getIntProperty(monsPtr, PROP_ENTITY_ID)
+				if id == info.PlayerId then
+					boPos = false
+				end
+			end
+			if boPos then
+				pos = v
+			end
+		else
+			pos = v
+		end
+	end
+	if pos and Actor.changeMoney(sysarg, info.Yb[1], -info.Yb[2], 899, Lang.LogTips.yb044) then
+		local hScene = Actor.getSceneHandle(sysarg)
+		local monterPtr = Fuben.createMonster(hScene, info.PlayerId, pos[1], pos[2], info.LiveTime)
+		if monterPtr then
+			Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.wst0011,pos[1], pos[2]), ttFlyTip)
+		end
+	end
+end
+
+function BuyBuddha(sysarg)
+	local info = DemonsConfig.CallBuddha
+	local moneyCount = Actor.getMoneyCount(sysarg, info.Yb[1])
+	if moneyCount < info.Yb[2] then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.wst0008, System.getMonsterNameById(info.PlayerId), info.Yb[2]), ttFlyTip )
+		return
+	end
+	local fbPtr = Actor.getFubenPrt( sysarg )
+	local dVar = Fuben.getDyanmicVar(fbPtr)
+	if dVar.CallBuddhaFlag then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.wst0017, ttFlyTip)
+		return
+	end
+	local hScene = Actor.getSceneHandle(sysarg)
+	if Fuben.getLiveMonsterCount(hScene, info.PlayerId) > 0  then		
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.wst0020, ttFlyTip)
+		return
+	end
+	if Actor.changeMoney(sysarg, info.Yb[1], -info.Yb[2], 899, Lang.LogTips.yb045) then
+		local hScene = Actor.getSceneHandle(sysarg)
+		Fuben.createMonster(hScene, info.PlayerId, info.Pos[1], info.Pos[2], info.LiveTime)
+		dVar.CallBuddhaFlag = true
+	end	
+end
+
+table.insert(MainFnTable, Demonser_Main)

@@ -1,0 +1,177 @@
+
+--#include "data\config\activityconfig\meet\MeetConfig.txt" once
+--#include "data\config\item\RandNpcShop.txt" once
+
+--刷新黑市商人
+function FlushRandomNpcShop()
+	--[[local sysDVar = System.getDyanmicVar()
+	sysDVar.RandNpcShopItems = {}
+	local size = #RandNpcShopItem
+	for i = 1, NpcShopItemCount do
+		local idx = math.random(1, size)
+		sysDVar.RandNpcShopItems[i] = idx
+	end
+	local randSName = MeetConfig.RandSceneNames[math.random(1, #MeetConfig.RandSceneNames)]
+	local npcPtr = Fuben.getNpcPtrFromAllScenes(Lang.EntityName.n00163)
+	if npcPtr then
+		System.telportSceneDefaultPoint(npcPtr, randSName)
+		System.telportRandPos(npcPtr)
+		Actor.setEntityVisibleFlag( npcPtr, true)
+		Actor.regScriptCallback(npcPtr,npcPtr, MeetConfig.NpcLiveTime*1000, 0, 1,"OnRandNpcShopOver")
+		sysDVar.RandNpcOverDt = System.getCurrMiniTime() + MeetConfig.NpcLiveTime
+	end	]]
+end
+
+function FlushBuffMonsters( npcObj )
+	for k, monId in ipairs(MeetConfig.RegBuffMons) do
+		local randIdx = math.random(1, #MeetConfig.BuffMonsPos)
+		local sceneInfo = MeetConfig.BuffMonsPos[randIdx]
+		local hScene = Fuben.getSceneHandleById(sceneInfo.sceneId, 0)  --获得场景句柄 普通场景0
+		local pos = sceneInfo.pos[math.random(1, #sceneInfo.pos)]
+		local x = math.random(pos[1], pos[2])
+		local y = math.random(pos[3], pos[4])
+		Fuben.createMonster(hScene, monId, x, y, sceneInfo.liveTime)
+	end
+end
+
+--刷新击杀类怪
+function FlushKillMonster( npcOjb )
+	local randIdx = math.random(1, #MeetConfig.BuffMonsPos)
+	local sceneInfo = MeetConfig.BuffMonsPos[randIdx]
+	local hScene = Fuben.getSceneHandleById(sceneInfo.sceneId, 0)  --获得场景句柄 普通场景0
+	local pos = sceneInfo.pos[math.random(1, #sceneInfo.pos)]
+	local x = math.random(pos[1], pos[2])
+	local y = math.random(pos[3], pos[4])
+	Fuben.createMonster(hScene, MeetConfig.KillMons, x, y, sceneInfo.liveTime)
+end
+
+--随机npc消失
+function OnRandNpcShopOver( npcObj )
+	local sysDVar = System.getDyanmicVar()
+	if sysDVar.RandNpcShopItems then
+		local NpcPtr = Fuben.getNpcPtrFromAllScenes(Lang.EntityName.n00163)
+		if NpcPtr then
+			Actor.setEntityVisibleFlag( NpcPtr, false)
+		end		
+		System.broadcastTipmsg(Lang.ScriptTips.meeting005, ttScreenCenter + ttChatWindow)
+		sysDVar.RandNpcShopItems = nil
+	end	
+end
+
+--刷新试练副本npc
+function FlushTryBattleFb()
+	--[[local sysDVar = System.getDyanmicVar()
+	local randSName = MeetConfig.RandSceneNames[math.random(1, #MeetConfig.RandSceneNames)]
+	local npcPtr = Fuben.getNpcPtrFromAllScenes(Lang.EntityName.n00164)
+	if npcPtr then
+		System.telportSceneDefaultPoint(npcPtr, randSName)
+		System.telportRandPos(npcPtr)
+		Actor.setEntityVisibleFlag( npcPtr, true)
+		sysDVar.TryBattleFlag = true
+		Actor.regScriptCallback(npcPtr, npcPtr, MeetConfig.NpcLiveTime * 1000, 0, 1, "OnTryBattleFbOver")
+	end]]
+end
+
+--试练npc时间到
+function OnTryBattleFbOver( npcObj )
+	local sysDVar = System.getDyanmicVar()
+	if sysDVar.TryBattleFlag then
+		local NpcPtr = Fuben.getNpcPtrFromAllScenes(Lang.EntityName.n00164)
+		if NpcPtr then
+			Actor.setEntityVisibleFlag( NpcPtr, false)
+		end		
+		System.broadcastTipmsg(Lang.ScriptTips.meeting006, ttScreenCenter + ttChatWindow)
+		sysDVar.TryBattleFlag = nil
+	end	
+end
+
+--取奖励
+function GetRandPetGood( sysarg, sendType )
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if dVar.RandPetItem then
+		local curIdx = dVar.RandPetItem[sendType]
+		if curIdx then
+			local itemTab = MeetConfig.GoodPetAwards[sendType][curIdx]
+			if itemTab then
+				Actor.giveAward(sysarg, itemTab.type, itemTab.id, itemTab.count, itemTab.quality, itemTab.strong, itemTab.bind, 0, 55, "GetTryBattleFBAward")
+				dVar.RandPetItem[sendType] = nil
+			end
+		end
+	end
+end
+
+function OnSendRandAward( sysarg, sendType )
+	local awardCfg = MeetConfig.GoodPetAwards[sendType]
+	if not awardCfg then
+		return
+	end
+	local netPack = DataPack.allocPacket(sysarg,139, 16)  --申请一个数据包
+	if netPack then
+		local length = #awardCfg
+		DataPack.writeByte(netPack, 1)
+		DataPack.writeString(netPack, Lang.ScriptTips.meeting020)
+		DataPack.writeInt( netPack, sendType)
+		DataPack.writeByte(netPack, length)
+		for k, v in ipairs(awardCfg) do
+			DataPack.writeByte(netPack, v.type)
+			DataPack.writeInt(netPack, v.id)
+			DataPack.writeInt(netPack, v.count)
+		end
+		local dVar = Actor.getDyanmicVar(sysarg)
+		if not dVar.RandPetItem then
+			dVar.RandPetItem = {}
+		end
+		local randIdx = math.random(1, length)
+		dVar.RandPetItem[sendType] = randIdx
+		DataPack.writeByte(netPack, randIdx)
+		DataPack.flush(netPack)
+	end	
+end
+
+function OnBuyNpcShopItem( sysarg, idx, itemId, count )
+	local sysDVar = System.getDyanmicVar()
+	if not sysDVar.RandNpcShopItems then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.meeting003, ttFlyTip)
+		return
+	end
+	local origIdx = sysDVar.RandNpcShopItems[idx + 1]
+	local itemCfg = RandNpcShopItem[origIdx]
+	if itemCfg and itemCfg.id == itemId then
+		local myMoney = Actor.getIntProperty(sysarg, moneyTypeMap[itemCfg.moneyType])
+		if myMoney < itemCfg.moneyVal then
+			return
+		end
+		if Actor.changeMoney( sysarg, itemCfg.moneyType, -itemCfg.moneyVal, 130, Lang.LogTips.yb008) then
+			sysDVar.RandNpcShopItems = nil
+			local npcPtr = Fuben.getNpcPtrFromAllScenes(Lang.EntityName.n00163)
+			if npcPtr then
+				Actor.setEntityVisibleFlag(npcPtr, false)
+			end
+			Actor.unregScriptCallback(npcPtr, "OnRandNpcShopOver")
+			Actor.addItem(sysarg, itemCfg.id, itemCfg.quality, itemCfg.strong,itemCfg.count,itemCfg.bind, 0, "RandomNpcShopItem", 56)
+			System.broadcastTipmsg(string.format(Lang.ScriptTips.meeting001, Actor.getName(sysarg)), ttScreenCenter + ttChatWindow)
+		end
+	end
+end
+
+--刷新随从怪
+function FlushGetPetMonsters()
+	local sTab = {}
+	local nLen = #MeetConfig.BossScenePos
+	for i = 1, nLen do
+		table.insert(sTab, i)
+	end
+	for id, tab in pairs(MeetConfig.RegBoss) do
+		local realIdx = table.remove(sTab, math.random(1, #sTab))
+		local sceneInfo = MeetConfig.BossScenePos[realIdx]
+		if sceneInfo then
+			local pos = sceneInfo.pos[math.random(1, #sceneInfo.pos)]
+			if pos then
+				local hScene = Fuben.getSceneHandleById(sceneInfo.sceneId, 0)  --获得场景句柄 普通场景0
+				local x = math.random(pos[1], pos[2])
+				local y = math.random(pos[3], pos[4])
+				Fuben.createMonster(hScene, id, x, y, sceneInfo.liveTime)
+			end
+		end
+	end
+end

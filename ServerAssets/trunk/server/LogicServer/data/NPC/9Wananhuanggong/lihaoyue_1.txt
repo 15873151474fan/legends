@@ -1,0 +1,83 @@
+﻿--lua script
+--李皓月 
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+  thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+ 
+---#include "data\language\LangCode.txt" once          
+---#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once           --用于处理副本的通用函数 
+--#include "data\functions\NormalFuncForQuest.txt" once --任务内容
+----#include "data\functions\Activity\GuildBattle\GuildBattleMain.txt" once
+----#include "data\functions\Activity\Dart\DestNpcDialog.txt"  --主线任务护送公主完成脚本
+
+--[[此NPC中标准任务发行表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = Lang.NormalTalk.h00027, },
+
+}
+
+--[[此NPC中标准任务发行表]]
+PromMs =
+{
+  --键入mp+分号，根据模板生成发行任务脚本模板
+--#include "data\config\quest\quests\task99.txt"
+--#include "data\config\quest\quests\task100.txt"
+--#include "data\config\quest\quests\task101.txt"
+--#include "data\config\quest\quests\task102.txt"
+}
+
+--[[此NPC中标准任务受理表]]
+CompMs =
+{
+--#include "data\config\quest\quests\task98.txt"
+--#include "data\config\quest\quests\task99.txt"
+--#include "data\config\quest\quests\task100.txt"
+--#include "data\config\quest\quests\task101.txt"
+}
+
+--[[此NPC中标准任务过程表]]
+PassMs =
+{
+
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+   local sVar = Actor.getStaticVar(sysarg)   
+   
+   if sVar.ActorDartStatus == 1 then  --如果有护送美女中 
+	  local str = ""
+  	  local dialog_count = table.getn(NpcDialogue)
+      if (dialog_count > 0) then
+  	    local rand = System.getRandomNumber(dialog_count)
+ 	    str = NpcDialogue[rand +1].say
+        str = str..FinishDartDialog(sysarg) 
+        return str
+      end
+	else
+	  return commonQuestNpcMain(sysarg)
+   end
+end
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

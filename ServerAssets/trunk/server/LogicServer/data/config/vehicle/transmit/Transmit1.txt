@@ -1,0 +1,21 @@
+
+--将其包含到需要传送菜单的NPC脚本中
+--每个NPC只能包含1个此配置
+--支持配置多个传送菜单
+--传送配置
+TranConfig = 
+{	
+	{
+		TranTitle = Lang.ScriptTips.x00193,	--传送菜单显示
+		TranAsk = 0,	--是否询问 0直接传送 1询问是否传送
+		TranMapId = 49,	--传送场景ID
+		TranMapXY = 	--传送XY
+		{
+			{51,51,34},
+		},   --随机点{随机X1,随机X2, 随机Y}  --用于角色传送
+	},
+
+	--...其他传送菜单
+}
+
+--#include "data\functions\ExpandFunc\Transmit.txt" once --传送脚本

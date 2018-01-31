@@ -1,0 +1,25 @@
+--lua script
+--#include "data\language\LangCode.txt" once			--语言包
+
+function CrossReturnRaw_Dialog(sysarg)
+	local str = ""
+	--str = str.."\\<#BL"..Lang.Activity.ku0024.."/@OnEnterCrossBoss>"		--参加跨服boss战场
+	str = str.."\\<#BL"..Lang.Activity.ku0019.."/@ReturnRawServer>"			--返回原来服务器
+	return str
+end
+
+--返回原来服务器
+function ReturnRawServer(sysarg)
+	local netPack = DataPack.allocPacket(sysarg, 139, 4)
+	if netPack then
+		DataPack.writeUInt(netPack, 0)
+		DataPack.writeUInt(netPack, 3000)
+		DataPack.writeByte(netPack, 0)
+		DataPack.writeByte(netPack, 0)
+		DataPack.writeString(netPack, Lang.ScriptTips.pk00013)
+		DataPack.flush(netPack)
+	end
+	Actor.reqTransmitToRawServer(sysarg)
+end
+
+table.insert(MainFnTable, CrossReturnRaw_Dialog)

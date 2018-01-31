@@ -1,0 +1,121 @@
+--羊年百服活动
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\GoldSilverTree.txt" once
+
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseTurntable.txt" once 
+--#include "data\functions\Activity\SheepHundredActivity\BaiFuItemFurnace.txt" once --2015百服装备熔炉
+--#include "data\functions\Activity\SheepHundredActivity\BaiFuCake.txt" once --2015百服蛋糕
+--#include "data\functions\Activity\ConsumeRankActivity\ConsumeRankAct.txt" once --消费排名
+
+--[[
+0.羊年百服的开启标记
+1.五羊衔谷
+2.消费排行
+3.充值送礼
+4.装备熔炉
+5.金银福树
+6.百服转盘
+7.战力排名
+8.屠龙认主
+9.平台活动
+--]]
+
+
+--登陆处理
+function SheepHundredLoginHandle(sysarg)
+	if System.getSheepHundredActFlag(0) == true or System.isShowSheepHundredAct() == true then --羊年百服活动已开启 
+		Actor.sendSheepHundredActFlag(sysarg)
+	end
+	
+	local sysVar = System.getDyanmicVar()
+	local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+	local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00323) --  NPC名字 周公
+	if System.getSheepHundredActFlag(1) == true then
+		if sysVar.SnowBaifuCakeFlag then --活动内，显示蛋糕
+			if npcPtr then
+				Actor.setEntityVisibleFlag(npcPtr, true)
+				sysVar.SnowBaifuCakeFlag = nil
+			end
+		end
+		--登录判断蛋糕模型
+		if not sysVar.SnowBaiFuCakeID then --开始是nil
+			LoginSetSnowManID()
+			sysVar.SnowBaiFuCakeID = true
+		end
+	else
+		if not sysVar.SnowBaifuCakeFlag then
+			if npcPtr then
+				Actor.setEntityVisibleFlag(npcPtr, false) --活动外，仅屏一次
+				sysVar.SnowBaifuCakeFlag = true
+			end
+		end
+	end
+
+end
+
+--新的一天处理
+function SheepHundredNewDayArrive(sysarg)
+	if System.getSheepHundredActFlag(0) == true then --羊年百服活动已开启
+	
+	end
+
+end
+
+
+
+--羊年百服活动0点重置
+function ResetSheepHundred()
+	if System.getSheepHundredActFlag(0) == true then
+		if System.getSheepHundredActFlag(1) == true then
+			ClearBaiFuBuyItemData() --百服蛋糕0点清零
+		end
+		
+		if System.getSheepHundredActFlag(2) == true then
+			if System.getSheepHundredActRemainTime() > 120 then 
+				--发今日消费排名奖励
+				OnGiveConsumeRankAward(1, true, 1)
+			else
+				OnGiveConsumeRankAward(1, false, 1)  --活动结束不清数据，要保留一天
+			end
+		end
+	
+	end
+	
+end
+
+--羊年百服活动结束清除数据
+function OnEndClearSheepHundredData()
+
+	--充值排行
+	CloseRechargeCommon(18)	
+
+	--金银福树
+	ClearGoldSilverTree()
+
+	--清除羊年转盘数据  
+	ClearChrTurntableData(3)
+	--发消费累计排名奖励
+	OnGiveConsumeRankAward(2, false, 1) --活动结束不清数据，要保留一天
+	
+	System.getTopBattleActor() --获取战力前三名玩家 
+end
+
+--直接清除数据，不发奖励
+function OnClearSheepHundredData()
+	--充值排行
+	ClearRechargeCommonActivityRank(18)
+
+	--金银福树
+	ClearGoldSilverTree()
+
+	--清除羊年转盘数据  
+	ClearChrTurntableData(3)
+	
+	--清除消费排名数据
+	ClearConsumeRankData(1) 
+	
+	ClearBaiFuFurnaceData() --活动结束清除熔炉进度值
+	ClearBaiFuCakeData() --活动结束清除百服蛋糕数据
+
+end
+

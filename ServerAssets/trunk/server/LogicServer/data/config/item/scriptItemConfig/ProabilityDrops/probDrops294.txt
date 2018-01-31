@@ -1,0 +1,5 @@
+﻿--经验
+drops=
+{
+	  {	type = 2, id = 0, count = 5000000, strong = 0, quality = 0, propability = 1, bind = 1, group = 1	},
+}

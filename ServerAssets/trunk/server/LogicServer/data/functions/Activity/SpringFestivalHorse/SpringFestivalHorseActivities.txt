@@ -1,0 +1,319 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\Festival\SpringFestivalHorseActive.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\ConsumePackage.txt" once
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once
+--#include "data\config\activityconfig\Festival\DoubleAwardActive.txt" once
+
+--马年春节活动
+function SpringFestivalHorse_main(sysarg)
+	local str = ""
+	str = string.format(Lang.Activity.cj0002)
+	str = string.format("%s<#BL%s/@GetRedEnvelope>", str, Lang.Activity.cj0003)  --<领取开门利是>
+	str = string.format("%s<#BL%s/@GetFestiveSalute>", str, Lang.Activity.cj0027)  --<领取喜庆鞭炮>
+	str = string.format("%s<#BL%s/@BuyFestiveSalute>", str, Lang.Activity.cj0029)  --<购买喜庆鞭炮>
+	str = string.format("%s<#BL%s/@AboutSpringFestivalHorse>", str, Lang.Activity.cj0004)  --<春节活动介绍>
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+--领取开门利是
+function GetRedEnvelope(sysarg)
+	-- local config = SpringFestivalHorseActiveConfig
+	-- if not config then return end
+
+	-- local redEnvelope = config.redEnvelope
+	-- if not redEnvelope then return end
+	
+	-- if Actor.checkActorLevel(sysarg, redEnvelope.limitLevel, redEnvelope.limitCircle) ~= true then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cj0041,redEnvelope.limitCircle,redEnvelope.limitLevel), ttFlyTip)
+	-- 	return
+	-- end
+
+	-- if System.isInDateRange(unpack(config.actTime)) ~= true then
+	-- 	return
+	-- end
+
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- if not svar then
+	-- 	return
+	-- end
+
+	-- if svar.getRedEnvelope == nil then
+	-- 	svar.getRedEnvelope = 0
+	-- end
+
+	-- if svar.getRedEnvelope == 1 then
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.cj0006, ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- local awards = redEnvelope.awards
+	-- if not awards then return end
+
+	-- if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+	-- 	for i=1,table.getn(awards) do
+	-- 		Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001)
+	-- 	end
+	-- 	svar.getRedEnvelope = 1
+	-- end
+end
+
+--领取喜庆鞭炮
+function GetFestiveSalute(sysarg)
+	-- local config = SpringFestivalHorseActiveConfig
+	-- if not config then return end
+
+	-- local godCruise = config.godCruise
+	-- if not godCruise then return end
+	
+	-- if Actor.checkActorLevel(sysarg, godCruise.limitLevel, godCruise.limitCircle) ~= true then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cj0042,godCruise.limitCircle,godCruise.limitLevel), ttFlyTip)
+	-- 	return
+	-- end
+
+	-- if System.isInDateRange(unpack(config.actTime)) ~= true then
+	-- 	return
+	-- end
+
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- if not svar then
+	-- 	return
+	-- end
+
+	-- local y = 0
+	-- local m = 0
+	-- local d = 0
+	-- y,m,d = System.getDate( y, m, d )
+
+	-- --今天已经领取过
+	-- if svar.getFSGiftDay == d then  
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.cj0026, ttFlyTip)
+	-- 	return
+	-- end
+
+	-- local awards = godCruise.awards
+	-- if not awards then return end
+
+	-- if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+	-- 	for i=1,table.getn(awards) do
+	-- 		Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001)
+	-- 	end
+	-- 	svar.getFSGiftDay = d
+	-- end
+end
+
+--购买喜庆鞭炮
+function BuyFestiveSalute(sysarg)
+	local config = SpringFestivalHorseActiveConfig
+	if not config then return end
+
+	local godCruise = config.godCruise
+	if not godCruise then return end
+
+	if System.isInDateRange(unpack(config.actTime)) ~= true then
+		return
+	end
+
+	local buyItems = godCruise.buyItems
+	if not buyItems then return end
+
+	local awards =
+	{
+		{type=0, id=buyItems[1].id, count=1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+	}
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+		if nGold < buyItems[1].needYB then
+			Actor.sendTipmsg(sysarg, Lang.Activity.cj0028, ttFlyTip)
+			return
+		end
+		
+		--消耗
+		Actor.changeMoney(sysarg,3,-buyItems[1].needYB,192,Lang.Activity.cj0001)
+
+		for i=1,table.getn(awards) do
+			Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001)
+		end
+	end
+end
+
+--详情
+function AboutSpringFestivalHorse(sysarg)
+	local str = ""
+	str = str..Lang.Activity.cj0005
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@SpringFestivalHorse_main>"  --<返回>
+	return str
+end
+
+--开启活动
+function OpenSpringFestivalHorseActivity()
+	local playerList = LuaHelp.getAllActorList()		
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				SendSpringFestivalHorseStatus(player, 1)	--下发开启状态
+				LoadGoldSilverTree(player)			--初始化在线玩家金银福树信息
+			end
+		end
+	end
+end
+
+--关闭活动
+function CloseSpringFestivalHorseActivity()
+	local playerList = LuaHelp.getAllActorList()		
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				SendSpringFestivalHorseStatus(player, 0)
+			end
+		end
+	end
+end
+
+--0点重置马年春节活动
+function ResetSpringFestivalHorse()
+	local config = SpringFestivalHorseActiveConfig
+	if not config then return end
+
+	if System.isInDateRange(unpack(config.actTime)) ~= true then
+		return
+	end
+
+	ResetConsumePackage()
+	--ResetRechargeCommon()
+end
+
+--初始化双倍奖励活动事件
+function InitDoubleAwardData(nActivityId)
+	local config = DoubleAwardActiveConfig
+	if not config then return end
+
+	System.setDoubleAwardStartTime(config[nActivityId].openTime, config[nActivityId].openDays, nActivityId, true)
+end
+
+--下发双倍奖励活动开启状态
+function OnGetDoubleAwardOpenFlag(sysarg, args)
+	local activityCount = 0
+	for k, activity in ipairs(DoubleAwardActiveConfig or {}) do
+		if System.getDoubleAwardFlag(k) == 1 then
+			activityCount = activityCount + table.getn(activity.activityIds or {})
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 52, 30)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, activityCount)
+		for k, activity in ipairs(DoubleAwardActiveConfig or {}) do
+			if System.getDoubleAwardFlag(k) == 1 then
+				for i=1,table.getn(activity.activityIds or {}) do
+					DataPack.writeInt(pack, activity.activityIds[i])
+					DataPack.writeChar(pack, 1)
+				end
+			end
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--下发双倍奖励活动单个开启状态
+function OnGetDoubleAwardOneOpenFlag(sysarg, args)
+	local nActivityId = args[2] + 1
+	local nStatus = args[3]
+
+	local config = DoubleAwardActiveConfig
+	if not config then return end
+
+	if (nActivityId <= 0) or (nActivityId > table.getn(config)) then return end
+
+	local activity = DoubleAwardActiveConfig[nActivityId]
+	if not activity then return end
+
+	local activityCount = table.getn(activity.activityIds or {})
+	
+	local pack = DataPack.allocPacket(sysarg, 52, 31)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, activityCount)
+		for i=1,table.getn(activity.activityIds or {}) do
+			DataPack.writeInt(pack, activity.activityIds[i])
+			DataPack.writeChar(pack, nStatus)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--下发春节活动开启状态
+function SendSpringFestivalHorseStatus(sysarg, status)
+	local pack = DataPack.allocPacket(sysarg, 52, 20)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, status)
+		DataPack.flush(pack)
+	end
+end
+
+--春节活动排行榜初始化
+function SpringFestivalHorseRankInit()
+	if not SpringFestivalHorseRankPt then return end
+
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ReversedLuckFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.ReversedLuckFile, 1000, 1, 10)
+		if not ranking then
+			return getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.ReversedLuckFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+
+	local tRanking = Ranking.getRanking(SpringFestivalHorseRankPt.GoldSilverTreeFile)
+	if not tRanking then
+		tRanking = Ranking.add(SpringFestivalHorseRankPt.GoldSilverTreeFile, 1000, 1, 10)
+		if not tRanking then
+			return
+		end
+
+		if not Ranking.load(tRanking, SpringFestivalHorseRankPt.GoldSilverTreeFile) then
+			for i=0,25 do
+				Ranking.addColumn(tRanking, string.format("value%d", i))
+			end
+		end
+	end
+
+	local pRanking = Ranking.getRanking(SpringFestivalHorseRankPt.ConsumePackageFile)
+	if not pRanking then
+		pRanking = Ranking.add(SpringFestivalHorseRankPt.ConsumePackageFile, 1000, 1, 10)
+		if not pRanking then
+			return consumeYB, lotteryCount
+		end
+
+		if not Ranking.load(pRanking, SpringFestivalHorseRankPt.ConsumePackageFile) then
+			for i=0,15 do
+				Ranking.addColumn(pRanking, string.format("value%d", i))
+			end
+		end
+	end
+
+	local cRanking = Ranking.getRanking(SpringFestivalHorseRankPt.RedEnvelopeFile)
+	if not cRanking then
+		cRanking = Ranking.add(SpringFestivalHorseRankPt.RedEnvelopeFile, 1000, 1, 10)
+		if not cRanking then
+			return extractYB, getAwardStatus
+		end
+
+		if not Ranking.load(cRanking, SpringFestivalHorseRankPt.RedEnvelopeFile) then
+			for i=0,15 do
+				Ranking.addColumn(cRanking, string.format("value%d", i))
+			end
+		end
+	end
+end
+
+table.insert(InitFnTable,SpringFestivalHorseRankInit)

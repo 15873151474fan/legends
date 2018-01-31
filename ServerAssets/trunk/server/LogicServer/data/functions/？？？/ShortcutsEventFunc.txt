@@ -1,0 +1,72 @@
+--lua script
+--Do something about shortcuts.
+--#include "data\language\LangCode.txt" once
+  --#include "ActorDataFunc.txt" once
+
+
+function OnSetShortCut( sysarg, args )
+  local skey = args[1]
+  local skeytype = args[2]
+  local smember = args[3]
+  local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local shortcut = getActorData( sysarg, 134 )
+  if ( shortcut == nil ) then shortcut = {} end
+  local index = 0
+  table.foreachi( shortcut, function( i, v ) if (v.key == skey) then index = i end end )
+  if ( index == 0 ) then
+	table.insert( shortcut, { key = skey, type = skeytype, member = smember } )
+  else
+	shortcut[index] = { key = skey, type = skeytype, member = smember }
+  end
+  setActorData( sysarg, 134, shortcut )
+  --print("---Short cut set."..skey.."  "..skeytype.."  "..smember.." player "..pid)
+  --134 NPC交易子系统 1
+  local npack = DataPack.allocPacket(sysarg,134,1)  --申请一个数据包
+  if (npack == nil) then
+	print("npack:nil")
+	return
+  end
+  DataPack.writeByte(npack,1)
+  DataPack.flush(npack)
+end
+
+
+--返回客户端快捷键设置
+function OnGetShortCut( sysarg )
+  local shortcut = getActorData( sysarg, 134 )
+  local len = 0
+  table.foreachi( shortcut, function(i,v) if (v.type>0) then len = len + 1 end end )
+  --134 NPC交易子系统 2
+  local npack = DataPack.allocPacket(sysarg,134,2)  --申请一个数据包
+  if (npack == nil) then
+	print("npack:nil")
+	return
+  end
+  print("---Get short cut data.")
+  DataPack.writeByte(npack,len)
+  if ( len > 0 ) then
+	for i = 1, table.getn(shortcut) do
+		local s = shortcut[i]
+		if ( s.type > 0 ) then
+			DataPack.writeByte(npack,s.key)
+			DataPack.writeByte(npack,s.type)
+			DataPack.writeWord(npack,s.member)
+		end
+	end
+  end
+  DataPack.flush(npack)
+end
+
+
+--快捷键子系统
+function OnShortCut( sysarg, args, shorttype )
+  if ( shorttype == 1 ) then
+	local skey = tonumber(DataPack.readByte(args))
+	local skeytype = tonumber(DataPack.readByte(args))
+	local smember = DataPack.readShort(args)
+	OnSetShortCut( sysarg, {skey, skeytype, smember} )
+  else
+	OnGetShortCut( sysarg )
+  end
+end
+ClientGetDataFn[134] = OnShortCut

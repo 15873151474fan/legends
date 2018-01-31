@@ -1,0 +1,88 @@
+--lua script
+
+--行会宣传栏
+
+--#include "data\language\LangCode.txt" once --语言包 
+
+function GuildStatueRank_Main(sysarg,rankIndex)
+	local str = ""
+	
+	if rankIndex < 1 and rankIndex > 3 then return end
+	
+	local bHasGuild = Actor.hasGuildByRank(sysarg,rankIndex)
+
+	if bHasGuild == false then
+		return Lang.GuildLang.z00051
+	end
+	
+	local guildName = Actor.getGuildNameByRank(sysarg,rankIndex)
+	local leaderName = Actor.getGuildLeaderNameByRank(sysarg,rankIndex)
+	local gNum = Actor.getGuildMemNumByRank(sysarg,rankIndex)
+	local gCoin = Actor.getGuildCoinByRank(sysarg,rankIndex)
+	
+	if guildName == nil or leaderName == nil then
+		return str
+	end
+
+	local str1 = string.format(Lang.GuildLang.z00052,rankIndex,guildName,leaderName,gNum,gCoin)
+
+	str = str..str1
+	
+	if rankIndex == 1 then
+		str = str.."\\<#BL"..Lang.GuildLang.z00053.."/@LookGuildCardF>"
+		str = str.."\\<#BL"..Lang.GuildLang.z00054.."/@ApplyToGuildF>"
+	elseif rankIndex == 2 then
+		str = str.."\\<#BL"..Lang.GuildLang.z00053.."/@LookGuildCardS>"
+		str = str.."\\<#BL"..Lang.GuildLang.z00054.."/@ApplyToGuildS>"
+	elseif rankIndex == 3 then
+		str = str.."\\<#BL"..Lang.GuildLang.z00053.."/@LookGuildCardT>"
+		str = str.."\\<#BL"..Lang.GuildLang.z00054.."/@ApplyToGuildT>"
+	end
+	
+	if Actor.getGuildPos(sysarg) == 2 or Actor.getGuildPos(sysarg) == 3 then
+		str = str.."\\<#BL"..Lang.GuildLang.z00055.."/@UpGuildRank>"
+	end
+
+	return str
+end
+
+
+function LookGuildCardF(sysarg)
+	LookGuildCardOp(sysarg,1)
+end
+
+function LookGuildCardS(sysarg)
+	LookGuildCardOp(sysarg,2)
+end
+
+function LookGuildCardT(sysarg)
+	LookGuildCardOp(sysarg,3)
+end
+
+--查看名片
+function LookGuildCardOp(sysarg,rankIndex)
+	Actor.sendGuildCardByRank(sysarg,rankIndex)
+end
+
+function ApplyToGuildF(sysarg)
+	ApplyToGuild(sysarg,1)
+end
+
+function ApplyToGuildS(sysarg)
+	ApplyToGuild(sysarg,2)
+end
+
+function ApplyToGuildT(sysarg)
+	ApplyToGuild(sysarg,3)
+end
+
+--申请加入
+function ApplyToGuild(sysarg,rankIndex)
+	Actor.joinToGuild(sysarg,rankIndex)
+end
+
+--竞价抢位
+function UpGuildRank(sysarg)
+	Actor.onStartBidGuildRank(sysarg)
+end
+

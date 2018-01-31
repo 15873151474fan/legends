@@ -1,0 +1,331 @@
+﻿--副本通关奖励消息处理实现 
+
+--#include "data\functions\GlobalDefine.txt" once
+--#include "data\config\item\FubenReward.txt" once
+
+local REWARDINDEX = 10
+
+--对应的奖励函数表
+MiscsImplement.FBRewardCalls = 
+{
+  --加装备物品
+  [0] = function (sysarg, arg)
+		 	--print("itemid:"..arg.itemid)
+		 	if Actor.canAddItem(sysarg,arg.itemid,arg.count) then
+	  	  local fbhandle = Actor.getFubenHandle(sysarg)
+		    local fbname = Fuben.getFubenName(fbhandle)
+		 		Actor.addItem(sysarg,arg.itemid,arg.quality,arg.strong,arg.count,arg.bind,0,fbname,55)
+		 		return 1
+		 	else
+		 	  local str = string.format(Lang.ScriptTips.f00016,arg.count)
+		 	 	Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+		 	 	return 0
+		 	end
+  end,			
+  --加修为
+  [1] = function (sysarg, arg)
+    Actor.changeXiuwei(sysarg,arg.count)
+    return 1
+  end,
+	--加经验	
+  [2] = function (sysarg, arg)  
+		if arg == nil then return end
+		Actor.addExp(sysarg,arg.count,0,0)
+		return 1
+  end,          
+  --加绑定银两
+  [5] = function (sysarg, arg)  
+		if arg == nil then return end
+		local fbhandle = Actor.getFubenHandle(sysarg)
+		local fbname = Fuben.getFubenName(fbhandle)
+		Actor.changeMoney(sysarg,mtBindCoin,arg.count,135,fbname)
+		return 1
+  end, 
+  --加银两    
+  [6] = function (sysarg, arg)  
+	  if arg == nil then return end
+  	local fbhandle = Actor.getFubenHandle(sysarg)
+		local fbname = Fuben.getFubenName(fbhandle)
+	 	Actor.changeMoney(sysarg,mtCoin,arg.count,135,fbname)
+	 	return 1
+  end,
+  --加绑定元宝
+  [7] = function (sysarg, arg)          
+	  if arg == nil then return end
+  	local fbhandle = Actor.getFubenHandle(sysarg)
+		local fbname = Fuben.getFubenName(fbhandle)
+	 	Actor.changeMoney(sysarg,mtBindYuanbao,arg.count,135,fbname)
+	 	return 1
+  end,
+  --加战魂值
+  [10] = function (sysarg, arg)  
+    if arg == nil then return end
+	 	local zhanhun = Actor.getIntProperty(sysarg,PROP_ACTOR_ZHANHUN)
+	 	Actor.setUIntProperty(sysarg,PROP_ACTOR_ZHANHUN,zhanhun + arg.count)
+	 	return 1
+  end,
+}
+
+--副本奖励系统消息处理表 
+MiscsImplement.FBRewardHandlers =
+{
+	--用户开箱取得奖励，后面两个函数会取消
+	
+	getAwordHandler = function (sysarg, msgid, packet)
+		local awardIndex = DataPack.readByte(packet)	--用户选择的箱子的索引
+		if awardIndex < 0 or awardIndex > 4 then return end	--最多5个箱子
+		local glod = DataPack.readByte(packet)		--是否金箱子
+		local fbPtr = Actor.getFubenPrt(sysarg)
+		local fbid = Actor.getFubenId(sysarg)
+		if fbid == 0 then return end
+		if fbPtr == nil then return end
+		--判断下状态
+		if Fuben.getFubenProgress(fbPtr) ~= FB_FS_GETAWARD then
+			return
+		end
+		--判断是否已领取
+		local getAward = Actor.getGetFbAwardFlag(sysarg)
+		if getAward == 1 then
+			--print("has get award!")
+			return
+		end
+		--判断这个箱子开了没
+		local boxFlag = Fuben.getFbValue(fbPtr,FB_FR_IDX_BOX)	--没有位操作，用加减实现
+		--print("boxFlag:"..boxFlag..":awardIndex:"..awardIndex)
+		local bitIndex = awardIndex
+		if glod == 1 then
+			bitIndex = awardIndex + 5		--金银各5个
+		end
+		local temp = boxFlag / (2 ^ bitIndex)
+		if math.floor(temp % 2) == 1 then
+			--print("box has opened!")
+			return
+		end
+		boxFlag = boxFlag + 2^bitIndex
+		--判断是否有金钥匙
+		if glod == 1 and Actor.getItemCount(sysarg,GlodKey) <= 0 then
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00058,ttDialog)
+			return
+		end
+		local fbLevel = Fuben.getFbValue(fbPtr,FB_FR_IDX_LEVEL)
+		--print("fbLevel:"..fbLevel)
+		--获取副本的玩家列表,最多5个
+		local actors = 
+		{
+			[1] = { ptr = nil,},
+			[2] = { ptr = nil,},
+			[3] = { ptr = nil,},
+			[4] = { ptr = nil,},
+			[5] = { ptr = nil,},
+		}
+		
+		local actorCount = 0
+		if Actor.getTeamId(sysarg) == 0 then
+			actors[1].ptr = sysarg
+			actorCount = 1
+		else
+			local templist = LuaHelp.getTeamMemberList(sysarg)
+			local tempCount = table.getn(templist)
+			for i = 1, #actors do
+				if i <= tempCount then
+					actors[i].ptr = templist[i]
+					actorCount = actorCount + 1
+				end
+			end
+		end
+		local mode = 0	--单人模式的副本
+		if actorCount > 1 then
+			mode = 1	--多人模式
+		end
+		
+		local awardLevelData = FbNewAward[fbid]
+		if awardLevelData == nil then return end
+		local awardList = awardLevelData[fbLevel+1][mode]
+		if awardList == nil then return end
+		
+		local fixIndex = System.getRandomNumber(table.getn(awardList.fixAward))			--固定的奖励
+		local fixItem = awardList.fixAward[fixIndex+1]
+		local randIndex = System.getRandomNumber(table.getn(awardList.randAward))		--随机奖励
+
+		local randItem = awardList.randAward[randIndex+1]
+		--根据几率看其能否得到该物品
+		local pre = 100
+		if fixItem ~= nil and fixItem.present ~= nil then
+			pre = fixItem.present
+		end
+		if System.getRandomNumber(100) >= pre then
+			fixItem = nil		--没抽中：）
+		end
+		
+		if randItem == nil or System.getRandomNumber(100) >= randItem.present then
+			randItem = nil		--没抽中：）
+		end
+		
+		local glodItem = nil
+		if glod == 1 then
+			local glodIndex = System.getRandomNumber(table.getn(awardList.addValue))	
+			if System.getRandomNumber(100) < awardList.addValue[glodIndex+1].present then
+				glodItem = awardList.addValue[glodIndex+1]
+			end
+		end
+		
+		--保存玩家得到的奖励，最多3个
+		local awardItemCount = 0		--实际获取物品数量
+		local awardNotItem = 0		--实际获取的非物品的数量
+		local itemData = 
+		{
+			fixItem,
+			randItem,
+			glodItem,
+		}
+			
+		local totalGrid = 0
+		for i = 1, #itemData do
+			if itemData[i] ~= nil then
+				if itemData[i].type == 0 then
+					awardItemCount = awardItemCount + 1
+					totalGrid = totalGrid + Item.getAddItemNeedGridCount(sysarg,itemData[i].itemid,itemData[i].count,itemData[i].quality,itemData[i].strong,itemData[i].bind)
+				else
+					awardNotItem = awardNotItem + 1
+				end
+			end
+		end
+		
+		--判断能否获取物品，因为有背包满的情况
+		if Item.getBagEmptyGridCount(sysarg) < totalGrid then
+			Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.f00059, (totalGrid-Item.getBagEmptyGridCount(sysarg))) ,ttDialog)
+			return
+		end
+		
+		--给奖励并广播
+		for i = 1, #itemData do
+			if itemData[i] ~= nil then
+				local fn = MiscsImplement.FBRewardCalls[itemData[i].type]
+				if fn == nil then break end
+				local result = fn(sysarg,itemData[i])
+				if result ~= 1 then
+					--print("give award error!"..i)
+				end
+			end
+		end
+		
+		
+		
+		--如果有金钥匙，要扣掉
+		if glod == 1 then
+			Actor.removeItem(sysarg,GlodKey,1)
+		end
+		
+		local id =  Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local name = Actor.getName(sysarg)
+		
+		--print("itemcount"..awardItemCount)
+		--print("notitemcount"..awardNotItem)
+		
+		for i=1,actorCount do
+			local npack = DataPack.allocPacket(actors[i].ptr,LogicCmd.miscSys.sysId,LogicCmd.miscSys.sub.sGetAward)  --申请一个数据包		
+			DataPack.writeInt(npack,id)
+			DataPack.writeByte(npack,awardIndex)
+			DataPack.writeByte(npack,glod)
+			DataPack.writeString(npack,name)
+			DataPack.writeByte(npack,awardItemCount)
+			for i=1,#itemData do
+				--这里只发物品
+				if itemData[i] ~= nil and itemData[i].type == 0 then
+					DataPack.writeShort(npack,itemData[i].itemid)
+					DataPack.writeShort(npack,itemData[i].count)
+					DataPack.writeByte(npack,itemData[i].quality)
+					DataPack.writeByte(npack,itemData[i].strong)
+					DataPack.writeByte(npack,itemData[i].bind)
+				end
+			end
+			DataPack.writeByte(npack,awardNotItem)
+			for i=1,#itemData do
+				--这里只发非物品
+				if itemData[i] ~= nil and itemData[i].type > 0 then
+					DataPack.writeByte(npack,itemData[i].type)
+					DataPack.writeInt(npack,itemData[i].count)					
+				end
+			end
+			DataPack.flush(npack)		--发送数据包
+		end
+		
+		Actor.setGetFbAwardFlag(sysarg,1)
+		Fuben.setFbValue(fbPtr,FB_FR_IDX_BOX,boxFlag)
+	end,
+	
+	
+	
+	--获取单个奖励，   msgid:2 
+	getSingleRewordHandler = function (sysarg, msgid, packet)
+	  local configid = DataPack.readByte(packet)
+	  local fbid = Actor.getFubenId(sysarg)
+	 		--print("configid:"..configid)
+	 		if Actor.getRTIntValue(sysarg,REWARDINDEX + configid) == 1 then
+		 		local reward = FubenReward[fbid][configid]
+		 		if reward == nil then return end
+		 		--print("type:"..reward.type)
+	 			local fn = MiscsImplement.FBRewardCalls[reward.type]
+	 			if fn == nil then return end
+	 			local result = fn(sysarg,reward)
+	 			if result == 1 then
+	 			  Actor.setRTIntValue(sysarg,REWARDINDEX + configid,0)
+	 			  local npack = DataPack.allocPacket(sysarg,139,2)  --申请一个数据包
+	 			  DataPack.writeByte(npack,result)
+	 			  DataPack.flush(npack)
+	 			else
+	 			  local notpack = DataPack.allocPacket(sysarg,139,2)  --申请一个数据包
+	 			  DataPack.writeByte(notpack,0)
+	 			  DataPack.flush(notpack)
+	 			end
+		 	end
+	end, 
+	--获取全部奖励：   msgid:3 
+	getAllRewordHandler = function (sysarg,msgid, packet)
+	  local fbid = Actor.getFubenId(sysarg)
+	  local reward = FubenReward[fbid]
+	  local itemcount = DataPack.readByte(packet)
+	 	if reward == nil then return end
+	 	--print("itemcount:"..itemcount)
+	 	if ( itemcount > Item.getBagEmptyGridCount( sysarg ) ) then
+		  local str = string.format(Lang.ScriptTips.f00016,itemcount)
+		  Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+		  local npack = DataPack.allocPacket(sysarg,139,3)  --申请一个数据包
+		  DataPack.writeByte(npack,0)
+		  DataPack.flush(npack)
+		  return
+	  else
+	 	  for i = 1 ,#reward do
+		 		if Actor.getRTIntValue(sysarg,REWARDINDEX + i) == 1 then
+			    --print("have reward index!!")
+		 		  local fn = MiscsImplement.FBRewardCalls[reward[i].type]
+			 	  if fn == nil then return end
+		 		  local result = fn(sysarg,reward[i])
+		 		  Actor.setRTIntValue(sysarg,REWARDINDEX + i,0)
+		 		end
+	 	  end
+	    local npack = DataPack.allocPacket(sysarg,139,3)  --申请一个数据包
+	    DataPack.writeByte(npack,1)
+			DataPack.flush(npack)
+	  end
+	end, 
+
+	--点击放弃奖励     msgid:4
+	giveUpAllRewordHandler = function (sysarg, msgid, packet)
+	     local fbid = Actor.getFubenId(sysarg)
+		  local reward = FubenReward[fbid]
+		  if reward == nil then return end
+		 	for i = 1 ,#reward do
+		 		if Actor.getRTIntValue(sysarg,REWARDINDEX + i) == 1 then
+		 			Actor.setRTIntValue(sysarg,REWARDINDEX + i,0)
+		 		end
+		 	end
+	end,
+}
+
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cGetAward, MiscsImplement.FBRewardHandlers.getAwordHandler)   
+
+--后面函数会逐步取消
+MiscsImplement.registerMsgHandler(2, MiscsImplement.FBRewardHandlers.getSingleRewordHandler)   
+MiscsImplement.registerMsgHandler(3, MiscsImplement.FBRewardHandlers.getAllRewordHandler)
+MiscsImplement.registerMsgHandler(4, MiscsImplement.FBRewardHandlers.giveUpAllRewordHandler)

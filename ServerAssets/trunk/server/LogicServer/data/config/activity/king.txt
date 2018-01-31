@@ -1,0 +1,92 @@
+--爵位配置表
+--#include "..\..\language\LangCode.txt"
+--[[
+
+--]]
+
+--爵位配置
+KingConfig= 
+{ 
+	--元宝数
+	ybNum=1,
+	--元宝-功勋值
+	ybExploit=15,		
+	--金币数
+	coinNum=30000,
+	--金币-功勋值
+	coinExploit=1,
+	
+	--第页大小
+	firtPage = 4, 
+	--其他的大小
+	otherPage = 10,
+	
+	maxCoin = 2000000000,  --每天最大金币
+	
+	broadcastCount = 1000,	--一次捐献1000元宝发公告
+
+   --爵位列表
+        kingList=
+	{
+   --爵位Id 1:国王 2:公爵 ...   最大数量(0:无限 )   功勋值          条件
+		{kingId=1,      maxNum=1,  exploit=60000, desc=Lang.Misc.kdesc001, name = Lang.Misc.king001,
+		 --属性列表
+		  attrList={
+		   {type=80,value=0.2,},
+                   {type=6,value=0.12,}, 
+		   {type=8,value=0.12,},
+		
+	          },
+		},
+		{kingId=2,maxNum=2,exploit=39800,desc=Lang.Misc.kdesc002, name = Lang.Misc.king002,
+		   attrList={
+		   {type=80,value=0.15,},
+                   {type=6,value=0.09,}, 
+		   {type=8,value=0.09,},
+	          },
+		},
+		{kingId=3,maxNum=3,exploit=24700,desc=Lang.Misc.kdesc003, name = Lang.Misc.king003,
+		   attrList={
+				{type=80,value=0.1,},
+                   {type=6,value=0.06,}, 
+		   {type=8,value=0.06,},
+	                    },	 
+		},
+		{kingId=4,maxNum=8,exploit=14100,desc=Lang.Misc.kdesc004, name = Lang.Misc.king004,
+		   attrList={
+				   {type=80,value=0.07,},
+                   {type=6,value=0.042,}, 
+		   {type=8,value=0.042,},
+			    },
+		},
+		{kingId=5,maxNum=0,exploit=7100,desc=Lang.Misc.kdesc005, name = Lang.Misc.king005,
+		  attrList={
+				   {type=80,value=0.045,},
+                   {type=6,value=0.027,}, 
+		   {type=8,value=0.027,},
+			    },
+		},
+		{kingId=6,maxNum=0,exploit=2900,desc=Lang.Misc.kdesc006, name = Lang.Misc.king006,
+		    attrList={
+				   {type=80,value=0.03,},
+                   {type=6,value=0.018,}, 
+		   {type=8,value=0.018,},
+			    },
+		},
+
+		{kingId=7,maxNum=0,exploit=800,desc=Lang.Misc.kdesc007, name = Lang.Misc.king007,
+		    attrList={
+				   {type=80,value=0.02,},
+                   {type=6,value=0.012,}, 
+		   {type=8,value=0.012,},
+			    },
+		},
+		{kingId=8,maxNum=0,exploit=100,desc=Lang.Misc.kdesc008, name = Lang.Misc.king008,
+		    attrList={
+				   {type=80,value=0.015,},
+                   {type=6,value=0.009,}, 
+		   {type=8,value=0.009,},
+			     },
+		},
+	},
+}

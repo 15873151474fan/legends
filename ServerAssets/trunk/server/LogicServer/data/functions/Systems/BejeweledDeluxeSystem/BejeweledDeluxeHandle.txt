@@ -1,0 +1,73 @@
+--lua script
+--宝石消除
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\bejeweledDeluxe\BejeweledDeluxeConfig.txt" once
+
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "BejeweledDeluxeCommon.txt" once
+--#include "data\config\activity\gemclear.txt" once
+
+--[[
+local cClearLeftTime = 1,		-- 清除冷却时间
+local cAddTimes = 2,			-- 增加游戏次数
+local cBuyItem = 3,			-- 购买游戏道具
+local cGameStart = 4,			-- 开始游戏
+local cAddScore = 5,			-- 增加分数
+local cGainItem = 6,			-- 获得道具
+local cGameOver = 7,			-- 游戏结束
+local cLottery = 8,			-- 抽奖
+--]]
+
+BejeweledDeluxeOpFuncList = {}
+
+EventCallDispatcher.HandlerBejeweledDeluxeOp = function (sysarg, args)
+	--print("参数："..args[1])
+	if args[1] == nil then return end
+	local func = BejeweledDeluxeOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args) 
+	end
+end
+
+--清除冷却时间
+BejeweledDeluxeOpFuncList[1] = function (sysarg,args)
+	OnBDClearLeftTime(sysarg,args)
+end
+
+--增加游戏次数
+BejeweledDeluxeOpFuncList[2] = function (sysarg,args)
+	OnBDAddTimes(sysarg,args)
+end
+
+--购买游戏道具
+BejeweledDeluxeOpFuncList[3] = function (sysarg,args)
+	OnBDBuyItem(sysarg,args)
+end
+
+--开始游戏
+BejeweledDeluxeOpFuncList[4] = function (sysarg,args)
+	OnBDStartGame(sysarg,args)
+end
+
+--增加分数
+BejeweledDeluxeOpFuncList[5] = function (sysarg,args)
+	OnBDAddScore(sysarg,args)
+end
+
+--获得道具
+BejeweledDeluxeOpFuncList[6] = function (sysarg,args)
+	OnBDGainItem(sysarg,args)
+end
+
+--游戏结束
+BejeweledDeluxeOpFuncList[7] = function (sysarg,args)
+	OnBDGameOver(sysarg,args)
+end
+
+--抽奖
+BejeweledDeluxeOpFuncList[8] = function (sysarg,args)
+	OnBDLottery(sysarg,args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeBejeweledDeluxe, EventCallDispatcher.HandlerBejeweledDeluxeOp)

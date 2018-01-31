@@ -1,0 +1,51 @@
+﻿--lua script
+{
+	id = 802,			-- 秘阁寻宝
+	parentid = 801,type = 1,multiAward = 0,level = 0,circle = 0,entrust = 0,speedYb = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = true,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	showTimerBox = false,
+	doubleYB = false,
+	randomTarget = false,
+	name = Lang.Quest.name802,
+	content = Lang.Quest.desc802,
+
+	prom = { type = 0, scene = Lang.SceneName.s00008, npc = Lang.EntityName.n00009 },
+	comp = { type = 0, scene = Lang.SceneName.s00008, npc = Lang.EntityName.n00009 },
+	target = {
+		{
+			type = 127, id = 50093, count = 1, rewardId = 0,useList = false, data = Lang.Quest.data8020,
+			location = {
+				sceneid = 8, x= 0,y = 0,entityName = Lang.EntityName.n00009,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 25 },
+		{ type = 3, id = 1, count = 450 },
+		{ type = 3, id = 453, count = 0 },
+	},
+	awards = {
+		{
+			{ type = 0, id = 95, count = 1, group = 0,strong = 5,quality = 0,job = 1,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 106, count = 1, group = 0,strong = 5,quality = 0,job = 2,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 117, count = 1, group = 0,strong = 5,quality = 0,job = 3,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 96, count = 1, group = 0,strong = 5,quality = 0,job = 1,sex = 1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 107, count = 1, group = 0,strong = 5,quality = 0,job = 2,sex = 1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 118, count = 1, group = 0,strong = 5,quality = 0,job = 3,sex = 1,bind = false,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk8021,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk8021,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip8021,
+	},
+	PassMsTip = {
+	},
+},

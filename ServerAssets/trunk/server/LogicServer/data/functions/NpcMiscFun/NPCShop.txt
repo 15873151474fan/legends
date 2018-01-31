@@ -1,0 +1,149 @@
+﻿--npc购买通用
+
+--#include "data\config\store\NPCShop\NPCShop.txt" once --配置
+--#include "data\functions\Activity\Common\Consumes.txt" once --活动通用 消耗
+--#include "data\functions\Activity\Common\Awards.txt" once --活动通用 获取
+
+
+--[[
+    函数名称：main
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function NPCShop_Main(sysarg)	
+	local config = NPCShopConfig
+	if (not config) then return "" end
+	local npcName = Actor.getName(thisNPC)
+	local str = ""
+	for k, v in ipairs(config) do
+		local show = true
+		if v.actTime then
+			if System.isInDateRange(unpack(v.actTime)) ~= true then
+				show = false
+			end
+		end
+		if show == true then
+			for m, n in ipairs(v.npcName) do
+				if n == npcName then
+					str = str.."\\<#BL"..v.title.."/@NPCShop,"..k..">"  --<活动标题>
+					break
+				end
+			end
+		end
+	end
+	
+	return str
+end
+
+function NPCShop(sysarg, idx)
+	local idx = tonumber(idx) or 0
+	
+	local config = NPCShopConfig[idx]
+	if not config then return end
+	
+	local str = config.desc or ""
+	for k, v in ipairs(config.subMenu) do
+		str = str.."\\<#BL"..v.title.."/@OnNPCShop,"..idx..","..k..">"  --<活动标题>
+	end
+	
+	local about = config.about or ""
+	if about ~= "" then
+		str = str.."\\<#BL"..Lang.Activity.dwj001.."/@AboutNPCShop,"..idx..">"  --<活动标题>
+	end
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+	
+end
+
+function AboutNPCShop(sysarg, idx)
+	local idx = tonumber(idx) or 0
+	
+	local config = NPCShopConfig[idx]
+	if not config then return end
+	
+	local str = config.about or ""
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@NPCShop,"..idx..">"  --<返回>
+	return str
+end
+
+
+function OnNPCShop(sysarg, idx1, idx2)
+	local idx1 = tonumber(idx1) or 0
+	local idx2 = tonumber(idx2) or 0
+	
+	local config = NPCShopConfig[idx1]
+	if not config then return end
+	
+	if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00125, config.limitLevel), ttFlyTip)
+		return
+	end
+	
+	if config.actTime and System.isInDateRange(unpack(config.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.dwj002, ttFlyTip)
+		return
+	end
+	
+	local menu = config.subMenu[idx2]
+	
+	
+
+	if Awards.CheckBagGridByCount(sysarg, menu.needBagCount) ~= true then return end
+	
+	if menu.consumes and table.getn(menu.consumes) > 0 then
+		if Consumes.Check(sysarg, menu.consumes) ~= true then
+			return 
+		end
+	end
+	
+	--[[
+	if menu.limitPerDay and config.id then
+		--local saveStr = "NPCShop_"..config.id.."_"..menu.limitPerDay.id
+		
+		local svar = Actor.getStaticVar(sysarg)
+		--local NPCShop = svar[saveStr]
+		--svar.NPCShop = nil
+		if not svar.NPCShop then
+			--svar[saveStr] = 0
+			svar.NPCShop = {}
+		end
+		if not svar.NPCShop[config.id] then
+			svar.NPCShop[config.id] = {}
+		end
+		if not svar.NPCShop[config.id][menu.limitPerDay.id] then
+			svar.NPCShop[config.id][menu.limitPerDay.id] = 0
+		end
+		
+		local NPCShop = svar.NPCShop[config.id][menu.limitPerDay.id]
+		
+		if NPCShop >= menu.limitPerDay.count then
+			Actor.sendTipmsg(sysarg, Lang.Activity.dwj003, ttFlyTip)
+			return
+		end
+		
+		--NPCShop = NPCShop + 1
+		--svar[saveStr] = NPCShop
+		svar.NPCShop[config.id][menu.limitPerDay.id] = NPCShop + 1
+	end
+	--]]
+	
+	-------------
+	if menu.consumes and table.getn(menu.consumes) > 0 then
+		if Consumes.Remove(sysarg, menu.consumes) ~= true then
+			return 
+		end
+	end
+	
+	if menu.awards and table.getn(menu.awards) > 0 then
+		Awards.Give(sysarg, menu.awards, 975, Lang.LogTips.dksr001)
+	end
+	
+	local tips = menu.successTips or ""
+	if tips ~= "" then
+		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+	end
+	
+	
+end
+
+table.insert(MainFnTable, NPCShop_Main)

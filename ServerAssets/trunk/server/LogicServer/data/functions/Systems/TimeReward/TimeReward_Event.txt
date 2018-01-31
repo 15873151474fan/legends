@@ -1,0 +1,150 @@
+﻿--在线奖励以及新手奖励系统中于登录登出相关联的事件处理
+
+--#include "data\config\achieve\titles.txt" once
+--#include "data\config\guide\OnlineTimeAward.txt" once
+
+--GetOnlineTimeAwardLimitLevel = 70
+
+--上线奖励
+--关于记录在ActorDB里的在线奖励记录格式
+--138 = { order = xx,		将领取第几份奖励
+--	  leavesecond = xx,	离领奖剩余的时间(秒)
+--	  lastoffline = xx,	上次下线时间
+--	  tick = xx,		order的上一次奖励的领取时间
+-- }
+EventCallDispatcher._NoviceLoginReward = function ( sysarg )
+	local config = OnlineTimeAward
+	if not config then return end
+	--local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+	--if ( level > GetOnlineTimeAwardLimitLevel ) then return end
+	
+	--local var = Actor.getStaticVar( sysarg )
+	--var.leaveReward	= nil  
+	
+	InitOnlineTimeAwardData(sysarg)
+	
+	local t = System.getCurrMiniTime()
+	
+	local var = Actor.getStaticVar( sysarg )
+	local leaveReward = var.leaveReward	--获得上次剩余的在线奖励记录  
+	
+	local rand = 0
+	local nextReward = {} 
+	
+	--跨日处理
+	if ( math.floor(leaveReward[4]/86400) ~= math.floor(t/86400) ) then
+		--print("next day -------")
+		leaveReward[1] = 1 
+		leaveReward[2] = OnlineTimeAward[1].interval or 0
+		leaveReward[3] = 0
+		leaveReward[4] = t
+		--rand, nextReward = getRewardOnlineRand(sysarg,LocalDT.TimeRewardConst.LOGINREWARD + leaveReward[1])  --记录奖励的索引
+		leaveReward[5] = GetOnlineTimeAwards(leaveReward[1])
+	end
+	
+	if not config[leaveReward[1]] then return end
+	
+	if leaveReward[1] > table.getn(OnlineTimeAward) then return end   --领奖次数限制，防止发送多余次数给客户端
+	if leaveReward[5] == nil or leaveReward[5] == 0 or leaveReward[5] > table.getn(config[leaveReward[1]].awards) then
+		leaveReward[5] = 1
+	end
+
+	--根据上次下线的奖励遗留状况开启奖励
+	local awards = config[leaveReward[1]].awards[leaveReward[5]].award
+	
+	if not awards then return end
+	
+	local getFlag = 1
+	if leaveReward[1] >= table.getn(OnlineTimeAward) then
+		getFlag = 0
+	end
+	
+	SendOnlineTimeAwardToClient(sysarg, getFlag, leaveReward[2], awards)
+end
+
+	--第一次登入游戏的新手玩家奖励
+EventCallDispatcher._CheckSetFirstLoginTimeAward = function (sysarg, arg)
+	if arg == nil then return end
+	local isFirstLogin = arg[1]
+	--print("arg[1]:"..arg[1])
+	if (isFirstLogin == 1) then
+		--Actor.GiveTitle(sysarg,1)
+		--Actor.setUIntProperty(sysarg,PROP_ACTOR_CURTITLE, 1) --第一次进入游戏的默认称号
+		--设置称号buff
+		--local titleName = Titles[2].name
+		--local buffs = Titles[2].buff
+		--for i = 1, #buffs do
+		  --Actor.addBuff(sysarg, buffs[i].type, buffs[i].group, buffs[i].value, -1, 1, titleName)
+		--end
+	
+		--[[
+		local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+		
+		--首次登陆送新手礼包
+		--doReward( sysarg, 1 )	--2011.8.10 zac:改成任务送
+		
+		--二次封测修改为绑定元宝 
+		--Actor.changeMoney(sysarg,mtBindYuanbao,1888,100,"erCiFengCe")
+		--记录第一次登陆日期，用于判断从第二日算起，角色每日登录可获得188绑定元宝 
+		local nYear,nMonth,nDay = System.getDate(0,0,0)
+		local var = Actor.getStaticVar(sysarg)
+		local loginDay = var.loginDay  --获得前一次上线日期
+		if loginDay == nil then
+			var.loginDay = {}
+			loginDay = var.loginDay
+		end
+		if loginDay[1] ~= nMonth then loginDay[1] = nMonth end
+		if loginDay[2] ~= nDay then loginDay[2] = nDay end
+		--]]
+	else
+		--[[
+		--从第二日算起，角色每日登录可获得188绑定元宝
+		local nYear,nMonth,nDay = System.getDate(0,0,0)
+		local var = Actor.getStaticVar(sysarg)
+		local loginDay = var.loginDay  --获得前一次上线日期 
+		if loginDay == nil then
+			var.loginDay = {}
+			loginDay = var.loginDay
+			loginDay[1] = nMonth
+			loginDay[2] = nDay
+		end
+		--当上次登陆日期跟本次登陆不同则给予188绑定元宝 
+		if loginDay[1] ~= nMonth or loginDay[2] ~= nDay then
+			--Actor.changeMoney(sysarg,mtBindYuanbao,188,100,"erCiFengCe")
+		end
+		--记录上线日期 
+		loginDay[1] = nMonth
+		loginDay[2] = nDay
+		--]]
+	end
+	--print("first login end")
+end
+
+--上线奖励的情况的下线存储
+EventCallDispatcher._LogoutRecordAwardTime = function ( sysarg )
+	--print("_LogoutRecordAwardTime")
+	local t = System.getCurrMiniTime()
+	--local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+
+	local leaveReward = Actor.getStaticVar( sysarg ).leaveReward	--获得上次剩余的在线奖励记录
+	if leaveReward ~= nil then
+		if not OnlineTimeAward[leaveReward[1]] then return end
+		local ordertotime = OnlineTimeAward[leaveReward[1]].interval
+		if (ordertotime == nil) then return end
+		leaveReward[3] = t		--记录本次下线时间供下次上线用
+		--记录还剩的奖励时间供下次上线用
+		if (ordertotime - (t - leaveReward[4])) <= 0 then
+			leaveReward[2] = 0
+		else
+			leaveReward[2] = ordertotime - (t - leaveReward[4])
+		end
+
+	end
+  
+  
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, EventCallDispatcher._CheckSetFirstLoginTimeAward)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeNewDayArrive, EventCallDispatcher._NoviceLoginReward)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, EventCallDispatcher._NoviceLoginReward)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogout, EventCallDispatcher._LogoutRecordAwardTime)

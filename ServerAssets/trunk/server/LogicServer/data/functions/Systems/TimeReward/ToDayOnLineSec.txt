@@ -1,0 +1,90 @@
+﻿--#include "data\config\guide\OnlineTimeAward.txt" once
+
+function TodayOnLineSecHandle(sysarg, packet)--在线奖励 
+  local nds = DataPack.readByte(packet)
+  --print("TodayOnLineSecHandle")
+  if nds == 1 then
+     ClientQuestTodayOnLineSec(sysarg)
+  else
+     ClientAskTodayOnLineSecAward(sysarg, packet)
+  end  
+
+end
+
+function ClientQuestTodayOnLineSec(sysarg)--客户端请求在线时间 
+  local ToDayOnlineSec = Actor.getTodayOnLineSec(sysarg)
+  local Svar = Actor.getStaticVar( sysarg)
+  if Svar.GetOnLineSecAwardLog == nil then
+     Svar.GetOnLineSecAwardLog = {}
+  end
+  --print("ClientQuestTodayOnLineSec:"..ToDayOnlineSec)
+  local npack = DataPack.allocPacket(sysarg, 145, 135)
+  DataPack.writeUInt(npack, ToDayOnlineSec)
+  DataPack.writeUInt(npack, table.getn(OnlineTimeAward))
+  for i = 1, table.getn(OnlineTimeAward) do
+      if Svar.GetOnLineSecAwardLog[i] == nil then
+         Svar.GetOnLineSecAwardLog[i] = {}
+         Svar.GetOnLineSecAwardLog[i].Award = 0
+      end    
+      if Svar.GetOnLineSecAwardLog[i].Award == 0 then
+         DataPack.writeByte(npack, 0)
+      else
+         DataPack.writeByte(npack, 1)
+      end
+  end
+  DataPack.flush(npack)
+
+end
+
+function ClientAskTodayOnLineSecAward(sysarg, packet)--客户端请求在线时间奖励 
+  local Index = DataPack.readByte(packet)
+  if Index <= 0 or Index > table.getn(OnlineTimeAward) then return end
+  local OnLineData = OnlineTimeAward[Index]
+  local Svar = Actor.getStaticVar( sysarg)
+  if Svar.GetOnLineSecAwardLog == nil then
+     Svar.GetOnLineSecAwardLog = {}
+  end
+  if Svar.GetOnLineSecAwardLog[Index] == nil then
+     Svar.GetOnLineSecAwardLog[Index] = {}
+     Svar.GetOnLineSecAwardLog[Index].Award = 0
+  end
+  
+  if Svar.GetOnLineSecAwardLog[Index].Award == 1 then--重复领取 
+     Actor.sendTipmsg(sysarg, Lang.Activity.ToDayOnLine001, 130)
+     return
+  end
+  
+  local ToDayOnlineSec = Actor.getTodayOnLineSec(sysarg)
+  if ToDayOnlineSec < OnLineData.interval then  --时间不到 
+     Actor.sendTipmsg(sysarg, Lang.Activity.ToDayOnLine002, 130)
+     return
+  end
+  local RateIndex = GetNewOnlineTimeAwards(Index)
+  local awards = OnLineData.awards[RateIndex].award
+
+  if not awards then return end
+
+  local checkresult,needspace = Awards.CheckBagGridCount(sysarg, awards)
+
+  if (checkresult ~= true) then
+     local str = string.format(Lang.ScriptTips.f00016,needspace)
+     return
+  end
+  Awards.Give(sysarg, awards, 57, Lang.LogTips.l00081)
+  Svar.GetOnLineSecAwardLog[Index].Award = 1
+end
+  
+function GetNewOnlineTimeAwards(configIdx)
+	local randNum = math.random(100)
+	local configIdx = tonumber(configIdx)
+	local config = OnlineTimeAward[configIdx]
+	if not config or not config.awards then return 0 end
+	local awardIdx = 0
+	for k, v in ipairs(config.awards) do
+		if randNum >= v.rate[1] and randNum <= v.rate[2] then
+			awardIdx = k
+		end
+	end
+
+	return awardIdx
+end

@@ -1,0 +1,404 @@
+--lua script 
+--#include "data\config\activityconfig\SheepHundredActivity\BaiFuCakeConfig.txt" once
+
+--百福蛋糕面板信息
+function ReqBaiFuCake(sysarg)
+	if System.getSheepHundredActFlag(1) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 126)
+	if not pack then return end
+	DataPack.writeByte(pack, 3)
+	for i=1,3 do
+		local ret = ReadBaiFuBuyItemData(sysarg, i)
+		DataPack.writeByte(pack, ret)
+	end
+	DataPack.flush(pack)
+end
+
+--请求领取物品
+function ReqBaiFuBuyItems(sysarg, index)
+	if System.getSheepHundredActFlag(1) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+	
+	if System.isShowSheepHundredAct() == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+	
+	--判断等级
+	if Actor.checkActorLevel(sysarg, BaiFuCakeConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0018, ttFlyTip)--等级不足
+		return
+	end
+	
+	--读取可领否
+	local nowNum = ReadBaiFuBuyItemData(sysarg, index)
+	if nowNum >= BaiFuCakeConfig.times[index] then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0008, ttFlyTip)
+		return
+	end
+	
+	local tab = BaiFuCakeConfig.actiList[index]
+	if not tab then return end
+	local consumetype = tab.costAwards[1].type
+	local count = tab.costAwards[1].count
+	local needCount = tab.needCount
+
+	--判断空格
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	if nBagCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0006, ttFlyTip)
+		return
+	end
+
+	--扣材料
+	if consumetype == 15 then --元宝
+        if Actor.changeMoney(sysarg, mtYuanbao, -count, 985, Lang.LogTips.shs0003) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0010, ttFlyTip)
+			return
+		end
+	elseif consumetype == 6 then --金币
+	   	if Actor.changeMoney(sysarg, mtCoin, -count, 985, Lang.LogTips.shs0003) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0011, ttFlyTip)
+			return
+		end
+	elseif consumetype == 7 then --绑定元宝（礼券）
+		if Actor.changeMoney(sysarg, mtBindYuanbao, -count, 985, Lang.LogTips.shs0003) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0012, ttFlyTip)
+			return
+		end
+    end
+	
+	--保存领取次数
+	SaveBaiFuBuyItemData(sysarg, index, 1)
+	
+	--发放物品
+	for k,v in ipairs(tab.awards) do
+		local newItem = Item.createItem(v.id, v.count, 0, 0, v.bind, 0)
+		if not newItem then
+			return false
+		end
+		Item.addItem(sysarg, newItem, Lang.LogTips.shs0004, 985, v.count)
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 127)
+	if not pack then return end
+	DataPack.writeByte(pack, index)
+	DataPack.writeByte(pack, nowNum+1)
+	DataPack.flush(pack)
+end
+
+--请求提交蛋挞
+function ReqBaiFuGiveDanTa(sysarg)
+	if System.getSheepHundredActFlag(1) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+	
+	if System.isShowSheepHundredAct() == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+	
+	--判断等级
+	if Actor.checkActorLevel(sysarg, BaiFuCakeConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0018, ttFlyTip)--等级不足
+		return
+	end
+	
+	local dantaId = BaiFuCakeConfig.dantaId
+	local snowCount = Actor.getItemCount(sysarg, dantaId, -1, -1) or 0  	--蛋挞
+	if snowCount == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0013, ttFlyTip)
+		return 
+	end
+	
+
+	--扣材料
+	if Actor.removeItem(sysarg, dantaId, snowCount, -1,-1,-1, Lang.LogTips.shs0005, 985) ~= snowCount then
+		return
+	end
+
+	--保存数据
+	SaveBaiFuCakeData(snowCount)
+
+	--奖励经验
+	local type =  BaiFuCakeConfig.expNum.type
+	local id = BaiFuCakeConfig.expNum.id
+	local count = BaiFuCakeConfig.expNum.count * snowCount
+	Actor.giveAward(sysarg, type, id, count , 0,0,0,0,985,Lang.LogTips.shs0006)
+end
+
+
+--读取全服进度和蛋糕模型
+function ReadBaiFuCakeData(index)
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile)
+	if ranking then
+		local itemPtr = Ranking.getItemPtrByIndex(ranking, 0)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, index)) or 0 --1当前数量，2蛋糕模型, 3 已刷过boss 4 已经下金钱雨
+		end
+	end
+	return 0
+end
+
+
+--保存全服数据
+function SaveBaiFuCakeData(num)
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile)
+	if ranking then
+		local total = 0
+		local grade = 0
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = tonumber(Ranking.getSub(item, 1)) or 0
+			total = result + num
+			Ranking.setSub(item, 1, total)--1数据，2模型等级
+		else
+			item = Ranking.addItem(ranking, 0, 0)
+			Ranking.setSub(item, 1, num)
+			total = num
+		end
+		local nowGrade = tonumber(Ranking.getSub(item, 2)) or 0
+		if total > 0 then
+			if total >= BaiFuCakeConfig.cake[1].num and total < BaiFuCakeConfig.cake[2].num then
+				grade = 1
+			elseif total >= BaiFuCakeConfig.cake[2].num and total < BaiFuCakeConfig.cake[3].num then
+				grade = 2
+			elseif total >= BaiFuCakeConfig.cake[3].num and total < BaiFuCakeConfig.cake[4].num then 
+				grade = 3
+			elseif total >= BaiFuCakeConfig.cake[4].num then
+				grade = 4
+			end	
+		end
+		if grade > 0 then
+			if grade > nowGrade then
+				BaiFuCakeChange(grade)
+			end
+		end
+	end
+end
+
+--改变蛋糕形状
+function BaiFuCakeChange(grade)
+	SetSnowManId(grade) --模型下标
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile) --1数量，2模型
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			Ranking.setSub(item, 2, grade) --2蛋糕模型
+		end
+	end
+	if grade == 4 then
+		System.broadcastTipmsg(Lang.Activity.shs0017, ttScreenCenter+ttChatWindow)
+	end
+end
+
+
+--最后一天处理播报
+function BaiFuCakeBroadcast()
+	local times = System.getSheepHundredActRemainTime()
+	if times < 86400 and times > 3600 then --最后一天
+		local flag = false
+		local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile)
+		if ranking then
+			local item = Ranking.getItemPtrByIndex(ranking, 0)
+			if item then
+				local result = Ranking.getSub(item, 2) --2模型
+				result = tonumber(result)
+				if result == 4 then
+					flag = true
+				end
+			end
+		end
+
+		if flag then --蛋糕完成
+			System.broadcastTipmsg(Lang.Activity.shs0016, ttChatWindow+ttScreenCenter) --5分钟后有金钱雨，有boss
+		end
+	end
+end
+
+--最后一天处理下雨和刷BOSS
+function BaiFuCakeRainBoss()
+	local times = System.getSheepHundredActRemainTime()
+	if times < 86400 and times > 3600 then --最后一天
+		BaiFuCakeRain()
+		BFCreateBoss()
+	end
+end
+
+--刷BOSS
+function BFCreateBoss()
+	local ret = ReadBaiFuCakeData(3) or 0
+	if ret == 1 then return	end  --已经刷过，不能再刷。
+
+	BaiFuCreateBoss()
+
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			Ranking.setSub(item, 3, 1) --3已经刷过怪
+		end
+	end
+end
+	
+--开始刷boss
+function BaiFuCreateBoss()
+	local hScene = Fuben.getSceneHandleById(8, 0)
+	if not hScene then return end
+	local pos = BaiFuCakeConfig.bossPos
+	local bossId = BaiFuCakeConfig.bossId
+	local liveTime = BaiFuCakeConfig.liveTime
+
+	Fuben.createMonster(hScene, bossId, pos.x,pos.y,liveTime)
+	System.broadcastTipmsg(Lang.Activity.shs0014, 128+2)
+end
+
+--发放金钱雨
+function BaiFuCakeRain()
+	local flag = false
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 2) --2模型
+			result = tonumber(result)
+			if result == 4 then
+				flag = true
+			end
+		end
+	end
+	local ret = ReadBaiFuCakeData(4) or 0 --第四位保存金钱雨
+
+	if flag and ret ~= 1 then --蛋糕完成
+		System.playScrEffectCode(BaiFuCakeConfig.effectId, BaiFuCakeConfig.effectSecs)	--全服 
+		local config = BaiFuCakeConfig.ybAwardList
+		if config then
+			--读取奖励元宝
+			local num = 0
+			local rate = 0
+			local limitNum = BaiFuCakeConfig.ybAwardNum
+			local nowNum = 0
+			
+			local randVal = System.getRandomNumber(100) 
+			for k,v in ipairs(config) do
+				rate = rate + v.rate
+				if rate >= randVal then
+					num = v.yb
+					break
+				end
+			end
+
+			local playerList = LuaHelp.getAllActorList() 
+			for k, actorPtr in ipairs(playerList or {}) do
+				--判断等级
+				if Actor.checkActorLevel(actorPtr, BaiFuCakeConfig.level) == true then
+					Actor.changeMoney(actorPtr, 3 ,num , 985, Lang.LogTips.shs0007)
+					nowNum = nowNum + 1
+				end
+				if nowNum >= limitNum then
+					break
+				end
+			end
+			local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile)
+			if ranking then
+				local item = Ranking.getItemPtrByIndex(ranking, 0)
+				if item then
+					Ranking.setSub(item, 4, 1) --4已经下雨
+				end
+			end
+		end
+	end
+end
+
+--读取个人数据
+function ReadBaiFuBuyItemData(sysarg, subid)
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuBuyItemFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, subid)) or 0 --1,2,3分别表示物品1,2,3
+		end
+	end
+	return 0
+end
+
+--保存个人数据累计
+function SaveBaiFuBuyItemData(sysarg, subid, value)
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuBuyItemFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			local ret = tonumber(Ranking.getSub(itemPtr, subid)) or 0
+			Ranking.setSub(itemPtr, subid, ret+value)--1,2,3分别表示物品1,2,3
+		else
+			itemPtr = Ranking.addItem(ranking, nActorId,0)
+			Ranking.setSub(itemPtr, subid, value)
+		end
+	end
+end
+
+--清除数据
+function ClearBaiFuCakeData()
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+
+	local buy = Ranking.getRanking(Lang.Rank.BaiFuBuyItemFile)
+	if buy then
+		Ranking.clearRanking(buy)
+	end
+end
+
+--每天0点清除个人数据
+function ClearBaiFuBuyItemData()
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuBuyItemFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+--登录的时候读取配置判断蛋糕的模型
+function LoginSetSnowManID()
+	local modleId = 0
+	local ranking = Ranking.getRanking(Lang.Rank.BaiFuCakeFile) --1总数，2模型
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 2)
+			result = tonumber(result)
+			if result then
+				modleId = result
+				if modleId > 0 then
+					SetSnowManId(modleId)
+				end
+			end
+		end
+	end
+end
+
+--设置蛋糕模型
+function SetSnowManId(modleId) --模型下标
+	local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+	local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00323) --  NPC名字 周公
+
+	if not npcPtr then return end
+	local cakeid = BaiFuCakeConfig.cake[modleId].cakeid
+	local modleName = BaiFuCakeConfig.cake[modleId].modleName
+	Actor.changeEntityModel(npcPtr, 30, cakeid)
+	Actor.changeShowName(npcPtr,30, modleName)
+end
+
+
+
+
+

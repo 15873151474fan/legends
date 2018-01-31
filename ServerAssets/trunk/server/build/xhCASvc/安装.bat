@@ -1,0 +1,2 @@
+xhCASvc.exe /INSTALL
+puase

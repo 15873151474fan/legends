@@ -1,0 +1,113 @@
+﻿--温泉仙子（盟重土城、太虚灵泉）
+
+--#include "data\config\activityconfig\HotSpring\Config.txt" once --配置文件
+--#include "data\functions\Activity\Common\Consumes.txt" once
+
+
+
+--[[
+    函数名称：
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function BuyTimes_Main(sysarg)
+	local config = HotSpringConfig
+	if (not config) then return "" end
+	local str = ""
+	
+	for k, v in ipairs(config.buyTimes) do
+		if v.type > 0 then
+			local desc = Item.getAwardDesc(v.type, 0)
+			str = str.."\\<#BL"..string.format(Lang.Activity.a00171, desc).."/@BuyTimes, "..k..">"  --<购买时间>
+		end
+	end
+	
+	str = str.."\\<#BL"..Lang.Activity.a00031.."/@AboutHotSpring>"  --<详情>
+	if Actor.getSceneId(sysarg) == config.actArea.sid then
+		str = str.."\\<#BL"..Lang.Activity.a00172.."/@AskExitMap>"  --<离开活动>
+	end
+	--str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<离开>
+	return str
+end
+
+
+
+function BuyTimes(sysarg, idx)
+	local config = HotSpringConfig
+	local idx = tonumber(idx)
+	
+	if idx <= 0 or idx > table.getn(config.buyTimes) then return end
+	local str = ""
+	local buyTime = config.buyTimes[idx]
+	local desc = Item.getAwardDesc(buyTime.type, 0)
+	for k, v in ipairs(buyTime.consume) do
+		str = str.."\\<#BL"..string.format(Lang.Activity.a00173, v[1], v[2], desc).."/@OnBuyTimes, "..idx..","..k..">"  --<购买时间>
+	end
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+function OnBuyTimes(sysarg, idx1, idx2)
+	local idx1 = tonumber(idx1)
+	local idx2 = tonumber(idx2)
+	
+	local config = HotSpringConfig
+	local buyTime = config.buyTimes[idx1]
+	if not buyTime then return end
+	local desc = Item.getAwardDesc(buyTime.type, 0)
+	if buyTime.type then
+		local consume = buyTime.consume[idx2]
+		local consumes = {{type = buyTime.type, id = 0, count = consume[2]}}
+		--是否够消耗
+		local bCheck = Consumes.Check(sysarg, consumes, string.format(Lang.Activity.a00174, desc))
+		if bCheck ~= true then return end
+		local bResult = Consumes.Remove(sysarg, consumes, 101, Lang.LogTips.l00091)
+		if bResult ~= true then
+			return
+		end
+		local v = config.buff
+		Actor.addBuff( sysarg, v.buffType, v.groupId, v.value, consume[1], v.interval, v.buffName, v.timeOverlay)
+		
+		local sid = Actor.getSceneId(sysarg)
+		if sid == config.actArea.sid then
+			local mapTime = Actor.getBuffRemainTime(sysarg, v.buffType)
+			Actor.initActivityWind(sysarg, Lang.Activity.a00175, mapTime, Lang.Activity.a00176)
+		end
+		
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00177, consume[1]), ttFlyTip)
+	end
+end
+
+
+--详情
+function AboutHotSpring(sysarg)
+	local str = ""
+	str = str..Lang.Activity.a00178
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+
+--询问是否离开地图
+function AskExitMap(sysarg)
+	local sAskMsg = Lang.Activity.a00179
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ExitMap",Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+--离开场景
+function ExitMap(sysarg)
+	--直接把玩家传出来
+	--local Pos = LuaHelp.getReloadMapPos(sysarg) 
+	local retScene = HotSpringConfig.returnArea
+	if Actor.enterScene(sysarg, retScene.sid, retScene.x, retScene.y) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+	Actor.closeNPCDialog(sysarg) 
+end
+
+function Cancel(sysarg)
+
+end
+
+table.insert(MainFnTable, BuyTimes_Main)

@@ -1,0 +1,58 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+
+--行会争夺战
+
+GuildBattleConfig = 
+{
+	minLevel = 35,			--参加活动的最低等级
+	
+	nSceenId = 59,			--行会争夺战的场景id
+	nPosX = {35,45},		--行会争夺战的场景x
+	nPosY = {110,121},		--行会争夺战的场景y
+
+	eSceenId = 3,			--退出的场景id
+	ePosX = {15,34},		--退出的场景x
+	ePosY = {29,44},		--退出的场景y
+
+	activityName = Lang.Activity.w00034,		--活动名字
+	activityTime = 1 * 60 * 60,	--活动时间 单位秒
+
+	Monsters =
+	{
+		{nMonsterID = 159, posX1 = 104, posX2 = 104,  posY = 42, nCount = 1, nLiveTime = 0,name = Lang.Activity.w00030,},	--旗帜
+	},
+	
+	--获胜行会的奖励
+	Awards = 
+	{
+		--经验
+		--{ type = 20, id = 2, count = 350, strong = 0, quality = 0, bind = 1 },	
+	},
+	
+	--到npc领取获胜奖励
+	GetAwards = 
+	{
+		--胜利旗帜礼包
+		{ type = 0, id = 2224, count = 1, strong = 0, quality = 0, bind = 1 },	
+	},
+
+	AwardsGuildCoin = 500000,		--奖励的行会资金
+
+	LoopTime = 15000,		--每过10秒给经验
+	TenMins = 10 * 60 * 1000,	--占领旗帜10分钟就胜利
+
+	AwardsExp = 
+	{
+		--经验
+		{ type = 20, id = 2, count = 15, strong = 0, quality = 0, bind = 1 },	
+	},
+	
+	--暂时占领方定时给的奖励
+	OwnAwardsExp = 
+	{
+		--经验
+		{ type = 20, id = 2, count = 30, strong = 0, quality = 0, bind = 1 },	
+	},
+
+}

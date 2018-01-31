@@ -1,0 +1,114 @@
+
+	---#include "data\functions\ActorEvent\NormalItem\UseVoucher.txt" once
+
+MiscsImplement.Voucher = function( sysarg, msgid, packet )
+	local itemGuid = DataPack.readInt64(packet)
+	local goodsId = DataPack.readInt(packet)
+	BuyVoucherItem(sysarg, itemGuid, goodsId)
+end
+
+--#include "data\config\item\Voucher.txt" once
+--#include "data\config\store\Store.txt" once
+
+--[[
+    函数名称：BuyVoucherItem
+    函数描述：购买物品
+    参数 sysarg 的描述：
+    参数 arg 的描述：
+]]
+function BuyVoucherItem(sysarg, itemGuid, goodsId)
+	local itemGuid = tonumber(itemGuid)
+	local goodsId = tonumber(goodsId)
+	
+	if itemGuid == 0 or goodsId == 0 then return end
+	
+	local itemPtr = Item.getBagItemPtrByGuid(sysarg, itemGuid)
+	if not itemPtr then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00040), ttFlyTip)
+		return
+	end
+	local voucherId = Item.getItemProperty(sysarg, itemPtr, Item.ipItemID, 0)
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00041, ttFlyTip)
+		return 
+	end
+	
+	if Actor.isDealing(sysarg) ~= false then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00047, ttFlyTip)
+		return
+	end
+	
+	local index = 0
+	for k, v in ipairs(Voucher) do
+		if v.item_id == voucherId then
+			index = k
+			break
+		end
+	end
+	
+	if index == 0 then return end
+	
+	local config = Voucher[index]
+	if not config then return end
+	
+	local itemId, type, price, quality, strong, bind = System.getMerchandisePrice(goodsId, 0, 0, 0, 0, 0)
+	
+	local hit = false
+	for k, v in ipairs(config.goods) do
+		if itemId == v then
+			hit = true
+			break
+		end
+	end
+	
+	if hit ~= true then
+		System.trace(string.format("Error: use voucher error voucherId=%d, goodsId=%d",voucherId,goodsId))
+		return
+	end
+	
+	if price == 0 or type ~= 3 or itemId == 0 then return end
+	local goodsName = Item.getItemName(itemId)
+	local realPrice = price - config.value
+	local logStr = string.format(Lang.LogTips.l00094, goodsName)
+	if realPrice > 0 then
+		if Actor.getMoneyCount(sysarg, type) < realPrice then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00042), ttFlyTip)
+			return
+		end
+		
+		if Actor.changeMoney(sysarg, type, -realPrice, 23, logStr) ~= true then
+			System.trace(string.format("Error: use voucher remove money error voucherId=%d, goodsId=%d, item=%d",voucherId,goodsId,itemId))
+			return
+		end
+	elseif realPrice == 0 then
+		
+	else
+		return
+	end
+	
+	if config.needDelete ~= false then
+		if Actor.removeItemByPtr(sysarg, itemPtr, 1, true, logStr, 23) < 1 then
+			System.trace(string.format("Error: remove item error voucherId=%d, goodsId=%d, item=%d,itemGuid=%d",voucherId,goodsId,itemId,itemGuid))
+			return
+		end
+	end
+	
+	if Actor.addItem(sysarg, itemId, quality, strong, 1, bind, 0, logStr, 13) < 1 then
+		System.trace(string.format("Error: use voucher add item error voucherId=%d, goodsId=%d, item=%d",voucherId,goodsId,itemId))
+		return
+	end
+	
+	local npack = DataPack.allocPacket(sysarg, 139, 56)
+	if npack == nil then return end
+	DataPack.flush(npack)
+	
+	local name = Actor.getName(sysarg)
+	local itemName = Item.getItemLinkMsg(voucherId)
+	
+	Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00043, ttFlyTip)
+	System.broadcastTipmsg(string.format(Lang.ScriptTips.mt00044, name, itemName, goodsName), ttChatWindow)
+end
+
+
+MiscsImplement.registerMsgHandler(66, MiscsImplement.Voucher)

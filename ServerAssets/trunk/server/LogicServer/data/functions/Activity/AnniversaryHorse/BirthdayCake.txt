@@ -1,0 +1,250 @@
+--lua script
+--生日蛋糕
+
+--#include "data\config\activityconfig\AnniversaryHorse\BirthdayCakeConfig.txt" once
+
+--请求面板信息
+function ReqBirthdayCakeInfo(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 93)
+	if not pack then return end
+	local sugarid = BirthdayCakeConfig.sugarid
+	local eggid = BirthdayCakeConfig.eggid
+	local flourid = BirthdayCakeConfig.flourid
+	local candleid = BirthdayCakeConfig.candleid
+	
+	local sugarCount = Actor.getItemCount(sysarg, sugarid, -1, -1) or 0  	--白糖
+	local eggCount = Actor.getItemCount(sysarg, eggid, -1, -1) or 0 		--鸡蛋
+	local flourCount = Actor.getItemCount(sysarg, flourid, -1, -1) or 0 	--面粉
+	local candleCount = Actor.getItemCount(sysarg, candleid, -1, -1) or 0 	--蜡烛
+
+	DataPack.writeInt(pack, sugarCount)
+	DataPack.writeInt(pack, eggCount)
+	DataPack.writeInt(pack, flourCount)
+	DataPack.writeInt(pack, candleCount)
+	
+	local change = IsCanChange(sysarg)
+	for i=1,4 do
+		DataPack.writeByte(pack, change[i])
+	end
+	DataPack.flush(pack)
+end
+
+--判断是否可兑换
+function IsCanChange(sysarg)
+	local award = {1,1,1,1}
+	for i=1, 4 do
+		for k,v in ipairs(BirthdayCakeConfig.change[i].needItem) do
+			local count = Actor.getItemCount(sysarg, v.id, -1, -1)
+			if count < v.count then
+				award[i] = 0  --只要有一个材料不满足则为0
+			end
+		end		
+	end
+	return award
+end
+
+--请求兑换领奖
+function ReqBirthdayCakeChange(sysarg, giftid)
+	if System.isInDateRange(unpack(BirthdayCakeConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse008, ttFlyTip)--不在活动时间范围内
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, BirthdayCakeConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse007, ttFlyTip)--等级不足
+		return
+	end
+
+	for k,v in ipairs(BirthdayCakeConfig.change[giftid].needItem) do
+		local count = Actor.getItemCount(sysarg, v.id, -1, -1)
+		if count < v.count then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse002, ttFlyTip) --材料不足
+			return
+		end
+	end	
+	
+	--判断背包空格足不足
+	local needbag = 0
+	for k, v in ipairs(BirthdayCakeConfig.change[giftid].awards) do
+		local itemid = v.id
+		local itemcount = v.count
+		needbag = needbag + Item.getAddItemNeedGridCount(sysarg, itemid, itemcount)
+	end
+
+	local nGridCount = Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if needbag > nGridCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+		return
+	end
+
+	--扣材料
+	for k,v in ipairs(BirthdayCakeConfig.change[giftid].needItem) do
+		Actor.removeItem(sysarg, v.id, v.count, -1,-1,-1, Lang.LogTips.mzn213, 197)
+		SaveBirthdayCakeTimes(v.count)
+	end
+
+	--给奖励
+	for k,v in ipairs(BirthdayCakeConfig.change[giftid].awards) do
+		local newItem = Item.createItem(v.id, v.count, 0, 0, v.bind, 0)
+		if not newItem then
+			return false
+		end
+
+		if (Item.addItem(sysarg, newItem, Lang.LogTips.mzn213, 197, v.count) ~= v.count) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+			return false
+		end
+	end
+	ReqBirthdayCakeInfo(sysarg)
+end
+
+--保存文件兑换的总次数
+function SaveBirthdayCakeTimes(num)
+	local ranking = Ranking.getRanking(Lang.Rank.BirthdayCakeChangeTimesFile) --兑换次数，蛋糕模型
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 0)
+			result = tonumber(result)
+			if result and result ~= 0 then
+				Ranking.setSub(item, 0, result+num)
+				local total = result + num
+				local grade = 0
+				if total >= BirthdayCakeConfig.cakeprogress[1].num and total < BirthdayCakeConfig.cakeprogress[2].num then
+					grade = 1
+				elseif total >= BirthdayCakeConfig.cakeprogress[2].num and total < BirthdayCakeConfig.cakeprogress[3].num then
+					grade = 2
+				elseif total >= BirthdayCakeConfig.cakeprogress[3].num and total < BirthdayCakeConfig.cakeprogress[4].num then 
+					grade = 3
+				elseif total >= BirthdayCakeConfig.cakeprogress[4].num then
+					grade = 4
+				end
+				local cakeNum = Ranking.getSub(item, 1)
+				cakeNum = tonumber(cakeNum)
+				if grade > 0 then
+					if not cakeNum then
+						local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+						local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00323) --  NPC名字 周公
+						if not npcPtr then return end
+						local modelId = BirthdayCakeConfig.cakeprogress[grade].cakeid
+						Actor.changeEntityModel(npcPtr, 30, modelId)
+						Ranking.setSub(item, 1, grade)
+					elseif grade > cakeNum then
+						local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+						local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00323) --  NPC名字 周公
+						if not npcPtr then return end
+						local modelId = BirthdayCakeConfig.cakeprogress[grade].cakeid
+
+						Actor.changeEntityModel(npcPtr, 30, modelId)
+						Ranking.setSub(item, 1, grade)
+					end
+				end
+				Ranking.setSub(item, 0, total)
+			end
+		else
+			item = Ranking.addItem(ranking,0,0)
+			Ranking.setSub(item, 0, num)
+		end
+	end
+end
+
+--活动结束后下金钱雨，发元宝
+function SendBirthdayCakeAward()
+	local flag = false
+	local ranking = Ranking.getRanking(Lang.Rank.BirthdayCakeChangeTimesFile) --兑换次数，蛋糕模型
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 1)
+			result = tonumber(result)
+			if result == 4 then
+				flag = true
+			end
+		end
+	end
+
+	if flag == true then
+		System.broadcastTipmsg(Lang.Activity.mzn0218, ttChatWindow+ttScreenCenter)
+		System.playScrEffectCode(BirthdayCakeConfig.effectId, BirthdayCakeConfig.effectSecs)	--全服 
+		local config = BirthdayCakeConfig.ybAwardList
+		if config then
+			--读取奖励元宝
+			local num = 0
+			local rate = 0
+			local limitNum = BirthdayCakeConfig.ybAwardNum
+			local nowNum = 0
+			
+			local randVal = System.getRandomNumber(100) 
+			for k,v in ipairs(config) do
+				rate = rate + v.rate
+				if rate >= randVal then
+					num = v.yb
+					break
+				end
+			end
+
+			local playerList = LuaHelp.getAllActorList() 
+			for k, actorPtr in ipairs(playerList or {}) do
+				--判断等级
+				if Actor.checkActorLevel(actorPtr, ThankYouLetterConfig.level) == true then
+					Actor.changeMoney(actorPtr, 3 ,num , 197, Lang.LogTips.mzn213)
+					nowNum = nowNum + 1
+				end
+				if nowNum >= limitNum then
+					break
+				end
+			end
+		end
+	end
+end
+
+--读取兑换次数
+function GetChangeNum()
+	local ranking = Ranking.getRanking(Lang.Rank.BirthdayCakeChangeTimesFile) --兑换次数，蛋糕模型
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 0)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		end
+	end
+	return 0
+end
+
+--活动结束清数据
+function ClearBirthdayCakeActEnd()
+	local ranking = Ranking.getRanking(Lang.Rank.BirthdayCakeChangeTimesFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	--活动结束屏蔽蛋糕
+	local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+	local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00323) --  NPC名字 周公
+	if not npcPtr then return end
+	Actor.setEntityVisibleFlag(npcPtr, false)
+end
+
+--登录的时候读取配置判断蛋糕的模型
+function LoginSetBirthdayCakeID()
+	local cakeId = 1
+	local ranking = Ranking.getRanking(Lang.Rank.BirthdayCakeChangeTimesFile) --兑换次数，蛋糕模型
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = Ranking.getSub(item, 1)
+			result = tonumber(result)
+			if result then
+				cakeId = result
+			end
+		end
+	end
+
+	local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+	local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00323) --  NPC名字 周公
+	if not npcPtr then return end
+	local modelId = BirthdayCakeConfig.cakeprogress[cakeId].cakeid
+	Actor.changeEntityModel(npcPtr, 30, modelId)
+end

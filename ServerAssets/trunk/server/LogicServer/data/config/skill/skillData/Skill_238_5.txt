@@ -1,0 +1,126 @@
+--祭司守护兽 瞬移
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+
+	desc=Lang.Skill.s14L1Desc,--技能的描述
+
+	iconID=14,--图标的ID
+
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-5,--相对于中心点x左边的相对坐标
+			xEnd=5,--相对于中心点x右边的相对坐标
+			yStart=-5,--相对于中心点y上边的相对坐标
+			yEnd=5,--相对于中心点y下边的相对坐标
+		rangeType=3,
+		rangeCenter=1,
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						--{mj=0,timeParam=1,type=3,delay=200, rate=12000,value=0},
+						{mj=0,timeParam=1,type=1,buffType=49,id=47,rate=0,value=800,delay=100,interval=8,vt=0,effectType=6,effectId=53},
+						{mj=0,timeParam=1,type=20,id=39,value=1,timeParam=1000,},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=249,keepTime=500,delay=100,always=false},
+						{type=4,mj=0,id=249,keepTime=500,delay=400,always=false}
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-12,--相对于中心点x左边的相对坐标
+			xEnd=12,--相对于中心点x右边的相对坐标
+			yStart=-12,--相对于中心点y上边的相对坐标
+			yEnd=12,--相对于中心点y下边的相对坐标
+		rangeType=3,
+		rangeCenter=1,
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 20,value =39},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=200, rate=12000,value=5000},
+						{mj=0,timeParam=1,type=19,delay=0,},
+						--{mj=0,timeParam=1,type=1,buffType=49,id=47,rate=0,value=800,delay=100,interval=8,vt=0,effectType=6,effectId=53},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=249,keepTime=500,delay=100,always=false},
+						{type=4,mj=0,id=249,keepTime=500,delay=400,always=false}
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-12,--相对于中心点x左边的相对坐标
+			xEnd=12,--相对于中心点x右边的相对坐标
+			yStart=-12,--相对于中心点y上边的相对坐标
+			yEnd=12,--相对于中心点y下边的相对坐标
+		rangeType=3,
+		rangeCenter=1,
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1000,type=21,delay=0,id=39,value=1,vt=1},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=311,keepTime=400,delay=100,always=false},
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		--{cond=1,value=30,consume=false},--表示等级要1级
+		--{cond=3,value=437,consume=true,exceptVip=true },--表示书本
+	},
+
+	spellConds=
+	{
+		{cond=13,value=12,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,
+	cooldownTime=10000,
+
+},

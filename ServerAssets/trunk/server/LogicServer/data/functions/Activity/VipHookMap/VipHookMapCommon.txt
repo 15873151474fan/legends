@@ -1,0 +1,114 @@
+
+--#include "data\config\activityconfig\VipHookMap\VipHookMapConfig.txt" once
+
+
+--用元宝购买时间
+function BuyVipTimesByGold( sysarg )
+	return BuyVipTimes(sysarg, mtYuanbao)
+end
+
+--用礼券购买时间
+function BuyVipTimesByBindGold( sysarg )
+	return BuyVipTimes(sysarg, mtBindYuanbao)
+end
+
+--购买时间菜单
+function BuyVipTimes( sysarg, coinType )
+	local dlgStr = ""
+	local moneyName = moneyTypeName[coinType]
+	for k, v in ipairs(VipHookMapConfig.BuyTimes) do
+		local funcStr = string.format(Lang.ScriptTips.viphook017, v[1], v[2], moneyName)
+		dlgStr = string.format("%s\\<#BL%s/@BuyVipTimeFunc,%d,%d, 1>", dlgStr, funcStr, k, coinType)
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function cancelBtn( sysarg )
+
+end
+
+--购买时间函数
+function BuyVipTimeFunc( sysarg, tabIdx, coinType, notice )
+	tabIdx = tonumber(tabIdx)
+	coinType = tonumber(coinType)
+	local cfg = VipHookMapConfig.BuyTimes[tabIdx]
+	if not cfg then
+		return
+	end
+	--如果不是VIP
+	if not Actor.isVip(sysarg) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.viphook018), ttFlyTip)
+		return
+	end
+	--如果转数或等级不足
+	if not Actor.checkActorLevel(sysarg, VipHookMapConfig[1].MinLevel, VipHookMapConfig[1].MinCircle) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.viphook019, VipHookMapConfig[1].MinCircle, VipHookMapConfig[1].MinLevel), ttFlyTip)
+		return
+	end
+	local moneyName = moneyTypeName[coinType]
+	local moneyPropId = moneyTypeMap[coinType]
+	local myMoney = Actor.getIntProperty( sysarg, moneyPropId)
+	if myMoney < cfg[2] then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.viphook017, cfg[1], cfg[2], moneyName), ttFlyTip)
+		return 
+	end
+	if notice then
+		local npcHandle = Actor.getHandle(thisNPC)
+		local noticeStr = string.format(Lang.ScriptTips.viphook020, cfg[2], moneyName, cfg[1])
+		local okBtn = string.format("%s/BuyVipTimeFunc,%d,%d", Lang.ScriptTips.x00050, tabIdx, coinType)
+		local cancelBtn = string.format("%s/cancelBtn", Lang.ScriptTips.x00051)
+		Actor.messageBox(sysarg, npcHandle, 0, noticeStr, okBtn, cancelBtn, NULL)
+	else
+		if cfg[2] > 0 and Actor.changeMoney(sysarg, coinType, -cfg[2], 129, Lang.LogTips.yb007) then
+			local v = VipHookMapConfig.buff
+			Actor.addBuff( sysarg, v.buffType, v.groupId, v.value, cfg[1], v.interval, v.buffName, v.timeOverlay)
+			local sceneName = Actor.getSceneName(sysarg, 0, 0)
+			if sceneName ~= Lang.SceneName.s00008 then
+				local mapTime = Actor.getBuffRemainTime(sysarg, v.buffType, v.groupId)
+				Actor.initActivityWind(sysarg, Lang.Activity.map0001, mapTime, Lang.Activity.map0002)
+			end
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.viphook021, cfg[1]), ttFlyTip)
+		end
+	end
+end
+
+function IsVipTodayGetBuff( sysarg )
+	local actorVar = Actor.getStaticVar(sysarg)
+	if actorVar.VipHookMapBuff then
+		local y = 0
+		local m = 0
+		local d = 0
+		y,m,d = System.getDate( y, m, d )
+		local curDt = y * 10000 + m *100 + d
+		return curDt <= actorVar.VipHookMapBuff
+	end
+	return false
+end
+
+--设置itemId在今天使用过几次
+function SetVipTodayGetBuff( sysarg )
+	local actorVar = Actor.getStaticVar(sysarg)
+	local y = 0
+	local m = 0
+	local d = 0
+	y,m,d = System.getDate( y, m, d )
+	local curDt = y * 10000 + m *100 + d
+	actorVar.VipHookMapBuff = curDt
+end
+
+--是否在VIP挂机地图
+function IsInVipHoopMap(sysarg)
+	local nSceneId = Actor.getSceneId(sysarg)
+	local sname = Fuben.getSceneNameById(nSceneId)
+	for k, v in ipairs(VipHookMapConfig or {}) do
+		if v.SceneNames == sname then
+			return true
+		end
+	end
+	return false
+end
+
+--离开VIP挂机地图
+function ExitFromVipHoopMap(sysarg)
+	Actor.enterScene(sysarg,VipHookMapConfig.ExitAreaPos[1],VipHookMapConfig.ExitAreaPos[2],VipHookMapConfig.ExitAreaPos[3])
+end

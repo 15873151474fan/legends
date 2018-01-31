@@ -1,0 +1,30 @@
+﻿--发送客户端金币副本面板显示的Ui数据 
+function SendJinBiFubenClientUi(sysarg, Floor, AllFloor, ShowNdx)
+  local pack = DataPack.allocPacket(sysarg, 145, 115)
+  DataPack.writeInt(pack, Floor)
+  DataPack.writeInt(pack, AllFloor)
+  DataPack.writeInt(pack, ShowNdx) --0表示不显示任何，1表示显示奖励领取，2表示进入下一层
+  DataPack.flush(pack)
+end
+
+--金币副本数据初始化 
+function JinBiFubenDataInit(sysarg)
+  local sVar = Actor.getDyanmicVar(sysarg)
+  --if not sVar.KillJinBiFubenMonsterNumber then--金币副本杀怪数量
+     --sVar.KillJinBiFubenMonsterNumber = 0
+  --end
+  if not sVar.JinBiFubenFloorNumber then--当前所在金币副本的层数
+     sVar.JinBiFubenFloorNumber = 1
+  end
+  if not sVar.JinBiFubenPassFloorNumber then--金币副本通关的层数
+     sVar.JinBiFubenPassFloorNumber = 0
+  end
+end
+
+--金币副本数据清理
+function JinBiFubenDataClear(sysarg)
+  local sVar = Actor.getDyanmicVar(sysarg)
+  --sVar.KillJinBiFubenMonsterNumber = nil
+  sVar.JinBiFubenFloorNumber = nil
+  sVar.JinBiFubenPassFloorNumber = nil
+end

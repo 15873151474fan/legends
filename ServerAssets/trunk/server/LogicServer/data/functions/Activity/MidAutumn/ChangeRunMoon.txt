@@ -1,0 +1,218 @@
+--lua script
+--嫦娥奔月
+--#include "data\config\activityconfig\MidAutumn\ChangeRunMoonConfig.txt" once
+
+--请求嫦娥奔月界面
+function ReqChangeRunMoon(sysarg)
+	local config = ChangeRunMoonConfig
+	if not config then return end
+	local myYb = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO )--元宝数量
+	local times = GetChangeRunMoonTimes(sysarg)--已经兑换的次数
+	local pack = DataPack.allocPacket(sysarg, 145, 72)
+	if not pack then
+		return 
+	end
+	for k,v in pairs(config.needItemId) do
+		local itemNum = Actor.getItemCount(sysarg, v, -1, -1)
+		DataPack.writeInt(pack, itemNum)
+	end
+	DataPack.writeInt(pack, myYb)
+	for i=1, 3 do
+		DataPack.writeByte(pack, times[i])
+	end
+	DataPack.flush(pack)
+end
+
+
+--请求兑换1,2,3
+function ReqGetChangEAward(sysarg, awardid)
+	--判断活动
+	if System.isInDateRange(unpack(ChangeRunMoonConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj001, ttFlyTip)
+		return
+	end
+
+	local config = ChangeRunMoonConfig
+	if not config then return end
+	local configTimes = config.awardName[awardid].times --配置定的次数
+	local times = GetChangeRunMoonTimes(sysarg)--已经兑换次数
+	local tab = config.awardName[awardid]
+	local myYb = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO )--元宝数量
+	--判断次数够不够
+	if times[awardid] >= configTimes then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0001, ttFlyTip)
+		return
+	end
+
+	--判断材料够不够
+	for k,v in pairs(tab.needItem) do
+		local remCount = Actor.getItemCount(sysarg, v.id, -1, -1)
+		if remCount < v.count then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzq0002, ttFlyTip)
+			return
+		end
+	end
+
+	if tab.needYb then
+		if tab.needYb > myYb then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzq0003, ttFlyTip)
+			return
+		end
+	end
+
+	--获取职业
+	local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+	local mySex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	--判断背包空格够不够
+	local needbag = 0
+	for k, v in ipairs(tab.awards) do
+		local itemid = v.id
+		local itemcount = v.count
+		local job = v.job
+		if job == myJob or job == 0 then
+			needbag = needbag + Item.getAddItemNeedGridCount(sysarg, itemid, itemcount)
+		end
+	end
+	local nGridCount = Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if needbag > nGridCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0004, ttFlyTip)
+		return
+	end
+
+	--扣材料
+	for k,v in ipairs(tab.needItem) do
+		local remCount = Actor.removeItem(sysarg, v.id, v.count,-1,-1,-1, Lang.LogTips.mzq000, 970)
+		if remCount < v.count then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzq0002, ttFlyTip)
+			return
+		end
+	end
+
+	--扣元宝
+	if tab.needYb ~= 0 then
+		if not Actor.changeMoney(sysarg, mtYuanbao, -tab.needYb, 970, Lang.LogTips.mzq000) then	return end
+	end
+
+	--放入背包
+	for k, v in ipairs(tab.awards) do
+		local itemid = v.id
+		local itemcount = v.count
+		local job = v.job
+		local bind = v.bind
+		local sex = v.sex
+		if job == myJob or job == 0 then
+			if sex == mySex or sex == -1 then
+				local newItem = Item.createItem(itemid, 1, 0, 0, bind, 0) --(award.id, nCount, quality, strong, bind, 0)
+				if not newItem then
+					return
+				end
+				if (Item.addItem(sysarg, newItem, Lang.LogTips.mzq000, 970, itemcount) ~= itemcount) then
+					Actor.sendTipmsg(sysarg, Lang.Activity.mzq0004, ttFlyTip)
+					return
+				end
+			end
+		end
+	end
+	--成功兑换，保存次数
+	SaveChangeRunMoonTimes(sysarg, awardid-1)
+	ReqChangeRunMoon(sysarg)
+end
+
+-- 读取兑换了的次数
+function GetChangeRunMoonTimes(sysarg)
+	local times = {0,0,0}
+	local ranking = Ranking.getRanking(Lang.Rank.AutumnChangERunMoonFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			for i=1, 3 do
+				local res = Ranking.getSub(item, i-1)
+				res = tonumber(res)
+				if res then
+					times[i] = res
+				end
+			end
+		end
+	end
+	return times
+end
+
+--保存已经兑换的次数+1
+function SaveChangeRunMoonTimes(sysarg, subid) --subid: 0,1,2
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local pRanking = Ranking.getRanking(Lang.Rank.AutumnChangERunMoonFile)
+	if pRanking then
+		local pItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if pItem == nil then
+			pItem = Ranking.addItem(pRanking, nActorId, 100)
+			if pItem then
+				Ranking.setSub(pItem, subid, 1)
+			end
+		else
+			local ret = Ranking.getSub(pItem, subid)
+			ret = tonumber(ret) or 0
+			Ranking.setSub(pItem, subid, ret+1)
+		end
+	end
+end
+
+--双击汤圆奖励经验----无调用
+function OnUserBalls(sysarg, itemidx)
+	--判断活动
+	if System.isInDateRange(unpack(ChangeRunMoonConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj001, ttFlyTip)
+		return
+	end
+
+	--判断汤圆
+	if Actor.getItemCount(sysarg, itemidx) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj017, ttFlyTip)
+		return
+	end
+
+	local index = 0
+	local rate = 0
+	local randRate = math.random(10000)
+	for k,v in ipairs(ChangeRunMoonConfig.rank) do
+		rate = rate + v
+		if rate >= randRate then
+			index = k
+			break
+		end
+	end
+
+	if index == 0 then return end
+	
+	--判断空格
+	local needCount = ChangeRunMoonConfig.openAwardBag[index].needBagCount
+	
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	if nBagCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj015, ttFlyTip)
+		return
+	end
+
+
+	--扣除
+	Actor.removeItem(sysarg, itemidx, 1, -1,-1,-1, Lang.LogTips.mzq000, 970)
+
+	local tab = ChangeRunMoonConfig.openAwardBag[index]
+	if not tab then return end
+
+	--发放物品
+	for k,v in ipairs(tab.awardList) do
+		Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 970, Lang.LogTips.mzq000)
+	end
+
+end
+
+
+--0点清零记录
+function ClearValChangERunMoon()
+	local ranking = Ranking.getRanking(Lang.Rank.AutumnChangERunMoonFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+

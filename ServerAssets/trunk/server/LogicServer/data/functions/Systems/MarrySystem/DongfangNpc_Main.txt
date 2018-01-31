@@ -1,0 +1,207 @@
+--lua script
+--洞房的npc对话
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\friend\MarriedConfig.txt" once
+
+function DongFangNpcDialog_Main(sysarg)
+	local str = ""
+
+	str = str.."\\<#BL"..Lang.GuildLang.m00103.."/@OnKissInDongFang>"			--情意绵绵
+	str = str.."\\<#BL"..Lang.GuildLang.m00106.."/@BroadFlowersInDongFang>"			--散花
+	str = str.."\\<#BL"..Lang.GuildLang.m00107.."/@GoToDongFang>"				--睡觉
+	str = str.."\\<#BL"..Lang.GuildLang.m00148.."/@TakeOutActor>"				--请出玩家
+	str = str.."\\<#BL"..Lang.GuildLang.m00108.."/@ExitDangFangfuBen>"				--离开场景
+
+	return str
+end
+
+--情意绵绵
+function OnKissInDongFang(sysarg)
+	local str = Lang.GuildLang.m00105
+
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00104,MarriedConfig.broadLoveFlowers).."/@OnBroadFlowrsInDongFang>"
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--播放情意绵绵
+function OnBroadFlowrsInDongFang(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+	if nYb < MarriedConfig.broadLoveFlowers then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+	
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb == nil then return end
+
+	Actor.changeMoney(sysarg,3,-MarriedConfig.broadLoveFlowers,823,Lang.GuildLang.m00103)
+	
+	local playerList = LuaHelp.getFbActorList(pFb)	
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.playScrSceneEffectCode(player,MarriedConfig.loveDipeffect.effectId,MarriedConfig.loveDipeffect.liveTime,Actor.getSceneId(player),MarriedConfig.loveDipeffect.effectX,MarriedConfig.loveDipeffect.effectY)
+			end
+		end
+	end
+
+	--Actor.closeNPCDialog(sysarg)
+end
+
+--散花
+function BroadFlowersInDongFang(sysarg)
+	local str = Lang.GuildLang.m00105
+
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00109,MarriedConfig.FlyFlowersInDongFang.needYb).."/@OnFlyFlowrsInDongFang>"
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--飘花
+function OnFlyFlowrsInDongFang(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+	if nYb < MarriedConfig.FlyFlowersInDongFang.needYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+	
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb == nil then return end
+
+	Actor.changeMoney(sysarg,3,-MarriedConfig.FlyFlowersInDongFang.needYb,823,Lang.GuildLang.m00103)
+	
+	local playerList = LuaHelp.getFbActorList(pFb)	
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.playScrSceneEffectCode(player,MarriedConfig.FlyFlowersInDongFang.effectId,MarriedConfig.FlyFlowersInDongFang.liveTime,Actor.getSceneId(player))
+			end
+		end
+	end
+
+	--Actor.closeNPCDialog(sysarg)
+end
+
+--睡觉
+function GoToDongFang(sysarg)
+	local teamid = Actor.getTeamId(sysarg)
+	
+	if teamid == 0 then		--没有组队
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00023,ttFlyTip)
+		return
+	end
+
+	local actList = LuaHelp.getTeamMemberList(sysarg)
+	if actList == nil then
+		return
+	end
+	
+	local tCount = table.getn(actList)
+	if tCount ~= 2 then					--队伍人数不是2人
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00024,ttFlyTip)
+		return
+	end
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local tagActorId = 0
+	local player
+	for i = 1, #actList do
+		local pActor = actList[i]
+
+		if pActor ~= nil then
+			local nId = Actor.getIntProperty(pActor,PROP_ENTITY_ID)
+		
+			if nId ~= nActorId then
+				tagActorId = nId
+				if not Actor.isInSameScreen(sysarg,pActor) then			--有成员不再附近
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00025,ttFlyTip)
+					return
+				end
+
+				if Actor.getSocialCurNum(pActor,6) == 0 then			--不是伴侣
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00101,ttFlyTip)
+					return
+				end
+
+				player = pActor
+			end
+		end
+	end
+	
+	local fubenHandle = Actor.getFubenHandle(sysarg)
+	local bCanSleep = System.isDongFangMonster(fubenHandle,nActorId,tagActorId)
+	if bCanSleep == false then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00143,ttFlyTip)
+		return
+	end
+
+	local rand = math.random(2)
+	local dir = {2, 6}
+	
+	local fhadle = Actor.getHandle(sysarg)
+	
+	if fhadle <= 0 then return end
+
+	Actor.onTakeOffRide(sysarg)
+	Actor.onTakeOffRide(player)
+
+	Actor.enterFuBen(player,fubenHandle,MarriedConfig.miYueSceneId,MarriedConfig.miyueX,MarriedConfig.miyueY)
+	Actor.enterFuBen(sysarg,fubenHandle,MarriedConfig.miYueSceneId,MarriedConfig.miyueX,MarriedConfig.miyueY)
+	
+	local nSex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	if nSex == 0 then --男
+		Actor.setDir(sysarg,3)
+		Actor.setDir(player,3)	
+	else
+		Actor.setDir(sysarg,3)		--右
+		Actor.setDir(player,3)	
+	end
+	
+
+	Actor.startPractice(sysarg, 0, 0, player, 4,esStateDongFang)
+	Actor.startPractice(player, 0, 0, sysarg, 4,esStateDongFang)
+
+	Actor.closeNPCDialog(sysarg)
+end
+
+--离开场景
+function ExitDangFangfuBen(sysarg)
+	Actor.unregScriptCallback(sysarg, "GiveMiYueAwardExp")
+	--Actor.enterScene(sysarg, MarriedConfig.miSceneId, unpack(MarriedConfig.miRange))
+	Actor.enterFuBen(sysarg,0,MarriedConfig.miSceneId,MarriedConfig.miRange[1],MarriedConfig.miRange[2])
+end
+
+--请出玩家
+function TakeOutActor(sysarg)
+	local str = Lang.GuildLang.m00150
+	str = str.."\\<#BL"..Lang.GuildLang.m00148.."/@OnTakeOutActor>"
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+	
+	return str
+end
+
+--请出玩家
+function OnTakeOutActor(sysarg)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local fubenHandle = Actor.getFubenHandle(sysarg)
+	local bMonster = System.oneActorIsMonster(fubenHandle,nActorId)
+	
+	if bMonster ==true then
+		local pack = DataPack.allocPacket(sysarg, 41, 14)
+		if (pack ~= nil) then
+			DataPack.flush(pack)
+		end
+	else
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00149,ttFlyTip)
+	end
+end
+
+table.insert(MainFnTable, DongFangNpcDialog_Main)

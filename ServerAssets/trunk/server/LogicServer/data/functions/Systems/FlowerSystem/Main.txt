@@ -1,0 +1,161 @@
+﻿--[[File:Main.txt]]
+--这里定义活动的主要业务逻辑相关的函数
+--
+--#include "data\functions\GlobalDefine.txt" once
+--#include "data\functions\Systems\FlowerSystem\config.txt" once
+--#include "data\config\achieve\titles.txt" once
+
+--每小时需要执行的流程，每小时更新玩家称号，如果是凌晨，清除榜单，如果是周一凌晨，结算（记录可以获取时装的玩家的名字）
+function refreshRank()
+	--print("refreshRank....")
+	
+	--给奖励称号
+	for i=1,4 do--前4个给称号
+		local ranking = Ranking.getRanking(FlowerConfig.rankName[i]) --通过排行名称获取排行对象
+		if ranking ~= nil then
+			--local itemCount = Ranking.getRankItemCount(ranking)
+			for j = 1,3 do
+				local item = Ranking.getItemFromIndex(ranking,j-1)
+				if item ~= nil then
+					if j <= 3 then		--前3名奖励称号
+						local id = Ranking.getId(item)
+						local ptr = System.getEntityPtrByActorID(id)
+						local titleId = FlowerConfig.title[i][j]
+						if ptr ~= nil then
+							--给称号
+							Actor.GiveTitle(ptr,titleId)
+						end
+					end
+				end
+			end
+		end
+	end
+
+	local hour=0
+	local minute =0
+	local second=0 
+	hour,minute,second=System.getTime(hour,minute,second) 
+	if hour == 0 then
+		--清理榜单
+		for i = 3,4 do
+			local ranking = Ranking.getRanking(FlowerConfig.rankName[i]) --通过排行名称获取排行对象
+			if ranking ~= nil then
+				Ranking.clearRanking(ranking)
+				Ranking.save(ranking,FlowerConfig.rankName[i]..".txt")
+			end
+		end
+		local week = System.getDayOfWeek()
+		if week == 1 then
+			--周榜是给时装，记录玩家id，等他（她）来取
+			local awardRank = Ranking.getRanking(FlowerConfig.awardRank) --通过排行名称获取排行对象
+			if awardRank ~= nil then
+				Ranking.clearRanking(awardRank)
+			end
+			for i = 5,6 do
+				local ranking = Ranking.getRanking(FlowerConfig.rankName[i]) --通过排行名称获取排行对象
+				
+				if awardRank ~= nil and ranking ~= nil then
+					local item = Ranking.getItemFromIndex(ranking,0)	--只给第一名的
+					if item ~= nil then
+						local id = Ranking.getId(item)	--id是玩家id
+						local awardItem = Ranking.addItem(awardRank,id,1)
+						if awardItem ~= nil then
+							Ranking.setSub(awardItem,0,Ranking.getSub(item,0))	--玩家的名称
+							Ranking.setSub(awardItem,1,"-")		--"-"表示最初始的状态，“n”表示通知过领取了，“y”表示已领取
+							if i == 5 then
+								Ranking.setSub(awardItem,2,Lang.Flower.f023)
+								Ranking.setSub(awardItem,3,Lang.Flower.f014..Lang.Flower.f025..Ranking.getPoint(item))
+							else
+								Ranking.setSub(awardItem,2,Lang.Flower.f024)
+								Ranking.setSub(awardItem,3,Lang.Flower.f015..Lang.Flower.f025..Ranking.getPoint(item))
+							end
+							
+							--如果在线，提醒去领取时装
+							local actorPtr = System.getEntityPtrByActorID(id)
+							if actorPtr ~= nil then
+								local sex = Actor.getIntProperty(actorPtr,PROP_ACTOR_SEX)
+								local sexNotice = FlowerConfig.noticTip[sex+1]
+								local str = string.format(Lang.Flower.f028,sexNotice)
+								Actor.messageBox(actorPtr,0,0,str,Lang.Flower.f029.."/telportScene,"..FlowerConfig.scenePos[1]..","..FlowerConfig.scenePos[2]..","..FlowerConfig.scenePos[3],Lang.Flower.f030.."/cancelFunction,", nil, 0,1,Lang.Flower.f031,24)
+								Ranking.setSub(awardItem,1,"n")
+							end
+						end
+					end
+					
+					Ranking.save(awardRank,FlowerConfig.awardRank..".txt")
+				end
+				
+				--清理
+				if ranking ~= nil then
+					Ranking.clearRanking(ranking)
+					Ranking.save(ranking,FlowerConfig.rankName[i]..".txt")
+				end
+			end
+		end
+	end
+end
+
+function flowerMain(sysarg)
+	local str = Lang.Flower.f020.."\\"
+	local awardRank = Ranking.getRanking(FlowerConfig.awardRank) 
+	if awardRank ~= nil then
+		local itemCount = Ranking.getRankItemCount(awardRank)
+		for i=1,itemCount do
+			local item = Ranking.getItemFromIndex(awardRank,i-1)
+			if item ~= nil then
+				str = str .. Ranking.getSub(item,2).."\\<(c0xFF00FF00)" ..Ranking.getSub(item,0) .. "      " .. Ranking.getSub(item,3)..">\\"
+			end
+		end
+		
+	end
+	if canAward(sysarg) then
+		local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+		local tmp = string.format(Lang.Flower.f022,FlowerConfig.ItemCommName[sex+1])
+		str = str .. tmp
+	end
+	
+	return str
+end
+
+function getAward(sysarg)
+	
+	if not canAward(sysarg) then
+		Actor.closeNPCDialog( sysarg )	
+		return 
+	end
+	local awardRank = Ranking.getRanking(FlowerConfig.awardRank) 
+	if awardRank == nil then
+		Actor.closeNPCDialog( sysarg )	
+		return 
+	end
+	--可以领奖，先判断背包
+	local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	local job = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+	local itemId = FlowerConfig.awardItem[job][sex+1]
+	if Actor.canAddItem(sysarg,itemId,1) == false then
+		Actor.sendTipmsg(sysarg,Lang.Flower..f021,ttDialog)
+	else
+		local id = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		--Ranking.removeId(awardRank,id)--删除，下次不能再领
+		local item = Ranking.getItemPtrFromId(awardRank,id)
+		if item ~= nil then
+			Ranking.setSub(item,1,"y")
+		end
+		Ranking.save(awardRank,FlowerConfig.awardRank..".txt")
+		Actor.addItem(sysarg,itemId,0,0,1,0,0)
+	end
+	Actor.closeNPCDialog( sysarg )
+end
+
+function canAward(sysarg)
+	if System.getDayOfWeek() ~= 1 then return false end
+	--周一才可以领奖
+	local awardRank = Ranking.getRanking(FlowerConfig.awardRank) 
+	if awardRank == nil then return false end
+	
+	local id = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local item = Ranking.getItemPtrFromId(awardRank,id)
+	if item == nil then return  false end
+	if Ranking.getSub(item,1) == "y" then return  false end
+	return true
+end

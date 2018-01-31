@@ -1,0 +1,325 @@
+﻿
+--足迹升阶
+function FootPrintUpgrade( sysarg, args)  	--2 足迹升阶
+	local itemPtr = args[2]
+	local protectFlag = args[4]
+	local needGold = args[5]
+	
+	local opType = itFootPrintUpgrade
+	
+	if not itemPtr then return end 
+	
+	local itemType = Item.getItemProperty(sysarg, itemPtr, Item.ipItemType, 0) 
+	if itemType ~= Item.itFootPrint then return end 
+	
+	local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0) 
+
+	local optResult = 2
+	local itemGuid = Item.getItemGuid(itemPtr)
+	
+	--local strongCfg = FootPrintUpgradeConfig[nItemStrong + 1]
+	
+	local nItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0)
+	local strongCfg, idx = GetFootPrintUpgradeConfig(nItemId)
+	if not strongCfg then
+		SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu001, ttFlyTip)
+		return
+	end
+	
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < 1 then
+		local noticeStr = string.format(Lang.ScriptTips.zf060, 1)
+		Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+		return
+	end
+	
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	
+	--local strongRate = strongCfg.rate
+	local strongRate = GetFootPrintUpgradeUpRate(sysarg, strongCfg, itemPtr)
+	for idx, tab in ipairs(strongCfg.strong) do
+		if tab.usetype == Any_Stuff  and tab.id > 0 then
+			local itemCount = Actor.getItemCount(sysarg, tab.id)
+			
+			if itemCount < tab.count then
+				if needGold <= 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu002, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+					return
+				end
+				if not tab.yb or tab.yb == 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu007, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - itemCount)				
+				if myGold < needGoldCount then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu003, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+					return
+				end
+				myGold = myGold - needGoldCount
+			end
+		elseif tab.usetype == Any_Protect  and tab.id > 0 then
+			if protectFlag > 0 then
+				local itemCount = Actor.getItemCount(sysarg, tab.id)
+				if itemCount < tab.count then
+					if needGold <= 0 then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu005, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+						return
+					end
+					if not tab.yb or tab.yb == 0 then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu007, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+						return
+					end
+					local needGoldCount = tab.yb * (tab.count - itemCount)
+					if myGold < needGoldCount then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu006, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+						return
+					end
+					myGold = myGold - needGoldCount
+				end
+				strongRate = RandomBase
+			end
+		elseif tab.usetype == Any_Silver then
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_COIN )
+			if myCoin < tab.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fpu004, tab.count), ttFlyTip)
+				SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+				return
+			end
+		end
+	end
+	--扣费
+	for idx, tab in ipairs(strongCfg.strong) do
+		if tab.usetype == Any_Silver then
+			if not Actor.changeMoney(sysarg, mtCoin, -tab.count, 868, Lang.LogTips.l00168) then
+				SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+				return
+			end
+		elseif tab.usetype == Any_Stuff then
+			local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1,Lang.LogTips.l00168,868)
+			if remCount < tab.count then
+				if needGold <= 0 then
+					SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - remCount)
+				Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 868, Lang.LogTips.l00168)
+			end
+		elseif tab.usetype == Any_Protect and tab.id > 0 then
+			if protectFlag > 0 then
+				local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1,Lang.LogTips.l00168,868)
+				if remCount < tab.count then
+					if needGold <= 0 then
+						SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+						return
+					end
+					local needGoldCount = tab.yb * (tab.count - remCount)
+					Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 868, Lang.LogTips.l00168)
+				end
+			end
+		end
+	end
+	Actor.onThanksConsumeEvent(sysarg,5,1)
+	local optResult = 1 --默认失败
+	local nCurSharp = Item.getItemProperty( sysarg, itemPtr, Item.ipItemHole4Item, 0)
+	local nSetSharpVal = 0
+	local nConfigIdx = 1
+	local newItemId = 0
+	if math.random(RandomBase) <= strongRate then
+		--nItemStrong = nItemStrong + 1
+		optResult = 0
+	else
+		if strongCfg.RandSharp and table.getn(strongCfg.RandSharp) > 0 then
+			--nSetSharpVal = nCurSharp + math.random(StrongCond.RandSharp[1], StrongCond.RandSharp[2])
+			local RandRate = math.random(10000)
+			local rate, RandSharp = 0
+			for k, v in ipairs(strongCfg.RandSharp) do
+				rate = rate + v.rate
+				if rate >= RandRate then
+					RandSharp = v.sharp
+					break
+				end
+			end
+			nSetSharpVal = nCurSharp + RandSharp
+			
+			local nMaxSharpVal = strongCfg.maxSharp or 65000		--这里写一个很大的值，防配置有错会刷
+			if nSetSharpVal >= nMaxSharpVal then
+				--nItemStrong = nItemStrong + 1
+				optResult = 0
+				nSetSharpVal = 0
+			end
+		end
+		if optResult ~= 0 then
+			--[[
+			local nMin = strongCfg.failDownIdx[1]
+			local nMax = strongCfg.failDownIdx[2]
+			if nMax > nConfigIdx then
+				nMax = nConfigIdx
+			end
+			if nMin > nMax then
+				nConfigIdx = math.random(nMax, nMin)
+			else
+				nConfigIdx = math.random(nMin, nMax)
+			end
+			
+			newItemId = FootPrintUpgradeConfig[nConfigIdx].destItem[idx]
+			--]]
+		end
+	end
+
+	if nCurSharp > 0 or nSetSharpVal > 0 then
+		Item.setItemProperty( sysarg, itemPtr, Item.ipItemHole4Item, nSetSharpVal)
+	end	
+	if optResult == 0 then
+		newItemId = strongCfg.destItem[idx]
+	end
+	if newItemId == 0 then
+		SendEquipOptResult(sysarg, itemGuid, opType, 1 )
+		--System.trace("FootPrintUpgrade error itemid=0")
+		return
+	end
+
+	if optResult == 0 and newItemId ~= nItemId and newItemId ~= 0 then
+		local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+		local nQuality = Item.getItemProperty( sysarg, itemPtr, Item.ipItemQuality, 0 )
+		local nLuck = Item.getItemProperty( sysarg, itemPtr, Item.ipItemLuck, 0 )
+		local nInsure = Item.getItemProperty( sysarg, itemPtr, Item.ipItemHole3Item, 0 )	--读取强化值
+		local initSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+		local itemName = Item.getItemName(nItemId)
+		local bind = Item.getItemProperty( sysarg, itemPtr, Item.ipItemBind, 0)
+		
+		if Actor.removeItemByPtr(sysarg, itemPtr, 1, true, Lang.LogTips.l00169, 869) == 0 then
+			if Item.removeEquip(sysarg, itemPtr, Lang.LogTips.l00169, 869, true) == 0 then
+				SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+				return
+			end
+		end
+	
+		local newItemPtr = Item.createItem(newItemId, 1, nItemStrong, nQuality, 1)
+		if newItemPtr then
+			itemGuid = Item.getItemGuid(newItemPtr)
+			
+			if Item.addItem(sysarg, newItemPtr, Lang.LogTips.l00169, 869) < 1 then
+				System.trace("FootPrintUpgrade add item err id="..newItemId)
+			end
+			if initSmith > 0 then
+				Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, initSmith)
+			end
+			--local nInsureCount = Item.getItemPropertyById(newItemId, Item.ipItemInsure) --投保金额 >0可投保
+			if nInsure > 0  then
+				Item.setItemProperty( sysarg, newItemPtr, Item.ipItemHole3Item, nInsure) -- 第三个槽是强化值
+			end
+			if nLuck > 0 then
+				Item.setItemProperty( sysarg, newItemPtr, Item.ipItemLuck, nLuck)
+			end
+			Item.setItemProperty( sysarg, itemPtr, Item.ipItemHole4Item, 0)
+			--[[
+			if initSmith == 0 then
+				Item.initEquipBaseAttr(sysarg, newItemPtr, bawEquipUpgrade)
+				local newInitSmith = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, 0)
+				if newInitSmith > 0 then
+					local noticeStr = string.format(Lang.ScriptTips.q00097, Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+					System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+				end
+			end
+			--]]
+			if not isItemInBag then
+				--Item.equipItem(sysarg, newItemPtr, heroId)
+			end
+			local nNewLevel = Item.getItemProperty(sysarg, newItemPtr, Item.ipItemActorLevel, 0) 
+			local nNewName = Item.getItemLinkMsg(newItemId, newItemPtr)
+			
+			local noticeStr = string.format(Lang.ScriptTips.fpu008, Actor.getName(sysarg), itemName, nNewName)
+			System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+		end
+	
+		--[[
+		if nItemStrong >= StrongCond.UpToBuildAttr then
+			local initSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+			if initSmith == 0 then
+				Item.initEquipBaseAttr(sysarg, itemPtr, bawEquipStrong)
+				local newInitSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+				if newInitSmith > 0 then   --如果产生了极品，就公告
+					local itemId = Item.getItemId(itemPtr)
+					local noticeStr = string.format(Lang.ScriptTips.fpu008, Actor.getName(sysarg), Item.getItemLinkMsg(itemId))
+					System.broadcastTipmsg(noticeStr, ttScreenCenter+ ttChatWindow)
+				end
+			end
+		end
+		--]]
+	end
+	SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+	return true
+end
+
+
+
+--读取强化数据
+function FootPrintUpgradeConsume( sysarg, args )
+	local ptrCount = args[1]
+	local itemPtr = args[2]
+	if not itemPtr then
+		return
+	end
+	local opType = args[ptrCount+2]		--操作类型
+	local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0) 
+	--local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	--local strongCfg = FootPrintUpgradeConfig[nItemStrong+1]
+	local nItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0)
+	local strongCfg, idx = GetFootPrintUpgradeConfig(nItemId)
+	if not strongCfg then
+		return
+	end
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, #strongCfg.strong)
+	for k, curTab in ipairs(strongCfg.strong) do
+		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack,curTab.id or 0)
+		DataPack.writeInt(netPack,curTab.count)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	local upRate = GetFootPrintUpgradeUpRate(sysarg, strongCfg, itemPtr)
+	DataPack.writeInt(netPack, upRate)
+	DataPack.writeWord(netPack, strongCfg.destItem[idx])	--newItem
+	DataPack.writeWord(netPack, strongCfg.maxSharp)	--maxSharp
+	DataPack.flush(netPack)
+end
+
+function GetFootPrintUpgradeConfig(itemId)
+	local config = FootPrintUpgradeConfig
+	for k, v in ipairs(config) do
+		for m, n in ipairs(v.srcItems) do
+			if type(n) == 'table' then
+				for x, y in ipairs(n) do
+					if y == itemId then
+						return v, m
+					end
+				end
+			else
+				if n == itemId then
+					return v, m
+				end
+			end
+		end
+	end
+	return nil, nil
+end
+
+function GetFootPrintUpgradeUpRate(sysarg, strongCfg, itemPtr)
+	if not sysarg or not itemPtr then return 0 end
+	local nCurSharp = Item.getItemProperty( sysarg, itemPtr, Item.ipItemHole4Item, 0)
+	for k, v in ipairs(strongCfg.upRate) do
+		if nCurSharp >= v.sharpRange[1] and nCurSharp <= v.sharpRange[2] then
+			return v.rate
+		end
+	end
+	
+	return 0
+end

@@ -1,0 +1,47 @@
+﻿--lua script
+{
+	id = 56,			-- 祭司担心
+	parentid = 55,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name56,
+	content = Lang.Quest.desc56,
+
+	prom = { type = 0, scene = Lang.SceneName.s00008, npc = Lang.EntityName.n00360 },
+	comp = { type = 0, scene = Lang.SceneName.s00008, npc = Lang.EntityName.n00360 },
+	target = {
+		{
+			type = 0, id = 33, count = 3, rewardId = 0,useList = false,
+			location = {
+				sceneid = 8, x= 0,y = 0,entityName = Lang.EntityName.m33,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 223516, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 20500, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+                        { type = 0, id = 566, count = 1, group = 0,strong = 0,quality = 0,job = 1,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--战士蛮力突撞
+			{ type = 0, id = 576, count = 1, group = 0,strong = 0,quality = 0,job = 2,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--法师魔法光盾
+			{ type = 0, id = 588, count = 1, group = 0,strong = 0,quality = 0,job = 3,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--道士通灵术-神兽
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk561,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk561,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip561,
+	},
+	PassMsTip = {
+	},
+},

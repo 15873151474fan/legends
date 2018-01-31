@@ -1,0 +1,54 @@
+﻿
+--#include "data\config\guide\paysales.txt" once --充值促销系统
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+MiscsImplement.GetPaySalesAwards = function (sysarg,msgid, packet)
+	local id = tonumber(DataPack.readByte(packet))
+	
+	local config = GetPaySalesConfig(id)
+	if not config then return end
+	
+	local svar = Actor.getStaticVar(sysarg)
+	local paySales = svar.paySales
+	if not paySales then
+		svar.paySales = {}
+		paySales = svar.paySales
+	end
+	
+	local result = 0
+	if paySales[id] and paySales[id] >= config.goalCount then
+		local awards = {{type = 0, id = config.awardItemId, count = 1}}
+		if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+		
+		paySales[id] = -1
+		result = 1
+		
+		Awards.Give(sysarg, awards, 1, Lang.LogTips.l00101)
+	end
+	
+	if result == 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000160, ttFlyTip)
+	end
+	
+	--返回结果
+	local npack = DataPack.allocPacket(sysarg, 139, 60)
+	if not npack then return end
+	DataPack.writeByte(npack, id)
+	DataPack.writeByte(npack, result)
+	DataPack.flush(npack)
+end
+
+function GetPaySalesConfig(id)
+	local config = PaySales
+	if not config then return nil end
+	for k, v in ipairs(config) do
+		if id == v.id then
+			return v
+		end
+	end
+	
+	return nil
+end
+
+
+MiscsImplement.registerMsgHandler(70, MiscsImplement.GetPaySalesAwards)

@@ -1,0 +1,539 @@
+--	50¼¶Ì××°¶Ò»»						
+	{						
+		itemID = 	108,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,
+    notice = true,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	109,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,
+    notice = true,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	110,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	112,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,
+    notice = true,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	116,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	117,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	119,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	120,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	121,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	123,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	127,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	128,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	130,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	131,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,
+    notice = true,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	132,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	134,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	138,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	139,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},		
+
+	{						
+		itemID = 	141,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	142,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	143,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},	
+
+	{						
+		itemID = 	145,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},		
+
+	{						
+		itemID = 	149,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	150,		
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,
+    notice = true,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 8 },		
+		}					
+	},
+
+	{						
+		itemID = 	107,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 24 },		
+		}					
+	},
+
+	{						
+		itemID = 	111,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 20 },		
+		}					
+	},
+
+	{						
+		itemID = 	113,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 14 },		
+		}					
+	},
+
+	{						
+		itemID = 	114,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 20 },		
+		}					
+	},
+
+	{						
+		itemID = 	115,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 12 },		
+		}					
+	},
+
+	{						
+		itemID = 	118,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 24 },		
+		}					
+	},
+
+	{						
+		itemID = 	122,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 20 },		
+		}					
+	},
+
+	{						
+		itemID = 	124,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 14 },		
+		}					
+	},
+
+	{						
+		itemID = 	125,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 20 },		
+		}					
+	},
+
+	{						
+		itemID = 	126,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 12 },		
+		}					
+	},
+
+	{						
+		itemID = 	129,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 24 },		
+		}					
+	},
+
+	{						
+		itemID = 	133,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 20 },		
+		}					
+	},
+
+	{						
+		itemID = 	135,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 14 },		
+		}					
+	},
+
+	{						
+		itemID = 	136,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 20 },		
+		}					
+	},
+
+	{						
+		itemID = 	137,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 12 },		
+		}					
+	},
+
+	{						
+		itemID = 	140,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 24 },		
+		}					
+	},
+
+	{						
+		itemID = 	144,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 20 },		
+		}					
+	},
+
+	{						
+		itemID = 	146,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 14 },		
+		}					
+	},
+
+	{						
+		itemID = 	147,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,
+    notice = true,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 20 },		
+		}					
+	},
+	{						
+		itemID = 	148,		
+		strong =	0	,			
+		quality =	3	,			
+		buyLevel =	50	,	
+    notice = true,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 12 },		
+		}					
+	},
+--[[{						
+		itemID = 	1925,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	1	,		
+    notice = true,	
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 3 },		
+		}					
+	},
+--]]

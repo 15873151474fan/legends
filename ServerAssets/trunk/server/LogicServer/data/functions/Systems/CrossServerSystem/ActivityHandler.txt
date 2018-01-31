@@ -1,0 +1,28 @@
+
+
+	--#include "data\functions\Tasks\CrossServerTasks\CrossServerBoss\OnServerAndClientMsg.txt" once 
+
+CrossServerImplement =
+{
+	GetActivityData = function (sysarg, msgid, packet)
+		--print("GetActivityData")
+		local actType = DataPack.readByte(packet) --复活类型，1跨服BOSS争夺战 2跨服个人赛 3跨服帮派战
+		--print("actType："..actType)
+		if actType == 1 then
+			SendCrossServerBossToClientList(sysarg)
+		elseif actType == 2 then
+			
+		elseif actType == 3 then
+			
+		end
+	end,
+	
+	EnterCrossServer = function (sysarg, msgid, packet)
+		--print("EnterCrossServer")
+		GoCrossServerBossServer(sysarg)
+	end,
+}
+
+
+CrossServerSystemImpl.registerMsgHandler(LogicCmd.csSys.sub.cGetActData, CrossServerImplement.GetActivityData)
+CrossServerSystemImpl.registerMsgHandler(LogicCmd.csSys.sub.cEnterCS, CrossServerImplement.EnterCrossServer)

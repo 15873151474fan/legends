@@ -1,0 +1,106 @@
+﻿
+--#include "data\config\activityconfig\IceWorld\config.txt" once
+
+function MonDieDispatcher.OnKillIceWorldDice(pMonster, pKiller, monId)
+	--print("OnKillIceWorldDice:"..monId)
+	if not pMonster or not pKiller then return end
+	
+	local config = IceWorldConfig
+	
+	local pFuben = Actor.getFubenPrt(pMonster)
+	local nFid = Actor.getFubenId(pMonster)
+	if not pFuben or nFid <= 0 then return end
+	
+	local dice = config.dice
+	local index = 0
+	for k, v in ipairs(dice.mid) do
+		if monId == v and dice.modelId[k] then
+			index = k
+		end
+	end
+	
+	if index <= 0 then return end
+	
+	local fdvar = Fuben.getDyanmicVar(pFuben)
+	
+	local diceData = fdvar.diceData
+	if not diceData then
+		--diceData = {}
+		diceData = ""
+	end
+	
+	--table.insert(diceData, monId)
+	--table.insert(diceData, index)
+	diceData = diceData..tostring(index)
+	--print(diceData)
+	
+	--print("index:"..index)
+	fdvar.diceData = diceData
+	
+	local dice = config.dice
+	local hScene = Actor.getSceneHandle(pMonster)
+	local x, y = Actor.getEntityPosition(pMonster, 0, 0)
+	local name = Actor.getName(pMonster)
+	if dice.modelId[index] then
+		Fuben.createLandscape(hScene, dice.modelId[index], x, y, config.actTime*1000, name, true)
+	end
+	
+	local hFuben = Actor.getFubenHandle(pMonster)
+	Fuben.broadcastFbActProgress(hFuben, tonumber(diceData), 0)
+end
+
+function MonDieDispatcher.OnKillIceWorldMonster(pMonster, pKiller, monId)
+	if not pMonster or not pKiller then return end
+	
+	local config = IceWorldConfig
+	
+	local pFuben = Actor.getFubenPrt(pMonster)
+	local nFid = Actor.getFubenId(pMonster)
+	if not pFuben or nFid <= 0 then return end
+	
+	local hScene = Actor.getSceneHandle(pMonster)
+	local monCount = 0
+	for k, v in ipairs(config.regMonster) do
+		monCount = monCount + Fuben.getLiveMonsterCount(hScene, v)
+	end
+	
+	--print("monCount:"..monCount)
+	if monCount <= 0 then
+		local npcPtr = Fuben.getNpcPtrByName(hScene, config.npcName)
+		--print("npcPtrFid:"..Actor.getFubenId(npcPtr))
+		local globalNpc = System.getGlobalNpc()
+		if globalNpc and npcPtr then
+			Fuben.destroyLandscape(hScene, 0)
+			--注册创骰子的
+			Actor.unregScriptCallback(npcPtr, "CreateIceWorldDice")
+			Actor.regScriptCallback(npcPtr, npcPtr, config.diceInterval*1000, 100000, 1, "CreateIceWorldDice")
+			local hFuben = Actor.getFubenHandle(npcPtr)
+			Fuben.sendMsgToFb(hFuben, Lang.Activity.iw0011, ttScreenCenter+ttChatWindow)
+			
+			
+			local fdvar = Fuben.getDyanmicVar(pFuben)
+			fdvar.buyDiceFlag = nil
+		end
+	end
+end
+
+
+function RegisterIceWorldMonster()
+	local config = IceWorldConfig
+	if not config then return end
+	for k, v in ipairs(config.dice.mid) do
+		--MonDieDispatcher.register(v, MonDieDispatcher.OnKillIceWorldDice)
+	end
+	--[[
+	for k, v in ipairs(config.mob) do
+		for m, n in ipairs(v.monster) do
+			--MonDieDispatcher.register(n.mid, MonDieDispatcher.OnKillIceWorldMonster)
+		end
+	end
+	--]]
+	for k, v in ipairs(config.regMonster) do
+		--MonDieDispatcher.register(v, MonDieDispatcher.OnKillIceWorldMonster)
+	end
+end
+
+RegisterIceWorldMonster()

@@ -1,0 +1,49 @@
+﻿--炎龙地四层
+{
+	scenceid = 23,
+	scencename = Lang.SceneName.s00023,
+	mapfilename = "23Yanlongdisiceng",
+	minlevel = 50,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "yanlongdi.mp3",
+	musicInterval = 5,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 300,
+	sceneHeight = 304,
+	posx = 33,
+	posy = 192,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00023, range = {5,9,6,297,290,291,294,7,5,7}, center = { 147,209},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh23.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 147, posy = 209, toSceneid = 22, toPosx = 145, toPosy =  46, modelid = 50000, name = Lang.SceneName.s00022, dist = 1, mapHide = false },  --炎龙地四层→炎龙地三层
+
+	},
+},

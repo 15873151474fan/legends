@@ -1,0 +1,222 @@
+--跨服通用处理
+--lua script
+
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\CrossGuildSbk\CrossGuildSbk.txt" once 
+
+--发送可参加跨服沙巴克的行会给其他逻辑服
+function OnSendCrossSbkGuild()
+	if System.isStartCommonServer() == true then		--如果连接到跨服就执行
+		System.sendCrossGuildToServer()
+	end
+end
+
+--跨服沙巴克开启,能进入沙巴克公告
+function CanEnterGuildCrossSbk()
+	if System.isStartCommonServer() == false then		--如果没连接到跨服服务器
+		return
+	end
+
+	local pRanking = Ranking.getRanking("GuildCrossPos")
+	if pRanking then
+		Ranking.clearRanking(pRanking)
+	end
+
+	local mRanking = Ranking.getRanking("GuildCrossSbkOwn")
+	if mRanking then
+		Ranking.clearRanking(mRanking)
+		local nScene = Fuben.getSceneHandleById(GuildSiegeConfig.SbkSceenId,0)
+		local pNpc = Fuben.getNpcPtrByName(nScene,Lang.EntityName.n00214)
+		if pNpc then
+			Actor.changeShowName(pNpc,20,Lang.EntityName.n00214)
+		end
+	end
+
+	local sVar = System.getStaticVar()
+	sVar.GetCrosSbkOwnAward = nil
+
+	sVar.CenEnterCrossFlag = 1
+
+	System.broadcastTipmsg(Lang.GuildLang.k00001,2+128)
+end
+
+--初始化天下第一雕像名称
+function InitWorldOneNpcStatus()
+	local RankNameList = Ranking.getRanking(CrossWorldOneConfig.WorldOneRankName)
+	if RankNameList then
+		local nScene = Fuben.getSceneHandleById(GuildSiegeConfig.SbkSceenId,0)
+		local pNpc = Fuben.getNpcPtrByName(nScene,Lang.EntityName.n00213)
+		if pNpc then
+			local pItem = Ranking.getItemFromIndex(RankNameList,0)
+			if pItem then
+				Actor.changeShowName(pNpc,20,Ranking.getSub(pItem,0))
+			else
+				Actor.changeShowName(pNpc,20,Lang.EntityName.n00213)
+			end
+		end
+	end
+end
+
+--初始化跨服沙巴克
+function InitCrossSbkWall()
+	for i=1,table.getn(CrossSbkConfig.wallMonsters) do
+		local hScene = Fuben.getSceneHandleById(CrossSbkConfig.wallMonsters[i].Sceneid, 0)
+		Fuben.clearMonster(hScene,CrossSbkConfig.wallMonsters[i].nMonsterID)
+
+		local nMonster = Fuben.createMonster(hScene, CrossSbkConfig.wallMonsters[i].nMonsterID, CrossSbkConfig.wallMonsters[i].posX1,CrossSbkConfig.wallMonsters[i].posY, CrossSbkConfig.wallMonsters[i].nLiveTime)
+
+		System.setWallTepotVisible(true,hScene,CrossSbkConfig.teleport[i].posx,CrossSbkConfig.teleport[i].posy)
+		Actor.setMonsterCanMove(nMonster,true)
+
+		local nMp = Actor.getIntProperty( nMonster, PROP_CREATURE_MAXHP )
+		System.initCrossSbkWall(nMonster,i,0,nMp)
+		Actor.setNpcGuildId(nMonster,0)
+	end
+end
+
+--城墙死亡
+function OnCrossWallDie(nx,ny)
+	local nCount = table.getn(CrossSbkConfig.wallMonsters)
+	for i=1,nCount do
+		if CrossSbkConfig.wallMonsters[i].posX1 == nx and  CrossSbkConfig.wallMonsters[i].posY == ny then
+			local hScene = Fuben.getSceneHandleById(CrossSbkConfig.wallMonsters[i].Sceneid, 0)
+			System.setWallTepotVisible(false,hScene,CrossSbkConfig.teleport[i].posx,CrossSbkConfig.teleport[i].posy)
+			System.setSbkWallState(i,1)
+			return
+		end
+	end
+end
+
+--关闭进入跨服的入口
+function CloseSbkEnter()
+	local sVar = System.getStaticVar()
+	sVar.CenEnterCrossFlag = nil
+end
+
+--发送行会列表给跨服服务器
+function OnSendGuildListToCross()
+	System.sendGuildListToDestServer()
+end
+
+--清除跨服沙城战的攻城列表
+function OnClearCrossGuildList()
+	if System.isCommonServer() == true then		
+		local pRanking = Ranking.getRanking("GuildCrossList")
+		if pRanking then
+			Ranking.clearRanking(pRanking)
+		end
+	end
+end
+
+--跨服沙巴克开始的预告
+function OnCrossSbkBroadTips()
+	System.broadcastTipmsg(Lang.GuildLang.k00003,2+128)
+end
+
+--跨服沙巴克开始
+function OnStartCrossGuildSbk()
+	System.startGuildCrossSbk()
+	local sVar = System.getStaticVar()
+	sVar.CrossSbkStartFlag = 1
+	System.broadcastTipmsg(Lang.GuildLang.k00004,2+128)
+
+	local playerList = LuaHelp.getSceneActorListById(CrossSbkConfig.crossPalaceSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				Actor.updateActorName(player)
+			end
+		end
+	end
+
+	local playerList1 = LuaHelp.getSceneActorListById(CrossSbkConfig.crossSbkSceneId)		--沙巴克区域的玩家
+	if playerList1 ~= nil then
+		for i = 1, #playerList1 do
+			local player1 = playerList1[i]
+			if player1 and  Actor.getSceneAreaFlag(player1) == 1 then	
+				Actor.updateActorName(player1)
+			end
+		end
+	end
+end
+
+--开始10分钟
+function OnTenMinCrossOp()
+	Fuben.detectOnlyOneGuild(CrossSbkConfig.crossPalaceSceneId)
+end
+
+--结束跨服沙巴克
+function OnEndCrossGuildSbk()
+	local sVar = System.getStaticVar()
+	sVar.CrossSbkStartFlag = nil
+
+	System.endCrossSbkWar()
+
+	InitCrossSbkWall()
+
+	UpdateActorNameColor()
+
+	System.broadcastTipmsg(Lang.GuildLang.k00005,2+128)
+end
+
+--更新玩家名字颜色
+function UpdateActorNameColor()
+	local sbkGuildId = System.getSbkGuildId()
+
+	local playerList = LuaHelp.getSceneActorListById(CrossSbkConfig.crossPalaceSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				local nGuildId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+
+				if sbkGuildId == 0 or sbkGuildId ~= nGuildId then
+					Actor.enterScene(player,CrossSbkConfig.crossSbkSceneId,unpack(CrossSbkConfig.exitPos))
+				end
+
+				Actor.updateActorName(player)
+			end
+		end
+	end
+
+	local playerList1 = LuaHelp.getSceneActorListById(CrossSbkConfig.crossSbkSceneId)		--沙巴克区域的玩家
+	if playerList1 ~= nil then
+		for i = 1, #playerList1 do
+			local player1 = playerList1[i]
+			if player1 and  Actor.getSceneAreaFlag(player1) == 1 then	
+				local nGuildId = Actor.getIntProperty( player1, PROP_ACTOR_GUILD_ID )
+
+				if sbkGuildId == 0 or sbkGuildId ~= nGuildId then
+					Actor.enterScene(player1,CrossSbkConfig.crossSbkSceneId,unpack(CrossSbkConfig.exitPos))
+				end
+
+				Actor.updateActorName(player1)
+			end
+		end
+	end
+
+end
+
+--沙巴克怪物进攻刷新
+function FreshCrossSbkMonsterOnTime()
+	local dVal = System.getDyanmicVar()
+	if dVal.FreshCrossSbkMonsterTimes == nil then
+		dVal.FreshCrossSbkMonsterTimes = 1
+	end
+	
+	if dVal.FreshCrossSbkMonsterTimes > table.getn(CrossSbkConfig.monsters) then
+		dVal.FreshCrossSbkMonsterTimes = 1
+	end
+
+	if CrossSbkConfig.monsters[dVal.FreshCrossSbkMonsterTimes] == nil then return end
+
+	local nGuildMonsterConfig = CrossSbkConfig.monsters[dVal.FreshCrossSbkMonsterTimes]
+	for i=1,table.getn(nGuildMonsterConfig) do
+		local hScene = Fuben.getSceneHandleById(nGuildMonsterConfig[i].nSceenId, 0)
+		Fuben.createMonsters(hScene, nGuildMonsterConfig[i].nMonsterID, nGuildMonsterConfig[i].posX1, nGuildMonsterConfig[i].posX2, nGuildMonsterConfig[i].posY, nGuildMonsterConfig[i].nCount, nGuildMonsterConfig[i].nLiveTime)
+	end
+
+	dVal.FreshCrossSbkMonsterTimes = dVal.FreshCrossSbkMonsterTimes + 1
+	--System.broadcastTipmsg(Lang.GuildLang.z00144,2+128)
+end

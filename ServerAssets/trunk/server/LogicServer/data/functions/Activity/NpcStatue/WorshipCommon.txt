@@ -1,0 +1,425 @@
+﻿--城主膜拜公告
+
+--#include "RankPointer.txt" once
+--#include "data\config\activityconfig\Worship\WorshipComfig.txt"
+--#include "data\functions\Activity\Common\Awards.txt" once --活动通用 奖励
+--#include "Common.txt" once --通用
+
+--膜拜
+function OnSbkWorship(sysarg)
+	local moTimes = 0				--膜拜的次数
+	local fTimes = 0				--刷新的次数
+	local addTimes = 0				--已增加的次数
+	local nRate = 1					--当前倍率
+	local bishiTimes = 0			--鄙视次数
+	local moreIndex = 0				--惊喜奖励的编号
+	
+	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(WorshipRankPt.RankName)
+	if ranking then	
+		local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+		if pItem then
+			moTimes = Ranking.getPoint(pItem)
+			fTimes = tonumber(Ranking.getSub(pItem,0))
+			if fTimes == nil then
+				Ranking.setSub(pItem,0,0)
+			end
+			addTimes = tonumber(Ranking.getSub(pItem,1))
+			if addTimes == nil then
+				Ranking.setSub(pItem,1,0)
+			end
+			nRate = tonumber(Ranking.getSub(pItem,2))
+			if nRate == nil then
+				Ranking.setSub(pItem,2,0)
+			end
+			bishiTimes = tonumber(Ranking.getSub(pItem,3))
+			if bishiTimes == nil then
+				Ranking.setSub(pItem,3,0)
+			end
+			moreIndex = tonumber(Ranking.getSub(pItem,4))
+			if moreIndex == nil then
+				Ranking.setSub(pItem,4,0)
+			end
+		else
+			local nItem = Ranking.addItem(ranking,nActorId,0)
+			if nItem then
+				Ranking.setSub(nItem,0,fTimes)
+				Ranking.setSub(nItem,1,addTimes)
+				Ranking.setSub(nItem,2,nRate)
+				Ranking.setSub(nItem,3,bishiTimes)
+				Ranking.setSub(nItem,4,moreIndex)
+			end
+		end
+	end
+	
+	if Actor.checkActorLevel(sysarg,WorshipSbkConfig.minLevel) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.s00007, ttFlyTip)
+		return
+	end
+
+	local nDays = System.getDaysSinceOpenServer()
+	if nDays < WorshipSbkConfig.openDays then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.s00020,WorshipSbkConfig.openDays), ttFlyTip)
+		return
+	end
+	
+	if bishiTimes == nil then
+		return
+	end
+
+	SendMobaiOpenFormToCliend(sysarg,moTimes+bishiTimes,fTimes,addTimes,WorshipSbkConfig.AwardLev[nRate],moreIndex)
+	Actor.closeNPCDialog(sysarg)
+end
+
+--判断是否双倍时间
+function IsDoubleAwardTime()
+	local nHour,nMin,nSec = System.getTime(0,0,0)
+	if nHour == WorshipSbkConfig.doubleHour then
+		if nMin >= WorshipSbkConfig.doubleTime[1] and nMin <= WorshipSbkConfig.doubleTime[2] then
+			return true
+		end
+	end
+
+	return false
+end
+
+--发送给客户端打开膜拜城主雕像
+function SendMobaiOpenFormToCliend(sysarg,moTimes,fTimes,addTimes,nRate,moreIndex)
+	local pack = DataPack.allocPacket(sysarg, 145, 10)
+	if (pack ~= nil) then	
+		DataPack.writeByte(pack, moTimes)
+		DataPack.writeByte(pack, WorshipSbkConfig.maxMoTimes+addTimes)
+		
+		DataPack.writeByte(pack, WorshipSbkConfig.maxAddTimes-addTimes)
+		DataPack.writeByte(pack, fTimes)
+		DataPack.writeByte(pack, WorshipSbkConfig.freeFreshTimes)
+		
+		DataPack.writeByte(pack, WorshipSbkConfig.addMobaiNeedYb)
+		DataPack.writeByte(pack, WorshipSbkConfig.freshNeedYb)
+		local nExp = Actor.getActivityExp(sysarg,WorshipSbkConfig.baseExp.id,WorshipSbkConfig.baseExp.count,WorshipSbkConfig.baseExp.quality)
+		if nRate == nil or nRate <= 0 then
+			nRate = 1
+		end
+
+		DataPack.writeInt(pack, nExp)
+		DataPack.writeByte(pack, nRate)
+		
+		if IsDoubleAwardTime() == true then
+		    --print("IsDoubleAwardTime1")
+			DataPack.writeByte(pack, 1)
+		else
+		   --print("IsDoubleAwardTime1")
+			DataPack.writeByte(pack, 0)
+		end
+		
+		if moreIndex == nil then
+			moreIndex = 0
+		end
+		if moreIndex > 0 and moreIndex <= table.getn(WorshipSbkConfig.moreAward) then
+			DataPack.writeInt(pack, 1)
+			DataPack.writeInt(pack,WorshipSbkConfig.moreAward[moreIndex].type)
+			DataPack.writeInt(pack,WorshipSbkConfig.moreAward[moreIndex].id)
+		else
+			DataPack.writeInt(pack, 0)
+		end
+			
+		DataPack.flush(pack)
+	end
+end
+
+--刷新消耗
+function ConsumeMobai(sysarg)
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO) >= WorshipSbkConfig.freshNeedLj then
+		if Actor.changeMoney(sysarg, 2, -WorshipSbkConfig.freshNeedLj, 702,  Lang.Activity.s00006) == true then
+			return true
+		end
+	end
+
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO) >= WorshipSbkConfig.freshNeedYb then
+		if Actor.changeMoney(sysarg, 3, -WorshipSbkConfig.freshNeedYb, 702,  Lang.Activity.s00006) == true then
+			return true
+		end
+	end
+
+	return false
+end
+
+--刷新膜拜或者鄙视的倍率
+function OnFreshMobaiRate(sysarg,packet)
+	local freshType = DataPack.readByte(packet)
+	local DestType = DataPack.readByte(packet)
+	--print("OnFreshMobaiRatefreshType:"..freshType)
+	--print("OnFreshMobaiRateDestType:"..DestType)
+	local nCount = table.getn(WorshipSbkConfig.AwardLev)
+	
+	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(WorshipRankPt.RankName)
+	if ranking then	
+		local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+		
+		if pItem then
+			local moTimes = Ranking.getPoint(pItem)
+			local addTimes = tonumber(Ranking.getSub(pItem,1))
+			local bishiTimes = tonumber(Ranking.getSub(pItem,3))
+
+			if (moTimes + bishiTimes) >= (WorshipSbkConfig.maxMoTimes + addTimes) then		--膜拜次数已达上限
+				--[[
+				local packdata = DataPack.allocPacket(sysarg, 145, 11)
+				if (packdata ~= nil) then
+					DataPack.writeByte(packdata, 3)
+					DataPack.flush(packdata)
+				end
+				]]
+				Actor.sendTipmsg(sysarg, Lang.Activity.s00017, ttFlyTip)
+				return
+			end
+
+			local curRate = tonumber(Ranking.getSub(pItem,2))
+			
+			if curRate >= nCount then		--已是最大倍率
+				return
+			end
+			
+			if curRate <= 0 then
+				curRate = 1
+			end
+
+			if freshType == 2 and curRate == DestType then
+				return
+			end
+			
+			local canFresh = true
+			local hasFreshTimes = tonumber(Ranking.getSub(pItem,0))
+			if hasFreshTimes >= WorshipSbkConfig.freeFreshTimes then
+				if ConsumeMobai(sysarg) == false then
+					Actor.sendTipmsg(sysarg, Lang.Activity.s00013, ttFlyTip)
+					canFresh = false
+				end
+			else
+				hasFreshTimes = hasFreshTimes + 1
+				Ranking.setSub(pItem,0,tostring(hasFreshTimes))  
+			end
+
+			local randCnt = System.getRandomNumber(100)
+			
+			for i=1,table.getn(WorshipSbkConfig.nRate[curRate]) do
+				if randCnt < WorshipSbkConfig.nRate[curRate][i] then
+					randCnt = i
+					break
+				end
+			end
+			
+			if randCnt < curRate then
+				randCnt = curRate
+			end
+		
+			if randCnt <= 0  then
+				randCnt = 1
+			end
+
+			if randCnt > nCount then
+				randCnt = nCount
+			end
+			
+			if canFresh == true then
+				if freshType == 2 and randCnt > DestType then
+					randCnt = DestType
+				end
+
+				Ranking.setSub(pItem,2,tostring(randCnt))
+			    if randCnt >= nCount then
+                   System.broadcastTipmsg(string.format(Lang.Activity.s00021,Actor.getName(sysarg)),2+128)
+			    end
+				moTimes = Ranking.getPoint(pItem)
+				local fTimes = tonumber(Ranking.getSub(pItem,0))
+				addTimes = tonumber(Ranking.getSub(pItem,1))
+				bishiTimes = tonumber(Ranking.getSub(pItem,3))
+
+				local moreCnt = System.getRandomNumber(100)
+				local moreIndex = tonumber(Ranking.getSub(pItem,4))
+
+				if moreIndex == nil or moreIndex <= 0 then
+					for i=1,table.getn(WorshipSbkConfig.moreRate) do
+						if moreCnt < WorshipSbkConfig.moreRate[i] then
+							moreIndex = i
+							break
+						end
+					end
+
+					if moreIndex >= table.getn(WorshipSbkConfig.moreRate) then
+						--System.broadcastTipmsg(string.format(Lang.Activity.s00016,Actor.getName(sysarg)),2+128)
+					end
+				end
+				
+				Ranking.setSub(pItem,4,tostring(moreIndex))
+				
+				if bishiTimes == nil then
+					return
+				end
+
+				SendMobaiOpenFormToCliend(sysarg,moTimes+bishiTimes,fTimes,addTimes,WorshipSbkConfig.AwardLev[randCnt],moreIndex)
+			end
+
+			if freshType == 2 then		--刷新到某个倍率的情况
+				local pack = DataPack.allocPacket(sysarg, 145, 11)
+				if (pack ~= nil) then
+					local nType = 1
+					if canFresh == false then		--条件不足
+						nType = 3
+					elseif WorshipSbkConfig.AwardLev[randCnt] == DestType then		--已到指定倍率
+						nType = 2
+					end
+					DataPack.writeByte(pack, nType)
+					DataPack.flush(pack)
+				end
+			end
+		end
+	end
+end
+
+--膜拜或者鄙视
+function OnMobaiOrBishiOp(sysarg,packet)
+	local nType = DataPack.readByte(packet)
+
+	if Actor.checkActorLevel(sysarg,WorshipSbkConfig.minLevel) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.s00007, ttFlyTip)
+		return
+	end
+	
+	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(WorshipRankPt.RankName)
+	if ranking then	
+		local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+		if pItem then
+			local moTimes = Ranking.getPoint(pItem)
+			local addTimes = tonumber(Ranking.getSub(pItem,1))
+			local bishiTimes = tonumber(Ranking.getSub(pItem,3))
+			
+			if bishiTimes == nil then
+				return
+			end
+			--print("moTimes="..moTimes,"#C3 bishiTimes="..bishiTimes,"WorshipSbkConfig.maxMoTimes="..WorshipSbkConfig.maxMoTimes,"#C1 addTimes="..addTimes,"\n");
+			if (moTimes + bishiTimes) >= (WorshipSbkConfig.maxMoTimes + addTimes) then		--膜拜次数已达上限
+				Actor.sendTipmsg(sysarg, Lang.Activity.s00008, ttFlyTip)
+				return
+			end
+			
+			local nFreeBag = Item.getBagEmptyGridCount(sysarg)
+			local moreIndex = tonumber(Ranking.getSub(pItem,4))
+			if nFreeBag < 1 and moreIndex > 0 and moreIndex <= table.getn(WorshipSbkConfig.moreAward) then
+				Actor.sendTipmsg(sysarg, Lang.Activity.s00019, ttFlyTip)
+				return
+			end
+
+			local sval = System.getStaticVar()
+
+			if nType == 1 then		--膜拜
+				moTimes = moTimes + 1
+				sval.worship[1] = sval.worship[1] + 1
+				Ranking.setItem(ranking,nActorId,moTimes)
+
+				--添加膜拜的成就
+				Actor.triggerAchieveEvent(sysarg,44,11,moTimes + 1)	
+				--获取膜拜数据
+				local data = GetWorshipData()
+				local hasReward = data[7]
+				local reward = WorshipConfig.rewardWorship.rewards[1]
+				if reward and hasReward > 0 then
+					hasReward = hasReward - reward.count
+					local count = reward.count
+					if hasReward < 0 then
+						count = hasReward + reward.count
+						hasReward = 0
+					end
+					sval.worship[7] = hasReward
+					local award = {type = reward.type, id = reward.id, count = count, quality = reward.quality}
+					local awards = {award}
+					--悬赏
+					Awards.Give(sysarg, awards, 100, Lang.LogTips.l00077)
+				end
+				Actor.triggerQuestEvent(sysarg, 127, 50103, 1 )
+			else					--鄙视
+				bishiTimes = bishiTimes + 1
+				sval.worship[2] = sval.worship[2] + 1
+				Ranking.setSub(pItem,3,bishiTimes)
+			end
+			
+			local nRate = tonumber(Ranking.getSub(pItem,2))
+			if nRate == nil or  nRate == 0 then
+				nRate = 1
+			end
+
+			local rRate = 1
+			if IsDoubleAwardTime() == true then
+				rRate = 2
+			end
+
+			--双倍奖励活动
+			local doubleAwardActRate = 0
+			if System.getDoubleAwardFlag(5) == 1 then
+				doubleAwardActRate = 1
+			end
+
+			Actor.giveAward(sysarg,WorshipSbkConfig.baseExp.type,WorshipSbkConfig.baseExp.id,WorshipSbkConfig.baseExp.count * WorshipSbkConfig.AwardLev[nRate] * (rRate + doubleAwardActRate),0,0,0,0,822,Lang.Activity.s00005)
+			
+			if moreIndex > 0 and moreIndex <= table.getn(WorshipSbkConfig.moreAward) then
+				Actor.giveAward(sysarg,WorshipSbkConfig.moreAward[moreIndex].type,WorshipSbkConfig.moreAward[moreIndex].id,WorshipSbkConfig.moreAward[moreIndex].count * (1 + doubleAwardActRate),WorshipSbkConfig.moreAward[moreIndex].quality,WorshipSbkConfig.moreAward[moreIndex].strong,WorshipSbkConfig.moreAward[moreIndex].bind,0,822,Lang.Activity.s00005)
+			end
+            Actor.setWorkDayMask(sysarg, 0, 16, true)--增加每日完成任务 
+			Ranking.setSub(pItem,2,1)
+			Ranking.setSub(pItem,4,0)
+
+			if nRate == table.getn(WorshipSbkConfig.AwardLev) then
+				local sname = Actor.getName(sysarg)
+--[[
+				local str = string.format(Lang.Activity.s00010,sname,WorshipSbkConfig.AwardLev[nRate])
+				if nType == 1 then		--膜拜
+					System.broadcastTipmsg(str,2+128)
+				else
+					System.broadcastTipmsg(string.format(Lang.Activity.s00009,sname,WorshipSbkConfig.AwardLev[nRate]),2+128)
+				end
+--]]
+			end
+
+			local pack = DataPack.allocPacket(sysarg, 145, 12)
+			if (pack ~= nil) then
+				DataPack.writeByte(pack, moTimes+bishiTimes)
+				DataPack.flush(pack)
+			end
+		end
+		--Ranking.Save(ranking,WorshipRankPt.RankFile)
+	end
+end
+
+--增加膜拜的次数
+function OnAddWorshipTimes(sysarg,packet)
+	local curYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	if curYb < WorshipSbkConfig.addMobaiNeedYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.s00011, ttFlyTip)
+		return
+	end
+	
+	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(WorshipRankPt.RankName)
+	if ranking then	
+		local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+		if pItem then
+			local addTimes = tonumber(Ranking.getSub(pItem,1))
+			
+			if addTimes >= WorshipSbkConfig.maxAddTimes then
+				Actor.sendTipmsg(sysarg, Lang.Activity.s00012, ttFlyTip)
+				return
+			end
+			addTimes = addTimes + 1
+			Ranking.setSub(pItem,1,addTimes)
+			Actor.changeMoney(sysarg, 3, -WorshipSbkConfig.addMobaiNeedYb, 702, Lang.Activity.s00006)
+
+			local pack = DataPack.allocPacket(sysarg, 145, 13)
+			if (pack ~= nil) then
+				DataPack.writeByte(pack, WorshipSbkConfig.maxMoTimes + addTimes)
+				DataPack.writeByte(pack, WorshipSbkConfig.maxAddTimes - addTimes)
+				DataPack.flush(pack)
+			end
+		end
+	end
+end

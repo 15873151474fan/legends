@@ -1,0 +1,94 @@
+﻿--[[世界BOSS 的事件处理 
+  比如BOSS 刷出  消失  死亡 击杀玩家 等等 李昀 : 2015-9-15 
+]]
+
+function SetWorldBossDieOrAlive(BossID,boAlive)
+  local var = GetWorldBossDyanmicVar(BossID) 
+  if boAlive == true then
+    var.Alive = 1 
+  else
+    var.Alive = 0 
+  end
+end
+
+
+--世界BOSS通用公告 
+function WorldBossBroadCastMsg(sMsg)
+  if sMsg ~=nil or sMsg ~= "" then
+    System.broadcastTipmsg(sMsg, ttScreenCenter + ttChatWindow)
+  end
+end
+
+--刷出世界BOSS 前5分钟 
+function OnWorldBossMobBefore5Min(BossID) 
+  BossPrint(string.format("世界BOSS : %d , 刷出前5分钟公告",BossID))
+  WorldBossBroadCastMsg(WorldBossConfig[BossID].NoticeBefore5Min)
+end
+
+
+--刷出世界BOSS 前15分钟
+function OnWorldBossMobBefore15Min(BossID) 
+  BossPrint(string.format("世界BOSS : %d , 刷出前15分钟公告",BossID)) 
+  WorldBossBroadCastMsg(WorldBossConfig[BossID].NoticeBefore15Min)
+end
+
+
+
+--世界BOSS刷出回调
+function OnWorldBossCreate(Mon,BossID)
+  --公告世界BOSS刷出来了 
+  WorldBossBroadCastMsg(WorldBossConfig[BossID].NoticeOnMob)
+  
+  SetWorldBossDieOrAlive(BossID,true)
+
+end
+
+--BOSS即将消失前5分钟回调
+function OnWorldBossLast5Min(Mon,BossID)
+  BossPrint(string.format("世界BOSS : %d , 消失前5分钟公告",BossID))
+  WorldBossBroadCastMsg(WorldBossConfig[BossID].NoticeBeforeDisapper)
+
+
+end
+
+--世界BOSS消失回调
+function OnWorldBossDisapper(Mon,BossID)
+  WorldBossBroadCastMsg(WorldBossConfig[BossID].NoticeOnDisapper)
+  SetWorldBossDieOrAlive(BossID,false)
+end
+
+
+--世界BOSS死亡时
+function OnWorldBossDie(Mon,sysarg,MonID)
+   --print(" OnWorldBossDie(Mon,sysarg,MonID) : "..MonID)
+  --遍历配置列表获得BOSSID
+  local BossID = -1
+  for i = 1 , #WorldBossConfig do 
+   if WorldBossConfig[i].MonID == MonID then
+     BossID = i
+     break
+   end 
+  
+  end 
+  
+  --如果不存在这个BOSS 直接return 
+  if BossID == -1 then
+    BossPrint(string.format("世界BOSS死亡回调 找不到世界BOSSID , MonID : %d",MonID))
+    return
+  end
+  
+  --卸载自动执行函数 
+  Actor.unregScriptCallback(Mon, "OnWorldBossMobBefore5Min")
+  Actor.unregScriptCallback(Mon, "OnWorldBossMobBefore15Min")
+  
+  SetWorldBossDieOrAlive(BossID,false)
+  
+  local sMsg = WorldBossConfig[BossID].NoticeOnDie
+  if sMsg ~= nil then
+    sMsg = string.format(sMsg,Actor.getName(sysarg))
+  end
+  
+  WorldBossBroadCastMsg(sMsg)
+
+
+end

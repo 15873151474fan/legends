@@ -1,0 +1,94 @@
+--充值排行 通用处理
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--初始化事件
+function InitExtractData()
+	--设置活动开启时间
+	System.setExtractStartTime(ExtractData.actTime[1], ExtractData.actTime[2],
+					ExtractData.actTime[3], ExtractData.actTime[4],
+					ExtractData.actTime[5], ExtractData.actTime[6])
+	--设置活动结束时间
+	System.setExtractOverTime(ExtractData.actTime[7], ExtractData.actTime[8],
+					ExtractData.actTime[9], ExtractData.actTime[10],
+					ExtractData.actTime[11], ExtractData.actTime[12])
+
+	local pagedata = ExtractData.pagedata
+
+	local nRankCount = table.getn(pagedata[1].rankAward)
+	System.setExtractRankInfo(pagedata[1].onRankNeedYB, nRankCount)
+end
+
+--领取充值奖励
+function OnGetExtractAward(sysarg, args)
+	local nTab = args[2]
+	local nIndex = args[3]
+
+	local page = ExtractData.pagedata[nTab]
+	if page == nil then return end
+
+	if Actor.getExtractAwardFlag(sysarg, nTab, nIndex) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0004, ttFlyTip)
+		return
+	end
+
+	local nAwardIndex = nIndex
+	if not page.extractAward[nAwardIndex] then return end
+
+	local myExtractYB = Actor.getExtractYB(sysarg)
+	if myExtractYB < page.extractAward[nAwardIndex].needYB then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0006, ttFlyTip)
+		return
+	end
+
+	local awards = page.extractAward[nAwardIndex].awards
+	if not awards then return end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		for i=1,table.getn(awards) do
+			if (awards[i].job == -1 or awards[i].job == myJob) and (awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,954,Lang.Activity.zn0001)
+			end
+		end
+		Actor.setExtractAwardFlag(sysarg,nTab,nIndex)	--设置完成
+		SendGetExtractResult(sysarg,nTab,nIndex)
+	end
+end
+
+--领取充值排行奖励
+function OnGetExtractYBActivityRankAward(sysarg,args)
+	local nTab = args[2]
+	local nIndex = args[3]
+
+	local page = ExtractData.pagedata[nTab]
+	if page == nil then return end
+
+	if not page.rankAward[nIndex] then return end
+
+	local awards = page.rankAward[nIndex].awards
+	if not awards then return end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		for i=1,table.getn(awards) do
+			if (awards[i].job == -1 or awards[i].job == myJob) and (awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,954,Lang.Activity.zn0001)
+			end
+		end
+	end
+end
+
+--返回领取奖励成功
+function SendGetExtractResult(sysarg,nTab,nIndex)
+	local pack = DataPack.allocPacket(sysarg, 52, 12)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nTab)
+		DataPack.writeInt(pack, nIndex)
+		DataPack.writeChar(pack, 1)
+		DataPack.flush(pack)
+	end
+end

@@ -1,0 +1,195 @@
+--幽冥毒爆（自爆）
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+					targetType=1,
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+				
+					},
+
+					specialEffects=
+					{
+						{type=6,mj=0,id=27,keepTime=400,delay=0,always=true},						
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 30,value =684},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=20,id=69,value=1,timeParam=1000,},
+					},
+
+					specialEffects=
+					{
+						
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+						--{cond = 20,value =157},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=47,delay=0,id=2,rate=-10000,value=0},
+						{mj=0,timeParam=1,type=34,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=10000},
+						{mj=0,timeParam=20,type=32,timeRate=0,delay=0, buffType=1,id=66,rate=0,value=-2000,interval=5,colorPriority =9,color =65280},
+					},
+
+					specialEffects=
+					{
+						--{type=6,mj=0,id=27,keepTime=400,delay=800,always=false},						
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 5,value =1},
+						{cond = 3,value=0},
+						{cond = 20,value =69},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=69},--技能说话
+						{mj=0,timeParam=1,type=47,delay=0,id=1,rate=-100,value=0},
+						{mj=0,timeParam=1,type=34,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=10000},
+						{mj=0,timeParam=1,type=20,id=11,value=1,timeParam=1000,vt=1},
+						
+					},
+
+					specialEffects=
+					{
+						--{type=3,mj=0,id=6,keepTime=500,delay=0,always=false},
+						--{type=4,mj=0,id=82,keepTime=400,delay=500,always=false},							
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+						{cond = 20,value =11},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=68},--技能说话
+
+						
+					},
+
+					specialEffects=
+					{
+						--{type=3,mj=0,id=6,keepTime=500,delay=0,always=false},
+						--{type=4,mj=0,id=82,keepTime=400,delay=500,always=false},							
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		--{cond=13,value=19,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

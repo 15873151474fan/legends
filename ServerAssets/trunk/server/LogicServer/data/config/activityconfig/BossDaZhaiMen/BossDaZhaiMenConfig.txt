@@ -1,0 +1,48 @@
+--Boss 大寨门配置
+--#include "data\language\LangCode.txt" once   --语言包 
+BossDaZhaiMenConfig =      
+{ 
+	logId = 984, --日志id 
+	DzmInfoFile = "DaZhaiMenInfo.txt", --玩家相关  
+	DzmBossFile = "DaZhaiMenBoss.txt", --Boss相关
+	
+	circle = 16, 
+	level = 85,
+	
+	consumeTab = {50, 25}, --消耗的元宝，第一个为开启元宝，第二个续费的元宝
+	freeCountTab = {0,0,1}, --vip每天免费次数，依次为白银vip，黄金vip，至尊vip
+	timeTab = {3600, 3600}, --秒为单位，第一个为开启时间，第二个为vip一次免费时间
+	
+	renewTime = 300, --续费提醒时间秒为单位
+	
+	scenceId = 39, --地图的场景id  
+	posTab = { 
+		{posX = 30, posY = 138},  --进入坐标
+		{posX = 34, posY = 138},  --进入坐标
+	},
+	
+	exitSceneId = 8,  --退出的场景id 
+	exitPosTab = {posX = 153, posY = 199}, --退出场景坐标 
+	
+	
+	--boss配置 
+	bossTab =       
+	{
+		--id bossid, count 数量，liveTime生存时间，revive复活时间（分钟为单位）
+		{idx = 1, id = 1577, count = 1, liveTime = 0, x = 98, y = 146, revive = 10},     
+		{idx = 2, id = 1578, count = 1, liveTime = 0, x = 145, y = 94, revive = 10}, 
+		{idx  =3, id = 1579, count = 1, liveTime = 0, x = 82, y = 81, revive = 10},
+		{idx = 4, id = 1580, count = 1, liveTime = 0, x = 145, y = 159, revive = 10},
+		{idx = 5, id = 1581, count = 1, liveTime = 0, x = 119, y = 189, revive = 10},
+	},
+	
+	--buff配置
+	buffTab =       
+	{
+		--buffType buff类型，gropid buff组id， value buff值，timebuff作用次数，interval buff间隔秒为单位，timeOverlay buff是否可叠加
+		{buffType = 87, groupId = 7, value = 1, times = 2, interval = 1800, buffName = Lang.Activity.dzm009, timeOverlay = true}, --开启buff
+		{buffType = 87, groupId = 7, value = 1, times = 1, interval = 1800, buffName = Lang.Activity.dzm009, timeOverlay = true}, --续费加的buff
+	},
+	
+	
+}

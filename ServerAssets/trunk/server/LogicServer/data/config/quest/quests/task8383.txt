@@ -1,0 +1,48 @@
+﻿--lua script
+{
+	id = 8383,
+	parentid = 0,type = 8,level = 0,circle = 0,entrust = 0,star = 5,guideId = 0,timelimit = 0,interval = 86400,maxcount = 2,
+	cangiveup = true,
+	automount = false,
+	autoRun = false,
+	excludetree = true,
+	randomTarget = false,
+	name = Lang.Quest.q04060,
+	content = Lang.Quest.q04151,
+
+	prom = { type = 0, scene = Lang.SceneName.s00049, npc = Lang.EntityName.n01002 },
+	comp = { type = 0, scene = Lang.SceneName.s00049, npc = Lang.EntityName.n01002 },
+	target = {
+		{
+			type = 38, id = 1, count = 10, rewardId = 0,useList = false,
+		},
+	},
+	conds = {
+		{ type = 0, id = 70, count = 61 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 314000, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+			{ type = 0, id = 1559, count = 3, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+		},
+	},
+	PromMsTalks = {
+		Lang.Talk.t05988,
+	},
+	CompMsTalks = {
+		Lang.Talk.t05989,
+	},
+	CompMsTip = {
+		Lang.Talk.t05990,
+	},
+	PassMsTip = {
+	},
+	PromCallBack = "OnPromCampCircle",
+	PromCallBackArg = {
+		 { 8384, 8385, 8386, 8387, 8388, 8389, 8390, 8391, 8392, 8393, 8394, 8395, 8396, 8397, 8398, 8399, 8400, 8401, 8402, 8403, 8404,},
+		 1,
+	},
+	CompCallBack = "OnFinishCircle",
+	CompCallbackArg = {
+	},
+},

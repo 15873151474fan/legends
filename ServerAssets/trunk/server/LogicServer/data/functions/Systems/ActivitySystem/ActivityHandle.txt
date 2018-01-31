@@ -1,0 +1,696 @@
+﻿
+
+--#include "data\functions\Activity\KillEvil\KillEvilCommon.txt" once
+--#include "data\functions\Activity\Dart\ApplyDartCommon.txt" once
+--#include "data\functions\Activity\DartAdv\ApplyDartCommon.txt" once
+--#include "ProbabilityIndexDrop.txt" once
+--#include "data\functions\Activity\NpcStatue\WorshipCommon.txt" once
+--#include "data\functions\EquipEnhance\EquipChange.txt" once	--装备转换  
+--#include "data\functions\EquipEnhance\ClothesChange.txt" once	--时装衣服转换
+--#include "data\functions\FuBenOperate\OldDemon\OldDemonCommon.txt" once	--上古魔神
+--#include  "data\functions\Activity\SaveRadish\RadishNetHandle.txt" once
+--#include "data\functions\Activity\Festival\NationalDayCommon.txt" once 
+--#include "data\functions\Activity\RushSkyMars\RushSkyCommon.txt" once
+--#include "data\functions\Activity\DragonGod\DragonGod.txt" once 
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once
+--#include "data\functions\Activity\HundredServerHorse\HitGoldenEgg.txt" once 
+--#include "data\functions\Activity\DiscountMall\DiscountMall.txt" once
+--#include "data\functions\Activity\WorldCup\WorldCup.txt" once 
+--#include "data\functions\Activity\HongMengRealm\NpcStoreHandle.txt" once
+--#include "data\functions\Activity\ValentinesDay\ValentineGift.txt" once
+--#include "data\functions\Activity\ValentinesDay\CoolRing.txt" once
+--#include "data\functions\Activity\ValentinesDay\TotalRecharge.txt" once
+--#include "data\functions\Activity\ValentinesDay\SeniorTreasure.txt" once
+--#include "data\functions\Activity\DouDiscountMall\DouDiscountMall.txt" once
+--#include "data\functions\Activity\SuperRebate\SuperRebate.txt" once --超级返利
+--#include "data\functions\Activity\MidAutumn\AutumnConsume.txt" once --中秋消费
+--#include "data\functions\Activity\MidAutumn\Recharge.txt" once --中秋节充值返利
+--#include "data\functions\Activity\MidAutumn\FlopCard.txt" once --翻牌
+--#include "data\functions\Activity\MidAutumn\ChangeRunMoon.txt" once --中秋节嫦娥奔月
+--#include "data\functions\Activity\NationalDayHorse\SuperTurntable.txt" once --2014国庆转盘
+--#include "data\functions\Activity\ShenYinBaGua\ShenYinBaGua.txt" once --神印八卦
+--#include "data\functions\Activity\LuxuryRebate\LuxuryRebate.txt" once --豪华返利
+--#include "data\functions\Activity\NationalDayHorse\FwCelebration.txt" once --烟花盛典
+--#include "data\functions\Activity\AnniversaryHorse\ThankYouLetter.txt" once --研发致谢信
+--#include "data\functions\Activity\AnniversaryHorse\BirthdayCake.txt" once --生日蛋糕
+--#include "data\functions\Activity\AnniversaryHorse\Celebration.txt" once --周年庆典
+--#include "data\functions\Activity\AnniversaryHorse\AnniversaryTurntable.txt" once --周年转盘
+--#include "data\functions\Activity\AnniversaryHorse\FireworksFeast.txt" once --周年烟花盛宴
+--#include "data\functions\Activity\NanJiangGuDi\NanJiangGuDi.txt" once --南疆谷地 
+--#include "data\functions\Activity\NationalDayHorse\Dragon.txt" once --盛世龙腾
+--#include "data\functions\Activity\NanJiangGuDi\XunShouLeiTai.txt" once --驯兽擂台
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseTurntable.txt" once --2014圣诞转盘
+--#include "data\functions\Activity\ChristmasHorse\ChristmasSnowman.txt" once -- 圣诞节全民堆雪
+--#include "data\functions\Activity\ChristmasHorse\ChristmasTreasure.txt" once -- 圣诞大盗活动
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseLuckDraw.txt" once --2014圣诞老虎机
+--#include "data\functions\Activity\NewYearSheep\NewClothes.txt" once --2015元旦新装过节活动
+--#include "data\functions\Activity\NewYearSheep\NewYearBoss.txt" once --2015元旦boss活动
+--#include "data\functions\Activity\SpringFestivalSheep\GetAwardActCommon.txt" once --2015春节迎神祈福
+--#include "data\functions\Activity\SpringFestivalSheep\EveBoss.txt" once --2015春节除夕夺宝
+--#include "data\functions\Activity\BossDaZhaiMen\DaZhaiMenCommon.txt" once --boss大寨门
+--#include "data\functions\Activity\ConsumeRankActivity\ConsumeRankAct.txt" once --消费排行
+--#include "data\functions\Activity\SheepHundredActivity\BaiFuCake.txt" once --2015百服蛋糕
+--#include "data\functions\Activity\SheepHundredActivity\BaiFuItemFurnace.txt" once --2015百服装备熔炉
+--#include "data\functions\FuBenNpcFunc\JinBiFuben\JinBiFuben_Main.txt" once--金币副本 
+--#include "data\functions\Activity\OpenServerBless\OpenServerBless.txt" once --开服祈福活动 
+--#include "data\functions\Activity\OpenServerActivity\OpenServerActivityHandle.txt" once --开服活动 
+--#include "data\functions\Activity\SaveRadish\SaveRadishFunc.txt" once--护龙深潭 
+--#include "data\functions\EquipEnhance\EquitRecoverHandle.txt" once--装备回收
+--#include "data\functions\Activity\BlackMarket\BlackMarket_Main.txt" once --黑市 
+--#include "data\functions\Activity\BetaTest\BeatTsetMain.txt" once --封测活动 
+--#include "data\functions\Activity\StartAct\StartActCommon.txt" once --开服活动
+--#include "data\functions\Systems\TimeReward\ToDayOnLineSec.txt" once --在线奖励 
+--#include "data\functions\Activity\investmentplan\investmentplan.txt" once --投资计划 
+
+
+cRecoverEquip = 1
+cRequireStoneConfig = 2
+cFreshActorDart = 3			--刷新个人镖车
+cStartActorDart = 4			--开始押镖
+cWorshipMsg = 5				--膜拜或者鄙视
+cFreshWorshipRate = 6		--膜拜刷新倍率
+cAddWorshipTimes = 7		--增加膜拜的次数
+cExchangeEquip = 14			--装备转换
+cExchangeEquipComfire = 16	--装备转换
+cExchangeEquipTimes = 17	--装备转换剩余次数查询
+
+sSendStoneConfig = 1
+sSendRecoverResult = 2
+
+cBuildTower = 19   --建塔 
+cUpdateTower = 20  --刷怪
+cRemoveTower = 21  --拆除塔
+
+cExchangeClothes = 22			--时装衣服转换
+cGetConsumeActAward = 23    --国庆消费活动抽奖
+cOpenConsumeWin = 24 		--打开国庆消费活动抽奖窗口
+
+cGetRushSkyAward = 25  --领取闯天关奖励
+cReqExchangePoint = 26  --请求兑换积分
+
+cGetDragonGodInfo = 27 --获取龙神信息 
+cReqWorship = 28 --祭拜龙神
+cReqShopping = 29 --请求购物
+cGetParadeAward = 30 --领取巡游奖励
+
+cReqHitGoldenEggInfo = 31  	--请求砸金蛋活动信息
+cReqHitGoldenEgg = 32		--请求砸金蛋
+cGetHitGoldenEggAward = 33	--请求领取砸金蛋奖励 
+
+cGetDiscountMallInfo = 34	--请求折扣商城信息
+cReqRefreshDiscount = 35	--请求刷新折扣
+cReqDiscountBuy = 36		--请求购买折扣物品
+
+cReqWCGuessInfo = 37	--请求世界杯竞猜面板信息
+cReqWCGuess = 38		--请求世界杯竞猜
+cReqChangeBody = 39		--请求变身
+
+cReqBuyNpcStore = 40	--请求npc购买商店信息
+
+cReqValentinesDay = 44  --请求在线有礼
+cReqAskGetaward = 45    --请求领取奖品
+cReqCoolRing = 46  		--请求炫酷戒指
+cReqExchangeSoul = 47	--请求兑换女神神魂
+cReqTotalRecharge = 48	--请求累计充值活动
+cReqGetAward = 49		--请求累计充值领奖
+
+cGetDouDiscountMallInfo = 41	--请求全民折上商城信息
+cReqRefreshDouDiscount = 42	--请求刷新全民折上折的折扣
+cReqDouDiscountBuy = 43		--请求购买全民上折的物品 
+cReqDouItemCount = 50 	--请求全民折上折物品的数量
+cReqIsCanChange = 51  	--请求炫酷戒指面板信息
+cReqSeniorTreasure = 52 --请求高级宝箱面板信息
+cReqSeniorTreasureAward = 53 --请求高级宝箱领奖
+cReqFlushSeniorTreasure = 54 --请求刷新高级宝箱
+cReqSendMsgToAllLient = 55	--广播抽奖消息
+cReqSuperRebate		  = 56	-- 请求超级返利界面
+cReqGetSuperRebate	  = 57  --请求返利领奖
+cReqDisShopRemainTime = 58  --请求双节购买剩余时间
+cReqAutumnConsume 	  = 59 	--请求中秋消费排行数据
+cReqRecharge 	 	  = 60	--请求中秋节充值返利界面
+cReqGetRecharge	      = 61  --请求中秋节返利领奖
+cReqChangeRunMoon	  = 62  --嫦娥奔月界面
+cReqGetChangEAward    = 63  --嫦娥奔月兑换奖品
+cReqFlopCardInfo 	  = 64 --请求翻牌信息
+cReqFlopCardOp	      = 65 --请求翻牌操作
+cReqBrushBoss		  = 66 --请求刷新boss
+cReqUnlock		  	  = 67 --请求解锁boss
+cReqBeginKill		  = 68 --开始挑战，服务器开始刷怪
+cReqLuxuryRebate	  = 71 --请求豪华返利界面
+
+cReqTurntableInfo	= 69 --请求转盘信息
+cReqTurntableOp		= 70 --请求转盘操作
+
+cReqFwCelebrationInfo	= 72 --请求烟花盛典信息
+cReqFwCelebrationOp		= 73 --请求领取盛典礼包
+cReqShenYinBaGuaTimes   = 74 --请求神印八卦副本免费刷新解锁次数
+cReqThankYouLetterInfo  = 75 --请求研发致谢信面板信息
+cReqThankYouOneTime		= 76 --请求研发致谢信赞一下
+cReqThankYouLetterAward = 77 --请求研发致谢信领奖
+cReqBirthdayCakeInfo	= 80 --请求生日蛋糕信息
+cReqBirthdayCakeChange 	= 81 --请求生日蛋糕兑换奖励
+cReqCelebrationInfo  	= 82 --请求2周年庆典礼包信息
+cReqCelebrationAward  	= 83 --请求2周年庆典礼包领奖
+cReqThankYouWordId     	= 84 --请求研发员致谢词id
+
+cReqAnniverTurntableInfo = 78 --请求周年转盘信息
+cReqAnniverTurntableOp = 79 --请求周年转盘操作
+cReqFireworksFeastInfo = 85 --请求周年烟花盛宴信息
+
+cReqDigTreasure = 86 --请求挖宝
+cReqDragonInfo = 87 --请求盛世龙腾信息
+cReqDragonAward = 88 --请求盛世龙腾领奖
+
+cReqDoubleElevenActInfo = 89 --请求双十一活动时间
+cReqXunShouBossInfo = 90 --查看查看单个BOSS情况
+cReqXmasSnowman = 91 --请求全民堆雪活动
+cReqXmasGetItem = 92 --请求堆雪活动领取物品
+
+cReqChrHorseTurntableInfo = 94 --请求马年圣诞转盘信息
+cReqChrHorseTurntableOp = 95 --请求马年圣诞转盘操作
+cReqXmasTreasureBuy = 98 -- 请求马年圣诞大盗购买钥匙
+
+cReqLuckDrawInfo	= 96 --请求圣诞老虎机信息 
+cReqLuckDrawOp		= 97 --请求圣诞老虎机操作
+
+cReqNewClothesInfo = 99 --请求羊年元旦新装过节面板信息
+cReqNewClothesChange = 100 --请求羊年元旦新装过节兑换坐骑
+cReqNewYearBossInfo = 101  --请求羊年元旦boss面板信息
+cReqNewYearBossAward = 102 --请求羊年元旦boss领奖
+
+cReqGetAwardActInfo = 103 --羊年春节祈福迎神面板信息
+cReqGetAwardAct = 104 --羊年春节祈福迎神领奖
+cReqEveBossInfo = 105 --羊年春节除夕夺宝面板信息
+cReqEveBossRankInfo = 106 --羊年春除夕夺宝排名信息
+
+
+cReqDaZhaiMenBossInfo = 107 --请求大寨门boss信息
+cReqDaZhaiMenRenew = 108 --大寨门请求续费
+cReqBaiFuCake = 109 --百服蛋糕面板信息
+cReqBaiFuBuyItems = 110 --百服蛋糕请求兑换物品
+cReqBaiFuFurnaceInfo = 111 --请求百服熔炉信息（进度值）
+cReqFurnaceGiveItem = 112 --请求百服熔炉提交装备
+cReqBaiFuItemFurnace = 113 --请求百服熔炉开始熔炼
+
+cReqConsumeRankInfo = 114 --请求消费排名信息 
+cReqGetJinbiFubenAward = 115 --请求领取金币副本奖励
+cReqIntoJinbiFubenNextFloor = 116 --请求进入金币副本下一层 
+cReqOpenServerBlessInfo = 117--开服祈福信息
+cReqOpenServerActivity =  118--开服活动
+cReqHuLongAward =  126--客户端请求领取护龙深潭奖励 
+cReqRecoverAward =  127--客户端请求装备回收 
+cReqBlackMarketItemList = 128 -- 请求黑市商品列表
+cReqRefreshBlackMarketItemList = 129 --请求刷新黑市列表
+-- cReqBlackMarketStallItem = 130 --请求黑市兑换列表 
+cReqBeatTestAct = 132 --封测活动 
+cReqBeatStartAct = 133 --开服活动(由于各种原因，这是第三个开服活动了) 
+cReqOnLinetimeSystem = 134 --请求在线时间 
+cReqinvestmentplan = 135 --请求投资计划 
+ 
+
+function ActivityHandleImpl(sysarg, systemid, msgid, packet)
+	--print("systemid:" .. systemid .. ", msgid:" .. msgid)
+	if msgid == cRecoverEquip then
+		RecoverEquip(sysarg, packet )
+	elseif msgid == cRequireStoneConfig then
+		SendStoneConfig(sysarg, packet )
+	elseif msgid == cFreshActorDart then
+		local DartType = tonumber(DataPack.readByte(packet))
+		if DartType == 0 then
+			ActorChangeSlave(sysarg,packet)
+		elseif DartType == 1 then
+			ActorChangeSlaveAdv(sysarg,packet)
+		end
+	elseif msgid == cStartActorDart then
+		local DartType = tonumber(DataPack.readByte(packet))
+		if DartType == 0 then
+			StartDartToDest(sysarg,packet)
+		elseif DartType == 1 then
+			StartDartAdvToDest(sysarg,packet)
+		end
+	elseif msgid == cWorshipMsg then		--膜拜或者鄙视
+		OnMobaiOrBishiOp(sysarg,packet)
+	elseif msgid == cFreshWorshipRate then		--膜拜刷新倍率
+		OnFreshMobaiRate(sysarg,packet)
+	elseif msgid == cAddWorshipTimes then		--增加膜拜的次数
+		OnAddWorshipTimes(sysarg,packet)
+	elseif msgid == cExchangeEquip then			--装备转换
+		ExchangeEquip(sysarg, packet, msgid )
+	elseif msgid == cExchangeEquipComfire then
+		ExchangeEquip(sysarg, packet, msgid )
+	elseif msgid == cExchangeEquipTimes then
+		CheckExchangeEquipTimes( sysarg, packet )
+	elseif msgid == 8 then
+		RefreshOldDemon( sysarg, packet )
+	elseif msgid == 9 then
+		OldDemonCallBack( sysarg, packet )
+	elseif msgid == 10 then
+		OldDemonCreate( sysarg, packet )
+	
+	elseif msgid == cBuildTower then
+		BuildTower(sysarg, packet)
+	elseif msgid ==	cUpdateTower then
+		ImmeFlush(sysarg, packet)
+	elseif msgid == cRemoveTower then
+		RemoveTower(sysarg, packet)
+	--转换衣服时装
+	elseif msgid == cExchangeClothes then
+		ExchangeClothes(sysarg, packet, msgid )
+	elseif msgid == cGetConsumeActAward then
+		GetConsumeActAward(sysarg, packet, msgid)
+	elseif msgid == cOpenConsumeWin then
+		OpenConsumeActivity(sysarg)
+	elseif msgid == cGetRushSkyAward then
+		GetRushSkyFbAward(sysarg, packet)
+	elseif msgid == cReqExchangePoint then
+		ReqExchangePoint(sysarg, packet)
+	elseif msgid == cGetDragonGodInfo then
+		--GetDragonGodInfo(sysarg, packet)
+	elseif msgid == cReqWorship then
+		--ReqWorship(sysarg, packet)
+	elseif msgid == cReqShopping then 
+		ReqShopping(sysarg, packet)
+	elseif msgid == cGetParadeAward then
+		GetParadeAward(sysarg, packet)
+	elseif msgid == cReqHitGoldenEggInfo then
+		ReqHitGoldenEggInfo(sysarg, packet)
+	elseif msgid == cReqHitGoldenEgg then
+		ReqHitGoldenEgg(sysarg, packet)
+	elseif msgid == cGetHitGoldenEggAward then
+		GetHitGoldenEggAward(sysarg, packet)
+	elseif msgid == cGetDiscountMallInfo then
+		GetDiscountMallInfo(sysarg, packet)
+	elseif msgid == cReqRefreshDiscount then
+		ReqRefreshDiscount(sysarg, packet)
+	elseif msgid == cReqDiscountBuy then
+		ReqDiscountBuy(sysarg, packet)
+	elseif msgid == cReqWCGuessInfo then
+		ReqWCGuessInfo(sysarg, packet)
+	elseif msgid == cReqWCGuess then
+		ReqWCGuess(sysarg, packet)
+	elseif msgid == cReqChangeBody then
+		ReqChangeBody(sysarg, packet)
+	elseif msgid == cReqBuyNpcStore then
+		ReqBuyNpcStore(sysarg, packet)
+	elseif msgid == cGetDouDiscountMallInfo then
+		GetDouDiscountMallInfo(sysarg, packet)
+	elseif msgid == cReqRefreshDouDiscount then
+		ReqRefreshDouDiscount(sysarg, packet)
+	elseif msgid == cReqDouDiscountBuy then
+		ReqDouDiscountBuy(sysarg, packet)
+	elseif msgid == cReqDouItemCount then
+		ReqDouItemCount(sysarg, packet)
+	
+	elseif msgid == cReqValentinesDay then
+		ReqValentinesDay(sysarg, packet)
+	elseif msgid == cReqAskGetaward then
+		AskGetaward(sysarg, packet)
+	elseif msgid == cReqCoolRing then
+		ReqCoolRing(sysarg, packet)
+	elseif msgid == cReqExchangeSoul then
+		ReqExchangeSoul(sysarg)		
+	elseif msgid == cReqTotalRecharge then
+		ReqTotalRecharge(sysarg)
+	elseif msgid == cReqGetAward then
+		ReqGetAward(sysarg, packet)
+	elseif msgid == cReqIsCanChange then
+		ReqIsCanChange(sysarg)
+	elseif msgid == cReqSeniorTreasure then
+		ReqSeniorTreasure(sysarg)
+	elseif msgid == cReqSeniorTreasureAward then
+		ReqSeniorTreasureAward(sysarg)
+	elseif msgid == cReqFlushSeniorTreasure then
+		ReqFlushSeniorTreasure(sysarg)
+	elseif msgid == cReqSendMsgToAllLient then
+		local awardid = DataPack.readInt(packet)
+		ReqBoardCast(sysarg, awardid)
+	elseif msgid == cReqSuperRebate then
+		ReqSuperRebate(sysarg)
+	elseif msgid == cReqGetSuperRebate then
+		local consumeId = DataPack.readByte(packet)
+		ReqGetSuperRebate(sysarg, consumeId+1) --客户端从0开始读
+	elseif msgid == cReqDisShopRemainTime then
+		ReqDisShopRemainTime(sysarg, packet)
+	elseif msgid == cReqAutumnConsume then
+		ReqAutumnConsume(sysarg, packet)
+	elseif msgid == cReqRecharge then
+		ReqRecharge(sysarg)
+	elseif msgid == cReqGetRecharge then
+		local id = DataPack.readByte(packet)
+		ReqGetRecharge(sysarg, id)
+	elseif msgid == cReqChangeRunMoon then
+		ReqChangeRunMoon(sysarg, id)
+	elseif msgid == cReqGetChangEAward then
+		local id = DataPack.readByte(packet)
+		ReqGetChangEAward(sysarg, id)
+	elseif msgid == cReqFlopCardInfo then
+		ReqFlopCardInfo(sysarg, packet)
+	elseif msgid == cReqFlopCardOp then
+		ReqFlopCardOp(sysarg, packet)
+	elseif msgid == cReqTurntableInfo then
+		ReqTurntableInfo(sysarg, packet)
+	elseif msgid == cReqTurntableOp then 
+		ReqTurntableOp(sysarg, packet)
+	elseif msgid == cReqBrushBoss then
+		ReqBrushBoss(sysarg)
+	elseif msgid == cReqUnlock then
+		ReqUnlock(sysarg)
+	elseif msgid == cReqBeginKill then
+		ReqBeginKill(sysarg)
+	elseif msgid == cReqLuxuryRebate then
+		ReqLuxuryRebate(sysarg)
+	elseif msgid == cReqFwCelebrationInfo then
+		ReqFwCelebrationInfo(sysarg, packet)
+	elseif msgid == cReqFwCelebrationOp	then
+		ReqFwCelebrationOp(sysarg, packet)
+	elseif msgid == cReqShenYinBaGuaTimes then
+		ReqShenYinBaGuaTimes(sysarg)
+	elseif msgid == cReqThankYouLetterInfo then
+		ReqThankYouLetterInfo(sysarg)
+	elseif msgid == cReqThankYouOneTime then
+		ReqThankYouOneTime(sysarg)
+	elseif msgid == cReqThankYouLetterAward then
+		local id = DataPack.readByte(packet)
+		ReqThankYouLetterAward(sysarg, id)
+	elseif msgid == cReqBirthdayCakeInfo then
+		ReqBirthdayCakeInfo(sysarg)
+	elseif msgid == cReqBirthdayCakeChange then
+		local id = DataPack.readByte(packet)
+		ReqBirthdayCakeChange(sysarg, id)
+
+	elseif msgid == cReqAnniverTurntableInfo then
+		ReqAnniverTurntableInfo(sysarg, packet)
+	elseif msgid == cReqAnniverTurntableOp	then
+		ReqAnniverTurntableOp(sysarg, packet)
+	elseif msgid == cReqFireworksFeastInfo	then
+		ReqFireworksFeastInfo(sysarg, packet)
+	elseif msgid == cReqDigTreasure then
+		ReqDigTreasure(sysarg, packet)
+	
+	elseif msgid == cReqCelebrationInfo then
+		ReqCelebrationInfo(sysarg)
+	elseif msgid == cReqCelebrationAward then
+		local id = DataPack.readByte(packet)
+		ReqCelebrationAward(sysarg, id)	
+
+	elseif msgid == cReqThankYouWordId then
+		ReqThankYouWordId(sysarg)
+	elseif msgid == cReqDragonInfo then
+		ReqDragonInfo(sysarg)
+	elseif msgid == cReqDragonAward then
+		local index = DataPack.readByte(packet)
+		ReqDragonAward(sysarg, index)
+	
+	elseif msgid == cReqDoubleElevenActInfo then
+		ReqDoubleElevenActInfo(sysarg, packet)
+	elseif msgid == cReqXunShouBossInfo then
+		local bossid = DataPack.readShort(packet)
+		ReqXunShouBossInfo(sysarg, bossid)
+
+		
+	elseif msgid == cReqChrHorseTurntableInfo then 
+		ReqChrHorseTurntableInfo(sysarg, packet) 
+	elseif msgid == cReqChrHorseTurntableOp then
+		ReqChrHorseTurntableOp(sysarg, packet) 
+		
+	elseif msgid == cReqLuckDrawInfo then  
+		ReqLuckDrawInfo(sysarg, packet) 
+	elseif msgid == cReqLuckDrawOp then
+		ReqLuckDrawOp(sysarg, packet) 
+
+	elseif msgid == cReqXmasSnowman then
+		ReqXmasSnowman(sysarg)
+	elseif msgid == cReqXmasGetItem then
+		local index = DataPack.readByte(packet)
+		ReqXmasGetItem(sysarg, index)
+
+	elseif msgid == cReqXmasTreasureBuy then
+		local index = DataPack.readByte(packet)
+		local keyNum = DataPack.readUInt(packet)
+		ReqXmasTreasureBuy(sysarg, index, keyNum)
+	elseif msgid == cReqNewClothesInfo then
+		ReqNewClothesInfo(sysarg)
+	elseif msgid == cReqNewClothesChange then
+		local method = DataPack.readByte(packet)
+		local item = DataPack.readByte(packet)
+		ReqNewClothesChange(sysarg, method, item)
+	elseif msgid == cReqNewYearBossInfo then
+		ReqNewYearBossInfo(sysarg)
+	elseif msgid == cReqNewYearBossAward then
+		local award = DataPack.readByte(packet)
+		ReqNewYearBossAward(sysarg, award)
+	elseif msgid == cReqGetAwardActInfo then
+		ReqGetAwardActInfo(sysarg)
+	elseif msgid == cReqGetAwardAct then
+		local awards = DataPack.readByte(packet)
+		ReqGetAwardAct(sysarg, awards)
+	elseif msgid == cReqEveBossInfo then
+		ReqEveBossInfo(sysarg)
+	elseif msgid == cReqEveBossRankInfo then
+		ReqEveBossRankInfo(sysarg)
+	elseif msgid == cReqDaZhaiMenBossInfo then
+		ReqDaZhaiMenBossInfo(sysarg)
+	elseif msgid == cReqDaZhaiMenRenew then
+		ReqDaZhaiMenRenew(sysarg)
+	elseif msgid == cReqBaiFuCake then
+		ReqBaiFuCake(sysarg) 
+	elseif msgid == cReqBaiFuBuyItems then
+		local baifuindex = DataPack.readByte(packet)
+		ReqBaiFuBuyItems(sysarg, baifuindex)
+	elseif msgid == cReqBaiFuFurnaceInfo then
+		ReqBaiFuFurnaceInfo(sysarg)
+	elseif msgid == cReqFurnaceGiveItem then
+		ReqFurnaceGiveItem(sysarg, packet)
+	elseif msgid == cReqBaiFuItemFurnace then
+		ReqBaiFuItemFurnace(sysarg)
+	elseif msgid == cReqConsumeRankInfo then
+		ReqConsumeRankInfo(sysarg, packet)
+	elseif msgid == cReqGetJinbiFubenAward then
+		ClientAskJinBifubenAward(sysarg, packet)
+	elseif msgid == cReqIntoJinbiFubenNextFloor then
+		ClientAskJinBiFubenNextFloor(sysarg, packet)
+	elseif msgid == cReqOpenServerBlessInfo then
+		OpenServerBless(sysarg, packet)
+	elseif msgid == cReqOpenServerActivity then
+		ClientQuestOpenServe(sysarg, packet)
+	elseif msgid == cReqHuLongAward then
+		ClientQuestHuLongAward(sysarg, packet)
+	elseif msgid == cReqRecoverAward then
+		ClientReqRecover(sysarg, packet)
+	-- elseif msgid == cReqBlackMarketItemList then
+	--     ClientWantBlackMarketItemList(sysarg,msgid,packet)
+	-- elseif msgid == cReqRefreshBlackMarketItemList then
+	--     ClientWantRefBlackMarketItemList(sysarg,msgid,packet)
+    -- elseif msgid == cReqBlackMarketStallItem then
+    --    GetBlackMarketPointStallItem(sysarg)
+    -- elseif msgid == 131 then -- 黑市屏蔽
+    --    BlackMarketText(sysarg)
+    elseif msgid == cReqBeatTestAct then
+       ClientQuestBeatTestInfo(sysarg, packet)
+    elseif msgid == cReqBeatStartAct then
+       ClientAskStartActInfo(sysarg, packet)
+    elseif msgid == cReqOnLinetimeSystem then
+       TodayOnLineSecHandle(sysarg, packet)
+    elseif msgid == cReqinvestmentplan then
+       ClientAskinvestmentplanhandle(sysarg, packet)
+	end                       
+end              
+          
+function SendStoneConfig(sysarg, systemid, packet)
+	local netPack = DataPack.allocPacket(sysarg, 145,sSendStoneConfig)  --申请一个数据包
+	if netPack then
+		local expItemCount = 0
+		for k, v in pairs(KillEvilConfig.ExpJade) do
+			expItemCount = expItemCount + 1
+		end
+		DataPack.writeByte(netPack, #KillEvilConfig.Reward + expItemCount)
+		DataPack.writeInt(netPack, KillEvilConfig.ItemId)
+		for k, v in ipairs(KillEvilConfig.Reward) do
+			DataPack.writeByte(netPack, v.equipMinLv)
+			DataPack.writeWord(netPack, v.equipMaxLv)
+			DataPack.writeByte(netPack, v.dbStoneCount)
+			DataPack.writeByte(netPack, v.point)
+		end
+		for itemId, Cfg in pairs(KillEvilConfig.ExpJade) do
+			DataPack.writeByte(netPack, 0)
+			DataPack.writeWord(netPack, itemId)
+			DataPack.writeByte(netPack, Cfg.dbStoneCount)
+			DataPack.writeByte(netPack, Cfg.point)
+		end
+		DataPack.flush(netPack)
+	end	
+end
+
+function SendRecoverResult( sysarg, result )
+	local netPack = DataPack.allocPacket(sysarg, 145, sSendRecoverResult)  --申请一个数据包
+	if netPack then
+		DataPack.writeByte(netPack, result)
+		DataPack.flush(netPack)
+	end
+end
+
+function CheckCanDropItem( nItemId )
+	for k, itId in ipairs(KillEvilConfig.NoDropItems) do
+		if nItemId == itId then
+			return true
+		end
+	end
+	return false
+end
+
+function RecoverEquip( sysarg, packet )
+	local recoverType = DataPack.readByte( packet )
+	local useGold = DataPack.readByte( packet )
+	local equipCount = DataPack.readByte( packet )
+	if equipCount == 0 or equipCount > KillEvilConfig.MaxEquipCount then
+		return
+	end
+	local needItemCount = 0
+	local pointCount = 0
+	local equipPtrTab = {}
+	for i = 1, equipCount do
+		local equipGuid = DataPack.readUint64( packet )
+		local equipPtr = Item.getBagItemPtrByGuid( sysarg, equipGuid)
+		if equipPtr then
+			local cfgTab = nil
+			local itemId = Item.getItemId(equipPtr)
+			local nItemType = Item.getItemProperty( sysarg, equipPtr, Item.ipItemType, 0)
+			if nItemType == Item.itHpPot then
+				local curExpCount = Item.getItemProperty(sysarg, equipPtr, Item.ipItemDua, 0)
+				local maxExpCount = Item.getItemProperty(sysarg, equipPtr, Item.ipItemDuaMax, 0)
+				if curExpCount < maxExpCount then
+					Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00045, Item.getItemName(itemId)), ttFlyTip)
+					return
+				end
+				cfgTab = KillEvilConfig.ExpJade[itemId]
+			else
+				if nItemType < Item.itWeapon or nItemType >= Item.itEquipMax then
+					Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00046, Item.getItemName(itemId)), ttFlyTip)
+					return
+				end	
+				local nLevel = Item.getItemProperty(sysarg, equipPtr, Item.ipItemActorLevel, 0)
+				if nLevel < KillEvilConfig.MinEquipLevel then
+					Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00024, Item.getItemName(itemId), KillEvilConfig.MinEquipLevel), ttFlyTip)
+					return
+				end
+				cfgTab = GetKillEvilCfgByLv(nLevel)
+			end
+			if cfgTab then
+				pointCount = pointCount + cfgTab.point
+				if recoverType == 2 then
+					needItemCount = needItemCount + cfgTab.dbStoneCount
+				end
+				table.insert(equipPtrTab, equipPtr)
+			end
+			if CheckCanDropItem(itemId) then
+				Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.mt00027, Item.getItemName(itemId)), ttFlyTip)
+				return
+			end
+		end
+	end
+	if recoverType == 2 then
+		local nGridCount= Item.getBagEmptyGridCount(sysarg)
+		local needBagGrid = #equipPtrTab
+		 if nGridCount < needBagGrid then
+			Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.mt00029, needBagGrid*2, needBagGrid), ttScreenCenter)
+			return
+		 end
+		local deductItemCount = needItemCount
+		local myItemCount = Actor.getItemCount( sysarg, KillEvilConfig.ItemId )
+		if myItemCount < needItemCount then
+			deductItemCount = myItemCount
+			if useGold == 1 then
+				local needMoney = (needItemCount - myItemCount)*KillEvilConfig.ItemGold
+				local myGold = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+				if myGold < needMoney then
+					Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.zf093, needMoney - myGold), ttFlyTip )
+					return
+				end
+				if not Actor.changeMoney(sysarg, mtYuanbao, -needMoney, 141, Lang.LogTips.yb014) then
+					return
+				end
+			else
+				Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.zf092, needItemCount - myItemCount), ttFlyTip )
+				return
+			end
+		end
+		if deductItemCount > 0 and Actor.removeItem(sysarg, KillEvilConfig.ItemId, deductItemCount) ~= deductItemCount then
+			return
+		end
+	end
+	for k, ptr in ipairs(equipPtrTab) do
+		local nItemType = Item.getItemProperty( sysarg, ptr, Item.ipItemType, 0)
+		local cfgTab = nil
+		local itemId = Item.getItemId(ptr)
+		if nItemType == Item.itHpPot then
+			cfgTab = KillEvilConfig.ExpJade[itemId]
+		else
+			local nLevel = Item.getItemProperty(sysarg, ptr, Item.ipItemActorLevel, 0)
+			cfgTab = GetKillEvilCfgByLv(nLevel)
+		end
+		local rateId = cfgTab.normalRateId
+		if recoverType == 2 then
+			rateId = cfgTab.doubleRateId
+		end
+		if Actor.removeItemByPtr(sysarg, ptr, 1, true, Lang.LogTips.l00106, 94) > 0 then
+			SetKillEvilPoint(sysarg, cfgTab.point)
+			local cbInfo = ProbabilityIndexDropImpl[rateId]
+			if cbInfo then
+				for i = 1, recoverType do
+					cbInfo.func(sysarg, cbInfo.params)
+				end
+			end
+		end
+	end
+	SendRecoverResult(sysarg, 0)
+	Actor.triggerQuestEvent(sysarg, 127, 50092, 1)
+end
+
+function CheckExchangeEquipTimes( sysarg, packet )
+	local nRemainTimes = 0;
+	local svar = Actor.getStaticVar(sysarg)
+	if svar.changeEquipCount == nil then
+		svar.changeEquipCount = 0
+	elseif svar.changeEquipCount > ChangeVocationEquipTable.MaxCount then
+		svar.changeEquipCount = ChangeVocationEquipTable.MaxCount
+	end
+	nRemainTimes = ChangeVocationEquipTable.MaxCount - svar.changeEquipCount
+
+	local npack = DataPack.allocPacket(sysarg,145,17)
+	DataPack.writeByte(npack, nRemainTimes )
+	DataPack.flush(npack)
+end
+
+--返回id,价格
+function GetNewEquipID(changeID, oldItemID)
+	local equipTB = ChangeVocationEquipTable[1]
+	for i=1, table.getn(equipTB) do
+	if i ~= changeID then	--不在要转换的目标行里面查找
+		for k,v in ipairs(equipTB[i]) do
+    		if v == oldItemID then
+    			local targetTB = equipTB[changeID]
+    			local priceTB = ChangeVocationEquipTable.price
+    			return targetTB[k],priceTB[k]
+    		end
+    	end
+    end
+	end
+	return 0,0
+end
+
+--返回转换新时装的ID和价格
+function GetNewClothesID( oldItemID)
+	local equipTB = ChangeSexClothesTable[1]
+	for i=1, table.getn(equipTB) do
+		for j =1,table.getn(equipTB[i]) do
+			if oldItemID == equipTB[i][j] then
+				return equipTB[3-i][j],ChangeSexClothesTable.price
+			end
+		end
+	end
+	return 0,0
+end
+
+
+table.insert(InitFnTable, InitProbabilityIndexDrop)
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.enActivitySystem, ActivityHandleImpl)

@@ -1,0 +1,888 @@
+﻿--lua script
+--#include "..\..\language\LangCode.txt" once
+
+--江湖宝典配置表
+
+WorldBook =
+{
+	{	--我要升级
+		title = Lang.WorldBook.name0001,		--”我要升级“的文字配置
+		content	=
+		{
+			{
+				--30-32区间的配置	
+				minLv = 30,		
+				maxLv = 32,	
+				context = 
+       				 {--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 82,           --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id(由于打开一个系统要相应的打开多个分页，所以要用上两个参数才可以满足需求)
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0001,			   --type为2时配置,表示活动名称，其他情况待扩展
+					}, 
+				},
+			},
+			{
+				--33-34区间的配置
+				minLv = 33,
+				maxLv = 34,
+				context =
+       				 {--具体任务
+					{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0035,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 21, y = 43, entityName = Lang.EntityName.n01083},
+					},
+				},
+			},
+				{
+				--35-37区间的配置
+				minLv = 35,
+				maxLv = 37,
+				context =
+       				 {--具体任务
+					{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0035,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 21, y = 43, entityName = Lang.EntityName.n01083},
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0004,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 48, y = 29, entityName = Lang.EntityName.n00143},
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0033,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 56, y = 34, entityName = Lang.EntityName.n01002},
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 82,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0036,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+			{
+				--38-39区间的配置
+				minLv = 38,
+				maxLv = 39,
+				context =
+       				 {--具体任务
+					{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0035,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 21, y = 43, entityName = Lang.EntityName.n01083},
+					},
+						{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 4,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0003,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 30, y = 43, entityName = Lang.EntityName.n00461},
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0004,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 48, y = 29, entityName = Lang.EntityName.n00143},
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0033,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 56, y = 34, entityName = Lang.EntityName.n01002},
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 82,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0036,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+			{
+				--40-44区间的配置
+				minLv = 40,
+				maxLv = 44,
+				context =
+       				{
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0002,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00007, x = 101, y = 48, entityName = Lang.EntityName.m00426},   --sceneName 场景名称  x坐标 y坐标 entityName NPC名字
+					},
+					{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 4,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0003,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 30, y = 43, entityName = Lang.EntityName.n00461},
+					},
+						{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0004,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 48, y = 29, entityName = Lang.EntityName.n00143},
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0033,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 56, y = 34, entityName = Lang.EntityName.n01002},
+					},
+						{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0005,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 20, y = 40, entityName = Lang.EntityName.n00367},
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 82,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0036,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type =3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0014,
+						id =110 ,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0030,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+			{
+				--45-49区间的配置
+				minLv = 45,
+				maxLv = 49,
+				context =
+       				 {--具体任务
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0006,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00045, x = 77, y = 26, entityName = Lang.EntityName.m00428},
+					},
+					{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 4,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0003,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 30, y = 43, entityName = Lang.EntityName.n00461},
+					},
+						{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0004,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 48, y = 29, entityName = Lang.EntityName.n00143},
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0033,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 56, y = 34, entityName = Lang.EntityName.n01002},
+					},
+						{
+						type =2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0005,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 20, y = 40, entityName = Lang.EntityName.n00367},
+					},
+						{
+						type =3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0014,
+						id =110 ,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0030,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+			{
+				--50-54区间的配置
+				minLv = 50,
+				maxLv = 54,
+				context =
+       				{
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0007,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00011, x = 40, y = 39, entityName = Lang.EntityName.m00430},
+					},
+					{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 4,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0008,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = {sceneName = Lang.SceneName.s00049, x = 45, y = 43, entityName = Lang.EntityName.n00464},
+					},
+						{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0004,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 48, y = 29, entityName = Lang.EntityName.n00143},
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0033,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 56, y = 34, entityName = Lang.EntityName.n01002},
+					},
+						{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0005,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 20, y = 40, entityName = Lang.EntityName.n00367},
+					},
+						{
+						type =3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0014,
+						id =110 ,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0030,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+			{
+				--55-59区间的配置
+				minLv = 55,
+				maxLv = 59,
+				context =
+       				 {--具体任务
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0007,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00011, x = 40, y = 39, entityName = Lang.EntityName.m00430},
+					},
+					{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0001,
+						id = 5,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0008,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 45, y = 43, entityName = Lang.EntityName.n00464},
+					},
+						{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0004,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 48, y = 29, entityName = Lang.EntityName.n00143},
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0033,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 56, y = 34, entityName = Lang.EntityName.n01002},
+					},
+						{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0002,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0005,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 20, y = 40, entityName = Lang.EntityName.n00367},
+					},
+						{
+						type =3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0014,
+						id =110 ,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0030,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+      	{
+				--60-70区间的配置
+				minLv = 60,
+				maxLv = 70,
+				context =
+       				{
+						{
+						type =1,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0021,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0004,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 48, y = 29, entityName = Lang.EntityName.n00143},
+					},
+					{
+						type =2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0021,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0037,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 76, y = 43, entityName = Lang.EntityName.n00576},
+					},
+						{
+						type =3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0022,
+						id =110 ,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0030,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0018,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0033,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 56, y = 34, entityName = Lang.EntityName.n01002},
+					},
+				},
+			},
+		},
+	},
+	{	--我要变强
+		title = Lang.WorldBook.name0002,
+		content =
+		{
+			{
+				--30-39区间的配置
+				minLv = 30,
+				maxLv = 34,
+				context =
+       				 {--具体任务
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0003,
+						id = 1,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0009,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 19, y = 43, entityName = Lang.EntityName.n00460},
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0016,
+						id = 86,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0031,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0017,
+						id = 83,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0032,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+				{
+				--35-39区间的配置
+				minLv = 35,
+				maxLv = 39,
+				context =
+       				 {--具体任务
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0003,
+						id = 1,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0009,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 19, y = 43, entityName = Lang.EntityName.n00460},
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0016,
+						id = 86,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0031,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0017,
+						id = 83,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0032,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0019,
+						id = 82,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0034,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+			 {
+				--40-44区间的配置
+				minLv = 40,
+				maxLv = 44,
+				context =
+       				 {--具体任务
+					{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0003,
+						id = 2,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0010,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 34, y = 43, entityName = Lang.EntityName.n00462},
+					},
+						{
+						type = 1,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0003,
+						id = 3,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0011,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 38, y = 43, entityName = Lang.EntityName.n00463},
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0004,
+						id = 81,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0012,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0005,
+						id = 66,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0013,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0006,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0015,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = {sceneName = Lang.SceneName.s00049, x = 30, y = 24, entityName = Lang.EntityName.n00502},				
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0015,
+						id = 73,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0029,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0020,
+						id = 82,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0034,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+			{
+				--45-49区间的配置
+				minLv = 45,
+				maxLv = 49,
+				context =
+       				 {--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0012,
+						id = 118,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0016,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0012,
+						id = 73,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0029,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0004,
+						id = 81,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0017,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0007,
+						id = 66,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0018,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0008,
+						id = 67,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0019,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0020,
+						id = 82,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0034,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+			{
+				--50-59区间的配置
+				minLv = 50,
+				maxLv = 59,
+				context =
+       				 {--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0012,
+						id = 118,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0016,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0012,
+						id = 73,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0029,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0004,
+						id = 81,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0017,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0007,
+						id = 66,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0020,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0008,
+						id = 67,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0021,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0020,
+						id = 82,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0034,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+		{
+				--60-70区间的配置
+				minLv = 60,
+				maxLv = 70,
+				context =
+       				 {--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0012,
+						id = 118,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0016,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0012,
+						id = 73,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0029,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0004,
+						id = 81,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0017,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0004,
+						id = 81,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0022,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0007,
+						id = 66,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0018,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0008,
+						id = 67,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0019,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0008,
+						id = 67,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc =Lang.WorldBook.item0023,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0020,
+						id = 82,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0034,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},
+		},
+	},
+	{	--我要赚钱
+		title = Lang.WorldBook.name0003,
+		content =
+		{
+		{
+				--30-39区间的配置
+				minLv = 30,
+				maxLv = 39,
+				context =
+       				 {--具体任务
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0011,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0024,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 12, y = 29, entityName = Lang.EntityName.n00142},
+					},
+				},
+			},
+				{
+				--40-70区间的配置
+				minLv = 40,
+				maxLv = 70,
+				context =
+       				 {--具体任务
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0011,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0024,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = {sceneName = Lang.SceneName.s00049, x = 12, y = 29, entityName = Lang.EntityName.n00142},
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0011,
+						id = 78,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 4,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0025,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+				},
+			},	
+		},
+	},
+	{	--我很无聊
+		title = Lang.WorldBook.name0004,
+		content =
+		{
+			{
+				--30-39区间的配置
+				minLv = 30,
+				maxLv = 49,
+				context =
+       				 {--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0009,
+						id = 105,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0026,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0010,
+						id = 84,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0027,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0013,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0015,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 30, y = 24, entityName = Lang.EntityName.n00502},
+					},
+				},
+			},	
+			{
+				--50-70区间的配置
+				minLv = 50,
+				maxLv = 70,
+				context =
+       				 {--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0009,
+						id =105,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0026,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+						{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0010,
+						id = 84,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0027,			   --type为2时配置,表示活动名称，其他情况待扩展
+					},
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面,4根据阵营去指定npc
+						typeTitle = Lang.WorldBook.title0013,
+						id = 0,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						star = 5,              --推荐的星级
+						times = 0,			   --每日次数
+						desc = Lang.WorldBook.item0015,			   --type为2时配置,表示活动名称，其他情况待扩展
+						pos = { sceneName = Lang.SceneName.s00049, x = 30, y = 24, entityName = Lang.EntityName.n00502},
+					},
+				},
+			},
+		},
+	},
+}

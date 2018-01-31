@@ -1,0 +1,180 @@
+
+--lua script 
+--#include "data\config\activityconfig\NationalDayHorse\NationalDayHorseAct.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\RankPointer.txt" once
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once
+--#include "data\functions\Activity\NationalDayHorse\Zillionaire.txt" once
+--#include "data\config\activityconfig\NationalDayHorse\DoubleElevenAct.txt" once --双十一活动开启配置
+--#include "data\functions\Activity\NationalDayHorse\Dragon.txt" once --双11盛世龙腾活动
+
+
+--国庆活动 
+--双十一活动
+--[[
+		enOpenActFlag = 0,			//0.活动是否开启
+		enFwCelebration,			//1.烟花庆典
+		enSuperTurntable,			//2.超级转盘
+		enRechargeRank,				//3.充值排行
+		enZillionaire,				//4.烈火大亨
+		enGetBlessing,				//5.在线集福
+		enWuFuBoy,					//6.五福童子
+		enBuyingSpree,				//7.购物狂欢
+		enDragonSoaring,			//8.盛世龙腾
+--]]
+
+--登陆处理
+function NationalDayHorLoginHandle(sysarg)
+	if System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) == true then
+		SendNationalDayHorOpenFlag(sysarg, 1)
+	end
+	
+	if System.getDoubleElevenActFlag(0) == 1 then --活动已开启
+		Actor.sendDoubleElevenFlag(sysarg)
+	else
+		if System.isInDateRange(unpack(DoubleElevenActConfig.actTime)) == true then 
+			if System.getDoubleElevenActFlag(0) ~= 1 then --默认开启活动时间未开启要开启
+				local actOpens = DoubleElevenActConfig.actOpens.."1"
+				System.setOpenDoubleElevenAct(DoubleElevenActConfig.actStartTime, DoubleElevenActConfig.actDay, actOpens)
+			end
+		end
+	end
+end
+
+--新的一天处理
+function NationalDayHorNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(NationalDayHorActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendNationalDayHorOpenFlag(sysarg, 1)
+
+			local nCurrTime = System.getCurrMiniTime()
+
+			local tmpTable = LoadZillionaire(sysarg)
+
+			tmpTable[3] = nCurrTime	--上一次开始时间
+
+			SaveZillionaire(sysarg, tmpTable)
+		end		
+	else
+		local activityTime = {}
+		for k, v in ipairs(NationalDayHorActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[3] = activityTime[9]
+		activityTime[9] = activityTime[9] + 1
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendNationalDayHorOpenFlag(sysarg, 0)
+		end
+	end
+	
+	if System.getDoubleElevenActFlag(0) == 1 then --双十一活动开启
+		if System.getDoubleElevenActFlag(4) == 1 then  --烈火大亨
+			local nCurrTime = System.getCurrMiniTime()
+			local tmpTable = LoadZillionaire(sysarg)
+			tmpTable[3] = nCurrTime	--上一次开始时间
+			SaveZillionaire(sysarg, tmpTable)
+		end
+	end
+
+end
+
+function SendNationalDayHorOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 78)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end
+
+
+--国庆活动0点重置
+function ResetNationalDayHor()
+	if (System.isInDateRange(unpack(NationalDayHorActConfig.actTime)) == true) or (System.getDoubleElevenActFlag(0) == 1) then
+		--烈火大亨
+		ResetZillionaireGame()
+		--烟花盛典礼包
+		ResetCelPackTimes()
+	end
+end
+
+--国庆活动结束清除数据
+function OnClearNationalDayHor()
+	--烈火大亨
+	local ranking = Ranking.getRanking(NationalDayHorRankPt.ZillionairePt.File)
+	if ranking then		
+		Ranking.clearRanking(ranking)
+	end
+
+	--在线集福
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ReversedLuckFile)
+	if ranking then		
+		Ranking.clearRanking(ranking)
+	end
+
+	--充值排行
+	CloseRechargeCommon(12)
+	
+	--转盘发奖励,并清除数据
+	OnGiveTurntableRankAward()
+	
+	--清除烟花盛典礼包数据
+	ClearFwCelebration()
+	
+	--双11盛世龙腾清数据
+	ClearDragonActEnd()
+end
+
+--默认开启活动
+function OnOpenDoubleElevenAct() 
+	local actOpens = DoubleElevenActConfig.actOpens.."1"
+	System.setOpenDoubleElevenAct(DoubleElevenActConfig.actStartTime, DoubleElevenActConfig.actDay, actOpens)
+end
+
+--请求双十一活动信息
+function ReqDoubleElevenActInfo(sysarg, packet) 
+	local pack = DataPack.allocPacket(sysarg, 145, 101)
+	if not pack then
+		return 
+	end
+	
+	local remainTime = System.getDoubleElevenActRemainTime()
+	DataPack.writeUInt(pack, remainTime)
+	DataPack.flush(pack)
+
+end
+
+--直接清除数据，不发奖励
+function OnClearDoubleElevenData()
+	--烈火大亨
+	local ranking = Ranking.getRanking(NationalDayHorRankPt.ZillionairePt.File)
+	if ranking then		
+		Ranking.clearRanking(ranking)
+	end
+
+	--在线集福
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ReversedLuckFile)
+	if ranking then		
+		Ranking.clearRanking(ranking)
+	end
+	
+	--清除充值排名
+	ClearRechargeCommonActivityRank(12)
+	
+	--清除转盘数据
+	ClearTurntableData()
+	
+	--清除烟花盛典礼包数据
+	ClearFwCelebration()
+	
+	--双11盛世龙腾清数据
+	ClearDragonActEnd()
+
+end

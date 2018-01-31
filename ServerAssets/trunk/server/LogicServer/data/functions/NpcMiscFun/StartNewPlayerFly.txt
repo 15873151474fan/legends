@@ -1,0 +1,76 @@
+--lua script
+--#include "data\config\vehicle\VehicleConfig.txt" once
+
+--玩家登陆游戏，开启梦幻之旅
+
+--开启梦幻的飞行，对每个玩家，根据阵营，选择不同的任务和不同的飞行路线
+function startNewPlayFly(sysarg)
+	
+    --[[
+    if(Actor.getCampId(sysarg) ==1) then  --无忌的,飞剑
+		Actor.addQuest(sysarg,1700)
+		Actor.onBoard(sysarg,4,1)  --交通工具ID,路线ID
+		Actor.closeNPCDialog( sysarg )
+	end
+	
+	if(Actor.getCampId(sysarg) ==2) then  --逍遥的,莲花
+		Actor.addQuest(sysarg,1732)
+		Actor.onBoard(sysarg,3,2) --交通工具ID,路线ID
+		Actor.closeNPCDialog( sysarg )
+	end
+	
+	if(Actor.getCampId(sysarg) ==3) then  --日月的,风火轮
+		Actor.addQuest(sysarg,1764)
+		Actor.onBoard(sysarg,1,3) --交通工具ID,路线ID
+		Actor.closeNPCDialog( sysarg )
+	end	
+      --]]
+	Actor.onBoard(sysarg,3,4) --交通工具ID,路线ID
+	--Actor.finishQuest(sysarg,1879)
+	Actor.closeNPCDialog( sysarg )
+	Actor.addQuest(sysarg,1879)
+	--Actor.finishQuest(sysarg,1879)
+	--Actor.addEffect(sysarg,24,6,40000)
+	--Actor.playScrEffect(sysarg,50058,60)
+	--Actor.playScrEffectCode(sysarg,1,60)
+end
+
+--参数vehicleIdx：交通工具的索引,参数2：场景path的索引
+function canExperienceFly( sysarg, vehicleIdx, sceneIdx )
+	vehicleIdx = tonumber(vehicleIdx)
+	sceneIdx = tonumber(sceneIdx)
+	local vehicleInfo = VehicleConfig.vehicle[vehicleIdx]
+	if vehicleInfo then
+		local flyFee = VehicleConfig.fee[vehicleIdx]
+		if flyFee == 6 and flyFee.count > 0 then			--银两
+			local npcHandle = Actor.getNpc(sysarg)
+			local title = string.format(Lang.ScriptTips.tf00046, flyFee.count)
+			local sureBtn = string.format("%s/%s,%d,%d", Lang.ScriptTips.tf00047, "experienceFly", vehicleIdx, sceneIdx)
+			local cancelBtn = Lang.ScriptTips.tf00048 .. "/cancelExperienceFly"
+			Actor.messageBox(sysarg,npcHandle,0, title, sureBtn, cancelBtn,NULL)
+		else
+			experienceFly( sysarg, vehicleIdx, sceneIdx )
+		end
+	end
+end
+
+function cancelExperienceFly( sysarg )
+
+end
+
+function experienceFly( sysarg, vehicleIdx, sceneIdx)
+	vehicleIdx = tonumber(vehicleIdx)
+	sceneIdx = tonumber(sceneIdx)
+	local vehicleInfo = VehicleConfig.vehicle[vehicleIdx]
+	if vehicleInfo then
+		local flyFee = VehicleConfig.fee[vehicleIdx]
+		if flyFee.count == 0 or Actor.changeMoney(sysarg, flyFee.id, -flyFee.count, 0, Lang.LogTips.yb013) then
+			Actor.onBoard( sysarg, vehicleIdx, sceneIdx)
+			Actor.closeNPCDialog( sysarg )
+			Actor.triggerQuestEvent(sysarg, 127, 31120, 1 )
+		else
+			local str = string.format(Lang.ScriptTips.tf00045, flyFee.count)
+			Actor.sendTipmsg( sysarg, str, ttDialog )
+		end
+	end
+end

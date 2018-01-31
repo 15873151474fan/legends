@@ -1,0 +1,866 @@
+--lua script
+
+--#include "data\config\activityconfig\Festival\LanternFestival.txt" once
+--#include "data\config\activityconfig\CrossSendFlowers\CsSendFlowers.txt" once
+--#include "data\config\activityconfig\Festival\LaborDayHorseActive.txt" once
+--#include "data\functions\Activity\ValentinesDay\ValentineGift.txt" once
+--#include "data\config\activityconfig\ValentinesDay\ValentineParadeConfig.txt" once --七夕巡游时间
+
+--请求购买物品
+function ReqShopping(sysarg, packet)
+	local itemList = LanternFestivalConfig.itemList
+	local count = DataPack.readInt(packet)
+	local needGold = 0
+	local needBagCount = 0
+	local itemId = 0
+	local itemCount = 0
+	local flag = -1
+	local buyItemList = {}
+	
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) ~= true and System.getDischountShopFlag() ~= 1 then
+		--and System.isInDateRange(unpack(LaborDayHorseActiveConfig.actTime)) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0017, ttFlyTip)  
+		return 
+	end
+	
+	if count > 0 then
+		for i= 1, count do 
+			itemId = DataPack.readUInt(packet)
+			
+			itemCount = DataPack.readInt(packet)
+			buyItemList[i] = {id = itemId, count = itemCount}
+			
+			for k, itemInfo in ipairs(itemList) do 
+				if itemInfo.id == itemId then
+					needGold = needGold + itemInfo.gold * itemCount
+					needBagCount = needBagCount + Item.getAddItemNeedGridCount(sysarg, itemId, itemCount, 
+						itemInfo.quality, itemInfo.strong, itemInfo.bind)
+					break
+				end
+			end
+		end
+		
+		for k, v in ipairs(LanternFestivalConfig.disPrices) do  
+			if needGold >= v.fulfil then
+				needGold = needGold - v.discounts
+				break
+			end
+		end
+		 
+		if Actor.checkConsume(sysarg, 15, 0, needGold) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.yx0015, ttFlyTip)
+			return 
+		end
+			
+		local emptyBagCount = Item.getBagEmptyGridCount(sysarg)
+		if emptyBagCount < needBagCount then
+			Actor.sendTipmsg(sysarg, Lang.Activity.yx0016, ttFlyTip)
+			return  
+		end
+		
+		if Actor.changeMoney(sysarg, 3, -needGold, 944, Lang.LogTips.yx0005) == true then
+			for k, v in ipairs(buyItemList) do 
+				for index, itemInfo in ipairs(itemList) do 
+					if itemInfo.id == v.id then
+						Actor.giveAward(sysarg, itemInfo.type, itemInfo.id, v.count, itemInfo.quality, itemInfo.strong, itemInfo.bind, 0, 944, Lang.LogTips.yx0009)
+					end
+				end
+			end
+			
+			if needGold > LanternFestivalConfig.buyNotice then
+				local actorName = Actor.getName(sysarg)
+				System.broadcastTipmsg(string.format(Lang.Activity.yx0063,actorName,needGold),2+128)
+			end
+		end
+		
+		flag = 0
+	end 
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 33)
+	if pack ~= nil then
+		DataPack.writeChar(pack, flag) 
+		DataPack.flush(pack)
+	end
+
+end
+
+function ReqDisShopRemainTime(sysarg, packet)
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) ~= true and System.getDischountShopFlag() ~= 1 then
+		--and System.isInDateRange(unpack(LaborDayHorseActiveConfig.actTime)) ~= true then 
+		return 
+	end
+	
+	local remainTime = 0
+	if System.getDischountShopFlag() ~= 1 then
+		local actTime = LanternFestivalConfig.actTime
+		remainTime = System.encodeNumTime(actTime[7],actTime[8],actTime[9],actTime[10],actTime[11],actTime[12]) - System.getCurrMiniTime() + 1
+	else
+		remainTime = System.getDiscountShopRemainTime()
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 65)
+	if pack ~= nil then
+		DataPack.writeUInt(pack, remainTime) 
+		DataPack.flush(pack)
+	end
+
+end
+
+--登录处理
+function LanternLoginHandle(sysarg)
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) == true then
+		SendShoppingStat(sysarg, 1, 0)
+		SendShoppingStat(sysarg, 2, 0)
+		
+		if System.getOpenCsSendFlowersFlag() == 0 then
+			System.setOpenCsSendFlowers(CsSendFlowersConfig.actStartTime, CsSendFlowersConfig.actDay)
+		end
+	else
+		SendShoppingStat(sysarg, 1, 1)
+		if System.getDischountShopFlag() == 1 then
+			SendShoppingStat(sysarg, 2, 0)
+		else
+			SendShoppingStat(sysarg, 2, 1)
+		end
+	end
+	
+	OpenDragonGod(sysarg)
+	
+	ClearLanternRank()
+end
+
+function ClearLanternRank()
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) ~= true then
+		local lanternRankPtr = Ranking.getRanking(Lang.Rank.LanternName)
+		if lanternRankPtr then
+			if Ranking.getRankItemCount(lanternRankPtr) > 0 then
+				Ranking.clearRanking(lanternRankPtr)
+			end
+		end
+	end 
+	
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) ~= true and System.isInDateRange(unpack(ValentineParadeConfig.actTime)) ~= true then
+		local LanternParadeRankPtr = Ranking.getRanking(Lang.Rank.LanternParadeName)
+		if LanternParadeRankPtr then
+			if Ranking.getRankItemCount(LanternParadeRankPtr) > 0 then
+				Ranking.clearRanking(LanternParadeRankPtr)
+			end
+		end
+		
+	end
+	
+end
+
+
+
+--新一天处理
+function LanterNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) == true then
+		SendShoppingStat(sysarg, 1, 0)
+		SendShoppingStat(sysarg, 2, 0)
+	else
+		SendShoppingStat(sysarg, 1, 1)
+		if System.getDischountShopFlag() ~= 1 then
+			SendShoppingStat(sysarg, 2, 1)
+		else
+			SendShoppingStat(sysarg, 2, 0)
+		end
+	end
+	
+	OpenDragonGod(sysarg)
+
+end
+
+--开启寻仙
+function OpenDragonGod(sysarg)
+	local timeConfig = LanternFestivalConfig.actTime
+	local strtTime = System.encodeNumTime(timeConfig[1], timeConfig[2], timeConfig[3], timeConfig[4], timeConfig[5], timeConfig[6])
+	if System.getCurrMiniTime() >= strtTime then
+		if Actor.checkActorLevel(sysarg, LanternFestivalConfig.dragonGodWorship.level, 0) == true then
+			SendShoppingStat(sysarg, 3, 0)
+		end 
+	end 
+	
+end
+
+--下线处理
+function LanterLogoutHandle(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) == true or System.isInDateRange(unpack(ValentineParadeConfig.actTime)) == true then --元宵巡游，七夕巡游
+		ParadeLogout(actorId)	
+	end
+end
+
+function ParadeLogout(actorId)
+	local LanternParadePtr = Ranking.getRanking( Lang.Rank.LanternParadeName )
+	if LanternParadePtr then
+		local LanternParadeItemPtr = Ranking.getItemPtrFromId(LanternParadePtr, actorId)
+		if LanternParadeItemPtr then
+			LanternParadeItemPtr = Ranking.setItem(LanternParadePtr, actorId, 0) --设置
+			if LanternParadeItemPtr then
+				Ranking.setSub(LanternParadeItemPtr, 0)  --设置时间
+			end
+		end
+	end
+		
+end
+
+--发送元宵图标状态
+function SendShoppingStat(sysarg, nType, stat)
+	local pack = DataPack.allocPacket(sysarg, 145, 34)
+	if pack ~= nil then
+		DataPack.writeChar(pack, nType)
+		DataPack.writeChar(pack, stat) 
+		DataPack.flush(pack)
+	end 
+end
+
+
+--重置数据
+function ResetLanterData()
+	local lanternRankPtr = Ranking.getRanking(Lang.Rank.LanternName)
+	if lanternRankPtr then
+		Ranking.clearRanking(lanternRankPtr)
+	end
+	
+	local lanternParadePtr = Ranking.getRanking(Lang.Rank.LanternParadeName)
+	if lanternParadePtr then
+		Ranking.clearRanking(lanternParadePtr)
+	end
+	
+end
+
+
+--领取婚车,开启巡游
+function OpenLanternParade(sysarg)
+	if Actor.hasState(sysarg,esStateCarrier) == true and Actor.getMarryActivitFlag(sysarg, 1) == 1 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0055, ttFlyTip) 
+		return
+	end
+	
+	local teamid = Actor.getTeamId(sysarg)
+	if teamid == 0 then		--没有组队
+		Actor.sendTipmsg(sysarg,Lang.Activity.yx0028,ttFlyTip)
+		return
+	end
+
+	local actList = LuaHelp.getTeamMemberList(sysarg)
+	if actList == nil then
+		return
+	end
+	
+	local tCount = table.getn(actList)
+	if tCount ~= 2 then					--队伍人数不是2人
+		Actor.sendTipmsg(sysarg,Lang.Activity.yx0031,ttFlyTip)
+		return
+	end
+
+	local actorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+
+	local pPlayer = nil
+
+	for i = 1, #actList do
+		local pActor = actList[i]
+
+		if pActor ~= nil then
+			local otherId = Actor.getIntProperty(pActor,PROP_ENTITY_ID)
+			if otherId ~= actorId then
+				if not Actor.isInSameScreen(sysarg,pActor) then			--有成员不再附近
+					Actor.sendTipmsg(sysarg,Lang.Activity.yx0032,ttFlyTip)
+					return
+				end
+				
+				if sex == Actor.getIntProperty(pActor,PROP_ACTOR_SEX) then		--不是
+					Actor.sendTipmsg(sysarg,Lang.Activity.yx0033,ttFlyTip)
+					return
+				end
+				
+				if Actor.getSocialCurNum(sysarg,6) > 0 then	
+					local coupleId = Actor.getSocialRelationId(sysarg, 6) 
+					if otherId ~= coupleId then
+						Actor.sendTipmsg(sysarg,Lang.Activity.yx0027,ttFlyTip)
+						return
+					end
+				else
+					Actor.sendTipmsg(sysarg,Lang.Activity.yx0027,ttFlyTip)
+					return
+				end
+				
+				pPlayer = pActor
+			end
+		end
+	end
+	
+	local captainPtr = TeamFun.getTeamCaptain( teamid )
+	if captainPtr ~= sysarg then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0029, ttFlyTip)
+		return
+	end
+	
+	if CheckAllBagCount(sysarg) ~= true then
+		return
+	end
+	
+	local consume = LanternFestivalConfig.lanterParade.getCarConsum
+	if Actor.checkConsume(sysarg, 6, 0, consume.count) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0030, ttFlyTip)
+	end
+	
+	if Actor.changeMoney(sysarg, 1, -consume.count, 944, Lang.LogTips.yx0010) == true then
+		local curTime = System.getCurrMiniTime()
+		local deadline = curTime + LanternFestivalConfig.lanterParade.paradeTime
+		local modelId = LanternFestivalConfig.lanterParade.hunCheModelid
+		if Actor.isVip(sysarg) == true then
+			modelId = LanternFestivalConfig.lanterParade.specialModelid
+		end
+		
+		Actor.onTransToCarrier(sysarg, modelId) 
+
+		Actor.setMarryActivitFlag(sysarg, 1, 1)		--设置正在巡游的标记
+		InitParadeRank(sysarg, deadline, modelId)
+		if pPlayer then
+			Actor.takeOnCarrier(pPlayer,actorId) 
+			InitParadeRank(pPlayer, deadline, modelId)
+			Actor.setMarryActivitFlag(sysarg, 1, 2)		--设置正在巡游的标记
+		end
+		
+		SaveAwardInfo(sysarg, 6, 1)			-- 设置夫妻巡游标志位
+		SaveAwardInfo(pPlayer, 6, 1)		-- 设置夫妻巡游标志位
+	
+		sendAllParadePanel(sysarg, 0, 1) 
+		--Actor.regScriptCallback(sysarg, nil, deadline * 1000, 0, 1, "ParadeTimeOut")  
+		Actor.regScriptCallback(sysarg, nil, LanternFestivalConfig.lanterParade.paradeTime * 1000, 0, 1, "ParadeTimeOut") 
+	
+	end
+
+end
+
+
+--检测所有需要背包格子
+function CheckAllBagCount(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local coupleId = Actor.getSocialRelationId(sysarg, 6) 
+	
+	if CheckOneBagCount(actorId, 1, sysarg) ~= true then
+		return false
+	end
+	
+	if CheckOneBagCount(coupleId, 2, sysarg) ~= true then 
+		return false
+	end
+	
+	return true
+
+end
+
+function CheckOneBagCount(actorId, teamPos, sysarg)
+	local actorPtr = System.getEntityPtrByActorID(actorId)
+	if actorPtr then
+		local awardListConfig = LanternFestivalConfig.lanterParade.awardList
+		local count = table.getn(awardListConfig)
+		local needCount = 0
+		for k, awardList in ipairs(awardListConfig) do 
+			if k == count then
+				awardList = awardList[1]
+			end
+		
+			for i, itemInfo in ipairs(awardList) do 
+				if itemInfo.isCheck ~= 0 then
+					needCount = needCount + Item.getAddItemNeedGridCount(actorPtr, itemInfo.id, itemInfo.count, itemInfo.quality, itemInfo.strong, itemInfo.bind)
+				end
+			end
+		end
+	
+		local hasCount = Item.getBagEmptyGridCount(actorPtr)
+		if hasCount < needCount then
+			if teamPos == 1 then
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0059, needCount-hasCount), ttFlyTip)
+				return false
+			else 
+				local actorName = Actor.getName(actorPtr)
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0060, actorName, needCount-hasCount), ttFlyTip)
+				return false
+			end
+			
+		end
+	end
+	
+	return true
+		
+end
+
+
+
+--发送所有巡游面板信息
+function sendAllParadePanel(sysarg, npcPos, isClose)
+	local teamid = Actor.getTeamId(sysarg)
+	local captainPtr = TeamFun.getTeamCaptain( teamid )
+	if sysarg ~= captainPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local coupleId = Actor.getSocialRelationId(sysarg, 6) 
+	
+	sendParadePanel(actorId, npcPos, isClose) 
+	sendParadePanel(coupleId, npcPos, isClose) 
+end
+
+
+--发送巡游面板信息
+function sendParadePanel(actorId, npcPos, isClose) 
+
+	local actorPtr = System.getEntityPtrByActorID(actorId)
+	if  actorPtr == nil then
+		return 
+	end
+	
+	local LanternParadePtr = Ranking.getRanking( Lang.Rank.LanternParadeName )
+	if LanternParadePtr then
+		local LanternParadeItemPtr = Ranking.getItemPtrFromId(LanternParadePtr, actorId)
+		if LanternParadeItemPtr then
+			local panelPack = DataPack.allocPacket(actorPtr, 145, 37) 
+					if panelPack ~= nil then
+						if isClose == 0 then
+							DataPack.writeByte(panelPack, 0)
+						else
+							local wedCarType = Ranking.getPoint(LanternParadeItemPtr) 
+							if wedCarType == 0 then
+								return 
+							end
+								
+								DataPack.writeByte(panelPack, wedCarType)
+								
+								local targetNpcPos = 0
+								if npcPos < table.getn(LanternFestivalConfig.lanterParade.awardList) then
+									npcPos = npcPos + 1
+								else
+									npcPos = table.getn(LanternFestivalConfig.lanterParade.awardList)
+							
+								end
+						
+								
+								local npcName = getParadeNpcName(npcPos)
+								
+								DataPack.writeString(panelPack, npcName)
+			
+								local curTime = System.getCurrMiniTime()
+								local dealineTime = tonumber(Ranking.getSub(LanternParadeItemPtr, 0)) 
+								local releftTime = 0
+								if dealineTime > curTime then
+									releftTime = dealineTime - curTime
+								end
+								
+								DataPack.writeUInt(panelPack, releftTime)
+								
+								local npcFlag = tonumber(Ranking.getSub(LanternParadeItemPtr, npcPos))
+								if npcFlag == 1 then
+									DataPack.writeInt(panelPack, 0)
+								else
+									local awardListConfig = LanternFestivalConfig.lanterParade.awardList[npcPos]
+									if npcPos == table.getn(LanternFestivalConfig.lanterParade.awardList) then
+										awardListConfig = awardListConfig[1]
+									end
+									local awardCount = table.getn(awardListConfig)
+									DataPack.writeInt(panelPack, awardCount)
+									for k, awardInfo in ipairs(awardListConfig) do 
+										DataPack.writeInt(panelPack, awardInfo.type)
+										DataPack.writeInt(panelPack, awardInfo.id)
+										if awardInfo.type == 20 then
+											local count = Actor.getActivityExp(actorPtr, awardInfo.id, awardInfo.count, awardInfo.quality)
+											DataPack.writeInt(panelPack, count) 
+										else
+											DataPack.writeInt(panelPack, awardInfo.count)
+										end
+									end
+								end
+						
+								DataPack.writeInt(panelPack, LanternFestivalConfig.lanterParade.sceneId)
+							
+						end
+						DataPack.flush(panelPack)
+					end
+		end
+	end
+end
+
+function ParadeTimeOut(sysarg)
+	Actor.takeOffCarrier(sysarg)						
+	--sendAllParadePanel(sysarg, 0, 0) --关闭巡游窗口
+end
+
+--领取奖励
+function GetLanternParadeAward(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.yx0024.."/@GetParadeAwardFree>" 
+	str = str.."\\<#BL"..Lang.Activity.yx0025.."/@GetParadeAwardByYb>" 
+	str = str..Lang.Activity.yx0026
+	return str
+
+end
+--免费领取奖励
+function GetParadeAwardFree(sysarg) 
+	
+	local npcName = Actor.getTalkNpcName(sysarg)
+	
+	local npcPos = getNpcPos(npcName)
+	
+	if npcPos == 0 then
+		return 
+	end
+	
+	
+	if AllCanGetParadeAward(sysarg, npcPos, 0) == true then
+		GetAllParadeAward(sysarg, npcPos, 0)
+		ParadeTimeOut(sysarg)
+		ResetAllParadeInfo(sysarg)
+	end
+
+	 
+end 
+
+--元宝领取奖励
+function GetParadeAwardByYb(sysarg)
+	local npcName = Actor.getTalkNpcName(sysarg)
+	
+	local npcPos = getNpcPos(npcName)
+	if npcPos == 0 then
+		return 
+	end
+	
+	local consumConfig = LanternFestivalConfig.lanterParade.getAwardConsum
+	
+	if Actor.checkConsume(sysarg, consumConfig.type, consumConfig.id, consumConfig.count) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0044, ttFlyTip)
+	end
+	
+	if AllCanGetParadeAward(sysarg, npcPos, 1) == true then
+			GetAllParadeAward(sysarg, npcPos, 1)
+			ParadeTimeOut(sysarg) 
+			ResetAllParadeInfo(sysarg)
+	
+	end
+end
+
+
+--在Npc处领取奖励
+function GetParadeAwardByNpc(sysarg)
+	
+	local npcName = Actor.getTalkNpcName(sysarg)
+	
+	local npcPos = getNpcPos(npcName)
+	if npcPos == 0 then
+		return 
+	end
+	 
+	if AllCanGetParadeAward(sysarg, npcPos, 0) == true then
+		GetAllParadeAward(sysarg, npcPos, 0)
+		--sendAllParadePanel(sysarg, npcPos, 1)
+	end
+	sendAllParadePanel(sysarg, npcPos, 1)
+	
+end
+
+--重置夫妻巡游时间
+function ResetAllParadeInfo(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local coupleId = Actor.getSocialRelationId(sysarg, 6) 
+	
+	ResetOneParadeInfo(actorId)
+	ResetOneParadeInfo(coupleId)
+end
+
+function ResetOneParadeInfo(actorId)
+	local LanternParadePtr = Ranking.getRanking( Lang.Rank.LanternParadeName )
+	if LanternParadePtr then
+		local LanternParadeItemPtr = Ranking.getItemPtrFromId(LanternParadePtr, actorId)
+		if LanternParadeItemPtr then
+			Ranking.setSub(LanternParadeItemPtr, 0, 0)
+			Ranking.setItem(LanternParadePtr, actorId, 0)
+		end
+	end
+end 
+
+--初始化巡游数据
+function InitParadeRank(actorPtr, deadlineTime, wedCarType)
+	local actorId = Actor.getIntProperty(actorPtr, PROP_ENTITY_ID) 
+	local LanternParadePtr = Ranking.getRanking( Lang.Rank.LanternParadeName )
+	if LanternParadePtr then
+		local LanternParadeItemPtr = Ranking.getItemPtrFromId(LanternParadePtr, actorId)
+		if LanternParadeItemPtr == nil then
+			LanternParadeItemPtr = Ranking.addItemExt(LanternParadePtr, actorId, 0, false)
+			if LanternParadeItemPtr then
+				for i = 1, 4 do 
+					Ranking.setSub(LanternParadeItemPtr, i-1, 0)  
+				end
+			end
+		end
+		
+		if LanternParadeItemPtr then
+			LanternParadeItemPtr = Ranking.setItem(LanternParadePtr, actorId, wedCarType)
+			if LanternParadeItemPtr then
+				Ranking.setSub(LanternParadeItemPtr, 0, deadlineTime)
+			end
+		end
+		
+	end
+end 
+ 
+ 
+--巡游npc处签到
+function ParadeActNpcCheckIn(sysarg, arg)  
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) ~= true then
+		return 
+	end
+	
+	local npcPtr = arg[1]
+	local npcPos = getNpcIndex(npcPtr)
+	
+	if npcPos == 0 then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local coupleId = Actor.getSocialRelationId(sysarg, 6) 
+	
+	local retFlag = false
+	retFlag = SetParadeRec(actorId, npcPos, 1)  --1队长，2队员
+	retFlag = SetParadeRec(coupleId, npcPos, 2) 
+	
+	if npcPos == 3 and retFlag == true then
+		ParadeTimeOut(sysarg)
+			
+	end
+	
+end
+
+
+--获取npc序号
+function getNpcPos(npcName)
+
+	local npcPos = 0	
+	if npcName == Lang.EntityName.n00008 then
+		npcPos = 1 
+	elseif npcName == Lang.EntityName.n00020 then
+		npcPos = 2 
+	elseif npcName == Lang.EntityName.n00165 then          -- n00165     n00008   n00020 
+		npcPos = 3 
+	end
+	return npcPos
+end
+
+
+--获取npc序号
+function getNpcIndex(npcPtr)
+	local npcName = Actor.getName(npcPtr)
+	local npcPos = 0
+	
+	if npcName == Lang.EntityName.n00008 then
+		npcPos = 1 
+	elseif npcName == Lang.EntityName.n00020 then
+		npcPos = 2 
+	elseif npcName == Lang.EntityName.n00165 then          -- n00165     n00008   n00020 
+		npcPos = 3 
+	end
+	return npcPos
+end
+
+--获取巡游npc名称
+function getParadeNpcName(npcPos)
+	local npcName = ""
+	if npcPos == 1 then
+		npcName = Lang.EntityName.n00008 
+	elseif npcPos ==2 then
+		npcName = Lang.EntityName.n00020 
+	elseif npcPos == 3 then
+		npcName = Lang.EntityName.n00165   
+	end
+	
+	return npcName
+
+end
+--是否都可以获取奖励
+function AllCanGetParadeAward(sysarg, npcPos, isConsum)
+	
+	if Actor.hasState(sysarg,esStateCarrier) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0050, ttFlyTip) 
+		return false
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local coupleId = Actor.getSocialRelationId(sysarg, 6) 
+	
+	if CanGetParadeAward(actorId, npcPos, 1, isConsum, sysarg) ~= true then 
+
+		return false
+	end 
+	
+	local actorPtr = System.getEntityPtrByActorID(coupleId)
+	if Actor.hasState(actorPtr,esStatePassengger) == true and Actor.getMarryActivitFlag(sysarg, 2) == 1 then
+		if CanGetParadeAward(coupleId, npcPos, 2, isConsum, sysarg) ~= true then
+			return false
+		end
+	end
+
+	return true
+
+end
+
+--判断是否可以领取
+function CanGetParadeAward(actorId, npcPos, teamPos, isConsum, sysarg)
+	local actorPtr = System.getEntityPtrByActorID(actorId)
+	
+	local LanternParadePtr = Ranking.getRanking( Lang.Rank.LanternParadeName )
+	if LanternParadePtr then
+		local LanternParadeItemPtr = Ranking.getItemPtrFromId(LanternParadePtr, actorId)
+		
+		if LanternParadeItemPtr then
+			
+			if npcPos > 1 then
+				local lastNpcFlag = tonumber(Ranking.getSub(LanternParadeItemPtr, npcPos-1))
+				if lastNpcFlag == 0 then
+					local lastNpcName = getParadeNpcName(npcPos-1)
+					Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0035,lastNpcName), ttFlyTip) 
+					return false
+				end
+			end
+			
+			local curNpcFlag = tonumber(Ranking.getSub(LanternParadeItemPtr, npcPos))
+			if curNpcFlag == 0 then
+				if CheckBagCount(actorId, npcPos, teamPos, isConsum) ~= true then
+					if teamPos == 1 then
+						Actor.sendTipmsg(sysarg, Lang.Activity.yx0056, ttFlyTip)
+					else
+						local actorName = Actor.getName(actorPtr)
+						Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0057,actorName), ttFlyTip)
+					end
+					
+					return false
+				else
+					
+					return true
+				end
+				
+			elseif curNpcFlag == 1 then
+				if teamPos == 1 then
+					Actor.sendTipmsg(sysarg, Lang.Activity.yx0036, ttFlyTip)
+				else
+					local actorName = Actor.getName(actorPtr)
+					Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0058,actorName), ttFlyTip)
+				end
+				return false
+			end
+			
+			
+		end
+	end
+	return false
+end
+
+
+--判断背包格子
+function CheckBagCount(actorId, npcPos, teamPos, isConsum) 
+	local actorPtr = System.getEntityPtrByActorID(actorId)
+	local awardList = LanternFestivalConfig.lanterParade.awardList[npcPos]
+	if npcPos == table.getn(LanternFestivalConfig.lanterParade.awardList) then
+		awardList = awardList[isConsum+1]
+	end
+	local needCount = 0
+	for k, itemInfo in ipairs(awardList) do 
+		if itemInfo.isCheck ~= 0 then
+			needCount = needCount + Item.getAddItemNeedGridCount(actorPtr, itemInfo.id, itemInfo.count, itemInfo.quality, itemInfo.strong, itemInfo.bind)
+		end
+	end
+	
+	local hasCount = Item.getBagEmptyGridCount(actorPtr)
+	if hasCount < needCount then
+		return false
+	else
+		return true
+	end
+
+end
+
+--领取奖励
+function GetAllParadeAward(sysarg, npcPos, isConsum)
+	local teamid = Actor.getTeamId(sysarg)
+	local captainPtr = TeamFun.getTeamCaptain( teamid )
+	if sysarg ~= captainPtr then
+		Actor.sendTipmsg(sysarg,  Lang.Activity.yx0043, ttFlyTip) 
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local coupleId = Actor.getSocialRelationId(sysarg, 6) 
+	
+	GetAwardByOne(actorId, npcPos, 1, isConsum)
+	GetAwardByOne(coupleId, npcPos, 2, isConsum) 
+	
+end 
+
+--领取奖励
+function GetAwardByOne(actorId, npcPos, teamPos, isConsum)
+	local actorPtr = System.getEntityPtrByActorID(actorId)
+	if actorPtr == nil then 
+		return 
+	end
+	
+	if Actor.hasState(actorPtr,esStateCarrier) ~= true and Actor.hasState(actorPtr,esStatePassengger) ~= true then
+		return 
+	end
+	
+
+	local consumConfig = LanternFestivalConfig.lanterParade.getAwardConsum
+	local LanternParadePtr = Ranking.getRanking( Lang.Rank.LanternParadeName )
+
+	if LanternParadePtr then
+		local LanternParadeItemPtr = Ranking.getItemPtrFromId(LanternParadePtr, actorId) 
+		
+		if LanternParadeItemPtr then
+			if Ranking.getPoint(LanternParadeItemPtr) == 0 then
+				return 
+			end
+			
+			local npcFlag = tonumber(Ranking.getSub(LanternParadeItemPtr, npcPos)) 
+			
+			if npcFlag == 1 then
+				--Actor.sendTipmsg(actorPtr, Lang.Activity.yx0036, ttFlyTip)
+				return 
+			end
+			
+			if npcFlag == 0 then
+				if isConsum == 1 then
+					if teamPos == 1 then
+						if Actor.changeMoney(actorPtr, 3, -consumConfig.count, 944, Lang.LogTips.yx0013) ~= true then
+							return 
+						end
+					end
+				end
+				
+				local awardList = LanternFestivalConfig.lanterParade.awardList[npcPos]
+				if npcPos == table.getn(LanternFestivalConfig.lanterParade.awardList) then
+					awardList = awardList[isConsum+1]  
+				end
+				for k, awardInfo in ipairs(awardList) do 
+					Actor.giveAward(actorPtr, awardInfo.type, awardInfo.id, awardInfo.count, 
+						awardInfo.quality, awardInfo.strong, awardInfo.bind, 0, 944, Lang.LogTips.yx0011) 
+				
+				end
+				
+				Ranking.setSub(LanternParadeItemPtr, npcPos, 1)
+				
+			end
+		end
+	end
+end
+
+--进入红娘副本的条件
+function OnEnterHongNiangFbCondition(sysarg, fbId)
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) == true then
+		if Actor.getMarryActivitFlag(sysarg, 1) ~= 0 then 
+			return false
+		end
+	end
+	return true
+end

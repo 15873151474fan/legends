@@ -1,0 +1,19 @@
+--从自身的媒体库里播放一个动画
+--videoId 动画的编号
+function StartPlayVideo(sysarg,videoId)
+	--print("StartPlayVideo:"..videoId)
+	local npack = DataPack.allocPacket(sysarg,139,28)  --申请一个数据包
+	if(npack ==nil) then return end
+	DataPack.writeByte(npack,videoId)
+	DataPack.flush(npack)
+end 
+
+--从一个开始播放动画
+--url 动画的地址
+function StartPlayVideoFromUrl(sysarg,url)
+    if(url ==nil) then return end
+    local npack = DataPack.allocPacket(sysarg,139,29)  --申请一个数据包
+	if(npack ==nil) then return end
+	DataPack.writeString(npack,url)
+	DataPack.flush(npack)
+end

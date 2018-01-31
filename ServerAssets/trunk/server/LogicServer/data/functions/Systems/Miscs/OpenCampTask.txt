@@ -1,0 +1,45 @@
+﻿ 
+ --#include "data\functions\Tasks\CampTasks\CampDart\OpenCampDartFunc.txt"  once
+
+
+--请求阵营活动列表 
+MiscsImplement.OpenCampTaskList = function (sysarg,msgid, packet)
+  local CampTask = {}
+  --------初始化
+  local CampDartOpenTimes,CampDartOpenFlag,CampDartOpenTime = initCampDartOpenTimes(sysarg)
+	
+  ---阵营活动开启次数 表 
+  table.insert(CampTask, {id = 1, times = CampDartOpenTimes, flag = CampDartOpenFlag, time = CampDartOpenTime}) 
+  ---此次添加阵营活动 
+
+
+  ------- 
+  local count = table.getn(CampTask)
+  local npack = DataPack.allocPacket(sysarg,139,24)
+  if npack == nil then return end
+  DataPack.writeByte(npack,count)  --活动次数 
+	for i = 1 ,count do
+    local tt = CampTask[i]
+		DataPack.writeByte(npack,tt.id)    --活动ID 
+		DataPack.writeByte(npack,tt.times)  --活动开启次数 
+		DataPack.writeByte(npack,tt.flag)	--活动开启状态 1开启 0关闭
+		DataPack.writeInt(npack, tt.time)
+  end
+  DataPack.flush(npack)
+end
+  
+--客户端点击发布阵营活动 
+MiscsImplement.OpenCampTask = function (sysarg,msgid, packet)
+  if packet == nil then return end
+  local id = DataPack.readByte(packet)
+  --id == 1 阵营运镖 
+  if id == 1 then
+    OpenCampDart(sysarg, msgid, packet)
+  end 
+end  
+
+
+
+
+MiscsImplement.registerMsgHandler(23,MiscsImplement.OpenCampTaskList)
+MiscsImplement.registerMsgHandler(24,MiscsImplement.OpenCampTask)

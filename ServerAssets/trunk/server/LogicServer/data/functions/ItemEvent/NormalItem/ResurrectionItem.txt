@@ -1,0 +1,37 @@
+﻿--lua script
+--for item do rapid effect
+
+--#include "data\config\item\NormalItemDatas.txt" once
+
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+
+function ResurrectionEffect(sysarg,itemdx,itemPtr,ItemTable)
+	local fbid = Actor.getFubenId(sysarg)
+	if fbid == 0 then 
+	   if Actor.getIntProperty(sysarg,PROP_CREATURE_HP) == 0 then 
+        local MaxHp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXHP)
+	      local MaxMp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXMP)
+	      Actor.changeHp(sysarg,MaxHp)
+	      Actor.changeMp(sysarg,MaxMp)
+     else 
+        return
+	   end 
+     if ItemTable.needDelete then --需要删除
+			Actor.removeItemByPtr(sysarg,itemPtr,1,true," ",5)      --删除一个物品
+		 end	
+	else 
+		 return
+	end
+end
+function ResurrectionEffectItemInit(sysarg)
+  for i = 1,table.getn(ResurrectionItems) do
+	local x = ResurrectionItems[i]
+	GlobalItemFn[x.item_id] = { func = ResurrectionEffect, params = x }
+  end
+end
+
+
+table.insert(InitFnTable,ResurrectionEffectItemInit)
+

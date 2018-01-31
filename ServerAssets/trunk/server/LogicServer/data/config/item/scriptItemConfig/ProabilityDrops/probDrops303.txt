@@ -1,0 +1,34 @@
+﻿--[[
+--按照概率和掉落的配置,id表示物品的id
+--count表示物品的数量,
+--strong 强化等级,如果是小于0的表示0-n随机
+-- quality 品质如果是小于0的表示0-n随机 ,比如-3表示0到3之间随机
+-- strongMin 表示最小的强化等级, 如果配置了，那么随出了一个物品的强化低于这个值将设置为这个值，这个不配置就是0
+-- qualityMin:表示最小的品质等级
+--propability概率，概率的数字越大的话掉的物品的概率越高
+--bind绑定的标记
+--group是分组的id，类似怪物的爆率的配置
+--sex表示玩家的性别，男的是0，女的是1，如果男女通用就是-1
+--job表示玩家的职业,2华山 4水月 7御神 8忍者 0表示没有职业限制
+--]]
+
+drops=
+{
+
+{ id=105,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--撼天
+--{ id=106,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--魔焰诱惑（男）
+{ id=107,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--魔焰诱惑（女）
+{ id=108,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炎阳法盔
+{ id=109,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炎阳项链
+{ id=110,count=2, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炎阳手镯
+{ id=111,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炎阳腰带
+{ id=112,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--逐日靴
+{ id=113,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--太阳石
+{ id=114,count=2, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--炎阳戒指
+{ id=115,count=1, propability=1, bind=0,group=0,job=0,sex=-1,strong=0},--
+
+
+
+
+
+}

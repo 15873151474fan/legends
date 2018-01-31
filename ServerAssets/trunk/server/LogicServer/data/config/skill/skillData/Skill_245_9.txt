@@ -1,0 +1,64 @@
+﻿--死后自爆1级
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+
+	desc=Lang.Skill.s14L1Desc,--技能的描述
+
+	iconID=14,--图标的ID
+
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-16,--相对于中心点x左边的相对坐标
+			xEnd=16,--相对于中心点x右边的相对坐标
+			yStart=-16,--相对于中心点y上边的相对坐标
+			yEnd=16,--相对于中心点y下边的相对坐标
+		rangeType=3,
+		rangeCenter=1,
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 6,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=19,delay=0},
+						{mj=0,timeParam=1,type=1,delay=200, buffType=147,id=220,interval=5,vt=0,effectType=6,effectId=262},
+						{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=5000,interval=5000},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=245,keepTime=500,delay=300,always=false},
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		--{cond=1,value=30,consume=false},--表示等级要1级
+		--{cond=3,value=437,consume=true,exceptVip=true },--表示书本
+	},
+
+	spellConds=
+	{
+		{cond=13,value=15,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,
+	cooldownTime=35000,
+
+},

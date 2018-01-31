@@ -1,0 +1,47 @@
+﻿--lua script
+{
+	id = 4,			-- 异化的鹿
+	parentid = 3,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = false,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name4,
+	content = Lang.Quest.desc4,
+
+	prom = { type = 0, scene = Lang.SceneName.s00001, npc = Lang.EntityName.n00007 },
+	comp = { type = 0, scene = Lang.SceneName.s00001, npc = Lang.EntityName.n00007 },
+	target = {
+		{
+			type = 0, id = 7, count = 2, rewardId = 0,useList = false,
+			location = {
+				sceneid = 1, x= 74,y = 98,entityName = Lang.EntityName.m7,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+            { type = 0, id = 1, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 422, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 1600, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 562, count = 1, group = 0,strong = 0,quality = 0,job = 1,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--战士基础剑法 
+			{ type = 0, id = 568, count = 1, group = 0,strong = 0,quality = 0,job = 2,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--法师火焰术 
+			{ type = 0, id = 581, count = 1, group = 0,strong = 0,quality = 0,job = 3,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--道士龙虎道符 
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk41,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk41,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip41,
+	},
+	PassMsTip = {
+	},
+},

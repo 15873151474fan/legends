@@ -1,0 +1,49 @@
+--宝物升级功能道具，使用后为宝物提升等级
+
+
+--[[
+--宝物升级功能道具物品使用处理函数
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 { item_id = 2125, dest_level = 20, min_grade = 4,}
+--]]
+function GemUpLevelFuncItemUseHandler(sysarg, itemIdx, itemPtr, conf)	
+	if (conf == nil) then return end
+	
+	local equipedGemPtr = Actor.getCurrEquipedGem(sysarg)
+	if (equipedGemPtr == nil) then
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00003, ttDialog)
+		return
+	end
+		
+	local gemGrade = GemItem.getGemItemGrade(equipedGemPtr)
+	if (gemGrade < conf.min_grade) then
+		local tip = string.format(Lang.Gem.t00028, conf.min_grade)
+		Actor.sendTipmsg(sysarg, tip, ttDialog)
+		return
+	end
+	
+	local gemLevel = GemItem.getGemItemLevel(equipedGemPtr)
+	if (gemLevel >= conf.dest_level) then
+		local tip = string.format(Lang.Gem.t00029, conf.dest_level)
+		Actor.sendTipmsg(sysarg, tip, ttDialog)
+		return
+	end
+	
+	if (Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "up gem level", 5) ~= 1) then
+		return
+	end
+	
+	GemItem.setGemItemLevel(equipedGemPtr, conf.dest_level, 655, "use uplevel item")
+end
+
+-- @brief: 注册宝物升级道具物品使用Handler
+function GemUpLevelFuncItemInit(sysarg)
+	for i = 1, table.getn(GemUpLevelFunItem) do
+		local conf = GemUpLevelFunItem[i]		
+		GlobalItemFn[conf.item_id] = { func = GemUpLevelFuncItemUseHandler, params = conf, }
+	end
+end
+
+table.insert(InitFnTable, GemUpLevelFuncItemInit)

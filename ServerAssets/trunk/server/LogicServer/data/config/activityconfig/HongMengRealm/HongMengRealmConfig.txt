@@ -1,0 +1,92 @@
+--鸿蒙幻境配置
+--#include "data\language\LangCode.txt" once   --语言包
+   
+
+HongMengRealmConfig = 
+{
+	actWeekDay = {3,5},  --周日是0，周一是1，。。。周六是6
+	actTimeRange = {22,30,0, 23,0,0},  --活动开始时间，结束时间
+	limitCircle = 5,				--限制转数
+	limitLevel = 50,				--限制等级
+	
+	npcName = Lang.EntityName.n00313,	--流浪商人NPC名字 
+	
+	sceneId = 230,	--鸿蒙幻境场景id
+	posX = 100, 
+	posY = 22,
+	
+	exitSceneId = 8, --退出的场景id 
+	exitPosX = 154,	
+	exitPosY = 186,	  
+	
+	--随机位置
+	randomMove = 
+	{
+		{x = 17, y = 50,},	--随机传送位置width:长半径 height:宽半径
+		{x = 47, y = 31,},
+		{x = 47, y = 61,},
+		{x = 33, y = 39,},
+		{x = 17, y = 73,},
+		{x = 37, y = 86,},
+	},
+	
+	--花元宝传送
+	TeleportYb = 200,
+	telPosX = 58, --传送地点
+	telPosY = 68,
+	
+	--购买混沌珠
+	buyItem = 2911, 
+	
+	--npc出售的商品库 
+	npcShopType = 1, --npc商店类型，这个值跟newShopClasses里的type值一致
+	shopConfig =  
+	{
+		--出售的商品数量 
+		itemCount = 6,
+		shopListFile = "HongMengList.txt",
+		shopBuyInfoFile = "HongMengBuyInfo.txt",
+		npcShopStartTime = 5*60, --npc商店开始出现时间
+		npcShopTime = 2*60, --npc商店持续时间2分钟
+		npcIntervalTime = 8*60, --npc出现的间隔时间
+		actTimeRange = {22,30,0, 23,0,0},  
+		shopRate = 
+		{	--id对应下面shopInfo里配的物品的序号
+			{id = 1, rate = 2,isBroadcast = true,},   
+			{id = 2, rate = 2,isBroadcast = true,},
+			{id = 3, rate = 2,isBroadcast = true,},
+			{id = 4, rate = 1,isBroadcast = true,},
+			{id = 5, rate = 2,isBroadcast = true,},
+			{id = 6, rate = 23,isBroadcast = true,},
+			{id = 7, rate = 18,isBroadcast = true,},
+			{id = 8, rate = 18,isBroadcast = true,},
+			{id = 9, rate = 18,isBroadcast = true,},
+			{id = 10, rate = 7,isBroadcast = true,},
+			{id = 11, rate = 7,isBroadcast = true,},
+		},
+		
+		shopInfo =  
+--#include "data\config\store\newShopClasses\HongMeng.txt" once
+		
+		
+		
+	},
+	
+	--npc领取的奖励数
+	awardCount = 5,
+	--npc领取的奖励库 
+	awardTabs = 
+	{
+		--isBroadcast为true广播，false不广播
+		{type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = true, rate = 3,},
+		{type = 0, id = 3099, count = 5, strong = 0, quality = 0, bind = 1, isBroadcast = true, rate = 17,},
+		{type = 0, id = 3100, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = true, rate = 4,},
+		{type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = true, rate = 9},
+		{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = true, rate = 19},
+		{type = 0, id = 2982, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = true, rate = 19}, 
+		{type = 0, id = 2661, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = true, rate = 15}, 
+		{type = 0, id = 2672, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = true, rate = 15}, 
+	},
+	
+	
+}

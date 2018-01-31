@@ -1,0 +1,220 @@
+--翅膀羽化
+function FeatherStrongOp(sysarg, args)
+	local itemPtr = args[2]
+	local protectFlag = args[4]
+	local needGold = args[5]		--是否元宝代替
+	local continueFlag = args[6]	--是否一键羽化
+	
+	local optResult = 2
+	local itemGuid = Item.getItemGuid(itemPtr)
+	local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+
+	local nItemQuality = Item.getItemPropertyById( Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0), Item.ipItemSuitId)
+	
+	if nItemQuality < 5 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.yh0008, 5), ttFlyTip)
+		return 
+	end
+
+	--print("nItemStrong1:"..nItemStrong)
+	local strongCfg = FeatherStrongConfig[nItemStrong + 1]
+	if not strongCfg then
+		SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.yh0001, ttFlyTip)
+		return
+	end
+
+	if strongCfg.needCulture ~= nil then		--羽化到本级需要的世界文明度等级
+		if strongCfg.needCulture > System.getCultureLevel() then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.yh0009,strongCfg.needCulture), ttFlyTip)
+			return
+		end
+	end
+
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	
+	for idx, tab in ipairs(strongCfg.strong) do
+		if tab.usetype == Any_Stuff  and tab.id > 0 then
+			local itemCount = Actor.getItemCount(sysarg, tab.id)
+			
+			if itemCount < tab.count then
+				if needGold <= 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.yh0002, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )		--处理结果 0表示成功 1 表示继续羽化 2 表示失败
+					return
+				end
+				if not tab.yb or tab.yb == 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.yh0003, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - itemCount)				
+				if myGold < needGoldCount then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.yh0004, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+					return
+				end
+				myGold = myGold - needGoldCount
+			end
+		elseif tab.usetype == Any_Protect  and tab.id > 0 then
+			if protectFlag > 0 then
+				local itemCount = Actor.getItemCount(sysarg, tab.id)
+				if itemCount < tab.count then
+					if needGold <= 0 then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.yh0005, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+						return
+					end
+					if not tab.yb or tab.yb == 0 then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.yh0003, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+						return
+					end
+					local needGoldCount = tab.yb * (tab.count - itemCount)
+					if myGold < needGoldCount then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.yh0004, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+						return
+					end
+					myGold = myGold - needGoldCount
+				end
+			end
+		elseif tab.usetype == Any_Silver then
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_COIN )
+			if myCoin < tab.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.yh0006, tab.count), ttFlyTip)
+				SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+				return
+			end
+		end
+	end
+	--扣费
+	for idx, tab in ipairs(strongCfg.strong) do
+		if tab.usetype == Any_Silver then
+			if not Actor.changeMoney(sysarg, mtCoin, -tab.count, 134, Lang.ScriptTips.yh0007) then
+				SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+				return
+			end
+		elseif tab.usetype == Any_Stuff then
+			local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1,Lang.ScriptTips.yh0007,19)
+			if remCount < tab.count then
+				if needGold <= 0 then
+					SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - remCount)
+				Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 19, Lang.ScriptTips.yh0007)
+			end
+		elseif tab.usetype == Any_Protect and tab.id > 0 then
+			if protectFlag > 0 then
+				local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1,Lang.ScriptTips.yh0007,19)
+				if remCount < tab.count then
+					if needGold <= 0 then
+						SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+						return
+					end
+					local needGoldCount = tab.yb * (tab.count - remCount)
+					Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 19, Lang.ScriptTips.yh0007)
+				end
+			end
+		end
+	end
+	
+	local nRandNum = System.getRandomNumber(10000)
+
+	local nNeedRand = 10000
+	
+	local nAddZf = 0
+	if strongCfg.AddZfValue then
+		local nZfNum = System.getRandomNumber(100)
+		for j=1,table.getn(strongCfg.AddZfValue) do
+			if nZfNum  < strongCfg.AddZfValue[j].rate then
+				nAddZf = strongCfg.AddZfValue[j].addValue
+				break
+			end
+		end
+	end
+
+	local nItemZfValue = Item.getItemProperty( sysarg, itemPtr, Item.ipItemHole4Item, 0)	--祝福值
+	if (nItemZfValue + nAddZf) < strongCfg.maxZFValue then
+		for i=1,table.getn(strongCfg.strongRate) do
+			if nItemZfValue >= strongCfg.strongRate[i].rang[1] and nItemZfValue <= strongCfg.strongRate[i].rang[2] then
+				nNeedRand = strongCfg.strongRate[i].realRate + strongCfg.strongRate[i].realAddRate
+				break
+			end
+		end
+	else
+		nNeedRand = 10000
+	end
+	
+	if nRandNum < nNeedRand then	--成功
+		optResult = 0
+		Item.setItemProperty(sysarg,itemPtr,Item.ipItemHole4Item, 0)
+		Item.setItemProperty(sysarg,itemPtr,Item.ipItemStrong, nItemStrong+1)
+
+		--local nItemStrong1 = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+		--print("nItemStrong2:"..nItemStrong1)
+	else
+		--print("nItemZfValue + nAddZf:"..nAddZf)
+		Item.setItemProperty(sysarg,itemPtr,Item.ipItemHole4Item, nItemZfValue + nAddZf)
+		if continueFlag == nil or continueFlag == 0 then		--不是一键羽化
+			optResult = 2
+		else
+			optResult = 1
+		end
+	end
+	
+	SendEquipOptResult(sysarg, itemGuid, itEquipFeatherStrong, optResult )
+	Actor.onThanksConsumeEvent(sysarg,3,1)
+	return true
+end
+
+--下发翅膀羽化消耗表
+function FeatherStrongConsumes(sysarg, args)
+	local ptrCount = args[1]
+	local itemPtr = args[2]
+	if not itemPtr then
+		return
+	end
+	local opType = args[ptrCount+2]		--操作类型
+	
+	local nItemQuality = Item.getItemPropertyById( Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0), Item.ipItemSuitId)
+	
+	if nItemQuality < 5 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.yh0008, 5), ttFlyTip)
+		return 
+	end
+
+	local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	local strongCfg = FeatherStrongConfig[nItemStrong+1]
+	--print("nItemStrong:"..nItemStrong)
+	if not strongCfg then
+		return
+	end
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, #strongCfg.strong)
+	for k, curTab in ipairs(strongCfg.strong) do
+		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack,curTab.id or 0)
+		DataPack.writeInt(netPack,curTab.count)
+		--print("FeatherStrongConsumes:"..curTab.count)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	DataPack.writeInt(netPack, strongCfg.maxZFValue)
+	
+	local nItemZfValue = Item.getItemProperty( sysarg, itemPtr, Item.ipItemHole4Item, 0)		--祝福值
+	local nIndex = 1
+	for i=1,table.getn(strongCfg.strongRate) do
+		if nItemZfValue >= strongCfg.strongRate[i].rang[1] and nItemZfValue <= strongCfg.strongRate[i].rang[2] then
+			nIndex = i
+			break
+		end
+	end
+	
+	DataPack.writeInt(netPack, strongCfg.strongRate[nIndex].showRate)
+	--print("showRate"..strongCfg.strongRate[nIndex].showRate)
+	DataPack.writeInt(netPack, strongCfg.strongRate[nIndex].ShowAddRate)
+
+	DataPack.flush(netPack)
+end

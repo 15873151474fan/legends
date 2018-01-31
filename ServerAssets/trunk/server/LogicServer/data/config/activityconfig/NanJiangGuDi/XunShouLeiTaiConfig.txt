@@ -1,0 +1,95 @@
+--驯兽擂台配置
+XunShouLeiTaiConfig = 
+{
+	--刷出BOSS坐标范围
+	bossPos = 
+	{
+		{x = 29, y = 50,},
+		{x = 70, y = 32,},
+		{x = 112,y = 43,},
+	},
+	
+	actTime1 = {10,0,0,10,15,0}, --活动时间范围1
+	actTime2 = {14,0,0,14,15,0},--活动时间范围2
+	offlineTime = 60, --活动期间下线上线保留数据时间  s
+	needVal = 40000, --进场需要的战力
+
+	bossId = {1546, 1547, 1548,},
+	liveTime = 36000000, --怪物存活时间
+	sceneId = 234, --场景ID
+	sceneX = 70,
+	sceneY = 80,--进入场景坐标
+	circle = 12,
+	level = 60,
+	outSceneId = 233, --退出到场景ID
+	outX = 157,	--退出到场景坐标
+	outY = 39,--退出到场景坐标
+	goldCardId = 3291, --免死金牌
+	stoneSkillConfig = {skillId = 249 , skillLevel = 3 },
+	
+	
+	--购买道具
+	subMenu =
+	{
+		--购买1个免死金牌
+		{
+			consumes = 	--消耗
+			{
+				{type=15, id=0, count=10},	--type:0物品，6金币，7礼券，15元宝，
+			},
+			needCount = 1, --需要空格
+			awards = 	--获得
+			{
+				{type=0, id=3291, count=1, bind = 1},	--类型，id，数量，绑定
+			},
+		},
+		
+		--购买1个净化药水
+		{
+			consumes = 	--消耗
+			{
+				{type=15, id=0, count=5},
+			},
+			needCount = 1, --需要空格
+			awards = 	--获得
+			{
+				{type=0, id=3296, count=1, bind = 1},
+			},
+		},
+		
+		--购买10个免死金牌
+		{
+			consumes = 	--消耗
+			{
+				{type=15, id=0, count=100},
+			},
+			needCount = 1, --需要空格
+			awards = 	--获得
+			{
+				{type=0, id=3291, count=10, bind = 1},
+			},
+		},
+		
+		--购买10个净化药水
+		{
+			consumes = 	--消耗
+			{
+				{type=15, id=0, count=50},
+			},
+			needCount = 1, --需要空格
+			awards = 	--获得
+			{
+				{type=0, id=3296, count=10, bind = 1},
+			},
+		},
+	},	
+	
+	buffs = 
+	{
+		 -- 类型        buff的值       分组       作用的次数  作用的间隔，单位秒 时间是否叠加    名字  
+		{buffType= 159, value=0,  buffGroup= -1,times =1,interval= 180, timeOverlay =true,buffName = Lang.Activity.njgd037, effectType =6,effectId =277},
+	},
+		
+
+--#include "data\config\actigiftbag\actigiftbags\AnimalsArenaSorts.txt" once  --奖励配置
+}

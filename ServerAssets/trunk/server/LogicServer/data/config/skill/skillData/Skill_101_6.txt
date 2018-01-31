@@ -1,0 +1,59 @@
+﻿
+--定身天雷第6级
+{
+
+	actions=
+	{
+		{act=0,effect=26},
+	},
+
+	desc=Lang.Skill.s101L6Desc,
+
+	iconID=7,
+
+	actRange=
+	{
+		{
+			xStart=-18,
+			xEnd=18,
+			yStart=-18,
+			yEnd=18,
+
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=13,value=1},
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=500,rate=15000},
+						{mj=0,timeParam=1,type=1,delay=100,id=45,buffType=56,value=1,interval=3},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=250,keepTime=500,delay=100,always=false},
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+	},
+
+	spellConds=
+	{
+		{cond=13,value=15,consume=false},
+	},
+
+	singTime=0,
+
+	cooldownTime=15000,
+},

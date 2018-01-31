@@ -1,0 +1,618 @@
+﻿--lua script
+
+--装备升级配置
+
+Any_Stuff = 0 --材料 
+Any_Protect = 1 --保护材料 
+AuthType_Wash = 2
+Any_Silver = 3  --绑定金币 
+Any_Yb = 4   --元宝 
+Any_Value = 5
+Any_Equit = 6 --装备需求
+
+RandomBase = 10000
+
+--装备升级条件
+EquipUpgradeConf = {
+	minItLv = 0,
+	failDownLv = 3,
+	notGradeTypes = {
+		--[BaseTypes.itemTypes.itRing] = 1,
+		--[BaseTypes.itemTypes.itDecoration] = 1,
+		[BaseTypes.itemTypes.itSwing] = 1,
+	},
+}
+--装备强化 
+EquipStrongCond = {
+	minItLv = 20,
+	MinStrongSharp = 10,				--10星时才有锋利值
+	MaxSharp =	{40,70,150,200,250,250,250,250,250,250},			--最大锋利值
+	RandSharp = {1,3},			--失败时这个区域内随即锋利值
+	UpToBuildAttr = 8,			--达到这个等级时才生产极品
+	--MinStrongAuth = 12,				--12星时才有第四个鉴定属性
+
+}
+--洗练最低等级 
+EquipAuthCond = {
+	minItLv = 40,
+}
+
+--幻武启灵条件 （用于填充数据，策划不需要管) 
+WeaponExtendStrongCond =
+{
+	minItLv = 0,
+	MinStrongSharp = 0,				--出现锋利值最低等级
+	MaxSharp =	{50,150,200,250,300,350,400,450,500,550,600,700,800,900,1000,1000,1000,1000,1000,1000},			--每个等级对应最大启灵值
+	UpToBuildAttr = 100,			--达到这个等级时才生产极品
+	noticeStrong = 5,	--世界公告最少强化配置
+}
+
+--装备强化配置
+--yb不填或为0表示不能用元宝代替，有值表示单个物品的价格代替
+EquipStrongConfig = {
+	{		-- +1
+		failDownIdx = {0,0},	--最小值，最大值(此字段用于填充，策划不需要管) 
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 484, count = 2, yb = 10},
+			{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 20000},
+		},
+		rate = 10000,
+	},
+	
+	{		-- +2
+		failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 484, count = 4, yb = 10},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 1, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 25000},
+		},
+		rate = 9000,
+	},
+	{		-- +3
+		failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 484, count = 6, yb = 10},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 3, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 30000},
+		},
+		rate = 8000,
+	},	
+	{		-- +4
+		failDownIdx = {2,2},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 484, count = 8, yb = 10},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 6, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 40000},
+		},
+		rate = 7000,
+	},
+	{		-- +5
+		failDownIdx = {2,3},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 484, count = 10, yb = 10},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 10, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+		rate = 6000,
+	},
+	
+	{		-- +6
+		failDownIdx = {2,4},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 747, count = 4, yb = 50},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 15, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 60000},
+		},
+		rate = 5000,
+	},
+	{		-- +7
+		failDownIdx = {3,5},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 747, count = 6, yb = 50},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 20, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 70000},
+		},
+		rate = 3000,
+	},	
+	{		-- +8
+		failDownIdx = {4,6},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 747, count = 8, yb = 50},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 25, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 80000},
+		},
+		rate = 2000,
+	},
+	{		-- +9
+		failDownIdx = {5,7},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 747, count = 10, yb = 50},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 30, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 90000},
+		},
+		rate = 1500,
+	},
+	
+	{		-- +10
+		failDownIdx = {6,8},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 747, count = 12, yb = 50},
+			{type = 0, usetype =Any_Protect,  id = 485, count = 40, yb = 100},
+			{type = 5, usetype =Any_Silver, id = 0, count = 100000},
+		},
+		rate = 1000,
+	},
+	
+	--[[{		-- +11
+		failDownIdx = {10,10},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 1172, count = 2, yb = 28},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 3000},
+		},
+		rate = 1000,
+	},
+	
+	{		-- +12
+		failDownIdx = {11,11},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 1172, count = 2, yb = 28},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 3000},
+		},
+		rate = 500,
+	},
+	
+	{		-- +13
+		failDownIdx = {12,12},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 1172, count =2, yb = 28},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 3000},
+		},
+		rate = 250,
+	},
+	
+	{		-- +14
+		failDownIdx = {13,13},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 1172, count = 3, yb = 28},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 3000},
+		},
+		rate = 150,
+	},
+	
+	{		-- +15
+		failDownIdx = {14,14},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 1172, count = 3, yb = 28},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 3000},
+		},
+		rate = 110,
+	},
+
+	{		-- +16
+		failDownIdx = {15,15},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 2836, count = 3, yb = 48},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		rate = 103,
+
+        nCultureLev = 4,			--需要世界文明度等级，才可以升级到本级
+	},
+
+	{		-- +17
+		failDownIdx = {16,16},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 2836, count = 4, yb = 48},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 12500},
+		},
+		rate = 96,
+
+		nCultureLev = 4,			--需要世界文明度等级，才可以升级到本级
+	},
+
+	{		-- +18
+		failDownIdx = {17,17},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 2836, count = 5, yb = 48},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 15000},
+		},
+		rate = 90,
+
+		nCultureLev = 4,			--需要世界文明度等级，才可以升级到本级
+	},
+
+	{		-- +19
+		failDownIdx = {18,18},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 2836, count = 6, yb = 48},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 17500},
+		},
+		rate = 85,
+
+		nCultureLev = 4,			--需要世界文明度等级，才可以升级到本级
+	},
+
+	{		-- +20
+		failDownIdx = {19,19},	--最小值，最大值
+		strong = {
+			{type = 0, usetype =Any_Stuff, id = 2836, count = 7, yb = 48},
+			{type = 0, usetype =Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 5, usetype =Any_Silver, id = 0, count = 20000},
+		},
+		rate = 80,
+
+		nCultureLev = 4,			--需要世界文明度等级，才可以升级到本级
+	},]]
+}
+
+----#include "WeaponExtendStrong.txt" once --幻武启灵
+----#include "FeatherStrong.txt" once		--翅膀羽化
+----#include "FootPrintUpgrade.txt" once --足迹升阶
+----#include "SealUpgrade.txt" once --玉玺升阶
+
+--[[
+	Item.itWeapon = 1,				//武器
+	Item.itDress = 2,				//衣服
+	Item.itHelmet = 3,				//头盔
+	Item.itNecklace = 4,				//项链
+	Item.itDecoration =5,            		//勋章
+	Item.itBracelet  = 6,			//手镯
+	Item.itRing = 7,				//戒指
+	Item.itGirdle = 8,				//腰带
+	Item.itShoes = 9,				//鞋子
+	Item.itEquipDiamond=10,          		//宝石(可装备的宝石)
+	Item.itMeterial =11,             		//材料
+	Item.itFashionDress=12,          		//时装
+	Item.itSwing=13,				//翅膀
+]]
+--装备升级配置
+DecorationUpgrade =
+{
+	--[[{
+		level = 0,		-- 勋章升级等级限制，四合一
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {692,693,694,695,696,697,698,699,700,},
+		targetEquips = {693,694,695,696,697,698,699,700,701,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 3, yb = 0},      --id为-1表示id是由sourceEquips中id决定的。
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 1000},
+		},
+		class = {--按部位id分配材料数量
+
+					},
+		--白装，绿装，蓝装，紫装，橙装，红装
+		quality = {100,200,400,800,1600,3200},
+	},]]
+}
+
+
+EquipUpgradeConfig = {
+
+
+
+--套装合成
+
+	{
+		level = 30,		-- 30级合成40级
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {53,	68,	83,	98,	113, 128, 190, 205,	220, 144, 159, 174, 236, 251, 266, 282, 297, 312, 328, 343, 358, 419, 434, 449,	4, 19, 34, 374, 389, 404,},
+        targetEquips = {54,	69,	84,	99,	114, 129, 191, 206,	221, 145, 160, 175, 237, 252, 267, 283, 298, 313, 329, 344, 359, 420, 435, 450,	5, 20, 35, 375, 390, 405,},
+		
+		
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+        	{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 5, usetype =Any_Silver, id = 0, count = 30000},
+		},
+	},	
+	{
+		level = 40,		-- 40级合成50级
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {54,	69,	84,	99,	114, 129, 191, 206,	221, 145, 160, 175, 237, 252, 267, 283, 298, 313, 329, 344, 359, 420, 435, 450,	5, 20, 35, 375, 390, 405,},
+		targetEquips = {55,	70,	85,	100, 115, 130, 192, 207, 222, 146, 161, 176, 238, 253, 268, 284, 299, 314, 330, 345, 360, 421, 436, 451, 6, 21, 36, 376, 391, 406,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+        	{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 5, usetype =Any_Silver, id = 0, count = 30000},
+		},
+	},
+	{
+		level = 50,		-- 50级合成60级
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {55,	70,	85,	100, 115, 130, 192, 207, 222, 146, 161, 176, 238, 253, 268, 284, 299, 314, 330, 345, 360, 421, 436, 451, 6, 21, 36, 376, 391, 406,},
+		targetEquips = {56,	71,	86,	101, 116, 131, 193, 208, 223, 147, 162, 177, 239, 254, 269, 285, 300, 315, 331, 346, 361, 422, 437, 452, 7, 22, 37, 377, 392, 407,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 40000},
+		},  
+	},
+	
+	{
+		level = 60,		-- 60级合成一转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {56,	71,	86,	101, 116, 131, 193, 208, 223, 147, 162, 177, 239, 254, 269, 285, 300, 315, 331, 346, 361, 422, 437, 452, 7, 22, 37, 377, 392, 407,},
+		targetEquips = {57,	72,	87,	102, 117, 132, 194, 209, 224, 148, 163, 178, 240, 255, 270, 286, 301, 316, 332, 347, 362, 423, 438, 453, 8, 23, 38, 378, 393, 408,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+	{
+		level = 50,		-- 一转合成二转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {57,	72,	87,	102, 117, 132, 194,	209, 224, 240, 255,	270, 286, 301, 316,	148, 163, 178,	332, 347, 362, 423,	438,453, 8,	23,	38, 378, 393, 408,},
+		targetEquips = {58,	73,	88,	103, 118, 133, 195,	210, 225, 241, 256,	271, 287, 302, 317,	149, 164, 179,	333, 348, 363, 424,	439,454, 9,	24,	39, 379, 394, 409,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+    {
+		level = 50,		-- 二转合成三转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {58,	73,	88,	103, 118, 133, 195,	210, 225, 241, 256,	271, 287, 302, 317,	149, 164, 179,	333, 348, 363, 424,	439,454, 9,	24,	39, 379, 394, 409,},
+		targetEquips = {59,	74,	89,	104, 119, 134, 196,	211, 226, 242, 257,	272, 288, 303, 318,	150, 165, 180,	334, 349, 364, 425,	440,455, 10, 25, 40, 380, 395, 410,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+	{
+		level = 50,		-- 三转合成四转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {59,	74,	89,	104, 119, 134, 196,	211, 226, 242, 257,	272, 288, 303, 318,	150, 165, 180, 334, 349, 364, 425, 440,455, 10, 25, 40, 380, 395, 410,},
+		targetEquips = {60,	75,	90,	105, 120, 135, 197,	212, 227, 243, 258,	273, 289, 304, 319,	151, 166, 181, 335, 350, 365, 426, 441,456, 11, 26, 41, 381, 396, 411,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+	{
+		level = 50,		-- 四转合成五转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {60,	75,	90,	105, 120, 135, 197,	212, 227, 243, 258,	273, 289, 304, 319,	151, 166, 181, 335, 350, 365, 426, 441,456, 11, 26, 41, 381, 396, 411,},
+		targetEquips = {61,	76,	91,	106, 121, 136, 198,	213, 228, 244, 259,	274, 290, 305, 320,	152, 167, 182, 336, 351, 366, 427, 442,457, 12, 27, 42, 382, 397, 412,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+	{
+		level = 50,		-- 五转合成六转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {61,	76,	91,	106, 121, 136, 198,	213, 228, 244, 259,	274, 290, 305, 320,	152, 167, 182, 336, 351, 366, 427, 442,457, 12, 27, 42, 382, 397, 412,},
+		targetEquips = {62,	77,	92,	107, 122, 137, 199,	214, 229, 245, 260,	275, 291, 306, 321,	153, 168, 183, 337, 352, 367, 428, 443,458, 13, 28, 43, 383, 398, 413,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+	{
+		level = 50,		-- 六转合成七转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {62,	77,	92,	107, 122, 137, 199,	214, 229, 245, 260,	275, 291, 306, 321,	153, 168, 183, 337, 352, 367, 428, 443,458, 13, 28, 43, 383, 398, 413,},
+		targetEquips = {63,	78,	93,	108, 123, 138, 200,	215, 230, 246, 261,	276, 292, 307, 322,	154, 169, 184, 338, 353, 368, 429, 444,459, 14, 29, 44, 384, 399, 414,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+	{
+		level = 50,		-- 七转合成八转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {63,	78,	93,	108, 123, 138, 200,	215, 230, 246, 261,	276, 292, 307, 322,	154, 169, 184, 338, 353, 368, 429, 444,459, 14, 29, 44, 384, 397, 414,},
+		targetEquips = {64,	79,	94,	109, 124, 139, 201,	216, 231, 247, 262,	277, 293, 308, 323,	155, 170, 185, 339, 354, 369, 430, 445,460, 15, 30, 45, 385, 400, 415,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+	{
+		level = 50,		-- 八转合成九转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {64,	79,	94,	109, 124, 139, 201,	216, 231, 247, 262,	277, 293, 308, 323,	155, 170, 185, 339, 354, 369, 430, 445,460, 15, 30, 45, 385, 398, 415,},
+		targetEquips = {65,	80,	95,	110, 125, 140, 202,	217, 232, 248, 263,	278, 294, 309, 324,	156, 171, 186, 340, 355, 370, 431, 446,461, 16, 31, 46, 386, 401, 416,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	
+		{
+		level = 50,		-- 九转合成十转
+		strongLv = 0,	--要求强化等级
+		sourceEquips = {65,	80,	95,	110, 125, 140, 202,	217, 232, 248, 263,	278, 294, 309, 324,	156, 171, 186, 340, 355, 370, 431, 446,461, 16, 31, 46, 386, 399, 416,},
+		targetEquips = {66,	81,	96,	111, 126, 141, 203,	218, 233, 249, 264,	279, 295, 310, 325,	157, 172, 187, 341, 356, 371, 432, 447,462, 17, 32, 47, 387, 402, 417,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			{type = 0, usetype =Any_Stuff,  id = -1, count = 1},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+
+}
+
+
+
+--洗练配置:type = 0 物品  5 绑金
+EquipAuthenticateConfig = {
+	consume = {
+		{type = 0, usetype =AuthType_Wash, id = 487, count = 1, yb = 10}, 
+		{type = 0, usetype =Any_Protect,  id = 488, count = 1, yb = 10}, 
+		{type = 5, usetype =Any_Silver, id = 0, count = 1000},
+	},
+	auth = {
+		{		--第一个
+			{type = 0, usetype =Any_Stuff, id = 486, count = 1, yb = 3},
+			{type = 5, usetype =Any_Silver, id = 0, count = 1000},
+		},
+		{		--第二个
+			{type = 0, usetype =Any_Stuff, id = 486, count = 2, yb = 3},
+			{type = 5, usetype =Any_Silver, count = 1000},
+		},
+		{		--第三个
+			{type = 0, usetype =Any_Stuff, id = 486, count = 3, yb = 3},
+			{type = 5, usetype =Any_Silver, id = 0, count = 1000},
+		},
+		{		--第四个
+			{type = 0, usetype =Any_Stuff, id = 486, count = 5, yb = 3}, 
+			{type = 5, usetype =Any_Silver, id = 0, count = 1000}, 
+		},
+	},
+	--鉴定条件
+	condition = {
+		--smithIdx 第几个鉴定属性，
+		{smithIdx = 4, cond = {12,}, },  --第四个鉴定加强化等级限制  
+	},
+	
+	--增加鉴定消耗
+	addConsume = {
+		{
+			smithIdx = 4, --smithIdx 第4个鉴定属性,增加鉴定消耗 
+			add = { 
+				{type = 0, usetype =AuthType_Wash, id = 278, count = 1, yb = 10},  
+				{type = 0, usetype =Any_Protect,  id = 279, count = 1, yb = 10},
+			},
+		},
+	},
+}
+
+--可转生装备,{开始时间的小时，分钟， 结束时间的小时，分钟}
+CircleEquipTime = {17,30,  18,59}
+
+--转生装备升级配置
+CircleEquipUpgradeConfig = {
+	
+
+
+	--一转50级-二转50级	
+	{
+		sourceEquips = {57,	72,	87,	102, 117, 132, 194,	209, 224, 240, 255,	270, 286, 301, 316,	148, 163, 178,	332, 347, 362, 423,	438, 8,	23,	38, 378, 393, 408,453,},
+		targetEquips = {58,	73,	88,	103, 118, 133, 195,	210, 225, 241, 256,	271, 287, 302, 317,	149, 164, 179,	333, 348, 363, 424,	439, 9,	24,	39, 379, 394, 409,454,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 464, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	--二转50级-三转50级
+	{
+		sourceEquips = {58,	73,	88,	103, 118, 133, 195,	210, 225, 241, 256,	271, 287, 302, 317,	149, 164, 179,	333, 348, 363, 424,	439, 9,	24,	39, 379, 394, 409,454,},
+		targetEquips = {59,	74,	89,	104, 119, 134, 196,	211, 226, 242, 257,	272, 288, 303, 318,	150, 165, 180,	334, 349, 364, 425,	440, 10, 25, 40, 380, 395, 410,455,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 465, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	}, 
+    --三转50级-四转50级
+	{
+		sourceEquips = {59,	74,	89,	104, 119, 134, 196,	211, 226, 242, 257,	272, 288, 303, 318,	150, 165, 180, 334, 349, 364, 425, 440, 10, 25, 40, 380, 395, 410,455,},
+		targetEquips = {60,	75,	90,	105, 120, 135, 197,	212, 227, 243, 258,	273, 289, 304, 319,	151, 166, 181, 335, 350, 365, 426, 441, 11, 26, 41, 381, 396, 411,456,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 466, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+    --四转50级-五转50级
+	{
+		sourceEquips = {60,	75,	90,	105, 120, 135, 197,	212, 227, 243, 258,	273, 289, 304, 319,	151, 166, 181, 335, 350, 365, 426, 441, 11, 26, 41, 381, 396, 411,456,},
+		targetEquips = {61,	76,	91,	106, 121, 136, 198,	213, 228, 244, 259,	274, 290, 305, 320,	152, 167, 182, 336, 351, 366, 427, 442, 12, 27, 42, 382, 397, 412,457,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 467, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	}, 
+	--五转50级-六转50级
+	{
+		sourceEquips = {61,	76,	91,	106, 121, 136, 198,	213, 228, 244, 259,	274, 290, 305, 320,	152, 167, 182, 336, 351, 366, 427, 442, 12, 27, 42, 382, 397, 412,457,},
+		targetEquips = {62,	77,	92,	107, 122, 137, 199,	214, 229, 245, 260,	275, 291, 306, 321,	153, 168, 183, 337, 352, 367, 428, 443, 13, 28, 43, 383, 398, 413,458,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 468, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	--六转50级-七转50级
+	{
+		sourceEquips = {62,	77,	92,	107, 122, 137, 199,	214, 229, 245, 260,	275, 291, 306, 321,	153, 168, 183, 337, 352, 367, 428, 443, 13, 28, 43, 383, 398, 413,458,},
+		targetEquips = {63,	78,	93,	108, 123, 138, 200,	215, 230, 246, 261,	276, 292, 307, 322,	154, 169, 184, 338, 353, 368, 429, 444, 14, 29, 44, 384, 399, 414,459,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 469, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+	--七转50级-八转50级
+	{
+		sourceEquips = {63,	78,	93,	108, 123, 138, 200,	215, 230, 246, 261,	276, 292, 307, 322,	154, 169, 184, 338, 353, 368, 429, 444, 14, 29, 44, 384, 399, 414,459,},
+		targetEquips = {64,	79,	94,	109, 124, 139, 201,	216, 231, 247, 262,	277, 293, 308, 323,	155, 170, 185, 339, 354, 369, 430, 445, 15, 30, 45, 385, 400, 415,460,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 470, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+    --八转50级-九转50级
+	{
+		sourceEquips = {64,	79,	94,	109, 124, 139, 201,	216, 231, 247, 262,	277, 293, 308, 323,	155, 170, 185, 339, 354, 369, 430, 445, 15, 30, 45, 385, 400, 415,460,},
+		targetEquips = {65,	80,	95,	110, 125, 140, 202,	217, 232, 248, 263,	278, 294, 309, 324,	156, 171, 186, 340, 355, 370, 431, 446, 16, 31, 46, 386, 401, 416,461,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 471, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	},
+    --九转50级-十转50级
+	{
+		sourceEquips = {65,	80,	95,	110, 125, 140, 202,	217, 232, 248, 263,	278, 294, 309, 324,	156, 171, 186, 340, 355, 370, 431, 446, 16, 31, 46, 386, 401, 416,461,},
+		targetEquips = {66,	81,	96,	111, 126, 141, 203,	218, 233, 249, 264,	279, 295, 310, 325,	157, 172, 187, 341, 356, 371, 432, 447, 17, 32, 47, 387, 402, 417,462,},
+		stuff = {
+			{type = 0, usetype =Any_Stuff,  id = 472, count = 2, yb = 0},
+			--{type = 0, usetype =Any_Protect, id = 284, count = 1, yb = 88},
+			{type = 5, usetype =Any_Silver, id = 0, count = 50000},
+		},
+	}, 
+}

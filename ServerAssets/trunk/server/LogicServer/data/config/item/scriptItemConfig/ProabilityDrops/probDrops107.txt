@@ -1,0 +1,5 @@
+﻿	-- = 107，宠物升级丹，,
+drops=																		
+{																		
+	  {	type = 26, id = 0, count = 7, strong = 0, quality = 0, propability = 1, bind = 1, group = 1	},
+}																		

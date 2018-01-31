@@ -1,0 +1,53 @@
+﻿
+--#include "data\config\activityconfig\PracticeStone\Config.txt" once	--
+
+function MonAttackedDispatcher.OnAttackPracticeStone(pMonster, pKiller, monId, damage)
+	if not pMonster or not pKiller then return end
+	
+	local config = PracticeStoneConfig
+	if not config then return end
+
+	local dvar = System.getDyanmicVar()
+	local practiceStone = dvar.fiveExpPracticeStart
+	
+	local awards = config.attackAward.normal
+	if dvar.fiveExpPracticeStart == 1 then
+		awards = config.attackAward.special
+	end
+	
+	local giveAwards = {}
+	for k, v in ipairs(awards) do
+		local award = {type = v.type, id = v.id, count = v.count, param = v.param}
+		table.insert(giveAwards, award)
+	end
+
+	for i = 1, table.getn(giveAwards) do
+		local quality = giveAwards[i].quality;
+		local bind = giveAwards[i].bind
+		local strong = giveAwards[i].strong
+		if quality == nil then quality =0 end
+		if bind == nil then bind =0 end
+		if strong == nil then strong =0 end
+
+		local giveCount = giveAwards[i].count
+		if giveAwards[i].type == 20 then
+			local coefficient = config.attackAward.coefficient
+			local randomCoefficient = config.attackAward.randomCoefficient
+			local nRandom = math.random(randomCoefficient[1], randomCoefficient[2])
+			if Actor.hasBuff(pKiller, config.AddExpBuff[1].buffType, config.AddExpBuff[1].buffGroup)==true then
+				if dvar.fiveExpPracticeStart == 1 then
+					giveCount = giveCount + config.AddExpBuff[1].value
+				else
+					giveCount = giveCount * config.AddExpBuff[1].value
+				end
+			end
+			giveCount = (giveCount + damage * coefficient) * nRandom / 100
+		end
+		
+		Actor.giveAward(pKiller, giveAwards[i].type,giveAwards[i].id,giveCount,quality,strong,bind,giveAwards[i].param,205,Lang.LogTips.l00208)
+	end
+
+	Actor.attackPracticeStone(pKiller, damage)
+end
+
+MonAttackedDispatcher.register(PracticeStoneConfig.nMonsterID, MonAttackedDispatcher.OnAttackPracticeStone)

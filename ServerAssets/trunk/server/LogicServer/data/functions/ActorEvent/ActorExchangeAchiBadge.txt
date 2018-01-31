@@ -1,0 +1,12 @@
+﻿--#include "data\language\LangCode.txt" once
+EventCallDispatcher.ActorExchangeAchiBadgeFunc = function (sysarg,arg)
+	if arg == nil then return end                                           
+	local ItemID = arg[1]
+    local sItemName = Item.getItemName( ItemID ) 
+    local sMsg = string.format(Lang.ScriptTips.ExchangeBadgeTip,Actor.getName(sysarg),sItemName)
+    System.broadcastTipmsg(sMsg,ttScreenCenter)
+    local sChatMsg = sMsg..Lang.ScriptTips.OpenAchiWindow
+    System.broadcastTipmsg(sChatMsg,ttChatWindow)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeExchangeBadge, EventCallDispatcher.ActorExchangeAchiBadgeFunc)

@@ -1,0 +1,48 @@
+--#include "data\config\hero\HeroItem.txt" once
+--#include "data\config\hero\SpecialHero.txt" once
+--#include "data\config\GlobalConfig.txt" once
+
+--使用英雄物品召唤英雄
+function OnHeroItemOp(sysarg,itemidx,itemPtr,ItemTable)
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+	local nOpenDay = System.getDaysSinceOpenServer()
+	if System.hasHeroSystemOpen() ~= true then
+		local nDay = GlobalConfig.nHeroOpenDay - nOpenDay
+		if nDay > 0 then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000109, nDay), ttFlyTip)
+		end
+		return
+	end
+	
+	if Hero.canAddHero(sysarg) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000111), ttFlyTip)
+		return
+	end
+	
+	local nHeroConfig = SpecialHeroConfig[ItemTable.nJob]
+	if nHeroConfig == nil then return end
+	
+	local nConfig = SpecialHeroConfig[ItemTable.nJob].heros[ItemTable.nType]
+	if nConfig == nil then return end
+
+	if Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use heroitem",5) == 1 then
+		local heroId = Hero.addHero(sysarg, ItemTable.nJob, ItemTable.nSex, ItemTable.nCircl, ItemTable.nLevel,ItemTable.nType)
+		
+		if heroId > 0 then
+			Hero.setHeroBattle(sysarg, heroId)
+		end
+	end
+
+end
+
+function UseHeroItemInit(sysarg)
+	for i = 1,table.getn(HeroItemConfig) do
+		local x = HeroItemConfig[i]
+		GlobalItemFn[x.item_id] = { func = OnHeroItemOp, params = x }
+	end
+end
+
+table.insert(InitFnTable,UseHeroItemInit)

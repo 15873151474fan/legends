@@ -1,0 +1,58 @@
+﻿--#include "data\config\activityconfig\CharmCity\CharmCityConfig.txt" once
+
+function CommonMonsterDieHand(monster,sysarg,monId)
+  --print("CommonMonsterDieHand:")
+  local dVal = System.getDyanmicVar()
+  if dVal.StartCharmCityFlag == nil then
+     dVal.StartCharmCityFlag = 0 --魑魅侵城开始标志
+  end
+  --print("CommonMonsterDieHand:"..(dVal.StartCharmCityFlag))
+  if dVal.StartCharmCityFlag == 0 then return end
+  if dVal.FreshCharmCityTimes == nil then
+     dVal.FreshCharmCityTimes = 1  --刷怪波数
+  end     
+  local FreshCharmCityTimes = dVal.FreshCharmCityTimes
+	--if dVal.KillCharmCityNumber == nil then
+		--dVal.KillCharmCityNumber = 0  --杀怪个数
+	--end
+  if dVal.StartCharmCityTime == nil then
+	 dVal.StartCharmCityTime = System.getCurrMiniTime()  --怪物攻城开始时间
+  end
+  local hScene = Fuben.getSceneHandleById(CharmCityConfig.nSceenId, 0)
+                   
+
+  for i=1,table.getn(CharmCityConfig.Monster[FreshCharmCityTimes]) do
+	  if Fuben.getLiveMonsterCount(hScene,CharmCityConfig.Monster[FreshCharmCityTimes][i].nMonsterID) > 0 then
+	     return
+	  end
+  end 
+  dVal.FreshCharmCityTimes = dVal.FreshCharmCityTimes + 1--波数加一
+  local FreshCharmCityTimes = dVal.FreshCharmCityTimes
+  local NpcPtr = System.getGlobalNpc()
+  if FreshCharmCityTimes < CharmCityConfig.TotalTimes then
+     --print("CommonMonsterDieHand1:")
+	 Actor.regScriptCallback(NpcPtr, NpcPtr, CharmCityConfig.perTime * 1000, 0, 1, "OnFreshNextCharmCityBoss")
+     System.broadcastTipmsg(Lang.Activity.Charm00006,2+128)	 
+  elseif FreshCharmCityTimes == CharmCityConfig.TotalTimes then
+    local CurrMiniTime = System.getCurrMiniTime()
+    local LastTime = CurrMiniTime - dVal.StartCharmCityTime 
+    if LastTime < CharmCityConfig.KillerLimitTime then  --限定时间内完成刷新boss 
+       if (math.random(100) + 1 ) <= CharmCityConfig.SpellMonsterShowRand then
+          System.broadcastTipmsg(Lang.Activity.Charm00005,2+128)
+          local Tb = CharmCityConfig.SpellMonster 
+      	  for i=1,table.getn(Tb) do
+      	      --print("CommonMonsterDieHand2:")
+		      Fuben.createMonsters(hScene, Tb[i].nMonsterID, Tb[i].posX1,Tb[i].posX2, Tb[i].posY, Tb[i].nCount, Tb[i].nLiveTime)--新怪物刷新 
+          end
+       end
+    end  
+    
+  end         
+
+end
+
+                                                                            
+MonDieDispatcher.register(267, CommonMonsterDieHand )
+MonDieDispatcher.register(268, CommonMonsterDieHand )
+MonDieDispatcher.register(269, CommonMonsterDieHand )
+MonDieDispatcher.register(270, CommonMonsterDieHand )

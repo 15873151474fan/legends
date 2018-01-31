@@ -1,0 +1,115 @@
+﻿--赤焰峡谷
+{
+	scenceid = 83,
+	scencename = Lang.SceneName.s00083,
+	mapfilename = "83ChiYanXiaGu",
+	minlevel = 35,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "liehuobeijian01.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 320,
+	sceneHeight = 320,
+	sceneType=2,
+	
+	seckillId = 4,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+	
+	area =
+	{
+		{ name = Lang.SceneName.s00083, range = { 10,10,20,20,60,50}, center = { 218,281},
+			attri ={
+					{ type = 6,  value = {} },
+					{ type = 21,  value = {} },
+					{ type = 33,  value = {22,23,56,57,58} },
+					{ type = 18,  value = {} },
+					{ type = 26,  value = {} },
+					{ type = 84,  value = {} },
+					{ type = 85,  value = {} },
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{ type = 34,  value = {392,394,316,317,318,386,389,391,822,823} },
+				},
+		},
+		{ name = Lang.SceneName.s00083, range = { 145,88,109,53,145,26,172,62}, center = { 143,56},attri = {{ type = 1,  value = {} },{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },{ type = 34,  value = {392,394,316,317,318,386,389,391,822,823,2272,2273,2274} },}},	--终点区域 必须配置到第2项
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh83.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00136, posx = 146 , posy = 67,script = "data/script/Activity/ChiYanXiaGu/SaiMaLingJiangRen.txt",modelid = 1,icon = 1,funcId = 0},
+
+	},
+
+  teleport =
+  {
+     { posx = 227, posy =  292,toSceneid =  75,toPosx =  306, toPosy = 121,modelid = 50000,name = Lang.SceneName.s00075 },  --赤焰峡谷→万马草原
+  },
+  landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		 --安全区的路灯
+    {posx1=137,posy1=84,posx2=137,posy2=84,modelid=3,xinterval=1,yinterval=1},
+		{posx1=135,posy1=82,posx2=135,posy2=82,modelid=3,xinterval=1,yinterval=1},
+		{posx1=133,posy1=80,posx2=133,posy2=80,modelid=3,xinterval=1,yinterval=1},
+		{posx1=131,posy1=78,posx2=131,posy2=78,modelid=3,xinterval=1,yinterval=1},
+
+     --路标
+		{posx1=220,posy1=289,posx2=220,posy2=289,modelid=24,xinterval=1,yinterval=1},
+		{posx1=212,posy1=281,posx2=212,posy2=281,modelid=24,xinterval=1,yinterval=1},
+		{posx1=212,posy1=273,posx2=212,posy2=273,modelid=17,xinterval=1,yinterval=1},
+		{posx1=214,posy1=263,posx2=214,posy2=263,modelid=18,xinterval=1,yinterval=1},
+		{posx1=220,posy1=247,posx2=220,posy2=247,modelid=18,xinterval=1,yinterval=1},
+		{posx1=232,posy1=235,posx2=232,posy2=235,modelid=18,xinterval=1,yinterval=1},
+		{posx1=244,posy1=225,posx2=244,posy2=225,modelid=18,xinterval=1,yinterval=1},
+		{posx1=260,posy1=213,posx2=260,posy2=213,modelid=18,xinterval=1,yinterval=1},
+		{posx1=270,posy1=203,posx2=270,posy2=203,modelid=18,xinterval=1,yinterval=1},
+		{posx1=276,posy1=195,posx2=276,posy2=195,modelid=17,xinterval=1,yinterval=1},
+		{posx1=216,posy1=56,posx2=216,posy2=56,modelid=24,xinterval=1,yinterval=1},
+		{posx1=276,posy1=183,posx2=276,posy2=183,modelid=24,xinterval=1,yinterval=1},
+		{posx1=262,posy1=169,posx2=262,posy2=169,modelid=24,xinterval=1,yinterval=1},
+		{posx1=254,posy1=163,posx2=254,posy2=163,modelid=23,xinterval=1,yinterval=1},
+		{posx1=242,posy1=169,posx2=242,posy2=169,modelid=22,xinterval=1,yinterval=1},
+		{posx1=232,posy1=177,posx2=232,posy2=177,modelid=22,xinterval=1,yinterval=1},
+		{posx1=188,posy1=210,posx2=188,posy2=210,modelid=22,xinterval=1,yinterval=1},
+		{posx1=146,posy1=239,posx2=146,posy2=239,modelid=23,xinterval=1,yinterval=1},
+		{posx1=134,posy1=237,posx2=134,posy2=237,modelid=24,xinterval=1,yinterval=1},
+		{posx1=124,posy1=213,posx2=124,posy2=213,modelid=18,xinterval=1,yinterval=1},
+		{posx1=167,posy1=165,posx2=167,posy2=165,modelid=18,xinterval=1,yinterval=1},
+		{posx1=203,posy1=130,posx2=203,posy2=130,modelid=18,xinterval=1,yinterval=1},
+		{posx1=205,posy1=112,posx2=205,posy2=112,modelid=24,xinterval=1,yinterval=1},
+		{posx1=191,posy1=100,posx2=191,posy2=100,modelid=23,xinterval=1,yinterval=1},
+		{posx1=175,posy1=108,posx2=175,posy2=108,modelid=22,xinterval=1,yinterval=1},
+		{posx1=96,posy1=171,posx2=96,posy2=171,modelid=22,xinterval=1,yinterval=1},
+		{posx1=64,posy1=187,posx2=64,posy2=187,modelid=24,xinterval=1,yinterval=1},
+		{posx1=52,posy1=157,posx2=52,posy2=157,modelid=18,xinterval=1,yinterval=1},
+		{posx1=93,posy1=133,posx2=93,posy2=133,modelid=18,xinterval=1,yinterval=1},
+		{posx1=128,posy1=88,posx2=128,posy2=88,modelid=18,xinterval=1,yinterval=1},
+		{posx1=138,posy1=74,posx2=138,posy2=74,modelid=18,xinterval=1,yinterval=1},
+		{posx1=78,posy1=131,posx2=78,posy2=131,modelid=18,xinterval=1,yinterval=1},
+		{posx1=96,posy1=111,posx2=96,posy2=111,modelid=18,xinterval=1,yinterval=1},
+		{posx1=210,posy1=193,posx2=210,posy2=193,modelid=22,xinterval=1,yinterval=1},
+		{posx1=168,posy1=225,posx2=168,posy2=225,modelid=22,xinterval=1,yinterval=1},
+		{posx1=142,posy1=199,posx2=142,posy2=199,modelid=18,xinterval=1,yinterval=1},
+		{posx1=158,posy1=183,posx2=158,posy2=183,modelid=18,xinterval=1,yinterval=1},
+		{posx1=186,posy1=145,posx2=186,posy2=145,modelid=18,xinterval=1,yinterval=1},
+		{posx1=154,posy1=125,posx2=154,posy2=125,modelid=22,xinterval=1,yinterval=1},
+		{posx1=140,posy1=72,posx2=140,posy2=72,modelid=18,xinterval=1,yinterval=1},
+		{posx1=142,posy1=70,posx2=142,posy2=70,modelid=18,xinterval=1,yinterval=1},
+		{posx1=144,posy1=68,posx2=144,posy2=68,modelid=18,xinterval=1,yinterval=1},
+
+ },
+},

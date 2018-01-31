@@ -1,0 +1,179 @@
+﻿--#include "data\config\activityconfig\SaveRadish\RadishConfig.txt" once
+--#include "data\config\activityconfig\SaveRadish\refresh48.txt" once
+--#include "RadishAward.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+--#include "RadishCommon.txt" once
+
+
+local lifeTime = 1800 --存活时间
+local ms = 1000 -- 一秒
+-- 定时刷怪
+function FlushMonster( sysarg )
+  if not sysarg then return end
+  local fbPtr = Actor.getFubenPrt(sysarg)
+  if not fbPtr then return end
+  local fbVar = Fuben.getDyanmicVar(fbPtr)
+  if not  fbVar then return end
+  local fubenId = Actor.getFubenId(sysarg)
+  if fubenId ~= RadishConfig.fubenId then return end
+
+  local monster = nil
+  if fbVar.CreateMonsterCount == nil then --开始刷怪标志
+    fbVar.CreateMonsterCount = 1
+    -- monster = Refresh[#Refresh] -- 先刷龙崽怪
+    -- Actor.createMonster(sysarg, monster.entityid, monster.mapx1, monster.mapy1, lifeTime * 2, false)
+
+    updateExp( sysarg, 0, 1 ) -- 按钮置灰
+  end
+
+  monster = Refresh[fbVar.CreateMonsterCount]
+
+  if monster == nil then return end
+  Actor.createMonster(sysarg, monster.entityid, monster.mapx1, monster.mapy1, lifeTime, false)
+  fbVar.CreateMonsterCount = fbVar.CreateMonsterCount + 1
+
+  local nextMonster = Refresh[fbVar.CreateMonsterCount]
+  if nextMonster == nil then return end
+  local nextFlushTime = (nextMonster.firstTime -  monster.firstTime)
+  Actor.regScriptCallback(sysarg, nil, nextFlushTime * ms, 0, 1, "FlushMonster", sysarg)
+end
+
+function ImmeFlush( sysarg, packet )
+  local fubenId = Actor.getFubenId(sysarg)
+
+  if fubenId ~= RadishConfig.fubenId then
+    return
+  end 
+  local fbPtr = Actor.getFubenPrt(sysarg)
+  local fbVar = Fuben.getDyanmicVar(fbPtr)
+  if fbVar.CreateMonsterCount ~= nil then -- 已经开始刷怪了
+    return
+  end
+
+  -- 修改定时器
+  Actor.unregScriptCallback(sysarg, "FlushMonster")
+  FlushMonster(sysarg)
+  
+  local pack = DataPack.allocPacket(sysarg, 26, 11)
+  DataPack.writeUint64(pack, 1)
+  DataPack.flush(pack)
+end
+
+--进入副本调用 
+function OnEnterSaveRadishFb(sysarg, fbHandle, fubenId)
+  if Actor.getFubenId(sysarg) ~= fubenId then 
+    return 
+  end
+
+  if Actor.hasQuest(sysarg, 112) then--进入护龙深潭给指引
+    for i = 1, #HuLongShenTanEffectConfig do
+      Actor.addSceneEffect(sysarg, HuLongShenTanEffectConfig[i].effectId, HuLongShenTanEffectConfig[i].effectType,
+      HuLongShenTanEffectConfig[i].durTime, HuLongShenTanEffectConfig[i].nDelayTime,
+      HuLongShenTanEffectConfig[i].x, HuLongShenTanEffectConfig[i].y)
+    end
+  end
+	-- 初始化塔防副本数据
+	local TafangData = initTafangData(sysarg)
+  -- 初始化玩家塔防数据
+  local actorVar = Actor.getStaticVar(sysarg)
+  actorVar.tafang = {}
+
+  -- 进图给玩家免费道具 -- 进图前清理背包
+  local newItem
+  local Award = {}
+  local xCount = 0
+  for i,v in ipairs(RadishConfig.FreeItem) do
+    newItem = Item.createItem(v.itemid, v.count, v.quality, v.strong, v.bind, 0)
+    xCount = Item.addItem(sysarg, newItem, "tafang", 197, v.count)
+    if v.count ~= xCount then -- 背包不足转邮件
+      Award[#Award+1] =  { type = v.type, itemid = v.itemid, count = v.count, strong = v.strong, quality = v.quality, bind = v.bind, }
+    else
+      Actor.sendTipmsg(sysarg, "添加成功", ttFlyTip)
+    end
+  end
+
+  if next(Award) ~= nil then
+    System.addMail(sysarg, RadishConfig.Mail, RadishConfig.Title, RadishConfig.MailContent, 1*24*3600, Award)
+  end
+	local hScene = Fuben.getSceneHandleById(RadishConfig.EnterScreens[1], fbHandle)
+	Fuben.sendMsgToScene(hScene,string.format(Lang.Activity.w00147, 
+    RadishConfig.IntoShowTime),ttScreenCenter+ttChatWindow)
+	Fuben.setFubenProgressListVal(fbPtr, 0, 0) --初始化波数
+  
+	Fuben.sendCountDown(hScene,RadishConfig.IntoShowTime)
+  updateExp( sysarg, 0, 0 )
+
+  Actor.regScriptCallback(sysarg, nil, RadishConfig.IntoShowTime * ms, 0, 1, "FlushMonster", sysarg)
+  
+end
+
+--退出副本调用, 副本结束
+function OnExitSaveRadishFb(sysarg)
+  local actorVar = Actor.getStaticVar(sysarg)
+  local tafang = actorVar.tafang
+  
+  if tafang == nil or tafang.passExp == nil or tafang.monsterExp == nil then 
+    return 
+  end
+  
+  if tafang.passExp <= 0 and tafang.monsterExp <= 0 then
+    actorVar.tafang = nil
+    return
+  end
+  local pack = DataPack.allocPacket(sysarg, 145, 126)
+  DataPack.writeInt(pack, tafang.passTimes) 
+  DataPack.writeUint64(pack, tafang.passExp) 
+  DataPack.writeInt(pack, tafang.killCount) 
+  DataPack.writeUint64(pack, tafang.monsterExp) 
+  DataPack.writeUint64(pack, (tafang.passExp+tafang.monsterExp))
+  DataPack.flush(pack)
+end
+
+--客户端请求护龙深潭领奖 
+function ClientQuestHuLongAward(sysarg, packet)
+  local FbId = Actor.getFubenId( sysarg )
+  if FbId == RadishConfig.fubenId then return end --还在副本里面则不能够领取奖励 
+  local nds = DataPack.readByte(packet)
+  local Tbs = RadishConfig.GetExpPower[nds]
+  if not Tbs then 
+    Actor.sendTipmsg(sysarg, "Tbs is nil! nds:" .. tostring(nds), ttFlyTip)
+    return 
+  end
+
+  -- money不足
+  if Tbs.NeedGoldNumber > 0 and 
+    not Actor.changeMoney(sysarg, Tbs.type, -Tbs.NeedGoldNumber, 934, "get radish  award Poewer"..nds) then
+    Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf062, Actor.getMoneyName(Tbs.type)), ttFlyTip)
+    return
+  end
+
+  local actorVar = Actor.getStaticVar(sysarg)
+  local tafang = actorVar.tafang
+  if not tafang then 
+    return 
+  end
+
+  if tafang.monsterExp==nil or (tafang.monsterExp<=0 and tafang.passExp<=0)then
+    return
+  end
+
+  local Exp = (tafang.passExp + tafang.monsterExp) * Tbs.Power
+  Actor.addExp( sysarg, Exp, 934, 0) 
+  Actor.sendTipmsg(sysarg, string.format(Lang.Activity.w00140a, Exp), ttFlyTip)
+  actorVar.tafang = nil -- 领完清空
+  Actor.closeDialogs(sysarg, RadishConfig.OpenDialogId)
+end
+
+function SendHulongClientErrId(sysarg, Error)
+  local pack = DataPack.allocPacket(sysarg, 145, 127)
+  DataPack.writeByte(pack, Error)  
+  DataPack.flush(pack)
+end
+
+function ManageActorLogin(sysarg)--处理玩家重新登录 
+  local FbId = Actor.getFubenId( sysarg )
+  if FbId ~= RadishConfig.fubenId then return end --不在副本里面则不做处理
+  local TafangData = GetTafangData( sysarg )
+  OnExitSaveRadishFb(sysarg)
+  onExitFubenFunc(sysarg)
+end

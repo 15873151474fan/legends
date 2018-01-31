@@ -1,0 +1,170 @@
+--开服战场
+--lua script
+
+OpenBattleConfig = 
+{
+	GroupRanking = "BattleGroupRanking.txt",			--组别等级榜 
+	conBeKillRanking = "conBeKillRanking.txt",			--连续被杀榜 
+
+	nSceneId = 203,				--场景id
+	enterPos = {33,89},			--进入的坐标
+
+	battlePos = {74,33,89,33,86,48,78,44},	--进入战场的随机坐标
+
+	nLastTime = 30*60,			--活动时间 单位秒
+
+	exitSceenId = 8,	--退出的场景id
+	ePosX = {140,152},	--退出的场景坐标x范围
+	ePosY = {1147,184},	--退出的场景坐标y范围
+
+	openDay = 2,				--开服前2天开放
+	MaxLev = 60,				--最高等级60
+	MinLev = 40,				--最低等级40级
+
+	MaxGroup = 7,				--最高7组
+	
+	enterCd = 20,				--20秒cd
+
+	--击杀不同组的奖励
+	KillPlayAwards = 
+	{
+		--比本人组别低是一种奖励
+		{
+			{ type = 20, id = 3, count = 1, strong = 0, quality = 0, bind = 0 },	 
+		},
+		{
+			{ type = 20, id = 3, count = 1, strong = 0, quality = 0, bind = 0 },	 
+		},
+		{
+			{ type = 20, id = 3, count = 3, strong = 0, quality = 0, bind = 0 },	 
+		},
+		{
+			{ type = 20, id = 3, count = 6, strong = 0, quality = 0, bind = 0 },	 
+		},
+		{
+			{ type = 20, id = 3, count = 10, strong = 0, quality = 0, bind = 0 },	 
+		},
+		{
+			{ type = 20, id = 3, count = 15, strong = 0, quality = 0, bind = 0 },	 
+		},
+		   {
+			{ type = 20, id = 3, count = 21, strong = 0, quality = 0, bind = 0 },	 
+		},
+		{
+			{ type = 20, id = 3, count = 28, strong = 0, quality = 0, bind = 0 },	 
+		},
+
+		--大于或等于本人组别的是一种奖励
+		{
+			{ type = 20, id = 3, count = 1, strong = 0, quality = 0, bind = 0 }, 
+		},
+		{
+			{ type = 20, id = 3, count = 5, strong = 0, quality = 0, bind = 0 }, 
+		},
+		{
+			{ type = 20, id = 3, count = 15, strong = 0, quality = 0, bind = 0 }, 
+		},
+		{
+			{ type = 20, id = 3, count = 30, strong = 0, quality = 0, bind = 0 }, 
+		},
+		{
+			{ type = 20, id = 3, count = 60, strong = 0, quality = 0, bind = 0 }, 
+		},
+		{
+			{ type = 20, id = 3, count = 100, strong = 0, quality = 0, bind = 0 }, 
+		},
+		{
+			{ type = 20, id = 3, count = 150, strong = 0, quality = 0, bind = 0 }, 
+		},
+		{
+			{ type = 20, id = 3, count = 210, strong = 0, quality = 0, bind = 0 }, 
+		},
+		{
+			{ type = 20, id = 3, count = 280, strong = 0, quality = 0, bind = 0 }, 
+		},
+	},
+
+	perMin = 18,				--每隔18秒按组别等级发放经验
+	--组别等级发放经验
+	GroupsAwards = 
+	{
+		--第一组的奖励
+		{
+			{ type = 20, id = 3, count = 200, strong = 0, quality = 0, bind = 0 }, 
+		},
+
+		--第二组的奖励
+		{
+			{ type = 20, id = 3, count = 500, strong = 0, quality = 0, bind = 0 }, 
+		},
+        --第三组的奖励
+		{
+			{ type = 20, id = 3, count = 900, strong = 0, quality = 0, bind = 0 }, 	 
+		},
+         --第四组的奖励
+		{
+			{ type = 20, id = 3, count = 1500, strong = 0, quality = 0, bind = 0 }, 	 
+		},
+         --第五组的奖励
+		{
+			{ type = 20, id = 3, count = 2000, strong = 0, quality = 0, bind = 0 }, 
+		},
+         --第六组的奖励
+		{
+			{ type = 20, id = 3, count = 2500, strong = 0, quality = 0, bind = 0 }, 
+		},
+        --第七组的奖励
+		{
+			{ type = 20, id = 3, count = 3000, strong = 0, quality = 0, bind = 0 }, 
+		},
+		--第八组的奖励
+		{
+			{ type = 20, id = 3, count = 3500, strong = 0, quality = 0, bind = 0 }, 
+		},
+		--第九组的奖励
+		{
+			{ type = 20, id = 3, count = 4000, strong = 0, quality = 0, bind = 0 }, 
+		},
+	},
+
+	deathPerMin = 90,			--每隔90秒给死亡榜奖励
+	DeathAwards = 
+	{
+		--死亡第一
+		{
+			{ type = 20, id = 3, count = 1000, strong = 0, quality = 0, bind = 0 },
+		},
+
+		--死亡第二
+		{
+			{ type = 20, id = 3, count = 600, strong = 0, quality = 0, bind = 0 },
+		},
+		
+		--死亡第三
+		{
+			{ type = 20, id = 3, count = 300, strong = 0, quality = 0, bind = 0 },
+		},
+
+	},
+
+	killPerMin = 90,			--每隔90秒给组别等级最高的玩家奖励
+	KillAwards = 
+	{
+		--组别等级第一
+		{
+			{ type = 20, id = 3, count = 2000, strong = 0, quality = 0, bind = 0 },
+		},
+
+
+		--组别等级第二
+		{
+			{ type = 20, id = 3, count = 1000, strong = 0, quality = 0, bind = 0 },
+		},
+		
+		--组别等级第三
+		{
+			{ type = 20, id = 3, count = 500, strong = 0, quality = 0, bind = 0 },
+		},
+	},
+}
+

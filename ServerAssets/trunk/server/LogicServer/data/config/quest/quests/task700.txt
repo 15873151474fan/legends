@@ -1,0 +1,68 @@
+﻿{
+	id = 700,
+	name = Lang.Quest.q01395,
+	parentid = 699,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q01396,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00043,   
+    npc = Lang.EntityName.n00093,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00043,   
+	npc = Lang.EntityName.n00093,
+  },
+
+  target =
+  { 
+      { type = 1, id = 739, count = 25,location={ sceneid=43,entityName=Lang.EntityName.m00167} }, --【蛇胆】，幽谷毒蛇掉落
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 581744,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 95359,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 0, id = 1192, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 1, sex = -1},
+    { type = 0, id = 1235, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 2, sex = -1},
+    { type = 0, id = 1256, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 3, sex = -1},
+    { type = 0, id = 1246, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 4, sex = -1},
+    { type = 0, id = 1202, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 5, sex = -1},
+    { type = 0, id = 1266, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 6, sex = -1},
+    { type = 0, id = 1224, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 7, sex = -1},
+    { type = 0, id = 1213, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 8, sex = -1},
+ },
+  --任务条件表
+  conds =
+  {
+
+        { type = 0, id = 0,count = 40 },  --40级可接
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t02408,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t02409,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t02410,
+  }, 
+  
+   --用于完成任务后的从背包里删除任务物品
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {739, 25}, 
+},                             

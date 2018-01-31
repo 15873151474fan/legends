@@ -1,0 +1,51 @@
+--lua script
+--#include "data\language\LangCode.txt" once --语言包 
+
+--#include "data\config\activityconfig\GuildBattle\GuildBattleConfig.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+--行会争夺战npc对话
+function GuildbattleNpcDialog(sysarg)
+	local str = ""
+
+	str = str..Lang.Activity.w00046
+	str = str.."\\<#BL"..Lang.Activity.w00048.."/@LeftBattleSceen>"
+
+	return str
+end
+
+--购买药品
+function BuyDrug(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+
+--离开场景
+function LeftBattleSceen(sysarg)
+	local str = ""
+	str = Lang.Activity.w00057
+	str = str.."\\<#BL"..Lang.Activity.w00010.."/@LeftSure>"
+	str = str.."\\<#BL"..Lang.Activity.w00011.."/@LeftCancle>"
+
+	return str
+end
+
+--离开确定
+function LeftSure(sysarg)
+	Actor.closeActivityWind(sysarg)
+
+	local nPosX = System.getRandomNumber(GuildBattleConfig.ePosX[2]-GuildBattleConfig.ePosX[1])
+	nPosX = nPosX + GuildBattleConfig.ePosX[1]
+
+	local nPosY = System.getRandomNumber(GuildBattleConfig.ePosY[2]-GuildBattleConfig.ePosY[1])
+	nPosY = nPosY + GuildBattleConfig.ePosY[1]
+
+	Actor.enterScene(sysarg,GuildBattleConfig.eSceenId,nPosX,nPosY)
+end
+
+--取消
+function LeftCancle(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+table.insert(MainFnTable, GuildbattleNpcDialog)

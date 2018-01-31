@@ -1,0 +1,177 @@
+﻿--[[BOSS系统功能实现 李昀2015-9-6]]
+local BossImp = {}
+BossSystmeAutoRunTable = {} --BOSS系统自己实现的自动执行函数表
+BossAutoRunRankingName = "BOSS_AUTORUN_RECORD" --BOSS系统自动执行的函数记录表 用 RankingList 保存 
+--#include "data\functions\Systems\BossSystem\MapBoss\MapBossMain.txt" once
+--#include "data\functions\Systems\BossSystem\WorldBoss\WorldBossMain.txt" once
+--#include "data\functions\Systems\BossSystem\RandomBoss\RandomBossMain.txt"  once
+--#include "data\functions\Systems\BossSystem\HumBoss\HumBossMain.txt" once
+--#include "data\functions\Systems\BossSystem\BossSystemHandle.txt" once
+
+
+BossAutoRun = nil
+function BossPrint(sMsg)
+  local ShowDebugMsg = false
+  if ShowDebugMsg == true then
+    print(sMsg)
+  end 
+end
+
+
+
+function BossImp.Run() 
+  
+  --检测是否需要执行自动执行函数 
+  local Now = System.getCurrMiniTime()
+  --BossPrint("BossSystem::Run , #Now :: " .. Now)
+  for K,V in pairs(BossSystmeAutoRunTable) do
+    if V ~= nil then
+      BossPrint(string.format("BossAutoRun #Key:%s 运行时间: %s",K,System.decodeTime(V.NextRun)))
+      if Now >= V.NextRun then 
+        BossPrint("BOSS自动执行函数执行: "..K)  
+        V.Proc(V.Param)
+        BossSystmeAutoRunTable[K] = nil
+      end 
+    end 
+  end
+  
+end
+
+
+
+
+
+--------------获取下次执行时间-------------
+function BossImp.GetNextRunTime(Key)
+
+  local H = BossSystmeAutoRunTable[Key]
+  if H ~= nil then
+    if BossSystmeAutoRunTable[Key].NextRun ~= nil then
+      return BossSystmeAutoRunTable[Key].NextRun 
+    end 
+  end
+  
+  return 0
+end
+
+
+
+--注册自动执行 
+function BossImp.RegisterAutoRun(Key,Proc,NextRun,IntParam)
+  BossPrint(string.format("注册BOSS系统自动执行 :%s , #%d",Key,IntParam))
+  local Set = {}
+  Set.Proc = Proc
+  Set.Param = IntParam
+  Set.NextRun = NextRun
+  BossSystmeAutoRunTable[Key] = Set
+end
+
+--解除自动执行函数 
+function BossImp.UnRegisterAutoRun(Key)
+  local H = BossSystmeAutoRunTable[Key]
+  if H ~= nil then  
+    BossSystmeAutoRunTable[Key] = nil
+  end
+end  
+
+---------BOSS系统主循环---------- 
+function BossMainLoop()
+   --BossPrint("BossSytem 主调用")
+   BossImp.Run() 
+end
+
+----------------------------------
+--BOSS系统NPC初始化
+function BossImp.BossInit(npcobj)
+  local Name = Actor.getName( npcobj)   
+  BossPrint("BossSystem 初始化 ::" ..Name)
+  BossImp.LoadAutoRun()
+  --注册自动执行 
+  BossAutoRun = System.registerTimeCall( npcobj , "BossMainLoop" , "2015-9-1 15:00:00",60, false )
+end
+
+
+function BossImp.BossFinal(npcobj)
+  BossPrint("BossSystem 析构")
+  --解除自动执行函数
+  System.unregisterTimeCall(BossAutoRun)
+  
+  --保存自动执行 以便 如果是重载的话 那么可以重新加载回来 
+  local Rank = Ranking.getRanking(BossAutoRunRankingName)
+  if not Rank then
+    Rank = Ranking.add(BossAutoRunRankingName,200,0,0)
+    Ranking.addColumn(Rank,"Key",-1) 
+  else
+    Ranking.clearRanking(Rank)   
+  end
+  
+  local i = 1
+  for K,V in pairs(BossSystmeAutoRunTable) do
+    if V ~= nil then
+      local ItemData = Ranking.addItem(Rank,i,V.NextRun)
+      Ranking.setSub(ItemData,0,K)
+      i = i + 1
+    end
+  end
+  
+  
+  
+end
+
+
+function BossImp.LoadAutoRun()
+    BossPrint("加载自动执行")
+    local Rank = Ranking.getRanking(BossAutoRunRankingName)
+    local Now = System.getCurrMiniTime( )
+    if Rank then
+       local nCount = Ranking.getRankItemCount( Rank )
+       BossPrint("BOSS系统自动执行列表数量 : ".. nCount)
+       for i = 0 , nCount - 1 do
+         local ItemData = Ranking.getItemFromIndex( Rank,i)
+         local NextRunTime = Ranking.getPoint(ItemData) 
+         --BossPrint(string.format("Boss::AutoRun , NextRun : %d",NextRunTime))
+         local sKey = Ranking.getSub(ItemData,0)
+          
+         local Pos = string.find(sKey,"#")  
+         local BossID = tonumber(string.sub(sKey,Pos + 1))
+         local sFunKey = string.sub(sKey,1,Pos - 1)  
+         BossPrint(string.format("Boss::AutoRun , Key:%s ,Param : %d , NextRun : %d",sKey,BossID,NextRunTime))
+  
+         --世界BOSS不需要重新加载自动执行列表 因为他们在重新加载后立马刷新
+         local RandomBossFlag = string.find(sKey,RandomBossMobKey(-1) )
+         local MapBossFlag = string.find(sKey,MapBossImp.AutoRunKey(-1))
+         if not RandomBossFlag then
+           RandomBossFlag = 0
+         end  
+         
+         if not MapBossFlag then
+            MapBossFlag = 0
+         end
+           
+         if RandomBossFlag > 0 then
+           BossImp.RegisterAutoRun(RandomBossMobKey(BossID),RandomBossImp.MobRandomBoss,NextRunTime,BossID)
+           
+           BossPrint(string.format("Boss::AutoRun 狩猎BOSS恢复 , Key:%s ,Param : %d , NextRun : %d",sKey,BossID,NextRunTime))  
+         elseif MapBossFlag > 0 then 
+           BossImp.RegisterAutoRun(MapBossImp.AutoRunKey(BossID),MapBossImp.MobMapBoss,NextRunTime,BossID)
+              --注册下次刷新公告的时间
+	       NextRunTime = NextRunTime - (5 * 60)
+           if NextRunTime > Now then
+             local Key = MapBossImp.BeforeAliveSayRunKey(BossID)
+             BossImp.RegisterAutoRun(Key,MapBossImp.MapBossBeforeAlive5MinSay,NextRunTime,BossID)
+           end
+           BossPrint(string.format("Boss::AutoRun 地图BOSS恢复 , Key:%s ,Param : %d , NextRun : %d",sKey,BossID,NextRunTime))
+         end
+         
+         
+         
+         
+       end 
+    end
+end
+
+
+--if InitFnTable ~= nil then  
+  table.insert(InitFnTable, BossImp.BossInit)
+  table.insert(FinaFnTable, BossImp.BossFinal)
+--end

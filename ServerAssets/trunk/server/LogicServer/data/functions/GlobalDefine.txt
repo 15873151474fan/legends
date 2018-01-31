@@ -1,0 +1,209 @@
+﻿--lua script
+--#ifndef _GLOBAL_DEFINES_INCLUDED_
+--#define _GLOBAL_DEFINES_INCLUDED_
+
+--#include "data\language\LangCode.txt" once
+
+--这里定义全局的常量
+--这里定义和客户端的通信协议号
+
+--子系统消息号
+LogicCmd = 
+{
+	miscSys = 
+	{
+		sysId = 139,		--misc子系统
+		sub = 
+		{
+			--客户端上传
+			cGetAward = 13,	--用户领取副本奖励（开箱）
+			cFlower = 21,	--客户端发送鲜花系统的信息
+			cTelCampKingNpc=26, -- 传送玩家到盟主NPC
+			cChangeIcon = 27,	
+			cClickReliveIcon = 35,	--客户端点击复活按钮
+			cGetUpdateList = 41, --请求更新列表
+			
+			cGetWuLinZhengBaData = 39,	--客户端请求武林争霸赛赛程数据
+			cApplyWuLinZhengBaIcon = 40,	--客户端点击武林争霸参加晋级赛
+			cGetWuLinZhengBaFinalEight = 42,	--客户端请求武林争霸八强奖励名单
+			cGetWuLinZhengBaFinalEightAward = 43,	--客户端请求领取武林争霸八强奖励
+			cWuLinMasterSetShutup = 44,	--武林盟主禁言
+			cGetAthleticsPointActorData = 45,	--客户端请求竞技积分个人排行信息
+			cGetAthleticsPointAward = 46,	--客户端请求领取竞技积分奖励
+
+			cWishBottleOpt = 71,			--
+
+			
+			--服务器下发
+			sFbResult = 16,	--发送通关评价窗口的信息
+			sGetAward = 17,--广播玩家领取了奖励的消息
+			
+			sFlower = 22,	--通知赠花		
+			sChangeIcon = 27,	--修改头像结果
+			
+			sOpenReliveDialog = 34, --服务端请求打开复活面板
+
+			sSendUpdateList = 41,	--下发更新列表
+			
+			sSendWuLinZhengBaData = 40,	--服务端返回武林争霸赛程数据
+			sSendWuLinZhengBaFinalEight = 42,	--服务端返回武林争霸八强奖励名单
+			sSendWuLinZhengBaEnter = 43,	--可进入晋级赛标志  0不可进入 1可进入
+			sSendAthleticsPointActorData = 44,	--下发竞技积分个人排行信息
+
+			sSendWithBottleInfo = 62,
+			sSendFlushResult = 63,	
+			sIsFirstLogin = 99, -- 是否第一次登陆通知给客户端			
+		},
+	},
+	acuSys = 
+	{
+		sysId = 137,		--经脉子系统
+		sub = 
+		{
+			--客户端上传
+			cLevelUp = 1,	--经脉升级
+			cGetInfo = 2,	--获取经脉数据
+			
+			--服务器下发
+			sLevelUp = 1,	--经脉升级结果
+			sGetInfo = 2,	--经脉数据
+		},
+	},
+	csSys =
+	{
+		sysId = 144,	--跨服子系统
+		sub =
+		{
+			--客户端上传
+			cGetActData = 1,
+			cEnterCS = 2,
+			
+			--服务端下发
+			sSendBossList = 1,
+			sSendBossEnter = 2,
+			
+		},
+	},
+}
+
+
+--MISSION_RTV_IDX开头的变量是代表保存在玩家任务系统里的100个整数的索引，每个整数存储不同的数据
+MISSION_RTV_IDX_MISSIONID   = 0   -- 任务ID的存储位置
+MISSION_RTV_IDX_MISSIONIDX  = 1   -- 人物在NPC当前表的索引位置
+MISSION_RTV_IDX_MISSIONSTEP = 2   -- 玩家对话的步骤存储的位置（初始值为 1）
+
+--货币的类型和属性的对应
+moneyTypeMap = 
+{
+  [0] = PROP_ACTOR_BIND_COIN,
+	[1] = PROP_ACTOR_COIN,
+	[2] = PROP_ACTOR_BIND_YUANBAO,
+	[3] = PROP_ACTOR_YUANBAO,
+	[4] = PROP_ACTOR_RENOWN,
+	[5] = PROP_ACTOR_ZHANHUN,
+}
+
+moneyTypeName = {
+	[0] = Lang.ScriptTips.coin000,
+	[1] = Lang.ScriptTips.coin001,
+	[2] = Lang.ScriptTips.coin002,
+	[3] = Lang.ScriptTips.coin003,	
+}
+
+--以下是副本相关的定义
+--这是副本的状态定义
+FB_FS_GETAWARD = 100			--领奖状态
+FB_BS_FINISHED = 99				--已完成
+
+--这是副本的存储的值的索引
+FB_FR_IDX_LEVEL = 1				--副本完成后的等级，发奖励要用
+FB_FR_IDX_BOX = 10				--保存箱子是否开启的值，1个int，记录10个箱子的开启情况，0-4位是银箱，5-9是金箱
+
+--阵营对应的中文名
+Zy_cn = 
+{
+	Lang.Misc.m000200,
+	Lang.Misc.m000201,
+	Lang.Misc.m000202,
+}
+--职业对应的中文名
+
+Job_cn = {
+	Lang.ScriptTips.rank0001,
+	Lang.ScriptTips.rank0002,
+	Lang.ScriptTips.rank0003,
+}
+
+Sex_cn = 
+{
+	[0] = Lang.ScriptTips.mt00020,
+	[1] = Lang.ScriptTips.mt00019,
+}
+
+--奖励对应中文名
+Award_cn = 
+{
+	Lang.Misc.m000450,
+	Lang.Misc.m000451,
+	Lang.Misc.m000452,
+	Lang.Misc.m000453,
+	Lang.Misc.m000454,
+	Lang.Misc.m000455,
+	Lang.Misc.m000456,
+	Lang.Misc.m000457,
+	Lang.Misc.m000458,
+	Lang.Misc.m000459,
+	Lang.Misc.m000460,
+	Lang.Misc.m000461,
+	Lang.Misc.m000462,
+	Lang.Misc.m000463,
+	Lang.Misc.m000464,
+	Lang.Misc.m000465,
+	Lang.Misc.m000466,
+	Lang.Misc.m000467,
+	Lang.Misc.m000468,
+	Lang.Misc.m000469,
+	Lang.Misc.m000470,
+	Lang.Misc.m000471,
+
+}
+
+--阵营关系
+CampRelation =
+{
+	Enemy = 1,
+	Union = 2,
+	Same  = 3,
+}
+
+--打开角色属性窗口ID定义
+OpenDialogID =
+{
+	diItem = 0,	--物品窗口
+	diActor = 1,	--角色属性窗口
+	diQuest = 2,	--任务
+	diSkill = 3,	--技能
+	diStrong = 4,	--强化
+	diGuild = 5,	--帮派
+	diSell = 6,		--寄卖
+	diSystem = 7,	--系统
+	diStore = 8,	--商城
+	diFubenTeam = 9,--副本系统中的窗口
+	diFubenList = 10,--列出所有的副本队伍的窗口
+	diBuyAnItem = 11,--显示某个物品的购买窗口
+	diFuncDia = 12,		--显示自定义功能窗口，附带的参数为字符串，包含按钮连接
+	diMemoDia = 13,		--一个文本内容的对话框，"标题,内容"
+	diRenown = 14,	--声望商店
+	diStartPlay = 100,--开始游戏
+}
+
+--特效ID定义
+EffectID = 
+{
+	eFlower = 1,		--花瓣
+	eMoneyCommon = 2,	--普通金钱雨
+	eMoneySpecial = 3,	--特殊金钱雨
+	eSnow = 4,			--雪花
+}
+
+--#endif //end of _GLOBAL_DEFINES_INCLUDED_

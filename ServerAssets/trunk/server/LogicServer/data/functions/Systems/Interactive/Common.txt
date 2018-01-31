@@ -1,0 +1,101 @@
+﻿
+--#include "data\config\misc\Interact.txt" once --配置文件
+
+function InitInteractDatas(sysarg)
+	-- local config = InteractConfig
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- local InteractTimes = svar.InteractTimes
+	-- --InteractTimes = nil
+	-- if not InteractTimes then
+	-- 	svar.InteractTimes = {}
+	-- 	svar.InteractTimes[1] = config[1][1]	--递香皂
+	-- 	svar.InteractTimes[2] = config[2][1]	--搓背
+	-- 	svar.InteractTimes[3] = config[3][1]	--按摩
+	-- 	svar.InteractTimes[4] = config[4][1]	--拥吻
+		
+	-- 	InteractTimes = svar.InteractTimes
+	-- end
+	
+	-- return InteractTimes
+end
+
+function ResetInteractDatas(sysarg)
+	-- local config = InteractConfig
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- svar.InteractTimes = {}
+	-- svar.InteractTimes[1] = config[1][1]	--递香皂
+	-- svar.InteractTimes[2] = config[2][1]	--搓背
+	-- svar.InteractTimes[3] = config[3][1]	--按摩
+	-- svar.InteractTimes[4] = config[4][1]	--拥吻
+end
+
+function GetInteractData(sysarg, type)
+	local InteractTimes = InitInteractDatas(sysarg)
+	return InteractTimes[type]
+end
+
+function CheckInteractData(sysarg, type)
+	local InteractTimes = InitInteractDatas(sysarg)
+	if InteractTimes[type] <= 0 then
+		local item  = InteractConfig[type][2]
+		if Actor.getItemCount(sysarg, item) > 0 then
+			return true
+		else
+			Actor.messageBox(sysarg,0,0,Lang.Activity.a00190,Lang.Activity.a00191.."/BuyStoreItem,"..item,Lang.Activity.a00192.."/cancelFunc",nil)
+			return false
+		end
+	end
+	return true
+end
+
+--购买道具
+function BuyStoreItem(sysarg, itemId)
+	Actor.openDialogs(sysarg,diBuyAnItem,tostring(itemId))
+end
+
+function ReduceInteractData(sysarg, type)
+	-- local type = tonumber(type)
+	
+	-- InitInteractDatas(sysarg)
+	
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- local InteractTimes = svar.InteractTimes
+	-- if not InteractTimes[type] then return false,0 end
+	-- if InteractTimes[type] <= 0 then
+	-- 	local item  = InteractConfig[type][2]
+	-- 	if item ~= 0 and Actor.getItemCount(sysarg, item) > 0 then
+	-- 		if Actor.removeItem(sysarg, item, 1) < 1 then
+	-- 			return false,0
+	-- 		end
+	-- 		return true, InteractTimes[type]
+	-- 	else
+	-- 		return false,0
+	-- 	end
+		
+	-- 	-- local yb  = InteractConfig[type][3]
+	-- 	-- local hasYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	-- 	-- if yb ~= 0 and hasYb >= yb then
+	-- 		-- if Actor.setUIntProperty(sysarg, PROP_ACTOR_YUANBAO, hasYb-yb) ~= true then
+	-- 			-- return false,0
+	-- 		-- end
+	-- 		-- return true, InteractTimes[type]
+	-- 	-- else
+	-- 		-- return false,0
+	-- 	-- end
+	-- else
+	-- 	InteractTimes[type] = InteractTimes[type] - 1
+	-- end
+	
+	-- return true, InteractTimes[type]
+end
+
+function SendInteractData(sysarg, tbData)
+	-- local pack = DataPack.allocPacket(sysarg,139,54)      
+	-- if pack == nil then return end
+	-- DataPack.writeByte(pack,table.getn(tbData))
+	-- for k, v in ipairs(tbData) do
+	-- 	DataPack.writeByte(pack,v.type)
+	-- 	DataPack.writeByte(pack,v.count)
+	-- end
+	-- DataPack.flush(pack)
+end

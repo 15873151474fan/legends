@@ -1,0 +1,60 @@
+
+--lua script
+
+
+--#include "data\functions\Activity\NanJiangGuDi\XunShouLeiTai.txt" once
+--#include "data\config\activityconfig\NanJiangGuDi\XunShouLeiTaiConfig.txt" once
+
+function XunShouLeiTai_Main(sysarg)
+	local str = "\\<#BL"..Lang.Activity.njgd016.."/@EnterXunShouLeiTai>" --驯兽擂台(12转60)
+	str = str.."\\<#BL"..Lang.Activity.njgd017.."/@XunShouLeiTaiRank>" --查看档次排名(下次活动开启前5分钟清空)
+	str = str.."\\<#BL"..Lang.Activity.njgd018.."/@XunShouLeiTaiRule>" --玩法规则
+	str = str.."\\<#BL"..Lang.Activity.njgd019.."/@XunShouLeiTaiAward>" --领奖  
+	return str
+end
+
+function EnterXunShouLeiTai(sysarg)
+	-- 判断战力
+	local nBattle = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+	local needVal = XunShouLeiTaiConfig.needVal
+	if nBattle < needVal then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd046, ttFlyTip) --战力不够
+		return
+	end
+
+	if Actor.checkActorLevel(sysarg, XunShouLeiTaiConfig.level, XunShouLeiTaiConfig.circle) == true then
+		local SysVar = System.getDyanmicVar()
+		if SysVar.XunShouFlag then
+			local sceneId = XunShouLeiTaiConfig.sceneId
+			local sceneX = XunShouLeiTaiConfig.sceneX
+			local sceneY = XunShouLeiTaiConfig.sceneY
+			Actor.enterScene(sysarg, sceneId, sceneX, sceneY)
+			XunShouBrushBoss(sysarg)
+		else
+			Actor.sendTipmsg(sysarg, Lang.Activity.njgd027, ttFlyTip)
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd025, ttFlyTip)
+	end
+end
+
+function XunShouLeiTaiRank(sysarg)
+	return XunShouLeiTaiActOver(sysarg)
+end
+
+function XunShouLeiTaiRule()
+	local str = Lang.Activity.njgd021
+	str = str.."\\<#BL"..Lang.Activity.njgd008.."/@main>" --返回
+	return str
+end
+
+
+function XunShouLeiTaiAward(sysarg)
+	return ReqGetXunShouAward(sysarg)
+end
+
+
+
+
+
+table.insert(MainFnTable, XunShouLeiTai_Main)

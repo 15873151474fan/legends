@@ -1,0 +1,213 @@
+
+--lua script 
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryHorseAct.txt" once
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryStoreConfig.txt" once
+--#include "RankPointer.txt" once
+
+--加载周年专场数据
+function LoadAnniversaryStore(sysarg)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	if (not AnniversaryHorRankPt.AnniversaryStorePt) then
+		return tmpTable
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(AnniversaryHorRankPt.AnniversaryStorePt.File)
+	if not ranking then
+		ranking = Ranking.add(AnniversaryHorRankPt.AnniversaryStorePt.File, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, AnniversaryHorRankPt.AnniversaryStorePt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if pItem then
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存周年专场数据
+function SaveAnniversaryStore(sysarg, tmpTable)
+	if not AnniversaryHorRankPt.AnniversaryStorePt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(AnniversaryHorRankPt.AnniversaryStorePt.File)
+	if not ranking then
+		ranking = Ranking.add(AnniversaryHorRankPt.AnniversaryStorePt.File, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, AnniversaryHorRankPt.AnniversaryStorePt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {})-1 do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--请求周年专场信息
+function GetAnniversaryStoreInfoOp(sysarg, args)
+	local config = AnniversaryStoreConfig
+	local actConfig = AnniversaryHorActConfig
+	if (not config) or (not actConfig) then
+		return
+	end
+
+	if System.isInDateRange(unpack(actConfig.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0207, ttFlyTip)
+	end
+
+	local actTime = actConfig.actTime
+	local nBeginTime = System.encodeNumTime(actTime[1],actTime[2],actTime[3],actTime[4],actTime[5],actTime[6])
+	local nCurrTime = System.getCurrMiniTime()
+
+	local nNowDay = 0
+	if nCurrTime > nBeginTime then
+		nNowDay = math.ceil((nCurrTime - nBeginTime) / (3600*24))
+	end
+
+	if (nNowDay <= 0) or (nNowDay > table.getn(config.store or {}) + 1) then
+		return
+	end
+
+	if (nNowDay > table.getn(config.store or {})) then
+		nNowDay = table.getn(config.store or {})
+	end
+
+	local nTodayStore = config.store[nNowDay]
+	local nItemCount = table.getn(nTodayStore or {})
+
+	local tmpTable = LoadAnniversaryStore(sysarg)
+
+	local pack = DataPack.allocPacket(sysarg, 52, 44)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nNowDay)
+		DataPack.writeChar(pack, nItemCount)
+
+		for k,v in ipairs(nTodayStore or {}) do
+			DataPack.writeInt(pack, v.itemId)
+			DataPack.writeInt(pack, v.price)
+			DataPack.writeInt(pack, tmpTable[k])
+			DataPack.writeInt(pack, buyLimit)
+		end
+
+		DataPack.writeChar(pack, table.getn(config.showItem or {}))
+
+		for k,v in ipairs(config.showItem or {}) do
+			DataPack.writeInt(pack, v.itemId)
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--请求周年专场购买
+function GetAnniversaryStoreBuyOp(sysarg, args)
+	local nBuyId = args[2]
+	local nBuyCount = args[3]
+
+	local config = AnniversaryStoreConfig
+	local actConfig = AnniversaryHorActConfig
+	if (not config) or (not actConfig) then
+		return
+	end
+
+	if System.isInDateRange(unpack(actConfig.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0112, ttFlyTip)
+		return
+	end
+
+	local actTime = actConfig.actTime
+	local nBeginTime = System.encodeNumTime(actTime[1],actTime[2],actTime[3],actTime[4],actTime[5],actTime[6])
+	local nCurrTime = System.getCurrMiniTime()
+
+	local nNowDay = 0
+	if nCurrTime > nBeginTime then
+		nNowDay = math.ceil((nCurrTime - nBeginTime) / (3600*24))
+	end
+
+	if (nNowDay <= 0) or (nNowDay > table.getn(config.store or {})) then
+		return
+	end
+
+	local nTodayStore = config.store[nNowDay]
+
+	if (nBuyId <= 0) or (nBuyId > table.getn(nTodayStore or {})) then
+		return
+	end
+
+	local itemTab = nTodayStore[nBuyId]
+
+	if (Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0113, ttFlyTip)
+		return
+	end
+
+	local tmpTable = LoadAnniversaryStore(sysarg)
+
+	local nCurrBuyCount = tmpTable[nBuyId]
+
+	if itemTab.buyLimit - nCurrBuyCount < nBuyCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0114, ttFlyTip)
+		return
+	end
+
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	local nTotalYb = itemTab.price * nBuyCount
+
+	if nYb < nTotalYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0115, ttFlyTip)
+		return
+	end
+
+	local awards =
+	{
+		{type = 0, id = itemTab.itemId, count = nBuyCount, strong = itemTab.strong, quality = 0, bind = itemTab.bind},
+	}
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+		end
+	else
+		return
+	end
+
+	Actor.changeMoney(sysarg,3,-nTotalYb,197,Lang.Activity.mzn0116)
+
+	nCurrBuyCount = nCurrBuyCount + nBuyCount
+
+	tmpTable[nBuyId] = nCurrBuyCount
+
+	SaveAnniversaryStore(sysarg, tmpTable)
+end

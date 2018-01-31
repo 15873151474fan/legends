@@ -1,0 +1,40 @@
+--lua script
+
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once 
+
+function LanternParade_Main()
+	local str = ""
+	--if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) == true then--元宵巡游
+	if System.isInDateRange(unpack(ValentineParadeConfig.actTime)) == true then --七夕巡游
+		if System.isInTimeRange(unpack(LanternFestivalConfig.lanterParade.forbitTimeRange)) ~= true then
+			str = str.."\\<#BL"..Lang.Activity.yx0022.."/@OpenLanternParade>"
+			str = str.."\\<#BL"..Lang.Activity.yx0023.."/@GetLanternParadeAward>"
+		end
+		str = str.."\\<#BL"..Lang.Activity.yx0061.."/@ActivityIntroduce>"
+	end 
+	return str
+
+end 
+
+
+
+--领取奖励
+function GetLanternParadeAward(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.yx0024.."/@GetParadeAwardFree>" 
+	str = str.."\\<#BL"..Lang.Activity.yx0025.."/@GetParadeAwardByYb>" 
+	str = str..Lang.Activity.yx0026
+	return str
+
+end
+	
+--活动详情
+function ActivityIntroduce(sysarg)
+	local str = ""
+	str = Lang.Activity.yx0062 
+	str = str..Lang.Activity.yx0026
+	return str 
+end
+
+
+table.insert(MainFnTable, LanternParade_Main)  

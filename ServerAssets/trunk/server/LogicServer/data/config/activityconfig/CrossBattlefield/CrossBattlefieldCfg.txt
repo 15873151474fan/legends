@@ -1,0 +1,190 @@
+--lua script
+--#include "data\language\LangCode.txt" once			--语言包
+
+--跨服降魔战场的配置
+CrossBattlefieldCfg = 
+{
+	nMaxSignUpTimes = 5,		-- 每天最多报名的次数
+	ActivityTime = 20 * 60,		 -- 每场活动持续时间，单位：秒	
+	
+	BattleFieldName = "CrossBattleField",			--存储报名的文件    报名降魔战场
+	BattleFieldFile = "CrossBattleField.txt",
+
+	BattleFieldResultName = "CrossBattleFieldResult",		--降魔战场的结果
+	BattleFieldResultFile = "CrossBattleFieldResult.txt",
+
+	BattleSignUpName = "CrossBattleSignTimes",			--降魔战场报名的参数
+	BattleSignUpFile = "CrossBattleSignTimes.txt",
+
+	DoubleTime = {19,21},									--双倍时间
+
+	--报名的时间
+	nTime = 
+	{
+		{week = {0,1,2,3,5,6,},	hour = {14,21},},				--周几  0是周日	和小时
+		{week = {4}, hour = {14,19},},
+	},
+	
+	needlev = 55,						--报名需要等级
+	needCoin = 10000,					--报名需要金币
+	needbattle = 3500,					--报名需要战力
+
+	nNum = 10,							--一般是5对5
+	nMaxNum = 20,						--最大是10对10
+
+	CountDown = 30,						--进入战场倒计时，单位:秒
+
+	FubenId = 52,						--副本id
+	SceneId = 158,						--场景id
+	
+	crossSceneId = 147,					--跨服土城的id
+
+	nEnterSeneId = 8,					--进入的场景id
+	nEnterPosx = 148,
+	nEnterPosY = 180,
+
+	XiangMoPos = {59,62},					--降魔阵营进入新战场坐标
+	LieYaoPos = {145,156},					--猎妖阵营进入新战场坐标
+
+	--旗帜的配置
+	nQizhiConfig = 
+	{
+		--id 旗帜的id  
+		{nMonsterID = 885,	nPosX = 99, nPosY = 106, nLiveTime = 1260,},
+		{nMonsterID = 885,	nPosX = 111, nPosY = 68,nLiveTime = 1260,},
+		{nMonsterID = 885,	nPosX = 86, nPosY = 153,nLiveTime = 1260,},
+	},
+	
+	--守卫的配置
+	nShouweiConfig = 
+	{	
+	--nType 1 表示降魔阵营   2 
+		{nMonsterID = 190,nPosX = 116, nPosY = 117, nType = 3,nLiveTime = 1260,},	
+		{nMonsterID = 190,nPosX = 112, nPosY = 121, nType = 3,nLiveTime = 1260,},	
+		
+		{nMonsterID = 191,nPosX = 126, nPosY = 135, nType = 4,nLiveTime = 1260,},	
+		{nMonsterID = 191,nPosX = 130, nPosY = 131, nType = 4,nLiveTime = 1260,},	
+	},
+
+	EndBattleScore = 500,				--达到多少积分，活动结束
+	
+	killOneHoure = 10,					--杀死一个敌方的玩家获得的
+	killOneScore = 10,					--杀死一个玩家获得的积分
+
+	killQizhiScore = 30,				--占领旗帜获得的积分
+	decScrore = 5,						--如果对方有积分则扣除5个积分
+	
+	--结束给奖励
+	crossAward = 
+	{
+		{
+			rangHounr = {90,1000},		--杀敌荣誉区间
+
+			--胜利方
+			winAwards = 
+			{
+				{type = 20, id = 2, count = 15,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 8000,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 300, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--失败方 
+			awards = 
+			{
+				{type = 20, id = 2, count = 12,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 6000,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 200, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+
+		{
+			rangHounr = {60,89},		--杀敌荣誉区间
+
+			--胜利方
+			winAwards = 
+			{
+				{type = 20, id = 2, count = 12,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 6000,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 300, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--失败方 
+			awards = 
+			{
+				{type = 20, id = 2, count = 10,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 4000,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 200, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+
+		{
+			rangHounr = {20,59},		--杀敌荣誉区间
+
+			--胜利方
+			winAwards = 
+			{
+				{type = 20, id = 2, count = 10,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 4000,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 300, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--失败方 
+			awards = 
+			{
+				{type = 20, id = 2, count = 7,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 2000,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 200, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+
+		{
+			rangHounr = {10,19},		--杀敌荣誉区间
+
+			--胜利方
+			winAwards = 
+			{
+				{type = 20, id = 2, count = 7,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 2000,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 300, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--失败方 
+			awards = 
+			{
+				{type = 20, id = 2, count = 5,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 0,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 200, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+
+		{
+			rangHounr = {0,9},		--杀敌荣誉区间
+
+			--胜利方
+			winAwards = 
+			{
+				{type = 20, id = 2, count = 5,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 0,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 300, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--失败方 
+			awards = 
+			{
+				{type = 20, id = 2, count = 3,quality = 0, strong = 0, bind = 1},  --经验奖励
+				{type = 21, id = 0, count = 0,quality = 0, strong = 0, bind = 1},  --荣誉奖励
+				{ type = 35, id = 0, count = 200, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+	},
+
+	--面板显示奖励
+	FormAwards = 
+	{
+		--type 奖励的类型
+		{type=20,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励经验
+		{type=21,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励荣誉值
+		{type=35,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励战勋
+	},
+}
+

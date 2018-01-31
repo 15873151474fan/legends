@@ -1,0 +1,73 @@
+--#include "data\config\activityconfig\HiddenDragon\HiddenDragonConfig.txt" once
+
+function HiddenDragonGiftFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.isDealing(sysarg) == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0011, ttFlyTip)
+		return 
+	end
+	
+	local keyConfig = HiddenDragonConfig.hiddenDragonKey
+
+	if Actor.checkConsume(sysarg, keyConfig.type, keyConfig.id, keyConfig.count) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0021, ttFlyTip)
+		--Actor.openDialogs(sysarg, 51, keyConfig.id)
+		return 
+	end
+
+	local needBagCount = table.getn(HiddenDragonConfig.hiddenDragonGiftAward)
+	local giftTab = {}
+	for i = 1, table.getn(HiddenDragonConfig.hiddenDragonGiftAward) do 
+		local infoTable = HiddenDragonConfig.hiddenDragonGiftAward[i]
+		local nTotalRate = 0
+		for k, awardInfo in ipairs(infoTable or {}) do
+			nTotalRate = nTotalRate + awardInfo.rate
+		end
+		local giftInfo = GetHiddenDragonRandomInfo(infoTable, 1, nTotalRate)
+		if giftInfo ~= nil then
+			table.insert(giftTab, giftInfo)
+		end
+		--[[
+		needBagCount = needBagCount + Item.getAddItemNeedGridCount(sysarg, giftInfo.id, giftInfo.maxCount, 
+						giftInfo.quality, giftInfo.strong, giftInfo.bind)
+		]]
+	end
+	
+	local emptyCount = Item.getBagEmptyGridCount(sysarg)
+	if needBagCount > emptyCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0018, ttFlyTip)
+		return 
+	end
+
+	if Actor.removeConsume(sysarg, 0, itemIdx, 1, -1, -1, -1, 0, 957, Lang.Activity.ylsz0019) > 0 then
+		if Actor.removeConsume(sysarg, 0, keyConfig.id, 1, -1, -1, -1, 0, 957, Lang.Activity.ylsz0020) > 0 then
+			for k, v in ipairs(giftTab) do
+				local awardCount = math.random(v.minCount, v.maxCount)
+				Actor.giveAward(sysarg, v.type, v.id, awardCount, v.quality, v.strong, v.bind, 0, 957, Lang.Activity.ylsz0019) 
+			end  
+		end
+	end
+end
+
+--根据概率获取值
+function GetHiddenDragonRandomInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i].value
+			break
+		end
+	end
+	return result
+	
+end
+
+function HiddenDragonGiftInit(sysarg)
+	for k, v in ipairs(HiddenDragonTab) do
+		GlobalItemFn[v.item_id] = { func = HiddenDragonGiftFunc, params = v }
+	end
+end
+
+table.insert( InitFnTable, HiddenDragonGiftInit)

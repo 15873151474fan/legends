@@ -1,0 +1,67 @@
+﻿{
+	id = 582,
+	name = Lang.Quest.q01159,
+	parentid = 581,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q01160,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00024,  
+    npc = Lang.EntityName.n00095,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00024,  
+	npc = Lang.EntityName.n00095,
+  },
+
+  target =
+  {
+       { type = 1, id = 707, count = 8,location={ sceneid=24,entityName=Lang.EntityName.m00158} },
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 396366,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 53236,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 0, id = 1277, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 1, sex = -1},
+    { type = 0, id = 1320, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 2, sex = -1},
+    { type = 0, id = 1341, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 3, sex = -1},
+    { type = 0, id = 1331, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 4, sex = -1},
+    { type = 0, id = 1287, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 5, sex = -1},
+    { type = 0, id = 1351, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 6, sex = -1},
+    { type = 0, id = 1309, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 7, sex = -1},
+    { type = 0, id = 1298, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 8, sex = -1},
+ },
+  --任务条件表
+  conds =
+  {
+        { type = 0, id = 0,count = 30 }, 
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t01976,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t01978,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t01979,
+  },
+  
+  --用于完成任务后的从背包里删除任务物品
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {707, 8}, 
+},                             

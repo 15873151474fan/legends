@@ -1,0 +1,41 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+
+--#include "data\config\activityconfig\GrowRose\Config.txt" once
+
+--[[
+    函数名称：UseItemCreateMonster_Func
+    函数描述：使用道具刷怪函数
+    参数 sysarg 的描述：使用者指针
+    参数 itemidx 的描述：道具ID
+    参数 itemPtr 的描述：道具指针
+    参数 ItemTable 的描述：物品表
+]]
+function UseSeedItem_Func(sysarg,itemidx,itemPtr,ItemTable)
+	local config =  GrowRoseConfig
+	if ItemTable == nil or config == nil then return end
+	if ItemTable.item_id == itemidx then
+		local index, itemTB = nil, nil
+		table.foreachi( UseSeedItem, function( i, v ) if (v.item_id == itemidx) then index,itemTB = i, v end end )
+		if (not index) or (itemTB ~= ItemTable) then return end
+		if index == 0 then
+			return 
+		end
+		
+		local title = Lang.Activity.t00122
+		local bResult = Actor.startSingWnd(sysarg,15,UseSeedItem[index].delayTime, title, true ,true, false, index)
+		
+	end
+end
+
+
+
+function UseSeedItem_Init(sysarg)
+	for i = 1,table.getn(UseSeedItem) do
+		local x = UseSeedItem[i]
+		GlobalItemFn[x.item_id] = {func = UseSeedItem_Func,params = x}
+	end
+end
+
+table.insert(InitFnTable,UseSeedItem_Init)

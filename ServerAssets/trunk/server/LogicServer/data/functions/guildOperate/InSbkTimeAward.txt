@@ -1,0 +1,59 @@
+--#include "data\language\LangCode.txt" once --语言包
+--#include "data\config\guild\InSbkWardConfig.txt" once
+
+--给予在沙巴克内停留时间的奖励
+function GiveInSbkAwardOp(sysarg,args)
+	local InSbkTime = args[2]		--在沙巴克区域的时间
+	local hgTime = args[3]			--在玛沙克皇宫的时间
+	local nWeek = args[4]
+
+	local nRate = 1
+	if nWeek == 6 then		--周六双倍
+		nRate = 2
+	end
+	
+	if InSbkTime >= SbkWarTime.sbkTime then
+		for i=1,table.getn(SbkWarTime.sbkAwards) do
+			Actor.giveAward(sysarg,SbkWarTime.sbkAwards[i].type,SbkWarTime.sbkAwards[i].id,SbkWarTime.sbkAwards[i].count*nRate,SbkWarTime.sbkAwards[i].quality,
+			SbkWarTime.sbkAwards[i].strong,SbkWarTime.sbkAwards[i].bind,0,905,Lang.GuildLang.wel012)
+		end
+		
+		if hgTime >= SbkWarTime.SiegeTime then 
+			for i=1,table.getn(SbkWarTime.SiegeAwards) do
+				Actor.giveAward(sysarg,SbkWarTime.SiegeAwards[i].type,SbkWarTime.SiegeAwards[i].id,SbkWarTime.SiegeAwards[i].count*nRate,SbkWarTime.SiegeAwards[i].quality,
+				SbkWarTime.SiegeAwards[i].strong,SbkWarTime.SiegeAwards[i].bind,0,905,Lang.GuildLang.wel012)
+			end
+		end
+	end
+end
+
+--添加勇气值buff
+function OnAddCourageBuff(sysarg,args)
+	local nCourage = args[2]
+	local nOldValue = args[3]
+	
+	local nOldIndex = 0
+	for i=1,table.getn(SbkWarTime.courageBuff) do
+		if nOldValue >= SbkWarTime.courageBuff[i].courageValue then
+			nOldIndex = i
+		end	
+	end
+
+	local nIndex = 0
+	for i=1,table.getn(SbkWarTime.courageBuff) do
+		if nCourage >= SbkWarTime.courageBuff[i].courageValue then
+			nIndex = i
+		end	
+	end
+	if nIndex == nOldIndex and nOldIndex < table.getn(SbkWarTime.courageBuff) then 
+		return 
+	end
+	--print("nCourage:"..nCourage)
+	local ItemTable = SbkWarTime.courageBuff[nIndex]
+	if ItemTable == nil then return end
+	
+
+	Actor.addBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup, ItemTable.value, ItemTable.times, ItemTable.interval, ItemTable.buffName, ItemTable.timeOverlay)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.wel046,Actor.getName(sysarg)),2+128)
+end

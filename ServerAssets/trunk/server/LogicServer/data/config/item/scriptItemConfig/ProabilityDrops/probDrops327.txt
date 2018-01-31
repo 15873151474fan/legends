@@ -1,0 +1,6 @@
+﻿drops=
+{
+	{ group = 0, type = 20, id = 3, count = 88, bind = 1, },
+
+
+}

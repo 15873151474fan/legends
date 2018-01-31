@@ -1,0 +1,178 @@
+﻿--lua script
+-- 宝物灵性炼化脚本处理逻辑
+--#include "data\config\gem\GemConfig.txt" once
+--#include "GemCommon.txt" once
+
+-- 检测宝物灵性炼化幸运符需求
+local function CheckUpSCLuckyItemReq(sysarg, luckyItemId, useLuckyItemCnt, maxLuckyItemCnt)
+	if (useLuckyItemCnt > maxLuckyItemCnt) then
+		local tip = string.format(Lang.Gem.t00002, maxLuckyItemCnt)
+		Actor.sendTipmsg(sysarg, tip, ttTipmsgWindow)
+		return false
+	end
+	
+	if (not CheckItemReq(sysarg, luckyItemId, useLuckyItemCnt)) then 
+		return false 
+	end
+	
+	return true
+end
+
+
+-- 计算宝物灵性炼化成功率
+-- scRateCfg: 宝物灵性炼化成功率配置
+-- scType: 宝物灵性类型
+-- rateAddExtra: 幸运符额外提高的成功率
+local function CalcUpSCRate(gemPtr, scRateCfg, scType, rateAddExtra)	
+	local scVal = GemItem.getGemItemSpriteChar(gemPtr, scType)
+	--print("gemSpriteCharVal = " .. scVal)
+	local rate = 0	
+	for i=1, table.getn(scRateCfg) do		
+		if (scVal <  scRateCfg[i].rangeMax) then
+			rate = scRateCfg[i].rate
+			break
+		end
+	end
+	
+	--print("rate=" .. rate)
+	rate = rate + rateAddExtra
+	if (rate > 100) then	rate = 100 end
+	
+	return rate
+end
+
+local function GetUpSCConfig(gemPtr, scRateCfg, scType)
+	local scVal = GemItem.getGemItemSpriteChar(gemPtr, scType)	
+	local cfg = nil
+	for i=1, table.getn(scRateCfg) do		
+		if (scVal <  scRateCfg[i].rangeMax) then
+			cfg = scRateCfg[i]
+			break
+		end
+	end
+	if (cfg == nil) then
+		print("error Gem SC config. scVal=" .. scVal)
+	end
+	return cfg
+end
+
+
+
+local function checkSCUpLmt(sysarg, scType, curSCVal, gradeCfg)
+	local upLmt = 0	
+	if (scType == 0) then
+		upLmt = gradeCfg.scAttackLmt
+	elseif (scType == 1) then
+		upLmt = gradeCfg.scDefenceLmt
+	elseif (scType == 2) then
+		upLmt = gradeCfg.scAgilityLmt
+	elseif (scType == 3) then
+		upLmt = gradeCfg.scHPLmt
+	end
+	
+	if (curSCVal >= upLmt) then		
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00014, ttTipmsgWindow)
+		return false
+	end
+	return true	
+end
+
+-- gemSlotIdx: 宝物槽位号
+-- gemSpriteCharType: 宝物灵性类型
+-- luckyItemCnt: 灵性炼化使用的幸运符数量
+local function GemRefineSCImpl(sysarg, gemSlotIdx, gemSpriteCharType, luckyItemCnt)
+	--print("------GemRefineSCImpl-----------gemSlotIdx=" .. gemSlotIdx .. " scType=" .. gemSpriteCharType)
+	local gemItemPtr = Actor.getGemItemBySlot(sysarg, gemSlotIdx)
+	if (not gemItemPtr) then return	end
+	
+	--检测是否为限时宝物
+	if GemItem.isLimitTimeGem(gemItemPtr) then return end
+	
+	local gemId = GemItem.getGemItemId(gemItemPtr)
+	if (gemId < 0) then	return	end
+	
+	local gemGrade 		= GemItem.getGemItemGrade(gemItemPtr)
+	local gemCfg 			= GetGemConfigById(gemId);
+	if (not gemCfg) then return	end	
+	local gradeCfg = GetGemGradeConfig(gemCfg, gemGrade)
+	if (not gradeCfg) then return end
+	
+	local scCfg 			= GetGemSCConfig()
+	if (not scCfg) then return	end
+	
+	--local scCfg 				= spriteCharCfg.GemUpSpriteCharConfig
+	local reqItemId				= scCfg.consumeItemId
+	local reqItemCnt 			= gradeCfg.reqRefineItemCnt
+	local scRateCfg 			= scCfg.gemUpSpriteCharSuccRate
+	local luckyItemId			= scCfg.luckyItemId
+	local maxLuckyItemCnt = scCfg.canUseMaxLuckyItemCount	
+	
+	local scVal = GemItem.getGemItemSpriteChar(gemItemPtr, gemSpriteCharType)
+	if (not checkSCUpLmt(sysarg, gemSpriteCharType, scVal, gradeCfg)) then return end
+	if (not CheckItemReq(sysarg, reqItemId, reqItemCnt)) then return end
+		
+	if (not CheckUpSCLuckyItemReq(sysarg, luckyItemId, luckyItemCnt, maxLuckyItemCnt)) then return end
+	
+	local cfg = GetUpSCConfig(gemItemPtr, scRateCfg, gemSpriteCharType)
+	if (not cfg) then return end
+	if (cfg.moneyCount > 0) then
+		if (not CheckMoneyReq(sysarg, cfg.moneyType, cfg.moneyCount)) then
+			return
+		end
+		
+		local bindFrist = false
+		if (cfg.moneyType == 0) then
+			bindFrist = true
+		end	
+		if (false == Actor.consumeCoin(sysarg, cfg.moneyCount, 148, "gem refine sc", true, bindFrist)) then		
+			print("consume money failed")
+			return
+		end
+	end
+		
+	if (reqItemCnt ~= Actor.removeItem(sysarg, reqItemId, reqItemCnt, -1, -1, -1, "gem refine", 68)) then
+		print("refine gem op failed. remove consume item failed")
+		return
+	end
+	if (luckyItemCnt ~= Actor.removeItem(sysarg, luckyItemId, luckyItemCnt, -1, -1, -1, "gem refine", 68)) then
+		print("refine gem op failed. remove lucky item failed")
+		return
+	end
+	
+	-- 计算概率（基础概率+幸运符提升的概率）	
+	local rate = cfg.rate + luckyItemCnt * scCfg.luckyItemUpSuccRate	
+	if (rate > 100) then	rate = 100 end	
+	--local rate = CalcUpSCRate(gemItemPtr, scRateCfg, gemSpriteCharType, luckyItemCnt * scCfg.luckyItemUpSuccRate)	
+	local randNum = System.getRandomNumber(100)+1
+	--print("rate=" .. rate .. " randNum=" .. randNum)
+	Actor.triggerAchieveEvent(sysarg, 59,0,1) -- 触发成就事件
+	if (randNum <= rate) then
+		--print("succ to refine sprite char")		
+		-- 随机灵性值
+		--local addSCVal = System.getRandomNumber(10)+1		
+		local nMin = GemGlobalConfig.gemSpriteCharConfig.succUpSpriteCharGotMin
+		local nMax = GemGlobalConfig.gemSpriteCharConfig.succUpSpriteCharGotMax
+		local addSCVal = System.getRandomNumber(nMax-nMin+1)+nMin
+		if (addSCVal > 0) then			
+			GemItem.addGemItemSpriteChar(gemItemPtr, gemSpriteCharType, addSCVal, 659, "gem refine")			
+			local newSCVal = GemItem.getGemItemSpriteChar(gemItemPtr, gemSpriteCharType)
+			local str = string.format(Lang.Gem.t00010, newSCVal - scVal)			
+			Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00011, ttTipmsgWindow)
+	end	
+end
+
+
+--宝物灵性炼化
+--sysarg: 玩家对象指针
+--arg:消息参数
+GemSystemImpl.GemRefineSpriteCharHandler = function (sysarg, msgid, packet)
+	local gemSlotIdx 				= DataPack.readInt(packet)		-- 宝物槽位号
+	local gemSpriteCharType = DataPack.readInt(packet)		-- 宝物灵性类型
+	local luckyItemCnt 			= DataPack.readInt(packet)		-- 炼化放入的幸运符数量
+	GemRefineSCImpl(sysarg, gemSlotIdx, gemSpriteCharType, luckyItemCnt)		
+end
+
+GemSystemImpl.registerMsgHandler(1, GemSystemImpl.GemRefineSpriteCharHandler)

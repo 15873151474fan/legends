@@ -1,0 +1,106 @@
+﻿
+--#include "data\config\activityconfig\Dart\DartAdvConfig.txt" once	--高级镖车
+--#include "data\functions\Activity\Common\Awards.txt"
+
+--高级镖车被劫
+function OnDartAdvBeLoot(pMonster,nModleId)
+	local config = DartAdvConfig
+	local pOwner = Actor.getMonsterOwner(pMonster)
+
+	if not pOwner then return end
+	
+	local sVar = Actor.getStaticVar(pOwner)	--
+	sVar.DartAdvBeLoot = 1	--镖车被劫了 标记到主人身上
+	
+	if nModleId ~= config.BeLootDart.modleId then return end
+
+	if sVar.ActorDartAdvMonster == nil or sVar.ActorDartAdvStatus ~= 1 then
+		return
+	end
+
+	local DartAdvType = sVar.ActorDartAdvType
+	if DartAdvType == nil or DartAdvType == 0 then 
+		return 
+	end
+
+	local nHandle = Actor.getKillHandle(pMonster)
+	local pKill = Actor.getEntity(nHandle)			--杀怪着
+	if pKill == nil then return end
+
+	local gName = Actor.getName(pMonster)
+	
+	
+	Actor.setMonsterProperty(pMonster,PROP_ENTITY_MODELID,nModleId)
+	Actor.setMonsterProperty(pMonster,PROP_ENTITY_ICON,config.BeLootDart.icon)
+	Actor.setDenyAttackedByActor(pMonster,true)
+	local monsterName = string.format("%s(%s)",config.BeLootDart.monName,Actor.getName(pOwner))
+	Actor.setMonsterName(pMonster,monsterName)
+	Actor.changeEntityName(pMonster,gName)
+	
+	Actor.monsterRealDropItemExp(pKill,pMonster)
+	
+	--更新下右边的面板
+	SendToClentActorChangeSlaveAdv(pOwner, DartAdvType, 1)
+	
+	--劫镖奖励
+	local DartHorse = config.DartHorse[DartAdvType]
+	if DartHorse and sVar.DartAdvInsureType then
+		local skVar = Actor.getStaticVar(pKill)
+		if skVar.DartAdvLootTimes == nil then
+			skVar.DartAdvLootTimes = 0
+		end
+		local nMaxTimes = config.LootTimes		--能劫镖的次数
+		if Actor.isVip(pKill) == true then
+			nMaxTimes = config.VipLootTimes
+		end
+		if skVar.DartAdvLootTimes < nMaxTimes then
+			--强奸奖励
+			local lootAwards = nil
+			if sVar.DartAdvInsureType == 1 then
+				lootAwards = DartHorse.LootAwards.UnInsure
+			elseif sVar.DartAdvInsureType == 2 then
+				lootAwards = DartHorse.LootAwards.Insure
+			end
+			if lootAwards then
+				skVar.DartAdvLootTimes = skVar.DartAdvLootTimes + 1
+				Awards.Give(pKill,lootAwards,917,Lang.LogTips.l00174)
+				
+				local kName = Actor.getName(pKill)
+				local oName = Actor.getName(pOwner)
+				System.broadcastTipmsg(string.format(Lang.Activity.da0024, kName, oName ,gName), ttScreenCenter+ttChatWindow)
+			end
+		else
+			Actor.sendTipmsg(pKill, Lang.Activity.da0022, ttFlyTip)
+		end
+	
+	end
+	
+	--[[
+	local nActorId =Actor.getIntProperty( pKill, PROP_ENTITY_ID )  
+
+	local playerList = LuaHelp.getVisiActorList(pMonster)		--给劫镖的奖励
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local gId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				
+				if gId ~= nGuildId then
+					local aId =Actor.getIntProperty( player, PROP_ENTITY_ID ) 
+					
+					--if aId == nActorId then		--击杀着给的奖励倍率
+						--for k=1,table.getn(GuildDartConst.onLootAwards) do
+						--	GuildDartConst.onLootAwards[k].count = GuildDartConst.onLootAwards[k].count * GuildDartConst.awardJieBiaoRate
+						--end
+					--end
+
+					if Awards.CheckBagGridCount(player,GuildDartConst.onLootAwards) then
+						Awards.Give(player,GuildDartConst.onLootAwards,822,"Guild DartRobed")
+					end
+				end
+			end
+		end
+	end
+	--]]
+end
+

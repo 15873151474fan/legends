@@ -1,0 +1,295 @@
+--炎龙煞 3级
+{
+
+	actions=
+	{
+		{act=0,effect=0,},
+	},
+	
+	desc=Lang.Skill.s230L3Desc,--技能的描述
+	
+	iconID=292,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					targetType=1,
+					conds=
+					{
+
+						
+					},
+					results=
+					{
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=156,keepTime=600,delay=100,always=true},					
+					},
+				},
+			},
+		},
+		{
+			xStart=-1,
+			xEnd=1,
+			yStart=-1,
+			yEnd=1,
+			rangeType=3,
+			rangeCenter=2,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=13,value=1}, 
+						{cond=5,value=1}, 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=4,delay=350,value=0,rate=25000},
+					},
+					specialEffects=
+					{	
+                                                --{type=4,mj=0,id=156,keepTime=600,delay=100,always=false},
+					},
+				},
+				
+			},	
+		},
+		--加秘籍标记
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=3285,timeParam=1000,type=20,delay=0,id=85,value=1,vt=1},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=224,keepTime=800,delay=300,always=false},
+					},
+				},
+			},
+		},
+		--存在标记
+		{
+			xStart=-1,
+			xEnd=1,
+			yStart=-1,
+			yEnd=1,
+			rangeType=3,
+			rangeCenter=2,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=13,value=1}, 
+						{cond = 21,value =85},
+					},
+
+					results=
+					{
+						{mj=3285,timeParam=1,type=4,delay=350,value=0,rate=25000,mjParam2=150},
+					},
+					specialEffects=
+					{	
+                                                {type=4,mj=0,id=156,keepTime=600,delay=100,always=false},
+					},
+				},
+				
+			},	
+		},
+		{
+			xStart=-1,
+			xEnd=1,
+			yStart=-1,
+			yEnd=1,
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=3,value=1}, 
+						{cond = 21,value =85},
+					},
+
+					results=
+					{
+						{mj=3285,timeParam=1,type=1,delay=350,buffType=54,id=234,interval=10,value=0,mjParam2=100},
+					},
+					specialEffects=
+					{	
+                                                --{type=4,mj=0,id=156,keepTime=600,delay=100,always=false},
+					},
+				},
+				
+			},	
+		},
+		--不存在标记
+		{
+			xStart=-1,
+			xEnd=1,
+			yStart=-1,
+			yEnd=1,
+			rangeType=3,
+			rangeCenter=2,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=13,value=1}, 
+						{cond = 22,value =85},
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=4,delay=350,value=0,rate=25000},
+					},
+					specialEffects=
+					{	
+                                                {type=4,mj=0,id=156,keepTime=600,delay=100,always=false},
+					},
+				},
+				
+			},	
+		},
+		--通用
+		{
+			xStart=-1,
+			xEnd=1,
+			yStart=-1,
+			yEnd=1,
+			rangeType=3,
+			rangeCenter=2,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=13,value=1}, 
+						{cond=6,value=1}, 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=32,delay=350,buffType=25,id=230,rate=0,value=-1000,interval=10,colorPriority =5,color =16711680},
+						{mj=0,timeParam=1,type=32,delay=350,buffType=27,id=231,rate=0,value=-1000,interval=10,colorPriority =5,color =16711680},
+					},
+					specialEffects=
+					{	
+                                                --{type=4,mj=0,id=156,keepTime=600,delay=100,always=false},
+					},
+				},
+				
+			},	
+		},
+		{
+			xStart=-1,
+			xEnd=1,
+			yStart=-1,
+			yEnd=1,
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=3,value=1}, 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=1,delay=350,buffType=21,id=232,rate=0,value=800,interval=10,vt=0,effectType=6,effectId=278},
+						{mj=0,timeParam=1,type=1,delay=350,buffType=23,id=233,rate=0,value=800,interval=10},
+					},
+					specialEffects=
+					{	
+                                                --{type=4,mj=0,id=156,keepTime=600,delay=100,always=false},
+					},
+				},
+				
+			},	
+		},
+		--删除标记
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=3285,timeParam=1000,type=21,delay=0,id=85,value=85,vt=1},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=224,keepTime=800,delay=300,always=false},
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		
+		{cond=39,value=16,consume=false},
+		{cond=3,value=3129,consume=true,exceptVip=false},--表示书本
+
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=624,consume=true},--消耗蓝10
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=10000,
+
+},

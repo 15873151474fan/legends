@@ -1,0 +1,13 @@
+
+
+--#include "data\functions\Activity\SnowArea\OnePiece.txt" once
+
+MonDieDispatcher.SnowAreaOnePiece = function(pMonster, pKiller, monId)
+	SnowOnePieceBekill(pMonster, pKiller, monId)
+end
+
+for k, v in ipairs(SnowAreaConfig.dest) do
+	for m, n in ipairs(v.onePiece) do
+		MonDieDispatcher.register(n.mid, MonDieDispatcher.SnowAreaOnePiece)
+	end
+end

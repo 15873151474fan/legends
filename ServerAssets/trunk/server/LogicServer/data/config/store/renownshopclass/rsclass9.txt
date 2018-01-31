@@ -1,0 +1,432 @@
+--	50级防御装备套装						
+	{						
+		itemID = 	99	,		--	易筋帽子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	106	,		--	易筋鞋子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	110	,		--	忍者帽子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	117	,		--	忍者鞋子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	121	,		--	剑士帽子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	128	,		--	剑士鞋子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	132	,		--	气宗帽子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	139	,		--	气宗鞋子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	143	,		--	司命帽子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	150	,		--	司命鞋子
+		strong =	0	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	6710	, bind = true },		
+		}					
+	},						
+						
+					
+
+--	50级防御装备						
+	{						
+		itemID = 	1112	,		--	易筋衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1113	,		--	易筋帽子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1115	,		--	易筋裤子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1119	,		--	易筋腰带
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1120	,		--	易筋鞋子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1122	,		--	忍者衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1123	,		--	忍者衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1124	,		--	忍者帽子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1126	,		--	忍者裤子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1130	,		--	忍者腰带
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1131	,		--	忍者鞋子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1133	,		--	剑士衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1134	,		--	剑士衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1135	,		--	剑士帽子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1137	,		--	剑士裤子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1141	,		--	剑士腰带
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1142	,		--	剑士鞋子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1144	,		--	气宗衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1145	,		--	气宗衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1146	,		--	气宗帽子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1148	,		--	气宗裤子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1152	,		--	气宗腰带
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1153	,		--	气宗鞋子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1155	,		--	司命衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1156	,		--	司命衣服
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1157	,		--	司命帽子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1159	,		--	司命裤子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	11183 	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1163	,		--	司命腰带
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591 	, bind = true },		
+		}					
+	},						
+							
+	{						
+		itemID = 	1164	,		--	司命鞋子
+		strong =	3	,			
+		quality =	2	,			
+		buyLevel =	50	,			
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	5591 	, bind = true },		
+		}					
+	},						

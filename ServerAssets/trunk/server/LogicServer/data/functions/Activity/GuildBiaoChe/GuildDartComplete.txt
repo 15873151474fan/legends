@@ -1,0 +1,195 @@
+--lua script
+--[[ 
+--帮派运镖活动 此脚本挂于各阵营主城
+日月城：亦水
+逍遥城：岳风
+无忌城：张常
+
+ 
+ ]]
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\guild\GuildBiaoChe.txt"  once  --基本设置 
+--#include "GuildDartCommon.txt" once  
+--#include "data\functions\Activity\Common\Awards.txt"
+
+
+--[[
+    函数名称：CampDart_Main
+    函数描述：帮派运镖活动 功能入口函数
+    参数 sysarg 的描述：
+]]
+function GuildDartComplete_Main(sysarg)
+	local str = ""
+	local dartMonster = Actor.getGuildDartHandle(sysarg)
+	--print("dartMonster:"..dartMonster)
+	if dartMonster > 0 then
+		str = str.."\\<#BL"..Lang.Activity.g00018.."/@giveGuildDart>"		--<上交镖车>
+		str = str.."\\<#BL"..Lang.Activity.g00019.."/@closeNpcDialog_Main>"
+	end
+
+	return str
+end    
+
+
+--[[
+    函数名称：giveCampDart
+    函数描述：帮派运镖活动 上交镖车
+    参数 sysarg 的描述：
+]]
+function giveGuildDart(sysarg)
+	local nPos = Actor.getGuildPos(sysarg)
+	if nPos ~= 3 and nPos ~= 2 then					--职位不够
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00020, ttFlyTip)
+		return
+	end
+
+	local dartMonster = Actor.getGuildDartHandle(sysarg)
+	local GuildDartMon = Actor.getEntity(dartMonster)
+
+	local monPosX, monPosY = Actor.getEntityPosition(GuildDartMon, 0, 0)
+	local selfPosX, selfPosY = Actor.getEntityPosition(thisNPC, 0, 0)
+	local succFollowDist = GuildDartConst.DartSetup.succFollowDist
+
+	if (math.abs(monPosX-selfPosX) > succFollowDist or math.abs(monPosY-selfPosY) > succFollowDist) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00021, ttFlyTip)
+		return
+	else		
+		OnGuildDartFinished(sysarg,dartMonster)
+	end
+end
+
+--离开
+function closeNpcDialog_Main(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+
+-- @brief: 交付镖车，护送镖车完毕
+function OnGuildDartFinished(sysarg,GuildDartMon)
+	local dVar = System.getDyanmicVar()
+
+	local nMonster = Actor.getEntity(GuildDartMon)
+	local nGuildId = Actor.getNpcGuildId(nMonster)
+
+	if dVar.BeJieBiaoFalg == nil then
+		dVar.BeJieBiaoFalg = {}
+	end
+	if dVar.BeJieBiaoFalg[nGuildId] == nil then		--被劫镖了
+		dVar.BeJieBiaoFalg[nGuildId] = 0
+	end
+
+	if dVar.UseProtectDart == nil then		--是否使用保护令
+		dVar.UseProtectDart = {}
+	end
+	if dVar.UseProtectDart[nGuildId] == nil then	
+		dVar.UseProtectDart[nGuildId] = 0
+	end
+
+	--双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(3) == 1 then
+		doubleAwardActRate = 1
+	end
+	
+	local returnGuildCoin = GuildDartConst.needGuildCoin
+	local awardConfig = GuildDartConst.successAwards
+	
+	if dVar.BeJieBiaoFalg[nGuildId] == 1 and dVar.UseProtectDart[nGuildId] == 0 then		--被劫镖了	返回劫镖的行会资金的40%
+		returnGuildCoin = math.floor(returnGuildCoin * GuildDartConst.returnCoinRate / 100)
+		--returnGuildCoin = returnGuildCoin * (1 + doubleAwardActRate)	--双倍奖励活动
+		awardConfig = GuildDartConst.beLootAwards
+		Actor.sendGuildMsg(sysarg,smGuildCommon,Lang.Activity.g00046,128)
+	else
+		if dVar.UseProtectDart[nGuildId] == 1 and dVar.BeJieBiaoFalg[nGuildId] == 0 then
+			returnGuildCoin = returnGuildCoin + GuildDartConst.AwardGuildCoin * 2 * (1 + doubleAwardActRate)
+		else
+			returnGuildCoin = returnGuildCoin + GuildDartConst.AwardGuildCoin * (1 + doubleAwardActRate)
+		end
+
+		--returnGuildCoin = returnGuildCoin * (1 + doubleAwardActRate)	--双倍奖励活动
+
+		local tmpStr = string.format(Lang.Activity.g00047,returnGuildCoin)
+
+		if dVar.BeJieBiaoFalg[nGuildId] == 1 and dVar.UseProtectDart[nGuildId] == 1 then
+			tmpStr = string.format(Lang.Activity.g00047,returnGuildCoin)
+		end
+		Actor.sendGuildMsg(sysarg,smGuildCommon,tmpStr,128)
+	end
+
+	local guildCoin = returnGuildCoin
+
+	Actor.changeGuildCoin(sysarg,guildCoin)
+
+	local playerList = LuaHelp.getVisiActorList(nMonster)		
+	local nCount = 0
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local gId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				
+				if gId == nGuildId then
+					nCount = nCount + 1
+				end
+			end
+		end
+	end
+	
+	local fRate = 1.0
+	local bCount = awardConfig[1].count
+	if table.getn(GuildDartConst.actorNumAward) > 0 then
+		if nCount >= GuildDartConst.actorNumAward[table.getn(GuildDartConst.actorNumAward)][1] then
+			fRate = GuildDartConst.actorNumAward[table.getn(GuildDartConst.actorNumAward)][2]
+		else
+			if nCount == GuildDartConst.actorNumAward[1][1] then
+				fRate = GuildDartConst.actorNumAward[1][2]
+			else
+				for i=2,table.getn(GuildDartConst.actorNumAward) do		--人数越多倍率越高
+					if nCount < GuildDartConst.actorNumAward[i][1] then
+						fRate = GuildDartConst.actorNumAward[i-1][2]
+						break
+					end
+				end
+			end
+		end
+
+		for k=1,table.getn(awardConfig) do
+			bCount = math.floor(bCount * (fRate + doubleAwardActRate))
+		end
+	end
+	
+	--给奖励
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local gId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				
+				if gId == nGuildId then
+					if Awards.CheckBagGridCount(player,awardConfig) then
+						Actor.giveAward(player,awardConfig[1].type,awardConfig[1].id,bCount,awardConfig[1].quality,awardConfig[1].strong,awardConfig[1].bind)
+						--Actor.setWorkDayMask(player, 0, 11, true)	--设置当天秒活动完成
+					end
+				end
+			end
+		end
+	end
+
+
+	--local str3 = string.format(Lang.GuildLang.z00032,Actor.getName(sysarg))
+	--Actor.addEventRecord(sysarg,str3,18,coinReward,otherReward,expReward,Actor.getName(sysarg),null)
+	Fuben.clearMonster(GuildDartMon, false)
+
+	ResetGuildDartInfo(sysarg, true)
+
+	Actor.closeNPCDialog(sysarg)
+
+	local str2 = string.format(Lang.Activity.g00033,Actor.getGuildName(sysarg))
+	System.broadcastTipmsg(str2, ttScreenCenter + 128)
+
+	--Actor.sendGuildMsg(sysarg,smGuildCommon,str2,128)	--发帮派广播
+
+end
+
+
+table.insert(MainFnTable, GuildDartComplete_Main)

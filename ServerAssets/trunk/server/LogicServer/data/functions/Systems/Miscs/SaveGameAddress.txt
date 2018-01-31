@@ -1,0 +1,33 @@
+﻿
+--#include "data\config\guide\SaveGameAddressConfig.txt" once
+
+local smSaveGameAddress = 13
+
+MiscsImplement.SaveGameAddress = function (sysarg,msgid, packet)
+	local config = SaveGameAddressConfig
+	if not config then return end
+	local bMask = Actor.getSocialMask(sysarg, smSaveGameAddress)		--今天是否领取奖励
+	if bMask ~= false then return end
+	if Actor.setSocialMask(sysarg, smSaveGameAddress, true) == true then
+		Actor.changeMoney(sysarg, config.MoneyType, config.MoneyCount, 100, Lang.LogTips.l00068)
+	end
+end
+
+
+MiscsImplement.SendToClientSaveGameAddress = function (sysarg,msgid, packet)
+	local config = SaveGameAddressConfig
+	if not config then return end
+	local bMask = Actor.getSocialMask(sysarg, smSaveGameAddress)		--今天是否领取奖励
+	if bMask ~= false then return end
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if level < config.LimitLevel then return end
+	local npack = DataPack.allocPacket(sysarg, 139, 48)
+	if not npack then return end
+	DataPack.writeByte(npack, config.MoneyType)
+	DataPack.writeInt(npack, config.MoneyCount)
+	DataPack.flush(npack)
+	
+end
+
+MiscsImplement.registerMsgHandler(57, MiscsImplement.SaveGameAddress)
+MiscsImplement.registerMsgHandler(58, MiscsImplement.SendToClientSaveGameAddress)

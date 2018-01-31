@@ -1,0 +1,22 @@
+﻿--lua script
+--这里定义一般npc都会有的脚本函数
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end
+
+

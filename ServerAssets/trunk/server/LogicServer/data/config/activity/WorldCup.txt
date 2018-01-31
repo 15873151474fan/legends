@@ -1,0 +1,513 @@
+﻿--2014世界杯配置表
+--#include "..\..\language\LangCode.txt"
+--[[
+
+--]]
+
+
+
+--2014世界杯配置
+WorldCupConfig= 
+{
+	--充值排行冠军礼物
+	giftid=3018,
+	
+	actTime = {2014, 6, 13, 0, 0, 0,  2014, 7, 15, 23, 59, 59},	--活动时间范围 
+	
+	guessActTime = {2014, 6, 13, 0, 0, 0,  2014, 7, 6, 23, 59, 59}, --世界杯竞猜活动时间范围
+	--球队名列表
+	teamList=
+	{
+		--巴西
+		{id=1,name=Lang.Misc.wcup001},
+		--喀麦隆
+		{id=2,name=Lang.Misc.wcup002},
+		--哥斯达黎加
+		{id=3,name=Lang.Misc.wcup003},
+		--巴西
+		{id=4,name=Lang.Misc.wcup004},
+		--巴西
+		{id=5,name=Lang.Misc.wcup005},
+		--巴西
+		{id=6,name=Lang.Misc.wcup006},
+		--巴西
+		{id=7,name=Lang.Misc.wcup007},
+		--巴西
+		{id=8,name=Lang.Misc.wcup008},
+		--巴西
+		{id=9,name=Lang.Misc.wcup009},
+		--巴西
+		{id=10,name=Lang.Misc.wcup010},
+		--巴西
+		{id=11,name=Lang.Misc.wcup011},
+		--巴西
+		{id=12,name=Lang.Misc.wcup012},
+		--巴西
+		{id=13,name=Lang.Misc.wcup013},
+		--巴西
+		{id=14,name=Lang.Misc.wcup014},
+		--巴西
+		{id=15,name=Lang.Misc.wcup015},
+		--巴西
+		{id=16,name=Lang.Misc.wcup016},
+		--巴西
+		{id=17,name=Lang.Misc.wcup017},
+		--巴西
+		{id=18,name=Lang.Misc.wcup018},
+		--巴西
+		{id=19,name=Lang.Misc.wcup019},
+		--巴西
+		{id=20,name=Lang.Misc.wcup020},
+		--巴西
+		{id=21,name=Lang.Misc.wcup021},
+		--巴西
+		{id=22,name=Lang.Misc.wcup022},
+		--巴西
+		{id=23,name=Lang.Misc.wcup023},
+		--巴西
+		{id=24,name=Lang.Misc.wcup024},
+		--巴西
+		{id=25,name=Lang.Misc.wcup025},
+		--巴西
+		{id=26,name=Lang.Misc.wcup026},
+		--巴西
+		{id=27,name=Lang.Misc.wcup027},
+		--巴西
+		{id=28,name=Lang.Misc.wcup028},
+		--巴西
+		{id=29,name=Lang.Misc.wcup029},
+		--巴西
+		{id=30,name=Lang.Misc.wcup030},
+		--巴西
+		{id=31,name=Lang.Misc.wcup031},
+		--巴西
+		{id=32,name=Lang.Misc.wcup032},
+	},
+
+	--竞猜球队扣除元宝列表
+	guessCostList=
+	{
+		--时间段1，扣除元宝
+		--小组赛第一轮6.13-6.17
+		{id=1,costYB=20},
+		{id=2,costYB=20},
+		{id=3,costYB=20},
+		{id=4,costYB=20},
+		{id=5,costYB=20},
+		--小组赛第二轮6.18-6.23
+		{id=6,costYB=40},
+		{id=7,costYB=40},
+		{id=8,costYB=40},
+		{id=9,costYB=40},
+		{id=10,costYB=40},
+		{id=11,costYB=40},
+		--小组赛第三轮6.24-6.27
+		{id=12,costYB=60},
+		{id=13,costYB=60},
+		{id=14,costYB=60},
+		{id=15,costYB=60},
+		--16强6.28-7.2
+		{id=16,costYB=120},
+		{id=17,costYB=120},
+		{id=18,costYB=120},
+		{id=19,costYB=120},
+		{id=20,costYB=120},
+		--8强7.3-7.6
+		{id=21,costYB=240},
+		{id=22,costYB=240},
+		{id=23,costYB=240},
+		{id=24,costYB=240},
+	},
+
+  --------begin 列表头(导航)  
+	tabList=
+	{
+		--导航Id        --活动名称               --描述,活动时间
+
+		--冠军竞猜 
+		{id=1,name = Lang.Misc.wcup033, desc = Lang.Misc.wcup039}, 
+		--球迷专区
+		{id=2,name = Lang.Misc.wcup034, desc = Lang.Misc.wcup040},
+		--消费豪礼
+		{id=3,name = Lang.Misc.wcup035, desc = Lang.Misc.wcup041},
+		--充值礼包
+		{id=4,name = Lang.Misc.wcup036, desc = Lang.Misc.wcup042},
+		--充值排行
+		{id=5,name = Lang.Misc.wcup037, desc = Lang.Misc.wcup049},
+		--足球流氓
+		{id=6,name = Lang.Misc.wcup038, desc = Lang.Misc.wcup043},
+		
+	},	
+   --------end 列表头(导航)------------
+   
+	initCostYb = 20,	--初始竞猜花费元宝  
+	initAward = 1000, --奖金池初始奖金
+	maxSupport = 8, --最大支持的队伍数
+	maxShow = 5,	--冠军支持最大显示的数量
+	lukyAward = 0.01, --每日幸运奖金
+	severIdx = 1, --负责发幸运奖励的服，一般是用1服，没有配其他
+	
+	------------------------------------
+	
+	
+	--世界杯球迷配置
+	worldCupFanConfig= 
+	{
+		actTime = {2014, 6, 13, 0, 0, 0,  2014, 7, 15, 23, 59, 59},	--活动时间范围   
+		--球队名列表
+		fanList=
+		{
+			{
+				--id 序号，desc 描述， itemId 道具id， buffs增加的buff
+				id=1,
+				desc = Lang.Misc.wcfan001, 
+				itemId = 2992, --道具id
+				needYb = 30, --花费元宝
+				modelIds = { 115, 116,},   --模型id,第一个是男的，第一个是女的
+				buffs = 
+				{   --buffType和buffGroup的值不能修改
+					{ buffType = 80, value = 0.15, buffGroup = 89, times = 1, interval = 1800, timeOverlay = false, buffName = Lang.Misc.wcfan001, },
+				},
+			
+			}, 
+
+			{
+				--id 序号，desc 描述， itemId 道具id， buffs增加的buff
+				id=2,
+				desc = Lang.Misc.wcfan002, 
+				itemId = 2993, --道具id
+				needYb = 30, --花费元宝
+				modelIds = { 117, 118,},   --模型id,第一个是男的，第一个是女的
+				buffs = 
+				{ 	--buffType和buffGroup的值不能修改
+					{ buffType = 80, value = 0.15, buffGroup = 89, times = 1, interval = 1800, timeOverlay = false, buffName = Lang.Misc.wcfan002, },
+				},
+			
+			}, 
+
+			{
+				--id 序号，desc 描述， itemId 道具id， buffs增加的buff
+				id=3,
+				desc = Lang.Misc.wcfan003, 
+				itemId = 2994, --道具id
+				needYb = 30, --花费元宝
+				modelIds = { 119, 120,},   --模型id,第一个是男的，第一个是女的
+				buffs = 
+				{ 	--buffType和buffGroup的值不能修改
+					{ buffType = 80, value = 0.15, buffGroup = 89, times = 1, interval = 1800, timeOverlay = false, buffName = Lang.Misc.wcfan003, },
+				},
+			
+			}, 
+
+			{
+				--id 序号，desc 描述， itemId 道具id， buffs增加的buff
+				id=4,
+				desc = Lang.Misc.wcfan004, 
+				itemId = 2995, --道具id
+				needYb = 30, --花费元宝
+				modelIds = { 121, 122,},   --模型id,第一个是男的，第一个是女的
+				buffs = 
+				{ 	--buffType和buffGroup的值不能修改
+					{ buffType = 80, value = 0.15, buffGroup = 89, times = 1, interval = 1800, timeOverlay = false, buffName = Lang.Misc.wcfan004, },
+				},
+			
+			}, 
+			
+			{
+				--id 序号，desc 描述， itemId 道具id， buffs增加的buff
+				id=5,
+				desc = Lang.Misc.wcfan005, 
+				itemId = 2996, --道具id
+				needYb = 30, --花费元宝
+				modelIds = { 123, 124,},   --模型id,第一个是男的，第一个是女的
+				buffs = 
+				{ 	--buffType和buffGroup的值不能修改
+					{ buffType = 80, value = 0.15, buffGroup = 89, times = 1, interval = 1800, timeOverlay = false, buffName = Lang.Misc.wcfan005, },
+				},
+			
+			}, 
+
+			{
+				--id 序号，desc 描述， itemId 道具id， buffs增加的buff
+				id=6,
+				desc = Lang.Misc.wcfan006, 
+				itemId = 2997, --道具id
+				needYb = 30, --花费元宝
+				modelIds = { 125, 126,},   --模型id,第一个是男的，第一个是女的
+				buffs = 
+				{ 	--buffType和buffGroup的值不能修改
+					{ buffType = 80, value = 0.15, buffGroup = 89, times = 1, interval = 1800, timeOverlay = false, buffName = Lang.Misc.wcfan006, },
+				},
+			
+			}, 
+			
+			{
+				--id 序号，desc 描述， itemId 道具id， buffs增加的buff
+				id=7,
+				desc = Lang.Misc.wcfan007, 
+				itemId = 2998, --道具id
+				needYb = 30, --花费元宝
+				modelIds = { 127, 128,},   --模型id,第一个是男的，第一个是女的
+				buffs = 
+				{ 	--buffType和buffGroup的值不能修改
+					{ buffType = 80, value = 0.15, buffGroup = 89, times = 1, interval = 1800, timeOverlay = false, buffName = Lang.Misc.wcfan007, },
+				},
+			
+			}, 
+			
+			{
+				--id 序号，desc 描述， itemId 道具id， buffs增加的buff
+				id=8,
+				desc = Lang.Misc.wcfan008, 
+				itemId = 2999, --道具id
+				needYb = 30, --花费元宝
+				modelIds = { 129, 130,},   --模型id,第一个是男的，第一个是女的
+				buffs = 
+				{ 	--buffType和buffGroup的值不能修改
+					{ buffType = 80, value = 0.15, buffGroup = 89, times = 1, interval = 1800, timeOverlay = false, buffName = Lang.Misc.wcfan008, },
+				},
+			
+			}, 
+		},
+	},
+	
+	--竞猜奖励
+	guessAwardConfig =
+	{
+		getRate = 20,  --获取的奖励的概率
+		getTotalRate = 100, --总概率
+		
+		awards = 
+		{
+			--小组赛第一循环，5天
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 731, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 5,}, 
+				{type = 0, id = 2558, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 2917, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 559, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+				{type = 0, id = 1990, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 731, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 5,}, 
+				{type = 0, id = 2558, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 2917, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 559, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+				{type = 0, id = 1990, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 731, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 5,}, 
+				{type = 0, id = 2558, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 2917, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 559, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+				{type = 0, id = 1990, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 731, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 5,}, 
+				{type = 0, id = 2558, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 2917, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 559, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+				{type = 0, id = 1990, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 731, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 5,}, 
+				{type = 0, id = 2558, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 2917, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+				{type = 0, id = 559, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+				{type = 0, id = 1990, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 4,}, 
+			},
+			--小组赛第二循环，6天
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 777, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 787, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 1172, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 7,}, 
+				{type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 7,},
+				{type = 0, id = 3028, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 1990, count = 5, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 777, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 787, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 1172, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 7,}, 
+				{type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 7,},
+				{type = 0, id = 3028, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 1990, count = 5, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 777, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 787, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 1172, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 7,}, 
+				{type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 7,},
+				{type = 0, id = 3028, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 1990, count = 5, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 777, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 787, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 1172, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 7,}, 
+				{type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 7,},
+				{type = 0, id = 3028, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 1990, count = 5, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 777, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 787, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 1172, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 7,}, 
+				{type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 7,},
+				{type = 0, id = 3028, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 1990, count = 5, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 777, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 787, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 1172, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 7,}, 
+				{type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 7,},
+				{type = 0, id = 3028, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 1990, count = 5, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 6,}, 
+				{type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 3,}, 
+			},
+			--小组赛第三循环，4天
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2603, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 50,}, 
+				{type = 0, id = 2670, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 40,}, 
+				{type = 0, id = 2659, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 40,}, 
+				{type = 0, id = 2836, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 30,},
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 10,}, 
+				{type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2603, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 50,}, 
+				{type = 0, id = 2670, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 40,}, 
+				{type = 0, id = 2659, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 40,}, 
+				{type = 0, id = 2836, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 30,},
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 10,}, 
+				{type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2603, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 50,}, 
+				{type = 0, id = 2670, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 40,}, 
+				{type = 0, id = 2659, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 40,}, 
+				{type = 0, id = 2836, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 30,},
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 10,}, 
+				{type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2603, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 50,}, 
+				{type = 0, id = 2670, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 40,}, 
+				{type = 0, id = 2659, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 40,}, 
+				{type = 0, id = 2836, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 30,},
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 10,}, 
+				{type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+				{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 1,}, 
+			},
+			--16强，5天
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2660, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2671, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 20,}, 
+				{type = 0, id = 1906, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,}, 
+				{type = 0, id = 3027, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 35,}, 
+				{type = 0, id = 1402, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,},
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2660, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2671, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 20,}, 
+				{type = 0, id = 1906, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,}, 
+				{type = 0, id = 3027, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 35,}, 
+				{type = 0, id = 1402, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,},
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2660, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2671, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 20,}, 
+				{type = 0, id = 1906, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,}, 
+				{type = 0, id = 3027, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 35,}, 
+				{type = 0, id = 1402, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,},
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2660, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2671, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 20,}, 
+				{type = 0, id = 1906, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,}, 
+				{type = 0, id = 3027, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 35,}, 
+				{type = 0, id = 1402, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,},
+			},
+			{
+				--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2660, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2671, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 100,}, 
+				{type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 20,}, 
+				{type = 0, id = 1906, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,}, 
+				{type = 0, id = 3027, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 35,}, 
+				{type = 0, id = 1402, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,},
+			},
+			--8强,4天
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2661, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,}, 
+				{type = 0, id = 2672, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,}, 
+				{type = 0, id = 2982, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 60,}, 
+				{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,},
+				{type = 0, id = 1920, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 150,}, 
+				{type = 0, id = 3038, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 4, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 30,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2661, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,}, 
+				{type = 0, id = 2672, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,}, 
+				{type = 0, id = 2982, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 60,}, 
+				{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,},
+				{type = 0, id = 1920, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 150,}, 
+				{type = 0, id = 3038, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 4, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 30,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2661, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,}, 
+				{type = 0, id = 2672, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,}, 
+				{type = 0, id = 2982, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 60,}, 
+				{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,},
+				{type = 0, id = 1920, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 150,}, 
+				{type = 0, id = 3038, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 4, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 30,}, 
+			},
+			{	--isBroadcast=1表示播报, rate 出现的概率，
+				{type = 0, id = 2661, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,}, 
+				{type = 0, id = 2672, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 70,}, 
+				{type = 0, id = 2982, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 0, rate = 60,}, 
+				{type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 60,},
+				{type = 0, id = 1920, count = 2, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 150,}, 
+				{type = 0, id = 3038, count = 3, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 3,}, 
+				{type = 0, id = 3028, count = 4, strong = 0, quality = 0, bind = 1, isBroadcast = 1, rate = 30,}, 
+			},
+		},
+		
+	},
+   
+
+	
+	
+	
+   
+}

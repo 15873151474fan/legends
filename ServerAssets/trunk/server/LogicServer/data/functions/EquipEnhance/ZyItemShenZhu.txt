@@ -1,0 +1,121 @@
+﻿
+--#include "data\config\item\itemEnhance\ZyItemShenZhuConfig.txt" once
+
+--卓越属性重新随机获得一次 神铸
+function ReadItemZYShenZhu(sysarg,args)
+  local ItemCount = args[1]  --物品的数量
+  local ptr = args[2] 
+  
+  local TB = GetZyItemAttrConsumes(sysarg,ptr)
+  if TB == nil  then 
+    return
+  end
+  
+  local b = 0
+  local id = Item.getItemProperty(sysarg,ptr,Item.ipItemID,b) 
+  if id == nil then return end
+  
+  local sName = string.format(Lang.LogTips.l00226,Item.getItemName(id))
+  
+--消耗扣除部分  
+  for i = 1, #TB do
+    local curTab = TB[i]
+    
+    if curTab.type == 0 then
+      local remCount = Actor.removeItem(sysarg, curTab.id, curTab.count, -1, -1, -1, sName, 1005)
+      if remCount < curTab.count then
+	   return
+      end
+    elseif curTab.type == 5 then
+      if not Actor.changeMoney(sysarg, mtBindCoin, -curTab.count, 1005, sName) then
+		return
+      end
+    elseif curTab.type == 6 then
+      if not Actor.changeMoney(sysarg, mtCoin, -curTab.count, 1005, sName ) then
+		return
+      end
+    elseif curTab.type == 7 then
+      if not Actor.changeMoney(sysarg, mtBindYuanbao, -curTab.count, sName ) then
+		return
+      end 
+    elseif curTab.type == 15 then 
+      if not Actor.changeMoney(sysarg, mtYuanbao, -curTab.count, sName ) then
+		return
+      end
+    end
+  
+  end
+  
+--//消耗扣除完成  
+  local A,B,C,D = Item.GetEquipZuoYueSZAttr(sysarg,ptr) --物品的指针
+  local AttrTable = {}
+  table.insert(AttrTable,A)
+  table.insert(AttrTable,B)
+  table.insert(AttrTable,C)
+  table.insert(AttrTable,D)
+
+  local RealAttr = {}
+  for i = 1 , 4 do
+    if AttrTable[i] ~= nil and AttrTable[i]  > 0 then
+      table.insert(RealAttr,AttrTable[i])
+    end
+  end
+  
+    --告诉客户端 本次神铸获得的属性 
+	local netPack = DataPack.allocPacket(sysarg, 8, 38)
+	DataPack.writeByte(netPack, #RealAttr)  --写入神铸属性的数量 
+    for i = 1, #RealAttr do
+      DataPack.writeUInt(netPack,RealAttr[i])    
+    end
+    DataPack.flush(netPack)
+end
+
+
+
+function ClientApplySz(sysarg)
+  Item.ApplyZuoYueSZAttr(sysarg,true)
+end
+
+function ClientCancelSz(sysarg)
+   Item.ApplyZuoYueSZAttr(sysarg,false)
+end
+
+
+--客户端获取神铸消耗 
+function ClientGetZyItemAttrConsumes(sysarg, args)
+  	local ptrCount = args[1]
+	local itemPtr1 = args[2]
+	local opType = args[ptrCount+2]		--操作类型
+
+    local TB = GetZyItemAttrConsumes(sysarg,itemPtr1)
+	
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, #TB)
+    for i = 1 , #TB do    
+        local curTab = TB[i]    
+  		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack, curTab.id)
+		DataPack.writeInt(netPack, curTab.count)
+		--DataPack.writeByte(netPack, curTab.usetype)
+		DataPack.writeByte(netPack, 0)
+    end
+    
+    DataPack.flush(netPack)
+end
+
+function GetZyItemAttrConsumes(sysarg,ptr)
+
+    local Level = Item.getItemProperty(sysarg,ptr,Item.ipItemActorLevel,0)
+    if Level == nil then
+      Level = 0
+    end
+
+    local configid= ZyItemShenZhuLevelConfig[Level]
+    if configid == nil then
+      configid = #ZyItemShenZhuConsumes
+    end
+    
+    return ZyItemShenZhuConsumes[configid] 
+
+end

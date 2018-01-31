@@ -1,0 +1,104 @@
+﻿--lua script
+
+--#include "data\config\item\ItemCreateMonster.txt" once
+--[[
+    函数名称：ItemCreateMonster
+    函数描述：使用道具刷怪延时回调
+    参数 sysarg 的描述：
+    参数 arg 的描述：
+]]
+function ItemCreateMonster(sysarg,arg)
+	-- local index = arg[2]
+	-- local config = UseItemCreateMonster
+	-- if (not config) then return end
+	-- if (not index) or (not config[index]) then return end
+	-- local ItemTable = config[index]
+	-- if Actor.getItemCount(sysarg, ItemTable.item_id, -1, -1, -1) <= 0 then return end
+	
+	-- if ItemTable.usePerDay and ItemTable.usePerDay > 0 then
+	-- 	local svar = Actor.getStaticVar(sysarg)
+	-- 	if not svar.itemCreateMonsterPerDay then
+	-- 		svar.itemCreateMonsterPerDay = {}
+	-- 	end
+	-- 	if not svar.itemCreateMonsterPerDay[ItemTable.item_id] then
+	-- 		svar.itemCreateMonsterPerDay[ItemTable.item_id] = 0
+	-- 	end
+		
+	-- 	local itemCreateMonsterPerDay = svar.itemCreateMonsterPerDay[ItemTable.item_id]
+	-- 	if itemCreateMonsterPerDay >= ItemTable.usePerDay then
+	-- 		Actor.sendTipmsg(sysarg, Lang.Activity.dwj018, ttFlyTip)
+	-- 		return
+	-- 	end
+		
+	-- 	svar.itemCreateMonsterPerDay[ItemTable.item_id] = itemCreateMonsterPerDay + 1
+	-- end
+	
+	-- local sucessTips = ItemTable.sucessTips
+	-- local tipsType = ItemTable.tipsType
+	-- local needDelete = ItemTable.needDelete
+	-- if needDelete ~= false then
+	-- 	Actor.removeItem(sysarg,ItemTable.item_id,1)
+	-- end
+	
+	
+	
+	-- local createMon = ItemTable.createMon
+	-- if createMon then
+	-- 	local hFuben = Actor.getFubenHandle(sysarg)
+		
+	-- 	local x, y = Actor.getEntityPosition(sysarg,0,0)
+	-- 	local sid = Actor.getSceneId(sysarg)
+		
+	-- 	--群刷怪
+	-- 	if createMon.monsters and table.getn(createMon.monsters) > 0 then 
+	-- 		for k, v in ipairs(createMon.monsters) do
+	-- 			if v.range and v.range > 0 then
+	-- 				local hScene = Fuben.getSceneHandleById(sid, hFuben)
+	-- 				Fuben.createMonstersInRange(hScene, v.mid, x-v.range, y-v.range, x+v.range, y+v.range, v.count, v.liveTime)
+	-- 			else
+	-- 				local hScene = Fuben.getSceneHandleById(v.sid, hFuben)
+	-- 				Fuben.createMonstersInRange(hScene, v.mid, v.x1, v.y1, v.x2, v.y2, v.count, v.liveTime)
+	-- 			end
+	-- 		end
+	-- 	end
+		
+	-- 	--随机刷怪
+	-- 	if createMon.randMonsters and table.getn(createMon.randMonsters) > 0 then 
+	-- 		for k, v in ipairs(createMon.randMonsters) do
+	-- 			if table.getn(v) > 0 then
+	-- 				local randIdx = math.random(table.getn(v))
+	-- 				local c = v[randIdx]
+	-- 				if c then
+	-- 					if c.range and c.range > 0 then
+	-- 						local hScene = Fuben.getSceneHandleById(sid, hFuben)
+	-- 						Fuben.createMonstersInRange(hScene, c.mid, x-c.range, y-c.range, x+c.range, y+c.range, c.count, c.liveTime)
+	-- 					else
+	-- 						local hScene = Fuben.getSceneHandleById(c.sid, hFuben)
+	-- 						Fuben.createMonstersInRange(hScene, c.mid, c.x1, c.y1, c.x2, c.y2, c.count, c.liveTime)
+	-- 					end
+	-- 				end
+					
+	-- 			end
+				
+	-- 		end
+	-- 	end
+	-- end
+	
+	-- if sucessTips and sucessTips ~= "" then
+	-- 	local username = Actor.getName(sysarg)
+	-- 	if tipsType == 1 then
+	-- 		Fuben.sendMsgToFb(hFuben, string.format(sucessTips, username), ttScreenCenter)   
+	-- 	elseif tipsType == 2 then
+	-- 		Fuben.sendMsgToScene(hScene, string.format(sucessTips, username), ttScreenCenter)
+	-- 	elseif tipsType == 3 then
+	-- 		System.broadcastTipmsg(string.format(sucessTips, username), ttScreenCenter+ttChatWindow)
+	-- 	elseif tipsType == 4 then
+	-- 		Actor.sendTipmsg(sysarg,sucessTips,ttScreenCenter)
+	-- 	end
+	-- end
+	
+	-- if ItemTable.callBackFunc then
+	-- 	ItemTable.callBackFunc(sysarg,ItemTable)
+	-- end
+end
+

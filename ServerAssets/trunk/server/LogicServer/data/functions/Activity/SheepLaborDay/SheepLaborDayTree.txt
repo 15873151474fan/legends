@@ -1,0 +1,350 @@
+--lua script
+--#include "data\config\activityconfig\SheepLaborDay\LaborTree.txt" once 
+--羊年五一神树活动
+
+--NPC请求处理 浇水(1) 施肥(2) 摇晃(3)
+function LaborTreeNpcDeal(sysarg, index)
+	if System.isInDateRange(unpack(LaborTreeConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0010, ttFlyTip)--不在活动时间范围内
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, LaborTreeConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0011, ttFlyTip)--等级不足
+		return
+	end
+	
+	local tab = LaborTreeConfig.NPCDoing[index]
+	if not tab then return end
+	local consumetype = tab.costAwards.type
+	local count = tab.costAwards.count
+	local needCount = tab.needCount
+	local maxTimes = tab.maxTimes
+	
+	--判断可否操作
+	local tem = LaborTreeConfig.cakeprogress
+	if not tem then return end
+	local maxLevis = #tem
+	local nowLevis = ReadLaborDay(2)
+	if index == 3 then
+		if nowLevis < maxLevis then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ywy0313, ttFlyTip)--等级未满
+			return
+		end
+		local needVal = LaborTreeConfig.sharkVal
+		local myVal = ReadLaborDayPlayerVal(sysarg, 1) or 0
+		if myVal < needVal then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ywy0315, ttFlyTip)--您的贡献值不够
+			return
+		end
+	else
+		if nowLevis >= maxLevis then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ywy0312, ttFlyTip)--等级已满
+			return
+		end
+	end
+	
+	--判断次数
+	if index ~= 3 then
+		local times = ReadLaborDayPlayerVal(sysarg, index+1)
+		if times >=  maxTimes then
+			if index == 1 then 
+				Actor.sendTipmsg(sysarg, Lang.Activity.ywy0321, ttFlyTip)
+			elseif index == 2 then
+				Actor.sendTipmsg(sysarg, Lang.Activity.ywy0322, ttFlyTip)
+			end
+			return
+		end
+	end
+
+	--判断空格
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	if nBagCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0311, ttFlyTip)
+		return
+	end
+
+	--扣材料
+	if consumetype == 15 then --元宝
+        if Actor.changeMoney(sysarg, mtYuanbao, -count, 987, Lang.LogTips.ywy0001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0010, ttFlyTip)
+			return
+		end
+	elseif consumetype == 6 then --金币
+	   	if Actor.changeMoney(sysarg, mtCoin, -count, 987, Lang.LogTips.ywy0001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0011, ttFlyTip)
+			return
+		end
+	elseif consumetype == 7 then --绑定元宝（礼券）
+		if Actor.changeMoney(sysarg, mtBindYuanbao, -count, 987, Lang.LogTips.ywy0001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0012, ttFlyTip)
+			return
+		end
+    end
+
+	--发放物品
+	local RandRate = math.random(10000)
+	local rate = 0
+	for k, v in ipairs(tab.awards) do
+		rate = rate + v.propability
+		if rate >= RandRate then
+			Actor.giveAward(sysarg, v.type, v.id, v.count , 0,0,v.bind,0,987,Lang.LogTips.ywy0002)
+			break
+		end
+	end
+	
+	--奖励经验 浇水，施肥得经验。
+	if index ==1 or index == 2 then
+		local exptem = LaborTreeConfig.expNum
+		if exptem then
+			Actor.giveAward(sysarg, exptem.type, exptem.id, exptem.count , exptem.quality,0,0,0,987,Lang.LogTips.ywy0002)
+		end 
+	end
+	
+	
+	local treeVal = tab.treeVal
+	local playerVal = tab.playerVal
+	--保存培养值
+	SaveLaborDayValue(treeVal)
+	--保存贡献值
+	SaveLaborDayPlayerVal(sysarg, 1, playerVal)
+	SaveLaborDayPlayerVal(sysarg, index+1, 1) --保存浇水施肥摇晃次数
+end
+
+--保存全服培养值
+function SaveLaborDayValue(num)
+	local oldnum = ReadLaborDay(1)
+	local needVal = LaborTreeConfig.needVal
+	local oldgrade = math.modf(oldnum/needVal) or 0 --现在的级别
+
+	local ranking = Ranking.getRanking(Lang.Rank.LaborDayTreeFile)
+	if ranking then
+		local total = 0
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = tonumber(Ranking.getSub(item, 1)) or 0
+			total = result + num
+			if total < 0 then
+				total = 0 
+			end
+			Ranking.setSub(item, 1, total)--1全服培养值  2神树等级
+		else
+			item = Ranking.addItem(ranking, 0, 0)
+			if num < 0 then
+				num = 0 
+			end
+			Ranking.setSub(item, 1, num)
+			total = num
+		end
+
+		local grade = 0
+		if total >= LaborTreeConfig.cakeprogress[1].num and total < LaborTreeConfig.cakeprogress[2].num then
+			grade = 1
+		elseif total >= LaborTreeConfig.cakeprogress[2].num and total < LaborTreeConfig.cakeprogress[3].num then
+			grade = 2
+		elseif total >= LaborTreeConfig.cakeprogress[3].num and total < LaborTreeConfig.cakeprogress[4].num then 
+			grade = 3
+		elseif total >= LaborTreeConfig.cakeprogress[4].num then
+			grade = 4
+		end
+		
+		local cakeNum = Ranking.getSub(item, 2) --神树等级
+		cakeNum = tonumber(cakeNum)
+		if grade > 0 then
+			if not cakeNum then
+				local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+				local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00335) --  NPC名字 神树
+				if not npcPtr then return end
+				local modelId = LaborTreeConfig.cakeprogress[grade].cakeid
+				Actor.changeEntityModel(npcPtr, 30, modelId)
+				Ranking.setSub(item, 2, grade)
+			elseif grade > cakeNum then
+				local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+				local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00335) --  NPC名字 神树
+				if not npcPtr then return end
+				local modelId = LaborTreeConfig.cakeprogress[grade].cakeid
+
+				Actor.changeEntityModel(npcPtr, 30, modelId)
+				Ranking.setSub(item, 2, grade)
+			end
+		end
+		local newgrade = math.modf(total/needVal) or 0 --现在的级别
+		if newgrade > oldgrade then
+			LaborTreeBoss()
+		end
+	end
+end
+
+--神树BOSS
+function LaborTreeBoss()
+	local hScene = Fuben.getSceneHandleById(8, 0)
+	if not hScene then return end
+	local pos = LaborTreeConfig.bossPos
+	local times = LaborTreeConfig.times
+	local bossId = LaborTreeConfig.bossId
+	local bossNum = LaborTreeConfig.bossNum
+	local n = Fuben.createMonstersInRange(hScene, bossId, pos.x1, pos.y1, pos.x2, pos.y2, bossNum, times)
+	System.broadcastTipmsg(Lang.Activity.ywy0314, 128+2)
+	
+	SheepLaborRegisterFun() --注册回调函数
+end
+
+--注册回调函数30分钟后执行
+function SheepLaborRegisterFun()
+	local delaytime = LaborTreeConfig.delaytime
+	local NpcPtr = System.getGlobalNpc()
+	if NpcPtr ~= nil then
+		Actor.regScriptCallback(NpcPtr, NpcPtr, delaytime*1000, 0, 1, "SheepLaborAllKill")
+	end
+end
+
+--判断是否杀死boss
+function SheepLaborAllKill()
+	local hScene = Actor.getSceneHandle(sysarg)
+	if not hScene then return end
+	local id = LaborTreeConfig.bossId
+	local val = LaborTreeConfig.remVal
+	local flag = Fuben.isKillAllMonster(hScene, id)
+	if not flag then
+		SaveLaborDayValue(-val)
+		SheepLaborSetModel()
+	end
+end
+
+--判断培养值重新设定模型
+function SheepLaborSetModel()
+	local total = ReadLaborDay(1) --当前值
+	local nowLev = ReadLaborDay(2)--当前级
+	
+	local grade = 0
+	if total >= LaborTreeConfig.cakeprogress[1].num and total < LaborTreeConfig.cakeprogress[2].num then
+		grade = 1
+	elseif total >= LaborTreeConfig.cakeprogress[2].num and total < LaborTreeConfig.cakeprogress[3].num then
+		grade = 2
+	elseif total >= LaborTreeConfig.cakeprogress[3].num and total < LaborTreeConfig.cakeprogress[4].num then 
+		grade = 3
+	elseif total >= LaborTreeConfig.cakeprogress[4].num then
+		grade = 4
+	end
+	if grade == 0 then return end
+	if nowLev ~= grade then
+		local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+		local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00335) --  NPC名字 神树
+		if not npcPtr then return end
+		local modelId = LaborTreeConfig.cakeprogress[grade].cakeid
+		Actor.changeEntityModel(npcPtr, 30, modelId)
+		SheepLaborSaveModel(grade)
+	end
+end
+
+--保存模型
+function SheepLaborSaveModel(index)
+	local ranking = Ranking.getRanking(Lang.Rank.LaborDayTreeFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			Ranking.setSub(item, 2, index)--2神树等级
+		end
+	end
+end
+
+--读取全服培养值
+function ReadLaborDay(index)
+	local ranking = Ranking.getRanking(Lang.Rank.LaborDayTreeFile)
+	if ranking then
+		local itemPtr = Ranking.getItemPtrByIndex(ranking, 0)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, index)) or 0 --1当前数量  2 模型等级
+		end
+	end
+	return 0
+end
+
+--保存个人贡献值
+function SaveLaborDayPlayerVal(sysarg, index, num)
+	local ranking = Ranking.getRanking(Lang.Rank.LaborDayTreePlayerValFile)
+	if ranking then
+		local total = 0
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			local result = tonumber(Ranking.getSub(itemPtr, index)) or 0
+			total = result + num
+			Ranking.setSub(itemPtr, index, total)--1贡献值  2是浇水次数 3施肥次数，4摇晃次数
+		else
+			itemPtr = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(itemPtr, index, num)
+		end
+	end
+end
+
+--读取个人贡献值
+function ReadLaborDayPlayerVal(sysarg, index)
+	local ranking = Ranking.getRanking(Lang.Rank.LaborDayTreePlayerValFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, index)) or 0 --为1个人贡献值  2是浇水次数 3施肥次数，4摇晃次数
+		end
+	end
+	return 0
+end
+
+--每日处理
+function LaborDayEverdayTreeDeal()
+	local num = LaborTreeConfig.everydayNum
+	SaveLaborDayValue(-num)
+	SheepLaborSetModel()
+	
+	local ranking = Ranking.getRanking(Lang.Rank.LaborDayTreePlayerValFile)
+	if ranking then
+		local num = Ranking.getRankItemCount(ranking) or 0
+		if num > 0 then
+			for i=1, num do
+				local itemPtr = Ranking.getItemFromIndex(ranking, i-1)
+				if itemPtr then
+					Ranking.setSub(itemPtr, 2, 0)--为1个人贡献值  2是浇水次数 3施肥次数，4摇晃次数
+					Ranking.setSub(itemPtr, 3, 0)
+					Ranking.setSub(itemPtr, 4, 0)
+				end
+			end
+		end
+	end
+end
+
+--活动结束清数据
+function ClearLaborDayTreeData()
+	local ranking = Ranking.getRanking(Lang.Rank.LaborDayTreeFile) --全服
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+
+	local rankings = Ranking.getRanking(Lang.Rank.LaborDayTreePlayerValFile)--个人
+	if rankings then
+		Ranking.clearRanking(rankings)
+	end
+end
+
+--登录处理显示灵台与否
+function SheepTreeShowNPC()
+	local sysVar = System.getDyanmicVar()
+	local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+	local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00335) --  NPC名字
+	if System.isInDateRange(unpack(LaborTreeConfig.actTime)) == true then
+		if sysVar.SnowSheepTreeNpc then --活动内，显示
+			if npcPtr then
+				Actor.setEntityVisibleFlag(npcPtr, true)
+				sysVar.SnowSheepTreeNpc = nil
+			end
+		end
+	else
+		if not sysVar.SnowSheepTreeNpc then
+			if npcPtr then
+				Actor.setEntityVisibleFlag(npcPtr, false) --活动外，仅屏一次
+				sysVar.SnowSheepTreeNpc = true
+			end
+		end
+	end
+end
+

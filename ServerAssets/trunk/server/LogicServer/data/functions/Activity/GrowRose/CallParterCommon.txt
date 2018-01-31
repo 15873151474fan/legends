@@ -1,0 +1,28 @@
+
+--#include "data\config\activityconfig\GrowRose\Config.txt" once --≈‰÷√Œƒº˛
+
+
+function CallParter(sysarg)
+	local config = GrowRoseConfig
+	local curTime = System.getCurrMiniTime()
+	local dvar = Actor.getDyanmicVar(sysarg)
+	local RecruitMembersTime = dvar.CallParterTime
+	if RecruitMembersTime then
+		if curTime - RecruitMembersTime < config.recruitCd then
+			Actor.sendTipmsg(sysarg, Lang.Activity.t00129, ttFlyTip)
+			return
+		end
+	end
+	if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true then 
+		local tips = string.format(Lang.Activity.t00130, "", config.limitLevel)
+		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+		return 
+	end
+	if Actor.isInTeam(sysarg) ~= false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00131, ttFlyTip)
+		return 
+	end
+	local name = Actor.getName(sysarg)
+	dvar.CallParterTime = curTime
+	System.broadcastTipmsgLimitLev(string.format(Lang.Activity.t00134, name,name), ttChatWindow, GrowRoseConfig.limitLevel)
+end

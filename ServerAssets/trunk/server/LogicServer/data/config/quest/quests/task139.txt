@@ -1,0 +1,47 @@
+﻿--lua script
+{
+	id = 139,			-- 淡定剑仙
+	parentid = 138,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name139,
+	content = Lang.Quest.desc139,
+
+	prom = { type = 0, scene = Lang.SceneName.s00020, npc = Lang.EntityName.n00363 },
+	comp = { type = 0, scene = Lang.SceneName.s00020, npc = Lang.EntityName.n00363 },
+	target = {
+		{
+			type = 0, id = 75, count = 15, rewardId = 0,useList = false,
+			location = {
+				sceneid = 20, x= 154,y = 208,entityName = Lang.EntityName.m75,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 263790122, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 80000, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+                        { type = 0, id = 147, count = 1, group = 0,strong = 0,quality = 0,job = 1,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--战士破天腰带
+			{ type = 0, id = 162, count = 1, group = 0,strong = 0,quality = 0,job = 2,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--法师翠羽腰带
+			{ type = 0, id = 177, count = 1, group = 0,strong = 0,quality = 0,job = 3,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--道士蓝凌腰带
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk1391,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk1391,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip1391,
+	},
+	PassMsTip = {
+	},
+},

@@ -1,0 +1,26 @@
+
+--#include "data\functions\ExpandFunc\ActorReliveCommon.txt" once
+	--#include "data\functions\Tasks\WuLinZhengBa\OnActorRelive.txt" once	--武林争霸晋级场复活
+
+MiscsImplement.ClickReliveIcon = function (sysarg, msgid, packet)
+	local reliveType = DataPack.readByte(packet) --复活类型，0 复活石复活 1元宝复活 2安全复活 3原地信春哥复活 4原地复活(先消耗物品再消耗元宝)
+	if reliveType == 0 then
+		UseItemRelive(sysarg)
+	elseif reliveType == 1 then
+		UseMoneyRelive(sysarg)
+	elseif reliveType == 3 then
+		-- local sid = Actor.getSceneId(sysarg)
+		-- if WuLinZhengBaConst.RiseMapId == sid then
+			-- OnWuLinZhengBaRelive(sysarg)
+		-- else
+			-- GoReliveFunc(sysarg, 4)
+		-- end
+	elseif reliveType == 4 then
+		OnPlaceRelive(sysarg)
+	else 
+		safeResurrection(sysarg)
+	end
+end
+
+
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cClickReliveIcon, MiscsImplement.ClickReliveIcon)

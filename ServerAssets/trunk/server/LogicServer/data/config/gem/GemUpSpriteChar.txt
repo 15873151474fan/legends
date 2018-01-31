@@ -1,0 +1,57 @@
+﻿--宝物炼化灵性
+--#include "..\..\language\LangCode.txt"
+-- 宝物炼化灵性基本配置
+gemSpriteCharConfig = 
+{
+initSpriteCharValMin=10,-- 宝物初始化灵性值下限
+initSpriteCharValMax=10,-- 宝物初始化获取灵性值上限
+succUpSpriteCharGotMin=5,-- 宝物炼化成功获取的灵性值下限
+succUpSpriteCharGotMax=10,-- 宝物炼化成功获取的灵性值上限
+luckyItemUpSuccRate=5 ,-- 每个幸运符提高的成功概率百分点
+canUseMaxLuckyItemCount=3,-- 每次最多能使用的幸运符数量
+luckyItemId=1919,-- 幸运符物品id
+consumeItemId=1918,-- 炼化灵性消耗的炼化石id
+-- 宝物灵性属性。按照攻击、防御、敏捷、霸体灵性配置顺序 
+gemSpritePropCfg = {
+-- 攻击灵性
+{
+rate1=0.58 ,-- 1点攻击灵性转化为多少点外攻攻击力
+rate2=0.58 ,-- 1点攻击灵性转化为多少点内功攻击力
+rate3=0,-- 保留
+},
+-- 防御灵性
+{
+rate1=0.44,-- 1点防御灵性转化为多少点外攻防御力
+rate2=0.44,-- 1点防御灵性转化为多少点内功防御力
+rate3=0,-- 保留
+},
+-- 敏捷灵性
+{
+rate1=0.21,-- 1点敏捷灵性转化为多少点暴击值
+rate2=0.21,-- 1点敏捷灵性转化为多少点闪避值
+rate3=0.21,-- 1点敏捷灵性转化为多少点命中值
+},
+-- 霸体灵性
+{
+rate1=3.07,-- 1点霸体灵性转化为多少点生命力
+rate2=3.07,-- 1点霸体灵性转化为多少点内力
+rate3=0,-- 保留
+},
+},
+-- 宝物炼化成功率配置（成功率和当前灵性值相关）
+gemUpSpriteCharSuccRate=
+{
+-- rangeMax: 区间的最大值 rate=50成功百分比
+-- 例如下面的配置意义为：灵性值不超过100的，基础成功概率为50%
+{ rangeMax=100,rate=70 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=200,rate=50 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=300,rate=30 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=400,rate=22 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=500,rate=18 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=600,rate=14 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=700,rate=10 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=800,rate=8 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=900,rate=6 ,moneyType=0,moneyCount=1500, },
+{ rangeMax=1000,rate=4 ,moneyType=0,moneyCount=1500, },
+}
+},

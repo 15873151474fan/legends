@@ -1,0 +1,26 @@
+--状态改变的配置的禁止表
+--横向表示的实体在这种状态
+--纵向表示实体在这种状态下能否进行这种动作
+
+StateConfig =
+{
+--                静止   行走   跳跃   骑马   打坐   摆摊   吟唱   战斗   死亡
+  
+                 {true,  true,  true,  true,  true,  true,     true,    true,   true  },  --静止状态
+
+                 {true,  true,  true,  false,  false,  false,   true,    true,  true  },  --行走状态
+
+                 {true,  true,  true,  true,  true,  false,     false,   true,  true  },  --跳跃状态
+
+                 {true,  true,  true,  true,  false,  false,    false,   true,  true  }, --骑马状态
+
+                 {true,  false,  false,  false,  false,  true,  false,   false,  true  },  --打坐状态
+
+                 {true,  false,  false,  false,  false,  true,  false,   false,  true }, --摆摊状态
+
+                 {true,  true,   true,   true,   true,   true,   true,   true,  true  },  --吟唱状态
+
+                 {true,  true,   true,  true,   false,   false,  true,   true,  true  },  --战斗状态
+
+                 {true,  false,  false,  false, false,   false,  false,  false, true  },  --死亡状态
+},

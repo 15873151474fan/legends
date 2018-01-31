@@ -1,0 +1,8 @@
+﻿--lua script
+--本文件是用于定义宠物相关的任务
+
+--这里配置宠物后，要完成的任务
+PetBattlequestData = 
+{
+   {qid = 1863, tid = 31059,count=1},  --任务目标
+}

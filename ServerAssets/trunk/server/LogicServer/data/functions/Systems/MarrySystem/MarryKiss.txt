@@ -1,0 +1,171 @@
+--lua script
+--情侣kiss处理
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\friend\MarriedConfig.txt" once
+
+function CheckLandInteract(sysarg, ActorPtr)
+	
+	if ActorPtr == nil then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00152,ttFlyTip)
+		return false
+	end
+	
+	if Actor.isDeath(sysarg) then 
+		return false 
+	end
+	
+	if Actor.isDeath(ActorPtr) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00153,ttFlyTip)
+		return false
+	end
+	
+	if Actor.isOnBoard(sysarg) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00154,ttFlyTip)
+		return false
+	end
+	
+	if Actor.isOnBoard(ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00155,ttFlyTip)
+		return false
+	end
+	
+	--是否同屏，是否有位置搞基
+	if not Actor.isInSameScreen(sysarg, ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00156,ttFlyTip)
+		return false
+	end
+	return true
+end
+
+--检测搞基条件 sysarg:自己 ActorPtr：对方 type:1攻 2受
+function CheckKissLandCondition(sysarg, ActorPtr, type)
+	if CheckLandInteract(sysarg, ActorPtr) ~= true then 
+		return false
+	end
+	if type == 2 and not Actor.canTelport(sysarg, 0) then
+		return false
+	end
+	if Actor.getIntProperty(sysarg,PROP_ACTOR_SEX) == Actor.getIntProperty(ActorPtr,PROP_ACTOR_SEX) then
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00140,ttFlyTip)
+		return false
+	end
+	--[[
+	if Actor.hasMapAreaAttri(sysarg,aaNoKiss) == true then 
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00196,ttFlyTip)
+		return false
+	end
+	
+	if Actor.hasMapAreaAttri(ActorPtr,aaNoKiss) == true then 
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00197,ttFlyTip)
+		return false
+	end
+	--]]
+
+	--没有天宫礼服
+	if CheckKissDress(sysarg) ~= true then
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00205,ttFlyTip)
+		return false
+	end
+	
+	if CheckKissDress(ActorPtr) ~= true then
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00206,ttFlyTip)
+		return false
+	end
+	
+
+	--自己是否在搞基，对方是否在搞基
+	if Actor.hasState(sysarg, esStateKiss) ~= false or Actor.hasState(sysarg, esKissInLand) ~= false then
+		local tips = ""
+		if type == 1 then
+			tips = Lang.Activity.a00142
+		else
+			tips = Lang.Activity.a00143
+		end
+		Actor.sendTipmsg(sysarg,tips,ttFlyTip)
+		return false
+	end
+	if Actor.hasState(ActorPtr, esStateKiss) ~= false or Actor.hasState(ActorPtr, esKissInLand) ~= false then
+		local tips = ""
+		if type == 1 then
+			tips = Lang.Activity.a00144
+		else
+			tips = Lang.Activity.a00145
+		end
+		Actor.sendTipmsg(sysarg,tips,ttFlyTip)
+		return false
+	end
+	
+	return true
+end
+
+function CheckKissDress(sysarg)
+	local dressPtr = Item.getEquipByType(sysarg, Item.itFashionDress)
+	if not dressPtr then return false end
+	local dressId = Item.getItemId(dressPtr)
+	local hasDress = false
+	for k, v in ipairs(MarriedConfig.kissDress) do
+		if dressId == v then 
+			hasDress = true
+			break
+		end
+	end
+	
+	return hasDress
+end
+
+--邀请陆地亲吻 
+function InviteKissOnLand(sysarg,name)
+	local ActorPtr = System.getActorPtr(name)
+	
+	if ActorPtr == nil then return end
+	
+	if CheckKissLandCondition(sysarg,ActorPtr,1) == false then return end
+
+	local mySelfName = Actor.getName(sysarg)
+	local actorid = Actor.getIntProperty(ActorPtr,PROP_ENTITY_ID)
+	
+	local handle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg, handle, actorid, string.format(Lang.Activity.a00147, mySelfName), Lang.Activity.a00148.."/RespuestKissLand,"..mySelfName, Lang.Activity.a00149.."/OnCancelOp,"..mySelfName, nil, 0, 1, string.format(Lang.Activity.a00150, mySelfName))
+	
+	Actor.sendTipmsg(sysarg, Lang.Activity.a00151, ttFlyTip)
+
+end
+
+--回复搞基
+function RespuestKissLand(sysarg, reqName)
+	local index = 4
+	local reqName = tostring(reqName) or ""
+	
+	local ActorPtr = System.getActorPtr(reqName)
+	
+	if ActorPtr == nil then return end
+
+	if CheckKissLandCondition(sysarg, ActorPtr, 2) ~= true then return end
+	
+	--local result, times = ReduceInteractData(ActorPtr, index)
+	--if result ~= true then return end 
+	
+	local x, y = Actor.getEntityPosition(ActorPtr,0,0)
+	
+	local rand = math.random(2)
+	local dir = {2, 6}
+	Actor.setDir(sysarg,dir[rand])		--右
+	Actor.setDir(ActorPtr,dir[rand])	--左
+	
+	--瞬移到对方的位置
+	--System.telportSceneDelay(sysarg,Actor.getSceneId(ActorPtr),x,y,200)
+	Actor.enterFuBen(sysarg,Actor.getFubenHandle(sysarg),Actor.getSceneId(ActorPtr),x,y)
+	Actor.onTakeOffRide(sysarg)
+	Actor.onTakeOffRide(ActorPtr)
+
+	Actor.startPractice(sysarg, 0, 0, ActorPtr, 4,esKissInLand)
+	Actor.startPractice(ActorPtr, 0, 0, sysarg, 4,esKissInLand)
+end
+
+function OnCancelOp(sysarg,reqName)
+	local ActorPtr = System.getActorPtr(reqName)
+	
+	if ActorPtr == nil then return end
+	Actor.sendTipmsg(ActorPtr, Lang.Activity.a00207, ttFlyTip)
+end

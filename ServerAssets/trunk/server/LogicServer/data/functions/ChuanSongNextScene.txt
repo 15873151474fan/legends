@@ -1,0 +1,101 @@
+﻿--lua script
+
+--#include "data\language\LangCode.txt" once
+--#include "FuBenNpcFunc\exitFubenFunc.txt"  once
+--#include "FuBenNpcFunc\OnEnterFubenSceneFunc.txt" once
+
+function ChuanSongNextScene(sysarg)
+	local fbid = Actor.getFubenId(sysarg)
+	local fbscene = Actor.getSceneId(sysarg)
+	
+	local cond = CondMs[1]	--传送到下一个场景的条件
+	local condcount = table.getn(cond.condition)
+	local str = ""
+	
+	if condcount <= 0 then 
+		str = str .. getNextSceneStr(sysarg,cond)
+	else 
+		local state = canGotoNextScene(sysarg,cond)
+
+		if state == 1 then 
+			str = str .. getNextSceneStr(sysarg,cond)
+		end
+	end
+	str = str.."<#BL"..Lang.Event.e00012.."/@sureExitFubenFunc>"	
+ 	return str
+end
+
+
+--判断是否达到传送到下一个场景的条件，0表示不符合，1表示符合
+function canGotoNextScene(sysarg,cond)
+	if cond == nil then return 1 end
+	
+	local state = 1
+	for i= 1 ,#cond.condition do
+		local v = cond.condition[i]
+		if v.type == 1 then
+			--判断目标怪物是否死亡
+			if v.amount == 0 then 
+				if not Actor.isKillAllMonster(sysarg,v.monsterid) then	--判断是否死光
+					state = 0
+					break
+				end
+			else
+				local amount = Actor.getLiveMonsterCount(sysarg,v.monsterid)
+				if amount > v.amount then
+					state = 0
+					break
+				end
+			end
+		elseif v.type == 2 then
+			--判断场景的怪物是否死光
+			if not Actor.isKillAllMonster(sysarg,0) then
+				state = 0
+				break
+			end	
+		end
+	end
+	return state
+end
+
+--获取下一个场景的列表的描述字符串
+function getNextSceneStr(sysarg,cond)
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	local str = ""
+	for i = 1, table.getn(cond.destination) do
+		local d = cond.destination[i] 
+		str = "<#BL"..Lang.Misc.m00001..d.scenename.."/@ChuanSongBySceneId,"..fbHandle..","..d.sceneid..","..d.pos_x..","..d.pos_y..">"
+	end
+	return str
+end
+
+function ChuanSongBySceneId(sysarg,fbHandle,scene,pos_x,pos_y)
+	
+	local fHandle = tonumber(fbHandle)
+	local sceneid = tonumber(scene)
+	--print("fbHandle:"..fHandle)
+	--print("sceneid:"..sceneid)
+	local fbid = Actor.getFubenId(sysarg)
+	if OnEnterFubenSceneTable[fbid] ~= nil then 
+		OnEnterFubenSceneTable[fbid].OnEnterFubenSceneFunc(sysarg,fHandle,sceneid,pos_x,pos_y)
+	end
+	--print("sceneid:"..sceneid)
+	Actor.enterFuBen(sysarg,fHandle,sceneid,pos_x,pos_y)
+end
+
+function sureExitFubenFunc(sysarg)
+	local NPChandle = Actor.getNpc(sysarg)
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	--print("tong guan!"..Fuben.getFubenProgress(fbPtr))
+	if Fuben.getFubenProgress(fbPtr) ~= 2 then
+		Actor.messageBox(sysarg,NPChandle,0,Lang.ScriptTips.f00018,Lang.ScriptTips.f00056,Lang.ScriptTips.f00057,NULL)
+	else
+		exitFubenFunc(sysarg)
+	end
+end
+
+function cencelFunc(sysarg)
+
+end
+
+table.insert(MainFnTable,ChuanSongNextScene)

@@ -1,0 +1,69 @@
+--#include  "data\config\activityconfig\Festival\NationalDayActive.txt" once
+-- 
+function NationalDayItemFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.redPacketAwards) then
+		return
+	end
+	
+	local awards = NationalDayActiveConfig.redPacketAwards[itemIdx]
+	if not awards then
+		return
+	end
+	
+	if NationalDayActiveConfig.redPacketAwards.openTime then  
+		local openTime = System.encodeNumTime(unpack(NationalDayActiveConfig.redPacketAwards.openTime)) 
+		local currTime = System.getCurrMiniTime() 
+		if currTime < openTime then 
+			Actor.sendTipmsg(sysarg, Lang.Activity.gq0019, ttFlyTip) 
+			return
+		end
+	end
+	
+	
+	local needGrids = table.getn(awards) 
+	--[[
+	for k, awardInfo in ipairs(awards or {}) do
+		needGrids = needGrids + Item.getAddItemNeedGridCount( sysarg, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind)
+	end
+	--]]
+
+	local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+	local redPacketCount = 0
+	for k, redPacketInfo in ipairs(NationalDayActiveConfig.redPacket or {}) do
+		if redPacketInfo.id == itemIdx then
+			redPacketCount = Actor.getItemCount(sysarg, redPacketInfo.id, redPacketInfo.quality, redPacketInfo.strong, redPacketInfo.bind)
+			if redPacketInfo.count == redPacketCount then 
+				bagEmptyGrids = bagEmptyGrids + 1
+			end
+			break 
+		end
+	end
+	
+	if needGrids > bagEmptyGrids then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gq0009,  needGrids), ttFlyTip) 
+		return
+	end
+	
+	local result = 0
+	for k, redPacketInfo in ipairs(NationalDayActiveConfig.redPacket or {}) do
+		if redPacketInfo.id == itemIdx then
+			result = Actor.removeConsume(sysarg, redPacketInfo.type, redPacketInfo.id, redPacketInfo.count, redPacketInfo.quality, redPacketInfo.strong, redPacketInfo.bind, 0, 952, Lang.LogTips.l00202)
+			break
+		end
+	end
+
+	if result > 0 then
+		for k, awardInfo in ipairs(awards or {}) do
+			Actor.giveAward(sysarg, awardInfo.type, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind, 0, 952, Lang.LogTips.l00202)	
+		end
+	end 
+
+end
+
+function NationalDayItemInit(sysarg)  
+	for k, v in ipairs(NationalDayActiveConfig.redPacket or {}) do
+		GlobalItemFn[v.id] = { func = NationalDayItemFunc, params = v } 
+	end
+end
+
+table.insert( InitFnTable, NationalDayItemInit)

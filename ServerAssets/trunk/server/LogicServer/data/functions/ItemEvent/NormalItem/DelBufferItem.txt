@@ -1,0 +1,28 @@
+﻿--lua script
+--for item delete buffs
+
+--#include "data\config\item\NormalItemDatas.txt" once
+
+--[[
+--删除buff的药品效果
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+function DelItemBuff(sysarg,itemidx,itemPtr,ItemTable)
+    Actor.delBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup); --删除buff
+	if(ItemTable.needDelete) then --需要删除
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true," ",5)      --删除一个物品
+	end
+end
+
+function DeleteItemBufferInit(sysarg)
+  for i = 1,table.getn(DeleteBuffItems) do
+	local x = DeleteBuffItems[i]
+	GlobalItemFn[x.item_id] = { func = DeleteBuffItems, params = x }
+  end
+end
+
+table.insert(InitFnTable,DeleteItemBufferInit)

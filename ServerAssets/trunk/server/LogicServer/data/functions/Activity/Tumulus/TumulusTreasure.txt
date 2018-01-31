@@ -1,0 +1,617 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\Tumulus\TumulusConfig.txt" once
+--#include "data\config\activity\TumulusTreasure.txt" once
+--#include "RankPointer.txt" once
+
+--初始化古墓探宝活动事件
+function InitTumulus()
+	local config = TumulusConfig
+	if not config then return end
+
+	System.setTumulusStartDate(config.openTime, config.openDays, true)
+end
+
+--操作古墓探宝
+function OnTumulusTreasure(sysarg,args)
+	local nRemainingTime = args[2]
+	local btType = args[3]		--已在逻辑服判断
+	local btIndex = args[4]
+
+	if Actor.checkActorLevel(sysarg, GlobalConfig.nTumulusTreasureLevel, GlobalConfig.nTumulusTreasureCircle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gm0017, GlobalConfig.nTumulusTreasureCircle, GlobalConfig.nTumulusTreasureLevel), ttFlyTip)
+		return
+	end
+
+	local config = TumulusConfig
+	local ttConfig = TumulusTreasureConfig
+	if (not config) or (not ttConfig) then
+		return
+	end
+
+	local tmpTable = LoadTumulus(sysarg)
+	if (table.getn(tmpTable or {}) < 16) then
+		return
+	end
+
+	InitTumulusAwardTab()	--初始化奖励表
+
+	local ret = true
+	if btType == 1 then	--请求重玩
+		ret, tmpTable = OnTumulusReplay(sysarg, tmpTable)
+	elseif btType == 2 then	--请求重置
+		ret, tmpTable = OnTumulusReset(sysarg, tmpTable)
+	elseif btType == 3 then	--请求进入下一层
+		ret, tmpTable = OnTumulusEnterNextFloor(sysarg, tmpTable)
+	elseif btType == 4 then	--请求开箱
+		ret, tmpTable = OnTumulusOpenBox(sysarg, tmpTable, btIndex)
+	end
+
+	--操作失败不改变
+	if ret == false then
+		return
+	end
+
+	--请求活动信息不需保存
+	if btType ~= 0 then
+		SaveTumulus(sysarg, tmpTable)
+	end
+
+	SendTumulusInfo(sysarg, nRemainingTime, tmpTable, btIndex)
+end
+
+--下发古墓探宝活动信息
+function SendTumulusInfo(sysarg, nRemainingTime, tmpTable, btIndex)
+	local config = TumulusConfig
+	local ttConfig = TumulusTreasureConfig
+	if (not config) or (not ttConfig) or (not config.resetTimes) then
+		return
+	end
+	local nFloor = tmpTable[1]
+	local nReplayId = tmpTable[2] + 1
+	local nLastResetTimes = config.resetTimes - tmpTable[3]
+	local nCurrBoxId = 1
+
+	if (nFloor <= 0) or (nFloor > table.getn(ttConfig.gateList or {})) or (not ttConfig.gateList[nFloor].boxList) then
+		return
+	end
+	local nBoxCount = table.getn(ttConfig.gateList[nFloor].boxList or {})
+	for i=1,nBoxCount do
+		if tmpTable[3 + i] ~= 0 then	--0为未开
+			nCurrBoxId = nCurrBoxId + 1
+		end
+	end
+	local pack = DataPack.allocPacket(sysarg, 52, 34)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nRemainingTime)
+		DataPack.writeChar(pack, nFloor)
+		DataPack.writeChar(pack, nReplayId)
+		DataPack.writeChar(pack, nLastResetTimes)
+		DataPack.writeChar(pack, nCurrBoxId)
+		DataPack.writeChar(pack, btIndex)
+		DataPack.writeChar(pack, nBoxCount)
+		for i=1,nBoxCount do
+			if tmpTable[3 + i] == 0 then	--0为未开
+				DataPack.writeChar(pack, 0)
+				DataPack.writeShort(pack, 0)
+			else
+				local awardId = tmpTable[3 + i] - 10000		--已开的加10000做标记
+				DataPack.writeChar(pack, 1)
+				DataPack.writeShort(pack, awardId)
+			end
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--加载古墓探宝数据
+function LoadTumulus(sysarg)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+	tmpTable[1] = 1		--层数为1
+
+	local config = TumulusConfig
+	if (not config) or (not TumulusRankPt) then
+		return tmpTable
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(TumulusRankPt.TumulusFile)
+	if not ranking then
+		ranking = Ranking.add(TumulusRankPt.TumulusFile, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, TumulusRankPt.TumulusFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if pItem then
+		local tmpVal = 0
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			--table.insert(tmpTable, tmpVal)
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存古墓探宝数据
+function SaveTumulus(sysarg, tmpTable)
+	if not TumulusRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(TumulusRankPt.TumulusFile)
+	if not ranking then
+		ranking = Ranking.add(TumulusRankPt.TumulusFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, TumulusRankPt.TumulusFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {}) do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--请求重玩
+function OnTumulusReplay(sysarg, tmpTable)
+	local ttConfig = TumulusTreasureConfig
+	local config = TumulusConfig
+	if (not ttConfig) or (not config) then
+		return false, tmpTable
+	end
+
+	local nFloor = tmpTable[1]
+	local nReplayTimes = tmpTable[2]
+	local nResetTimes = tmpTable[3]
+	local tumulusCounts = ttConfig.tumulusCounts
+	local nTotalReplayTimes = table.getn(tumulusCounts or {})
+	if (nFloor <= 0) or (nFloor > table.getn(ttConfig.gateList or {})) then
+		return
+	end
+
+	if nReplayTimes >= nTotalReplayTimes then
+	--[[
+		Actor.sendTipmsg(sysarg, Lang.Activity.gm0001, ttFlyTip)
+		return false, tmpTable
+	]]
+		--nReplayTimes = nReplayTimes - 1
+		nReplayTimes = nTotalReplayTimes - 1
+	end
+
+	local nCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+	local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	local ret = true
+	for k, consume in ipairs(tumulusCounts[nReplayTimes+1].awards or {}) do
+		if (consume.type == 6) and (nCoin < consume.count) then
+			ret = false
+		elseif (consume.type == 15) and (nGold < consume.count) then
+			ret = false
+		end
+	end
+
+	if ret == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gm0002, ttFlyTip)
+		return false, tmpTable
+	end
+
+	for k, consume in ipairs(tumulusCounts[nReplayTimes+1].awards or {}) do
+		if (consume.type == 6) then
+			Actor.changeMoney(sysarg,1,-consume.count,963,Lang.Activity.gm0003)
+		elseif (consume.type == 15) then
+			Actor.changeMoney(sysarg,3,-consume.count,963,Lang.Activity.gm0004)
+		end
+	end
+
+	nFloor = 1
+	nReplayTimes = nReplayTimes + 1
+	nResetTimes = 0
+
+	tmpTable[1] = nFloor
+	tmpTable[2] = nReplayTimes
+	tmpTable[3] = nResetTimes
+	
+	local nBoxCount = table.getn(ttConfig.gateList[nFloor].boxList or {})
+	for i=1,nBoxCount do
+		tmpTable[3 + i] = 0
+	end
+
+	return true, tmpTable
+end
+
+--请求重置
+function OnTumulusReset(sysarg, tmpTable)
+	local ttConfig = TumulusTreasureConfig
+	local config = TumulusConfig
+	if (not ttConfig) or (not config) then
+		return false, tmpTable
+	end
+
+	local nFloor = tmpTable[1]
+	local nReplayTimes = tmpTable[2]
+	local nResetTimes = tmpTable[3]
+	local tumulusCounts = ttConfig.tumulusCounts
+	local nTotalResetTimes = config.resetTimes
+	if (nFloor <= 0) or (nFloor > table.getn(ttConfig.gateList or {})) then
+		return
+	end
+
+	if nResetTimes >= nTotalResetTimes then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gm0005, ttFlyTip)
+		return false, tmpTable
+	end
+
+	nResetTimes = nResetTimes + 1
+
+	tmpTable[3] = nResetTimes
+	
+	local nBoxCount = table.getn(ttConfig.gateList[nFloor].boxList or {})
+	for i=1,nBoxCount do
+		tmpTable[3 + i] = 0
+	end
+
+	return true, tmpTable
+end
+
+--请求进入下一层
+function OnTumulusEnterNextFloor(sysarg, tmpTable)
+	local ttConfig = TumulusTreasureConfig
+	local config = TumulusConfig
+	if (not ttConfig) or (not config) then
+		return false, tmpTable
+	end
+
+	local nFloor = tmpTable[1]
+	local nReplayTimes = tmpTable[2]
+	local nResetTimes = tmpTable[3]
+	local tumulusCounts = ttConfig.tumulusCounts
+	local nTotalResetTimes = config.resetTimes
+	if (nFloor <= 0) or (nFloor > table.getn(ttConfig.gateList or {})) or (not ttConfig.gateList[nFloor].boxList) then
+		return
+	end
+	
+	local canEnter = false
+	local nBoxCount = table.getn(ttConfig.gateList[nFloor].boxList or {})
+	for i=1,nBoxCount do
+		if tmpTable[3 + i] == 10000 then	--10000为进入下一层
+			canEnter = true
+		end
+	end
+	if (nFloor + 1 > table.getn(ttConfig.gateList or {})) then
+		canEnter = false
+	end
+	if canEnter == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gm0006, ttFlyTip)
+		return false, tmpTable
+	end
+	
+	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gm0016, nFloor+1), ttFlyTip)
+	
+	nFloor = nFloor + 1
+	--nResetTimes = 0
+
+	tmpTable[1] = nFloor
+	--tmpTable[3] = nResetTimes
+	for i=1,nBoxCount do
+		tmpTable[3 + i] = 0
+	end
+
+	return true, tmpTable
+end
+
+--请求开箱
+function OnTumulusOpenBox(sysarg, tmpTable, btIndex)
+	local ttConfig = TumulusTreasureConfig
+	local config = TumulusConfig
+	if (not ttConfig) or (not config) then
+		return false, tmpTable
+	end
+
+	local nFloor = tmpTable[1]
+	if (nFloor <= 0) or (nFloor > table.getn(ttConfig.gateList or {})) or (not ttConfig.gateList[nFloor].boxList) then
+		return
+	end
+	
+	if tmpTable[3 + btIndex] ~= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gm0007, ttFlyTip)
+		return false, tmpTable
+	end
+
+	local gateList = ttConfig.gateList[nFloor]
+	if not gateList then return end
+
+	local nOpenBoxCount = 0
+	local nHaveNext = false
+	local nBoxCount = table.getn(gateList.boxList or {})
+	for i=1,nBoxCount do
+		if tmpTable[3 + i] == 0 then	--0为未开
+			nOpenBoxCount = nOpenBoxCount + 1
+		elseif tmpTable[3 + i] == 10000 then	--10000为下一层
+			nHaveNext = true
+		end
+	end
+	local nCurrBoxId = nBoxCount - nOpenBoxCount + 1
+
+	local nCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+	local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	local ret = true
+	for k, consume in ipairs(gateList.boxList[nCurrBoxId].awards or {}) do
+		if (consume.type == 6) and (nCoin < consume.count) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.gm0008, ttFlyTip)
+			return false, tmpTable
+			--ret = false
+		elseif (consume.type == 15) and (nGold < consume.count) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.gm0018, ttFlyTip)
+			return false, tmpTable
+			--ret = false
+		end
+	end
+--[[
+	if ret == false then
+		--Actor.sendTipmsg(sysarg, Lang.Activity.gm0008, ttFlyTip)
+		return false, tmpTable
+	end
+]]
+	local openBoxFlag = 1
+	for k, consume in ipairs(gateList.boxList[nCurrBoxId].awards or {}) do
+		if (consume.type == 6) then
+			Actor.changeMoney(sysarg,1,-consume.count,963,Lang.Activity.gm0009)
+		elseif (consume.type == 15) then
+			Actor.changeMoney(sysarg,3,-consume.count,963,Lang.Activity.gm0010)
+
+			local awardRankPtr = Ranking.getRanking(TumulusRankPt.TumulusAwardFile)
+			if awardRankPtr then
+				local ybitemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+				if ybitemPtr then
+					local curYb = tonumber(Ranking.getSub(ybitemPtr, 0)) or 0
+					Ranking.setSub(ybitemPtr, 0, curYb+consume.count)
+				end
+			end
+			openBoxFlag = 2
+		end
+	end
+
+	local actorName = Actor.getName(sysarg)
+	--当前是不是最高层、开最后一个且没出现过下一层
+	if (nFloor < table.getn(ttConfig.gateList or {})) and (nOpenBoxCount <= 1) and (nHaveNext == false) then
+		tmpTable[3 + btIndex] = 10000
+	else
+		local awardTab = Awards.CanGiveAwards(sysarg, config.treasureAwards[nFloor].awards[openBoxFlag])
+		local awardInfo = GetTumulusAwardInfo(awardTab, nHaveNext, nFloor)
+		if awardInfo == nil then
+			return true, tmpTable
+		end
+
+		if (awardInfo.type == 127) and (awardInfo.id == 0) then
+			tmpTable[3 + btIndex] = 10000
+		else
+			Dmkj.addItem(sysarg, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind, false, 0, 963, Lang.LogTips.gm0013)
+			if awardInfo.isBroadcast and awardInfo.isBroadcast == 1 then
+				local desc = Item.getAwardDesc(awardInfo.type, awardInfo.id)
+				System.broadcastTipmsg(string.format(Lang.Activity.gm0012, actorName, awardInfo.count, desc), ttScreenCenter+ttChatWindow)
+			end
+			
+			tmpTable[3 + btIndex] = 10000 + awardInfo.clientId
+		end
+	end
+	
+	if (tmpTable[3 + btIndex] == 10000) then
+		if (nFloor >= table.getn(ttConfig.gateList or {})-1) then
+			System.broadcastTipmsg(string.format(Lang.Activity.gm0014, actorName), ttScreenCenter+ttChatWindow)
+		end
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gm0015, nFloor+1), ttFlyTip)
+	end
+
+	return true, tmpTable
+end
+
+--获取奖励信息
+function GetTumulusAwardInfo(awardTab, nHaveNext, nFloor)
+	local totalRate = 0
+	local awardInfo = nil
+	for k, v in ipairs(awardTab) do 
+		totalRate = totalRate + v.propability 
+	end
+	
+	for i = 1, 10000 do 
+		awardInfo = GetTumulusAwardRandomInfo(awardTab, 1, totalRate)
+		if awardInfo == nil then
+			return awardInfo
+		end
+		if CheckTumulusAward(awardInfo, awardTab, nHaveNext, nFloor) == true then
+			break
+		end
+	end
+	
+	return awardInfo
+end
+
+--根据概率获取值
+function GetTumulusAwardRandomInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local awardInfo = nil
+	local tmpValue = 0
+
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].propability
+		if tmpValue >= randVal then
+			awardInfo = infoTable[i]
+			break
+		end
+	end
+	return awardInfo
+end
+
+--检测是否可获取奖励,根据消耗的元宝
+function CheckTumulusAward(awardInfo, awardTab, nHaveNext, nFloor)
+	local result = false
+	--已出现过下一层，再随机到下一层，返回失败
+	if (awardInfo.type == 127) and (awardInfo.id == 0) then
+		if ((nHaveNext == true) or (nFloor >= table.getn(TumulusTreasureConfig.gateList or {}))) then
+			return false
+		else
+			return true
+		end
+	end
+	local awardRankPtr = Ranking.getRanking(TumulusRankPt.TumulusAwardFile)
+	if awardRankPtr then
+		local totalYb = 0
+		local ybitemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+			if ybitemPtr then
+				totalYb = tonumber(Ranking.getSub(ybitemPtr, 0)) or 0
+			end
+
+		local itemPtr = Ranking.getItemPtrFromId(awardRankPtr, awardInfo.id)
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(awardRankPtr, awardInfo.id, 0, false)
+			if itemPtr then
+				for i = 1, 10 do  
+					Ranking.setSub(itemPtr, i-1, 0)
+				end
+			end
+		end 		
+		
+		for k, v in ipairs(awardTab) do 
+			if v.id == awardInfo.id then
+				local startYb = tonumber(Ranking.getSub(itemPtr, k-1)) or 0
+				if v.startYb > startYb then
+					startYb = v.startYb 
+				end
+				
+				if totalYb >= startYb then
+					result = true
+					Ranking.setSub(itemPtr, k-1, startYb+v.ybCircle)
+				end
+				break
+			end
+		end   
+	end
+
+	return result
+end
+
+--初始化奖励表
+function InitTumulusAwardTab()
+	local config = TumulusConfig
+	if (not config) or (not TumulusRankPt) or (not config.treasureAwards) then
+		return
+	end
+
+	local awardRankPtr = Ranking.getRanking(TumulusRankPt.TumulusAwardFile) 
+	if not awardRankPtr then
+		awardRankPtr = Ranking.add(TumulusRankPt.TumulusAwardFile, 1000, 1, 10)
+		if not awardRankPtr then
+			return
+		end
+
+		if not Ranking.load(awardRankPtr, TumulusRankPt.TumulusAwardFile) then
+			for i=0,9 do
+				Ranking.addColumn(awardRankPtr, string.format("value%d", i))
+			end
+		end
+	end
+	if not awardRankPtr then return end
+	
+	if Ranking.getRankItemCount(awardRankPtr) > 0 then
+		return 
+	end
+
+	local itemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+	if not itemPtr then
+		itemPtr = Ranking.addItemExt(awardRankPtr, 1, 0, false)
+		for i = 1, 10 do  
+			Ranking.setSub(itemPtr, i-1, 0)
+		end
+	end
+
+	local treasureAwards = config.treasureAwards
+
+	local count = table.getn(treasureAwards or {})
+	for i = 1, count do 
+		local awardConfig = treasureAwards[i].awards[2]
+		for k, v in ipairs(awardConfig) do
+			if v.type == 0 then
+				local awardItemPtr = Ranking.getItemPtrFromId(awardRankPtr, v.id)
+				if not awardItemPtr then
+					awardItemPtr = Ranking.addItemExt(awardRankPtr, v.id, 0, false)
+					for j = 1, 10 do  
+						Ranking.setSub(awardItemPtr, j-1, 0)
+					end
+				end
+		
+				if awardItemPtr then
+					Ranking.setSub(awardItemPtr, i-1, v.startYb)
+				end
+			end
+		end
+	end
+end
+
+--清理古墓探宝排行 arg 0 无条件清理 1 活动期间才清理
+function ClearTumulusRank(arg)
+	local nArg = tonumber(arg) or 0
+	local needClear = false
+	if nArg == 0 then
+		needClear = true
+	else
+		if System.isOpenTumulus() == true then
+			needClear = true
+		end
+	end
+	local ranking = Ranking.getRanking(TumulusRankPt.TumulusFile)
+	if ranking then
+		if needClear == true then
+			Ranking.clearRanking(ranking)
+		end
+	end
+end
+
+--清理古墓探宝奖励排行
+function ClearTumulusAwardRank()
+	local ranking = Ranking.getRanking(TumulusRankPt.TumulusAwardFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+--清理古墓探宝所有排行
+function ClearTumulusAllRank()
+	--print("ClearTumulusAllRank ....")
+	ClearTumulusRank(0)
+	ClearTumulusAwardRank()
+end
+
+--登陆处理
+function TumulusLoginHandle(sysarg)
+	--在默认开启时间内且活动未开启
+	if (System.isInDateRange(unpack(TumulusConfig.actTime)) == true) and
+	   (System.isOpenTumulus() ~= true)then
+		InitTumulus()
+	end
+end

@@ -1,0 +1,242 @@
+﻿--lua script
+--To do something about Login and Logout
+--[[
+  经验福利奖励
+  经验福利奖励规则:
+  经验福利奖励，主要针对玩家在当天获得的经验值是否达到每天经验最高值设定。
+	每位玩家每天登陆游戏都可以获得前一天（已登陆游戏）的经验福利奖励。奖励规则如下：
+
+	经验福利奖励 = （每日经验最高值 -前一天一共获得的经验值） * EXPRATE （往下取整）
+	当（每日经验最高值 - 前一天一共获得的经验值）<= 0，该玩家不再获得前一天经验福利奖励。
+
+]]
+
+
+--#include "data\config\guide\LoginOutExpConfig.txt" once
+---#include "data\config\guide\LoginOutCampCount.txt" once
+---#include "data\config\property\ExpUpLmtEveryDay.txt" once
+---#include "data\config\property\LevelUpExp.txt" once
+--#include "data\config\NewVip\NewVipConfig.txt" once --新Vip配置(万分比) 
+
+
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+--[[
+    函数名称：sendToClient
+    函数描述：发送给客户端 福利奖励信息
+    参数 sysarg 的描述：
+]]
+function SendToClientLogoutData(sysarg, baseExp, logoutTime)    
+   --print("SendToClientLogoutDatabaseExp:"..baseExp)
+   --print("SendToClientLogoutDatalogoutTime:"..logoutTime)
+	--打开领取离线经验面板
+	local npack = DataPack.allocPacket(sysarg,139,5)    -- 139-5  打开领取离线经验面板
+	if npack == nil then return end
+	DataPack.writeUInt(npack, baseExp)       --每小时获得经验量
+	DataPack.writeByte(npack, logoutTime)  --累计的离线时间
+	DataPack.flush(npack)
+end
+
+
+--[[
+    函数名称：GetLogOutExpToClient
+    函数描述：计算 损失阵营贡献 
+    参数 sysarg 的描述：
+]] 
+function GetLogOutConrCamp(sysarg)
+	--跨服限制
+	if OnCsActorLoginLmt() == true then return end
+	
+   local nLast = Actor.getLastLogoutTime(sysarg)   --获取角色上次下线的时间
+   if nLast == 0 then return end
+   local t = System.getCurrMiniTime() --获取当前的mini时间，单位秒
+   local tt = System.getToday()  --获取今日凌晨零点的时间秒数
+   
+   local count = math.floor((tt-nLast)/LogOutContribution.DAYTIME) + 1    --离线天数
+   if tt < nLast then
+     count = 0
+   end
+   
+   local level =  Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+   if level < LogOutContribution.limitLevel[1] or level > LogOutContribution.limitLevel[2] then return end
+   
+   local MaxLev = LogOutContribution.limitLevel[2]    --领取最大等级限制 
+   local lastConr = Actor.getZyContriLogout(sysarg)                     --获取角色上次下线那天获取的阵营贡献 
+   
+   local baseConr = 0                    --阵营贡献基础值
+   
+   if level >= LogOutContribution.ConLevel[1][1] and  level <= LogOutContribution.ConLevel[1][2] then
+      baseConr = LogOutContribution.GETBASERATE[1]
+   elseif level >= LogOutContribution.ConLevel[2][1] and  level <= LogOutContribution.ConLevel[2][2] then
+      baseConr = LogOutContribution.GETBASERATE[2]
+   elseif level >= LogOutContribution.ConLevel[3][1] and  level <= LogOutContribution.ConLevel[3][2] then
+      baseConr = LogOutContribution.GETBASERATE[3]
+   elseif level >= LogOutContribution.ConLevel[4][1] and  level <= LogOutContribution.ConLevel[4][2] then
+	baseConr = LogOutContribution.GETBASERATE[4]
+   end
+   
+   local curConr = 0         --阵营贡献值
+   
+   for i=1,count do
+       if i == 1 then                     --计算离线当日阵营贡献值
+          if lastConr >= baseConr then
+              curConr = 0
+          else
+              curConr = baseConr - lastConr
+          end
+       else                                --计算非离线当日阵营贡献值
+          curConr =  curConr +  baseConr
+       end
+       
+       if curConr >= LogOutContribution.GETMAXCON then
+          curConr = LogOutContribution.GETMAXCON
+          break
+       end 
+   end
+   
+   local needInGot = math.ceil(curConr / LogOutContribution.CHANGERATE)
+
+   return curConr
+end
+
+ 
+--[[
+    函数名称：GetLogOutExpToClient
+    函数描述：计算 经验福利奖励
+    参数 sysarg 的描述：
+]]
+EventCallDispatcher.GetLogOutExpToClient = function (sysarg,arg)
+	--跨服限制
+	if OnCsActorLoginLmt() == true then return end
+	
+	local config = LogOutExp
+	if not config then return end
+	local nLast = Actor.getLastLogoutTime(sysarg)   --获取角色上次下线的时间
+	
+	if nLast == 0 then return end
+	local t = System.getCurrMiniTime() --获取当前的mini时间，单位秒
+	local count = math.floor((t-nLast)/60)    --离线时间
+	
+	--静态变量记录
+	local var = Actor.getStaticVar(sysarg)
+	local logoutTime = var.logoutTime
+	if not logoutTime then
+		var.logoutTime = 0
+		logoutTime = var.logoutTime
+	end
+	
+	logoutTime = logoutTime + count
+		
+		
+	
+	var.logoutTime = logoutTime
+	
+	
+	local logoutHour = math.floor(logoutTime / 60)
+	
+	if logoutHour < LogOutExp.minTime then 
+		SendToClientLogoutData(sysarg, 0, 0)
+		return 
+	end
+	
+	if logoutHour > LogOutExp.maxTime then
+		logoutHour = LogOutExp.maxTime
+	end
+
+	local level =  Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	
+	if level < LogOutExp.limitLevel[1] or level > LogOutExp.limitLevel[2] then 
+		SendToClientLogoutData(sysarg, 0, 0)
+		return 
+	end
+	
+	local expPerLevel = LogOutExp.expPerLevel
+	if expPerLevel.type ~= 20 then
+		GetLogoutExpReturn(sysarg, 0)
+		return 
+	end
+	
+	--local fVipAdd = expPerLevel.quality or 0
+	--Vip经验改变
+	local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+    local fVipAdd = 0
+    if (VipLevel > 0 ) and (VipLevel <= #NewVipConfig.VipInclude) then
+       fVipAdd = NewVipConfig.VipInclude[VipLevel].OfflineAddExpPower
+    end
+	local baseExp = Actor.getActivityExp(sysarg, expPerLevel.id, expPerLevel.count, fVipAdd)
+	
+	if baseExp == nil or baseExp == 0 then 
+		GetLogoutExpReturn(sysarg, 0)
+		return 
+	end
+	
+	if baseExp > LogOutExp.maxExpPerHour then
+		baseExp = LogOutExp.maxExpPerHour
+	end
+	
+	--[[
+	--修改为读取配置进行领取最大等级限制
+	local MaxLevel = table.getn(expPerLevel)+LogOutExp.limitLevel[1]-1     
+	if level > MaxLevel then 
+		SendToClientLogoutData(sysarg, 0, 0)
+		return 
+	end
+	
+	local upLevel = level - LogOutExp.limitLevel[1] + 1
+	local baseExp = expPerLevel[upLevel]                          --读取当前等级能获到的经验
+	if baseExp == nil then 
+		SendToClientLogoutData(sysarg, 0, 0)
+		return 
+	end
+	--]]
+	
+	--local logOutCount = GetLogOutConrCamp(sysarg)     --获取 损失阵营贡献 
+	
+	--发送给客户端
+	SendToClientLogoutData(sysarg, baseExp, logoutHour)
+end
+
+--[[
+    函数名称：NewDayAcrriveLogOutExp
+    函数描述：每日0:00结算 经验福利
+    参数 sysarg 的描述：
+]]
+EventCallDispatcher.NewDayAcrriveLogOutExp = function (sysarg,arg)
+	local yExp = arg[1]     --获取昨天 所得经验
+	local yCount = arg[2]        --获取昨天 所得阵营贡献
+	
+	local level =  Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+
+	--静态变量记录
+	local logoutExp = 0
+	
+	local baseConr = 0                    --阵营贡献基础值
+
+	if level >= LogOutContribution.ConLevel[1][1] and  level <= LogOutContribution.ConLevel[1][2] then
+		baseConr = LogOutContribution.GETBASERATE[1]
+	elseif level >= LogOutContribution.ConLevel[2][1] and  level <= LogOutContribution.ConLevel[2][2] then
+		baseConr = LogOutContribution.GETBASERATE[2]
+	elseif level >= LogOutContribution.ConLevel[3][1] and  level <= LogOutContribution.ConLevel[3][2] then
+		baseConr = LogOutContribution.GETBASERATE[3]
+	elseif level >= LogOutContribution.ConLevel[4][1] and  level <= LogOutContribution.ConLevel[4][2] then
+		baseConr = LogOutContribution.GETBASERATE[4]
+	end
+
+	local logOutCount = 0               --损失阵营贡献 
+	if yCount >= baseConr then
+		logOutCount = 0
+	else
+		logOutCount = baseConr - yCount
+	end
+
+	--发送给客户端
+	sendToClient(sysarg, logoutExp, logOutCount, false)
+
+end
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, EventCallDispatcher.GetLogOutExpToClient)
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeNewDayArrive, EventCallDispatcher.NewDayAcrriveLogOutExp)

@@ -1,0 +1,87 @@
+﻿--lua script
+local LocalDT={}
+
+--这个文件是所有的怪物相关的脚本逻辑的总函数
+--包括怪物的死亡，怪物的刷新处理的一些逻辑的入口在这里
+
+--#include "data\envir\FuBenTongGuan.txt" once		--副本通关条件的定义，这里包含是为了注册副本中出现的怪物的死亡事件
+--#include "data\envir\FubenBossSelect.txt" once		--爬塔副本怪
+
+--#include "MonEvent\MDCDispatcherImplement.txt" once
+--#include "MonEvent\MonsterMobDispatchImpl.txt" once 
+--#include "MonEvent\MonsterAttackedDispatchImpl.txt" once
+
+--#include "MonEvent\FBMonsters\FBMonstersInclude.txt" once
+--#include "MonEvent\AtvMonsters\AtvMonstersInclude.txt" once
+--#include "MonEvent\QuestMonsters\QuestMonsterFunc.txt" once
+--#include "data\config\quest\QuestMonster.txt" once
+----#include "data\functions\FuBenNpcFunc\jizhanshaolin" once
+----#include "data\functions\FuBenNpcFunc\padaTimeConfig" once
+--#include "data\functions\Activity\NanJiangGuDi\XunShouLeiTaiBossDie.txt" once  --驯兽擂台BOSS死亡和被攻击注册
+--#include "data\functions\Activity\NewYearSheep\NewYearBossAtt.txt" once  --羊年元旦BOSS被攻击注册
+--#include "data\functions\Activity\SpringFestivalSheep\EveBossDie.txt" once  --羊年春节除夕夺宝BOSS死亡和被攻击注册
+
+function OnMonsterDisaper(monster, monId)
+  -- print("OnMonsterDisaper".. Actor.getName(monster) )
+  MonDieDispatcher.dispatch(monster, nil, monId)  
+end
+
+--当一个怪物被杀死的时候
+function OnMonsterKilled(monster, killer, monId)
+  MonDieDispatcher.dispatch(monster, killer, monId)  
+end
+
+
+--当一个怪物刷新出来的时候的时候调用
+function OnMonsterMob(monster, monId, sceneId,x,y)
+    MonMobDispatcher.dispatch(monster, monId, sceneId,x,y)
+end
+
+--当一个怪物被攻击的时候的时候调用
+function OnMonsterAttacked(monster, killer, monId, damage)
+    MonAttackedDispatcher.dispatch(monster, killer, monId, damage)
+end
+
+--注册那些以杀怪为目的的副本里的出现的怪物,并执行通用的怪物死亡接口
+for k,v in pairs(TongGuanCondition) do
+	if v ~= nil then
+		for j = 1, #v do
+			if v[j].type == 1 then
+				--MonDieDispatcher.register(v[j].monsterid,MonDieDispatcher.CommonDieFunc)
+			end
+		end
+	end
+end
+
+--爬塔副本中，注册通关怪
+for k, v in pairs(FubenBossSelect) do
+	for job, tabs in ipairs(v) do
+		for _, boss in ipairs(tabs) do
+			MonDieDispatcher.register(boss.entityid, MonDieDispatcher.PataFubenMonsterDie)
+		end
+	end
+end
+
+for k,v in pairs(MonsterForQuest) do
+	if v ~= nil then
+		for j = 1, #v do
+			MonDieDispatcher.register(k,MonDieDispatcher.QuestDieFunc)
+		end
+	end
+end
+
+for monsId, questList in pairs(ShareHitMonsterForQuest) do
+	for idx, questId in ipairs(questList) do
+		MonDieDispatcher.register( monsId,MonDieDispatcher.ShareHitQuestDieFunc)
+	end
+end
+
+--[[
+for k,v in pairs(padaguankaRate) do
+  if v ~= nil then
+    for j = 1, #v do
+      MonDieDispatcher.register(k,jizhanshaolin.MonsterDie)
+    end
+  end  
+end
+]]

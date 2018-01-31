@@ -1,0 +1,113 @@
+﻿--跨服土城
+{
+	scenceid = 147,
+	scencename = Lang.SceneName.s00147,
+	mapfilename = "111HanTianChengWeiMei",
+	minlevel = 26,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "mengzhongtucheng.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 488,
+	sceneHeight = 408,
+	posx = 148,
+	posy = 180,
+	sceneNotice = Lang.SceneName.s50004,
+
+	area =
+	{
+		{ name = Lang.SceneName.s00147, range = { 10,10,20,20,30,25 }, center = { 148,180 }, attri = {{type=3,value = {}},{type=18,value = {}},{type=56,value = {}},{type=80,value = {}},{type=89,value = {}},{type=19,value = {}},{type=33,value = {10}},{type = 34,  value = {316,318,822,386,387,388,389,391,392,394,2272,2273,2274}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },}},	--默认配置场景，可以穿人,限制使用物品、禁止交易、死亡不爆装备、不可丢弃东西,PK不加PK值
+		{ name = Lang.SceneName.a00001, range = { 125,105,190,185,115,255,45,180 }, center = { 148,180 }, attri = {{type=46,value = {}},}}, --土城区域，城镇
+		{ name = Lang.SceneName.a00000, range = { 137,170,157,170,157,190,137,190 }, center = { 148,180 }, attri = {{type=1,value = {}},{type=39,value = {}},{type=46,value = {}},{type=83,value = {}},{type=60,value = {}},}},	--安全复活区，城镇，禁止放火墙术
+
+		{ name = Lang.SceneName.a00002, range = { 340,175,260,255,334,328,414,249 }, center = { 148,180 }, attri = {{type=29,value = {}},{type=33,value = {56,57,58}},{type=44,value = {}},{type=79,value = { 1 }},{type=20,value = {}},{type=21,value = {}},{type=46,value = { 148,180,352,262,147}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },{ type = 40,  value = {} },}}, --沙城区域，不可定点传送，不可召集传送、玛沙克皇宫死亡复活区域（土城内、沙城内），禁止穿人，不可使用行会召集等、禁止复活，新手保护失效，禁止穿怪{type=34,value = {316,318,822,386,387,388,389,391,392,394,}},
+		{ name = Lang.SceneName.a00008, range = { 332,239,334,237,335,238,333,240 }, center = { 333,239 }, attri = {{type=82,value = {}},{type=79,value = { 1 }},{type=20,value = {}},{type=21,value = {}},}}, --城门区域，禁止穿人,禁止穿怪
+
+	},
+
+--地图中间的障碍   每一组包含障碍物的两个顶点
+	hinder =
+	{
+		{
+			pointArr = {
+							{posX = 226, posY = 310},
+							{posX = 292, posY = 122},
+						}
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货  10 书店，默认是0可以不配置
+		{name = Lang.EntityName.n00042, posx = 161, posy = 187,script= "data/script/MengZhongTuCheng/YaoDianZhangGui.txt",modelid=78,icon = 78,funcId=7,classId=0},
+
+    {name = Lang.EntityName.n00221, posx = 136, posy = 180,script= "data/script/KuaFuTuCheng/KuaFuZhanShenDiaoXiang.txt",modelid=160,icon = 79,classId=0,title=Lang.NpcTitle.n00030,},	--跨服第一战神雕像
+    {name = Lang.EntityName.n00219, posx = 136, posy = 187,script= "data/script/KuaFuTuCheng/KuaFuBOSSZhiYinRen.txt",modelid=97,icon = 79,classId=0,title=Lang.NpcTitle.n00029},	--跨服BOSS指引人
+
+		{name = Lang.EntityName.n00217, posx = 143, posy = 180,script = "data/script/KuaFuTuCheng/KuaFuChuanSongShi.txt",modelid=141,icon = 12,funcId=3,classId=0},--跨服土城传送石
+		{name = Lang.EntityName.n00220, posx = 408, posy = 340,script = "data/script/KuaFuTuCheng/ShaChengChuanSongShi.txt",modelid=141,icon = 12,funcId=3,classId=0},--跨服沙城传送石
+
+		--沙城
+		{name = Lang.EntityName.n00037, posx = 370, posy = 278,script= "data/script/MengZhongTuCheng/ShaYaoDianLaoBan.txt",modelid=78,icon = 78,funcId=7,bCanHide=true,hideLocation = true,classId=0},
+
+		--玫瑰商人
+		{name = Lang.EntityName.n00218, posx = 159, posy = 184,script= "data/script/MengZhongTuCheng/MeiGuiShangRen.txt",modelid=117,icon = 12,funcId=0,classId=0},
+		{name = Lang.EntityName.n00301, posx = 140, posy = 192,script= "data/script/KuaFuTuCheng/KuaFuLianShaiTeShi.txt",modelid=74,icon = 79,funcId=0,classId=0,title=Lang.NpcTitle.n00031},--跨服联赛特使
+
+	},
+
+  teleport =
+  {
+		--传送点设置
+		
+
+		{ posx = 332, posy = 238,toSceneid =  148,toPosx = 16, toPosy = 19,modelid = 30000,name = Lang.SceneName.s50000,passid = 1,dist = 0,mapHide = true },  --土城→玛沙克皇宫正门   以后改成不显示名称，并且传送点模型更换 passid=1 表示占领沙城才可以通过
+		--{ posx = 333, posy = 237,toSceneid =  9,toPosx = 16, toPosy = 19,modelid = 50000,name = " ",passid = 1,dist = 0,mapHide = true },  --土城→玛沙克皇宫正门   以后改成不显示名称，并且传送点模型更换 passid=1 表示占领沙城才可以通过
+
+		{ posx = 326, posy = 242,toSceneid =  148,toPosx =  9, toPosy = 25,modelid = 50001,name = Lang.SceneName.s50001,dist = 0,mapHide = true },  --土城→玛沙克皇宫左城墙   以后改成不显示名称，并且传送点模型更换
+		{ posx = 329, posy = 241,toSceneid =  148,toPosx = 12, toPosy = 25,modelid = 50002,name = Lang.SceneName.s50002,dist = 0,mapHide = true },  --土城→玛沙克皇宫中城墙   以后改成不显示名称，并且传送点模型更换
+		{ posx = 336, posy = 234,toSceneid =  148,toPosx = 21, toPosy = 16,modelid = 50003,name = Lang.SceneName.s50003,dist = 0,mapHide = true },  --土城→玛沙克皇宫右城墙   以后改成不显示名称，并且传送点模型更换
+
+		{ posx = 262, posy = 251,toSceneid = 151,toPosx =  14, toPosy = 17,modelid = 50000,name = Lang.SceneName.s00151,dist = 1,mapHide = false },  --跨服土城→沙城密道一
+		{ posx = 361, posy = 237,toSceneid = 151,toPosx = 169, toPosy = 77,modelid = 50000,name = Lang.SceneName.s00151,dist = 1,mapHide = false },  --跨服土城→沙城密道二
+		{ posx = 276, posy = 256,toSceneid = 151,toPosx =  14, toPosy = 93,modelid = 50000,name = Lang.SceneName.s00151,dist = 1,mapHide = false },  --跨服土城→沙城密道三
+
+  },
+
+ landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=137,posy1=170,posx2=157,posy2=190,modelid=3,xinterval=2,yinterval=2},  --安全区的路灯
+
+		{posx1=406,posy1=328,posx2=406,posy2=328,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=394,posy1=316,posx2=394,posy2=316,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=382,posy1=304,posx2=382,posy2=304,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=366,posy1=284,posx2=366,posy2=284,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=356,posy1=274,posx2=356,posy2=274,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=350,posy1=268,posx2=350,posy2=268,modelid=18,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=352,posy1=260,posx2=352,posy2=260,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=412,posy1=334,posx2=412,posy2=334,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=401,posy1=323,posx2=401,posy2=323,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=388,posy1=310,posx2=388,posy2=310,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=376,posy1=298,posx2=376,posy2=298,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=361,posy1=280,posx2=361,posy2=280,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+		{posx1=348,posy1=256,posx2=348,posy2=256,modelid=24,xinterval=1,yinterval=1},  --箭头的位置
+
+
+ },
+
+},

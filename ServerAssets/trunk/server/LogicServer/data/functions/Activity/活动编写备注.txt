@@ -1,0 +1,7 @@
+1、每个活动的代码使用一个文件夹；
+2、每个活动写一个主文件，名为xxx_main.txt,比如 Fire_main.txt，里边包含需要的配置与需要的配置文件；
+3、策划需要把这个活动挂在一个npc身上，就#include "data/function/Activity/xxx/xxx_main.txt"；
+4、不要把所有的活动全部挂到全局脚本上，全局脚本里不要出现活动的脚本，避免全局脚本过大；
+5、定时执行TimerConfig里如果调用脚本，把npc写成活动挂上去的脚本的npc，文件路径data\config\misc\ScriptTimer.txt，刷新此文件命令@nreload timer；
+6、Common文件下是某些活动通用的函数，为了节省内存和提高效率，把各个通用功能独立分开文件，需要哪个就Include哪个，如果有其他通用的函数 可以添加进去
+

@@ -1,0 +1,132 @@
+﻿--lua script
+
+--宝石转换
+function OnDiamondChg( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]  			--原始物品的指针
+	local opType = args[ptrCount+2]		--操作类型
+	local nDestId = args[ptrCount+3]	--生成ID
+	local count = args[ptrCount+4]		--转化数量
+	
+	if not DiamondChg then return end
+	
+	if (not srcPtr) then return false end
+	--从物品身上取得类型
+	local itemType = Item.getItemProperty( sysarg, srcPtr, Item.ipItemType, 0 )
+	--是否宝石
+	if itemType ~= Item.itItemDiamond then
+		return false
+	end
+	local itemId = Item.getItemProperty( sysarg, srcPtr, Item.ipItemID, 0 )
+	--local suitId = Item.getItemProperty(sysarg, srcPtr, Item.ipItemSuitId, 0)
+	
+	local idx1 = GetDiamondChgConfig(itemId,DiamondChg)
+	local idx2 = GetDiamondChgConfig(nDestId,DiamondChg)
+	
+	if idx1 == 0 or idx1 ~= idx2 then return end
+	
+	local config = DiamondChg[idx1]
+	if not config then return end
+	
+	local consumes = {}
+	for k, v in ipairs(config.consumes) do
+		local consume = {type=v.type, id=v.id, count=v.count*count, yb=v.yb}
+		table.insert(consumes, consume)
+	end
+	
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if hasCount < 1 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+	
+	local itemCount = Item.getItemProperty( sysarg, srcPtr, Item.ipItemCount, 0 )
+	if itemCount < count then return end
+	
+	local isRepCost = false
+	local result = SuccessCheck(sysarg, opType, consumes, isRepCost)
+	
+	if (result ~= successCheckResult.ok) then return false end
+	
+	local logstr = string.format(Lang.LogTips.l00122, itemId, nDestId)
+	local result, isBind = EnhanceConsumes(sysarg, opType, consumes, isRepCost, 0, 319, logstr)
+	if (result ~= successCheckResult.ok) then return false end
+	
+	local bind = Item.getItemProperty( sysarg, srcPtr, Item.ipItemBind, 0 )
+	if bind ~= 0 then
+		isBind = bind
+	end
+	
+	--删魂石
+	if Item.removeItem(sysarg, srcPtr, count, logstr, 319) < count then
+		local userid = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		System.trace(string.format("error:diamond chg removeitem error, itemid=%d, userid=%d", itemId, userid))
+		return
+	end
+	
+	--给玩家添加一个装备 
+	if Actor.addItem(sysarg, nDestId, 0, 0, count, isBind, 0, logstr, 319) < 1 then
+		local userid = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		System.trace(string.format("error:diamond chg additem error, itemid=%d, userid=%d", nDestId, userid))
+		return false
+	end
+	
+	
+	--返回客户端处理结果
+	Item.sendItemProcessResult( sysarg, nil, opType, false)
+	
+	return true
+end
+
+--宝石转换消耗
+function GetConsumptionDiamondChg( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]  			--原始物品的指针
+	local opType = args[ptrCount+2]		--操作类型
+	--local count = args[ptrCount+3]		--转化数量
+	if not DiamondChg then return end
+	if (not srcPtr) then return false end
+	
+	--从物品身上取得类型
+	local itemType = Item.getItemProperty( sysarg, srcPtr, Item.ipItemType, 0 )
+	--是否宝石
+	if itemType ~= Item.itItemDiamond then
+		return false
+	end
+	
+	local itemId = Item.getItemProperty( sysarg, srcPtr, Item.ipItemID, 0 )
+	--local suitId = Item.getItemProperty(sysarg, srcPtr, Item.ipItemSuitId, 0)
+	local idx = GetDiamondChgConfig(itemId,DiamondChg)
+	if idx == 0 then return end
+	
+	local config = DiamondChg[idx]
+	if not config then return end
+	
+	local consumes = {}
+	for k, v in ipairs(config.consumes) do
+		local consume = {type=v.type, id=v.id, count=v.count}
+		table.insert(consumes, consume)
+	end
+	
+	--[[
+	for k, v in ipairs(config.diamonds) do
+		local award = {type=0, id=v, count=1, usetype = 1}
+		table.insert(consumes, award)
+	end
+	--]]
+	
+	--返回客户端消耗结果
+	SendConsumesToClient(sysarg, opType, consumes)
+end
+
+function GetDiamondChgConfig(itemId,config)
+	for k, v in ipairs(config) do
+		for m, n in ipairs(v.diamonds) do
+			if n == itemId then
+				return k
+			end
+		end
+	end
+	
+	return 0
+end

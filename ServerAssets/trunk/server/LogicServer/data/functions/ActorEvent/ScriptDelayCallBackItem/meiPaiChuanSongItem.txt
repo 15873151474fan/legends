@@ -1,0 +1,29 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+
+
+--这里改为阵营的传送
+function meiPaiChuanSongItem(sysarg,arg)
+   
+  local camp = Actor.getCampId(sysarg)   --玩家的阵营 
+  --print (camp)
+  --无忌 
+	if (camp == 1 )then
+		System.telportSceneDefaultPoint(sysarg,Lang.SceneName.s00120)
+	end
+	
+	--逍遥
+  if( camp == 2) then
+      System.telportSceneDefaultPoint(sysarg,Lang.SceneName.s00122)
+  end
+  
+   --日月
+  if( camp == 3 )then
+    System.telportSceneDefaultPoint(sysarg,Lang.SceneName.s00124)
+  end
+  
+	Actor.removeItem(sysarg,1551,1,-1,-1,-1,"return camp",5)      --删除一个物品
+end
+
+table.insert(LocalDT.ScriptDelayConfig[2],meiPaiChuanSongItem)

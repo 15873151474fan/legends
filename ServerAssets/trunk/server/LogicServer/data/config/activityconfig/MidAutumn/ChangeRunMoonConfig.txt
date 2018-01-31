@@ -1,0 +1,165 @@
+--lua script
+--美味汤圆配置
+ChangeRunMoonConfig = 
+{
+	actTime = {2015, 3, 5, 0, 0, 0,  2015, 3, 9, 23, 59, 59},	--活动时间范围
+	needItemId = {3451,3247}, --需要显示余数的物品 比如 灯笼，汤圆，xx碎片
+	awardName = --奖品1,2,3
+	{
+		--奖品1
+		{
+			times = 10, --兑换次数
+			needItem = --消耗的物品
+			{
+				{id = 3451, count = 3},
+				{id = 3247, count = 1},
+			},
+			needYb = 0, --消耗的元宝
+			awards = --奖品
+			{
+				{type = 0, id = 3450, count = 1, job = 0 , sex = -1, bind = 1},
+				{type = 0, id = 778 , count = 1, job = 0 , sex = -1, bind = 1},
+				{type = 0, id = 788 , count = 1, job = 0 , sex = -1, bind = 1},
+			},
+		},
+		--奖品2
+		{
+			times = 10,
+			needItem = --消耗的物品
+			{
+				{id = 3451, count = 5},
+			},
+			needYb = 300, --消耗的元宝
+			awards = --奖品
+			{
+				{type = 0, id = 3450, count = 1, job = 0 , sex = -1, bind = 1},
+				{type = 0, id = 779 , count = 1, job = 0 , sex = -1, bind = 1},
+				{type = 0, id = 789 , count = 1, job = 0 , sex = -1, bind = 1},
+			},
+		},
+		--奖品3
+		{
+			times = 10,
+			needItem = --消耗的物品
+			{
+				{id = 3247, count = 1},
+			},
+			needYb = 200, --消耗的元宝
+			awards = --奖品
+			{
+				{type = 0, id = 3450, count = 1, job = 0 , sex = -1, bind = 1},
+				{type = 0, id = 799 , count = 1, job = 0 , sex = -1, bind = 1},
+				{type = 0, id = 809 , count = 1, job = 0 , sex = -1, bind = 1},
+			},
+		},	
+	},
+	
+	
+	--[[
+	--打开汤圆中奖库的概率
+	rank={7215,43,216,361,361,144,289,289,216,433,433}, --概率和等于一万
+	openAwardBag = 
+	{
+		--库1
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 20, id = 3   , count = 500,  strong = 0, quality = 0, bind = 1, isBrocast = false,},
+			},
+		},
+		--库2
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 3393, count = 1  ,  strong = 0, quality = 0, bind = 0, isBrocast = true ,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1, isBrocast = false,},
+ 			},
+		},
+		--库3
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 918 , count = 1  ,  strong = 0, quality = 0, bind = 1, isBrocast = false ,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1, isBrocast = false,},
+			},
+		},
+		--库4
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 2136, count = 1  ,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+
+			},
+		},
+		--库5
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 1991, count = 1  ,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+			},
+		},
+		--库6
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 3379, count = 1  ,  strong = 0, quality = 0, bind = 1,isBrocast = true ,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+			},
+		},
+		--库7
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 1402, count = 1  ,  strong = 0, quality = 0, bind = 1,isBrocast = false ,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+			},
+		},
+		--库8
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 3232, count = 1  ,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+			},
+		},
+		--库9
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 3233, count = 1  ,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+			},
+		},
+		--库10
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 1987, count = 2  ,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+			},
+		},
+		--库10
+		{
+			needBagCount = 1,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 1371, count = 1  ,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+				{type = 20, id = 3  , count = 500,  strong = 0, quality = 0, bind = 1,isBrocast = false,},
+			},
+		},
+	},
+	--]]
+	
+}

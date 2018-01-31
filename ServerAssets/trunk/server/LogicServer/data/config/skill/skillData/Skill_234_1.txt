@@ -1,0 +1,61 @@
+
+--技能0的1级
+{
+	--技能的三个动作的播放顺序
+	--act动作编号effect施法特效编号
+	actions=
+	{
+		{act=1,effect=0,}
+
+	},
+	
+	desc=Lang.Skill.s209L1Desc,--技能的描述
+	
+	iconID=1,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		
+		{
+			xStart=-0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=0,		
+			rangeCenter=0,			
+			--这个是在一定条件下产生的结果
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value = 1},
+						{cond = 6,value = 1},
+					},
+					--针对目标的实际作用,
+					results=
+					{
+						{mj=0,timeParam=1,type=67,delay=200,rate=0,value=0},
+						{mj=0,timeParam=1,type=3,rate=20000,value=8000,delay=300,}, 
+						{mj=0,timeParam=1,type=1,delay=500, buffType=56,id=45,rate=0,value=1,interval=3,vt=0,effectType=6,effectId=50 },
+					},
+					specialEffects=
+					{
+						{type=4,mj=0,id=286,keepTime=600,delay=0,always=false},
+						--{type=6,mj=0,id=350,keepTime=2000,delay=800,always=false},
+					},
+				},
+			},
+		},    
+	},
+	 	spellConds=
+	{
+		{cond=13,value=10,consume=false},
+	},
+	singTime=0,	
+	cooldownTime=20000,
+        
+
+
+},

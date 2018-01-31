@@ -1,0 +1,122 @@
+--强化的引导
+{
+  maxLevel = 35,
+  --触发条件
+	triggerList =
+	{
+		{ type = 1, valueList = {1976,}},      --有这个任务
+	} ,
+  
+
+  --引导的步骤 
+	steps = 
+	{
+
+    --第1步 指向导航强化按钮
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1976,} },    --任务进行中
+				{ type = 2,  helpId = 120, dataList = {0,} },      --强化界面没打开
+			},
+
+			action = { type = 1, helpId = 3, data = 0, desc = Lang.GuideLang.desc38 },
+		},
+
+
+    --第2步 指向强化导航按钮
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1976,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },        --强化界面打开
+				{ type = 15,  helpId = 121, dataList = {1,} },      --导航没有选中第1项
+			},
+
+			action = { type = 2, helpId = 121, data = 1, desc = Lang.GuideLang.desc44 },
+		},
+
+    --第3步 指向物品导航的分类栏：身上装备
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1976,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 3,  helpId = 122, dataList = {2,} },      --导航选中第二项
+				{ type = 10,  helpId = 120, dataList = {299,310,288,277,} },    --背包没有这些物品
+			},
+
+      --引导玩家 点击身上装备
+			action = { type = 2, helpId = 122, data = 1, desc = Lang.GuideLang.desc40 },
+		},
+
+    --第4步 指向物品导航的分类栏：背包物品
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1976,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 3,  helpId = 122, dataList = {1,} },      --导航选中第一项
+				{ type = 6,  helpId = 120, dataList = {299,310,288,277,} },    --背包有这些物品
+			},
+
+			action = { type = 2, helpId = 122, data = 2, desc = Lang.GuideLang.desc40 },
+		},
+	
+     --第5步 指向身上装备栏中的装备
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1976,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 3,  helpId = 122, dataList = {1,} },      --导航选中第一项
+				{ type = 10,  helpId = 120, dataList = {299,310,288,277,} },    --背包没有这些物品
+				{ type = 34,  helpId = 128, dataList = {0,} },      --强化cell没数据
+			},
+
+      --指向这些物品
+			action = { type = 6, helpId = 123, data = {299,310,288,277,}, desc = Lang.GuideLang.desc34 },
+		},
+
+     --第6步 指向背包物品中的装备
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1976,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 3,  helpId = 122, dataList = {2,} },      --导航选中第二项
+				{ type = 6,  helpId = 120, dataList = {299,310,288,277,} },    --背包有这些物品
+				{ type = 34,  helpId = 128, dataList = {0,} },      --强化cell没数据
+			},
+
+      --指向这些物品
+			action = { type = 6, helpId = 124, data = {299,310,288,277,}, desc = Lang.GuideLang.desc34 },
+		},
+
+    --第7步 点强化按钮
+		{
+      condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1976,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 29,  helpId = 120, dataList = {1976,} },   --任务没完成
+				{ type = 33,  helpId = 128, dataList = {0,} },      --强化cell有数据
+			},
+
+      --引导玩家点击
+			action = { type = 1, helpId = 127, data = 0, desc = Lang.GuideLang.desc43 },
+		},
+
+    --第8步 结束
+    {
+      condList = 
+      {
+				{ type = 17,  helpId = 40, dataList = {1976,} },     --不存在任务
+      },
+      
+      --无内容
+      action = { type = 0, helpId = 0, data = 3, desc = Lang.GuideLang.desc5 },
+    },
+
+	}
+}

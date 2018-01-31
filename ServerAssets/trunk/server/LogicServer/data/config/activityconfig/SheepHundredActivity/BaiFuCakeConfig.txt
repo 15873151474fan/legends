@@ -1,0 +1,79 @@
+--#include "data\language\Zh-CN\Activity.txt" once
+
+--羊年百福蛋糕
+BaiFuCakeConfig = 
+{
+	effectId = 2, --金钱雨特效id
+	effectSecs = 10, --特效持续时间
+	ybAwardNum = 10, --奖励人数
+	ybAwardList = --发元宝   
+	{
+		{rate = 30, yb = 5},--概率和为100
+		{rate = 35, yb = 10},
+		{rate = 30, yb = 20},
+		{rate = 5,  yb = 50},
+	},
+
+	dantaId = 3452, --蛋挞id
+	level = 50, --等级限制
+	bossPos = {x = 180, y = 120,},
+	bossId = 1587, --BOSSid
+	liveTime = 3600, --存活时间
+	times = {1, 10, 10,}, --限制领取的次数
+
+
+	expNum = {type = 20, id = 3, count = 500, quality = 0},--提交蛋挞获得经验
+	
+	cake = --蛋糕的进度
+	{
+		{cakeid = 184, num = 75 ,  modleName = Lang.Activity.shs0015}, --提交蛋挞需要达到的数量，模型名字
+		{cakeid = 185, num = 200,  modleName = Lang.Activity.shs0015},
+		{cakeid = 193, num = 500,  modleName = Lang.Activity.shs0015},
+		{cakeid = 194, num = 1000, modleName = Lang.Activity.shs0015},
+	},
+	
+
+    actiList=
+	{
+		{
+			--需要空格
+			needCount=2,
+			--消耗
+			costAwards={{type=0, count = 0,},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2660, count = 1,  bind = 1,},
+				{ type = 0, id = 3452, count = 3,  bind = 1,},
+			},		
+		},
+
+		{
+			--需要空格
+			needCount=3,
+			--消耗
+			costAwards={{type=15, count = 30,},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2660, count = 1 , bind =1,},
+				{ type = 0, id = 3452, count = 3 , bind =1,},
+				{ type = 0, id = 731 , count = 10, bind =1,},
+			},		
+		},
+
+		{
+			--需要空格
+			needCount=3,
+			--消耗
+			costAwards={{type=15, count = 100,},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2672, count = 1 , bind =1,},
+				{ type = 0, id = 3452, count = 10, bind =1,},
+				{ type = 0, id = 731 , count = 20, bind =1,},
+			},		
+		},
+	},
+}	

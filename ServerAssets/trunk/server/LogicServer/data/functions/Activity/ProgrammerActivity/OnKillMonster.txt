@@ -1,0 +1,50 @@
+﻿
+--#include "data\config\activityconfig\ProgrammerActivity\Config.txt" once	--
+--#include "ProgrammerCommon.txt" once
+
+--程序大神活动严重的bug
+function OnKillSeriousBug( monster,sysarg,monId )
+	if (not ProgrammerActivityConfig) or (not ProgrammerActivityConfig.SeriousBugHandUp) or 
+		(not ProgrammerActivityConfig.SeriousBugHandUp.SeriousBug) then
+		return
+	end
+	local config = ProgrammerActivityConfig.SeriousBugHandUp.SeriousBug
+	
+	for indx, SeriousBugInfo in ipairs(config or {}) do
+		if SeriousBugInfo.id == monId then
+			local hSeriousBug = Actor.getSubordinateHandle(sysarg)
+			if hSeriousBug and hSeriousBug > 0 then
+				return
+			end
+		
+			local x, y = Actor.getEntityPosition(sysarg, 0, 0)		--获取实体X Y坐标
+			local SeriousBugPtr = Actor.createMonster(sysarg, monId, x, y, 0, true)	
+			if SeriousBugPtr then
+				hSeriousBug = Actor.getHandle(SeriousBugPtr)
+				--print("hSeriousBug ",hSeriousBug)
+				--local petId = Pet.addPet(sysarg, SeriousBugInfo.id, 1, 197, SeriousBugInfo.petLiveTime) 
+				Actor.setSubordinateHandle(sysarg, hSeriousBug, 1133)
+				Actor.followActor(SeriousBugPtr, sysarg, 3, 30, true) --跟随某个玩家
+				--Actor.setEntityTelByOwnderAttr(monster, true)   --设置实体是否跟着归属者传送
+				Actor.setEntityLazyFollow(SeriousBugPtr, true)        --设置实体是否惰性跟随
+				Actor.setDenyAttackedByActor(SeriousBugPtr, true)     --设置实体是否不可被玩家攻击
+				Actor.setDenyAttackActor(SeriousBugPtr, true)         --设置实体是否不攻击玩家   
+				Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟 
+				
+				Actor.regScriptCallback(sysarg, nil, ProgrammerActivityConfig.SeriousBugHandUp.submitTime * 1000, 0, 1, "ClearSeriousBug")
+			end
+			break
+		end
+	end
+end
+
+
+MonDieDispatcher.SeriousBugDie = function (monster,sysarg,monId)
+	OnKillSeriousBug( monster,sysarg,monId )
+end
+
+
+--注册boss
+for idx, SeriousBugInfo in ipairs(ProgrammerActivityConfig.SeriousBugHandUp.SeriousBug or {}) do
+	--MonDieDispatcher.register(SeriousBugInfo.id, MonDieDispatcher.SeriousBugDie)
+end

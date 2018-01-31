@@ -1,0 +1,182 @@
+﻿--远征王城
+{
+	scenceid = 227,
+	scencename = Lang.SceneName.s00227,
+	mapfilename = "227YuanZhenWangCheng",
+	minlevel = 35,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,  
+	music = "zumashimiao.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 160,
+	sceneHeight = 160,
+	sceneType=0,
+	
+	seckillId = 0,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+	area =
+	{
+		{ name = Lang.SceneName.s00227, range = {10,10,20,20,60,50}, center = { 90,54},
+			attri = {
+					{type=46,value = {}},
+                    {type=100,value = {8, 152,182}},
+					{type=80,value = {}},
+                    {type=85,value = {}},
+					{type = 33,  value = {10,56,57,58}},
+					{type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274,2438,2441,2574}},
+					{type=6,value = {}},
+					{type=18,value = {}},
+					{type=19,value = {}},
+					{type=3,value = {}},
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{type=91,value = {}},
+					{ type = 50,  value = {2} },
+					{ type = 76,  value = {49,227,1,228,2,229} },
+
+				}
+		},	--默认配置场景，禁止行会的召集，传送，行会回程卷
+     --[[
+		{ name = Lang.SceneName.s00225, range = {58,80,103,80,103,133,58,133}, center = { 81,105},
+			attri = {
+					{type=46,value = {}},
+					{type=80,value = {}},
+					{type = 33,  value = {10,56,57,58,12}},
+					{type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274}},
+					{type=6,value = {}},
+					{type=18,value = {}},
+					{type=19,value = {}},
+					{type=3,value = {}},
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{type=91,value = {}},
+					{ type = 50,  value = {4} },
+				}
+		},	--安全复活范围
+
+		{ name = Lang.SceneName.a00130, range = {16,58,46,58,46,95,16,95}, center = { 34,78},
+			attri = {
+					{type=46,value = {}},
+					{type=80,value = {}},
+					{type = 33,  value = {10,56,57,58,12}},
+					{type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274}},
+					{type=6,value = {}},
+					{type=18,value = {}},
+					{type=19,value = {}},
+					{type=3,value = {}},
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{type=91,value = {}},
+					{ type = 50,  value = {4} },
+					{ type = 76,  value = {49,227,1,228,2,229} },
+				}
+		},	--生死门1
+
+		{ name = Lang.SceneName.a00130, range = {92,154,120,154,120,192,92,192}, center = { 104,178},
+			attri = {
+					{type=46,value = {}},
+					{type=80,value = {}},
+					{type = 33,  value = {10,56,57,58,12}},
+					{type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274}},
+					{type=6,value = {}},
+					{type=18,value = {}},
+					{type=19,value = {}},
+					{type=3,value = {}},
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{type=91,value = {}},
+					{ type = 50,  value = {4} },
+					{ type = 76,  value = {49,227,1,228,2,229} },
+				}
+		},	--生死门2
+
+		{ name = Lang.SceneName.a00131, range = {116,96,150,96,150,146,116,146}, center = { 132,124},
+			attri = {
+					{type=46,value = {}},
+					{type=80,value = {}},
+					{type = 33,  value = {10,56,57,58,12}},
+					{type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274}},
+					{type=6,value = {}},
+					{type=18,value = {}},
+					{type=19,value = {}},
+					{type=3,value = {}},
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{type=91,value = {}},
+					{ type = 50,  value = {4} },
+					{ type = 76,  value = {49,227,1,228,2,229} },
+				}
+		},	--修罗门
+
+		{ name = Lang.SceneName.a00132, range = {10,132,38,132,38,171,10,171}, center = { 23,152},
+			attri = {
+					{type=46,value = {}},
+					{type=80,value = {}},
+					{type = 33,  value = {10,56,57,58,12}},
+					{type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274}},
+					{type=6,value = {}},
+					{type=18,value = {}},
+					{type=19,value = {}},
+					{type=3,value = {}},
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{type=91,value = {}},
+					{ type = 50,  value = {4} },
+					{ type = 76,  value = {49,227,1,228} },
+				}
+		},	--炼狱门
+
+		{ name = Lang.SceneName.a00133, range = {66,9,98,9,98,51,66,51}, center = { 83,28},
+			attri = {
+					{type=46,value = {}},
+					{type=80,value = {}},
+					{type = 33,  value = {10,56,57,58,12}},
+					{type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274}},
+					{type=6,value = {}},
+					{type=18,value = {}},
+					{type=19,value = {}},
+					{type=3,value = {}},
+					{ type = 23,  value = {1,2,3,4} },
+					{ type = 30,  value = {1,2,3,4} },
+					{type=91,value = {}},
+					{ type = 50,  value = {4} },	
+					{ type = 76,  value = {49,227,1,228,2,229} },
+				}
+		},	--万鬼门]]
+
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+----#include "refresh225.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00310, posx = 86 , posy = 82,script = "data/script/YuanZhenYinXin/YuanZhenGuanLiYuan.txt",modelid = 82,icon = 1,funcId = 0},
+	},
+
+  teleport =
+  {
+     --posx和posy表示传送门出现的位置
+     --toSceneid表示要传送的目的场景id
+     --toPosx和toPosy分别要传送的目的坐标，此坐标必须是位于toSceneid场景里的
+     --script是传送点关联的脚本文件，
+     --modelid表示外观模型的id
+     --[[
+     { posx = 34, posy = 115,toSceneid = 187,toPosx = 118, toPosy = 31,modelid = 50000,name = Lang.SceneName.s00187,passid = 2,mapHide = true },  --A 岛1→岛2
+	 { posx = 118, posy = 33,toSceneid = 187,toPosx = 34, toPosy = 117,modelid = 50000,name = Lang.SceneName.s00187,passid = 3,mapHide = true },  --A 岛2→岛1]]
+
+  },
+
+},

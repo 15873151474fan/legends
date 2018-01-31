@@ -1,0 +1,21 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+function UseTaskThingInThePlaceItems(sysarg,arg)
+
+  local itemid = arg[2]
+  local taskid = arg[3]
+  local id = arg[4]
+  local count = arg[5]
+  --print("taskid:"..taskid)
+  if (Actor.hasQuest(sysarg,taskid)) then
+    Actor.setQuestValue(sysarg,taskid,id,count)
+    --print("-----")
+  else
+    return
+  end
+
+  Actor.removeItem(sysarg,itemid,1,-1,-1,-1," ",5)      --删除一个物品
+  
+end
+ --table.insert(LocalDT.ScriptDelayConfig[4],UseTaskThingInThePlaceItems)

@@ -1,0 +1,22 @@
+--lua script
+
+--#include "data\functions\Activity\ShenYinBaGua\ShenYinBaGua.txt" once
+--#include "data\functions\Systems\FlowerSystem\RoseCommon.txt" once 
+
+
+function ShenYiBaGua_Main(sysarg)
+	local str = ""
+	local idTab = ReqDefaultBossId(sysarg)
+	for i=1,7 do
+		idTab[i] = idTab[i] or 0
+	end
+
+	str = str.."\\<#BL"..Lang.Activity.sybg001.."/@@reqDefaultBossId,"..idTab[1] ..",".. idTab[2]..","..idTab[3]  ..","..idTab[4] ..",".. idTab[5]  ..","..idTab[6]  ..","..idTab[7]  ..">" --召唤BOSS
+	str = str.."\\<#BL"..Lang.ScriptTips.c000020.."/@BuyRedRose>"		--<购买红玫瑰>
+	return str..Lang.Activity.w00046 --购买药品
+end
+
+
+table.insert(MainFnTable, ShenYiBaGua_Main)
+
+

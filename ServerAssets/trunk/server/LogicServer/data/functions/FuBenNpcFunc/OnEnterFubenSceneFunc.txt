@@ -1,0 +1,83 @@
+﻿--lua script
+--用于在副本里传送到不同场景的个性化处理，目前只用于随从的传送 
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+OnEnterFubenSceneTable = {
+[8] = {	
+       OnEnterFubenSceneFunc = function(sysarg,fHandle,sceneid,pos_x,pos_y)
+				  if Actor.getMyMonsterCount(sysarg,0) > 0 then
+			      --print("131 is live")
+			      local Asceneid = Actor.getSceneId(sysarg)
+			      local Hp = 0
+			      local monster = 0
+			      if Actor.getMyMonsterCount(sysarg,131) > 0 then
+			        monster = 1
+				      local hscene = Fuben.getSceneHandleById(Asceneid,fHandle)
+				      local monPtr = Fuben.getMonsterPtrById(hscene,131)
+						  Hp = Actor.getIntProperty(monPtr,PROP_CREATURE_HP)
+						  Fuben.clearMonster(hscene,131)
+					  end
+					  local bmonster = 0
+					  local bHp = 0
+					  if Actor.getMyMonsterCount(sysarg,132) > 0 then
+					     bmonster = 1
+				      local hscene = Fuben.getSceneHandleById(Asceneid,fHandle)
+				      local monPtr = Fuben.getMonsterPtrById(hscene,132)
+			        bHp = Actor.getIntProperty(monPtr,PROP_CREATURE_HP)
+			        Fuben.clearMonster(hscene,132)
+			      end
+				    Actor.enterFuBen(sysarg,fHandle,sceneid,pos_x,pos_y)
+				    if monster == 1 then
+			        --print("131 create")
+				      local mptr = Actor.createMonster(sysarg,131,pos_x,pos_y,0)
+				      local myMonHp = Actor.getIntProperty(mptr,PROP_CREATURE_HP)
+				      Actor.changeHp(mptr,-(myMonHp-Hp))
+				      Actor.followActor(mptr,sysarg)
+				      --保存下属动态变量Handle -白GG 
+					    local svar = Actor.getDyanmicVar(sysarg)
+              svar.slave1 = Actor.getHandle(mptr)
+              local monObj = Actor.getEntity(svar.slave1)
+			      end
+			      if bmonster == 1 then
+			        --print("132 create")
+			        local bmptr = Actor.createMonster(sysarg,132,pos_x,pos_y,0)
+			 	      local myMonHp = Actor.getIntProperty(bmptr,PROP_CREATURE_HP)
+				      Actor.changeHp(mptr,-(myMonHp-bHp))
+			        Actor.followActor(bmptr,sysarg)
+			        --保存下属动态变量Handle --白MM 
+					    local svar = Actor.getDyanmicVar(sysarg)
+              svar.slave2 = Actor.getHandle(bmptr)
+              local monObj = Actor.getEntity(svar.slave2)
+			      end
+			    else
+			      Actor.enterFuBen(sysarg,fHandle,sceneid,pos_x,pos_y)
+			    end
+			    local fbPtr = Actor.getFubenPrt(sysarg)
+			    local nextsceneid = Actor.getSceneId(sysarg)
+			    local Hnextscene = Fuben.getSceneHandleById(nextsceneid,fHandle)
+			    if Fuben.getFbValue(fbPtr,2) ~= 1 then
+			       local Fhandle = Actor.getFubenHandle(sysarg)
+			       Fuben.sendMsgToFb(Fhandle,Lang.ScriptTips.f00050,ttScreenCenter)
+			       local MonFeng = Fuben.createMonster(Hnextscene,133,59,28,0)
+			       
+			       local hp = math.floor(Actor.getIntProperty(monptr,PROP_CREATURE_MAXHP)*0.1)
+						 local outAttack = math.floor(Actor.getIntProperty(monptr,PROP_CREATURE_OUT_ATTACK)*0.1)
+				     local inAttack = math.floor(Actor.getIntProperty(monptr,PROP_CREATURE_INNER_ATTACK)*0.1)
+				     local outDefence = math.floor(Actor.getIntProperty(monptr,PROP_CREATURE_OUT_DEFENCE)*0.1) 
+				     local intDefence = math.floor(Actor.getIntProperty(monptr,PROP_CREATURE_INNER_DEFENCE)*0.1)
+			       
+			       Actor.addBuff(MonFeng,17,1,hp,-1,180,Lang.ScriptTips.b00008)
+			       Actor.addBuff(MonFeng,21,1,outAttack,-1,180,Lang.ScriptTips.b00001)
+			       Actor.addBuff(MonFeng,23,1,outDefence,-1,180,Lang.ScriptTips.b00006)
+			       Actor.addBuff(MonFeng,31,1,inAttack,-1,180,Lang.ScriptTips.b00002)
+			       Actor.addBuff(MonFeng,33,1,intDefence,-1,180,Lang.ScriptTips.b00007)
+			       Fuben.setFbValue(fbPtr,2,1)
+			       local NpcPtr = Fuben.getNpcPtrByName(Hnextscene,Lang.EntityName.n00369)
+				   --[[
+			       if NpcPtr ~= nil then 
+			          Actor.regScriptCallback(NpcPtr,NpcPtr,180000,60000,1,"giveBossAddBuffInThreeMin",Hnextscene,2)
+			       end 
+				   --]]				   
+			    end
+		    end
+      },
+ }

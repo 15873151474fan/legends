@@ -1,0 +1,17 @@
+﻿--#include "data\functions\Activity\OpenServerActivity\OpenServerCommon.txt" once --排行榜初始化 
+
+
+--客户端请求开服活动
+function ClientQuestOpenServe(sysarg, packet)
+   local nds = DataPack.readByte(packet) 
+   --print("ClientQuestOpenServe:"..nds)
+   --时间过了就不需要查看面板，不返回数据 
+   local nDay = System.getDaysSinceOpenServer()
+   if nDay >= OpenServerActivityConfig.EndOpenServerDay then return end 
+   if nds == 1 then--请求界面信息 
+      ClientOpenInit(sysarg)--初始化达标数据 
+      SendClientUiData(sysarg, packet)
+   elseif nds == 2 then--请求领取奖励
+      ClientAskOpenServerAward(sysarg, packet)
+   end     
+end

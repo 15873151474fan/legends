@@ -1,0 +1,78 @@
+ --lua script
+--#include "data\envir\FuBen.txt" once
+
+
+
+--获取副本类型
+function GetMode(sysarg,FbID)
+	if FuBen[FbID].fbid == 0 then
+	  return fmCommon
+	end
+
+	if FuBen[FbID].maxPlayCount == 1 then
+		return fmSingle
+
+	elseif FuBen[FbID].maxPlayCount <= 5 then
+	  if FuBen[FbID].type == 1 then
+
+	    return fmTeamHero
+	   else
+	  return fmTeam
+	  end
+	end
+
+	if FuBen[FbID].type == 1 then
+	  return fmGroupHero
+	else
+	return fmGroup
+	end
+end
+
+--退出副本的函数
+function exitFubenFunc(sysarg)
+  --print("TeamCount:")
+  local FbID = Actor.getFubenId(sysarg)
+  local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+  local TeamCount = Actor.getOnlineTeamMemberCount(sysarg)
+  local fbPtr = Actor.getFubenPrt(sysarg)
+  --local TeamCount = table.getn(TeamMemb)
+ 
+ --print("Fbid::::"..FbID)
+  if FbID == nil then 
+     Actor.exitFuben(sysarg)
+     return
+  end
+  local fbdata = FuBen[FbID]
+  local mode = GetMode(sysarg,FbID)
+  --print("mode:"..mode)
+  if mode == fmCommon then			--如果是在普通场景，则什么都不做！
+   return
+  end
+  if mode == fmSingle then			--如果是单人副本，直接退出副本
+   Actor.exitFuben(sysarg)
+  else
+   if Actor.isInTeam(sysarg) then
+    if Fuben.getFubenProgress(fbPtr) == 2 then
+      --print("fuben is tong guan!!")
+      local teamid = Actor.getTeamId(sysarg)
+      Actor.exitFuben(sysarg)
+      print("teamid:"..teamid)
+      TeamFun.setTeamFubenId(teamid,0)
+    else
+	    if TeamCount <= fbdata.minPlayCount then
+	    	for i=1 ,TeamCount do
+	    	Actor.exitTeam(TeamMemb[i])				--如果是队伍副本，就退出队伍
+	    	Actor.exitFuben(TeamMemb[i])
+	    	end
+	    else
+	    	Actor.exitTeam(sysarg)
+	      Actor.exitFuben(sysarg)
+	    end
+    end
+   else
+      Actor.exitFuben(sysarg)
+   end
+
+    --Actor.exitTeam(sysarg)				--如果是队伍副本，就退出队伍
+  end
+end

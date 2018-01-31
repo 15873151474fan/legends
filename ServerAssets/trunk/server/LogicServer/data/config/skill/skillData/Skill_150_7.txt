@@ -1,0 +1,173 @@
+﻿--摇光天神普攻+大招
+{
+
+	actions=
+	{
+		{act=1,effect=0},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-19,--相对于中心点x左边的相对坐标
+			xEnd=19,--相对于中心点x右边的相对坐标
+			yStart=-19,--相对于中心点y上边的相对坐标
+			yEnd=19,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+					{cond = 13,value =1},--触发平砍
+					{cond = 22,value =2},--内置CD
+					{cond = 11,value =5000}, --几率
+					},
+					results=
+					{
+						--{mj=0,timeParam=1,type=47,id=1,delay=2200,rate=-5000},
+						{mj=0,timeParam=1,type=24,buffType=1,id=53},--技能说话
+						
+						--{mj=0,timeParam=1,type=47,id=1,delay=100,rate=-4000},
+						
+						--{mj=0,timeParam=1,type=47,id=2,delay=100,rate=-4000},
+						
+						{mj=0,timeParam=400,type=20,id=4,value=1,delay=0,vt=1},
+						--触发第一段伤害
+						{mj=0,timeParam=2000,type=20,id=1,value=1,delay=0,vt=1},
+						{mj=0,timeParam=10000,type=20,id=2,value=1,delay=0,vt=1},--内置CD
+						{mj=0,timeParam=4000,type=20,id=3,value=1,delay=0,vt=1},--触发第二段设置
+						--{mj=0,timeParam=3000,type=20,id=4,value=1,delay=0,vt=1},--
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=86,keepTime=400,delay=0,always=false},	
+						--{type=2,mj=0,id=86,keepTime=3000,delay=0,always=false},							
+						
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-19,--相对于中心点x左边的相对坐标
+			xEnd=19,--相对于中心点x右边的相对坐标
+			yStart=-19,--相对于中心点y上边的相对坐标
+			yEnd=19,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+					{cond = 13,value =1},
+					--{cond = 22,value =1},
+					{cond = 21,value =4},--第一段触发
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=47,id=4,delay=100,rate=-500},
+						
+						{mj=0,timeParam=1,type=47,id=3,delay=100,rate=-500},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=156,keepTime=700,delay=200,always=false},	
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-19,--相对于中心点x左边的相对坐标
+			xEnd=19,--相对于中心点x右边的相对坐标
+			yStart=-19,--相对于中心点y上边的相对坐标
+			yEnd=19,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+					{cond = 13,value =1},
+					{cond = 22,value =1},
+					{cond = 21,value =3},--第二段触发
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=47,id=4,delay=100,rate=-1000},
+						
+						{mj=0,timeParam=1,type=47,id=3,delay=100,rate=-1000},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=156,keepTime=700,delay=200,always=false},	
+					},
+				},
+			},
+		},
+		--平A
+		{
+
+			xStart=-0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+					{cond = 13,value =1},
+					{cond = 22,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=6,keepTime=100,delay=300,always=false},	
+						{type=4,mj=0,id=7,keepTime=400,delay=500,always=false},							
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=19,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

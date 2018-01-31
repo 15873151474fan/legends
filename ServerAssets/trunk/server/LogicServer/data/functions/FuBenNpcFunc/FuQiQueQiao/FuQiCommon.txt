@@ -1,0 +1,566 @@
+--夫妻副本通用处理
+--#include "data\config\activityconfig\FuQiQueQiaoConfig\FuQiQueQiaoConfig.txt" once
+
+--进入夫妻副本初始化处理
+function OnEnterInitFuQiFuBen(sysarg, fbHandle, fubenId)		
+	InitLoveDoor(sysarg)
+	InitMagPie(sysarg)
+	InitPanel(sysarg)
+end
+
+--初始化面板信息
+function InitPanel(sysarg)
+	local pFb = Actor.getFubenPrt(sysarg)
+	local maxHp = FuQiConfig.DoorMaxHp
+	if not pFb then
+		return
+	end
+	local sVal = Fuben.getDyanmicVar(pFb)
+	--初始化血量信息
+	sVal.doorHp = {}
+	sVal.doorHp[1] = maxHp
+	sVal.doorHp[2] = maxHp
+	local memList = LuaHelp.getFbActorList(pFb)
+	local lover = nil
+	for _,member in ipairs(memList) do
+		local nTime = Fuben.getFbTime(pFb)	
+		Actor.initActivityWind(member,Lang.ScriptTips.couple024,
+		nTime, Lang.FBTalk.ts0038,
+		Lang.FBTalk.t00072, maxHp,
+		Lang.FBTalk.t00073, maxHp)
+	end
+end
+
+--改变血量时修改面板状态
+function ChangePanel(sysarg)
+	local syshp = 0
+	local lovehp = 0
+ 	local pFb = Actor.getFubenPrt(sysarg)
+	if not pFb then
+		return
+	end
+	local memList = LuaHelp.getFbActorList(pFb)
+	if not memList then return end
+	local lover = nil
+	for _,member in ipairs(memList) do
+		if member ~= sysarg then
+			lover = member 
+			break
+		end
+	end
+
+	local sVal = Fuben.getDyanmicVar(pFb)
+	local monsterTab = sVal.monsterTab
+	local monIdTab = sVal.monIdTab
+	for i = 1,#monsterTab do
+		local monHandle = monsterTab[i]
+		local pMonster = Actor.getEntity(monHandle)
+		if pMonster then
+			if Actor.getDyanmicValue(sysarg) ==	Actor.getDyanmicValue(pMonster) then
+				syshp = Actor.getIntProperty(pMonster, PROP_CREATURE_HP)	
+			else
+				lovehp= Actor.getIntProperty(pMonster, PROP_CREATURE_HP)
+			end
+		end
+	end
+	Actor.changeActivityProgress(sysarg, syshp,lovehp)	
+	Actor.changeActivityProgress(lover, lovehp, syshp)
+end
+
+
+--定时刷新面板回调函数
+function RefershPanel(sysarg)
+	--print("RefershPanel")
+	local pFb = Actor.getFubenPrt(sysarg)
+	local currentHp = 0
+	if not pFb then
+		return
+	end
+	local sVal = Fuben.getDyanmicVar(pFb)
+
+	local nSeneId = Actor.getSceneId(sysarg)
+	if 202 ~= nSeneId then
+		return
+	end
+
+	local memList = LuaHelp.getFbActorList(pFb)
+	local lover = nil
+	for _,member in ipairs(memList) do
+		local nTime = Fuben.getFbTime(pFb)	
+		Actor.initActivityWind(member,Lang.ScriptTips.couple024,
+		nTime, Lang.FBTalk.ts0038, 
+		Lang.FBTalk.t00072, currentHp,
+		Lang.FBTalk.t00073, currentHp)
+	end
+end
+
+--初始化真爱之门
+function InitLoveDoor(sysarg)
+	local hScene = Actor.getSceneHandle(sysarg)
+	local LoveDoorCfg = FuQiConfig.LoveDoor
+	if not LoveDoorCfg then
+		return 
+	end
+	local DoorPosCfg = FuQiConfig.LoveDoorPos
+	if not DoorPosCfg then
+		return
+	end
+	local monsterTab = {}
+	local pFb = Actor.getFubenPrt(sysarg)
+	local sVal = Fuben.getDyanmicVar(pFb)
+	sVal.monsterTab = {}
+	sVal.monIdTab = {}
+	local temCount = 1
+	local i = 0
+	local j = 0
+	for i = 1,table.getn(DoorPosCfg) do
+		local idx = System.getRandomNumber(table.getn(LoveDoorCfg)) + 1
+		local nMonsterID = LoveDoorCfg[idx].nMonsterID
+		local nLiveTime = LoveDoorCfg[idx].nLiveTime 
+		for j = 1,table.getn(DoorPosCfg[i]) do
+			local posX = DoorPosCfg[i][j].posX
+			local posY = DoorPosCfg[i][j].posY			
+			local nMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime )
+			if nMonster then
+				Actor.setDyanmicValue(nMonster,i)
+				local monsterHandle = Actor.getHandle(nMonster)
+				sVal.monsterTab[temCount] = monsterHandle
+				sVal.monIdTab[temCount] = nMonsterID
+			end
+			temCount = temCount + 1
+		end
+	end	
+end
+
+
+--初始化喜鹊
+function  InitMagPie(sysarg)
+	local hScene = Actor.getSceneHandle(sysarg)
+	local MagCfg = FuQiConfig.MagPie
+	local MagPosCfg = FuQiConfig.MagPiePos
+	if not MagCfg or not MagPosCfg then
+		return 
+	end
+	local i = 0
+	local j = 0
+	local k = 0
+	for i = 1,2 do
+		local nIdx = 1
+		for j = 1,table.getn(MagCfg) do
+			for k = 1,2 do
+				local posX =  MagPosCfg[i][nIdx].posX
+				local posY =  MagPosCfg[i][nIdx].posY
+				local nMonsterID = MagCfg[j].nMonsterID
+				local nLiveTime = MagCfg[j].nLiveTime
+				local nMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime )
+				if nMonster then
+					Actor.setDyanmicValue(nMonster,i)					
+				end
+				nIdx = nIdx + 1
+			end
+		end
+	end
+end
+
+--喜鹊死亡的处理函数
+function MagPieDie(monster,sysarg,monId)
+	local hScene = Actor.getSceneHandle(sysarg)
+	local directId = Actor.getDyanmicValue(monster)
+	local MagCfg = FuQiConfig.MagPie
+	local MagPosCfg = FuQiConfig.MagPiePos
+	local isDoorExist = false
+	if not MagCfg or not MagPosCfg then
+		return 
+	end
+	local LoveDoorCfg = FuQiConfig.LoveDoor
+	if not LoveDoorCfg then
+		return
+	end
+
+	local MagInfo
+	local monsterIdx
+	for i = 1,table.getn(MagCfg) do
+		if MagCfg[i].nMonsterID == monId then
+			MagInfo = MagCfg[i]
+			monsterIdx = i
+			break
+		end
+	end
+	local nMonsterID = monId
+	local posX =  0
+	local posY =  0
+	posX,posY = Actor.getEntityPosition(monster,0,0)
+	local nLiveTime = MagInfo.nLiveTime
+	local nMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime )
+	if not nMonster then
+		return				
+	end
+	Actor.setDyanmicValue(nMonster,directId)
+
+	for i = 1,table.getn(LoveDoorCfg) do
+		if Fuben.getLiveMonsterCount(hScene, LoveDoorCfg[i].nMonsterID) > 0 then
+			isDoorExist = true	 
+		end
+	end
+	if isDoorExist == false then
+		return 
+	end
+	--处理真爱之门血量变化
+	changeHpToDoor(sysarg, directId, monsterIdx)
+end
+
+
+--处理真爱之门增减血量
+function changeHpToDoor(sysarg, directId, monsterIdx)
+	local hScene = Actor.getSceneHandle(sysarg)
+	local LoveDoorCfg = FuQiConfig.LoveDoor
+	if not LoveDoorCfg then
+		return
+	end
+	local pFb = Actor.getFubenPrt(sysarg)
+	if not pFb then
+		return
+	end
+	local isHurtTrue = false
+	local isDoorDie =  false
+	local sVal = Fuben.getDyanmicVar(pFb)
+	local monsterTab = sVal.monsterTab
+	local monIdTab = sVal.monIdTab
+	local flagMonsterId = LoveDoorCfg[monsterIdx].nMonsterID
+	local newMonId = System.getRandomNumber(table.getn(LoveDoorCfg)) + 1 --刷新的门的颜色index
+	local i = 0
+	for i = 1,#monsterTab do
+		local monHandle = monsterTab[i]
+		local pMonster = Actor.getEntity(monHandle)
+		local temDirectId = Actor.getDyanmicValue(pMonster)
+		
+		if pMonster and temDirectId ~= directId  then
+			local posX = 0
+			local posY = 0 
+			posX,posY = Actor.getEntityPosition(pMonster,0,0)
+			local nMonsterID = LoveDoorCfg[newMonId].nMonsterID
+			local nLiveTime = LoveDoorCfg[newMonId].nLiveTime
+			local maxHp = Actor.getIntProperty(pMonster, PROP_CREATURE_MAXHP)
+			local oldHp = Actor.getIntProperty(pMonster, PROP_CREATURE_HP)
+			local changeHp = FuQiConfig.ChangeHp
+			if flagMonsterId == monIdTab[i] then   --打的是相同颜色的喜鹊,真爱之门掉血
+				isHurtTrue = true				
+				Actor.changeHp(	pMonster, -changeHp)				
+			else  --击杀的是不同颜色的喜鹊,真爱之门加血
+				
+				Actor.changeHp(	pMonster, changeHp)
+			end
+			oldHp = Actor.getIntProperty(pMonster, PROP_CREATURE_HP)
+			if oldHp <= 0 then --血量已经减到底
+				--LoveDoorDie(pMonster, sysarg, monIdTab[i])
+				isDoorDie = true
+				Fuben.clearMonster(monHandle)
+			else  --未减到底的时需要变换颜色
+				Fuben.clearMonster(monHandle)
+				local pnewMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime )
+				Actor.changeHp(	pnewMonster, oldHp - maxHp)
+				if pnewMonster then
+					Actor.setDyanmicValue(pnewMonster,temDirectId) 
+					sVal.monsterTab[i] = Actor.getHandle(pnewMonster)
+					sVal.monIdTab[i] = nMonsterID
+				end
+
+			end
+			sVal.doorHp[temDirectId] = oldHp
+			--ChangePanel(sysarg,sVal.doorHp[directId],sVal.doorHp[temDirectId])
+			ChangePanel(sysarg)
+		end
+	end
+	if isHurtTrue == true then
+		--Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple025), ttScreenCenter)
+		local sysargstr = string.format(Lang.ScriptTips.couple025)
+		local lovestr =  string.format(Lang.ScriptTips.couple026)
+		showTipMsg(sysarg,sysargstr,lovestr)
+	else
+		local sysargstr = string.format(Lang.ScriptTips.couple027)
+		local lovestr =  string.format(Lang.ScriptTips.couple028)
+		showTipMsg(sysarg,sysargstr,lovestr)	
+	end
+
+	if isDoorDie == true then
+		Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple029), ttScreenCenter)
+	end
+	SelectLoveDoorDie(sysarg)
+end
+
+function showTipMsg(sysarg,sysargstr,lovestr)
+ 	local pFb = Actor.getFubenPrt(sysarg)
+	if not pFb then
+		return
+	end
+	local memList = LuaHelp.getFbActorList(pFb)
+	if not memList then return end
+	local lover = nil
+	for _,member in ipairs(memList) do
+		if member ~= sysarg then
+			lover = member 
+			break
+		end
+	end	
+	Actor.sendTipmsg(sysarg, sysargstr, ttFlyTip)
+	if not lover ~= nil  then
+		Actor.sendTipmsg(lover, lovestr, ttFlyTip)		
+	end
+	
+end
+
+--真爱之心对真爱之门伤害处理
+function LoveHeartToDoor(sysarg)
+	local hScene = Actor.getSceneHandle(sysarg)
+	local LoveDoorCfg = FuQiConfig.LoveDoor
+	if not LoveDoorCfg then
+		return false
+	end	
+	local pFb = Actor.getFubenPrt(sysarg)
+	if not pFb then
+		return false
+	end
+	local nFlag = 0
+	local sVal = Fuben.getDyanmicVar(pFb)
+	local monsterTab = sVal.monsterTab
+	local monIdTab = sVal.monIdTab
+	if (not monsterTab) or (not monIdTab ) then return false end
+	local newMonId = System.getRandomNumber(table.getn(LoveDoorCfg)) + 1 --刷新的门的颜色index
+	local i = 0
+	local sysposX = 0
+	local sysposY = 0
+	local isDoorDie = false
+	sysposX,sysposY = Actor.getEntityPosition(sysarg,0,0)
+	local sysDirectId = GetSysDirected(sysarg)
+	if sysDirectId == 0 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.couple033), ttFlyTip)
+		return false		
+	end
+	for i = 1,#monsterTab do
+		local monHandle = monsterTab[i]
+		local pMonster = Actor.getEntity(monHandle)
+		local temDirectId = Actor.getDyanmicValue(pMonster)		
+		if pMonster	then
+			local posX = 0
+			local posY = 0
+			posX,posY = Actor.getEntityPosition(pMonster,0,0)
+			if sysDirectId == temDirectId then
+				nFlag = 1
+				local nMonsterID = LoveDoorCfg[newMonId].nMonsterID
+				local nLiveTime = LoveDoorCfg[newMonId].nLiveTime
+				local maxHp = Actor.getIntProperty(pMonster, PROP_CREATURE_MAXHP)
+				local oldHp = Actor.getIntProperty(pMonster, PROP_CREATURE_HP)
+				local changeHp = FuQiConfig.ChangeHp
+				Actor.changeHp(	pMonster, -changeHp)  --减血				
+				oldHp = Actor.getIntProperty(pMonster, PROP_CREATURE_HP)
+				if oldHp <= 0 then --血量已经减到底
+					isDoorDie = true
+					Fuben.clearMonster(monHandle)
+					--LoveDoorDie(pMonster, sysarg, monIdTab[i])				
+				else  --未减到底的时需要变换颜色
+					Fuben.clearMonster(monHandle)
+					local pnewMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime )
+					Actor.changeHp(	pnewMonster, oldHp - maxHp)
+					if pnewMonster then
+						Actor.setDyanmicValue(pnewMonster,temDirectId) 
+						sVal.monsterTab[i] = Actor.getHandle(pnewMonster)
+						sVal.monIdTab[i] = nMonsterID
+					end
+				end
+				sVal.doorHp[temDirectId] = oldHp
+				ChangePanel(sysarg)
+			end
+		end
+	end
+
+	if nFlag == 1 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.couple031), ttFlyTip)
+		if 	isDoorDie ==  true then
+			Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple029), ttScreenCenter)	
+		end
+		SelectLoveDoorDie(sysarg)
+		return true
+	else
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.couple033), ttFlyTip)
+		return false
+	end
+end
+--获取玩家所在位置方向ID
+function GetSysDirected(sysarg)
+	local DoorPosCfg = FuQiConfig.LoveDoorPos
+	if not DoorPosCfg then 
+		return 0
+	end
+	local posX = 0
+	local posY = 0
+	posX ,posY = Actor.getEntityPosition(sysarg,0,0)
+	if math.abs(posX -DoorPosCfg[1][1].posX) < 15 and math.abs(posY -DoorPosCfg[1][1].posY) < 15   then
+		return 1
+	end
+	if math.abs(posX -DoorPosCfg[2][1].posX) < 15 and math.abs(posY -DoorPosCfg[2][1].posY) < 15   then
+		return 2
+	end
+	return 0
+end
+
+--真爱之门倒闭
+function SelectLoveDoorDie(sysarg)
+	local LoveDoorCfg = FuQiConfig.LoveDoor
+	if not LoveDoorCfg then
+		return
+	end
+	local hScene = Actor.getSceneHandle(sysarg)
+	for i = 1,table.getn(LoveDoorCfg) do
+		if Fuben.getLiveMonsterCount(hScene, LoveDoorCfg[i].nMonsterID) > 0 then
+			return 
+		end
+	end
+	Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple030), ttScreenCenter)
+	Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple037), ttScreenCenter)
+	--Actor.regScriptCallback(sysarg,nil,3*1000,5*1000,-1,"RefershPanel")
+	--刷出天兵
+	CreateSkySolider(sysarg)	
+end
+
+--刷出一波天兵
+function CreateSkySolider(sysarg)
+	local SoliderCfg = FuQiConfig.SkySolider
+	local Poscfg = FuQiConfig.SkyMonsterRange
+	local soliderCount = SoliderCfg.monsterCount
+	local hScene = Actor.getSceneHandle(sysarg)
+	local pFb = Actor.getFubenPrt(sysarg)
+	if not pFb then
+		return
+	end
+	local sVal = Fuben.getDyanmicVar(pFb)
+	if not sVal.skysoliderWaveCount then
+		sVal.skysoliderWaveCount = 0
+	end
+
+	if not sVal.skyGenerCount then
+		sVal.skyGenerCount = 0
+	end	
+	for i = 1, soliderCount do
+		local nMonsterID = SoliderCfg.nMonsterID
+		local posX = 0
+		local posY = 0
+		posX = Poscfg.startX + System.getRandomNumber( math.abs(Poscfg.endX - Poscfg.startX))
+		posY = Poscfg.startY + System.getRandomNumber( math.abs(Poscfg.endY - Poscfg.startY))
+		local nLiveTime = SoliderCfg.nLiveTime
+		local nMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)
+	end
+	sVal.skysoliderWaveCount = sVal.skysoliderWaveCount + 1
+	Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple021,sVal.skysoliderWaveCount), ttScreenCenter)
+end
+
+--刷出一位天将
+function CreateSkyGenerar(sysarg)
+	local hScene = Actor.getSceneHandle(sysarg)
+	local pFb = Actor.getFubenPrt(sysarg)
+	if not pFb then
+		return
+	end
+	local sVal = Fuben.getDyanmicVar(pFb)
+	if not sVal.skyGenerCount then
+		return 
+	end
+	local GenerCfg = FuQiConfig.SkyGeneral
+	local Poscfg = FuQiConfig.SkyMonsterRange
+	local nMonsterID = GenerCfg.nMonsterID
+	local posX = 0
+	local posY = 0
+	posX = Poscfg.startX + System.getRandomNumber( math.abs(Poscfg.endX - Poscfg.startX))
+	posY = Poscfg.startY + System.getRandomNumber( math.abs(Poscfg.endY - Poscfg.startY))
+	local nLiveTime = GenerCfg.nLiveTime
+	local nMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)
+	if nMonster then 
+		sVal.skyGenerCount = sVal.skyGenerCount + 1
+		Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple022,posX, posY,sVal.skyGenerCount), ttScreenCenter)
+	end
+end
+
+--刷出王母的玉钗
+function CreateWmJade(sysarg)
+	local hScene = Actor.getSceneHandle(sysarg)
+	local JadeCfg = FuQiConfig.WmJadePin
+	local nMonsterID = JadeCfg.nMonsterID
+	local posX = 0
+	local posY = 0
+	posX = JadeCfg.posX
+	posY = JadeCfg.posY
+	local nLiveTime = JadeCfg.nLiveTime
+	local nMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)
+	if nMonster then
+		Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple023,posX, posY), ttScreenCenter)
+	end
+end
+
+--天兵死亡处理
+function SkySoliderDie(monster,sysarg,monId)
+	local SoliderCfg = FuQiConfig.SkySolider
+	local GenerCfg = FuQiConfig.SkyGeneral
+	local hScene = Actor.getSceneHandle(sysarg)
+	if Fuben.getLiveMonsterCount(hScene, SoliderCfg.nMonsterID) > 0 then
+		return 
+	end	
+	local pFb = Actor.getFubenPrt(sysarg)
+	if not pFb then
+		return
+	end
+	local sVal = Fuben.getDyanmicVar(pFb) --天兵还未刷满5波，就继续刷天兵
+	if sVal.skysoliderWaveCount < SoliderCfg.WavePerCircle then
+		CreateSkySolider(sysarg)
+	elseif sVal.skysoliderWaveCount == SoliderCfg.WavePerCircle then	 --已经刷满五波天兵
+		sVal.skysoliderWaveCount = 0
+		if sVal.skyGenerCount <	GenerCfg.MaxCount then  --还未刷满两个天将
+			CreateSkyGenerar(sysarg) --刷天将
+			return 
+		elseif sVal.skyGenerCount >= GenerCfg.MaxCount then  --已经刷过两个天将
+			CreateWmJade(sysarg)
+		end
+	end
+end
+
+--天将死亡处理
+function SkyGenearDie(monster,sysarg,monId)
+	CreateSkySolider(sysarg)  --召唤王母玉钗
+end
+
+--王母玉钗被击杀
+function JadePinDie( sysarg)
+	local GoldCfg = FuQiConfig.WmGoldPin
+	if not GoldCfg then
+	   return
+	end
+	local nRandNum =System.getRandomNumber(100) + 1
+	if nRandNum > GoldCfg.nRate or nRandNum < 0  then
+		local temStr = Lang.ScriptTips.couple035
+		showTipMsg(sysarg,temStr,temStr)
+		return 
+	end
+	--召唤王母的金钗
+	local posX = GoldCfg.posX
+	local posY = GoldCfg.posY
+	local hScene = Actor.getSceneHandle(sysarg)
+	local monterPtr = Fuben.createMonster(hScene, GoldCfg.nMonsterID,
+	posX, posY, GoldCfg.nLiveTime)
+	if monterPtr then
+		Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple017,posX, posY), ttScreenCenter)
+	end
+end
+
+
+function GoldPinDie(sysarg)	
+	--Fuben.sendMsgToScene( hScene, string.format(Lang.ScriptTips.couple036,posX, posY), ttScreenCenter)
+	local temStr = Lang.ScriptTips.couple036
+	showTipMsg(sysarg,temStr,temStr)
+end
+
+
+
+
+
+
+
+
+

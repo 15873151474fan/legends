@@ -1,0 +1,229 @@
+﻿--lua script
+
+--#include "OperateFunctioins.txt" once --通用函数
+
+
+--[[
+    函数名称：learnSkill
+    函数描述：学习技能
+    参数 sysarg 的描述：
+    参数 args 的描述：
+    参数 slot 的描述：槽位偏移
+]]
+function learnSkill(sysarg, args, slot)
+	local petId = args[2] --宠物的ID
+	local petCircle = (Hero.getHeroProperty(sysarg, petId, 3)) --获取宠物的转数
+	local learnId = Hero.getLearnSkillId(sysarg, petId, slot) --判断槽位是否已有技能
+	if learnId > 0 then
+    if Hero.forgetSkill(sysarg, petId, learnId) == false then return end
+  end
+  -- print("slot="..slot.."petCircle="..petCircle)
+	local skills = HeroCircleLearnSkills
+  if nil == skills then return end
+	local petPoint = Hero.getHeroProperty(sysarg, petId, 16) --获取宠物的评分
+	if tonumber(petCircle) > table.getn(skills) then 
+    print("tonumber(petCircle) > table.getn(skills)")
+    return 
+  end
+	local skillIndex = 0
+	local attType = Hero.getHeroProperty(sysarg, petId, 17)	--获取宠物攻击类型
+	for i = 1, table.getn(skills[petCircle+1]) do
+		local skill = skills[petCircle+1][i]
+		local pointMin = skill.petPointMin
+		local pointMax = skill.petPointMax
+		local attackType = skill.attackType
+		if ((pointMin == 0 and pointMax == 0)
+		or (pointMin == 0 and pointMax ~= 0 and petPoint <= pointMax)
+		or (pointMin ~= 0 and pointMax == 0 and petPoint >= pointMin)
+		or (pointMin ~= 0 and pointMax ~= 0 and petPoint >= pointMin and petPoint <= pointMax))
+		then
+			if (attackType == 0) or (attackType ~= 0 and attackType == attType ) then
+				skillIndex = i
+				break
+			end
+		end
+	end
+	if 0 >= skillIndex then 
+    print("learn skill skillIndex <=0 ")
+    return 
+  end
+	--需要roll一个技能
+  local dropName = DROPNAME..tostring(petCircle).."_"..tostring(skillIndex) --按名字索引的
+  local drop = System.getObjectVar(dropName)
+  if (not drop) then
+    System.trace("getObjectVar is nil"..dropName)
+		return
+  end
+
+  --遍历掉落列表，并添加玩家的技能
+  local skill = drop:proabilityDrop() --概率和
+	--local skill = drop:drop()        --按怪物的掉落爆出物品
+  if ( skill.itemCount > 0) then
+	  for i=0, skill.itemCount -1 do
+      local canlearn = canLearnSkill(sysarg, skill.itemList[i].wItemId,slot +i)
+      if canlearn == true then
+        Hero.learnSkill(sysarg, petId, skill.itemList[i].wItemId, slot +i)
+      else
+        print("can not learn"..skill.itemList[i].wItemId)
+      end
+	  end
+  end
+end
+
+--判断槽位是否能学习技能
+function canLearnSkill(sysarg, skillId, slot)
+  if not HeroSlotMatchSkills then return false end
+	local match = HeroSlotMatchSkills[slot]
+	local canLearn = false
+	for i = 1, table.getn(match) do
+    local matchSkill = match[i]
+    if matchSkill == skillId then
+       return true
+    end
+  end
+  return canLearn
+end
+
+
+
+
+
+
+
+--[[
+    函数名称：OnHeroLearnSkill
+    函数描述：宠物技能升级 
+    参数 sysarg 的描述：
+    参数 args 的描述：
+]]
+
+function OnHeroLearnSkill( sysarg, args )
+	local petId = args[2]      --宠物的ID
+	local skillId =  args[3] --消耗道具的ID
+  if(petId == nil or skillId ==nil) then 
+    print("petId == nil or skillId ==nil")
+    return 
+  end --输入不合法
+  local skillLevel = Hero.getSkillLevel(sysarg,petId,skillId) --获取宠物的技能的等级
+  if  skillLevel <=0 then return end --这个技能还没学习 不能升级 
+  
+  
+  --获取技能的最大的等级                       
+  local nMaxSkillLevel = table.getn(HeroSkillLevelupConsume)
+  
+  local config =getHeroSkillLevelUpConsume(sysarg,args,true)
+  if(config ==nil) then return end
+  
+  
+  local consume =  config.consume  --宠物升级的消耗 
+  local prop = config.prob  --概率 
+  
+
+  local canCons, tips= checkConsumes(sysarg,consume)
+  if( canCons == false or canCons == nil) then
+    if(tips ~=nil) then
+      Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.x00177,tips),ttFlyTip )
+    end
+    return false
+  end
+  canCons, tips= getConsumes(sysarg,consume,20) 
+  if   canCons == false then 
+    print("canCons == false")
+    return  
+  end
+  
+  local rand = System.getRandomNumber( 10000 )
+  --print("rand="..rand)
+  --print("prop="..prop)
+  if rand < prop then
+    --print("succ")
+    Hero.skillLevelUp(sysarg,petId,skillId) --调用宠物的升级的接口
+   	Hero.sendHeroOpResult(sysarg, petId, 5, true) --发送结果
+ 	else
+ 	  --print("fail")
+ 	  Hero.sendHeroOpResult(sysarg, petId, 5, false) --发送结果
+  end  
+end
+
+--获取宠物技能升级的消耗 
+function getHeroSkillLevelUpConsume( sysarg, args,useDialog )
+  
+ 	local petId = args[2]      --宠物的ID
+	local skillId =  args[3] --消耗道具的ID
+	
+  --print ("petId"..petId)
+	--print ("skillId"..skillId)	
+	
+  if(petId == nil or skillId ==nil) then return end --输入不合法
+  
+  local skillLevel = Hero.getSkillLevel(sysarg,petId,skillId) --获取宠物的技能的等级
+  if  skillLevel <=0 then 
+    print("skillLevel <=0")
+    return nil 
+  end --这个技能还没学习 不能升级
+  
+  
+ --获取技能的最大的等级
+  local config =nil
+  if (not HeroSkillLevelupConsume ) then 
+    print("HeroSkillLevelupConsume is nil")
+    return   nil
+  end
+  
+  for i=1, table.getn(HeroSkillLevelupConsume) do
+    if HeroSkillLevelupConsume[i].id ==  skillId then
+      config = HeroSkillLevelupConsume[i]
+      break
+    end
+  end
+  
+  if(config ==nil) then return nil end
+  
+   
+  local circle =  Hero.getHeroProperty(sysarg,petId,Hero.enHeroCircle)    --宠物的转数
+  
+  --记录该宠物技能的最大等级 
+  local maxLevel = table.getn(config.levels)
+  if(maxLevel ==nil) then return nil end
+  maxLevel = maxLevel +1 --最大的等级+1 
+   
+  local levelUpMaxLevel =   maxLevel - 5     --能够升的等级 
+  local currentUpLevel =   skillLevel - circle --当前已经使用道具升上来的等级，宠物转生的时候将送1级技能
+    
+  if  skillLevel >= maxLevel  then
+     if(useDialog ==true) then
+         Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00176,ttFlyTip )
+     else
+         --Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00176,ttTipmsgWindow )
+     end
+    return nil
+  end
+  if  currentUpLevel >= levelUpMaxLevel  then
+      if(useDialog ==true) then
+         Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00178,ttFlyTip )
+     else
+         --Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00178,ttTipmsgWindow )
+     end
+    return nil
+  end
+  
+  
+  if(config ==nil ) then
+    print("OnHeroLearnSkill ,no pet skill id="..skillId)
+    return   nil
+  end
+  --sendClientHeroOperateMsg(sysarg, args, consumes)
+  return config.levels[currentUpLevel]  --宠物升级的消耗
+  
+end
+
+
+
+--向客户端发送宠物技能升级的消耗 
+function sendHeroSkillLevelConsume(sysarg, args )
+    local config = getHeroSkillLevelUpConsume(sysarg, args,false)
+    if(config ==nil) then return end
+    sendClientHeroOperateMsg(sysarg,args,config.consume,config.showprop) 
+end
+
+

@@ -1,0 +1,56 @@
+
+--lua script
+
+
+--#include "data\functions\Activity\NanJiangGuDi\XunShouLeiTai.txt" once
+--#include "data\config\activityconfig\NanJiangGuDi\XunShouLeiTaiConfig.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once  --购买药品
+
+function XunShouLeiTai_Main(sysarg)
+	local str = "\\<#BL"..Lang.Activity.njgd026.."/@XunShouLeiTaiBuy>" --购买道具
+	str = str.."\\<#BL"..Lang.Activity.njgd018.."/@XunShouLeiTaiRule>" --玩法规则
+	str = str..Lang.Activity.w00046 --购买药品
+	str = str.."\\<#BL"..Lang.Activity.njgd006.."/@XunShouLeave>" --离开对话框	
+	return str
+end
+
+--购买物品
+function XunShouLeiTaiBuy(sysarg)
+	local str =  Lang.Activity.njgd033
+	str = str.."\\<#BL"..Lang.Activity.njgd029.."/@XunShouBuy,".. 1 ..">"
+	str = str.."\\<#BL"..Lang.Activity.njgd030.."/@XunShouBuy,".. 2 ..">"
+	str = str.."\\<#BL"..Lang.Activity.njgd031.."/@XunShouBuy,".. 3 ..">"
+	str = str.."\\<#BL"..Lang.Activity.njgd032.."/@XunShouBuy,".. 4 ..">"
+	str = str.."\\<#BL"..Lang.Activity.njgd008.."/@main>" --返回
+	return str
+end
+--执行购买
+function XunShouBuy(sysarg, index)
+	XunShouLeiTaiShop(sysarg, index)	
+end
+
+--游戏规则
+function XunShouLeiTaiRule()
+	local str = Lang.Activity.njgd021
+	str = str.."\\<#BL"..Lang.Activity.njgd008.."/@main>" --返回
+	return str
+end
+
+--离开对话框
+function XunShouLeave( sysarg )
+	local npcHandle = Actor.getNpc(sysarg)
+	Actor.messageBox(sysarg, npcHandle,0,Lang.Activity.njgd039,Lang.Activity.njgd040.."/XunShouLeiTaiQuit",Lang.Activity.njgd041.."/XunShouCancel",NULL)
+
+end
+
+function XunShouCancel( sysarg )
+end
+
+--离开
+function XunShouLeiTaiQuit(sysarg)
+	Actor.enterScene(sysarg, XunShouLeiTaiConfig.outSceneId, XunShouLeiTaiConfig.outX, XunShouLeiTaiConfig.outY)
+	XunShouQuit(sysarg)
+end
+
+
+table.insert(MainFnTable, XunShouLeiTai_Main)

@@ -1,0 +1,215 @@
+
+--#include "data\config\activityconfig\CampBattle\CampBattleConfig.txt" once
+
+local FlushMonsterState = 0   --0表示无boss，1表示有boss，2表示boss正在1分钟后刷出
+STATE_IDLE = 0
+STATE_FLUSH = 1
+STATE_RESUME = 2
+
+--广播开始前5分钟的公告
+function ReadNotice()
+	System.broadcastTipmsg(Lang.Activity.a00027,ttScreenCenter+ttChatWindow)
+end
+
+function SetFlushBossFlag( result )
+	local sVar = System.getDyanmicVar()
+	sVar.FlushBossFlag = result
+end
+
+function GetFlushBossFlag()
+	local sVar = System.getDyanmicVar()
+	return sVar.FlushBossFlag or -1
+end
+
+--开启战场
+function StartCampBattle()
+	local sVar = System.getDyanmicVar()
+	sVar.CampBattleStartFlag = true
+	sVar.CampBattleANum = 0 
+	sVar.CampBattleBNum = 0
+	GetCampPoint()
+	Actor.regScriptCallback(thisNPC, thisNPC, CampBattleConfig.BossStartTime, CampBattleConfig.BossTimeInterval, 3, "flushBoss")
+	System.broadcastTipmsg(Lang.Activity.a00028,ttScreenCenter+ttChatWindow)
+	local handleScene = Fuben.getSceneHandleByName( CampBattleConfig.SceneName, 0)
+	Fuben.setSceneTime(handleScene, CampBattleConfig.ActiveTime)
+end
+
+function DelayFlushBoss()
+	local sVar = System.getDyanmicVar()
+	if sVar.CampBattleStartFlag then
+		SetFlushBossFlag(STATE_RESUME)
+		local nHandle = Fuben.getSceneHandleByName(CampBattleConfig.SceneName,0)
+		local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00055)
+		Actor.regScriptCallback(NpcPtr, NpcPtr, 60000, 0, 1, "DelayRebornBoss")
+	end
+end
+
+function DelayRebornBoss()
+	local sVar = System.getDyanmicVar()
+	if sVar.CampBattleStartFlag then
+		local handleScene = Fuben.getSceneHandleByName( CampBattleConfig.SceneName, 0)
+		local monsterPtr = Fuben.createMonster(handleScene, CampBattleConfig.BossId, CampBattleConfig.BossPos[1], CampBattleConfig.BossPos[2], 3*CampBattleConfig.BossTimeInterval/1000)
+		if monsterPtr then
+			SetFlushBossFlag(STATE_FLUSH)
+			local noticeStr = string.format(Lang.Activity.a00026, Actor.getName(monsterPtr))
+			Fuben.sendMsgToScene( handleScene, noticeStr, ttScreenCenter+ttChatWindow)
+		end
+	end
+end
+
+--定时刷boss
+function flushBoss()
+	local handleScene = Fuben.getSceneHandleByName( CampBattleConfig.SceneName, 0)
+	if Fuben.getLiveMonsterCount(handleScene, CampBattleConfig.BossId) > 0 then
+		SetFlushBossFlag(0)
+	else
+		local flushState = GetFlushBossFlag()
+		if flushState ~= STATE_RESUME then
+			local monsterPtr = Fuben.createMonster(handleScene, CampBattleConfig.BossId, CampBattleConfig.BossPos[1], CampBattleConfig.BossPos[2], 3*CampBattleConfig.BossTimeInterval/1000)
+			if monsterPtr then
+				SetFlushBossFlag(STATE_FLUSH)
+				local noticeStr = string.format(Lang.Activity.a00026, Actor.getName(monsterPtr))
+				Fuben.sendMsgToScene( handleScene, noticeStr, ttScreenCenter+ttChatWindow)
+			end
+		end
+	end
+end
+
+--结束战场活动
+function EndCampBattle()
+	Actor.unregScriptCallback(thisNPC, "flushBoss")
+	local campWinId = SetWinCamp()
+	local sVar = System.getDyanmicVar()
+	sVar.CampBattleStartFlag = nil
+	sVar.CampBattleANum = nil 
+	sVar.CampBattleBNum = nil
+	local nSceneId = System.getSceneIdByName(CampBattleConfig.SceneName)
+	local playerList = LuaHelp.getSceneActorListById(nSceneId)
+	local x = math.random(CampBattleConfig.ExitSendPos[1], CampBattleConfig.ExitSendPos[2])
+	local y = math.random(CampBattleConfig.ExitSendPos[3], CampBattleConfig.ExitSendPos[4])
+	for k, ply in ipairs(playerList or {}) do
+		local zyId = Actor.getIntProperty( ply, PROP_ACTOR_ZY )
+		if campWinId > 0 and campWinId == zyId then
+			-- local dVar = Actor.getStaticVar(ply)
+			-- dVar.CampWinFlag = 1
+		end
+		Actor.setUIntProperty( ply, PROP_ACTOR_ZY, 0 )
+		System.telportSceneByName(ply, CampBattleConfig.ExitSendScene, x, y)
+		Actor.closeActivityWind( ply )
+	end
+	System.broadcastTipmsg(Lang.Activity.a00029,ttScreenCenter+ttChatWindow)
+	sVar.CampBattlePoints = nil
+end
+
+function GetActorPoint( sysarg )
+	-- local dVar = Actor.getStaticVar(sysarg)
+	-- local point = dVar.CampBattlePoint or 0
+	-- return point, dVar.CampWinFlag
+end
+
+function SetActorPoint( sysarg, lvPoint)
+	-- local dVar = Actor.getStaticVar(sysarg)
+	-- local curPoint = GetActorPoint(sysarg)
+	-- dVar.CampBattlePoint = curPoint + lvPoint
+	-- Actor.changeActivityProgress(sysarg, GetCampPoint(CampBattleConfig.ACampId), GetCampPoint(CampBattleConfig.BCampId), dVar.CampBattlePoint)
+	-- Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.zf054, lvPoint), ttTipmsgWindow)
+end
+
+function ClearActorPoint( sysarg )
+	-- local dVar = Actor.getStaticVar(sysarg)
+	-- dVar.CampBattlePoint = nil
+	-- dVar.CampWinFlag = nil
+end
+
+function GetCampPoint( campId )
+	local sysVar = System.getDyanmicVar()
+	if not sysVar.CampBattlePoints then
+		sysVar.CampBattlePoints = {}
+	end
+	return sysVar.CampBattlePoints[campId] or 0
+end
+
+function SetCampPoint( campId, lvPoint )
+	local sysVar = System.getDyanmicVar()
+	sysVar.CampBattlePoints[campId] = GetCampPoint(campId) + lvPoint
+	local nSceneId = System.getSceneIdByName(CampBattleConfig.SceneName)
+	Fuben.broadSceneActProgress(nSceneId, 0, GetCampPoint(CampBattleConfig.ACampId), GetCampPoint(CampBattleConfig.BCampId), -2)
+end
+
+function SetWinCamp( )
+	local sysVar = System.getDyanmicVar()
+	local ACampPoint = GetCampPoint(CampBattleConfig.ACampId)
+	local BCampPoint = GetCampPoint(CampBattleConfig.BCampId)
+	if ACampPoint == 0 and BCampPoint == 0 then
+		return -1
+	end
+	if ACampPoint > BCampPoint then
+		return CampBattleConfig.ACampId
+	elseif ACampPoint == BCampPoint then
+		return 0
+	else
+		return CampBattleConfig.BCampId
+	end
+end
+
+function CampBattleActorDeath( sysarg, killerPtr )
+	local mySceneName = Actor.getSceneName(sysarg, 0, 0)
+	if mySceneName ~= CampBattleConfig.SceneName then			--不是在阵营战场死的
+		return
+	end
+	if not killerPtr then
+		return
+	end
+	local myCamp = Actor.getIntProperty(sysarg, PROP_ACTOR_ZY)
+	local killerCamp = Actor.getIntProperty(killerPtr, PROP_ACTOR_ZY)
+	if myCamp == 0 or killerCamp == 0 or myCamp == killerCamp then
+		return
+	end
+	local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	SetCampPoint(killerCamp, myLevel)
+	SetActorPoint(killerPtr, myLevel)
+end
+
+--检查背包格子数是否够
+function checkBagGrids( sysarg, levelInfoTab, myPoint )
+	local count = 0
+	for k, v in ipairs( levelInfoTab ) do
+		if v.type == 0 and myPoint >= v.minPoint and myPoint <= v.maxPoint then
+			count = count + Item.getAddItemNeedGridCount( sysarg, v.id, v.count, v.quality, v.strong)
+		end
+	end
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count),ttFlyTip )
+		return false
+	end
+	return true
+end
+
+function IsInCampBattle( sysarg )
+	local mySceneName = Actor.getSceneName(sysarg, 0, 0)
+	if mySceneName ~= CampBattleConfig.SceneName then			--不是在阵营战场死的
+		return false
+	end
+	return true
+end
+	
+--处理退出
+function doExitCampBattle( sysarg )
+	local sVar = System.getDyanmicVar()
+	if sVar.CampBattleStartFlag then
+		local myCamp = Actor.getIntProperty(sysarg, PROP_ACTOR_ZY)
+		if myCamp == CampBattleConfig.BCampId then
+			sVar.CampBattleBNum = sVar.CampBattleBNum - 1
+		else
+			sVar.CampBattleANum = sVar.CampBattleANum - 1
+		end
+	end
+
+	Actor.closeActivityWind( sysarg )
+	ClearActorPoint(sysarg)
+	Actor.setUIntProperty( sysarg, PROP_ACTOR_ZY, 0 )
+	local x = math.random(CampBattleConfig.ExitSendPos[1], CampBattleConfig.ExitSendPos[2])
+	local y = math.random(CampBattleConfig.ExitSendPos[3], CampBattleConfig.ExitSendPos[4])
+	System.telportSceneByName(sysarg, CampBattleConfig.ExitSendScene, x, y)
+end

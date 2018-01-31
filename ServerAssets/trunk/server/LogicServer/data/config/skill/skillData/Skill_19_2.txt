@@ -1,0 +1,196 @@
+﻿
+--剧毒术第2级
+{
+
+	actions=
+	{
+		{act=1,effect=27},
+	},
+
+	desc=Lang.Skill.s19L1Desc,
+
+	iconID=19,
+
+	actRange=
+	{
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+					targetType=1,
+					conds=
+					{
+					},
+
+					results=
+					{
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=26,keepTime=400,delay=0,always=true}, --播放技能特效
+					},
+				},
+			},
+		},
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+
+			rangeType= 3,
+			rangeCenter= 1,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=3,value=1}, --是自身
+					},
+
+					results=
+					{
+						{mj=2783,timeParam=1000,type=20,delay=0,id=83,value=1,vt=1}, --添加技能标志 83
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+
+			rangeType=3,
+			rangeCenter=2,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=13,value=1}, --目标可以被攻击
+					--	{cond=17,value=23,param=34}, --不存在buf 23 , 34组
+					--	{cond=17,value=27,param=35},
+						{cond=21,value=83},   --自身有技能标志 83
+					--    {cond=17,value=1,param=36},
+			     	},
+
+					results=
+					{
+						{mj=2783,timeParam=1,type=33,delay=0,rate=3000,value=1,mjParam2=1000}, --道术攻击 
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+
+			rangeType=3,
+			rangeCenter=2,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=13,value=1},
+					--	{cond = 17,value =23,param=34},		
+					--	{cond = 17,value =27,param=35},	
+						--{cond=59,value=11},
+					},
+
+					results=
+					{   
+					    -- id = buff 作用组
+						-- buffType = 添加的buff类型
+						-- rate = 万分比的几率
+						-- rateType = 伤害的攻击类型(rate 和 rateType 要成对出现)  (0 , 1 ,2 ,3 : 物理 魔法 道术 等级) 万分比
+						
+						-- timeParam = 作用次数
+						-- timeRate 和 timeAddType 也是成对出现 提升作用次数 maxTime 字段 用于限制 timeParam 的次数
+						
+						-- mj  和mjtype 也是成对出现。
+						-- value 固定值 如果vt 字段 > 0 那么说明是万分比 小数
+						
+						-- interval  间隔时间 或者持续时间
+                        -- intervalRate ， intervalAddType -- 万分比 用于提升interval的值
+						-- maxDur 用于限制 interval 最高值
+			            
+						--colorPriority 添加buff的时候的优先级，从1开始，优先级高的将顶替优先级低的
+						--color 添加buff的时候给添加的颜色，主要是道士的毒，麻痹的毒
+{mj=0,timeParam=1,type=1,delay=100, buffType=23,id=34,rate=-500,rateType=2,value=-15,interval=26,intervalRate=200,maxDur=60,intervalAddType=2,colorPriority =5,color =16711680},    --type=1，毒物闪避无效，type=32，毒物躲避生效
+
+{mj=0,timeParam=1,type=1,delay=100, buffType=27,id=35,rate=-500,rateType=2,value=-15,interval=26,intervalRate=200,maxDur=60,intervalAddType=2,colorPriority =5,color =16711680},     --type=1，毒物闪避无效，type=32，毒物躲避生效
+
+{mj=0,timeParam=15,timeRate=100 ,timeAddType=2 ,type=1,delay=100, buffType=1,id=35,rate=-2000,rateType=2,value=-60,interval=2,maxDur=60,colorPriority =5,color =16711680}, --减血     --type=1，毒物闪避无效，type=32，毒物躲避生效
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=70,keepTime=400,delay=400,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+
+			rangeType=3,  -- 0 单体技能 1.线性旋转(单体)  2.线性范围(群体) 3. 范围 群体 4.以中心点 与 鼠标位置的连线作为旋转轴
+			rangeCenter=1, -- 0 目标  1自己 2鼠标落点
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=3,value=1},
+					},
+
+					results=
+					{
+						{mj=2783,timeParam=1,type=21,delay=0,id=83,value=83,vt=1}, --删除技能标志83 vt > 0 则是自己 否则是作用对象
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		{cond=1,value=25,consume=false},
+		{cond=21,value=200,consume=false},
+	},
+
+	spellConds=
+	{
+		{cond=8,value=1,consume=true},
+	},
+
+	singTime=0,
+
+	cooldownTime=0,
+},

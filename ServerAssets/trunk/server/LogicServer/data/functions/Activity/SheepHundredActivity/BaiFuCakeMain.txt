@@ -1,0 +1,34 @@
+--lua script
+--#include "data\functions\Activity\SheepHundredActivity\BaiFuCake.txt" once -- 羊年百服蛋糕活动
+--#include "data\config\activityconfig\SheepHundredActivity\BaiFuCakeConfig.txt" once
+--lua script
+
+function BaiFuCakeMain(sysarg)
+	local str = Lang.Activity.shs0019
+	str = str .. "\\<#BL"..Lang.Activity.shs0001.."/@BaiFuProgress>" --查看当前蛋糕进度
+	str = str.."\\<#BL"..Lang.Activity.shs0002.."/@BaiFuGiveBall>" --提交蛋挞
+	str = str.."\\<#BL"..Lang.Activity.shs0003.."/@exit>" --离开
+	
+	return str
+end
+
+--查看进度
+function BaiFuProgress(sysarg)
+	local str = Lang.Activity.shs0004
+	local num = ReadBaiFuCakeData(1)*10
+	if num > BaiFuCakeConfig.cake[4].num*10 then
+		num = BaiFuCakeConfig.cake[4].num*10
+	end
+	str =  str .. num.. "/".. BaiFuCakeConfig.cake[4].num*10
+	str = str.."\\<#BL"..Lang.Activity.msd0114.."/@main>" --返回
+	return str
+end
+
+--提交蛋挞
+function BaiFuGiveBall(sysarg)
+	ReqBaiFuGiveDanTa(sysarg)
+end
+
+
+table.insert(MainFnTable, BaiFuCakeMain)
+

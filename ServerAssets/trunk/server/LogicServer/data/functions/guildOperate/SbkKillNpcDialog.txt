@@ -1,0 +1,170 @@
+--lua script
+
+--攻城前锋对话
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\SbkKillRank\SbkKillRank.txt" once
+--#include "data\config\guild\InSbkWardConfig.txt" once
+
+function SbkWarKillNpc_Main(sysarg)
+	local guildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local str = ""
+	local nTimes = System.getFaileSbkWarTimes(guildId)
+	
+	local pRanking = Ranking.getRanking(SbkKillRankConfig.SbkLianXuKillNum)
+	local strName = ""
+	if pRanking then
+		local pItem = Ranking.getItemFromIndex(pRanking,0)
+		if pItem then
+			strName = Ranking.getSub(pItem,0)
+		end
+	end
+
+	local str1 = ""
+
+	if nTimes > table.getn(SbkWarTime.FaileBuff) then
+		nTimes = table.getn(SbkWarTime.FaileBuff)
+	end
+
+	if SbkWarTime.FaileBuff[nTimes] then
+		str1 = SbkWarTime.FaileBuff[nTimes].addtips
+	end
+
+	local strFormat = string.format(Lang.GuildLang.wel020,nTimes,nTimes,str1,strName)
+	str = str..strFormat
+	
+	str = str.."\\<#BL"..Lang.GuildLang.lz0004.."/@GetSbkKillRankAward>"	--获取奖励
+	str = str.."\\<#BL"..Lang.GuildLang.wel015.."/@OpenGuildSbkBuff>"		--开启玛法神力
+	str = str.."\\<#BL"..Lang.GuildLang.wel016.."/@OnSbkAwardExplain>"		--沙城奖励说明
+	str = str.."\\<#BL"..Lang.GuildLang.wel017.."/@OnSblWarExpalin>"		--沙城战说明
+
+	return str
+end
+
+--开启玛法神力
+function OpenGuildSbkBuff(sysarg)
+	local guildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local nPos = Actor.getGuildPos(sysarg)
+	if nPos ~= 2 and nPos~= 3 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00109,ttFlyTip )
+		return
+	end
+	
+	local gVar = System.getDyanmicVar()
+	if gVar.StartSbkWarFlag == nil or gVar.StartSbkWarFlag == 0 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.wel023,ttFlyTip )
+		return
+	end
+
+	local nType = System.getOpenSbkBuffOP(guildId)
+	if nType == 1 then	--已开启
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.wel021,ttFlyTip )
+		return
+	end
+	
+	local nHour,nMin,nSec = System.getTime(0,0,0)
+	if nHour < SbkWarTime.opepTime[1] or nHour >= SbkWarTime.opepTime[2] then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.wel022,ttFlyTip )
+		return
+	end
+
+	local nTimes = System.getFaileSbkWarTimes(guildId)
+
+	if nTimes > table.getn(SbkWarTime.FaileBuff) then
+		nTimes = table.getn(SbkWarTime.FaileBuff)
+	end
+
+	if nTimes <= 0 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.wel024,ttFlyTip )
+		return
+	end
+	
+	local nIndex = 1
+	for i=1,table.getn(SbkWarTime.FaileBuff) do
+		if nTimes >= SbkWarTime.FaileBuff[i].faileTimes then
+			nIndex = i
+		end
+	end
+
+	local ItemTable = SbkWarTime.FaileBuff[nIndex]
+	if ItemTable == nil then return end
+ 
+	--添加行会buff
+	Actor.addGuildBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup, ItemTable.value, ItemTable.times, ItemTable.interval, ItemTable.buffName, ItemTable.timeOverlay)
+	
+	System.setOpenSbkBuffFlag(guildId,1)
+
+	--Actor.sendGuildMsg(sysarg,0,Lang.GuildLang.wel025,2+128)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.wel047,System.getGuildName(guildId)),2+128)
+end
+
+--沙城奖励说明
+function OnSbkAwardExplain(sysarg)
+	local str = Lang.GuildLang.wel018
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"		--返回
+	return str
+end
+
+--沙城战说明
+function OnSblWarExpalin(sysarg)
+	local str = Lang.GuildLang.wel019
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"		--返回
+	return str
+end
+
+--领取斩敌榜奖励
+function GetSbkKillRankAward(sysarg)
+	local nHour,nMinute,nSecond = System.getTime(0,0,0)
+	if nHour < SbkKillRankConfig.getAwardTime[1] or nHour >= SbkKillRankConfig.getAwardTime[2] then		--22点到24点才可以领取奖励
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.lz0005,ttFlyTip )
+		return
+	end
+
+	local pRanking = Ranking.getRanking(SbkKillRankConfig.SbkLianXuKillNum)
+	if pRanking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+		
+		local nFreeBag = Item.getBagEmptyGridCount(sysarg)
+		if nFreeBag <= 0 then			--背包已满
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.lz0007,ttFlyTip )
+			return
+		end	
+
+		if pItem then
+			local nIndex = Ranking.getIndexFromPtr(pItem) + 1
+			if nIndex > SbkKillRankConfig.rangNum then
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.lz0006,ttFlyTip )
+				return
+			end
+			
+			local nType = tonumber(Ranking.getSub(pItem,3))
+			if nType == nil then
+				nType = 0
+			end
+			
+			if nType == 1 then		--已领取奖励
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.lz0009,ttFlyTip )
+				return
+			end
+
+			for i=1,table.getn(SbkKillRankConfig.sbkAwards) do
+				if nIndex >= SbkKillRankConfig.sbkAwards[i].rangAward[1] and nIndex <= SbkKillRankConfig.sbkAwards[i].rangAward[2] then
+					local nConfig = SbkKillRankConfig.sbkAwards[i]
+					for j=1,table.getn(nConfig.awards) do
+						Actor.giveAward(sysarg,nConfig.awards[j].type,nConfig.awards[j].id,nConfig.awards[j].count,nConfig.awards[j].quality,nConfig.awards[j].strong,nConfig.awards[j].bind,0,905,Lang.GuildLang.lz0008)
+					end
+					Ranking.setSub(pItem,3,tostring(1))
+					break
+				end
+			end
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.lz0006,ttFlyTip )
+			return
+		end
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.lz0006,ttFlyTip )
+	end
+end
+
+table.insert(MainFnTable, SbkWarKillNpc_Main)
+

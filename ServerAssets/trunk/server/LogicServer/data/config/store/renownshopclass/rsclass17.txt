@@ -1,0 +1,169 @@
+-- 换武器模具
+	{						
+		itemID = 	2198,
+		--count = 1,	--物品数量（默认为1）
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	500	, bind = true, id = 1924 , count = 5 },		
+		}					
+	},
+-- 换传说水晶
+	{						
+		itemID = 	2208,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	50	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	150	, bind = true, id = 2207 , count = 10 },		
+		}					
+	},
+-- 换传说之魂
+	{						
+		itemID = 	2209,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	60	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	300	, bind = true, id = 2208 , count = 10 },		
+		}					
+	},
+-- 换衣服模具
+	{						
+		itemID = 	2203,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	500	, bind = true, id = 1924 , count = 5 },		
+		}					
+	},
+-- 换传说之石
+	{						
+		itemID = 	2212,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	50	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	150	, bind = true, id = 2211 , count = 10 },		
+		}					
+	},
+-- 换传说之魂
+	{						
+		itemID = 	2213,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	60	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	300	, bind = true, id = 2212 , count = 10 },		
+		}					
+	},
+-- 换项链模具
+	{						
+		itemID = 	2197,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 4 },		
+		}					
+	},
+-- 换护腕模具
+	{						
+		itemID = 	2199,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	300	, bind = true, id = 1924 , count = 3 },		
+		}					
+	},
+-- 换饰品模具
+	{						
+		itemID = 	2200,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	200	, bind = true, id = 1924 , count = 2 },		
+		}					
+	},
+-- 换头盔模具
+	{						
+		itemID = 	2202,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	400	, bind = true, id = 1924 , count = 4 },		
+		}					
+	},
+-- 换腰带模具
+	{						
+		itemID = 	2204,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	300	, bind = true, id = 1924 , count = 3 },		
+		}					
+	},
+-- 换裤子模具
+	{						
+		itemID = 	2205,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	200	, bind = true, id = 1924 , count = 2 },		
+		}					
+	},
+-- 换戒指模具
+	{						
+		itemID = 	2201,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	100	, bind = true, id = 1924 , count = 1 },		
+		}					
+	},
+-- 换鞋子模具
+	{						
+		itemID = 	2206,		
+		strong =	0	,			
+		quality =	0	,			
+		buyLevel =	40	,	
+        notice = true   ,		
+		price = 					
+		{					
+			{spid = "*", type = 4, price = 	100	, bind = true, id = 1924 , count = 1 },		
+		}					
+	},

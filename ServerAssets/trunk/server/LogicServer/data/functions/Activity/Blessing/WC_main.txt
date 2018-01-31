@@ -1,0 +1,205 @@
+﻿--世界贡献榜
+
+
+--#include "data\config\activityconfig\Blessing\WorldContribute.txt" once --配置
+--#include "data\functions\Activity\Common\Consumes.txt" once --活动通用 消耗
+
+--#include "data\functions\Activity\Common\Misc.txt" once	--其他通用
+
+--#include "RankPointer.txt" once	--
+--#include "RankInit.txt" once --排行榜初始化
+
+
+--[[
+    函数名称：main
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function WC_Main(sysarg)	
+	local config = WCConfig
+	if (not config) then return "" end
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.t00260.."/@WorldContribute>"  --<世界贡献榜>
+	--领取节日奖励
+	for k, v in ipairs(config.festivalPet) do
+		if System.isInDateRange(unpack(v.time)) == true then
+			local petName = System.getMonsterNameById(v.pet.id)
+			str = str.."\\<#BL"..string.format(Lang.Activity.t00261, petName).."/@GetFestivalPet,"..k..">"  --<领取节日奖励>
+		end
+	end
+	return str
+end
+
+--世界贡献榜
+function WorldContribute(sysarg)
+	local config = WCConfig
+	local pRank = Ranking.getRanking(WCRankPt.RankName)
+	if not pRank then return end
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	local nowPoint = 0
+	if pItem then
+		nowPoint = Ranking.getPoint(pItem)
+	end
+	
+	local str = Lang.Activity.t00262
+	
+	local svar = System.getStaticVar()
+	local total = svar.totalWContribute
+	if not total then total = 0 end	
+	str = str..string.format(Lang.Activity.t00263, nowPoint, total)
+	
+	str = str.."\\<#B"..Lang.Activity.t00264.."/@LookWCRank>"
+	
+	--捐献
+	for k, v in ipairs(config.donates) do
+		local desc = Item.getAwardDesc(v.consume.type, v.consume.id)
+		str = str.."\\<#BL"..string.format(Lang.Activity.t00265,PraseNumDesc(v.consume.count),desc,v.value).."/@OnDonate,"..k..">"
+	end
+	
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+
+	return str
+end
+
+function LookWCRank(sysarg)
+	local str = Lang.Activity.t00266
+	local pRank = Ranking.getRanking(WCRankPt.RankName)
+	if not pRank then return end
+	local ranks = LuaHelp.getRankingItemList(pRank, 10)
+	
+	if ranks then
+		for k, v in ipairs(ranks) do
+			local name = Ranking.getSub(v, 0)
+			local point = Ranking.getPoint(v)
+			str = str.."  "
+			str = str..tostring(k)..getStrBackNopStr(tostring(k), 9)
+			str = str..tostring(name)..getStrBackNopStr(tostring(name), 18)
+			str = str..tostring(point)..getStrBackNopStr(tostring(point), 9)
+			str = str.."\\"
+			
+			--str = str..string.format("  %d   %s      %d\\", k, name, point)
+		end
+	end
+	
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@WorldContribute>"  --<返回>
+	
+	return str
+end
+
+--捐献
+function OnDonate(sysarg, idx)
+	local idx = tonumber(idx)
+	local config = WCConfig
+	
+	if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true  then 
+		local tips = string.format(Lang.Activity.a00125, config.limitLevel)
+		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+		return false
+	end
+	
+	local donate = config.donates[idx]
+	if not donate then return end
+	
+	local pRank = Ranking.getRanking(WCRankPt.RankName)
+	if not pRank then return end
+	
+	--消耗
+	local consumes = {donate.consume}
+	if Consumes.CheckAndRemove(sysarg, consumes, 185, Lang.LogTips.l00118) ~= true then
+		return 
+	end
+	
+	--增加贡献度
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local username = Actor.getName(sysarg)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	if pItem then 
+		Ranking.updateItem(pRank, userId, donate.value)
+	else
+		pItem = Ranking.addItem(pRank, userId, donate.value)
+		Ranking.setSub(pItem, 0, username)
+	end
+	
+	local point = Ranking.getPoint(Ranking.getItemPtrFromId(pRank, userId))
+	if donate.value >= config.noticePoint then
+		System.broadcastTipmsg(string.format(Lang.Activity.t00267, username, point), ttScreenCenter+ttChatWindow)
+	end
+	
+	if donate.value > 0 and config.culture then
+		local svar = System.getStaticVar()
+		local oldCtb = svar.totalWContribute
+		if not oldCtb then
+			oldCtb = 0
+		end
+		
+		local addCulture = 0
+		newCtb = oldCtb + donate.value
+		for k, v in ipairs(config.culture) do
+			if oldCtb < v.conValue and newCtb >= v.conValue then
+				addCulture = addCulture + v.culValue
+			end
+		end
+		
+		svar.totalWContribute = newCtb
+		
+		if addCulture > 0 then
+			System.addCultureValue(addCulture)
+			System.broadcastTipmsg(string.format(Lang.Activity.t00273, newCtb, addCulture), ttScreenCenter)
+		end
+		
+	end
+	
+	Actor.triggerAchieveEvent (sysarg,92,point,0,0)	--触发成就加活跃度
+	
+	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00268, donate.value, point), ttFlyTip)
+	Actor.triggerQuestEvent(sysarg, 127, 50104, 1)
+	return WorldContribute(sysarg)
+	
+end
+
+--清空贡献度
+function ClearWCRank()
+	local pRank = Ranking.getRanking(WCRankPt.RankName)
+	if not pRank then return end
+	Ranking.clearRanking(pRank)
+	
+	local svar = System.getStaticVar()
+	svar.totalWContribute = nil
+end
+
+--领取节日宝宝
+function GetFestivalPet(sysarg, idx)
+	local idx = tonumber(idx)
+	local config = WCConfig.festivalPet[idx]
+	if not config then return end 
+	
+	if System.isInDateRange(unpack(config.time)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00272, ttFlyTip)
+		return 
+	end
+	
+	local pRank = Ranking.getRanking(WCRankPt.RankName)
+	if not pRank then return end
+	
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	if not pItem or Ranking.getPoint(pItem) < config.value then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00269, config.value), ttFlyTip)
+		return
+	end
+	
+	local pet = config.pet
+	if Pet.getPetCountById(sysarg, pet.id) > 0 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00270, ttFlyTip)
+		return
+	end
+	
+	if Pet.addPet(sysarg, config.pet.id, pet.level, pet.aiId, pet.liveTime) > 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00271, ttFlyTip)
+	end
+	
+	return
+end
+
+table.insert(MainFnTable, WC_Main)

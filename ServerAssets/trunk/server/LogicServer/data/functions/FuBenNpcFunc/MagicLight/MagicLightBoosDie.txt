@@ -1,0 +1,34 @@
+--lua script
+--#include "MagicLightCommon.txt" once
+
+--´óbossËÀÍö
+MonDieDispatcher.Mon1080Die = function(monster,sysarg,monId)
+	BigBossTreasure(sysarg,1)
+end
+
+MonDieDispatcher.Mon1081Die = function(monster,sysarg,monId)
+	BigBossTreasure(sysarg,2)
+end
+
+MonDieDispatcher.Mon1082Die = function(monster,sysarg,monId)
+	BigBossTreasure(sysarg,3)
+end
+
+MonDieDispatcher.Mon1083Die = function(monster,sysarg,monId)
+	BigBossTreasure(sysarg,4)
+end
+
+--ÊØÎÀËÀÍöº¯Êı
+MonDieDispatcher.MonGuardDie = function(monster,sysarg,monId)
+   GuardDie(sysarg,monster)
+end
+
+--×¢²á´óBOSSËÀÍöº¯Êı
+--MonDieDispatcher.register(1080, MonDieDispatcher.Mon1080Die )
+--MonDieDispatcher.register(1081, MonDieDispatcher.Mon1081Die )
+--MonDieDispatcher.register(1082, MonDieDispatcher.Mon1082Die )
+--MonDieDispatcher.register(1083, MonDieDispatcher.Mon1083Die )
+
+--×¢²áÊØÎÀËÀÍöº¯Êı
+--MonDieDispatcher.register(MagicLightConfig.GuardMonster.nMonsterID, MonDieDispatcher.MonGuardDie )
+

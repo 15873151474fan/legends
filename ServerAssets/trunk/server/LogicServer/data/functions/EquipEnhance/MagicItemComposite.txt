@@ -1,0 +1,95 @@
+﻿--lua script
+--法宝合成
+
+
+--玩家开始合成, args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function OnMagicItemComposite( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local opType = args[ptrCount+2]		--操作类型
+	local nItemId = args[ptrCount+3]		--选择合成法宝ID
+	local isRepCost = args[ptrCount+4]	--是否元宝替代
+	--print(nItemId)
+	--print(isRepCost)
+	
+	if not nItemId then return false end
+	
+	local idx = GetMagicItemConfig(MagicItems.magicComposite, nItemId)
+	if idx <= 0 then
+		System.trace("GetMagicItemCompositeConsumes error can't find config, grade="..nItemId)
+		return false
+	end
+	
+	local config = MagicItems.magicComposite[idx]
+	
+	if Awards.CheckBagNeedGridCount(sysarg, 1) ~= true then return end
+	
+	local result = SuccessCheck(sysarg, opType, config.consumes, 1, 0, true)
+	
+	--print("result"..result)
+	if (result ~= successCheckResult.ok) then return false end
+	
+	local logstr = string.format(Lang.LogTips.l00144, nItemId)
+	local result, isBind = EnhanceConsumes(sysarg, opType, config.consumes, 1, 0, 0, logstr, true)
+	if (result ~= successCheckResult.ok) then return false end
+	
+	--给玩家添加一个装备 
+	local quality = 0
+	local randNum = math.random(10000)
+	local props = 0
+	for k, v in pairs(config.quality) do
+		props = props + v.prop
+		if randNum <= props then
+			quality = v.value
+			break
+		end
+	end
+	
+	local newItem = Item.createItem(config.itemId, 1, 1, quality, isBind)
+	if newItem == nil then
+		System.trace("create magic Item error, id = "..config.itemId)
+		return false
+	end
+	
+	if Item.addItem(sysarg, newItem, logstr, 860) < 1 then
+		System.trace("add magic Item error, id = "..config.itemId)
+		return false
+	end
+	
+	Actor.sendTipmsg(sysarg, Lang.ScriptTips.magic021, ttFlyTip)
+	
+	--返回客户端处理结果
+	Item.sendItemProcessResult( sysarg, newItem, opType, false)
+	return true
+end
+
+--获取合成的消耗,args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function GetMagicItemCompositeConsumes(sysarg, args)
+	local ptrCount = args[1]			--指针数量
+	local opType = args[ptrCount+2]		--操作类型
+	local nItemId = args[ptrCount+3]		--选择合成法宝ID
+	--print(nItemId)
+	
+	if not nItemId then return false end
+	
+	local idx = GetMagicItemConfig(MagicItems.magicComposite, nItemId)
+	if idx <= 0 then
+		System.trace("GetMagicItemCompositeConsumes error can't find config, grade="..nItemId)
+		return false
+	end
+	
+	local config = MagicItems.magicComposite[idx]
+	
+	SendConsumesToClient(sysarg, opType, config.consumes)
+	
+end
+
+
+function GetMagicItemConfig(config, nItemId)
+	for k, v in ipairs(config) do
+		if v.itemId == nItemId then
+			return k
+		end
+	end
+	
+	return 0
+end

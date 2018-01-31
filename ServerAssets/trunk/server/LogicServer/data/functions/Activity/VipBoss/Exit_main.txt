@@ -1,0 +1,22 @@
+﻿
+--#include "data\config\activityconfig\VipBoss\Config.txt" once	--
+--#include "VipBoss_common.txt" once
+
+function Exit_Main(sysarg)	
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.a00039.."/@ExitVipBossMap>"  --<离开活动>
+	str = str.."\\<#BL"..Lang.Activity.t00166.."/@exit>"  --<关闭>
+	return str
+end
+--询问是否离开地图
+function AskExitMap(sysarg)
+	local sAskMsg = Lang.Activity.t00159
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ExitVipBossMap",Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+function Cancel(sysarg)
+
+end
+
+table.insert(MainFnTable, Exit_Main)

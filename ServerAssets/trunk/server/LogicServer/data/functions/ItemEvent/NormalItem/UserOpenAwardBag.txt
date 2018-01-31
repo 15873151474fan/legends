@@ -1,0 +1,110 @@
+
+--羊年春节，祈福活动，打开礼包获奖
+--#include "data\config\activityconfig\SpringFestivalSheep\GetAwardActCommonConfig.txt" once
+--#include "data\functions\Activity\SpringFestivalSheep\GetAwardActCommon.txt" once
+--[[
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+function OpenAwardBag(sysarg,itemidx,itemPtr,ItemTable)
+	--判断活动
+	if System.isInDateRange(unpack(GetAwardActCommonConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj001, ttFlyTip)
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, GetAwardActCommonConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj002, ttFlyTip)
+		return
+	end
+
+	--判断礼包
+	if Actor.getItemCount(sysarg, itemidx) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj009, ttFlyTip)
+		return
+	end
+
+	local index = 0
+	local rate = 0
+	local randRate = math.random(10000)
+	for k,v in ipairs(GetAwardActCommonConfig.rank) do
+		rate = rate + v
+		if rate >= randRate then
+			index = k
+			break
+		end
+	end
+
+	if index == 0 then return end
+	
+	--判断空格
+	local needCount = GetAwardActCommonConfig.openAwardBag[index].needBagCount
+	
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	if nBagCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj015, ttFlyTip)
+		return
+	end
+
+	--添加实体特效
+	if(ItemTable.entityEffects ~= nil) then
+		for i=1, table.getn(ItemTable.entityEffects) do
+			local effect = ItemTable.entityEffects[i]
+			Actor.addEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime) --添加特效 
+		end
+	end
+	
+	--添加场景特效
+	if(ItemTable.sceneEffects ~= nil) then
+		for i=1, table.getn(ItemTable.sceneEffects)   do
+			local effect = ItemTable.sceneEffects[i]
+			Actor.addSceneEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime,effect.x,effect.y) --添加特效 
+		end
+	end
+
+	--扣除
+	Actor.removeItem(sysarg, itemidx, 1, -1,-1,-1, Lang.LogTips.yyd0001, 983)
+
+	local tab = GetAwardActCommonConfig.openAwardBag[index]
+	if not tab then return end
+
+	--播报一下先
+	for k,v in ipairs(tab.awardList) do
+		if v.isBrocast == true then
+			local myName = Actor.getName(sysarg)
+			local item = Item.getItemName(v.id)
+			System.broadcastTipmsg(string.format(Lang.Activity.yncj016, myName,item), 128+2)
+		end
+	end
+	--发放物品
+	for k,v in ipairs(tab.awardList) do
+		Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 983, Lang.LogTips.yyd0001)
+	end
+
+	--保存喜庆值
+	SaveAllGetAwardData(1)
+	ReqGetAwardActInfo(sysarg)
+end
+
+
+
+--注册礼炮
+function RegisterAwardBag(sysarg)
+	local id = GetAwardActCommonConfig.lipaoId
+	--GlobalItemFn[id] = { func = OpenAwardBag}
+	for i = 1,table.getn(EffectItemItem) do
+		local x = EffectItemItem[i]
+		if x.item_id == id then
+			GlobalItemFn[x.item_id] = { func = OpenAwardBag, params = x }
+			break
+		end
+	end
+	
+	
+end
+
+table.insert(InitFnTable, RegisterAwardBag)

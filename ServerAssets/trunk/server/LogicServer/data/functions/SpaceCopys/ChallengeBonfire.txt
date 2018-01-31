@@ -1,0 +1,106 @@
+﻿
+	--#include "data\config\task\ChallengeBonfireConf.txt" once --篝火配置
+
+
+--擂台篝火函数
+
+--注册定时执行函数
+function RegisterChallengeBonfireFunc()
+	if not ChallengeBonfire then return end
+	local config = ChallengeBonfire
+	local FuncHandle = Actor.regScriptCallback(thisNPC,thisNPC,config.Interval,config.Interval,-1,"OnChallengeBonfireFunc") --注册一个定时回调函数，每五分钟改变NPC的位置 
+	if not FuncHandle then
+		--OutputMsg("Error! RegisterChallengeBonfireFunc Error!")
+	end
+end
+
+--注销定时函数
+function UnRegisterChallengeBonfireFunc()
+	Actor.unregScriptCallback(thisNPC, "OnChallengeBonfireFunc")
+end
+
+--遍历范围
+function OnChallengeBonfireFunc()
+	if not ChallengeBonfire then return end
+	local config = ChallengeBonfire
+	local scenePtr = Actor.getScenePtr(thisNPC)       --获取角色所在的场景的指针
+	--local x,y = Actor.getEntityPosition(thisNPC,0,0)	--获取角色坐标
+	local playerList = LuaHelp.getNearEntityListFromRange(scenePtr,config.Range.x,config.Range.y,config.Range.RangeX,config.Range.RangeY,0)   --获取周围的实体的指针列表
+	if not playerList then return end
+	for i=1,#playerList do
+	  local player = playerList[i]
+		if player ~= nil then
+	    AddChallengeBonfireAward(player)
+		end
+	end
+end
+
+--增加奖励
+function AddChallengeBonfireAward(player)
+	if not ChallengeBonfire then return end
+	local config = ChallengeBonfire
+	local level = Actor.getIntProperty( player, PROP_CREATURE_LEVEL )
+	if level < config.Level then return end
+
+	for i=1, table.getn(config.Award) do
+		local award = config.Award[i]
+		if level >= award.levelRange[1] and level <= award.levelRange[2] then
+			local index = level - award.levelRange[1] + 1
+			local baseValue = award.baseValue[index]
+			if baseValue then
+				local rate = 0
+				if IsChallengeBonfireTime() then
+					rate = config.ActiveRate
+				end
+				if award.type == 1 then	--修为
+					rate = Actor.getDrunkXiuweiAdd(player)+rate
+				elseif award.type == 2 then	--经验 
+					rate = Actor.getDrunkExpAddRate(player)+rate
+				end
+				Actor.giveAward(player, award.type, 0,baseValue*rate, 0, 0, 1, 0,205, Lang.LogTips.l00051)
+			end
+		end
+	end	
+end
+
+--判断是否为活动时间
+function IsChallengeBonfireTime()
+	if not ChallengeBonfire then return end
+	local config = ChallengeBonfire
+	for i=1, table.getn(config.ActiveTime) do
+		local cfg = config.ActiveTime[i]
+		if System.isInTimeRange(unpack(cfg)) then
+			return true
+		end
+	end
+	return false
+end
+
+--NPC对话框入口
+function ChallengeBonfireMain(sysarg)
+	local str = Lang.ScriptTips.t00065
+  str = str.."\\<#BL"..Lang.ScriptTips.t00066.."/@@showSysWin,83,1,2309,2310>"  --<购买烧酒>
+					.."\\<#BL"..Lang.ScriptTips.t00067.."/@AboutChallengeBonfire>"  --<活动详情>
+	return str
+end
+
+
+--活动详情
+function AboutChallengeBonfire(sysarg)
+	return Lang.ScriptTips.t00068
+				.."\\<#BL"..Lang.TaskTalk.n00028.."/@main>"  --<返回>
+end
+
+--刷怪
+function CreateBonfireMonster()
+	if not ChallengeBonfire then return end
+	local config = ChallengeBonfire
+	local monster = config.Monster
+	local hScene = Fuben.getSceneHandleById(monster.SceneId, 0)
+	Fuben.createMonsters(hScene,monster.MonsterId,monster.PosX1,monster.PosX2,monster.PosY,monster.Count,monster.LiveTime)
+	System.broadcastTipmsg(string.format(Lang.ScriptTips.t00071,monster.MonsterName), ttScreenCenter)
+end
+
+table.insert(InitFnTable, RegisterChallengeBonfireFunc)
+table.insert(MainFnTable, ChallengeBonfireMain)
+table.insert(FinaFnTable, UnRegisterChallengeBonfireFunc)

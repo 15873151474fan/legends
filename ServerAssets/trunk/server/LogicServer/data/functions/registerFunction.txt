@@ -1,0 +1,144 @@
+﻿--#include "data\envir\MonsterIdInSceneConfig.txt"
+--#include "data\envir\MonsterInSceneConfig.txt"
+local DAYTIME = 86400
+local HOURTIME = 3600
+local LIVETIME = 1200
+--定时发布全服公告    1~4 为擂台的公告， 5 6 为定期刷怪的公告
+function ChallengeBroadTipmsg(type)
+  --print("challenge broad tipmsg!!")
+	local type = tonumber(type)
+	--print("type:"..type)
+	if type == 1 then
+		System.broadcastTipmsg(Lang.ScriptTips.t00027,ttScreenCenter)
+		--print("all challenge 1")
+	elseif type == 2 then
+		System.broadcastTipmsg(Lang.ScriptTips.t00029,ttScreenCenter)
+	elseif type == 3 then
+		System.broadcastTipmsg(Lang.ScriptTips.t00027,ttScreenCenter)
+	elseif type == 4 then
+	  System.broadcastTipmsg(Lang.ScriptTips.t00027,ttScreenCenter)
+	end
+end
+
+
+--每次整点刷出两个BOSS
+function CreateMonsterRandom(mn1,sn1,mn2,sn2,x1,y1,x2,y2,mid1,mid2)
+    --print("create monster !!")
+		local str1 = string.format(Lang.ScriptTips.x00038,mn1,sn1)
+	  System.broadcastTipmsg(str1,ttScreenCenter)
+	  local str2 = string.format(Lang.ScriptTips.x00038,mn2,sn2)
+	  System.broadcastTipmsg(str2,ttScreenCenter)
+	  local shandle1 = Fuben.getSceneHandleByName(sn1,0)
+	  local shandle2 = Fuben.getSceneHandleByName(sn2,0)
+	  Fuben.createMonster(shandle1,mid1,x1,y1,LIVETIME)
+	  Fuben.createMonster(shandle1,mid1,x1,y1,LIVETIME)
+	   
+end
+--15分钟后
+function leaveFiveMin(mn1,sn1,mn2,sn2,mid1,mid2)
+  --print("leave Five Min!!")
+  local shandle1 = Fuben.getSceneHandleByName(sn1,0)
+  local shandle2 = Fuben.getSceneHandleByName(sn2,0)
+  if Fuben.getMyMonsterCount(shandle1,mid1) > 0 then 
+		local str1 = string.format(Lang.ScriptTips.x00039,mn1)
+		System.broadcastTipmsg(str1,ttScreenCenter)
+	end
+	if Fuben.getMyMonsterCount(shandle2,mid1) > 0 then
+		local str2 = string.format(Lang.ScriptTips.x00039,mn2)
+		System.broadcastTipmsg(str2,ttScreenCenter)
+	end 
+end
+
+--20分钟后
+function MonsterTimeOut(mn1,sn1,mn2,sn2,mid1,mid2)
+  --print("monster time out!!")
+  local shandle1 = Fuben.getSceneHandleByName(sn1,0)
+  local shandle2 = Fuben.getSceneHandleByName(sn2,0)
+  if Fuben.getMyMonsterCount(shandle1,mid1) > 0 then 
+		local str1 = string.format(Lang.ScriptTips.x00040,mn1)
+		System.broadcastTipmsg(str1,ttScreenCenter)
+	end
+	if Fuben.getMyMonsterCount(shandle2,mid1) > 0 then
+		local str2 = string.format(Lang.ScriptTips.x00040,mn2)
+		System.broadcastTipmsg(str2,ttScreenCenter)
+	end 
+  
+end
+
+--定时发布全服公告 定期刷怪的公告
+
+function CreateMonsterBroadTipmsg()
+	--print("Create Monster Broad Tipmsg")
+   local monsterConfig = MonsterIdInScene
+   local sceneConfig = MonsterInScene
+	  local randomid1 = System.getRandomNumber(table.getn(monsterConfig))+1
+  local mid1 = monsterConfig[randomid1]
+  if mid1 == nil then 
+  print("mid1 is nil!")
+  return
+  end
+  table.remove(monsterConfig,randomid1)
+  local randomid2 = System.getRandomNumber(table.getn(monsterConfig))+1
+  
+  local mid2 = monsterConfig[randomid2]
+  if mid2 == nil then
+  print("mid2 is nil ")
+  return
+  end
+  local randoms1 = System.getRandomNumber(table.getn(sceneConfig))+1
+  local scene1 = sceneConfig[randoms1]
+  if scene1 == nil then 
+  print("scene1 is nil ")
+  return
+  end
+  table.remove(sceneConfig,randoms1)
+  local randoms2 = System.getRandomNumber(table.getn(sceneConfig))+1
+  local scene2 = sceneConfig[randoms2]
+  if scene2 == nil then 
+  print("scene2 is nil ")
+  return
+  end 
+  if mid1 == nil or mid2 == nil or scene1 == nil or scene2 == nil then  print("have nil table!!") return end
+  
+	local monsterid1 = mid1.monsterid
+	local monsterid2 = mid2.monsterid
+  local monstername1 = mid1.monstername                        --通过怪物ID获取怪物名字 
+	local monstername2 = mid2.monstername
+	local scenename1 = scene1.scenename
+	local scenename2 = scene2.scenename 
+	local str = string.format(Lang.ScriptTips.x00037,monstername1,scenename1)
+	System.broadcastTipmsg(str,ttScreenCenter)
+	local str1 = string.format(Lang.ScriptTips.x00037,monstername2,scenename2)
+	System.broadcastTipmsg(str1,ttScreenCenter)
+	local y,m,d = System.getDate(0,0,0)
+	local h,b,s = System.getTime(0,0,0)
+	--local timestr = string.format(Lang.ScriptTips.x00042,y,m,d,h,b+5,s)
+	local timestr = string.format(Lang.ScriptTips.x00042,y,m,d,h,b,s+10)
+  System.registerTimeCall(NpcPtr,"CreateMonsterBroadTipmsg",timestr,0,false,monstername1,scenename1,monstername2,scenename2,scene1.pos_x,scene1.pos_y,scene2.pos_x,scene2.pos_y,monsterid1,monsterid2)
+  --local timestr2 = string.format(Lang.ScriptTips.x00042,y,m,d,h,b+20,s)
+  local timestr2 = string.format(Lang.ScriptTips.x00042,y,m,d,h,b,s+20)
+  System.registerTimeCall(NpcPtr,"leaveFiveMin",timestr2,0,false,monstername1,scenename1,monstername2,scenename2,monsterid1,monsterid2)
+  --local timestr3 = string.format(Lang.ScriptTips.x00043,y,m,d,h,b+25,s)
+  local timestr3 = string.format(Lang.ScriptTips.x00043,y,m,d,h,b,s+25)
+  System.registerTimeCall(NpcPtr,"MonsterTimeOut",timestr3,0,false,monstername1,scenename1,monstername2,scenename2,monsterid1,monsterid2)
+end
+
+function registerFunction(sysarg)
+  --print("register function!!!")
+	local NpcPtr = System.getGlobalNpc()
+	if NpcPtr == nil then
+		--print("NpcPtr is nil !!")
+  end
+  --print("---------:"..Lang.ScriptTips.t00031.." "..DAYTIME)
+  System.registerTimeCall(NpcPtr,"ChallengeBroadTipmsg",Lang.ScriptTips.t00031,DAYTIME,false,1)
+  System.registerTimeCall(NpcPtr,"ChallengeBroadTipmsg",Lang.ScriptTips.t00032,DAYTIME,false,2)
+  System.registerTimeCall(NpcPtr,"ChallengeBroadTipmsg",Lang.ScriptTips.t00033,DAYTIME,false,3)
+  System.registerTimeCall(NpcPtr,"ChallengeBroadTipmsg",Lang.ScriptTips.t00034,DAYTIME,false,4)
+  --print("33333333333333333333333333--------")
+
+  
+  --System.registerTimeCall(NpcPtr,"CreateMonsterBroadTipmsg",Lang.ScriptTips.x00034,60,false)
+
+end
+
+table.insert(InitFnTable,registerFunction)

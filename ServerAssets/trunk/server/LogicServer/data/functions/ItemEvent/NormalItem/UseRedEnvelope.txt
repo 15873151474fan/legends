@@ -1,0 +1,19 @@
+--lua script
+--用户使用开门利是的个性处理
+--#include "data\functions\Activity\SpringFestivalHorse\RedEnvelope.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+
+function RedEnvelopeFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.getItemCount(sysarg, itemIdx) < 1 then return end
+
+	OnUseRedEnvelope(sysarg)
+end
+
+function UseRedEnvelope_Init(sysarg)
+	for k, v in ipairs(RedEnvelopeTab) do
+		GlobalItemFn[v.item_id] = { func = RedEnvelopeFunc, params = v }
+	end
+end
+
+table.insert( InitFnTable, UseRedEnvelope_Init)
+

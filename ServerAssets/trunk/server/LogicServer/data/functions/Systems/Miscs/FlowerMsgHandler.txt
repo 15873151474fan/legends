@@ -1,0 +1,178 @@
+﻿--鲜花系统的消息号处理 
+--msgid:21
+
+--#include "data\functions\GlobalDefine.txt" once
+--#include "data\functions\Systems\FlowerSystem\RoseRanking.txt" once
+--#include "data\config\achieve\titles.txt" once
+--#include "data\config\quest\MiscQuest.txt" once
+--#include "data\functions\Activity\Festival\FestivalFireCommon.txt" once
+--#include "data\functions\Activity\CrossSendFlowers\CsSendFlowers.txt" once 
+
+MiscsImplement.giveFlowerHandler = function (sysarg, msgid, packet)
+	local giveType = DataPack.readByte(packet) --类型，0：送花，1：回赠,2:回谢
+	local roseType = DataPack.readByte(packet)		--玫瑰类型,0,红玫瑰，1，蓝玫瑰
+	local fc = DataPack.readWord(packet)	--朵数
+	local needGold = DataPack.readByte(packet)     --是否用元宝代替，0不用，1用
+	local nameType = DataPack.readByte(packet)	--匿名：0：匿名，1:签名
+	local actorName = DataPack.readString(packet)
+	local memo = DataPack.readString(packet)
+	local actPtr = Actor.getActorPtrByName(actorName)
+	if actPtr == nil then		--todo:离线也可以赠送
+		Actor.sendTipmsg(sysarg,Lang.Flower.f001, ttFlyTip)	--不在线
+		return
+	end
+	local roleCfg = GetRoseItemCfg(roseType, fc)
+	if not roleCfg then
+		return
+	end
+
+	local myCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if myCoin < GiveRoseConfig.Coin then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000025, ttFlyTip)
+		return
+	end
+	--找绑定的数量
+	local nQulity, nStrong, nNoBind = 0, 0, 0
+	if roseType > 0 then
+		nNoBind = -1
+	end
+	local useAtomRose = false
+	local noBindItemCnt = Actor.getItemCount(sysarg,roleCfg.roseItemId, nQulity, nStrong, nNoBind)
+	if noBindItemCnt <= 0 then --当单个物品不够时，可以找多个1朵的		
+		if roleCfg.atomRoseId then
+			local atomRoseCount = Actor.getItemCount(sysarg, roleCfg.atomRoseId, nQulity, nStrong, nNoBind)
+			if atomRoseCount >= roleCfg.roseNum then
+				useAtomRose = true
+			end
+		end
+		if not useAtomRose then
+			if needGold > 0 then
+				local myGold = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+				if myGold < roleCfg.gold then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000019, ttFlyTip)
+					return
+				end
+			else			
+				Actor.sendTipmsg(sysarg, Lang.Flower.f003, ttFlyTip)
+				return
+			end
+		end
+	end
+	
+	--扣除物品
+	if noBindItemCnt > 0 then
+		Actor.removeItem(sysarg,roleCfg.roseItemId, 1, nQulity, nStrong, nNoBind)
+	else
+		if useAtomRose then
+			Actor.removeItem(sysarg,roleCfg.atomRoseId, roleCfg.roseNum, nQulity, nStrong, nNoBind)
+		else
+			if needGold > 0 then
+				Actor.changeMoney(sysarg, mtYuanbao, -roleCfg.gold, 182, Lang.LogTips.yb024)
+			else
+				return
+			end
+		end
+	end
+	if GiveRoseConfig.Coin> 0 and not Actor.changeMoney(sysarg, mtCoin, -GiveRoseConfig.Coin, 182, Lang.LogTips.yb024) then
+		return
+	end
+	
+	
+	--通知客户端
+	local npack = DataPack.allocPacket(actPtr,LogicCmd.miscSys.sysId,LogicCmd.miscSys.sub.sFlower)
+	if npack then
+		System.filterWords(memo)
+		DataPack.writeByte(npack,giveType)		
+		DataPack.writeWord(npack,fc)
+		DataPack.writeString(npack,Actor.getName(sysarg))
+		DataPack.writeString(npack, memo)
+		DataPack.writeByte(npack, roseType)
+		DataPack.flush(npack)
+	end
+	--发全服公告
+	local sex = Actor.getIntProperty(actPtr,PROP_ACTOR_SEX)
+	sex = sex % 2		--保证sex是0和1
+	if roleCfg.tips then
+		local msg = nil
+		local giveName = Lang.Flower.f006
+		if nameType == 1 then
+			giveName = Actor.getName(sysarg)
+		end
+		local itemName = Item.getItemName(roleCfg.roseItemId)
+		if sex == 0 then
+			msg = string.format(Lang.Flower.f004,Actor.getName(actPtr),giveName, itemName)
+		else
+			msg = string.format(Lang.Flower.f005,Actor.getName(actPtr),giveName, itemName)
+		end
+		System.broadcastTipmsg(msg,ttScreenCenter)
+	end
+
+	local roseData = GiveRoseConfig.RoseData[roseType]
+	--更新排行榜，如果sex是1，排行榜是1、3、5
+	AddFirePoint(actPtr, fc * roseData[2], sex) 
+	
+	--AddAllRose(actPtr, roseType, fc)
+
+	--播放特效
+	if roleCfg.toAll then
+		System.playScrEffectCode(roseData[1], roleCfg.effectSec)	--全服
+	elseif roleCfg.toSelf then
+		Actor.playScrEffectCode(actPtr, roseData[1], roleCfg.effectSec)
+	end
+	
+	for i = 1, #FlowerQuest do
+		local data = FlowerQuest[i]
+		Actor.setQuestValue(sysarg,data.qid,data.id,data.count)
+	end
+	
+	for i = 1, #GetFlowerQuest do
+		local data = GetFlowerQuest[i]
+		Actor.setQuestValue(actPtr,data.qid,data.id,data.count)
+	end
+	local tempVal = Actor.getIntProperty(actPtr, PROP_ACTOR_CHARM)
+	 
+	Actor.triggerAchieveEvent(actPtr,79,Actor.getIntProperty(actPtr, PROP_ACTOR_CHARM))
+
+	--完成成就
+	Actor.triggerAchieveEvent(sysarg,38,fc)
+	Actor.triggerAchieveEvent(actPtr,39,fc)
+	
+	CsSfChangeCharm(actPtr, fc * roseData[2]) 
+end
+
+function setRankingItemTitle(sysarg,ranking,idx,item)
+	local mc = Ranking.getIndexFromPtr(item)
+	if idx <= 4 and mc >=0 and mc < 3 then	--前3名
+		local itemCount = Ranking.getRankItemCount(ranking)
+		for i = 1, itemCount do
+			item = Ranking.getItemFromIndex(ranking,i-1)
+			if item ~= nil then
+				if i <= 3 then
+					local titleId = FlowerConfig.title[idx][i]
+					Ranking.setSub(item,2,Titles[titleId+1].name)
+				else
+					Ranking.setSub(item,2,"-")	--其他设置成空的 --]]
+				end
+			end
+		end
+	end
+	if idx >= 5 and mc ==0 then	--第一名
+		local itemCount = Ranking.getRankItemCount(ranking)
+		for i = 1, itemCount do
+			item = Ranking.getItemFromIndex(ranking,i-1)
+			if item ~= nil then
+				if i <= 1 then
+					local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+					local job = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+					--print("sex:"..sex.." job:"..job)
+					Ranking.setSub(item,2,FlowerConfig.ItemName[job][sex+1])
+				else
+					Ranking.setSub(item,2,"-")	--其他设置成空的 --]]
+				end
+			end
+		end
+	end
+end
+
+
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cFlower, MiscsImplement.giveFlowerHandler)

@@ -1,0 +1,27 @@
+--设置面板指引
+{
+  maxLevel = 38,
+  --触发条件
+  triggerList =
+  {
+		{ type = 5, valueList = {35,36,37,38,}},      --等级达38
+		{ type = 1, valueList = {99,}},      --任务弥补损失	
+  } ,
+
+  --引导的步骤
+  steps =
+	{
+    --第1步 出现快捷键指引的条件
+    {
+      condList =
+      {
+				{ type = 15,  helpId = 0, dataList = {15,} },		--在指定地图
+ 				{ type = 5,  helpId = 0, dataList = {99,} },      --存在任务
+	  },
+
+      --快捷键提示出现
+      action = { type = 15, helpId = 0, data = 4, desc = 0 },
+    },
+
+	},
+},

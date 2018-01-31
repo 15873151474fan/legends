@@ -1,0 +1,223 @@
+--lua script
+--周年庆典礼包
+--马年圣诞礼物活动（这个两个活动共用代码，仅仅是部分语言包不一样，配置奖励不一样，配置表头不一样）
+----#include "data\config\activityconfig\AnniversaryHorse\CelebrationConfig.txt" once --周年活动
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasGiftConfig.txt" once --马年圣诞礼物活动配置
+
+--请求面板信息
+function ReqCelebrationInfo(sysarg)
+	if System.isInDateRange(unpack(ChristmasGiftCfg.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0108, ttFlyTip)--不在活动时间范围内
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, ChristmasGiftCfg.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0109, ttFlyTip)--等级不足
+		return
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 94)
+	if not pack then return end
+	DataPack.writeByte(pack, 5)
+	for i=1, 5 do
+		local ret = GetCelebrationStatus(sysarg, i)
+		DataPack.writeInt(pack, ret)
+	end
+	DataPack.flush(pack)
+end
+
+--请求某个奖品领取的状态
+function GetCelebrationStatus(sysarg, giftid)
+	local ret = ReadCelebrationInfo(sysarg, giftid) or 0
+	ret = tonumber(ret)
+	if ret then
+		if ret == -1 then
+			return -1
+		end
+	end
+
+	local neetime = ChristmasGiftCfg.accAwards[giftid].longTime
+	local online1 = ReadCelebrationInfo(sysarg, 0) or 0
+	local online2 = CelebrationOnlineTime(sysarg)
+	local online = online1+online2
+	
+	if online < neetime then
+		 SaveCelebrationInfo(sysarg, giftid, neetime - online)
+		 return neetime - online
+	elseif online >= neetime then
+		SaveCelebrationInfo(sysarg, giftid, 0)
+		return 0
+	end	
+end
+
+--请求领奖
+function ReqCelebrationAward(sysarg, giftid)
+	if System.isInDateRange(unpack(ChristmasGiftCfg.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0108, ttFlyTip)--不在活动时间范围内
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, ChristmasGiftCfg.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0109, ttFlyTip)--等级不足
+		return
+	end
+
+	local ret = ReadCelebrationInfo(sysarg, giftid) or 0
+	if ret == -1 then --已领
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse003, ttFlyTip)
+		return
+	end
+	
+	local neetime = ChristmasGiftCfg.accAwards[giftid].longTime
+
+	local online1 = ReadCelebrationInfo(sysarg, 0) or 0
+	local online2 = CelebrationOnlineTime(sysarg)
+	local online = online1+online2
+	
+	if online < neetime then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse004, ttFlyTip)
+		return
+	end
+
+	--判断背包空格足不足
+	local needbag = 0
+	for k, v in ipairs(ChristmasGiftCfg.accAwards[giftid].awardList) do
+		local itemid = v.id
+		local itemcount = v.count
+		needbag = needbag + Item.getAddItemNeedGridCount(sysarg, itemid, itemcount)
+	end
+
+	local nGridCount = Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if needbag > nGridCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+		return
+	end
+	
+	SaveCelebrationInfo(sysarg, giftid, -1)
+	
+	--给奖励
+	for k,v in ipairs(ChristmasGiftCfg.accAwards[giftid].awardList) do
+		local newItem = Item.createItem(v.id, v.count, 0, 0, v.bind, 0)
+		if not newItem then
+			return false
+		end
+
+		if (Item.addItem(sysarg, newItem, Lang.LogTips.msd0104, 979, v.count) ~= v.count) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+			return false
+		end
+	end
+	--保存数据
+
+	ReqCelebrationInfo(sysarg)
+end
+
+--上线以来的时间
+function CelebrationOnlineTime(sysarg)
+	local curTime = System.getCurrMiniTime()
+	local loginTime = Actor.getLoginTime(sysarg)
+	local sameFlag = System.isSameDay(curTime, loginTime)
+	local onlineTime = 0
+	if sameFlag then
+		onlineTime = curTime - loginTime
+	else
+		local todayTime = System.getToday()--0点时间
+		onlineTime = curTime - todayTime
+	end
+	return onlineTime
+end
+	
+--下线执行记录时间
+function CelebrationLogoutHandle(sysarg)
+	if Actor.checkActorLevel(sysarg, ChristmasGiftCfg.level) == false then --判断等级
+		return
+	end
+	if System.isInDateRange(unpack(ChristmasGiftCfg.actTime)) == false then
+		return
+	end
+
+	local online = CelebrationOnlineTime(sysarg)
+	local longTime = ReadCelebrationInfo(sysarg, 0) or 0
+	SaveCelebrationInfo(sysarg, 0, longTime + online)
+end
+
+
+--保存数据
+function SaveCelebrationInfo(sysarg, subid, value)
+	local ranking = Ranking.getRanking(Lang.Rank.ChristmasGiftFile) -- 0位 在线时长，1-5位 剩余时间和领奖
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			Ranking.setSub(item, subid, value)
+		else
+			item = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(item, subid, value)
+		end
+	end
+end
+
+--读取数据
+function ReadCelebrationInfo(sysarg, subid)
+	local ranking = Ranking.getRanking(Lang.Rank.ChristmasGiftFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local result = Ranking.getSub(item, subid)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		end
+	end
+	return nil
+end
+
+--23:59执行记录在线时间
+function CelebrationSaveTime()
+	if System.isInDateRange(unpack(ChristmasGiftCfg.actTime)) == false then
+		return
+	end
+
+	local playerList = LuaHelp.getAllActorList()		--获取所有玩家
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				if Actor.checkActorLevel(player, ChristmasGiftCfg.level) == true then --判断等级
+					for i=1, 5 do
+						GetCelebrationStatus(player, i)
+					end
+				end
+			end
+		end
+	end
+end
+
+--0点清零
+function ClearCelebration()
+	local ranking = Ranking.getRanking(Lang.Rank.ChristmasGiftFile)
+	if ranking then
+		local num = Ranking.getRankItemCount(ranking)
+		for i=1, num do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				local nActorId = Ranking.getId(item)
+				for j=1, 5 do
+					local ret = Ranking.getSub(item, j)
+					ret = tonumber(ret)
+					if ret == 0 then
+						local hour =  ChristmasGiftCfg.accAwards[j].longTime / 3600
+						local needBagCount = ChristmasGiftCfg.accAwards[j].needBagCount
+						local str = string.format(Lang.Activity.msd0115, hour)
+						System.addOfflineMsg(nActorId, 70, str, 0, 5, j, needBagCount) --4 代表庆典礼包 5代表马年圣诞礼物活动
+					end
+				end
+			end
+		end	
+
+		Ranking.clearRanking(ranking)
+	end
+end
+

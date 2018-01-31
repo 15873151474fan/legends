@@ -1,0 +1,19 @@
+﻿-- 传送到阵营徽记兑换NPC
+
+--#include "data\config\camp\CampConfig.txt" once
+  
+--客户端点击发布阵营活动 
+MiscsImplement.TelToCampEquipNPC = function (sysarg, msgid, packet)	
+  if sysarg == nil then return end
+  
+  local campid = Actor.getCampId(sysarg)
+  local cfg = CampConfig[campid+1]
+  if (cfg == nil) then
+  	print("TelToCampEquipNPC error, can't find camp equip config. campid=" .. campid)
+  	return
+  end
+    
+  System.telportSceneByName(sysarg, cfg.campEquipSceneName, cfg.campEquipNpcPosX, cfg.campEquipNpcPosY)
+end  
+
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cTelCampKingNpc, MiscsImplement.TelToCampEquipNPC)

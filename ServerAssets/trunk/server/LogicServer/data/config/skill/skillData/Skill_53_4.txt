@@ -1,0 +1,91 @@
+--毒爆蜘蛛咬人
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+
+						{cond = 3,value =1},
+					},
+					results=
+					{
+			{mj=0,timeParam=1,type=60,delay=0,value=30},
+			{mj=0,timeParam=1,type=60,delay=1000,value=29},
+			{mj=0,timeParam=1,type=60,delay=2000,value=28},
+			{mj=0,timeParam=1,type=60,delay=3000,value=27},
+			{mj=0,timeParam=1,type=60,delay=4000,value=26},
+			{mj=0,timeParam=1,type=60,delay=5000,value=25},
+			{mj=0,timeParam=1,type=60,delay=6000,value=24},
+			{mj=0,timeParam=1,type=60,delay=7000,value=23},
+			{mj=0,timeParam=1,type=60,delay=8000,value=22},
+			{mj=0,timeParam=1,type=60,delay=9000,value=21},
+			{mj=0,timeParam=1,type=60,delay=10000,value=20},
+			{mj=0,timeParam=1,type=60,delay=11000,value=19},
+			{mj=0,timeParam=1,type=60,delay=12000,value=18},
+			{mj=0,timeParam=1,type=60,delay=13000,value=17},
+			{mj=0,timeParam=1,type=60,delay=14000,value=16},
+			{mj=0,timeParam=1,type=60,delay=15000,value=15},
+			{mj=0,timeParam=1,type=60,delay=16000,value=14},
+			{mj=0,timeParam=1,type=60,delay=17000,value=13},
+			{mj=0,timeParam=1,type=60,delay=18000,value=12},
+			{mj=0,timeParam=1,type=60,delay=19000,value=11},
+			{mj=0,timeParam=1,type=60,delay=20000,value=10},
+			{mj=0,timeParam=1,type=60,delay=21000,value=9},
+			{mj=0,timeParam=1,type=60,delay=22000,value=8},
+			{mj=0,timeParam=1,type=60,delay=23000,value=7},
+			{mj=0,timeParam=1,type=60,delay=24000,value=6},
+			{mj=0,timeParam=1,type=60,delay=25000,value=5},
+			{mj=0,timeParam=1,type=60,delay=26000,value=4},
+			{mj=0,timeParam=1,type=60,delay=27000,value=3},
+			{mj=0,timeParam=1,type=60,delay=28000,value=2},
+			{mj=0,timeParam=1,type=60,delay=29000,value=1},
+
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=47,keepTime=400,delay=0,always=false},						
+					},
+				},
+			},
+		},
+
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		--{cond=13,value=19,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

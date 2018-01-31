@@ -1,0 +1,62 @@
+﻿--lua script
+
+--#include "data\config\item\itemEnhance\FeatherStrong.txt" once
+--#include "data\config\item\FeatherItem.txt" once
+
+--[[
+    函数名称：useRepairItemFunc
+    函数描述：使用汲灵晶石 增加羽化祝福值
+]]
+function useFeatherZhufuItemFunc(sysarg,itemidx,itemAwakePtr,ItemTable)
+	if System.isCommonServer() == true then return end
+
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+	
+	local itemPtr = Item.getEquipPtrByPos(sysarg,14)
+	if itemPtr == nil then
+		Actor.sendTipmsg( sysarg,Lang.Activity.cr0042,ttTipmsgWindow )
+		return
+	end
+
+	local nItemQuality = Item.getItemPropertyById( Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0), Item.ipItemSuitId)
+	
+	if nItemQuality < 5 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.cr0043, ttFlyTip)
+		return 
+	end
+
+	local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	local strongCfg = FeatherStrongConfig[nItemStrong + 1]
+	if strongCfg == nil then return end
+
+	local nValue = Item.getItemProperty( sysarg, itemPtr, Item.ipItemHole4Item, 0)	--祝福值
+	local nMaxValue = strongCfg.maxZFValue
+	if nValue >= strongCfg.maxZFValue then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cr0044, ttFlyTip)
+		return
+	end
+
+	local curValue = nValue + ItemTable.Addvalue
+	if curValue > strongCfg.maxZFValue then
+		curValue = strongCfg.maxZFValue
+	end
+
+	Item.setItemProperty(sysarg,itemPtr,Item.ipItemHole4Item, curValue)
+	
+	local nAddValue = curValue - nValue
+	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cr0045,nAddValue), ttFlyTip)
+
+	Actor.removeItemByPtr(sysarg,itemAwakePtr,1,true,"ride awkae",5)
+end
+
+function useFeatherZhufuItem_Init(sysarg)
+  for i = 1,table.getn(FeatherValueItem) do
+		local x = FeatherValueItem[i]
+		GlobalItemFn[x.item_id] = { func = useFeatherZhufuItemFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable,useFeatherZhufuItem_Init)

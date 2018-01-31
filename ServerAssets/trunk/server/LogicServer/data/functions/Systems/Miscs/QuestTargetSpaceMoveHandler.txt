@@ -1,0 +1,191 @@
+﻿--疾风令飞往任务目标地点的实现函数
+--[[
+  目前这个实现存在很大的设计漏洞： 
+    现在的实现是客户端发目标地图、X、Y上来，脚本里面直接传，这样的话客户端可以任意伪造数据包传送到任何地点。
+    正确的实现方法是，服务器读取每个任务的需求的Location，然后客户端上发任务ID、需求索引，服务器通过配置中的地点传送玩家。
+]] 
+--#include "data\config\NewVip\NewVipConfig.txt" once --新Vip配置
+
+SendToSceneItemID = 613
+ChuangSongShiItemID = 1192
+
+QuestSceneIds = {27,57,70,74,78,86,93,102,115,117,128,131,155,159,175,8063}
+
+StopSceneIds = {70,110,111,}--非VIP不能到的地图 
+
+
+--玩家点击速传按钮的函数[指定场景名称和坐标] 
+MiscsImplement.questTargetSpaceMoveHandler = function (sysarg, msgid, packet)
+	local DELAYTYPE = 13	--延时回调类型
+	local delayTime = 3000	--延时时间
+	
+	local sendFlag = DataPack.readByte(packet)
+    local sceneId = DataPack.readWord(packet)  --读取场景的ID
+    local scenename = DataPack.readString(packet)  --读取场景的名字
+	local pos_x = DataPack.readWord(packet)
+	local pos_y = DataPack.readWord(packet)
+	--print("questTargetSpaceMoveHandlersceneId:"..sceneId.."pos_x:"..pos_x.."pos_y:"..pos_y)
+	if sendFlag == 2 then
+       --机器人代码执行
+       System.telportSceneByName(sysarg,scenename,pos_x,pos_y,1)
+       return
+    end 
+    local isVip = Actor.isVip(sysarg)  -- 是否是VIP用户
+    if isVip == false then--非VIP不准进这些地图 
+	   for i = 1, table.getn(StopSceneIds) do
+	       if sceneId == StopSceneIds[i] then
+	          Actor.sendTipmsg(sysarg, string.format(Lang.Activity.g00030a, scenename) , ttFlyTip)
+	          return
+           end 
+	   end
+    end
+    
+	if sendFlag == 1 then   --判断特殊任务是否正在进行，暂时修改
+		local flag = false
+		for k, v in ipairs(QuestSceneIds) do 
+			if Actor.hasQuest(sysarg, v) == true then
+				flag = true
+				break
+			end
+		end
+		if flag == false then
+			return 
+		end
+	else
+		local scenePtr = Fuben.getScenePtrByName(scenename)
+		local entityCount = 0
+		if scenePtr then
+			local pEntityList = LuaHelp.getNearEntityListFromRange(scenePtr,pos_x,pos_y,4,4,3) --传送的周围是否有掉落物品，防止飞过去捡东西
+			if pEntityList then
+				entityCount = #pEntityList
+			end			
+		end
+		if entityCount > 0 then
+			return
+		end
+	end
+	--限时速传
+	local limitTime = DataPack.readUInt(packet)
+	if limitTime and limitTime > 0 then
+		local curTime = System.getCurrMiniTime()
+		if limitTime < curTime then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.x00191 ,ttDialog)
+		else
+			local result = false
+			local handle,result = Actor.postEntityScriptDelayMsg(sysarg,delayTime,result,DELAYTYPE,sceneId,pos_x,pos_y,0)
+			if not result then return end 
+			local npack = DataPack.allocPacket(sysarg,139,4)
+			if npack == nil then return end
+			DataPack.writeInt(npack,handle)
+			DataPack.writeInt(npack,delayTime)
+			DataPack.writeByte(npack,1)
+			DataPack.writeByte(npack,1)
+			DataPack.writeString(npack,scenename)
+			DataPack.flush(npack)
+			--System.telportSceneByName(sysarg,scenename,pos_x,pos_y)
+		end
+		return
+	end
+	--------------- 
+	if not Actor.canUseItem(sysarg,SendToSceneItemID) then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00043,ttTipmsgWindow )
+		return
+	end
+	                        
+	--密码封存
+	if Actor.getSocialMask(sysarg, smPwdLock) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0009, ttFlyTip)
+		return
+	end
+	--禁止速传物品
+	local pScene = Fuben.getScenePtrByName(scenename)
+	if Fuben.hasMapAreaAttri(pScene, pos_x, pos_y, aaNotItemTran) then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00072, ttFlyTip)
+		return
+	end
+	
+	if scenename ~= nil and Fuben.getSceneNameById(37) == scenename then		--暂时特殊处理外网刷勇士角斗场的问题
+		return
+	end
+	
+	if sceneId == 37 then
+		return
+	end
+
+	if Fuben.getSceneTypeByPtr(pScene) == 1 or Fuben.getSceneTypeByPtr(pScene) == 2 then		--只有普通场景才可以飞
+		return
+	end
+	-- 战斗状态禁止使用疾风令
+	if sendFlag == 0 and Actor.hasState(sysarg, esStateBattle) then  	
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.x00143, ttTipmsgWindow)
+		return
+	end
+	
+	if Actor.hasState(sysarg, esPaTaFubenBattle) then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.pataNotice021,ttFlyTip )
+		return
+	end
+
+	--正在押镖
+	if Actor.getIsDartFlag(sysarg) == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00030, ttFlyTip)
+		return
+	end	
+	if Actor.canEnter(sysarg, pScene, pos_x, pos_y, true) ~= true then 
+		return 
+	end
+	if sendFlag == 0 then
+	    local ChuangSongShiItemId = DataPack.readUInt(packet)
+	    local Bool = true
+        if ChuangSongShiItemId == ChuangSongShiItemID then
+           Bool = false
+        end
+		local svar 		= Actor.getStaticVar(sysarg)	
+		local vipType 	= Actor.getVipType(sysarg)
+		local isVip 	= Actor.isVip(sysarg)  -- 是否是VIP用户	
+		
+		-- VIP免费传送剩余次数。如果为-1，不需要同步到客户端；如果不为-1，则同步给客户端
+		local leftVIPFreeTelCount = -1
+		local needConsumeItem = true
+		if isVip and Bool then
+            local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)	
+			local maxFreeTelCount = NewVipConfig.VipInclude[VipLevel].BootEveryDayTime
+			if (maxFreeTelCount == -1) then			
+				needConsumeItem = false
+			else
+				if (svar.VipFreeTelCnt == nil) then svar.VipFreeTelCnt = 0 end
+				if (maxFreeTelCount > svar.VipFreeTelCnt) then
+					svar.VipFreeTelCnt = svar.VipFreeTelCnt + 1
+					leftVIPFreeTelCount = maxFreeTelCount - svar.VipFreeTelCnt
+					needConsumeItem = false
+					local npack = DataPack.allocPacket(sysarg,139,32)
+					DataPack.writeInt(npack,leftVIPFreeTelCount)
+					DataPack.flush(npack)	
+				--else
+					--Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000068, ttFlyTip)
+				end
+			end 	
+		end
+		if (needConsumeItem) and Bool then
+			if( 1 ~= Actor.removeItem(sysarg,SendToSceneItemID,1,-1,-1,-1,"任务速传",5) ) then      --删除一个物品	
+				--Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000068, ttFlyTip)			
+				Actor.openDialogs(sysarg,diBuyAnItem, tostring(SendToSceneItemID))
+				return
+			end
+		end
+		if not Bool then
+			if( 1 ~= Actor.removeItem(sysarg,ChuangSongShiItemID,1,-1,-1,-1,"传送石",5) ) then      --删除一个物品
+				--Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000068, ttFlyTip)
+				Actor.openDialogs(sysarg,diBuyAnItem, tostring(ChuangSongShiItemID))
+				return
+			end
+        end
+	end
+	local Fesult = System.telportSceneByName(sysarg,scenename,pos_x,pos_y,1)
+	
+	if Fesult == true then
+		Actor.triggerAchieveEvent(sysarg, 69, 0, 0, 0) -- 触发成就事件
+	end
+end  
+
+MiscsImplement.registerMsgHandler(7, MiscsImplement.questTargetSpaceMoveHandler)

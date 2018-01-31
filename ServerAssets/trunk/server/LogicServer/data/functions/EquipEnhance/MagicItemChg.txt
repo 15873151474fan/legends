@@ -1,0 +1,82 @@
+﻿--lua script
+
+--法宝幻化
+function OnMagicItemChg( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	--local srcPtr = args[2]  			--原始物品的指针
+	local opPtr = args[2]				--消耗物品指针
+	local opType = args[ptrCount+2]		--操作类型
+	
+	local srcPtr = MagicItem.getMagicItem(sysarg)
+
+	
+	if (not srcPtr or not opPtr) then return false end
+	
+	if Item.getBagItemIndex(sysarg, opPtr) < 0 then
+		return
+	end
+	
+	--从物品身上取得类型
+	local itemType1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemType, 0 )
+	local itemType2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemType, 0 )
+	--是否法宝
+	if itemType1 ~= Item.itMagicItem or itemType2 ~= Item.itMagicItem then
+		return false
+	end
+	
+	--获取属性
+	local itemQuality1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemQuality, 0 )
+	local itemQuality2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemQuality, 0 )
+	local itemStrong1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemStrong, 0 )
+	local itemStrong2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemStrong, 0 )
+	local itemBind1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemBind, 0 )
+	local itemDura1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemDua, 0 )
+	local itemMaxDura1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemDuaMax, 0 )
+	
+	--删除源法宝
+	if MagicItem.removeMagicItem(sysarg, 861,  Lang.LogTips.l00145) ~= true then
+		System.trace(string.format("MagicItemChg remove error,actorid=%d", Actor.getIntProperty(sysarg,PROP_ENTITY_ID)))
+		return false
+	end
+	
+	--星级
+	if itemQuality1 > itemQuality2 then	--使用星等高的
+		Item.setItemProperty(sysarg, opPtr, Item.ipItemQuality, itemQuality1)
+	end
+	
+	--等级
+	if itemStrong1 > itemStrong2 then	--使用级数高的
+		Item.setItemProperty(sysarg, opPtr, Item.ipItemStrong, itemStrong1)
+		
+		--使用最高级的经验
+		Item.setItemProperty(sysarg, opPtr, Item.ipItemDua, itemDura1)
+		Item.setItemProperty(sysarg, opPtr, Item.ipItemDuaMax, itemMaxDura1)
+
+	end
+	
+	--绑定
+	if itemBind1 ~= 0 then
+		Item.setItemProperty(sysarg, opPtr, Item.ipItemBind, 1)
+	end
+	
+	
+	--穿上法宝
+	MagicItem.takeOnMagicItem(sysarg, opPtr)	
+	--[[
+	if MagicItem.setMagicProp(sysarg, opPtr, quality, strong, itemExp) ~= true then
+		local itemId = Item.getItemProperty( sysarg, opPtr, Item.ipItemID, 0 )
+		System.trace(string.format("MagicItemChg setMagicProp error,actorid=%d,itemId=%d,quality=%d,strong=%d,itemExp=%d", 
+		Actor.getIntProperty(sysarg,PROP_ENTITY_ID),
+		itemId,quality, strong, itemExp))
+	end
+	--]]
+	--返回客户端处理结果
+	Item.sendItemProcessResult( sysarg, nil, opType, false)
+	
+	return true
+end
+
+--法宝转换消耗
+function GetMagicItemChgConsumes( sysarg, args )
+
+end

@@ -1,0 +1,82 @@
+
+--#include "data\config\activityconfig\MagicSky\FloorConfig.txt" once	--每个楼层配置
+
+--#include "RankPointer.txt" once
+--#include "data\functions\Activity\Common\Scene.txt" once --活动通用 场景
+
+
+--开始活动
+function StartMagicSky()
+	if (not FloorConfig) then return end
+	local pRank = Ranking.getRanking(MsRankPt.RankName)
+	if not pRank then return end
+	Ranking.clearRanking(pRank)
+
+	local dval = System.getDyanmicVar()
+	dval.MagicSkyStart = 1
+	
+	for k, v in pairs(FloorConfig) do
+		local hScene = Fuben.getSceneHandleById(v.sid, 0)
+		Fuben.setSceneTime(hScene, FloorConfig[1].actTime)
+	end
+	Actor.regScriptCallback( thisNPC, thisNPC, (GiveFlootExp.Mins-60)*1000, GiveFlootExp.Mins*1000, -1, "OnNoticePre")
+	Actor.regScriptCallback( thisNPC, thisNPC, GiveFlootExp.Mins*1000, GiveFlootExp.Mins*1000, -1, "OnTenMins")
+	System.broadcastTipmsg(Lang.Activity.a00053, ttScreenCenter+ttChatWindow)
+end
+
+function OnNoticePre()
+	System.broadcastTipmsg(Lang.Activity.a00053b, ttScreenCenter+ttChatWindow)
+end
+
+--每十分钟给一次经验
+function OnTenMins()
+	local dval = System.getDyanmicVar()
+	if dval.MagicSkyStart then
+		for k, v in ipairs(FloorConfig) do
+			local rateIdx = GiveFlootExp.ExpRates[k] or 0
+			local playerList = LuaHelp.getSceneActorListById(v.sid)  --获取某场景玩家对象列表
+			for _, plyPtr in ipairs(playerList or {}) do
+				local nExp = Actor.getActivityExp(plyPtr, GiveFlootExp.TabIdx, rateIdx, GiveFlootExp.VipRate)
+				if nExp > 0 then
+					Actor.addExp(plyPtr, nExp, 0, 0)
+				end
+			end																										   
+		end																											   
+	end
+	System.broadcastTipmsg(Lang.Activity.a00053c, ttScreenCenter+ttChatWindow)
+end
+
+--结束活动
+function OverMagicSky()
+	if (not FloorConfig) then return end
+	local dval = System.getDyanmicVar()
+	dval.MagicSkyStart = nil
+	dval.MagicSkyRank = nil
+	
+	for k, v in pairs(FloorConfig) do
+		local playerList = LuaHelp.getSceneActorListById(v.sid)  --获取某场景玩家对象列表
+		if playerList ~= nil then
+			for i = 1, #playerList do
+				local player = playerList[i]
+				if player then
+					--直接把玩家传出来
+					ExitMsMap(player)
+				end
+			end
+		end
+	end
+	
+	Actor.unregScriptCallback(thisNPC, "OnTenMins")
+	Actor.unregScriptCallback(thisNPC, "OnNoticePre")
+	System.broadcastTipmsg(Lang.Activity.a00054, ttScreenCenter+ttChatWindow)
+end
+
+--离开场景
+function ExitMsMap(sysarg)
+	--直接把玩家传出来
+	--local Pos = LuaHelp.getReloadMapPos(sysarg) 
+	local retScene = FloorConfig[1].retScene
+	if Actor.enterScene(sysarg, retScene.sid, unpack(retScene.range)) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+end

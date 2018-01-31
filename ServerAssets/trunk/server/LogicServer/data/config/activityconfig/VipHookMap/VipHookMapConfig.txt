@@ -1,0 +1,76 @@
+--VIP专属地图配置
+--#include "data\language\LangCode.txt"
+
+--VipHookMaps =  
+VipHookMapConfig = 
+{
+	--炼狱秘境一层
+	{
+		MinLevel = 35,						--最小进入等级
+		MinCircle = 2,						--最小进入转数
+		MinVipLevel = 0,					--最小vip等级
+
+		SceneName = Lang.SceneName.s00200,	--挂机地图场景
+	},
+	
+	--炼狱秘境二层
+	{
+		MinLevel = 35,						--最小进入等级
+		MinCircle = 4,						--最小进入转数
+		MinVipLevel = 5,					--最小vip等级
+
+		SceneName = Lang.SceneName.s00212, --s00200,	--挂机地图场景 
+	},
+	
+	--炼狱秘境三层
+	{
+		MinLevel = 35,						--最小进入等级
+		MinCircle = 6,						--最小进入转数
+		MinVipLevel = 7,					--最小vip等级
+
+		SceneName = Lang.SceneName.s00213,	--挂机地图场景
+	
+	},
+	
+	--炼狱秘境四层
+	{
+		MinLevel = 35,						--最小进入等级
+		MinCircle = 8,						--最小进入转数
+		MinVipLevel = 9,					--最小vip等级
+
+		SceneName = Lang.SceneName.s00214,	--挂机地图场景
+	},
+	
+	--炼狱秘境五层
+	{
+		MinLevel = 35,						--最小进入等级
+		MinCircle = 10,						--最小进入转数
+		MinVipLevel = 10,					--最新vip等级
+
+		SceneName = Lang.SceneName.s00215,	--挂机地图场景
+	},
+	
+	ShowSceneName = {
+		Lang.SceneName.snpc0200,
+		Lang.SceneName.snpc0212,
+		Lang.SceneName.snpc0213,
+		Lang.SceneName.snpc0214,
+		Lang.SceneName.snpc0215,
+	},
+	
+	HotPlayerCount = 30,				--达到30人显示火爆
+	
+	PosArea = {141,144,145,147},			 --进入区域范围随机，x1,x2，y1,y2
+	
+	ExitAreaPos = {8, 138, 195},			-- 退出到npc的坐标
+	
+	BuyTimes = {
+		{1, 30},      --{购买小时，售价},
+		{3, 85},
+		{5, 135},
+		{8, 210},
+	},
+
+	--每个单位1小时，作用次数为2次，用钱购买时间就相当于购买作用次数，interval是单位时间，不用变。
+	buff = {buffType = 87, groupId = 6, value = 2, times = 2, interval = 3600, buffName = Lang.Activity.vh0003, timeOverlay = true}, 
+}

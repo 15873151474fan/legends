@@ -1,0 +1,70 @@
+﻿--#include "data\config\activityconfig\WaneFudi\WaneFudiConfig.txt" once --万恶府邸副本配置
+
+
+MonDieDispatcher.WaneFudiMonsterDie = function(monster, sysarg, monId)
+--print("GuildSosMonsterDie:")
+  local Tb = WaneFudiConfig.Monster
+  local ndx = 0
+  for i = 1, #Tb do
+      if monId == Tb[i].nMonsterID then 
+         ndx = i
+      end
+  end 
+  if ndx == 0 then return end --ID不存在 
+  local bFb = Actor.getFubenPrt(sysarg)
+  local playerList = LuaHelp.getFbActorList(bFb)--副本内所有玩家
+  if playerList ~= nil then                                                                           
+     for j = 1, #playerList do
+         local player = playerList[j]
+         if player then
+            local HunValue = Actor.getIntProperty( player, PROP_ACTOR_HUN_VALUE)
+            local RandomValue = math.random(Tb[ndx].MinValue, Tb[ndx].MaxValue)
+            local HunValue1 = HunValue + math.random(Tb[ndx].MinValue, Tb[ndx].MaxValue)  
+            if HunValue1 > WaneFudiConfig.PlayerMaxHunValue then
+               RandomValue = WaneFudiConfig.PlayerMaxHunValue - HunValue --最大上限 
+            end
+            if RandomValue > 0 then
+               Actor.giveAward( player, 45, 0, RandomValue, 0, 0, 0, 0, 999, "ElingFuDi", -1) 
+            end
+            --Actor.setUIntProperty( player, PROP_ACTOR_HUN_VALUE, HunValue)
+            --print("WaneFudiMonsterDie"..HunValue)
+         end
+     end
+  end
+  --print("GuildSosMonsterDie:"..ndx)
+  if ndx >= #Tb then return end --最后BOSS死亡后不需要检测了 
+  local fhadle = Actor.getFubenHandle( sysarg)
+  local hScene = Fuben.getSceneHandleById(WaneFudiConfig.nSceneId, fhadle)
+  for i = 1, (#Tb-1) do
+      --print("GuildSosMonsterDie:"..i)
+      if Fuben.getLiveMonsterCount(hScene,Tb[i].nMonsterID) > 0 then
+      --print("GuildSosMonsterDieNull:")
+         return    --检查该层是否有这种怪物存在
+      end
+  end
+  --print("GuildSosMonsterDie:")
+  local FbPtr = Fuben.getDyanmicVar( bFb )
+  if not FbPtr then
+     return
+  end
+  if not FbPtr.WaneFuDiLimit then
+     FbPtr.WaneFuDiLimit  = 0
+  end
+  --print("GuildSosMonsterDie:")
+  local WaneFuDiLimit = FbPtr.WaneFuDiLimit
+  if WaneFuDiLimit == 0 then return end
+  --print("GuildSosMonsterDie:")
+  local LastLimitTimes = System.getCurrMiniTime() - WaneFuDiLimit 
+  if LastLimitTimes <= WaneFudiConfig.LimitTime then
+  --print("GuildSosMonsterDie:")
+     Fuben.sendMsgToFb( fhadle, Lang.Activity.w00170, ttScreenCenter)
+     Fuben.createMonsters(hScene, Tb[#Tb].nMonsterID, Tb[#Tb].posX1,Tb[#Tb].posX2, Tb[#Tb].posY, Tb[#Tb].nCount, Tb[#Tb].nLiveTime)--终极怪物刷出 
+  end
+end
+
+
+--注册怪刷出，死亡处理
+for i, j in pairs(WaneFudiConfig.Monster) do
+    --print("WaneFudiConfig:"..(j.nMonsterID))
+    MonDieDispatcher.register(j.nMonsterID ,MonDieDispatcher.WaneFudiMonsterDie)
+end

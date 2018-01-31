@@ -1,0 +1,59 @@
+﻿
+--#include "data\config\circle\ChgVocationAndSex.txt" once	--转职转性配置
+
+
+function ChangeVocationOrSex(sysarg, guideId)
+	local config = ChgVocationAndSex
+	if (not config) then return end
+	
+	if guideId == config.vocation.guideId then
+		ChangeVocation(sysarg)
+	elseif guideId == config.sex.guideId then
+		ChangeSex(sysarg)
+	end
+end
+
+
+function ChangeVocation(sysarg)
+	local config = ChgVocationAndSex.vocation
+	local consumes = config.consumes
+	
+	if Consumes.CheckAndRemove(sysarg, consumes, 2, Lang.ScriptTips.l00098) ~= true then
+		return
+	end
+	
+	local dvar = Actor.getDyanmicVar(sysarg)
+	local idx = tonumber(dvar.changeVocation)
+	if not idx then return end
+	
+	local oldVocation = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	--转职
+	Actor.changeVocation(sysarg, idx)
+	
+	
+	dvar.changeVocation = nil
+	
+	
+	local name = Actor.getName(sysarg)
+	System.broadcastTipmsg(string.format(Lang.ScriptTips.c000145, name,Job_cn[idx]), ttScreenCenter)
+end
+
+function ChangeSex(sysarg)
+	local config = ChgVocationAndSex.sex
+	local consumes = config.consumes
+	if Consumes.CheckAndRemove(sysarg, consumes, 2, Lang.ScriptTips.l00099) ~= true then
+		return
+	end
+	
+	local dvar = Actor.getDyanmicVar(sysarg)
+	local idx = tonumber(dvar.changeSex)
+	if not idx then return end
+	
+	--转性
+	Actor.changeSex(sysarg, idx)
+	dvar.changeSex = nil
+	
+	
+	local name = Actor.getName(sysarg)
+	System.broadcastTipmsg(string.format(Lang.ScriptTips.c000146, name,Sex_cn[idx]), ttScreenCenter)
+end

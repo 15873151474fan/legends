@@ -1,0 +1,122 @@
+--lua script
+--用户使用经验宝盒，可获取定量的经验
+
+local DELAYTYPE = 7
+--点击使用宝盒，发送进度条特效，在这个过程用户可以取消，如果进度条完成，将会回调use_ExpBox函数
+function startUseExpBox( sysarg,itemId,itemPtr,useItemTbl )
+	-- --检查有没有 钥匙
+	-- if Actor.getItemCount(sysarg,useItemTbl.extentItem.itemId) < useItemTbl.extentItem.count then
+	-- 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00002,ttDialog)
+	-- 	return
+	-- end
+	-- if Actor.getItemCount(sysarg,itemId) < 1 then
+	-- 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00004,ttDialog)
+	-- 	return
+	-- end
+	-- --检查次数够了没有
+	-- local flag = true
+	-- if itemId == 1739 then
+	-- 	local var = Actor.getStaticVar(sysarg)
+	-- 	if var.expbox1 ~= nil and var.expbox1 >= 5 then
+	-- 		flag = false
+	-- 	end
+	-- end
+	-- if itemId == 1740 then
+	-- 	local var = Actor.getStaticVar(sysarg)
+	-- 	if var.expbox2 ~= nil and var.expbox2 >= 3 then
+	-- 		flag = false
+	-- 	end
+	-- end
+	-- if not flag then
+	-- 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00005,ttDialog)
+	-- 	return
+	-- end
+	-- --[[
+	-- local postint,result = Actor.postEntityScriptDelayMsg(sysarg,3000,result,DELAYTYPE,itemId)
+	-- if not result then 
+ -- 		return 
+	-- end
+	-- local npack = DataPack.allocPacket(sysarg,139,4)
+	-- if npack == nil then return end
+	-- DataPack.writeInt(npack,postint)
+	-- DataPack.writeInt(npack,3000)
+	-- DataPack.writeByte(npack,1)
+	-- DataPack.writeByte(npack,1)
+	-- DataPack.writeString(npack,Lang.ScriptTips.i00003)	
+	-- DataPack.flush(npack)
+	-- --]]
+	-- Actor.startSingWnd(sysarg,7,3000,Lang.ScriptTips.i00003,true,true,false,itemId)
+end
+
+--#include "data\config\item\ExpBox.txt" once
+
+--使用宝盒的回调函数
+function use_ExpBox( sysarg, arg)
+	-- local itemId = arg[2]
+	-- for i=1, #expBoxTable do
+	-- 	local data = expBoxTable[i].param
+	-- 	if itemId == data.item_id then
+	-- 		--检查有没有 钥匙
+	-- 		if Actor.getItemCount(sysarg,data.extentItem.itemId) < data.extentItem.count then
+	-- 			Actor.sendTipmsgWithId(sysarg,Lang.ScriptTips.i00002,ttDialog)
+	-- 			return
+	-- 		end
+	-- 		if Actor.getItemCount(sysarg,itemId) < 1 then
+	-- 			Actor.sendTipmsgWithId(sysarg,Lang.ScriptTips.i00004,ttDialog)
+	-- 			return
+	-- 		end
+	-- 		--检查次数够了没有
+	-- 		local flag = true
+			
+	-- 		if itemId == 1739 then
+	-- 			local var = Actor.getStaticVar(sysarg)
+	-- 			if var.expbox1 ~= nil and var.expbox1 >= 5 then
+	-- 				flag = false
+	-- 			else
+	-- 				if var.expbox1 == nil then 
+	-- 					var.expbox1 = 1 
+	-- 				else
+	-- 					var.expbox1 = var.expbox1 + 1 
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 		if itemId == 1740 then
+	-- 			local var = Actor.getStaticVar(sysarg)
+	-- 			if var.expbox2 ~= nil and var.expbox2 >= 3 then
+	-- 				flag = false
+	-- 			else
+	-- 				if var.expbox2 == nil then 
+	-- 					var.expbox2 = 1 
+	-- 				else
+	-- 					var.expbox2 = var.expbox2 + 1 
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 		if not flag then
+	-- 			Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00005,ttDialog)
+	-- 			return
+	-- 		end
+			
+	-- 		--删除对应物品后增加经验
+	-- 		Actor.removeItem(sysarg,itemId,1)
+	-- 		Actor.removeItem(sysarg,data.extentItem.itemId,data.extentItem.count)
+	-- 		Actor.addExp(sysarg,data.addExp,204,itemId)
+			
+	-- 		return	--处理完直接返回
+	-- 	end
+	-- end
+end
+
+
+
+function ExpBox_Init(npcobj)
+	for i = 1, table.getn(expBoxTable) do
+		local x = expBoxTable[i]
+		GlobalItemFn[x.param.item_id] = { func = x.func, params = x.param }
+	end
+end
+
+table.insert( InitFnTable, ExpBox_Init )
+
+
+table.insert(LocalDT.ScriptDelayConfig[7],use_ExpBox)

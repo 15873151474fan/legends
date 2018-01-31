@@ -1,0 +1,636 @@
+
+
+
+
+--足迹升阶配置
+--yb不填或为0表示不能用元宝代替，有值表示单个物品的价格代替
+FootPrintUpgradeConfig = {
+	{		-- +1
+		srcItems = {1992,2012,2032,2052,2072,2304 },		--原始道具组 每一组对于destItem的道具生成
+		destItem = {1993,2013,2033,2053,2073,2305 },			--生成的目标道具
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 2, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 2500, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+		},
+		maxSharp = 100,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 1000},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 1000},
+			{sharp = 3, rate = 3000},
+			{sharp = 4, rate = 3000},
+			{sharp = 5, rate = 2000},
+		},
+	},
+	
+	{		-- +2
+		srcItems = {1993,2013,2033,2053,2073,2305 },	
+		destItem = {1994,2014,2034,2054,2074,2306 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 3, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 1673, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 2434, sharpRange = {101, 150}},
+		},
+		maxSharp = 150,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 1800},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 1500},
+			{sharp = 3, rate = 2500},
+			{sharp = 4, rate = 2500},
+			{sharp = 5, rate = 1700},
+		},
+	},
+	
+		{		-- +3
+		srcItems = {1994,2014,2034,2054,2074,2306 },	
+		destItem = {1995,2015,2035,2055,2075,2307 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 4, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 916, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 1391, sharpRange = {101, 150}},
+			{rate = 2338, sharpRange = {151, 200}},
+		},
+		maxSharp = 200,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 2600},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 2000},
+			{sharp = 3, rate = 2000},
+			{sharp = 4, rate = 2000},
+			{sharp = 5, rate = 1400},
+		},
+	},
+	
+		{		-- +4
+		srcItems = {1995,2015,2035,2055,2075,2307 },	
+		destItem = {1996,2016,2036,2056,2076,2308 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 5, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 410, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 660, sharpRange = {101, 150}},
+			{rate = 1171, sharpRange = {151, 200}},
+			{rate = 2216, sharpRange = {201, 250}},
+		},
+		maxSharp = 250,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 3400},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 2500},
+			{sharp = 3, rate = 1500},
+			{sharp = 4, rate = 1500},
+			{sharp = 5, rate = 1100},
+		},
+	},
+	
+	{		-- +5
+		srcItems = {1996,2016,2036,2056,2076,2308 },	
+		destItem = {1997,2017,2037,2057,2077,2309 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 6, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 150, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 260, sharpRange = {101, 150}},
+			{rate = 494, sharpRange = {151, 200}},
+			{rate = 998, sharpRange = {201, 250}},
+			{rate = 2073, sharpRange = {251, 300}},
+		},
+		maxSharp = 300,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 4200},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 3000},
+			{sharp = 3, rate = 1000},
+			{sharp = 4, rate = 1000},
+			{sharp = 5, rate = 800},
+		},
+	},
+	
+		{		-- +6
+		srcItems = {1997,2017,2037,2057,2077,2309 },	
+		destItem = {1998,2018,2038,2058,2078,2310 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 7, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 45, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 85, sharpRange = {101, 150}},
+			{rate = 175, sharpRange = {151, 200}},
+			{rate = 383, sharpRange = {201, 250}},
+			{rate = 859, sharpRange = {251, 300}},
+			{rate = 1913, sharpRange = {301, 350}},
+		},
+		maxSharp = 350,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 2400},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 3500},
+			{sharp = 3, rate = 1500},
+			{sharp = 4, rate = 1500},
+			{sharp = 5, rate = 1100},
+		},
+	},
+	
+			{		-- +7
+		srcItems = {1998,2018,2038,2058,2078,2310 },	
+		destItem = {1999,2019,2039,2059,2079,2311 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 8, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 11, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 23, sharpRange = {101, 150}},
+			{rate = 52, sharpRange = {151, 200}},
+			{rate = 125, sharpRange = {201, 250}},
+			{rate = 307, sharpRange = {251, 300}},
+			{rate = 745, sharpRange = {301, 350}},
+			{rate = 1742, sharpRange = {351, 400}},			
+		},
+		maxSharp = 400,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 1600},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 3000},
+			{sharp = 3, rate = 2000},
+			{sharp = 4, rate = 2000},
+			{sharp = 5, rate = 1400},
+		},
+	},
+	
+				{		-- +8
+		srcItems = {1999,2019,2039,2059,2079,2311 },	
+		destItem = {2000,2020,2040,2060,2080,2312 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 9, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 2, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 5, sharpRange = {101, 150}},
+			{rate = 13, sharpRange = {151, 200}},
+			{rate = 35, sharpRange = {201, 250}},
+			{rate = 95, sharpRange = {251, 300}},
+			{rate = 254, sharpRange = {301, 350}},
+			{rate = 651, sharpRange = {351, 400}},	
+			{rate = 1566, sharpRange = {401, 450}},		
+		},
+		maxSharp = 450,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 800},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 2500},
+			{sharp = 3, rate = 2500},
+			{sharp = 4, rate = 2500},
+			{sharp = 5, rate = 1700},
+		},
+	},
+	
+	{		-- +9
+		srcItems = {2000,2020,2040,2060,2080,2312 },	
+		destItem = {2001,2021,2041,2061,2081,2313 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 10, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 1, sharpRange = {101, 150}},
+			{rate = 3, sharpRange = {151, 200}},
+			{rate = 8, sharpRange = {201, 250}},
+			{rate = 25, sharpRange = {251, 300}},
+			{rate = 76, sharpRange = {301, 350}},
+			{rate = 215, sharpRange = {351, 400}},	
+			{rate = 573, sharpRange = {401, 450}},
+			{rate = 1389, sharpRange = {451, 500}},				
+		},
+		maxSharp = 500,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 0},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 2000},
+			{sharp = 3, rate = 3000},
+			{sharp = 4, rate = 3000},
+			{sharp = 5, rate = 2000},
+		},
+	},
+	
+	{		-- +10
+		srcItems = {2001,2021,2041,2061,2081,2313 },	
+		destItem = {2002,2022,2042,2062,2082,2314 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 11, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 1, sharpRange = {151, 200}},
+			{rate = 2, sharpRange = {201, 250}},
+			{rate = 6, sharpRange = {251, 300}},
+			{rate = 20, sharpRange = {301, 350}},
+			{rate = 63, sharpRange = {351, 400}},	
+			{rate = 187, sharpRange = {401, 450}},
+			{rate = 505, sharpRange = {451, 500}},	
+			{rate = 1215, sharpRange = {501, 600}},					
+		},
+		maxSharp = 600,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 200},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 1500},
+			{sharp = 3, rate = 2750},
+			{sharp = 4, rate = 3250},
+			{sharp = 5, rate = 2300},
+		},
+	},
+	
+		{		-- +11
+		srcItems = {2002,2022,2042,2062,2082,2314 },	
+		destItem = {2003,2023,2043,2063,2083,2315 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 12, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 1, sharpRange = {251, 300}},
+			{rate = 5, sharpRange = {301, 350}},
+			{rate = 16, sharpRange = {351, 400}},	
+			{rate = 55, sharpRange = {401, 450}},
+			{rate = 166, sharpRange = {451, 500}},	
+			{rate = 447, sharpRange = {501, 600}},		
+			{rate = 1049, sharpRange = {601, 700}},	
+		},
+		maxSharp = 700,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 400},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 1000},
+			{sharp = 3, rate = 2500},
+			{sharp = 4, rate = 3500},
+			{sharp = 5, rate = 2600},
+		},
+	},
+	
+	{		-- +12
+		srcItems = {2003,2023,2043,2063,2083,2315 },	
+		destItem = {2004,2024,2044,2064,2084,2316 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 13, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 0, sharpRange = {251, 300}},
+			{rate = 1, sharpRange = {301, 350}},
+			{rate = 4, sharpRange = {351, 400}},	
+			{rate = 14, sharpRange = {401, 450}},
+			{rate = 49, sharpRange = {451, 500}},	
+			{rate = 150, sharpRange = {501, 600}},		
+			{rate = 396, sharpRange = {601, 700}},	
+			{rate = 894, sharpRange = {701, 800}},	
+		},
+		maxSharp = 800,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 100},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 1000},
+			{sharp = 3, rate = 2250},
+			{sharp = 4, rate = 3750},
+			{sharp = 5, rate = 2900},
+		},
+	},
+	
+		{		-- +13
+		srcItems = {2004,2024,2044,2064,2084,2316 },	
+		destItem = {2005,2025,2045,2065,2085,2317 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 14, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 0, sharpRange = {251, 300}},
+			{rate = 0, sharpRange = {301, 350}},
+			{rate = 1, sharpRange = {351, 400}},	
+			{rate = 2, sharpRange = {401, 450}},
+			{rate = 13, sharpRange = {451, 500}},	
+			{rate = 46, sharpRange = {501, 600}},		
+			{rate = 138, sharpRange = {601, 700}},	
+			{rate = 350, sharpRange = {701, 800}},	
+			{rate = 752, sharpRange = {801, 900}},
+		},
+		maxSharp = 900,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 300},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 500},
+			{sharp = 3, rate = 2000},
+			{sharp = 4, rate = 4000},
+			{sharp = 5, rate = 3200},
+		},
+	},
+	
+	{		-- +14
+		srcItems = {2005,2025,2045,2065,2085,2317 },	
+		destItem = {2006,2026,2046,2066,2086,2318 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 15, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 0, sharpRange = {251, 300}},
+			{rate = 0, sharpRange = {301, 350}},
+			{rate = 0, sharpRange = {351, 400}},	
+			{rate = 1, sharpRange = {401, 450}},
+			{rate = 3, sharpRange = {451, 500}},	
+			{rate = 13, sharpRange = {501, 600}},		
+			{rate = 44, sharpRange = {601, 700}},	
+			{rate = 128, sharpRange = {701, 800}},	
+			{rate = 310, sharpRange = {801, 900}},
+			{rate = 624, sharpRange = {901, 1000}},
+		},
+		maxSharp = 1000,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 0},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 500},
+			{sharp = 3, rate = 1750},
+			{sharp = 4, rate = 4250},
+			{sharp = 5, rate = 3500},
+		},
+	},
+	
+	{		-- +15
+		srcItems = {2006,2026,2046,2066,2086,2318 },	
+		destItem = {2007,2027,2047,2067,2087,2319 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 16, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 0, sharpRange = {251, 300}},
+			{rate = 0, sharpRange = {301, 350}},
+			{rate = 0, sharpRange = {351, 400}},	
+			{rate = 0, sharpRange = {401, 450}},
+			{rate = 1, sharpRange = {451, 500}},	
+			{rate = 3, sharpRange = {501, 600}},		
+			{rate = 13, sharpRange = {601, 700}},	
+			{rate = 43, sharpRange = {701, 800}},	
+			{rate = 120, sharpRange = {801, 900}},
+			{rate = 273, sharpRange = {901, 1000}},
+			{rate = 511, sharpRange = {1001, 1200}},
+		},
+		maxSharp = 1200,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 0},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 0},
+			{sharp = 3, rate = 1250},
+			{sharp = 4, rate = 4750},
+			{sharp = 5, rate = 4000},
+		},
+	},
+	
+	{		-- +16
+		srcItems = {2007,2027,2047,2067,2087,2319 },	
+		destItem = {2008,2028,2048,2068,2088,2320 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 17, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 0, sharpRange = {251, 300}},
+			{rate = 0, sharpRange = {301, 350}},
+			{rate = 0, sharpRange = {351, 400}},	
+			{rate = 0, sharpRange = {401, 450}},
+			{rate = 0, sharpRange = {451, 500}},	
+			{rate = 1, sharpRange = {501, 600}},		
+			{rate = 4, sharpRange = {601, 700}},	
+			{rate = 14, sharpRange = {701, 800}},	
+			{rate = 44, sharpRange = {801, 900}},
+			{rate = 113, sharpRange = {901, 1000}},
+			{rate = 240, sharpRange = {1001, 1200}},
+			{rate = 413, sharpRange = {1201, 1400}},
+		},
+		maxSharp = 1400,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 0},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 0},
+			{sharp = 3, rate = 750},
+			{sharp = 4, rate = 4750},
+			{sharp = 5, rate = 4500},
+		},
+	},
+	
+	{		-- +17
+		srcItems = {2008,2028,2048,2068,2088,2320 },	
+		destItem = {2009,2029,2049,2069,2089,2321 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 18, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 0, sharpRange = {251, 300}},
+			{rate = 0, sharpRange = {301, 350}},
+			{rate = 0, sharpRange = {351, 400}},	
+			{rate = 0, sharpRange = {401, 450}},
+			{rate = 0, sharpRange = {451, 500}},	
+			{rate = 0, sharpRange = {501, 600}},		
+			{rate = 1, sharpRange = {601, 700}},	
+			{rate = 4, sharpRange = {701, 800}},	
+			{rate = 15, sharpRange = {801, 900}},
+			{rate = 44, sharpRange = {901, 1000}},
+			{rate = 107, sharpRange = {1001, 1200}},
+			{rate = 209, sharpRange = {1201, 1400}},
+			{rate = 329, sharpRange = {1401, 1600}},
+		},
+		maxSharp = 1600,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 0},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 0},
+			{sharp = 3, rate = 250},
+			{sharp = 4, rate = 4750},
+			{sharp = 5, rate = 5000},
+		},
+	},
+	
+	{		-- +18
+		srcItems = {2009,2029,2049,2069,2089,2321 },	
+		destItem = {2010,2030,2050,2070,2090,2322 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 19, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 0, sharpRange = {251, 300}},
+			{rate = 0, sharpRange = {301, 350}},
+			{rate = 0, sharpRange = {351, 400}},	
+			{rate = 0, sharpRange = {401, 450}},
+			{rate = 0, sharpRange = {451, 500}},	
+			{rate = 0, sharpRange = {501, 600}},		
+			{rate = 0, sharpRange = {601, 700}},	
+			{rate = 1, sharpRange = {701, 800}},	
+			{rate = 5, sharpRange = {801, 900}},
+			{rate = 16, sharpRange = {901, 1000}},
+			{rate = 46, sharpRange = {1001, 1200}},
+			{rate = 102, sharpRange = {1201, 1400}},
+			{rate = 181, sharpRange = {1401, 1600}},
+			{rate = 258, sharpRange = {1601, 1800}},
+			
+		},
+		maxSharp = 1800,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 0},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 0},
+			{sharp = 3, rate = 0},
+			{sharp = 4, rate = 4500},
+			{sharp = 5, rate = 5500},
+		},
+	},
+	
+		{		-- +19
+		srcItems = {2010,2030,2050,2070,2090,2322 },	
+		destItem = {2011,2031,2051,2071,2091,2323 },
+		--failDownIdx = {1,1},	--最小值，最大值
+		strong = {
+			{type = 0, usetype = Any_Stuff, id = 2111, count = 20, yb = 18},
+			--{type = 0, usetype = Any_Protect,  id = 0, count = 0, yb = 0},
+			{type = 6, usetype =Any_Silver, id = 0, count = 10000},
+		},
+		upRate = 	--每次直接提升几率
+		{
+			{rate = 0, sharpRange = {1, 100}},	--rate直接提升等级几率 range当前锋利值范围 0<=sharp<=10
+			{rate = 0, sharpRange = {101, 150}},
+			{rate = 0, sharpRange = {151, 200}},
+			{rate = 0, sharpRange = {201, 250}},
+			{rate = 0, sharpRange = {251, 300}},
+			{rate = 0, sharpRange = {301, 350}},
+			{rate = 0, sharpRange = {351, 400}},	
+			{rate = 0, sharpRange = {401, 450}},
+			{rate = 0, sharpRange = {451, 500}},	
+			{rate = 0, sharpRange = {501, 600}},		
+			{rate = 0, sharpRange = {601, 700}},	
+			{rate = 0, sharpRange = {701, 800}},	
+			{rate = 2, sharpRange = {801, 900}},
+			{rate = 6, sharpRange = {901, 1000}},
+			{rate = 19, sharpRange = {1001, 1200}},
+			{rate = 48, sharpRange = {1201, 1400}},
+			{rate = 96, sharpRange = {1401, 1600}},
+			{rate = 155, sharpRange = {1601, 1800}},
+			{rate = 200, sharpRange = {1801, 2000}},
+			
+		},
+		maxSharp = 2000,		--最大锋利值
+		RandSharp =	--失败时 ,每个等级对应的随机锋利值 每个等级rate总和=10000
+		{
+			{sharp = 1, rate = 0},	--sharp加成的锋利值 rate几率
+			{sharp = 2, rate = 0},
+			{sharp = 3, rate = 0},
+			{sharp = 4, rate = 4000},
+			{sharp = 5, rate = 6000},
+		},
+	},
+}

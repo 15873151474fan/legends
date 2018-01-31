@@ -1,0 +1,260 @@
+--lua script
+
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--行会争夺战的一些通用处理
+
+--进入行会争夺战
+function EnterGuildBattle(sysarg)
+	local str = ""
+	
+	--不在行会中
+	if Actor.bInGuild(sysarg) == true then
+		str = Lang.Activity.w00031
+		return str
+	end
+
+	if Actor.checkActorLevel(sysarg, GuildBattleConfig.minLevel, 0) ~= true then
+		str = string.format(Lang.Activity.w00032,GuildBattleConfig.minLevel)
+		return str
+	end
+	
+	local svar = System.getDyanmicVar()
+	--开始的标志
+	if svar.StartGuildBattleFlag == nil then
+		svar.StartGuildBattleFlag = 0
+	end
+
+	if svar.StartGuildBattleFlag == 0 then
+		str = Lang.Activity.w00033
+		return str
+	end
+
+	local nPosX = System.getRandomNumber(GuildBattleConfig.nPosX[2]-GuildBattleConfig.nPosX[1])
+	nPosX = nPosX + GuildBattleConfig.nPosX[1]
+
+	local nPosY = System.getRandomNumber(GuildBattleConfig.nPosY[2]-GuildBattleConfig.nPosY[1])
+	nPosY = nPosY + GuildBattleConfig.nPosY[1]
+
+	local nHandle = Fuben.getSceneHandleById(GuildBattleConfig.nSceenId,0)
+	Actor.enterFuBen(sysarg,nHandle,GuildBattleConfig.nSceenId,nPosX,nPosY)
+	
+	if svar.StartGuildBattleMonster == nil then
+		svar.StartGuildBattleMonster = 0
+	end
+	local nManster = Actor.getEntity(svar.StartGuildBattleMonster)
+	local nGuildId = Actor.getNpcGuildId(nManster)
+	
+	local str1
+	if nGuildId > 0 then
+		str1 = string.format(Lang.Activity.w00045,System.getGuildName(nGuildId))
+	else
+		str1 = string.format(Lang.Activity.w00045,"")
+	end
+
+	local nTime = Fuben.getSceneTime(nHandle)
+	Actor.initActivityWind(sysarg,GuildBattleConfig.activityName,nTime,str1)
+end
+
+--定时给经验
+function GiveGuildBattleExp()
+	local svar = System.getDyanmicVar()
+	
+	if svar.StartGuildBattleMonster == nil then return end
+
+	local nManster = Actor.getEntity(svar.StartGuildBattleMonster)
+	local playerList = LuaHelp.getVisiActorList(nManster)
+	local nGuildid = Actor.getNpcGuildId(nManster)
+	
+	if playerList ~= nil then
+		local nRate = GetCombineActivityRate()
+		
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local gId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				if gId == nGuildid then
+					if Awards.CheckBagGridCount(player,GuildBattleConfig.OwnAwardsExp) then
+						--Awards.Give(player,GuildBattleConfig.OwnAwardsExp,822,"GuildbattleAwards")
+						local awardTab = GuildBattleConfig.OwnAwardsExp[1]
+						Actor.giveAward(player, awardTab.type,awardTab.id,awardTab.count * nRate,awardTab.quality,awardTab.strong,awardTab.bind,0,0,"GuildbattleAwards")
+					end
+				else
+					if Awards.CheckBagGridCount(player,GuildBattleConfig.AwardsExp) then
+						--Awards.Give(player,GuildBattleConfig.AwardsExp,822,"GuildbattleAwards")
+						local awardTab = GuildBattleConfig.AwardsExp[1]
+						Actor.giveAward(player, awardTab.type,awardTab.id,awardTab.count * nRate,awardTab.quality,awardTab.strong,awardTab.bind,0,0,"GuildbattleAwards")
+					end
+				end
+			end
+		end
+	end
+end
+
+--赢得行会争夺战
+function WinGuildBattle()
+	local svar = System.getDyanmicVar()
+
+	if svar.StartGuildBattleMonster == nil then
+		svar.StartGuildBattleMonster = 0
+		return
+	end
+
+	if svar.StartGuildBattleMonster > 0 then
+		local nManster = Actor.getEntity(svar.StartGuildBattleMonster)
+		local nGuildId = Actor.getNpcGuildId(nManster)
+		if nGuildId > 0 then
+			local sWinvar = System.getStaticVar()
+			sWinvar.WinGuildBattleGuildId = nGuildId
+
+			local playerList = LuaHelp.getSceneActorListById(GuildBattleConfig.nSceenId)		--获取某场景玩家对象列表
+			if playerList ~= nil then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then
+						if Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID ) == nGuildId then
+							if Awards.CheckBagGridCount(player,GuildBattleConfig.Awards) then
+								Awards.Give(player,GuildBattleConfig.Awards,822,"GuildBattleAwards")
+							end
+						end
+					end
+				end
+			end
+			
+			--主题活动保存
+			--local nDays = System.getDaysSinceOpenServer()
+			--if nDays >= 3 then
+				--System.updateGuildBattleFile(nGuildId)
+			--end
+
+			--双倍奖励活动
+			local doubleAwardActRate = 0
+			if System.getDoubleAwardFlag(7) == 1 then
+				doubleAwardActRate = 1
+			end
+
+			System.changeGuildCoin(nGuildId,GuildBattleConfig.AwardsGuildCoin*(1+doubleAwardActRate))
+
+			local str = string.format(Lang.Activity.w00049,System.getGuildName(nGuildId))
+			System.broadcastTipmsg(str,2+128)
+
+			OnGuildBattleOver()
+		end
+	end
+end
+
+--结束行会战
+function OnGuildBattleOver()
+	local svar = System.getDyanmicVar()
+	if svar.StartGuildBattleMonster ~= nil then
+		Fuben.clearMonster(svar.StartGuildBattleMonster, false)
+	end
+	
+	local nHandle = Fuben.getSceneHandleById(GuildBattleConfig.eSceenId,0)
+	local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00124)
+	Actor.unregScriptCallback(NpcPtr,"WinGuildBattle")
+
+	svar.StartGuildBattleFlag = nil
+	svar.StartGuildBattleMonster = 0
+
+	local playerList = LuaHelp.getSceneActorListById(GuildBattleConfig.nSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.closeActivityWind(player)
+
+				local nPosX = System.getRandomNumber(GuildBattleConfig.ePosX[2]-GuildBattleConfig.ePosX[1])
+				nPosX = nPosX + GuildBattleConfig.ePosX[1]
+
+				local nPosY = System.getRandomNumber(GuildBattleConfig.ePosY[2]-GuildBattleConfig.ePosY[1])
+				nPosY = nPosY + GuildBattleConfig.ePosY[1]
+
+				Actor.enterScene(player,GuildBattleConfig.eSceenId,nPosX,nPosY)
+			end
+		end
+	end
+	
+	System.broadcastTipmsg(Lang.Activity.w00050,2+128)
+end
+
+
+--旗帜被夺
+function OccupyBanne(sysarg,monster)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+
+	local svar = System.getDyanmicVar()
+
+	if svar.StartGuildBattleFlag == nil then
+		svar.StartGuildBattleFlag = 0
+	end
+	
+	local nHandle = Fuben.getSceneHandleById(GuildBattleConfig.eSceenId,0)
+	local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00124)
+
+	Actor.unregScriptCallback(NpcPtr,"WinGuildBattle")
+
+	--开始的标志
+	if svar.StartGuildBattleFlag == 1 then
+		local hScene = Fuben.getSceneHandleById(GuildBattleConfig.nSceenId, 0)
+		Fuben.clearMonster(hScene,GuildBattleConfig.Monsters[1].nMonsterID)
+
+		local nMonster = Fuben.createOneMonsters(hScene, GuildBattleConfig.Monsters[1].nMonsterID, GuildBattleConfig.Monsters[1].posX1, GuildBattleConfig.Monsters[1].posX2, GuildBattleConfig.Monsters[1].posY, GuildBattleConfig.Monsters[1].nCount, GuildBattleConfig.Monsters[1].nLiveTime)
+		Actor.setMonsterCanMove(nMonster,true)
+		Actor.setMonsterName(nMonster,Actor.getGuildName(sysarg))
+		Actor.setNpcGuildId(nMonster,nGuildId)
+	
+		svar.StartGuildBattleMonster = Actor.getHandle(nMonster)
+		
+		local str = string.format(Lang.Activity.w00051,Actor.getGuildName(sysarg))
+		Fuben.sendMsgToScene(hScene,str,2+128)
+
+		Actor.regScriptCallback(NpcPtr, NpcPtr, GuildBattleConfig.TenMins, GuildBattleConfig.TenMins, -1, "WinGuildBattle")
+
+		local str1 = string.format(Lang.Activity.w00045,Actor.getGuildName(sysarg))
+
+		local playerList = LuaHelp.getSceneActorListById(GuildBattleConfig.nSceenId)
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					Actor.changeActivityNotify(player,str1)
+				end
+			end
+		end
+	end
+end
+
+--领取获胜奖励
+function GetGuildBattleAward(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId <= 0 then
+		Actor.sendTipmsg( sysarg, Lang.Activity.w00116 ,ttFlyTip)
+		return
+	end
+
+	local svar = System.getStaticVar()
+	if svar.WinGuildBattleGuildId == nil then
+		svar.WinGuildBattleGuildId = 0
+	end
+	
+	if svar.WinGuildBattleGuildId ~= nGuildId then
+		Actor.sendTipmsg( sysarg, Lang.Activity.w00116 ,ttFlyTip)
+		return
+	end
+
+	local var = Actor.getStaticVar(sysarg)
+	if var.GetGuildBattleAward == nil then
+		var.GetGuildBattleAward = 0
+	end
+	
+	if var.GetGuildBattleAward == 1 then
+		Actor.sendTipmsg( sysarg, Lang.Activity.w00117 ,ttFlyTip)
+		return
+	end
+
+	if Awards.CheckBagGridCount(sysarg,GuildBattleConfig.GetAwards) then
+		Awards.Give(sysarg,GuildBattleConfig.GetAwards,822,"GuildBattleAwards")
+		var.GetGuildBattleAward = 1
+	end
+end

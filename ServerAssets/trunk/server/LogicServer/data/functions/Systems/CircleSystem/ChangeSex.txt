@@ -1,0 +1,115 @@
+﻿--NPC执行：切JJ仙子（咒泉乡）
+
+--#include "data\config\circle\ChgVocationAndSex.txt" once	--转职转性配置
+--#include "data\functions\Activity\Common\Consumes.txt" once --
+--#include "data\functions\GlobalDefine.txt" once
+--#include "data\functions\Activity\Common\Scene.txt" once
+--#include "data\functions\Activity\WorldCup\WorldCup.txt" once
+
+
+--[[
+    函数名称：传送
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function ChangeSex_Main(sysarg)
+	local config = ChgVocationAndSex
+	if (not config) then return "" end
+	
+	
+	local str = ""
+	local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+	
+	for i = 0, 1 do 
+		if i ~= sex then
+			str = str.."\\<#BL"..string.format(Lang.ScriptTips.c000139, Sex_cn[i]).."/@AskChangeSex,"..i..">"	--<转换性别>
+		end
+	end
+	str = str.."\\<#BL"..Lang.ScriptTips.c000140.."/@AbouChangeSex>"  --<转性说明>
+	str = str.."\\<#BL"..Lang.ScriptTips.c000156.."/@@showClothesConvertWin>"  --<时装衣服转换>
+	str = str.."\\<#BL"..Lang.ScriptTips.c000147.."/@AskExitToReloadMap, "..Lang.ScriptTips.c000148..">"  --<离开活动>
+	return str
+end
+
+
+function AskChangeSex(sysarg, idx)
+	if System.getDaysSinceOpenServer() < ChgVocationAndSex.openDay then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000149,ChgVocationAndSex.openDay), ttFlyTip)
+		return
+	end
+	
+	if System.getDaysSinceCombineServer() > 0 and System.getDaysSinceCombineServer() < ChgVocationAndSex.combineDay then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000153, ChgVocationAndSex.combineDay), ttFlyTip)
+		return
+	end
+	
+	local idx = tonumber(idx)
+	local config = ChgVocationAndSex.sex
+	local sAskMsg = string.format(Lang.ScriptTips.c000141, Consumes.ParseConsumesStr(config.consumes),Sex_cn[idx])
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.c000134.."/OnChangeSex,"..idx,Lang.ScriptTips.c000135.."/Cancel",nil)
+end
+
+function OnChangeSex(sysarg, idx)
+	-- local idx = tonumber(idx)
+	-- local config = ChgVocationAndSex.sex
+	-- if Actor.checkActorLevel(sysarg, config.reqLevel, config.reqCircle) ~= true then 
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000142, config.reqLevel,config.reqCircle), ttFlyTip)
+	-- 	return 
+	-- end
+	
+	-- if Actor.getSocialCurNum(sysarg,6) > 0 then			--已结婚不能转性
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000152, ttFlyTip)
+	-- 	return
+	-- end
+
+	-- if Item.getEquipByType(sysarg, Item.itDress) 
+	-- or Item.getEquipByType(sysarg, Item.itFashionDress)
+	-- then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000151, ttFlyTip)
+	-- 	return 
+	-- end
+	
+	-- if Actor.getMateId(sysarg) > 0 then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000152, ttFlyTip)
+	-- 	return 
+	-- end
+	
+	-- local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+	-- if not idx or sex == idx then
+	-- 	return
+	-- end
+	
+	-- local consumes = config.consumes
+	-- if Consumes.Check(sysarg, consumes, Lang.ScriptTips.c000143) ~= true then
+	-- 	return 
+	-- end
+	
+	-- local dvar = Actor.getDyanmicVar(sysarg)
+	-- dvar.changeSex = idx
+	
+	-- --存储转换性别的记录
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- svar.changeSexFlag = 1
+	-- svar.changeClothesCount = 0
+	
+	
+	-- Actor.triggerPictureGuide(sysarg, config.guideId)
+	
+	-- Actor.closeNPCDialog(sysarg)
+	
+	-- WcFunHandleByChangeSex(sysarg, idx)
+	
+end
+
+function Cancel()
+
+end
+
+function AbouChangeSex(sysarg)
+	local str = Lang.ScriptTips.c000144
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+table.insert(MainFnTable, ChangeSex_Main)

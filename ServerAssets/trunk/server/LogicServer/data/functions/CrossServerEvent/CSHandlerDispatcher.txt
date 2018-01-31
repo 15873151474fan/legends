@@ -1,0 +1,23 @@
+﻿--#ifndef _CROSSSERVER_EVENT_DISPATCHER_
+--#define _CROSSSERVER_EVENT_DISPATCHER_
+
+--#include "CSDispatcherImplement.txt" once
+
+--#include "Boss\UpdateEnterFlag.txt" once
+
+
+--跨服的数据包到达[数据包]
+function OnCsPackHandler(packet, ...)
+	if not packet then return end
+	local nPacketID = DataPack.readWord(packet)
+	-- print("nPacketID:"..nPacketID)
+	local fnTable = CrossServerHandlerDispatcher[nPacketID]
+	if fnTable then   
+		local i
+		for i = 1, #fnTable do
+			fnTable[i](nPacketID,packet)
+		end
+	end
+end
+
+--#endif  //end of _CROSSSERVER_EVENT_DISPATCHER_

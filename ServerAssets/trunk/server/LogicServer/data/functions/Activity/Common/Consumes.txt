@@ -1,0 +1,435 @@
+﻿--可行性检查返回结果表
+successCheckResult = 
+{
+	ok = 1,
+	moneyLack = 2,
+	itemLack = 3,
+	oddOut = 4,
+	otherLack = 5,
+	ybLack = 6,	
+}
+
+
+--消耗相关接口
+--[[
+	consumes = 
+	{
+		{type = 0, id = 2429, count = 1, quality = -1, strong = -1, bind = 1, param = 0},
+		{type = 6, id = 0, count = 100},
+	}
+--]]
+Consumes =
+{
+	--检测消耗 consumes:消耗表 tips:消耗不足提示
+	Check = function (sysarg, consumes, sTipmsg)
+		if not consumes then return false end
+		--检测消耗
+		for k,v in pairs(consumes) do
+			local consume = v
+			local quality = consume.quality or 0
+			local strong = consume.strong or 0
+			local bind = consume.bind or -1
+			local param = consume.param or nil
+			local buyTip = consume.buyTip or 0
+			local guid = 0
+			if consume.type == 0 and type(param) ~= 'number' and param ~= nil then
+				consume.id = Item.getItemProperty(sysarg, param, Item.ipItemID, 0)  --获得物品的ID 
+			end
+			local count = math.ceil(consume.count)
+			local bCheck = Actor.checkConsume(sysarg, consume.type, consume.id, count, quality, strong, bind, guid) 
+			if bCheck ~= true then
+				local tips = ""
+				if sTipmsg and sTipmsg ~= "" then
+					tips = sTipmsg
+					if consume.type == 0 and (consume.id > 0) and buyTip ~= 0 then
+						Actor.messageBox(sysarg,0,0,tips,Lang.ScriptTips.mt00051.."/BuyStoreItem,"..consume.id,Lang.ScriptTips.mt00052.."/cancelFunc",nil)
+					else
+						Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+					end
+				else
+					local name = Item.getAwardDesc(consume.type, consume.id, false, param)
+					if consume.type ~= 0 then
+						tips = string.format(Lang.ScriptTips.mt00002, name, count)
+					elseif (consume.id > 0) then
+						tips = string.format(Lang.ScriptTips.mt00003, name, count)
+					end
+					Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+				end
+				
+				return false
+			end
+		end
+		return true
+	end,
+
+	--消耗 consumes:消耗表 logId:日志ID logStr:日志表述
+	Remove = function (sysarg, consumes, logId, logStr)
+		if not consumes then return false end
+		for k,v in pairs(consumes) do
+			local consume = v
+			local quality = consume.quality or 0
+			local strong = consume.strong or 0
+			local bind = consume.bind or -1
+			local param = consume.param or nil
+			local guid = 0
+			if consume.type == 0 and type(param) ~= 'number' and param ~= nil then
+				consume.id = Item.getItemProperty(sysarg, param, Item.ipItemID, 0)  --获得物品的ID 
+			end
+			local count = math.ceil(consume.count)
+			local removeCount = Actor.removeConsume(sysarg, consume.type, consume.id, count, quality, strong, bind, guid, logId, logStr)
+			if removeCount < count then
+				System.trace(string.format("Error:Remove Consumes error! remove type = %d, id = %d, reqCount = %d, removeCount = %d", consume.type, consume.id, count,removeCount))
+				return false
+			end
+		end
+		return true
+	end,
+	
+	--检测也消耗 consumes:消耗表 logId:日志ID logStr:日志表述
+	CheckAndRemove = function (sysarg, consumes, logId, logStr)
+		if Consumes.Check(sysarg, consumes) ~= true then return false end
+		if Consumes.Remove(sysarg, consumes, logId, logStr) ~= true then return false end
+		return true
+	end,
+	
+	--获取消耗字符串
+	ParseConsumesStr = function (consumes)
+		local str = ""
+		if not consumes then return "" end
+		for k, v in ipairs(consumes) do
+			local name = Item.getAwardDesc(v.type, v.id, false, param)
+			if v.type == 0 then
+				str = str..string.format(Lang.ScriptTips.mt00050, v.count, name)
+			else
+				str = str..string.format("%d%s", v.count, name)
+			end
+			if k < table.getn(consumes) then
+				str = str.."、"
+			end
+		end
+		
+		return str
+	end,
+	
+	--检测所有消耗
+	--tbConsumes: 消耗配置表
+	--[[
+		consumes = 	--消耗要求物品
+		{
+			--usetype:消耗类型(0普通消耗 1保护消耗)  yb:元宝替换数(去掉此值代表此项消耗不能使用元宝替代)  param:可以用于物品指针
+			{type, id, count, quality = 0, strong = 0, usetype = 0, yb = 10, param = 0}, 
+			{type = 6, id = 0, count = 100, usetype = 0}
+		},
+	--]]
+	--isRepCost: 是否选择使用元宝替代 0不使用 否则使用
+	--isProtect: 是否使用保护材料 0不使用 否则使用
+	--bIncEquipBar: 是否删除装备物品
+	SuccessCheck = function(sysarg, tbConsumes, isRepCost, isProtect, ybRepTips, bIncEquipBar)
+		local isRepCost = isRepCost or 0	--是否选择使用元宝替代 0不使用 否则使用
+		local isProtect = isProtect or 0	--是否使用保护材料 0不使用 否则使用
+		local bIncEquipBar = bIncEquipBar or false
+		local resultType = successCheckResult.otherLack	--返回结果类型
+		if not tbConsumes then return resultType end
+		
+		local repYbCount = 0	--元宝替代数目
+		--检测消耗
+		for k, v in pairs(tbConsumes) do
+			local bRepFlag = false		--是否有替代标志
+			local quality = v.quality or 0
+			local strong = v.strong or 0
+			local bind = v.bind or -1
+			local param = v.param or nil
+			local usetype = v.usetype or 0
+			local duraOdds = v.duraOdds or -1
+			local bIncEquipBar = v.incEquip or bIncEquipBar
+			local yb = v.yb or 0
+			
+			--如果是保护物品
+			if v.usetype ~= 1 or isProtect ~= 0 then
+				--如果是元宝则加到替代元宝里
+				if v.type == 15 then	
+					repYbCount = repYbCount + v.count
+				end
+				
+				local guid = 0
+				if v.type == 0 and type(param) ~= 'number' and param ~= nil then
+					v.id = Item.getItemProperty( sysarg, param, Item.ipItemID, -1 )
+				end
+				local bCheck = false
+				
+				if v.id > 0 and v.type == 0 then
+					
+					local hasCount = Actor.getItemCount(sysarg, v.id, quality, strong, bind, duraOdds, nil, bIncEquipBar)
+					
+					if hasCount >= v.count then
+						bCheck = true
+					end
+				else
+					bCheck = Actor.checkConsume(sysarg, v.type, v.id, v.count, quality, strong, bind, guid) 
+				end
+				
+				--检测失败
+				if bCheck ~= true then
+					local tips = ""
+					if v.type == 0 then		--消耗物品处理
+						if v.yb and v.yb > 0 and isRepCost ~= 0 then	--进行特别处理(元宝替代消耗)
+							local itemId = v.id
+							if type(param) ~= 'number' and param ~= nil then
+								itemId = Item.getItemProperty(sysarg, param, Item.ipItemID, -1 )
+							end
+							
+							local hasItemCount = Actor.getItemCount(sysarg, itemId, quality, strong, bind, duraOdds, nil, bIncEquipBar)
+							if v.count > hasItemCount then
+								repYbCount = repYbCount + (v.count - hasItemCount)*v.yb
+								bRepFlag = true
+								tips = nil
+							end
+						else
+							resultType = successCheckResult.itemLack	--道具不足提示
+							tips = tips..Item.getAwardDesc(v.type, v.id, false, param)
+							--tips = tips..tipsMap.itemLack[opType]
+							tips = ""
+						end
+					end
+					if v.type == 6 then
+						resultType = successCheckResult.moneyLack	--金币不足提示
+						--tips = tipsMap.moneyLack[opType]
+						tips = ""
+					end
+					if v.type == 15 then
+						resultType = successCheckResult.ybLack		--元宝不足提示
+						--tips = tipsMap.ybLack[opType]
+						tips = ""
+					end
+					
+					if tips ~= nil then
+						if tips == "" then
+							local name = Item.getAwardDesc(v.type, v.id, false, param)
+							if v.type ~= 0 then
+								tips = string.format(Lang.ScriptTips.mt00002, name, v.count)
+							elseif (v.id > 0) then
+								tips = string.format(Lang.ScriptTips.mt00003, name, v.count)
+							end
+						end
+						Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+					end
+					if bRepFlag ~= true then
+						return resultType
+					end
+				end
+			end
+		end
+		
+		--替代元宝检测
+		if repYbCount > 0 then
+			local bCheck = Actor.checkConsume(sysarg, 15, 0, repYbCount)
+			if bCheck ~= true then
+				resultType = successCheckResult.ybLack		--元宝不足提示
+				if ybRepTips and ybRepTips ~= "" then
+					tips = ybRepTips
+				else
+					tips = string.format(Lang.ScriptTips.zf064, repYbCount)
+				end
+				Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+				return resultType
+			end
+		end
+		
+		return successCheckResult.ok
+	end,
+	
+	--处理所有消耗
+	--tbConsumes: 消耗配置表
+	--[[
+		consumes = 	--消耗要求物品
+		{
+			--usetype:消耗类型(0普通消耗 1保护消耗)  yb:元宝替换数(去掉此值代表此项消耗不能使用元宝替代)  param:可以用于物品指针
+			{type, id, count, quality = 0, strong = 0, usetype = 0, yb = 10, param = 0}, 
+			{type = 6, id = 0, count = 100, usetype = 0}
+		},
+	--]]
+	--isRepCost: 是否选择使用元宝替代 0不使用 否则使用
+	--isProtect: 是否使用保护材料 0不使用 否则使用
+	--nLogId: 日志ID
+	--sLogStr: 日志描述
+	--bIncEquipBar: 是否删除装备物品
+	OnConsumes = function(sysarg, tbConsumes, isRepCost, isProtect, nLogId, sLogStr, bIncEquipBar)
+		local isRepCost = isRepCost or 0	--是否选择使用元宝替代 0不使用 否则使用
+		local isProtect = isProtect or 0	--是否使用保护材料 0不使用 否则使用
+		local nLogId = nLogId or 0
+		local sLogStr = sLogStr or Lang.ScriptTips.l00100
+		local bIncEquipBar = bIncEquipBar or false
+		--日志ID
+		local itemLogId =  2
+		local moneyLogId =  101
+		local yuanbaoLogId =  162
+
+		local resultType = successCheckResult.otherLack	--返回结果类型
+		local isBind = 1
+		if not tbConsumes then return resultType, isBind end
+		
+		local repYbCount = 0	--元宝替代数目
+		--检测消耗
+		for k, v in pairs(tbConsumes) do
+			local bRepFlag = false		--是否有替代标志
+			local quality = v.quality or 0
+			local strong = v.strong or 0
+			local bind = v.bind or -1
+			local param = v.param or nil
+			local usetype = v.usetype or 0
+			local duraOdds = v.duraOdds or -1
+			local bIncEquipBar = v.incEquip or bIncEquipBar
+			local yb = v.yb or 0
+			
+			--如果是保护物品
+			if (v.usetype ~= 1 or isProtect ~= 0) then
+				--如果是元宝则加到替代元宝里(消耗的元宝与替代的元宝分开扣除)
+				-- if v.type == 15 then	
+					-- repYbCount = repYbCount + v.count
+				-- end
+				local bCheck = false
+				local logId = nLogId
+				if v.type == 0 then
+					local itemId = v.id
+					if type(param) ~= 'number' and param ~= nil then
+						itemId = Item.getItemProperty(sysarg, param, Item.ipItemID, -1)
+					end
+					if logId <= 0 then
+						logId = itemLogId
+					end
+					local consumeCount = v.count
+					bCheck, isBind = Consumes.RemoveItemBindFirst(sysarg, itemId, consumeCount, quality, strong, logId, sLogStr, duraOdds, bIncEquipBar)
+					if bCheck ~= true and v.yb and v.yb > 0 and isRepCost ~= 0 then	--进行特别处理(元宝替代消耗)
+						local hasItemCount = Actor.getItemCount(sysarg, itemId, quality, strong, -1, duraOdds, nil, bIncEquipBar)
+						if v.count > hasItemCount then
+							repYbCount = repYbCount + (v.count - hasItemCount)*v.yb
+							bRepFlag = true
+							consumeCount = hasItemCount
+						end
+						if bRepFlag == true then
+							bCheck, isBind = Consumes.RemoveItemBindFirst(sysarg, itemId, consumeCount, quality, strong, logId, sLogStr, duraOdds, bIncEquipBar)
+						end
+					end
+				else
+					if logId <= 0 then
+						logId = moneyLogId
+					end
+					local param = param or 0
+					if Actor.removeConsume(sysarg, v.type, v.id, v.count, quality, strong, bind, param, logId, sLogStr) >= v.count then
+						bCheck = true
+					end
+				end
+				
+				--扣除失败
+				if bCheck ~= true then
+					local tips = ""
+					if v.type == 0 then		--消耗物品处理
+						resultType = successCheckResult.itemLack	--道具不足提示
+						--tips = tipsMap.itemLack[opType]
+						tips = ""
+					end
+					if v.type == 6 then
+						resultType = successCheckResult.moneyLack	--金币不足提示
+						--tips = tipsMap.moneyLack[opType]
+						tips = ""
+					end
+					if v.type == 15 then
+						resultType = successCheckResult.ybLack		--元宝不足提示
+						--tips = tipsMap.ybLack[opType]
+						tips = ""
+					end
+					
+					if tips ~= nil then
+						if tips == "" then
+							local name = Item.getAwardDesc(v.type, v.id, true, param)
+							if v.type ~= 0 then
+								tips = string.format(Lang.ScriptTips.mt00002, name, v.count)
+							elseif (v.id > 0) then
+								tips = string.format(Lang.ScriptTips.mt00003, name, v.count)
+							end
+						end
+						Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+					end
+					return resultType, isBind
+				end
+			end
+		end
+		
+		--替代元宝检测
+		if repYbCount > 0 then
+			if nLogId <= 0 then
+				nLogId = yuanbaoLogId
+			end
+			if Actor.removeConsume(sysarg, 15, 0, repYbCount, 0, 0, 0, 0, nLogId, sLogStr) < repYbCount then
+				resultType = successCheckResult.ybLack		--元宝不足提示
+				tips = string.format(Lang.ScriptTips.zf064, repYbCount)
+				Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+				return resultType, isBind
+			end
+		end
+		
+		return successCheckResult.ok, isBind
+	end,
+	
+	--删除物品，优先删除绑定的，如果绑定的不够就删除非绑定的，如果有绑定的消耗了就返回true
+	--param sysarg:玩家的指针
+	--param c_itemID:物品的指针
+	--param amount:删除的数量
+	--param  nQuality: 品质 
+	--param  nStrong: 强化 
+	--param  nLogId: 日志ID
+	--param  sLogStr: 日志描述
+	--param  duraOdds: 耐力差 = 最大耐力-当前耐力 -1表示不检测 检测少于此耐力差的物品符合条件
+	--ret: suc:表示是否删除成功，isBind:如果成功表示是否删除了绑定物品 返回绑定状态 0没有删除过绑定物品 1删除过绑定物品
+	RemoveItemBindFirst = function(sysarg, c_itemID, amount, nQuality, nStrong, nLogId, sLogStr, duraOdds, bIncEquipBar)
+		local isBind = 1; --是否是绑定的物品
+		--绑定的优先，如果有绑定的返回绑定状态
+		local itemname = Item.getItemName(c_itemID)
+		local nQuality = nQuality or 0
+		local nStrong = nStrong or 0
+		local duraOdds = duraOdds or -1
+		local bindCount   = Actor.getItemCount(sysarg,c_itemID,nQuality,nStrong,1,duraOdds, nil, bIncEquipBar);  --绑定的数量
+		local noBindCount = Actor.getItemCount(sysarg,c_itemID,nQuality,nStrong,0,duraOdds, nil, bIncEquipBar);  --不绑定的数量
+		if (amount <= 0) then return true, 0 end
+		
+		if (amount > bindCount + noBindCount) then  --物品不够
+			return false, 0;
+		else 
+			if (bindCount >= amount) then --如果绑定物品数量够的话，就消耗绑定物品
+				--如果是绑定的话，那么就是绑定的
+				if (Actor.removeItem( sysarg, c_itemID, amount, nQuality, nStrong, 1, sLogStr, nLogId,duraOdds, bIncEquipBar) ~= amount ) then
+					return false, 0;  --失败了
+				else
+					isBind = 1;
+				end 
+			else 
+				if(noBindCount >= amount)  then --非绑定的足够，那么就生成非绑定的，结果也是非绑定的
+					if ( Actor.removeItem( sysarg, c_itemID, amount,nQuality,nStrong,0,sLogStr,nLogId,duraOdds, bIncEquipBar) ~=  amount ) then
+						return false, 0;  --失败了
+					else
+						isBind = 0;
+					end 
+				else  --有绑定的和非绑定的，优先消耗绑定的，结果是绑定的,并且结果是绑定的
+					local tocalConsumeCount =0;
+					tocalConsumeCount = Actor.removeItem( sysarg, c_itemID, bindCount,nQuality,nStrong,1,sLogStr,nLogId,duraOdds, bIncEquipBar) 
+					if (tocalConsumeCount ~= bindCount)  then
+						return false, 1
+					end
+					tocalConsumeCount = tocalConsumeCount + Actor.removeItem( sysarg, c_itemID, amount- bindCount,nQuality,nStrong,0,sLogStr,nLogId,duraOdds,bIncEquipBar) 
+					if (tocalConsumeCount < amount)  then
+						return false, 1;
+					else
+						isBind = 1; -- 是绑定的
+					end
+				end
+			end
+		end
+		return true, isBind;
+	end,
+	
+	--获取物品元宝价格
+	GetItemYuanBaoPrice = function(nItemId)
+		
+	end,
+}
+

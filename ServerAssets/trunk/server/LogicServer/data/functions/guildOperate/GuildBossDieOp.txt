@@ -1,0 +1,130 @@
+--lua script
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\guild\GuildBossConfig.txt" once
+
+function OnGuildBossDieOp(sysarg,nIndex)
+	if nIndex <= 0 or nIndex > table.getn(guildBossConfig.bossConfig) then return end
+
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local nConfig = guildBossConfig.bossConfig[nIndex]
+		local playerList = LuaHelp.getFbActorList(pFb)		--获取某场景玩家对象列表
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					for i=1,table.getn(nConfig.awards) do
+						Actor.giveAward(player,nConfig.awards[i].type,nConfig.awards[i].id,nConfig.awards[i].count,nConfig.awards[i].quality,nConfig.awards[i].strong,0)
+					end
+				end
+			end
+		end
+
+	end
+end
+
+MonDieDispatcher.Mon774Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,1)
+end
+
+MonDieDispatcher.Mon775Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,2)
+end
+
+MonDieDispatcher.Mon776Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,3)
+end
+
+MonDieDispatcher.Mon777Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,4)
+end
+
+MonDieDispatcher.Mon778Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,5)
+end
+
+MonDieDispatcher.Mon779Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,6)
+end
+
+MonDieDispatcher.Mon780Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,7)
+end
+
+MonDieDispatcher.Mon781Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,8)
+end
+
+MonDieDispatcher.Mon782Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,9)
+end
+
+MonDieDispatcher.Mon783Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,10)
+end
+
+MonDieDispatcher.Mon797Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,11)
+end
+
+MonDieDispatcher.Mon798Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,12)
+end
+
+MonDieDispatcher.Mon799Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,13)
+end
+
+MonDieDispatcher.Mon800Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,14)
+end
+
+MonDieDispatcher.Mon801Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,15)
+end
+
+MonDieDispatcher.Mon802Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,16)
+end
+
+MonDieDispatcher.Mon803Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,17)
+end
+
+MonDieDispatcher.Mon804Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,18)
+end
+
+MonDieDispatcher.Mon805Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,19)
+end
+
+MonDieDispatcher.Mon806Die = function(monster,sysarg,monId)
+	OnGuildBossDieOp(sysarg,20)
+end
+
+--MonDieDispatcher.register(774, MonDieDispatcher.Mon774Die )
+--MonDieDispatcher.register(775, MonDieDispatcher.Mon775Die )
+--MonDieDispatcher.register(776, MonDieDispatcher.Mon776Die )
+--MonDieDispatcher.register(777, MonDieDispatcher.Mon777Die )
+
+--MonDieDispatcher.register(778, MonDieDispatcher.Mon778Die )
+--MonDieDispatcher.register(779, MonDieDispatcher.Mon779Die )
+--MonDieDispatcher.register(780, MonDieDispatcher.Mon780Die )
+--MonDieDispatcher.register(781, MonDieDispatcher.Mon781Die )
+
+--MonDieDispatcher.register(782, MonDieDispatcher.Mon782Die )
+--MonDieDispatcher.register(783, MonDieDispatcher.Mon783Die )
+--MonDieDispatcher.register(797, MonDieDispatcher.Mon797Die )
+--MonDieDispatcher.register(798, MonDieDispatcher.Mon798Die )
+
+--MonDieDispatcher.register(799, MonDieDispatcher.Mon799Die )
+--MonDieDispatcher.register(800, MonDieDispatcher.Mon800Die )
+--MonDieDispatcher.register(801, MonDieDispatcher.Mon801Die )
+--MonDieDispatcher.register(802, MonDieDispatcher.Mon802Die )
+
+--MonDieDispatcher.register(803, MonDieDispatcher.Mon803Die )
+--MonDieDispatcher.register(804, MonDieDispatcher.Mon804Die )
+--MonDieDispatcher.register(805, MonDieDispatcher.Mon805Die )
+--MonDieDispatcher.register(806, MonDieDispatcher.Mon806Die )

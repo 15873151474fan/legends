@@ -1,0 +1,296 @@
+﻿--疯狂魔族（指引玩家合成装备）
+{
+  maxLevel = 70,
+  guidePlace = 1,
+  triggerList =
+	{
+		{ type = 5, valueList = {0,52,}},      --等级等于 
+	},
+
+
+  --引导的步骤
+  steps =
+	{
+    --第1步 指向打开锻造按钮
+		{
+			condList =
+			{
+				{ type = 2,  helpId = 120, dataList = {0,} },    --强化界面没打开
+				{ type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品 
+			},
+
+			action = { type = 1, helpId = 8, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc18 },
+		},
+
+    --第2步 如果没有选择晋升页签，指向晋升页签
+		{
+			condList =
+			{
+				{ type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 4,  helpId = 121, dataList = {1,} },      --导航没有选中第1项
+			},
+
+			action = { type = 2, helpId = 121, data = 1, pointerValue = 1, desc = Lang.GuideLang.desc69 },
+		},
+
+
+		 --第3步 如果身上没有穿好装备，就指向背包物品
+		{
+			condList =
+			{
+				{ type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },      --晋升界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },      --导航选中第1项
+				{ type = 3,  helpId = 122, dataList = {1,} },      --物品导航栏选中第一项
+				{ type = 22,  helpId = 0, dataList = {5,20,35,} },    --身上没有这些物品  **
+			},
+
+      --引导玩家点击物品导航栏 的 背包物品
+			action = { type = 2, helpId = 122, data = 2, pointerValue = 1, desc = Lang.GuideLang.desc20 },
+		},
+
+  --第4步 如果身上有穿好的装备，就指向需要晋升的装备
+		{
+			condList =
+			{
+				{ type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },      --晋升界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },      --导航选中第1项
+				{ type = 3,  helpId = 122, dataList = {1,} },      --物品导航栏选中第一项
+				{ type = 21,  helpId = 0, dataList = {5,20,35,} },    --身上有这些物品  **
+				{ type = 10,  helpId = 191, dataList = {0,} },      --晋升cell没数据
+				{ type = 10,  helpId = 192, dataList = {0,} },      --晋升材料1cell没数据
+				{ type = 10,  helpId = 193, dataList = {0,} },      --晋升材料2cell没数据
+			},
+
+      --引导玩家直接点击 身上装备 的物品
+			action = { type = 10, helpId = 123, data = {5,20,35,}, pointerValue = 1, desc = Lang.GuideLang.desc70 },
+		},
+
+
+  --第5步 身上装备已经成为主材料，指向选择背包物品
+		{
+			condList =
+			{
+				{ type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },      --晋升界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },      --导航选中第1项
+				{ type = 3,  helpId = 122, dataList = {1,} },      --物品导航栏选中第一项
+				{ type = 13,  helpId = 120, dataList = {5,20,35,} },  --背包有这些物品
+				{ type = 9,  helpId = 191, dataList = {0,} },      --晋升cell有数据
+				{ type = 10,  helpId = 192, dataList = {0,} },      --晋升材料1cell没数据
+				{ type = 10,  helpId = 193, dataList = {0,} },      --晋升材料1cell没数据
+			},
+
+      --引导玩家点击物品导航栏 的 背包物品
+			action = { type = 2, helpId = 122, data = 2, pointerValue = 1, desc = Lang.GuideLang.desc20 },
+		},
+
+    --第6步 没有穿戴好的装备并已经选中了背包项，选择背包装备需升级的装备
+		{
+			condList =
+			{
+				{ type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },      --晋升界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },      --导航选中第1项
+				{ type = 3,  helpId = 122, dataList = {2,} },      --物品导航栏选中第2项
+				{ type = 22,  helpId = 0, dataList = {5,20,35,} },    --身上没有这些物品  **
+				{ type = 10,  helpId = 191, dataList = {0,} },      --晋升cell没数据
+				{ type = 10,  helpId = 192, dataList = {0,} },      --晋升材料1cell没数据
+				{ type = 10,  helpId = 193, dataList = {0,} },      --晋升材料2cell没数据
+			},
+
+      --引导玩家直接点击 身上装备 的物品
+			action = { type = 10, helpId = 124, data = {5,20,35,0,1,}, pointerValue = 1, desc = Lang.GuideLang.desc70 },
+		},
+
+
+		--第7步  有穿戴装备的情况下，背包加入晋升材料1
+        {
+             condList =
+             {
+			 	{ type = 21,  helpId = 0, dataList = {5,20,35,} },    --身上有这些物品  **
+                { type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },    --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },    --导航选中第1项
+				{ type = 3,  helpId = 122, dataList = {2,} },    --物品导航栏选中第二项
+				{ type = 13,  helpId = 120, dataList = {5,20,35,} },  --背包有这些物品
+				{ type = 9,  helpId = 191, dataList = {0,} },   --晋升cell有数据
+				{ type = 10,  helpId = 192, dataList = {0,} },   --晋升材料1cell没有数据
+				{ type = 10,  helpId = 193, dataList = {0,} },   --晋升材料2cell没有数据
+			},
+
+      --引导玩家直接点击 背包物品 的装备
+			action = { type = 10, helpId = 124, data = {5,20,35,0,1,}, pointerValue = 1, desc = Lang.GuideLang.desc71 },
+		},
+
+ --第8步  有穿戴装备的情况下，加入晋升材料2
+        {
+             condList =
+             {
+			 	{ type = 21,  helpId = 0, dataList = {5,20,35,} },    --身上有这些物品  **
+                { type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },    --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },    --导航选中第1项
+				{ type = 3,  helpId = 122, dataList = {2,} },    --物品导航栏选中第二项
+				{ type = 13,  helpId = 120, dataList = {5,20,35,} },  --背包有这些物品
+				{ type = 9,  helpId = 191, dataList = {0,} },   --晋升cell有数据
+				{ type = 9,  helpId = 192, dataList = {0,} },   --晋升材料1cell有数据
+				{ type = 10,  helpId = 193, dataList = {0,} },   --晋升材料2cell没有数据
+			},
+
+      --引导玩家直接点击 背包物品 的装备
+			action = { type = 10, helpId = 124, data = {5,20,35,0,2,}, pointerValue = 1, desc = Lang.GuideLang.desc71 },
+		},
+
+
+	--第9步  没有穿戴装备的情况下，背包加入晋升材料1
+        {
+             condList =
+             {
+			 	{ type = 22,  helpId = 0, dataList = {5,20,35,} },    --身上有这些物品  **
+                { type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },    --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },    --导航选中第1项
+				{ type = 3,  helpId = 122, dataList = {2,} },    --物品导航栏选中第二项
+				{ type = 13,  helpId = 120, dataList = {5,20,35,} },  --背包有这些物品
+				{ type = 9,  helpId = 191, dataList = {0,} },   --晋升cell有数据
+				{ type = 10,  helpId = 192, dataList = {0,} },   --晋升材料1cell没有数据
+				{ type = 10,  helpId = 193, dataList = {0,} },   --晋升材料2cell没有数据
+			},
+
+      --引导玩家直接点击 背包物品 的装备
+			action = { type = 10, helpId = 124, data = {5,20,35,0,2,}, pointerValue = 1, desc = Lang.GuideLang.desc71 },
+		},
+
+ --第10步  没有穿戴装备的情况下，加入晋升材料2
+        {
+             condList =
+             {
+			 	{ type = 22,  helpId = 0, dataList = {5,20,35,} },    --身上有这些物品  **
+                { type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },    --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },    --导航选中第1项
+				{ type = 3,  helpId = 122, dataList = {2,} },    --物品导航栏选中第二项
+				{ type = 13,  helpId = 120, dataList = {5,20,35,} },  --背包有这些物品
+				{ type = 9,  helpId = 191, dataList = {0,} },   --晋升cell有数据
+				{ type = 9,  helpId = 192, dataList = {0,} },   --晋升材料1cell有数据
+				{ type = 10,  helpId = 193, dataList = {0,} },   --晋升材料2cell没有数据
+			},
+
+      --引导玩家直接点击 背包物品 的装备
+			action = { type = 10, helpId = 124, data = {5,20,35,0,3,}, pointerValue = 1, desc = Lang.GuideLang.desc71 },
+		},
+
+
+
+--第9步 点晋升按钮
+	{
+      condList =
+			{
+				{ type = 14, helpId = 0, dataList = {6,21,36,} },  --背包没有这些物品
+                { type = 22, helpId = 0, dataList = {6,21,36,} },  --身上没有这些物品
+				{ type = 1,  helpId = 120, dataList = {0,} },   --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {1,} },   --导航选中第1项
+				{ type = 9,  helpId = 191, dataList = {0,} },   --晋升cell有数据
+				{ type = 9,  helpId = 192, dataList = {0,} },   --晋升材料1cell有数据
+				{ type = 9,  helpId = 193, dataList = {0,} },   --晋升材料1cell有数据
+			},
+
+      --引导玩家点击
+			action = { type = 1, helpId = 190, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc72 },
+	},
+
+    --第10步 指向关闭
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 120, dataList = {0,} },   --强化窗口可见
+				{ type = 13, helpId = 0, dataList = {6,21,36,} },  --背包有这些物品
+      },
+
+      --无内容
+      action = { type = 4, helpId = 120, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc9 },
+    },
+
+    --[[第11步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 4,  helpId = 51, dataList = {1,} },		--任务追踪面板没有选中第一项
+				{ type = 5,  helpId = 0, dataList = {89,} },			--存在任务
+				{ type = 8, helpId = 0, dataList = {89,} },         --任务完成
+      },
+
+      action = { type = 2, helpId = 89, data = 1, pointerValue = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项
+    },
+
+    --第2步 指向任务的速传按钮
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第1项
+				{ type = 2,  helpId = 40, dataList = {0,} },		--npc对话框不可见
+				{ type = 8,  helpId = 0, dataList = {89,} },		--任务完成
+				{ type = 16,  helpId = 0, dataList = {2,} },		--不在万安城
+      },
+
+      --指向速传按钮
+      action = { type = 12, helpId = 89, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc14 },
+    },
+
+    --第12步 指任务连接（NPC,交任务）
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 5,  helpId = 0, dataList = {89,} },			--存在任务
+				{ type = 8,  helpId = 40, dataList = {89,} },		--任务完成
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 89, data = Lang.GuideLang.name44, pointerValue = 1, desc = Lang.GuideLang.desc2 ,offX=-20,offY=0 },
+    },
+
+    --第13步 指向npc对话框 完成任务按钮
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },	  --npc对话框可见
+				{ type = 5,  helpId = 0, dataList = {89,} },			--存在任务
+				{ type = 19, helpId = 40, dataList = {Lang.GuideLang.name44,} },     --指定NPC
+				{ type = 8,  helpId = 0, dataList = {89,} },			--任务完成
+      },
+
+      --指向NPC对话框的完成按钮
+      action = { type = 1, helpId = 41, data = 0, rot = 180, pointerValue = 1, desc = Lang.GuideLang.desc3 },
+    }, ]]
+
+    --第14步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 12, helpId = 0, dataList = {89,} },      --不存在可接任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

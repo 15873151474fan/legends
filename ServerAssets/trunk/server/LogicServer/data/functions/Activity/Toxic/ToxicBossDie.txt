@@ -1,0 +1,240 @@
+﻿--怪物死亡处理
+--#include "data\language\LangCode.txt" once   --语言包
+
+--#include "data\config\activityconfig\RushToxic\ToxicConfig.txt" once
+--#include "data\config\activityconfig\RushToxic\ToxicRankFile.txt" once
+
+MonDieDispatcher.Mon200Die = function(monster,sysarg,monId)
+	updateKillMosterNum(sysarg)
+end
+
+
+--给副本玩家平均分配经验 nTimes第几波的boss nIndex第几个boss
+function GiveFubenActorExp(sysarg,nTimes,nIndex)
+	if ToxicConfig.monsters[nTimes] == nil then return end
+	if ToxicConfig.monsters[nTimes][nIndex] == nil then return end
+
+	local TotalExp = ToxicConfig.monsters[nTimes][nIndex].exp
+    local TotalGuildGx = ToxicConfig.monsters[nTimes][nIndex].GuildGx
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+
+	if fhadle > 0 then
+		local bFb = Actor.getFubenPrt(sysarg)
+
+		if bFb then
+			local playerList = LuaHelp.getFbActorList(bFb)		--获取某场景玩家对象列表
+			local playerNum = table.getn(playerList)
+			
+			local nCurRate = playerNum * ToxicConfig.nRate
+			if nCurRate > ToxicConfig.nMaxRate then
+				nCurRate = ToxicConfig.nMaxRate
+			end
+
+			local AveExp = math.floor(TotalExp * nCurRate / 100)
+            local AveTotalGuildGx = math.floor(TotalGuildGx * nCurRate / 100) 
+			if playerList ~= nil then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then	
+						Actor.giveAward(player,2,0,TotalExp+AveExp,0,0,0)
+						Actor.giveAward(player,3,0,TotalGuildGx+AveTotalGuildGx,0,0,0)
+					end
+				end
+			end
+
+			Actor.sendGuildMsg(sysarg,0,string.format(Lang.Activity.t00058,TotalExp,AveExp),2)
+		end
+	end
+end
+
+--更新杀怪数
+function updateKillMosterNum(sysarg)
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	
+	if System.getToxicFreshTimes(nGuildId) <= 0 then
+		return
+	end
+	
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+	if fhadle <= 0 then return end
+
+	if Actor.getFubenHandle(sysarg) ~= fhadle then return end
+	
+	local CurNum = System.getkillToxicNum(nGuildId) + 1
+	System.setkillToxicNum(nGuildId,CurNum)
+
+	local gName = System.getGuildName(nGuildId)
+
+	if fhadle > 0 then
+		local bFb = Actor.getFubenPrt(sysarg)
+		local nCount = Fuben.getKillMonsterCount(bFb)
+		local nTimes = System.getToxicFreshTimes(nGuildId)
+		local curCount = 0
+
+		if nTimes < table.getn(ToxicConfig.mosterCount) then
+			for i=1,nTimes do
+				curCount = curCount + ToxicConfig.mosterCount[i]
+			end
+		end
+		
+		local hScene = Fuben.getSceneHandleById(ToxicConfig.EnterScreen, fhadle)
+		local bFreshFlag = false
+		if ToxicConfig.monsters[nTimes] then
+			if Fuben.getLiveMonsterCount(hScene,ToxicConfig.monsters[nTimes][1].nMonsterID) <= 0 then
+				local nLeftCount = 0
+				for i=2,table.getn(ToxicConfig.monsters[nTimes]) do
+					if Fuben.getLiveMonsterCount(hScene,ToxicConfig.monsters[nTimes][i].nMonsterID) > 0 then
+						nLeftCount = 1
+						break
+					end
+				end
+				if nLeftCount == 0 then
+					bFreshFlag = true
+				end
+			end
+		end
+
+		if bFreshFlag then
+			nTimes = nTimes + 1
+			if ToxicConfig.monsters[nTimes] then
+				for i=1,table.getn(ToxicConfig.monsters[nTimes]) do
+					Fuben.createMonsters(hScene, ToxicConfig.monsters[nTimes][i].nMonsterID, ToxicConfig.monsters[nTimes][i].posX1, ToxicConfig.monsters[nTimes][i].posX2, ToxicConfig.monsters[nTimes][i].posY, ToxicConfig.monsters[nTimes][i].nCount, ToxicConfig.monsters[nTimes][i].nLiveTime)
+				end
+
+				--if RankNameList then
+				--	local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+				--	if pItem then
+				--		Ranking.setSub(pItem,1,tostring(nTimes))
+				--	end
+				--end
+				System.setToxicFreshTimes(nGuildId,nTimes)
+			else
+                Fuben.sendMsgToScene(hScene,Lang.Activity.w00182,2+128)
+			end
+		end
+	end
+
+	UpdateToxicActivity(sysarg)
+end
+
+--更新活动面板
+function UpdateToxicActivity(sysarg)
+
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+
+	if fhadle > 0 then
+		local bFb = Actor.getFubenPrt(sysarg)
+		
+		if bFb then
+			--更新活动面板信息 1 表示进入 2 表示在场景内更新
+			local ranking = Ranking.getRanking(ToxicRankConfig.dayRankName)
+			
+			local mPoint = 0
+			local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+			local nTimes = System.getToxicFreshTimes(nGuildId)
+			local monsterCount = 0
+			for i,v in ipairs(ToxicConfig.mosterCount) do
+				if i <= nTimes then
+					monsterCount = monsterCount + v
+				end
+			end
+			local passTimes = #(ToxicConfig.mosterCount)
+
+			if ranking then		
+				local nItem = Ranking.getItemPtrFromId(ranking,nGuildId)
+
+				if nItem then
+					mPoint = Ranking.getPoint(nItem)
+				end
+			end
+			
+			local nCount = Fuben.getKillMonsterCount(bFb)
+
+			local playerList = LuaHelp.getFbActorList(bFb)		--获取某场景玩家对象列表
+			if playerList ~= nil then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then	
+						Actor.changeActivityProgress(player,nCount,nTimes)
+						Actor.changeActivityProgress(sysarg,nCount,nTimes,monsterCount,passTimes)
+					end
+				end
+			end
+		end
+	end
+end
+
+MonDieDispatcher.Mon197Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,1,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon199Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,2,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon201Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,3,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon203Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,4,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon205Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,5,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon207Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,6,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon209Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,7,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon211Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,8,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon213Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,9,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.Mon215Die = function(monster,sysarg,monId)
+	GiveFubenActorExp(sysarg,10,1)
+	updateKillMosterNum(sysarg)
+end
+
+MonDieDispatcher.register(167, MonDieDispatcher.Mon197Die )
+MonDieDispatcher.register(166, MonDieDispatcher.Mon200Die )
+MonDieDispatcher.register(169, MonDieDispatcher.Mon199Die )
+MonDieDispatcher.register(168, MonDieDispatcher.Mon200Die )
+
+MonDieDispatcher.register(171, MonDieDispatcher.Mon201Die )
+MonDieDispatcher.register(170, MonDieDispatcher.Mon200Die )
+--[[MonDieDispatcher.register(203, MonDieDispatcher.Mon203Die )
+MonDieDispatcher.register(204, MonDieDispatcher.Mon200Die )
+
+MonDieDispatcher.register(205, MonDieDispatcher.Mon205Die )
+MonDieDispatcher.register(206, MonDieDispatcher.Mon200Die )
+MonDieDispatcher.register(207, MonDieDispatcher.Mon207Die )
+MonDieDispatcher.register(208, MonDieDispatcher.Mon200Die )
+
+MonDieDispatcher.register(209, MonDieDispatcher.Mon209Die )
+MonDieDispatcher.register(210, MonDieDispatcher.Mon200Die )
+MonDieDispatcher.register(211, MonDieDispatcher.Mon211Die )
+MonDieDispatcher.register(212, MonDieDispatcher.Mon200Die )
+
+MonDieDispatcher.register(213, MonDieDispatcher.Mon213Die )
+MonDieDispatcher.register(214, MonDieDispatcher.Mon200Die )
+MonDieDispatcher.register(215, MonDieDispatcher.Mon215Die )
+MonDieDispatcher.register(216, MonDieDispatcher.Mon200Die )]]

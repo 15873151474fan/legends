@@ -1,0 +1,36 @@
+﻿--lua script
+--for item do rapid effect
+
+--#include "data\config\item\NormalItemDatas.txt" once
+
+--[[
+--速回药的药品效果
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+function RapidReturnMedical(sysarg,itemidx,itemPtr,ItemTable)
+	if(ItemTable.propID == PROP_CREATURE_HP ) then --如果是加血的话，需要判断一下是否满了
+		if( Actor.isHpFull(sysarg)) then return end
+		Actor.changeHp(sysarg,ItemTable.value)
+	elseif( ItemTable.propID == PROP_CREATURE_MP ) then  --如果是加蓝的话，需要判断一下是否满了
+		if( Actor.isMpFull(sysarg)) then return end
+		Actor.changeMp(sysarg,ItemTable.value)
+	elseif( ItemTable.propID == PROP_ACTOR_ENERGY ) then  --如果是加活力的话，需要判断一下是否满了
+		if( Actor.isEnergeFull(sysarg)) then return end
+		Actor.changeEnerge(sysarg,ItemTable.value)
+	end
+	if(ItemTable.needDelete) then --需要删除
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true," ",5)      --删除一个物品
+	end
+end
+
+function RapidEffectItemInit(sysarg)
+  for i = 1,table.getn(RapidEffectItems) do
+	local x = RapidEffectItems[i]
+	GlobalItemFn[x.item_id] = { func = RapidReturnMedical, params = x }
+  end
+end
+
+table.insert(InitFnTable,RapidEffectItemInit)

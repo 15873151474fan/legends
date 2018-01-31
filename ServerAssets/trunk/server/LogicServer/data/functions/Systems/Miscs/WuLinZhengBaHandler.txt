@@ -1,0 +1,35 @@
+﻿
+--武林争霸赛消息处理
+
+--#include "data\functions\Tasks\WuLinZhengBa\OnServerAndClientMsg.txt" once	--消息处理
+
+MiscsImplement.GetWuLinZhengBaData = function (sysarg, msgid, packet)
+	--print("GetWuLinZhengBaData")
+	SendWuLinZhengBaToClientData(sysarg)
+end
+
+MiscsImplement.ApplyWuLinZhengBa = function (sysarg, msgid, packet)
+	--print("ApplyWuLinZhengBa")
+	WuLinZhengBaRiseEnter(sysarg)
+end
+
+MiscsImplement.GetWuLinZhengBaFinalEight = function (sysarg, msgid, packet)
+	--print("GetWuLinZhengBaFinalEight")
+	SendWuLinZhengBaFinalEight(sysarg)
+end
+
+MiscsImplement.GetWuLinZhengBaFinalEightAward = function (sysarg, msgid, packet)
+	--print("GetWuLinZhengBaFinalEightAward")
+	GetWuLinZhengBaFinalEightAward(sysarg)
+end
+
+MiscsImplement.WuLinMasterSetShutup = function (sysarg, msgid, packet)
+	--print("WuLinMasterSetShutup")
+	OnWuLinMasterSetShutup(sysarg, packet)
+end
+
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cGetWuLinZhengBaData,MiscsImplement.GetWuLinZhengBaData)
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cApplyWuLinZhengBaIcon,MiscsImplement.ApplyWuLinZhengBa)
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cGetWuLinZhengBaFinalEight,MiscsImplement.GetWuLinZhengBaFinalEight)
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cGetWuLinZhengBaFinalEightAward,MiscsImplement.GetWuLinZhengBaFinalEightAward)
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cWuLinMasterSetShutup,MiscsImplement.WuLinMasterSetShutup)

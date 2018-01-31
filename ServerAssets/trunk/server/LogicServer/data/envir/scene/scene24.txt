@@ -1,0 +1,97 @@
+﻿--降魔峡谷
+{
+	scenceid = 24,
+	scencename = Lang.SceneName.s00024,
+	mapfilename = "24Xiangmoxiagu",
+	minlevel = 50,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "fengmogu.mp3",
+	musicInterval = 5,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 300,
+	sceneHeight = 304,
+	posx = 26,
+	posy = 142,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00024, range = {3,5,7,296,296,294,292,6,4,3}, center = { 136,151},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+					{ type = 36, value = {50} },
+				},
+		},
+		{ name = Lang.SceneName.s00024, range = {138,135,151,148,138,161,125,148,138,135}, center = { 136,151},
+			attri = {
+					{ type = 39, value = {} },
+					{ type = 1, value = {} },
+					{ type = 46, value = {} },
+					{ type = 36, value = {50} },
+					{ type = 83, value = {} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh24.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00372, posx = 138, posy = 148, script = "data/NPC/0Tongyong/ChuanSongshi.txt", modelid = 96,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00009, posx = 165, posy = 151, script = "data/NPC/0Tongyong/tiejiang_1.txt", modelid = 340,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00013, posx = 138, posy = 123, script = "data/NPC/0Tongyong/cangkuguanliyuan_5.txt", modelid = 120,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00015, posx = 158, posy = 152, script = "data/NPC/0Tongyong/yaodianzhanggui_7.txt", modelid = 316,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00012, posx = 132, posy = 127, script = "data/NPC/0Tongyong/shudianzhanggui_4.txt", modelid = 329,icon = 12,funcId = 0, classId = 0 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 213, posy = 267, toSceneid = 4, toPosx = 200, toPosy =  94, modelid = 50000, name = Lang.SceneName.s00004, dist = 1, mapHide = false },  --降魔峡谷→都郡城
+		{ posx = 233, posy = 15, toSceneid = 25, toPosx = 178, toPosy =  125, modelid = 50000, name = Lang.SceneName.s00025, dist = 1, mapHide = false },  --降魔峡谷→莽荒之境
+		{ posx = 28, posy = 29, toSceneid = 27, toPosx = 30, toPosy =  26, modelid = 50000, name = Lang.SceneName.s00027, dist = 1, mapHide = false },  --降魔峡谷→雪域之巅
+		{ posx = 252, posy = 31, toSceneid = 28, toPosx = 73, toPosy =  134, modelid = 50000, name = Lang.SceneName.s00028, dist = 1, mapHide = false },  --降魔峡谷→硫炎低地
+	},
+
+	landscape = 
+	{
+	--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{ posx1 = 138, posy1 = 136, posx2 = 138, posy2 = 136, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 136, posy1 = 138, posx2 = 136, posy2 = 138, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 134, posy1 = 140, posx2 = 134, posy2 = 140, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 132, posy1 = 142, posx2 = 132, posy2 = 142, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 130, posy1 = 144, posx2 = 130, posy2 = 144, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 128, posy1 = 146, posx2 = 128, posy2 = 146, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 126, posy1 = 148, posx2 = 126, posy2 = 148, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 150, posy1 = 148, posx2 = 150, posy2 = 148, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 148, posy1 = 150, posx2 = 148, posy2 = 150, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 146, posy1 = 152, posx2 = 146, posy2 = 152, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 144, posy1 = 154, posx2 = 144, posy2 = 154, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 142, posy1 = 156, posx2 = 142, posy2 = 156, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 140, posy1 = 158, posx2 = 140, posy2 = 158, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 138, posy1 = 160, posx2 = 138, posy2 = 160, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 128, posy1 = 150, posx2 = 128, posy2 = 150, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 130, posy1 = 152, posx2 = 130, posy2 = 152, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 132, posy1 = 154, posx2 = 132, posy2 = 154, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 134, posy1 = 156, posx2 = 134, posy2 = 156, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 136, posy1 = 158, posx2 = 136, posy2 = 158, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 139, posy1 = 136, posx2 = 139, posy2 = 136, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 141, posy1 = 138, posx2 = 141, posy2 = 138, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 143, posy1 = 140, posx2 = 143, posy2 = 140, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 145, posy1 = 142, posx2 = 145, posy2 = 142, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 147, posy1 = 144, posx2 = 147, posy2 = 144, modelid = 102, xinterval = 0, yinterval = 0 },
+		{ posx1 = 149, posy1 = 146, posx2 = 149, posy2 = 146, modelid = 102, xinterval = 0, yinterval = 0 },
+
+	},
+},

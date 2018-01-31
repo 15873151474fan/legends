@@ -1,0 +1,29 @@
+
+
+--转生装备祝福升级
+
+function CircleEquipUpgrade_Main(sysarg)
+	local dlgStr = string.format("<#BL%s/@OpenCircleWnd>", Lang.ScriptTips.q00099)
+	return dlgStr
+end
+
+function OpenCircleWnd(sysarg)
+	Actor.closeNPCDialog(sysarg)
+	Actor.openDialogs(sysarg, 103)
+end
+
+function CircleEquipNpcInit(npcobj)
+	if System.getDaysSinceCombineServer() <= 0 then
+		Actor.setEntityVisibleFlag(npcobj, false)
+	end
+end
+
+function OpenCircleNpc(npcobj)
+	if System.getDaysSinceCombineServer() > 0 then
+		System.broadcastTipmsg(Lang.ScriptTips.c000180,ttScreenCenter + ttChatWindow)
+	end
+end
+
+
+table.insert(MainFnTable, CircleEquipUpgrade_Main)
+table.insert(InitFnTable, CircleEquipNpcInit)

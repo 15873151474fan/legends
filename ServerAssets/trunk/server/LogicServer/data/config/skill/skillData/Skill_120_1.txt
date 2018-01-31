@@ -1,0 +1,69 @@
+--金刚火符
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s20L1Desc,--技能的描述
+	
+	iconID=20,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=33,delay=800, rate=8000,value=25,interval=50},
+						--{mj=0,timeParam=30,type=20,delay=0,vt=1, id=20,value=1},--增加技能标记
+					},
+
+					specialEffects=
+					{
+					{type=3,mj=0,id=28,keepTime=60,delay=300,always=false},	
+					{type=4,mj=0,id=29,keepTime=450,delay=800,always=false},							
+					},
+				},
+			},
+		},
+		
+		
+		
+					
+		
+	},
+
+	trainConds=
+	{
+	--	{cond=1,value=18,consume=false},--表示等级要1级
+	--	{cond=3,value=443,consume=true},--表示书本
+	},
+	
+	spellConds=
+	{
+	--	{cond=8,value=20,consume=true},--消耗蓝10
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

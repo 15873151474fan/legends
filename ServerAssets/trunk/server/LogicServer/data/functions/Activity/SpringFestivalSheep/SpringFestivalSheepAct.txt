@@ -1,0 +1,87 @@
+
+--lua script 
+--#include "data\config\activityconfig\SpringFestivalSheep\SpringFestivalSheepAct.txt" once
+--#include "data\functions\Activity\SpringFestivalSheep\GetAwardActCommon.txt" once --祈福迎神
+--#include "data\functions\Activity\SpringFestivalSheep\EveBoss.txt" once
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseTurntable.txt" once 
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once 
+--#include "data\functions\Activity\SpringFestivalSheep\LuckyGuess.txt" once 
+
+--登陆处理
+function SpringFestivalSheepLoginHandle(sysarg)
+	local activityTime = {}
+	for k, v in ipairs(SpringFestivalSheepActCfg.actTime) do 
+		table.insert(activityTime, v)
+	end
+
+	if System.isInDateRange(unpack(activityTime)) == true then
+		SendSpringFestivalSheepOpenFlag(sysarg, 1)
+	else
+		SendSpringFestivalSheepOpenFlag(sysarg, 0)
+	end
+end
+
+--新的一天处理
+function SpringFestivalSheepNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(SpringFestivalSheepActCfg.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(SpringFestivalSheepActCfg.actTime) do 
+			table.insert(activityTime, v)
+		end
+		
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendSpringFestivalSheepOpenFlag(sysarg, 1)
+		end		
+	else
+		local activityTime = {}
+		for k, v in ipairs(SpringFestivalSheepActCfg.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[1] = activityTime[7]
+		activityTime[2] = activityTime[8]
+		activityTime[3] = activityTime[9] + 1
+		activityTime[9] = activityTime[9] + 1
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendSpringFestivalSheepOpenFlag(sysarg, 0)
+		end
+	end
+
+end
+
+function SendSpringFestivalSheepOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 119)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end
+
+
+--羊年春节活动0点重置
+function ResetSpringFestivalSheep()
+	ClearGetAwardActData() --祈福迎神 购买次数清零
+
+	ResetLuckyGuess()	--幸运竞猜
+end
+
+--羊年春节活动结束清除数据
+function OnClearSpringFestivalSheep()
+	ClearAllGetAwardData() --祈福迎神 喜庆值清零
+	--清除招财进宝数据  
+	ClearChrTurntableData(2)
+
+	--充值排行
+	CloseRechargeCommon(16)
+	CloseRechargeCommon(17)
+
+	--幸运竞猜
+	ClearLuckyGuess()
+	
+	ClearEveData() --活动结束清最后一天的数据
+end
+

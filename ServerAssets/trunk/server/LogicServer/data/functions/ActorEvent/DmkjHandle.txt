@@ -1,0 +1,784 @@
+﻿--lua script
+--处理盗梦空间相关的操作
+
+--#include "data\config\dmkj\Dmkj.txt" once --
+--鉴定属性
+AuthValTab = {
+	Item.ipItemForgeProperty1Value,
+	Item.ipItemForgeProperty2Value,
+	Item.ipItemForgeProperty3Value,
+    --Item.ipItemForgeProperty4Value,
+}
+
+local MAX_DMKJ_MJ = 1
+
+DmkjOpId = {
+	enRefresh = 1,		--刷新物品
+	enDm = 2,			--盗梦
+	enIndex = 3,		--首页信息
+	enAward = 4,		--领取物品
+	enChangPoint = 5,	--积分兑换
+}
+
+DmkjOpFuncList = {}
+
+EventCallDispatcher.HandlerDmkjOp = function (sysarg, args)
+	--print("!!!!!!!!!!!!!!!HandlerDmkjOp================"..args[1])
+	if args[1] == nil then return end   --
+	local func = DmkjOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args)
+	end
+end
+
+DmkjFun = 
+{
+	--刷新盗梦库
+	RefreshDmLib = function ()
+		local openday = System.getDaysSinceOpenServer()
+		local combineday = System.getDaysSinceCombineServer()
+		local cultureLevel = System.getCultureLevel()
+		--print("openday:"..openday)
+		--print("combineday:"..combineday)
+		--print("cultureLevel:"..cultureLevel)
+		local itemLibs = DmkjConf.ItemLibs
+		local randLibs = {}
+		for k, v in ipairs(itemLibs) do
+			if v.OpenDays == 0 then	--开服配置为0代表 当作常规库
+				table.insert(randLibs, k)
+			else
+				if v.OpenDays then		--开服判断
+					for m, n in ipairs(v.OpenDays) do
+						if openday == n then
+							return k
+						end
+					end
+				end
+			end
+			
+			if combineday > 0 and v.CultureLvl then	--合服判断
+				if cultureLevel >= v.CultureLvl[1] and cultureLevel <= v.CultureLvl[2] then
+					return k
+				end
+			end
+			
+		end
+		
+		--如果找不到开服配置，则随机选择配置为-1的
+		local randCount = table.getn(randLibs)
+		if randCount > 0 then
+			local randNum = math.random(randCount)
+			return randLibs[randNum]
+		end
+		
+		return 0
+	end,
+	
+	--设置盗梦库
+	SetDmLib = function (sysarg)
+		--print("SetDmLib===============")
+		local dval = System.getDyanmicVar()
+		local oldLib = dval.dmLib
+		dval.dmLib = DmkjFun.RefreshDmLib()
+		--print(dval.dmLib)
+		local ItemLib = DmkjConf.ItemLibs[dval.dmLib]
+		if not ItemLib then 
+			System.trace("Error: set dmkj lib error, libId="..dval.dmLib)
+			return nil
+		end
+		
+		if oldLib ~= dval.dmLib then
+			-- System.broadcastTipmsg(Lang.ScriptTips.dm011, ttScreenCenter+ttChatWindow)
+		end
+		--DmkjFun.InitDmkjParam() --初始化各概率参数
+		return dval.dmLib, oldLib
+	end,
+	
+	--获取盗梦库
+	GetDmLib = function (sysarg)
+		if sysarg then
+			local aSval = Actor.getStaticVar(sysarg)
+			if aSval.FirstDm == nil then
+				local lib = DmkjConf.FirstDmIndex
+				if lib > 0 then
+					--print("FIRST.....................")
+					return lib
+				end
+			end
+		end
+		local dval = System.getDyanmicVar()
+		local dmLib = dval.dmLib 
+		if dmLib == nil or dmLib == 0 then
+			dmLib = DmkjFun.SetDmLib()
+		end
+		--print("dmLib:"..dmLib)
+		return dmLib
+	end,
+}
+
+
+
+--刷新物品
+DmkjOpFuncList[DmkjOpId.enRefresh] = function (sysarg,args)
+--print("DmkjOpFuncList[DmkjOpId.enRefresh]:")
+	local mt = args[2]	--梦境类型
+	local force = args[3]	--是否强制刷新
+	if force > 0 then force = true else force = false end
+	--print(force)
+	
+	--if (mt > #DmkjConf.ItemList or mt<=0) then
+	if (mt > MAX_DMKJ_MJ or mt <= 0) then
+		return
+	end
+	
+	local libId = DmkjFun.GetDmLib(sysarg)	--获取盗梦库
+	--print("libId:"..libId)
+	--参数错误
+	if libId == nil or (libId > #DmkjConf.ItemLibs or libId<=0) then
+		System.trace("Error: dmkj lib error")
+		return
+	end
+	
+	--print("libId:"..libId)
+	--print("bInit:"..bInit)
+	--[[
+	if force == 0 then
+		--判断时间到了没
+		if Dmkj.isTimeOk(sysarg) then
+			DmkjFun.RefreshAllItem(sysarg)
+			Dmkj.setNextTime(sysarg)	--修改下次刷新的时间
+		end
+
+	else
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO) < DmkjConf.RefreshYb[mt] then
+			local str = string.format(Lang.ScriptTips.dm001,DmkjConf.RefreshYb[mt])
+			Actor.sendTipmsg(sysarg,str,ttDialog)
+			return
+		end
+		local logName = DmkjConf.MjName[mt].."_r"
+		Actor.changeMoney(sysarg,mtYuanbao,-1*DmkjConf.RefreshYb[mt],150,logName)
+		--DmkjFun.RefreshItem(sysarg,mt, libId)
+	end
+	--]]
+	
+	Dmkj.refreshItemList(sysarg, libId, mt, force)
+end
+
+
+--盗梦
+DmkjOpFuncList[DmkjOpId.enDm] = function (sysarg,args)
+	local mt = args[2]	--梦境类型
+	local ct = args[3]	--盗梦类型
+	local pay = args[4]	--消耗类型 0:元宝，1：盗梦符
+	--先检查到了刷新物品的时候没
+	--print("mt:"..mt)
+	if (mt > MAX_DMKJ_MJ or mt<=0) then
+		return
+	end
+	
+	local libId = DmkjFun.GetDmLib(sysarg)	--获取盗梦库
+	
+	--print("libId:"..libId)
+	
+	--参数错误
+	if libId == nil or (libId > #DmkjConf.ItemLibs or libId<=0) then
+		System.trace("Error: dmkj lib error, libId="..libId)
+		return
+	end
+	
+	--暂时屏蔽掉
+	--[[
+	if Dmkj.isTimeOk(sysarg) then
+		DmkjFun.RefreshAllItem(sysarg)
+		Dmkj.setNextTime(sysarg)	--修改下次刷新的时间
+	end
+	--]]
+	
+	
+	local paramData = DmkjConf.DmParam[mt][ct]
+	--if paramData == nil then return end
+	
+	local ItemLib = DmkjConf.ItemLibs[libId]
+	if not ItemLib then return end
+	
+	--local rateData = ItemLib.MjLevelRate[mt]
+	--if rateData == nil then return end
+	
+	--扣元宝或盗梦符，判断仓库是否有足够的空间
+	if Dmkj.getStoreRestCount(sysarg) < paramData.count then
+		local str = string.format(Lang.ScriptTips.dm003,paramData.count)
+		Actor.sendTipmsg(sysarg,str,ttDialog)
+		return
+	end
+	local staticVar= System.getStaticVar();
+	
+	-- local globalYbCount = staticVar.used_dmkj_yb_count--盗梦空间全服消耗的元宝的数目
+	-- if(globalYbCount ==nil) then
+		-- globalYbCount =0
+	-- end
+	----print("globalYbCount="..globalYbCount)
+	
+	local addpoint = 0	--新获得的点数
+	--[[
+		if pay == 0 then
+			if Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO) < paramData.yb then
+				local str = string.format(Lang.ScriptTips.dm001,paramData.yb)
+				Actor.sendTipmsg(sysarg,str,ttDialog)
+				return
+			end
+			Actor.changeMoney(sysarg,mtYuanbao,-1*paramData.yb,150,DmkjConf.MjName[mt])
+			globalYbCount = globalYbCount + paramData.yb
+			staticVar.used_dmkj_yb_count =globalYbCount 
+			addpoint = paramData.yb / DmkjConf.MjPoint
+		else
+			if Actor.getItemCount(sysarg,DmkjConf.DmfItemId) < paramData.dmf then
+				local str = string.format(Lang.ScriptTips.dm002,paramData.dmf)
+				Actor.sendTipmsg(sysarg,str,ttDialog)
+				return
+			end
+			Actor.removeItem(sysarg,DmkjConf.DmfItemId,paramData.dmf)
+			--addpoint = paramData.dmf
+		end
+	--]]
+	local globalYbCount = 0
+	local itemConsume = paramData.item
+	local useItemFlag = false
+	if itemConsume and Actor.getItemCount(sysarg,itemConsume.id) >= itemConsume.count then
+		if Actor.removeItem(sysarg,itemConsume.id,itemConsume.count) < itemConsume.count then
+			return false
+		end
+		useItemFlag = true
+	else
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO) < paramData.yb then
+			local str = string.format(Lang.ScriptTips.dm001,paramData.yb)
+			Actor.sendTipmsg(sysarg,str,ttDialog)
+			return false
+		end
+		Actor.changeMoney(sysarg,mtYuanbao,-1*paramData.yb,150,DmkjConf.MjName[mt])
+		--globalYbCount = globalYbCount + paramData.yb
+		--staticVar.used_dmkj_yb_count =globalYbCount 
+		globalYbCount = Dmkj.setItemGlobalYb(paramData.yb, true)
+		addpoint = paramData.yb / DmkjConf.MjPoint
+		--消耗元宝兑换积分
+		--Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+        Actor.giveAward( sysarg, 52, 0, paramData.count, 0, 0, 0, 0, 1013, "clYbXunBaoPoint", -1) 
+	end
+	
+	--计算新的梦阶点数
+	local var = Actor.getStaticVar(sysarg)
+	if var.dmkjmj == nil then
+		var.dmkjmj = 0
+	end
+	
+	--往上增加阶数，每进阶1级要给相应的物品，直到最后一级
+	local newpoint = var.dmkjmj+ addpoint
+	
+	Dmkj.onDm(sysarg, libId, mt, paramData.count, useItemFlag, newpoint, globalYbCount)
+	
+	--[[
+		local sendtoclient = {}	--
+		
+		local Items = Dmkj.getItemList(sysarg,mt,0)
+		if Items == nil then return end
+		
+		local levelRate = DmkjConf.LevelRate[libId][mt]
+		local itemList = DmkjConf.ItemLibs[libId].ItemList[mt]
+		if bInit == 1 then
+			--print("initLib....")
+			levelRate = DmkjConf.InitLevelRate[libId][mt]
+			itemList = DmkjConf.ItemLibs[libId].InitItemList[mt]
+		end
+		if not levelRate or not itemList then return end
+		
+		local itemCount =  table.getn(Items)/ 3
+		for dmi = 1, paramData.count do	--选择的盗梦次数
+		
+			local myitem = nil
+			local strong = 0
+			for loopcount=1,10000 do		--如果是抽了个限制产出的物品，则重复抽取
+				local randNum = System.getRandomNumber(levelRate[itemCount])	--随机物品列表
+				--print("randNum:"..randNum)
+				--print("levelRate:"..levelRate[itemCount])
+				for i = 1, itemCount do
+					local level = Items[i*3-2]
+					--print("level:"..level)
+					local idx = Items[i*3]
+					----print("idx:"..idx)
+					local data = itemList[level]
+					if data ~= nil then
+						local itemdata = data[idx]
+						if itemdata ~= nil then
+							if randNum < levelRate[level] then	--物品命中
+								myitem = itemdata
+								strong = Items[i*3-1]
+								--print("Hit:"..itemdata.itemid.."+"..strong.." "..levelRate[level])
+								break
+							end
+							
+							
+						end
+					end
+					
+				end
+				
+				--条件判断
+				--使用道具是否能可以开出来默认为true
+				if (myitem ~= nil) then
+					local useItem = myitem.useItem
+					if useItem ~= nil then
+						if useItem ~= false then useItem = true end
+						if useItemFlag == true and useItem == false then
+							myitem = nil --没有选出来，重新弄
+							--print("Can't hit for useItemFlag")
+						end
+					end
+				end
+				
+				--个人梦阶值限制，当前梦阶值大于myitem.mjPoint才能命中
+				if (myitem ~= nil) then
+					local mjPoint = myitem.mjPoint
+					if mjPoint ~= nil and (newpoint < mjPoint) then
+						myitem = nil --没有选出来，重新弄
+						--print("Can't hit for newpoint:"..newpoint)
+					end
+				end
+				
+				--元宝限制
+				if (myitem ~= nil) then
+					if (myitem.yb ~= nil and myitem.yb >0) then
+						if(staticVar.dmkj_items== nil) then
+							----print("staticVar.dmkj_items== nil")
+							staticVar.dmkj_items={}
+						end
+						local itemYbConsume= staticVar.dmkj_items[myitem.itemid]
+						----print(myitem.itemid.."myitem.itemid"..itemYbConsume)
+						if (itemYbConsume == nil ) then
+							itemYbConsume = myitem.yb 
+						end
+						
+						--说明还没有到消耗的元宝，不能产生道具
+						--全局元宝消耗判断  服务器每盗梦myitem.yb元宝,产出一次
+						if (itemYbConsume <= globalYbCount) then 
+							staticVar.dmkj_items[myitem.itemid] = globalYbCount + myitem.yb 
+							----print("HIT!!!"..staticVar.dmkj_items[myitem.itemid])
+						else
+							myitem = nil --没有选出来，重新弄
+							--print("Can't hit for itemYbConsume:"..itemYbConsume)
+						end
+					end
+				end
+				
+				--判断结果是否有效
+				if myitem ~= nil then
+					break
+				end
+			end
+			
+			if myitem ~= nil then 
+				--print("really hit:"..myitem.itemid.."+"..strong)
+				--放到仓库里
+				if myitem.type == 0 then
+					--需要roll一下，添加道具进去
+					local hasAddItem= false
+					if(myitem.autoUse ~= nil and myitem.autoUse ==true) then
+						--这里不是概率就是爆率
+						local dropName = "proability"..tostring(myitem.itemid) --按名字索引的
+						----print("myitem.autoUse ==true")
+						local isProDrop = false --是否是概率和掉落
+						local drop = System.getObjectVar(dropName)
+						if (not drop) then
+							dropName = "roll"..tostring(myitem.itemid)
+							drop = System.getObjectVar(dropName)
+						else
+							isProDrop =true
+						end
+						if( drop) then
+							local broadcast = myitem.broadcast
+							newitem ={}  --这里要随出一个新道具出来
+							local itemOldId = myitem.itemid
+							
+							local items = nil
+							if(isProDrop) then
+								items= drop:proabilityDrop(sysarg)
+							else
+								items= drop:drop(sysarg)
+							end
+							
+							if ( items.itemCount > 0) then
+								hasAddItem =true
+								for i=0, items.itemCount -1 do
+									newitem.type=0
+									newitem.count=items.itemList[i].btCount
+									newitem.itemid = items.itemList[i].wItemId
+									newitem.quality = items.itemList[i].btQuality
+									newitem.strong = items.itemList[i].btStrong
+									newitem.bind  = items.itemList[i].btBind
+									newitem.broadcast  = broadcast
+									Dmkj.addItem(sysarg,items.itemList[i].wItemId,items.itemList[i].btCount,items.itemList[i].btQuality,
+									items.itemList[i].btStrong,items.itemList[i].btBind,false)
+									Dmkj.addLog(sysarg,mt,newitem.type,newitem.itemid,newitem.broadcast,newitem.strong)
+									table.insert(sendtoclient,newitem)
+									if myitem.broadcast then
+										--全服广播
+										local strongStr = ""
+										if newitem.strong > 0 then
+											strongStr = string.format("+%d", newitem.strong)
+										end
+										local str = string.format(Lang.ScriptTips.dm004,
+													Actor.getName(sysarg),
+													Item.getItemName(myitem.itemid),strongStr)
+										System.broadcastTipmsg(str,ttScreenCenter)
+									end
+								end
+							else
+								--print("items.itemCount="..items.itemCount.."myitem.itemid="..itemOldId)
+							end
+						end
+					end
+					
+					if(hasAddItem ==false) then 
+						myitem.strong = strong	--赋值strong
+						Dmkj.addItem(sysarg,myitem.itemid,myitem.count,myitem.quality,myitem.strong,myitem.bind,false)
+						Dmkj.addLog(sysarg,mt,myitem.type,myitem.itemid,myitem.broadcast,myitem.strong)
+						table.insert(sendtoclient,myitem)
+						if myitem.broadcast then
+							--全服广播
+							local strongStr = ""
+							if myitem.strong > 0 then
+								strongStr = string.format("+%d", myitem.strong)
+							end
+							local str = string.format(Lang.ScriptTips.dm004,
+										Actor.getName(sysarg),
+										Item.getItemName(myitem.itemid),strongStr)
+							System.broadcastTipmsg(str,ttScreenCenter)
+						end
+					end				
+				else
+					Actor.giveAward(sysarg,myitem.type,myitem.itemid,myitem.count,myitem.quality,myitem.strong,myitem.bind)
+				end
+			end
+		end
+		
+		local npack = DataPack.allocPacket(sysarg,36,2)
+		if npack == nil then return end
+		DataPack.writeData(npack,3,dtByte,1,dtWord,Dmkj.getStoreCount(sysarg),dtWord,table.getn(sendtoclient))
+		for i = 1, #sendtoclient do
+			local myitem = sendtoclient[i]
+			DataPack.writeData(npack,6,dtByte,myitem.type,dtInt,myitem.count,dtWord,myitem.itemid,dtByte,myitem.quality,dtByte,myitem.strong,dtByte,myitem.bind)
+		end
+		DataPack.flush(npack)
+	--]]
+	
+	
+	
+	local currlevel = -1
+	--计算当前所在梦阶级
+	for i = 1,#DmkjConf.MjAward do
+		local mjconf = DmkjConf.MjAward[i]
+		if var.dmkjmj >= mjconf.sp and var.dmkjmj < mjconf.ep then
+			currlevel = i		
+			break;
+		end
+	end
+	--梦阶奖励
+	for i = 1,#DmkjConf.MjAward do
+		local mjconf = DmkjConf.MjAward[i] 
+		if i > currlevel and newpoint >= mjconf.sp then
+			--自动放到仓库里
+			local quality =DmkjConf.MjAward[i].quality;
+			if quality == nil then quality = 0 end
+			local bestSmith = 0
+			Dmkj.addItem(sysarg,DmkjConf.MjAward[i].itemid,1,quality,0,1,true,bestSmith)
+			Dmkj.addLog(sysarg,0,i,DmkjConf.MjAward[i].itemid,false)
+		end
+	end
+	var.dmkjmj = newpoint
+	--如果达到了最高级，则回复成nil
+	if newpoint >= DmkjConf.MjAward[table.getn(DmkjConf.MjAward)].sp then
+		var.dmkjmj = nil
+	end
+	
+	----print("newpoint:"..newpoint.." mj:"..var.dmkjmj)
+	
+	DmkjOpFuncList[DmkjOpId.enAward](sysarg,{})
+    Actor.triggerAchieveEvent(sysarg,62,addpoint) --盗梦的次数，触发成就
+	Actor.triggerQuestEvent( sysarg, 127, 50093, 1)
+
+	--首次盗梦
+	local aSval = Actor.getStaticVar(sysarg)
+	aSval.FirstDm = 1
+	
+	--重新刷新物品
+	--DmkjOpFuncList[DmkjOpId.enRefresh](sysarg,{0,1,1}) 	--强制刷新一次
+end
+
+--下发梦阶值和下一级可以获取到的物品
+DmkjOpFuncList[DmkjOpId.enAward] = function (sysarg,args)
+	local npack = DataPack.allocPacket(sysarg,36,3)	--下发梦阶值
+	if npack == nil then return end
+	local var = Actor.getStaticVar(sysarg)
+	local mj = 0
+	if var.dmkjmj ~= nil then
+		mj = var.dmkjmj
+	end
+	DataPack.writeInt(npack,mj)
+	
+	local itemid = nil
+	--看看可以领取什么奖品
+	for i = 1,#DmkjConf.MjAward do
+		if mj < DmkjConf.MjAward[i].sp then
+			itemid = DmkjConf.MjAward[i].itemid
+			break
+		end
+	end
+	if itemid ~= nil then
+		DataPack.writeWord(npack,itemid)
+	else
+		DataPack.writeWord(npack,0)
+	end
+	DataPack.flush(npack)
+end
+
+--下发首页数据
+DmkjOpFuncList[DmkjOpId.enIndex] = function (sysarg,args)
+	--print("DmkjOpFuncList[DmkjOpId.enIndex]")
+	--下发梦阶值
+	DmkjOpFuncList[DmkjOpId.enAward](sysarg,{})
+	
+	--下发抽奖的20个物品列表
+	DmkjOpFuncList[DmkjOpId.enRefresh](sysarg,{0,1,0}) 	--只下发不重刷
+	
+	--下发配置信息
+	local npack = DataPack.allocPacket(sysarg,36,8)	--
+	if npack == nil then return end
+	
+	--先下发梦阶数过去
+	local count = table.getn(DmkjConf.DmParam)
+	DataPack.writeByte(npack,count)
+	
+	for i = 1,count do
+		local data = DmkjConf.DmParam[i]
+		for j = 1,#data do
+			DataPack.writeInt(npack,data[j].yb)
+		end
+	end
+	
+	for i = 1,#DmkjConf.MjAward do
+		DataPack.writeInt(npack,DmkjConf.MjAward[i].sp)
+	end
+	--[[
+	for i = 1,#DmkjConf.RefreshYb do
+		DataPack.writeInt(npack,DmkjConf.RefreshYb[i])
+	end
+	--]]
+	DataPack.writeInt(npack,0)
+	DataPack.flush(npack)
+	
+	--下发日志
+	Dmkj.sendAllLog(sysarg,0)
+end
+
+--寻宝物品的兑换 
+DmkjOpFuncList[DmkjOpId.enChangPoint] = function (sysarg,args)
+	local nType = args[2]	--兑换类型 
+	local ndex = args[3]	--兑换具体下标 
+	--print("nType:"..nType.."ndex:"..ndex)
+	local XunBaoChangConfig = DmkjConf.PointChange
+	if (nType > table.getn(XunBaoChangConfig) or nType<=0) then
+		return
+	end
+	if (ndex > table.getn(XunBaoChangConfig[nType]) or ndex <= 0) then
+		return
+	end
+	--print("nType:"..nType.."ndex:"..ndex)
+	local Config = XunBaoChangConfig[nType][ndex]
+	local itemPtr 
+	local isItemInBag = true
+    local bagCount = Item.getBagItemCount( sysarg )  --玩家背包装备数
+    for i = 1, bagCount do
+	    local bagEquipPtr = Item.getBagItemBySortID( sysarg, i )
+	    --print("ClientQuestHuLongAwardJobTypei:"..i)
+	    if bagEquipPtr then
+		   local nItemId = Item.getItemProperty( sysarg, bagEquipPtr, Item.ipItemID, 0 )
+		   if  nItemId == Config.Consume.ItemId then
+			   itemPtr = bagEquipPtr
+			   isItemInBag = false
+			   break
+           end
+	    end
+    end
+    
+    if itemPtr == nil then
+		local equipCount = Item.getEquipCount( sysarg )  --玩家穿着装备数
+		for i = 1, equipCount do
+			local equipPtr = Item.getEquipBySortID( sysarg, i )
+			if equipPtr then
+			   local nItemId = Item.getItemProperty( sysarg, equipPtr, Item.ipItemID, 0 )
+			   if  nItemId == Config.Consume.ItemId then
+			       itemPtr = equipPtr
+			       break
+	           end 
+			end
+		end
+	end
+	
+	if itemPtr == nil and Config.Consume.ItemId > 0 then
+	   Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.dm012, Item.getItemName(Config.Consume.ItemId)), ttFlyTip)
+	   return
+    end
+    local XunBaoPointValue = Actor.getIntProperty( sysarg, PROP_ACTOR_XUNBAOPOINT)
+	if XunBaoPointValue < Config.Consume.NeedPoint and Config.Consume.NeedPoint > 0 then
+	   Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.dm013, Config.Consume.NeedPoint), ttFlyTip)	   
+       return
+    end
+    local initSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)   
+    local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+ 	--属性保留
+    local propTab = {}
+	local authTimes = Item.getItemProperty( sysarg, itemPtr, Item.ipItemForgeTimes, 0 )
+	propTab[Item.ipItemForgeTimes] = authTimes
+	for authIdx, authVar in ipairs(AuthValTab) do
+	    if authIdx < #AuthValTab then
+		   local tempVal = Item.getItemProperty( sysarg, itemPtr, authVar, 0)
+		   propTab[authVar] = tempVal
+		end
+	end
+	--print("nType:"..nType.."ndex:"..ndex)
+    --扣除装备和寻宝积分
+    local str = ""
+    if Config.Consume.ItemId > 0 then
+	   if Actor.removeItemByPtr(sysarg, itemPtr, 1, true, Lang.LogTips.l00107, 92) == 0  then
+	      if Item.removeEquip(sysarg, itemPtr, Lang.LogTips.l00107, 92, true) == 0 then
+			 return
+		  end
+   	   end
+   	   str = str .. Item.getItemName(Config.Consume.ItemId) .. "+"
+    end
+	--print("nType:"..nType.."ndex:"..ndex)
+    if Config.Consume.NeedPoint > 0 then
+       Actor.giveAward( sysarg, 52, 0, -Config.Consume.NeedPoint, 0, 0, 0, 0, 1013, "clYbXunBaoPoint", -1)
+    end
+ 	local newItemPtr = Item.createItem(Config.Award.id, 1, 0, 0)
+	if newItemPtr then
+	    Item.addItem(sysarg, newItemPtr, "XunBaoDuiHuan", 1112)
+		if initSmith > 0 then
+			Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, initSmith)
+		end
+		if not isItemInBag then
+			Item.equipItem(sysarg, newItemPtr, 1)
+		end
+		--随机或者保留极品属性
+		if initSmith == 0 then
+			Item.initEquipBaseAttr(sysarg, newItemPtr, bawEquipUpgrade)
+			local newInitSmith = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, 0)
+			if newInitSmith > 0 then
+				local noticeStr = string.format(Lang.ScriptTips.q00097, Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+				System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+			end
+		end
+		--保留鉴定次数
+		for propId, propVal in pairs(propTab) do
+			Item.setItemProperty( sysarg, newItemPtr, propId, propVal)
+		end
+
+				--随机卓越属性
+		local A,B,C,D = Item.GetEquipZuoYueSZAttr(sysarg,newItemPtr,0)
+		Item.ApplyZuoYueSZAttr(sysarg,true)
+
+        --[[合成完毕全服播报
+       	local nNewItemId = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemID, 0 )
+      	local ItemName = Item.getItemName( nNewItemId )
+		if ItemName then
+			local str2 = string.format(Lang.ScriptTips.q00100,Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+			System.broadcastTipmsg(str2,ttScreenCenter+ttChatWindow)
+		end]]
+		if nItemStrong > 0 then--保留强化等级
+		   Item.setItemProperty(sysarg, newItemPtr, Item.ipItemStrong, nItemStrong)
+		end
+		Dmkj.addLog(sysarg,10000, Config.Award.type, Config.Award.id, false)
+
+		str = str .. Config.Consume.NeedPoint
+		local itemName = Item.getItemName(Config.Award.id)
+		System.broadcastTipmsg(string.format(Lang.ScriptTips.q00106,
+			Actor.getName(sysarg), str, itemName), ttScreenCenter+ttChatWindow)
+	end
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeDmkj, EventCallDispatcher.HandlerDmkjOp)
+
+--初始化配置
+--Dmkj.setDmkjTimeLimitItem(DmkjConf.TimeLimitItem.item1,DmkjConf.TimeLimitItem.item2,DmkjConf.TimeLimitItem.hour)
+
+--刷新随机库 每天晚上0点调用  GM命令:  @callf sys RefreshDmkjLib
+function RefreshDmkjLib()
+	ClearUseTimes()			--每天重置宝石消除游戏次数
+	
+	local nowLib, oldLib = DmkjFun.SetDmLib()
+	--如果库没更新 就不操作了
+	if nowLib == nil or nowLib == oldLib then return end
+	--print("RefreshDmkjLib",nowLib,oldLib)
+	Dmkj.clearDmkjAllItem()			--清空全服盗梦列表
+	Dmkj.clearDmkjLog()				--清空全服log
+	Dmkj.saveItemConsumeMap()		--保存道具元宝消耗
+	local players = LuaHelp.getAllActorList()
+	if players then
+		for k, v in ipairs(players) do
+			Dmkj.sendRequireRefresh(v)	--请求在线玩家刷新盗梦列表
+		end
+	end
+end
+--[[
+--删除没用的数据
+function DeleteDirtyData()
+	local staticVar= System.getStaticVar()
+	if staticVar.dmkj_yb_count then
+		staticVar.dmkj_yb_count = nil --盗梦空间全服消耗的元宝的数目 （因使用新结构保存每个物品原本，因此重置此数据）
+	end
+	if staticVar.dmkj_items then
+		staticVar.dmkj_items = nil
+	end
+end
+DeleteDirtyData()	--删除没用的数据
+--]]
+
+
+--清空盗梦仓库  GM命令：@call sys ClearDmkjStore
+ClearDmkjStore = function(sysarg)
+	Dmkj.clearStore(sysarg);
+end
+
+--清空全服消耗的元宝的数目  GM命令：@call sys ClearDmkjUsedYb
+ClearDmkjUsedYb = function()
+	local staticVar= System.getStaticVar()
+	if staticVar.used_dmkj_yb_count then
+		staticVar.used_dmkj_yb_count = nil --盗梦空间全服消耗的元宝的数目 （因使用新结构保存每个物品原本，因此重置此数据）
+	end
+end
+
+--清除梦阶值 GM命令：@call sys ClearDmkjMj
+ClearDmkjMj = function(sysarg)
+	local var = Actor.getStaticVar(sysarg)
+	var.dmkjmj = nil
+end
+
+--清除第一次盗梦标志 GM命令：@call sys ClearFirstDm
+ClearFirstDm = function(sysarg)
+	local aSval = Actor.getStaticVar(sysarg)
+	aSval.FirstDm = nil
+end
+
+--每天重置宝石消除游戏次数
+function ClearUseTimes()
+	local pRank = Ranking.getRanking("BejeweledDeluxeInfo.txt")
+	if pRank then
+		local nCount = Ranking.getRankItemCount(pRank)
+		for i=0,nCount-1 do
+			local pItem = Ranking.getItemFromIndex(pRank,i)
+			if pItem then
+				Ranking.setSub(pItem,0,tostring(0))
+				Ranking.setSub(pItem,1,tostring(0))
+				Ranking.setSub(pItem,2,tostring(0))
+			end
+		end
+	end
+end

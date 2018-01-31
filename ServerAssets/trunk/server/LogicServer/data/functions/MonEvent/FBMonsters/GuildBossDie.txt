@@ -1,0 +1,111 @@
+--lua script
+--#include "data\config\guild\GuildBossScreen.txt"  once  --基本设置 
+--#include "data\config\guild\GuildBoss.txt"  once  --基本设置 
+
+--#include "data\functions\guildOperate\GuildBossFyben.txt"  once  --基本设置 
+--#include "data\functions\guildOperate\GuildBossCommon.txt"  once  --基本设置 
+--帮派boss死亡给的奖励
+function GiveGuildBossAward(sysarg)
+	local mType = Actor.getBossType(sysarg)
+	
+	if mType <= 0 or mType > GuildBossConst.bossNum then
+		return
+	end
+
+	local newbScore = Actor.getBossScore(sysarg)
+	local bLev = GetGuildBossLev(sysarg,newbScore)
+
+	if bLev <= 0 or bLev > GuildBossConst.levCount then
+		return
+	end
+
+	local mRank = 0
+	local bScore = 0
+
+	-- 帮派贡献
+	local otherReward = GuildBossConst.AwardCont[mType][bLev][3].num or 0
+	local otherType = GuildBossConst.AwardCont[mType][bLev][3].bType
+	
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+
+	if fhadle > 0 then
+		Fuben.giveFubenAllMemberAward(fhadle,otherType,otherReward)
+	end
+	
+	--帮派玥石
+	local Awardys = GuildBossConst.AwardCont[mType][bLev][2].num or 0
+	Actor.setGuildYs(sysarg,Awardys)
+	
+	--帮派繁荣
+	local AwardFr = GuildBossConst.AwardCont[mType][bLev][1].num or 0
+	Actor.setGuildFr(sysarg,AwardFr)
+	
+	str = string.format(Lang.GuildLang.z00003,AwardFr,Awardys,otherReward)
+
+	Actor.sendGuildMsg(sysarg,smGuildCommon,str,128)	--发帮派广播
+	
+	--清除膜拜积分
+	Actor.clearGuildBossScore(sysarg)
+	Actor.setBossScore(sysarg,-newbScore)		--设置斗魂的神威值清零
+	Actor.setGuildFuBenHandle(sysarg,0)
+	Actor.setGuldBossFlag(sysarg,false)
+
+	local strEvent = string.format(Lang.GuildLang.z00016,guildBoss.bossType[mType].name)
+
+	Actor.addEventRecord(sysarg,strEvent,17,otherReward,AwardFr,Awardys,guildBoss.bossType[mType].name,tostring(bLev))
+	
+	local campName = Camp.getCampName(Actor.getCamp(sysarg))
+	System.broadcastTipmsg(string.format(Lang.GuildLang.z00029, campName, Actor.getGuildName(sysarg), guildBoss.bossType[mType].name), ttScreenCenter)
+end
+
+MonDieDispatcher.Mon544Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon545Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon546Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon547Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon548Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon550Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon551Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon552Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon553Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+MonDieDispatcher.Mon554Die = function(monster,sysarg,monId)
+	GiveGuildBossAward(sysarg)
+end
+
+--MonDieDispatcher.register(544, MonDieDispatcher.Mon544Die )
+--MonDieDispatcher.register(545, MonDieDispatcher.Mon545Die )  
+--MonDieDispatcher.register(546, MonDieDispatcher.Mon546Die )
+--MonDieDispatcher.register(547, MonDieDispatcher.Mon547Die )
+--MonDieDispatcher.register(548, MonDieDispatcher.Mon548Die )
+
+--MonDieDispatcher.register(550, MonDieDispatcher.Mon550Die )
+--MonDieDispatcher.register(551, MonDieDispatcher.Mon551Die )
+--MonDieDispatcher.register(552, MonDieDispatcher.Mon552Die )
+--MonDieDispatcher.register(553, MonDieDispatcher.Mon553Die )
+--MonDieDispatcher.register(554, MonDieDispatcher.Mon554Die )

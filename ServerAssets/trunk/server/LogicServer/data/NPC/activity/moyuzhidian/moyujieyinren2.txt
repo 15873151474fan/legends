@@ -1,0 +1,62 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+  thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+---#include "data\language\LangCode.txt" once          
+
+--#include "data\functions\Activity\HeavenAndHell\Heaven_main.txt" once	--九天冰宫
+
+--[[此NPC中标准任务发行表]]
+
+
+--[[此NPC中标准任务受理表]]
+
+--[[此NPC中标准任务过程表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = Lang.NormalTalk.n02060, },
+
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+	local str = ""
+	local dialog_count = table.getn(NpcDialogue)
+	if dialog_count > 0 then
+		local rand = System.getRandomNumber(dialog_count)	
+		str = NpcDialogue[rand +1].say
+	end	
+	for k, func in ipairs(MainFnTable) do
+		str = str .. func(sysarg)
+	end
+	return str
+
+end
+
+
+
+--[[注销任务的系统回调函数]]
+
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

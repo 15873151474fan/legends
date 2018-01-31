@@ -1,0 +1,179 @@
+--天降好礼
+
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\Festival\BownGift.txt" once
+--#include "data\config\activityconfig\Festival\SkyGift.txt" once
+--#include "data\config\activityconfig\Festival\GiftBackAward.txt" once
+--#include "FestivalBownGift.txt"
+
+--天降好礼定时发放
+function GiveSkyGiftOp()
+	if (System.isOpenActById(5) == false) and (System.isOpenHorseActById(5) == false) then return end		--没开启天降好礼
+	local nHour,nMin,nSec = System.getTime(0,0,0)
+	
+	local nIndex = 0
+	for i=1,table.getn(SkyGiftConfig.AwardAll) do
+		if nHour == SkyGiftConfig.AwardAll[i].nHour then
+			nIndex = i
+			break
+		end
+	end
+	
+	if nIndex == 0 then return end
+	
+	local nConfig = SkyGiftConfig.AwardAll[nIndex]
+	if nConfig == nil then return end
+	
+	local str = ""
+	for i=1,table.getn(nConfig.Awards) do
+		str = str..Item.getItemName(nConfig.Awards[i].id)
+		if i < table.getn(nConfig.Awards) then
+			str = str..","
+		end
+	end
+
+	local playerList = LuaHelp.getAllActorList()	
+	if playerList ~= nil then
+		if #playerList <= SkyGiftConfig.nCount then
+			for j = 1, #playerList do
+				local player = playerList[j]
+
+				local nLevel = Actor.getIntProperty(player,PROP_CREATURE_LEVEL)
+				--if nLevel >= SkyGiftConfig.minLev then
+				if Actor.checkActorLevel(player,SkyGiftConfig.minLev) == true then
+					local nActorId = Actor.getIntProperty(player,PROP_ENTITY_ID)
+					System.addOfflineMsg(nActorId,39,Lang.Activity.nh0001,0,nIndex,nConfig.needBag)
+				end
+			end
+		else
+			local nNum = System.getRandomNumber(#playerList-SkyGiftConfig.nCount)
+			if nNum <= 0 then
+				nNum = 1
+			end
+
+			local nCount = 0
+			for j=nNum,#playerList do
+				local player = playerList[j]
+				
+				if player then
+					local nLevel = Actor.getIntProperty(player,PROP_CREATURE_LEVEL)
+					if Actor.checkActorLevel(player,SkyGiftConfig.minLev) == true then
+						nCount = nCount + 1
+						local nActorId = Actor.getIntProperty(player,PROP_ENTITY_ID)
+						System.addOfflineMsg(nActorId,39,Lang.Activity.nh0001,0,nIndex,nConfig.needBag)
+						--System.broadcastTipmsg(string.format(Lang.Activity.nh0014,Actor.getName(player),str,2+128))
+						if nCount >= SkyGiftConfig.nCount then
+							break 
+						end
+					end
+				end
+			end
+		end
+
+		System.broadcastTipmsg(string.format(Lang.Activity.nh0014,str),2+128)
+	end
+
+end
+
+--领取天降好礼
+function OnGetSkyGiftOp(sysarg,nIndex)
+	local nConfig = SkyGiftConfig.AwardAll[nIndex]
+	if nConfig == nil then return end
+	
+	for i=1,table.getn(nConfig.Awards) do
+		Actor.giveAward(sysarg,nConfig.Awards[i].type,nConfig.Awards[i].id,nConfig.Awards[i].count,nConfig.Awards[i].quality,nConfig.Awards[i].strong,nConfig.Awards[i].bind,0,838,Lang.Activity.nh0002)
+	end
+
+	return true
+end
+
+--领取回馈礼包
+function OnGetGiftBackOP(sysarg,nIndex)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local pRanking = Ranking.getRanking(BownGiftConfig.BownGiftName)
+	local pItem = nil
+	local nBownLev = 0
+	if pRanking then
+		pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+		if pItem then
+			nBownLev = tonumber(Ranking.getSub(pItem,1))
+		else
+			pItem = Ranking.addItem(pRanking,nActorId,0)
+			if pItem then
+				Ranking.setSub(pItem,0,tostring(0))
+				Ranking.setSub(pItem,1,tostring(0))
+			end
+		end
+	end
+
+	local nConfig = GiftBackAwardConfig.giftList[nIndex]
+	if nConfig == nil then 
+		return false
+	end
+	
+	local nLev = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	if Actor.checkActorLevel(sysarg,GiftBackAwardConfig.minLev) == false then
+		Actor.sendTipmsg(sysarg,string.format(Lang.Activity.nh0009,GiftBackAwardConfig.minLev),ttFlyTip)
+		return false
+	end
+
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	if nYb < nConfig.needYb then
+		Actor.sendTipmsg(sysarg,Lang.Activity.nh0010,ttFlyTip)
+		return false
+	end
+
+	if nBownLev > 0 then				--今天已领取
+		Actor.sendTipmsg(sysarg,Lang.Activity.nh0011,ttFlyTip)
+		return false
+	end
+	
+	local freeBag = Item.getBagEmptyGridCount(sysarg) 
+	if freeBag < nConfig.needbag then
+		Actor.sendTipmsg(sysarg,Lang.Activity.nh0012,ttFlyTip)
+		return false
+	end
+
+	Actor.changeMoney(sysarg,3,-nConfig.needYb,908,Lang.Activity.nh0013)
+	
+	local nJob = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+	for i=1,table.getn(nConfig.Awards) do
+		if nConfig.Awards[i].job == nil or nConfig.Awards[i].job == nJob then
+			Actor.giveAward(sysarg,nConfig.Awards[i].type,nConfig.Awards[i].id,nConfig.Awards[i].count,nConfig.Awards[i].quality,nConfig.Awards[i].strong,nConfig.Awards[i].bind,0,908,Lang.Activity.nh0013)
+		end
+	end
+
+	if pItem then
+		Ranking.setSub(pItem,1,tostring(1))
+	end
+
+	return true
+end
+
+--聚宝盆每天清理
+function ClearBownGiftState()
+	local nWeek = System.getDayOfWeek()
+	if nWeek == 4 then
+		local nRanking = Ranking.getRanking("LimitTimeRideRank.txt")
+		if nRanking then
+			Ranking.clearRanking(nRanking)
+		end
+	end
+
+	local pRanking = Ranking.getRanking(BownGiftConfig.BownGiftName)
+	if pRanking then
+		Ranking.clearRanking(pRanking)
+	end
+
+	local ranking = Ranking.getRanking("GetGuildWelfare.txt")
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+
+	if (System.isOpenActById(2) == true) or (System.isOpenHorseActById(2) == true) then 
+		local nranking = Ranking.getRanking("BownIntervalYbFile.txt")
+		if nranking then
+			Ranking.clearRanking(nranking)
+		end
+	end
+end

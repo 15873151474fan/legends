@@ -1,0 +1,156 @@
+--烟花盛宴配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+FireworksFeastCfg =    
+{
+	circle = 0, --转数
+	level = 50, --等级
+	
+	--礼炮额外奖励
+	fireworksAward =  
+	{
+		{
+			rate = 15,
+			awards =
+			{
+				{type = 0, id = 3223, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+		{
+			rate = 23,
+			awards =
+			{
+				{type = 1, id = 2, count = 10000, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+		{
+			rate = 23,
+			awards =
+			{
+				{type = 6, id = 0, count = 5000, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+		{
+			rate = 9,
+			awards =
+			{
+				{type = 0, id = 1990, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+		{
+			rate = 9,
+			awards =
+			{
+				{type = 0, id = 2111, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+		{
+			rate = 3,
+			awards =
+			{
+				{type = 0, id = 2603, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+		{
+			rate = 8,
+			awards =
+			{
+				{type =0 , id = 2836, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+		{
+			rate = 9,
+			awards =
+			{
+				{ type = 0, id = 2984, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+	},
+	
+	fireworksId  = 2592, --烟花id 
+	addPoint = 1, --使用一个烟花礼包增加的指数
+	pointList = {1000, 3000, 5000, 7000, 10000}, --累计喜庆值 
+	npcName = Lang.EntityName.n00211, --祈福树
+	useDistance = 20, --烟花使用距离
+	effectId = 2, --金钱雨特效id
+	effectSecs = 10, --特效持续时间
+	ybAwardList = --发元宝   
+	{
+		{rate = 30, yb = 5},
+		{rate = 35, yb = 10},
+		{rate = 30, yb = 20},
+		{rate = 5, yb = 50},
+	},
+	ybAwardCountList = --这个配置的序号要跟上面的pointList对应， count发奖的人数
+	{	
+		{count = 3, point = 1000},   
+		{count = 3, point = 3000},
+		{count = 3, point = 5000},
+		{count = 5, point = 7000},
+		{count = 8, point = 10000},
+	},
+	
+	--烟花盛宴排行奖励
+	attendPoint = 100, 	--参与奖需要到达的分数 
+	limitPoint = 1000,	--个人喜庆值大于或者等于1000  
+	limitRank = 10,		--累计积分前5发奖励
+	accAwards = 
+	{
+		awardTips = Lang.Activity.mzn0205, 
+		awardIndexs = --奖励序号
+		{
+			--beginVal 获取奖励的起始名次
+			--endVal 获取奖励的截止名次
+			[1] = {beginVal = 1, endVal = 1},  
+			[2] = {beginVal = 2, endVal = 3},
+			[3] = {beginVal = 4, endVal = 5}, 
+			[4] = {beginVal = 6, endVal = -1},  
+		},
+		--第1名奖励
+		{
+			needBagCount = 5,
+			awardList = 
+			{
+				{type = 0, id = 3141, count = 1,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 3247, count = 10, strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2982, count = 10, strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2836, count = 25, strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2949, count = 5,  strong = 0, quality = 0, bind = 1,},
+			},
+		},
+		--第2-3名奖励
+		{
+			needBagCount = 4,
+			awardList = 
+			{
+				{type = 0, id = 3247, count = 5,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2982, count = 5,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2836, count = 15, strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2949, count = 5,  strong = 0, quality = 0, bind = 1,},
+			},
+		},
+		--第4-10名奖励
+		{
+			needBagCount = 3,
+			awardList = 
+			{
+				{type = 0, id = 2949, count = 2, strong = 0, quality = 0, bind = 1,},	
+				{type = 0, id = 2836, count = 8, strong = 0, quality = 0, bind = 1,},	
+				{type = 0, id = 2982, count = 2, strong = 0, quality = 0, bind = 1,},	
+			},
+				
+		},
+		--参与奖励
+		{
+			needBagCount = 2,
+			awardList = 
+			{
+				{type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2836, count = 3, strong = 0, quality = 0, bind = 1,},
+			},
+			
+		},
+		
+	},
+	
+}

@@ -1,0 +1,44 @@
+--lua script
+--用户使用潜能果的个性处理
+--#include "data\config\Rune\Potential.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+
+function PotentialFruitFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.getItemCount(sysarg, itemIdx) < 1 then return end
+
+	local config = PotentialConfig
+	if not config then return end
+
+	local nPotenLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_POTEN_LEVEL)
+
+	nPotenLevel = nPotenLevel + 1
+
+	if nPotenLevel > table.getn(config.Potentialprop or {}) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00198, ttFlyTip)
+		return
+	end
+
+	local nCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	local nLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	local nNeedCircle = config.Potentialprop[nPotenLevel].needCircle
+	local nNeedLev = config.Potentialprop[nPotenLevel].needLev
+
+	if (nCircle < nNeedCircle) or (nCircle == nNeedCircle and nLevel < nNeedLev) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00199, ttFlyTip)
+		return
+	end
+
+	Actor.setUIntProperty(sysarg, PROP_ACTOR_POTEN_LEVEL, nPotenLevel)
+	Actor.upPotential(sysarg)
+
+	Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use potentialfruit",5)
+end
+
+function PotentialFruit_Init(sysarg)
+	for k, v in ipairs(PotentialFruitTab) do
+		GlobalItemFn[v.item_id] = { func = PotentialFruitFunc, params = v }
+	end
+end
+
+table.insert( InitFnTable, PotentialFruit_Init)
+

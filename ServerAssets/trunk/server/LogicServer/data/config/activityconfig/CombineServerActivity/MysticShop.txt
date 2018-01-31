@@ -1,0 +1,234 @@
+--神秘商店
+MysticShopConfig = 
+{
+	rankName = "MysticShop",
+	fileName = "MysticShop.txt",
+
+	freshNeedYb = 3,		--刷新需要3元宝
+	freshCount = 4,			--刷新的个数
+
+	freshTime = 2 * 60 * 60,		--2个小时刷新一次
+	
+	
+	--物品库
+	--[[
+		mtBindCoin =0,        //不可交易的金钱，比如系统奖励的一些金钱 
+		mtCoin=1,			  //可交易的金钱，
+		mtBindYuanbao =2,     //不可交易的元宝，一般是系统奖励的 
+		mtYuanbao=3,		  //可交易的元宝，玩家充值兑换的
+		mtStorePoint = 4,	  //商城积分，消费元宝时产出
+		mtHonour = 5,		  //荣誉
+		对应下面的type
+	]]
+	items = 
+	{
+		--rate 表示概率 基数为10000，10%10000 type 类型 curmoney 现价 money 原价  bBroadCast true播报 false不播报
+{ type = 1, itemId = 373, rate = 200, curmoney = 200000, money = 400000, count = 1, bind = 1, bBroadCast = false }, --生命药水(大)
+{ type = 1, itemId = 376, rate = 200, curmoney = 200000, money = 400000, count = 1, bind = 1, bBroadCast = false }, --魔法药水(大)
+{ type = 1, itemId = 379, rate = 200, curmoney = 200000, money = 400000, count = 1, bind = 1, bBroadCast = false }, --攻击药水(大)
+{ type = 1, itemId = 382, rate = 200, curmoney = 200000, money = 400000, count = 1, bind = 1, bBroadCast = false }, --防御药水(大)
+{ type = 1, itemId = 1021, rate = 50, curmoney = 2000000, money = 4000000, count = 1, bind = 1, bBroadCast = true }, --强效攻击药水
+{ type = 1, itemId = 1022, rate = 20, curmoney = 5000000, money = 10000000, count = 1, bind = 1, bBroadCast = true }, --超级攻击药水
+{ type = 1, itemId = 1046, rate = 50, curmoney = 3000000, money = 6000000, count = 1, bind = 1, bBroadCast = true }, --幸运药水
+{ type = 1, itemId = 1853, rate = 150, curmoney = 1000000, money = 2000000, count = 1, bind = 1, bBroadCast = false }, --强效生命药水
+{ type = 1, itemId = 1854, rate = 150, curmoney = 1000000, money = 2000000, count = 1, bind = 1, bBroadCast = false }, --强效魔法药水
+{ type = 1, itemId = 1855, rate = 150, curmoney = 1000000, money = 2000000, count = 1, bind = 1, bBroadCast = false }, --强效防御药水
+{ type = 1, itemId = 1981, rate = 80, curmoney = 1000000, money = 2000000, count = 1, bind = 1, bBroadCast = false }, --大准确药水
+{ type = 1, itemId = 1983, rate = 80, curmoney = 1000000, money = 2000000, count = 1, bind = 1, bBroadCast = false }, --大敏捷药水
+{ type = 1, itemId = 355, rate = 200, curmoney = 200000, money = 400000, count = 1, bind = 1, bBroadCast = false }, --9朵红玫瑰
+{ type = 1, itemId = 2291, rate = 150, curmoney = 250000, money = 500000, count = 1, bind = 1, bBroadCast = false }, --强效红玫瑰
+{ type = 1, itemId = 1072, rate = 250, curmoney = 200000, money = 400000, count = 1, bind = 1, bBroadCast = false }, --万年人参
+{ type = 1, itemId = 1074, rate = 250, curmoney = 200000, money = 400000, count = 1, bind = 1, bBroadCast = false }, --万年雪莲
+{ type = 1, itemId = 283, rate = 150, curmoney = 250000, money = 500000, count = 1, bind = 1, bBroadCast = false }, --四级灵珠
+{ type = 1, itemId = 226, rate = 15, curmoney = 25000000, money = 50000000, count = 1, bind = 0, bBroadCast = true }, --巨阙
+{ type = 1, itemId = 227, rate = 20, curmoney = 22500000, money = 45000000, count = 1, bind = 0, bBroadCast = true }, --千钧战甲(男)
+{ type = 1, itemId = 228, rate = 20, curmoney = 22500000, money = 45000000, count = 1, bind = 0, bBroadCast = true }, --千钧战甲(女)
+{ type = 1, itemId = 229, rate = 25, curmoney = 20000000, money = 40000000, count = 1, bind = 0, bBroadCast = true }, --千钧头盔
+{ type = 1, itemId = 230, rate = 30, curmoney = 17500000, money = 35000000, count = 1, bind = 0, bBroadCast = true }, --千钧项链
+{ type = 1, itemId = 231, rate = 40, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --千钧手镯
+{ type = 1, itemId = 232, rate = 35, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --千钧腰带
+{ type = 1, itemId = 233, rate = 35, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --千钧战靴
+{ type = 1, itemId = 234, rate = 30, curmoney = 17500000, money = 35000000, count = 1, bind = 0, bBroadCast = true }, --千钧宝石
+{ type = 1, itemId = 235, rate = 40, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --千钧戒指
+{ type = 1, itemId = 237, rate = 15, curmoney = 25000000, money = 50000000, count = 1, bind = 0, bBroadCast = true }, --红莲
+{ type = 1, itemId = 238, rate = 20, curmoney = 22500000, money = 45000000, count = 1, bind = 0, bBroadCast = true }, --烈焰魔袍(男)
+{ type = 1, itemId = 239, rate = 20, curmoney = 22500000, money = 45000000, count = 1, bind = 0, bBroadCast = true }, --烈焰魔袍(女)
+{ type = 1, itemId = 240, rate = 25, curmoney = 20000000, money = 40000000, count = 1, bind = 0, bBroadCast = true }, --烈焰头盔
+{ type = 1, itemId = 241, rate = 30, curmoney = 17500000, money = 35000000, count = 1, bind = 0, bBroadCast = true }, --烈焰项链
+{ type = 1, itemId = 242, rate = 40, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --烈焰手镯
+{ type = 1, itemId = 243, rate = 35, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --烈焰腰带
+{ type = 1, itemId = 244, rate = 35, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --烈焰法履
+{ type = 1, itemId = 245, rate = 30, curmoney = 17500000, money = 35000000, count = 1, bind = 0, bBroadCast = true }, --烈焰宝石
+{ type = 1, itemId = 246, rate = 40, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --烈焰戒指
+{ type = 1, itemId = 248, rate = 15, curmoney = 25000000, money = 50000000, count = 1, bind = 0, bBroadCast = true }, --湛蓝
+{ type = 1, itemId = 249, rate = 20, curmoney = 22500000, money = 45000000, count = 1, bind = 0, bBroadCast = true }, --冥魅道衣(男)
+{ type = 1, itemId = 250, rate = 20, curmoney = 22500000, money = 45000000, count = 1, bind = 0, bBroadCast = true }, --冥魅道衣(女)
+{ type = 1, itemId = 251, rate = 25, curmoney = 20000000, money = 40000000, count = 1, bind = 0, bBroadCast = true }, --冥魅头盔
+{ type = 1, itemId = 252, rate = 30, curmoney = 17500000, money = 35000000, count = 1, bind = 0, bBroadCast = true }, --冥魅项链
+{ type = 1, itemId = 253, rate = 40, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --冥魅手镯
+{ type = 1, itemId = 254, rate = 35, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --冥魅腰带
+{ type = 1, itemId = 255, rate = 35, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --冥魅道鞋
+{ type = 1, itemId = 256, rate = 30, curmoney = 17500000, money = 35000000, count = 1, bind = 0, bBroadCast = true }, --冥魅宝石
+{ type = 1, itemId = 257, rate = 40, curmoney = 15000000, money = 30000000, count = 1, bind = 0, bBroadCast = true }, --冥魅戒指
+{ type = 1, itemId = 1199, rate = 4, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --炼狱护腕
+{ type = 1, itemId = 1200, rate = 3, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --炼狱腰带
+{ type = 1, itemId = 1201, rate = 3, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --炼狱战靴
+{ type = 1, itemId = 1203, rate = 5, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --炼狱戒指
+{ type = 1, itemId = 1210, rate = 4, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --辉煌手镯
+{ type = 1, itemId = 1211, rate = 3, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --辉煌腰带
+{ type = 1, itemId = 1212, rate = 3, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --辉煌法履
+{ type = 1, itemId = 1214, rate = 5, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --辉煌戒指
+{ type = 1, itemId = 1221, rate = 4, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --碧海手镯
+{ type = 1, itemId = 1222, rate = 3, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --碧海腰带
+{ type = 1, itemId = 1223, rate = 3, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --碧海道鞋
+{ type = 1, itemId = 1225, rate = 5, curmoney = 50000000, money = 100000000, count = 1, bind = 0, bBroadCast = true }, --碧海戒指
+
+
+
+
+{ type = 2, itemId = 226, rate = 30, curmoney = 1200, money = 2400, count = 1, bind = 0, bBroadCast = true }, --巨阙
+{ type = 2, itemId = 227, rate = 35, curmoney = 1000, money = 2000, count = 1, bind = 0, bBroadCast = true }, --千钧战甲(男)
+{ type = 2, itemId = 228, rate = 35, curmoney = 1000, money = 2000, count = 1, bind = 0, bBroadCast = true }, --千钧战甲(女)
+{ type = 2, itemId = 229, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --千钧头盔
+{ type = 2, itemId = 230, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --千钧项链
+{ type = 2, itemId = 234, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --千钧宝石
+{ type = 2, itemId = 237, rate = 30, curmoney = 1200, money = 2400, count = 1, bind = 0, bBroadCast = true }, --红莲
+{ type = 2, itemId = 238, rate = 35, curmoney = 1000, money = 2000, count = 1, bind = 0, bBroadCast = true }, --烈焰魔袍(男)
+{ type = 2, itemId = 239, rate = 35, curmoney = 1000, money = 2000, count = 1, bind = 0, bBroadCast = true }, --烈焰魔袍(女)
+{ type = 2, itemId = 240, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --烈焰头盔
+{ type = 2, itemId = 241, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --烈焰项链
+{ type = 2, itemId = 245, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --烈焰宝石
+{ type = 2, itemId = 248, rate = 30, curmoney = 1200, money = 2400, count = 1, bind = 0, bBroadCast = true }, --湛蓝
+{ type = 2, itemId = 249, rate = 35, curmoney = 1000, money = 2000, count = 1, bind = 0, bBroadCast = true }, --冥魅道衣(男)
+{ type = 2, itemId = 250, rate = 35, curmoney = 1000, money = 2000, count = 1, bind = 0, bBroadCast = true }, --冥魅道衣(女)
+{ type = 2, itemId = 251, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --冥魅头盔
+{ type = 2, itemId = 252, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --冥魅项链
+{ type = 2, itemId = 256, rate = 40, curmoney = 800, money = 1600, count = 1, bind = 0, bBroadCast = true }, --冥魅宝石
+{ type = 2, itemId = 1194, rate = 8, curmoney = 5000, money = 10000, count = 1, bind = 0, bBroadCast = true }, --斩魂
+{ type = 2, itemId = 1195, rate = 15, curmoney = 4500, money = 9000, count = 1, bind = 0, bBroadCast = true }, --炼狱战甲(男)
+{ type = 2, itemId = 1196, rate = 15, curmoney = 4500, money = 9000, count = 1, bind = 0, bBroadCast = true }, --炼狱战甲(女)
+{ type = 2, itemId = 1197, rate = 20, curmoney = 3600, money = 7200, count = 1, bind = 0, bBroadCast = true }, --炼狱头盔
+{ type = 2, itemId = 1198, rate = 25, curmoney = 3000, money = 6000, count = 1, bind = 0, bBroadCast = true }, --炼狱项链
+{ type = 2, itemId = 1199, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --炼狱护腕
+{ type = 2, itemId = 1200, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --炼狱腰带
+{ type = 2, itemId = 1201, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --炼狱战靴
+{ type = 2, itemId = 1202, rate = 25, curmoney = 3000, money = 6000, count = 1, bind = 0, bBroadCast = true }, --炼狱宝石
+{ type = 2, itemId = 1203, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --炼狱戒指
+{ type = 2, itemId = 1205, rate = 10, curmoney = 5000, money = 10000, count = 1, bind = 0, bBroadCast = true }, --轮回
+{ type = 2, itemId = 1206, rate = 15, curmoney = 4500, money = 9000, count = 1, bind = 0, bBroadCast = true }, --辉煌魔袍(男)
+{ type = 2, itemId = 1207, rate = 8, curmoney = 4500, money = 9000, count = 1, bind = 0, bBroadCast = true }, --辉煌魔袍(女)
+{ type = 2, itemId = 1208, rate = 20, curmoney = 3600, money = 7200, count = 1, bind = 0, bBroadCast = true }, --辉煌头盔
+{ type = 2, itemId = 1209, rate = 25, curmoney = 3000, money = 6000, count = 1, bind = 0, bBroadCast = true }, --辉煌项链
+{ type = 2, itemId = 1210, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --辉煌手镯
+{ type = 2, itemId = 1211, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --辉煌腰带
+{ type = 2, itemId = 1212, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --辉煌法履
+{ type = 2, itemId = 1213, rate = 25, curmoney = 3000, money = 6000, count = 1, bind = 0, bBroadCast = true }, --辉煌宝石
+{ type = 2, itemId = 1214, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --辉煌戒指
+{ type = 2, itemId = 1216, rate = 8, curmoney = 5000, money = 10000, count = 1, bind = 0, bBroadCast = true }, --帝龙
+{ type = 2, itemId = 1217, rate = 15, curmoney = 4500, money = 9000, count = 1, bind = 0, bBroadCast = true }, --碧海道衣(男)
+{ type = 2, itemId = 1218, rate = 15, curmoney = 4500, money = 9000, count = 1, bind = 0, bBroadCast = true }, --碧海道衣(女)
+{ type = 2, itemId = 1219, rate = 20, curmoney = 3600, money = 7200, count = 1, bind = 0, bBroadCast = true }, --碧海头盔
+{ type = 2, itemId = 1220, rate = 25, curmoney = 3000, money = 6000, count = 1, bind = 0, bBroadCast = true }, --碧海项链
+{ type = 2, itemId = 1221, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --碧海手镯
+{ type = 2, itemId = 1222, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --碧海腰带
+{ type = 2, itemId = 1223, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --碧海道鞋
+{ type = 2, itemId = 1224, rate = 25, curmoney = 3000, money = 6000, count = 1, bind = 0, bBroadCast = true }, --碧海宝石
+{ type = 2, itemId = 1225, rate = 40, curmoney = 2500, money = 5000, count = 1, bind = 0, bBroadCast = true }, --碧海戒指
+{ type = 2, itemId = 2200, rate = 3, curmoney = 8000, money = 16000, count = 1, bind = 0, bBroadCast = true }, --绝世护腕
+{ type = 2, itemId = 2201, rate = 3, curmoney = 8000, money = 16000, count = 1, bind = 0, bBroadCast = true }, --绝世腰带
+{ type = 2, itemId = 2202, rate = 3, curmoney = 8000, money = 16000, count = 1, bind = 0, bBroadCast = true }, --绝世战靴
+{ type = 2, itemId = 1402, rate = 200, curmoney = 500, money = 1000, count = 1, bind = 1, bBroadCast = false }, --五级灵珠
+{ type = 2, itemId = 2258, rate = 120, curmoney = 800, money = 1600, count = 1, bind = 1, bBroadCast = false }, --血元
+{ type = 2, itemId = 2546, rate = 400, curmoney = 60, money = 120, count = 1, bind = 1, bBroadCast = false }, --秘之弦月剑法
+{ type = 2, itemId = 2547, rate = 300, curmoney = 125, money = 250, count = 1, bind = 1, bBroadCast = false }, --秘之刺杀秘剑
+{ type = 2, itemId = 2548, rate = 200, curmoney = 500, money = 1000, count = 1, bind = 1, bBroadCast = false }, --秘之金钟罩
+{ type = 2, itemId = 2549, rate = 400, curmoney = 75, money = 150, count = 1, bind = 1, bBroadCast = false }, --秘之烈焰剑法
+{ type = 2, itemId = 2550, rate = 400, curmoney = 60, money = 120, count = 1, bind = 1, bBroadCast = false }, --秘之神圣雷光
+{ type = 2, itemId = 2551, rate = 300, curmoney = 75, money = 150, count = 1, bind = 1, bBroadCast = false }, --秘之天雷术
+{ type = 2, itemId = 2552, rate = 300, curmoney = 125, money = 250, count = 1, bind = 1, bBroadCast = false }, --秘之冰风暴
+{ type = 2, itemId = 2553, rate = 200, curmoney = 500, money = 1000, count = 1, bind = 1, bBroadCast = false }, --秘之寒魄掌
+{ type = 2, itemId = 2554, rate = 400, curmoney = 60, money = 120, count = 1, bind = 1, bBroadCast = false }, --秘之幽灵盾
+{ type = 2, itemId = 2555, rate = 300, curmoney = 75, money = 150, count = 1, bind = 1, bBroadCast = false }, --秘之恢复术
+{ type = 2, itemId = 2556, rate = 300, curmoney = 125, money = 250, count = 1, bind = 1, bBroadCast = false }, --秘之符咒术
+{ type = 2, itemId = 2557, rate = 200, curmoney = 500, money = 1000, count = 1, bind = 1, bBroadCast = false }, --秘之吸能术
+{ type = 2, itemId = 2583, rate = 200, curmoney = 500, money = 1000, count = 1, bind = 1, bBroadCast = false }, --秘之爆裂剑法
+{ type = 2, itemId = 2584, rate = 300, curmoney = 225, money = 450, count = 1, bind = 1, bBroadCast = false }, --秘之烈焰破军
+{ type = 2, itemId = 2585, rate = 300, curmoney = 225, money = 450, count = 1, bind = 1, bBroadCast = false }, --秘之冰缓风暴
+{ type = 2, itemId = 2586, rate = 200, curmoney = 500, money = 1000, count = 1, bind = 1, bBroadCast = false }, --秘之爆裂火球
+{ type = 2, itemId = 2587, rate = 300, curmoney = 375, money = 750, count = 1, bind = 1, bBroadCast = false }, --秘之嗜血神兽
+{ type = 2, itemId = 2588, rate = 300, curmoney = 375, money = 750, count = 1, bind = 1, bBroadCast = false }, --秘之生命链接
+{ type = 2, itemId = 2634, rate = 200, curmoney = 500, money = 1000, count = 1, bind = 1, bBroadCast = false }, --秘之爆裂符咒
+{ type = 2, itemId = 2689, rate = 200, curmoney = 500, money = 1000, count = 1, bind = 1, bBroadCast = false }, --秘之魔法护盾
+{ type = 2, itemId = 2690, rate = 300, curmoney = 375, money = 750, count = 1, bind = 1, bBroadCast = false }, --秘之攻击剑法
+{ type = 2, itemId = 2781, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之强体金钟
+{ type = 2, itemId = 2782, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之抗拒火环
+{ type = 2, itemId = 2783, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之毒药术
+{ type = 2, itemId = 2953, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之烈焰刺杀
+{ type = 2, itemId = 2955, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之命中穿透
+{ type = 2, itemId = 2958, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之玄冥道盾
+{ type = 2, itemId = 3284, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之霸王剑
+{ type = 2, itemId = 3285, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之炎龙煞
+{ type = 2, itemId = 3286, rate = 80, curmoney = 750, money = 1500, count = 1, bind = 1, bBroadCast = false }, --秘之冥狱
+
+
+
+{ type = 3, itemId = 2198, rate = 15 , curmoney = 3000, money = 10000, count = 1, bind = 0, bBroadCast = true }, --绝世头盔
+{ type = 3, itemId = 2199, rate = 18 , curmoney = 2500, money = 8000 , count = 1, bind = 0, bBroadCast = true }, --绝世项链
+{ type = 3, itemId = 2200, rate = 25 , curmoney = 2000, money = 6500 , count = 1, bind = 0, bBroadCast = true }, --绝世护腕
+{ type = 3, itemId = 2201, rate = 25 , curmoney = 2000, money = 6500 , count = 1, bind = 0, bBroadCast = true }, --绝世腰带
+{ type = 3, itemId = 2202, rate = 25 , curmoney = 2000, money = 6500 , count = 1, bind = 0, bBroadCast = true }, --绝世战靴
+{ type = 3, itemId = 2203, rate = 18 , curmoney = 2500, money = 10000, count = 1, bind = 0, bBroadCast = true }, --绝世宝石
+{ type = 3, itemId = 2929, rate = 5  , curmoney = 10800,money = 36000, count = 1, bind = 0, bBroadCast = true }, --焚城头盔
+{ type = 3, itemId = 2930, rate = 8  , curmoney = 9000, money = 30000, count = 1, bind = 0, bBroadCast = true }, --焚城项链
+{ type = 3, itemId = 2931, rate = 12 , curmoney = 8100, money = 27000, count = 1, bind = 0, bBroadCast = true }, --焚城护腕
+{ type = 3, itemId = 2932, rate = 12 , curmoney = 8100, money = 27000, count = 1, bind = 0, bBroadCast = true }, --焚城腰带
+{ type = 3, itemId = 2933, rate = 12 , curmoney = 8100, money = 27000, count = 1, bind = 0, bBroadCast = true }, --焚城战靴
+{ type = 3, itemId = 2934, rate = 8  , curmoney = 9000, money = 30000, count = 1, bind = 0, bBroadCast = true }, --焚城宝石
+{ type = 3, itemId = 2258, rate = 300, curmoney = 200 , money = 1000 , count = 1, bind = 1, bBroadCast = true }, --血元
+{ type = 3, itemId = 2949, rate = 250, curmoney = 300 , money = 1100 , count = 1, bind = 1, bBroadCast = true }, --魔血结晶
+{ type = 3, itemId = 3247, rate = 200, curmoney = 400 , money = 1200 , count = 1, bind = 1, bBroadCast = true }, --流光星陨
+{ type = 3, itemId = 1175, rate = 300, curmoney = 150 , money = 1000 , count = 1, bind = 1, bBroadCast = true }, --战神结晶
+{ type = 3, itemId = 679 , rate = 3  , curmoney = 16000,money = 50000, count = 1, bind = 0, bBroadCast = true }, --凌霄之翼(8档)
+{ type = 3, itemId = 678 , rate = 10 , curmoney = 8000, money = 280000,count = 1, bind = 0, bBroadCast = true }, --九天之翼(7档)
+{ type = 3, itemId = 264 , rate = 25 , curmoney = 4400, money = 150000,count = 1, bind = 0, bBroadCast = true }, --幻世之翼(6档)
+{ type = 3, itemId = 263 , rate = 50 , curmoney = 2400, money = 8000 , count = 1, bind = 0, bBroadCast = true }, --传奇之翼(5档)
+{ type = 3, itemId = 982 , rate = 30 , curmoney = 3000, money = 18000, count = 1, bind = 0, bBroadCast = true }, --黄金麻痹戒指
+{ type = 3, itemId = 983 , rate = 30 , curmoney = 3000, money = 18000, count = 1, bind = 0, bBroadCast = true }, --红玉护体戒指
+{ type = 3, itemId = 984 , rate = 30 , curmoney = 3000, money = 18000, count = 1, bind = 0, bBroadCast = true }, --蓝灵复活戒指
+{ type = 3, itemId = 3078, rate = 50 , curmoney = 2500, money = 10000, count = 1, bind = 0, bBroadCast = true }, --麻痹护体戒指
+{ type = 3, itemId = 3079, rate = 50 , curmoney = 2500, money = 10000, count = 1, bind = 0, bBroadCast = true }, --麻痹复活戒指
+{ type = 3, itemId = 3080, rate = 50 , curmoney = 2500, money = 10000, count = 1, bind = 0, bBroadCast = true }, --护体复活戒指
+{ type = 3, itemId = 1194, rate = 80 , curmoney = 1200, money = 4000 , count = 1, bind = 0, bBroadCast = true }, --斩魂
+{ type = 3, itemId = 1195, rate = 100, curmoney = 900 , money = 3000 , count = 1, bind = 0, bBroadCast = true }, --炼狱战甲(男)
+{ type = 3, itemId = 1196, rate = 100, curmoney = 900 , money = 3000 , count = 1, bind = 0, bBroadCast = true }, --炼狱战甲(女)
+{ type = 3, itemId = 1197, rate = 120, curmoney = 600 , money = 2000 , count = 1, bind = 0, bBroadCast = true }, --炼狱头盔
+{ type = 3, itemId = 1198, rate = 150, curmoney = 500 , money = 1500 , count = 1, bind = 0, bBroadCast = true }, --炼狱项链
+{ type = 3, itemId = 1199, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --炼狱护腕
+{ type = 3, itemId = 1200, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --炼狱腰带
+{ type = 3, itemId = 1201, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --炼狱战靴
+{ type = 3, itemId = 1202, rate = 150, curmoney = 500 , money = 1500 , count = 1, bind = 0, bBroadCast = true }, --炼狱宝石
+{ type = 3, itemId = 1203, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --炼狱戒指
+{ type = 3, itemId = 1205, rate = 80 , curmoney = 1200, money = 4000 , count = 1, bind = 0, bBroadCast = true }, --轮回
+{ type = 3, itemId = 1206, rate = 100, curmoney = 900 , money = 3000 , count = 1, bind = 0, bBroadCast = true }, --辉煌魔袍(男)
+{ type = 3, itemId = 1207, rate = 100, curmoney = 900 , money = 3000 , count = 1, bind = 0, bBroadCast = true }, --辉煌魔袍(女)
+{ type = 3, itemId = 1208, rate = 120, curmoney = 600 , money = 2000 , count = 1, bind = 0, bBroadCast = true }, --辉煌头盔
+{ type = 3, itemId = 1209, rate = 150, curmoney = 500 , money = 1500 , count = 1, bind = 0, bBroadCast = true }, --辉煌项链
+{ type = 3, itemId = 1210, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --辉煌手镯
+{ type = 3, itemId = 1211, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --辉煌腰带
+{ type = 3, itemId = 1212, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --辉煌法履
+{ type = 3, itemId = 1213, rate = 150, curmoney = 500 , money = 1500 , count = 1, bind = 0, bBroadCast = true }, --辉煌宝石
+{ type = 3, itemId = 1214, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --辉煌戒指
+{ type = 3, itemId = 1216, rate = 80 , curmoney = 1200, money = 4000 , count = 1, bind = 0, bBroadCast = true }, --帝龙
+{ type = 3, itemId = 1217, rate = 100, curmoney = 900 , money = 3000 , count = 1, bind = 0, bBroadCast = true }, --碧海道衣(男)
+{ type = 3, itemId = 1218, rate = 100, curmoney = 900 , money = 3000 , count = 1, bind = 0, bBroadCast = true }, --碧海道衣(女)
+{ type = 3, itemId = 1219, rate = 120, curmoney = 600 , money = 2000 , count = 1, bind = 0, bBroadCast = true }, --碧海头盔
+{ type = 3, itemId = 1220, rate = 150, curmoney = 500 , money = 1500 , count = 1, bind = 0, bBroadCast = true }, --碧海项链
+{ type = 3, itemId = 1221, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --碧海手镯
+{ type = 3, itemId = 1222, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --碧海腰带
+{ type = 3, itemId = 1223, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --碧海道鞋
+{ type = 3, itemId = 1224, rate = 150, curmoney = 500 , money = 1500 , count = 1, bind = 0, bBroadCast = true }, --碧海宝石
+{ type = 3, itemId = 1225, rate = 200, curmoney = 300 , money = 1000 , count = 1, bind = 0, bBroadCast = true }, --碧海戒指
+
+
+	},
+}

@@ -1,0 +1,97 @@
+--lua script
+--#include "data\config\activityconfig\HongMengRealm\HongMengRealmConfig.txt" once
+--奇缘仙人
+
+function QinYuanXianRen_Main(sysarg)
+	local str = Lang.Activity.hmr0005
+	str = str.."\\<#BL"..Lang.Activity.hmr0013.."/@GetQinYuanAward>"  --领取奖励	
+	return str
+end
+
+function GetQinYuanAward(sysarg)
+	local qyAwardRankPtr = Ranking.getRanking( Lang.Rank.QiYuanAwardFile )
+	if not qyAwardRankPtr then
+		return 
+	end
+	
+	local qyAwardItemPtr = Ranking.getItemPtrFromId(qyAwardRankPtr, 1)
+	if not qyAwardItemPtr then
+		qyAwardItemPtr = Ranking.addItemExt(qyAwardRankPtr, 1, 0, false)
+		if qyAwardItemPtr then
+			Ranking.setSub(qyAwardItemPtr, 0, 0) 
+		end
+	end
+	
+	if not qyAwardItemPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local qyActorAwardItemPtr = Ranking.getItemPtrFromId(qyAwardRankPtr, actorId)
+	if qyActorAwardItemPtr then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hmr0016, ttFlyTip)
+		return 
+	end
+		
+	if not HongMengRealmConfig.awardTabs then
+		return 
+	end
+
+	local itemConfig = GetYiYuanAwardInfo(HongMengRealmConfig.awardTabs)
+	if not itemConfig then
+		return 
+	end
+	
+	local needCount = Item.getAddItemNeedGridCount(sysarg, itemConfig.id, itemConfig.count, itemConfig.quality, itemConfig.strong, itemConfig.bind)
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if needCount > hasCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.hmr0015, needCount), ttFlyTip)
+		return 
+	end
+	
+	local hasGetCount = tonumber(Ranking.getSub(qyAwardItemPtr, 0))
+	if hasGetCount >= HongMengRealmConfig.awardCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hmr0014, ttFlyTip)
+		return 
+	end
+	
+	Ranking.setSub(qyAwardItemPtr, 0, hasGetCount+1)  --设置已领取奖励数
+	qyActorAwardItemPtr = Ranking.addItemExt(qyAwardRankPtr, actorId, 0, false)
+	if qyActorAwardItemPtr then
+		Ranking.setSub(qyActorAwardItemPtr, 0, 1) 
+	else
+		return 
+	end
+	
+	Actor.giveAward(sysarg, itemConfig.type, itemConfig.id, itemConfig.count, itemConfig.quality, itemConfig.strong, itemConfig.bind, 0, 967, Lang.LogTips.hmr003)
+	
+	if itemConfig.isBroadcast and itemConfig.isBroadcast == true then
+		local actorName = Actor.getName(sysarg)
+		local awardName = Item.getAwardDesc(itemConfig.type, itemConfig.id)
+		System.broadcastTipmsg( string.format(Lang.Activity.hmr0017,actorName,awardName), ttScreenCenter+ttChatWindow)
+	end
+end
+
+--根据概率获取值
+function GetYiYuanAwardInfo(infoTable)
+	local itemConfig = nil
+	
+	local totalVal = 0
+	for j = 1, table.getn(infoTable or {}) do
+		totalVal = totalVal + infoTable[j].rate
+	end
+	
+	local randVal = math.random(totalVal)
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			itemConfig = infoTable[i]
+			break
+		end
+	end
+	return itemConfig
+end
+
+
+table.insert(MainFnTable, QinYuanXianRen_Main)

@@ -1,0 +1,34 @@
+﻿--50级自动打开首冲窗口
+{
+  maxLevel = 57,
+  triggerList =
+	{
+		{ type = 5, valueList = {0,57,}},      --50级
+	},
+
+
+  --引导的步骤
+  steps =
+	{
+  
+    {
+      condList =
+      {
+				{ type = 41,  helpId = 34, dataList = {0,} },		--窗口没打开过
+      },
+
+      --打开窗口
+      action = { type = 6, helpId = 34, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc91 },
+    },
+
+    {
+     
+	    condList =
+      {
+				{ type = 42,  helpId = 34, dataList = {0,} },		--窗口没打开过
+      },
+	  
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

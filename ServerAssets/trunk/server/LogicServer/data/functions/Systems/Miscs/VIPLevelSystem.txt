@@ -1,0 +1,165 @@
+--#include "data\config\vip\vip.txt" once
+--#include "data\config\vip\vipLevel.txt" once
+--#include "VIPLevelSystemCommon.txt" once --vip等级公共处理
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once 
+
+
+--请求vip等级boss副本列表
+--[[
+MiscsImplement.GetVipLevelBossList = function (sysarg, msgid, packet)
+	local vipLevel = 1 --Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL) 
+	local config = VIPLevelConfig[vipLevel]
+	local bossIdTab = {}
+	if config then
+		for k, v in ipairs(config.bossFuben or {}) do
+			local bossInfo = v.boss
+			if bossInfo then
+				table.insert(bossIdTab, bossInfo.bossId)
+			end
+		end
+	end
+	
+	local count = table.getn(bossIdTab)
+	local pack = DataPack.allocPacket(sysarg, 139, 77)
+	if (pack ~= nil) then
+		DataPack.writeByte(pack, count)
+		for k, v in ipairs(bossIdTab or {}) do
+			DataPack.writeUInt(pack, v)			
+		end
+		DataPack.flush(pack)  			
+	end
+end
+--]]
+
+
+-- 请求进入vip等级副本
+MiscsImplement.EnterVipLevelBossFb = function (sysarg, msgid, packet)
+	if not Actor.isVip(sysarg) then	
+		return 
+	end
+	
+	if System.isCommonServer() == true then  --跨服不能进入
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.vipLvl005, ttFlyTip) 
+		return 
+	end
+	
+	local sceneName = Actor.getSceneName(sysarg, 0, 0)
+	if sceneName ~= Lang.SceneName.s00002 and sceneName ~= Lang.SceneName.s00008 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.vipLvl005, ttFlyTip) 
+		return 
+	end
+	
+	if Actor.hasMapAreaAttri(sysarg, aaSaft) == false then --不是安全区
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.vipLvl005, ttFlyTip) 
+		return 
+	end
+
+	local bossId = DataPack.readUInt(packet)
+	local result = -1
+	if bossId > 0 then
+		local actorVar = Actor.getStaticVar(sysarg) 
+		if not actorVar then
+			return
+		end
+		
+		if not actorVar.vipLvlFb then
+			actorVar.vipLvlFb = {}
+		end 
+		
+		local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+		
+		if vipLevel > 0 then
+			local config = VIPLevelConfig[vipLevel]
+			if config then
+				for k, v in ipairs(config.bossFuben or {}) do
+					local bossInfo = v.boss
+					if bossInfo.bossId and bossInfo.bossId == bossId then
+						result = 0
+						if not actorVar.vipLvlFb[bossId] then
+							local fhadle = Fuben.createFuBen(v.fbId)
+							local hScene = Fuben.getSceneHandleById(v.sceneId,fhadle)  --获得场景句柄
+							local monsterPtr = Fuben.createMonster(hScene, bossInfo.bossId, bossInfo.posX, bossInfo.posY, bossInfo.liveTime)
+							
+							--[[
+							print("monsterPtr ", monsterPtr)
+							if monsterPtr then
+								print("create boss success")
+								local bossName = Actor.getName(monsterPtr)
+								print(bossName)
+							end 
+							--]]
+						
+							local enterRet = Actor.enterFuBen(sysarg,fhadle,v.sceneId,v.enterX,v.enterY)
+							if not enterRet then
+								result = -1
+							else
+								actorVar.vipLvlFb[bossId] = fhadle
+							end
+						else
+							Actor.sendTipmsg(sysarg, Lang.ScriptTips.vipLvl001, ttFlyTip) 
+							result = -1 
+						end
+					
+						actorVar.vipLvlTime = System.getCurrMiniTime() 
+					
+					end
+				end
+			end
+		end	
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 139, 77)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, result)			
+		DataPack.flush(pack)  			
+	end
+end
+
+--请求获取vip的等级专属礼包
+MiscsImplement.GetVipLvlGift = function (sysarg, msgid, packet)
+	local result = GetVipGiftBag(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 139, 78)
+	if (pack ~= nil) then
+		result = ((result == true) and 0) or -1 
+		DataPack.writeChar(pack, result)			
+		DataPack.flush(pack)  			
+	end
+end
+
+MiscsImplement.GetVipLvlInfo = function (sysarg, msgid, packet)
+	
+	local actorVar = Actor.getStaticVar(sysarg) 
+	if not actorVar then
+		return
+	end
+
+	if not actorVar.vipGrowValue then
+		actorVar.vipGrowValue = 0
+	end
+	
+	local getGiftFlag = 0
+	if not actorVar.lastVipLvlGiftTime then
+		actorVar.lastVipLvlGiftTime = 0 
+	end
+	local lastGetGiftTime = actorVar.lastVipLvlGiftTime
+	local currTime = System.getCurrMiniTime()
+	if System.isSameDay(currTime, lastGetGiftTime) == true then
+		getGiftFlag = 1
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 139, 79)
+	if (pack ~= nil) then	
+		DataPack.writeWord(pack, actorVar.vipGrowValue) --vip会员成长值 
+		DataPack.writeByte(pack, getGiftFlag) --领取标记0为领，1已领
+		DataPack.flush(pack)  			
+	end
+end
+
+
+--MiscsImplement.registerMsgHandler(81, MiscsImplement.GetVipLevelBossList)  --请求副本列表
+MiscsImplement.registerMsgHandler(81, MiscsImplement.EnterVipLevelBossFb)  --请求进入副本
+MiscsImplement.registerMsgHandler(82, MiscsImplement.GetVipLvlGift)  --请求领取专属礼包
+MiscsImplement.registerMsgHandler(83, MiscsImplement.GetVipLvlInfo)  --获取vip等级信息
+
+ 
+

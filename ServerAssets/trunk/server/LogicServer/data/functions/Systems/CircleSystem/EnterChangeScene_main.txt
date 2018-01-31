@@ -1,0 +1,30 @@
+﻿--NPC执行：万事通（盟重土城）
+
+--#include "data\config\circle\ChgVocationAndSex.txt" once	--转职转性配置
+
+
+--[[
+    函数名称：传送
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function EnterChangeScene_Main(sysarg)
+	local config = ChgVocationAndSex
+	if (not config) then return "" end
+	local str = ""
+	str = str.."\\<#BL"..Lang.ScriptTips.ccc001.."/@OnEnterChangeScene>"  --<进入咒泉乡>
+	return str
+end
+
+
+--进入咒泉乡
+function OnEnterChangeScene(sysarg)
+	local config = ChgVocationAndSex
+	if (not config) then return "" end
+	
+	Actor.enterScene(sysarg, config.scene.id, config.scene.x, config.scene.y)
+	
+	
+end
+
+table.insert(MainFnTable, EnterChangeScene_Main)

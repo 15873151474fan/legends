@@ -1,0 +1,20 @@
+﻿--lua script
+--To do something about Login and Logout
+
+
+                                                                                   
+
+EventCallDispatcher.ActorGetExpOverUpperLmt = function (sysarg,arg)
+  --print("actor get exp over upper")
+  if arg == nil then return end
+  local result = arg[2]
+  --print("result:"..result)
+  if result == 1 then 
+    Actor.addBuff(sysarg,71,2,-0.5,-1,60, Lang.ScriptTips.b00010)
+  elseif result == 0 then 
+    Actor.delBuff(sysarg,71,2)
+  end
+end
+
+                                              
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeActorGetExpOverUpperLmt, EventCallDispatcher.ActorGetExpOverUpperLmt)

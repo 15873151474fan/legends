@@ -1,0 +1,330 @@
+--神灯护卫NPC副本对话
+
+--#include "data\config\item\MagicLightConfig.txt" once 
+--#include "data\config\activityconfig\MagicLight\MagicLightConfig.txt" once
+--#include "MagicLightCommon.txt" once
+--#include "data\functions\Systems\FlowerSystem\RoseCommon.txt" once
+
+function ShouWei_Main( sysarg )
+	local dlgStr = ""				
+	dlgStr = string.format("%s\\<#BL%s/@LightMagicBulb>",  dlgStr, Lang.ScriptTips.light001)					
+	dlgStr = string.format("%s\\<#BL%s/@MoveToPlat>",	dlgStr, Lang.ScriptTips.light002)	
+	dlgStr = string.format("%s\\<#BL%s/@LeavePlat>",  dlgStr, Lang.ScriptTips.light003)
+	dlgStr = string.format("%s\\<#BL%s/@btBuyGuard>",  dlgStr, Lang.ScriptTips.light004)
+	dlgStr = string.format("%s\\<#BL%s/@BuyRedRose>",  dlgStr, Lang.ScriptTips.light006)
+	return dlgStr
+end
+
+--点击购买守卫
+ function btBuyGuard( sysarg ) 			
+	local hScene = Actor.getSceneHandle(sysarg)
+	local guardCount = Fuben.getLiveMonsterCount(hScene, MagicLightConfig.GuardMonster.nMonsterID)
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)
+		if sVal.guardStatus == nil then 
+			sVal.guardStatus = {}
+			for idx = 1,MagicLightConfig.GuardMonster.MaxGuardCount do
+				sVal.guardStatus[idx] = 0	
+			end
+		end
+	end	
+	local dlgStr = Lang.ScriptTips.light007	
+	local temStr = Lang.ScriptTips.light008
+	temStr = string.format(temStr,guardCount, MagicLightConfig.GuardMonster.MaxGuardCount)
+	dlgStr = string.format("%s\\<#BL%s/@BuyGuard>",dlgStr,temStr)
+	dlgStr = dlgStr .. Lang.ScriptTips.back001
+	return dlgStr
+end
+
+--购买守卫
+function BuyGuard( sysarg )
+	local needMoney = MagicLightConfig.GuardMonster.GuardPrice
+	local moneyType = MagicLightConfig.GuardMonster.moneyType
+	local coinCount = Actor.getMoneyCount(sysarg, moneyType)	
+	if coinCount < needMoney then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.light009, needMoney), ttFlyTip )
+		return
+	end
+	local hScene = Actor.getSceneHandle(sysarg)
+	local guardCount = Fuben.getLiveMonsterCount(hScene, MagicLightConfig.GuardMonster.nMonsterID)
+	if guardCount >= MagicLightConfig.GuardMonster.MaxGuardCount then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.light010,
+		MagicLightConfig.GuardMonster.MaxGuardCount), ttFlyTip )
+		return 
+	end
+	local randNum = 0
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)
+		for idx = 1,MagicLightConfig.GuardMonster.MaxGuardCount do			
+			if sVal.guardStatus[idx] == 0 then
+				randNum	 = idx
+				sVal.guardStatus[randNum] = 1
+				break	
+			end
+		end		
+	end	
+	--支付元宝召唤守卫
+	if Actor.changeMoney(sysarg, moneyType, -needMoney, 899, Lang.LogTips.l00188) then
+		guardCount = guardCount + 1
+		print("here")
+		local posX = MagicLightConfig.GuardPos[randNum].posX
+		local posY = MagicLightConfig.GuardPos[randNum].posY
+		local hScene = Actor.getSceneHandle(sysarg)
+		local monterPtr = Fuben.createMonster(hScene, MagicLightConfig.GuardMonster.nMonsterID,
+		posX, posY, MagicLightConfig.GuardMonster.LiveTime)
+		if monterPtr then
+			Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.light011,posX, posY), ttFlyTip)
+			Actor.setDyanmicValue(monterPtr, randNum)
+		end
+	end
+ 	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)												
+		sVal.GuardCount = guardCount
+	end
+	return btBuyGuard( sysarg )
+end
+
+--点亮神灯
+function LightMagicBulb( sysarg )
+	local dlgStr = Lang.ScriptTips.light005	
+	for idx, tab in ipairs(MagicLight) do	
+		dlgStr = string.format("%s\\<#BL%s/@LightBulb,%d>",dlgStr,tab[2],idx)
+	end
+	dlgStr = dlgStr .. Lang.ScriptTips.back001
+	return dlgStr							
+end
+
+--点亮指定颜色神灯
+function LightBulb(sysarg, nIndex )
+	idx = tonumber(nIndex)	
+	--检查是否集齐五个神灯碎片		
+	if checkIsEnoughPieces(sysarg,idx) == false then	
+		local tipStr = Lang.ScriptTips.MagicWaring001
+		tipStr = string.format(tipStr, MagicLight[idx][1],
+		MagicLight[idx][1])
+		Actor.sendTipmsg(sysarg,tipStr, ttFlyTip)
+		return 
+	end					
+	--检查是否存在相同颜色神灯
+	if checkIsLightExist(sysarg,idx) == true then	
+		local tipStr = Lang.ScriptTips.MagicWaring002
+		tipStr = string.format(tipStr, MagicLight[idx][1])
+		Actor.sendTipmsg(sysarg,tipStr, ttFlyTip)
+		return 
+	end
+						
+	--检查高台怪是否达到最大只数
+	if checkPlatBossIsFull(sysarg) == true then
+		local tipStr = Lang.ScriptTips.MagicWaring004
+		tipStr = string.format(tipStr, MagicLightConfig.PlatBossMaxCount)
+		Actor.sendTipmsg(sysarg,tipStr, ttFlyTip)
+		return 		
+	end		
+							
+	--上交碎片
+	removeMagicPieces(sysarg, idx)
+	--点亮神灯	
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	local hScene = Fuben.getSceneHandleById(MagicLightConfig.nSceenId, fbHandle)	
+	
+	local nMonster = Fuben.createMonster(hScene, MagicLightConfig.nMagicLight[idx].nMonsterID, MagicLightConfig.nMagicLight[idx].posX, MagicLightConfig.nMagicLight[idx].posY, 
+			MagicLightConfig.nMagicLight[idx].nLiveTime)
+	if nMonster then
+		--标志神灯点亮
+		MarkMagicLight(sysarg, idx,1)
+		--如果已经全部点亮，则熄灯刷BOSS
+		if checkIsAllMagicLight(sysarg) == true then
+			InitMagicLightStatus( sysarg )  --初始化神灯状态
+			clearMagicLight( sysarg )     --神灯消失
+			GeneratePlatBoss( sysarg )	 --s刷出boss		
+		end	
+	end		
+end		
+
+
+
+--检查是否有足够的碎片
+function checkIsEnoughPieces( sysarg, idx)
+	local pieceCount = Actor.getItemCount( sysarg, MagicLightConfig.nLightPieces[idx].nMonsterID,
+	-1, -1, -1, -1, NULL, false)	
+	if pieceCount >= MagicLightConfig.nLightPieces[idx].nNeedCount then
+		return true;
+	end			
+	return false		
+end
+
+--检查相同颜色神灯是否已点亮
+function  checkIsLightExist(sysarg, idx)
+	idx = tonumber(idx)
+	LightCfg = MagicLightConfig.nMagicLight
+	if not LightCfg then
+		return false
+	end
+	if idx < 1 or idx >table.getn(LightCfg) then
+		return false
+	end
+	local hScene = Actor.getSceneHandle(sysarg)
+	if Fuben.getLiveMonsterCount(hScene, LightCfg[idx].nMonsterID) > 0  then
+		return true
+	end	
+end
+
+--扣除碎片数量
+function removeMagicPieces(sysarg, idx)
+	local deleteCount = tonumber( MagicLightConfig.nLightPieces[idx].nNeedCount )
+	local deleteCount = Actor.removeItem(sysarg, MagicLightConfig.nLightPieces[idx].nMonsterID,
+	 deleteCount, -1, -1, -1, NULL, 2, -1, true)	
+end
+
+
+--传送至高台
+function MoveToPlat( sysarg )
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	Actor.enterFuBen(sysarg, fbHandle, MagicLightConfig.nSceenId,MagicLightConfig.PlatPos.xPos,
+		MagicLightConfig.PlatPos.yPos)
+end
+
+--离开高台
+function LeavePlat( sysarg )	
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	Actor.enterFuBen(sysarg, fbHandle, MagicLightConfig.nSceenId,MagicLightConfig.GroundPos.xPos,
+		MagicLightConfig.GroundPos.yPos)		
+end		
+
+--神灯消失
+function clearMagicLight( sysarg )
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	local hScene = Fuben.getSceneHandleById(MagicLightConfig.nSceenId, fbHandle)	
+	for idx = 1,table.getn(MagicLightConfig.nMagicLight) do
+		Fuben.clearMonster(hScene, MagicLightConfig.nMagicLight[idx].nMonsterID )
+	end				
+end
+
+--检查是否五盏神灯都已点亮
+function checkIsAllMagicLight(sysarg)
+	idx = tonumber(idx)
+	local currentAmount = 0
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)
+		if sVal.lightStatus == nil then
+			sVal.lightStatus = {}
+		end
+		for i=1,MagicLightConfig.nAmountOfLight do
+			if sVal.lightStatus[i] == nil then
+				sVal.lightStatus[i] = 0	
+			end
+			currentAmount = currentAmount + sVal.lightStatus[i]
+		end
+	end
+	if(currentAmount == MagicLightConfig.nAmountOfLight) then	
+		return true
+	else
+		return false
+	end
+end
+
+--刷出高台BOSS
+function GeneratePlatBoss(sysarg)
+	--获得随机怪
+	local nRundomNum = System.getRandomNumber( MagicLightConfig.nRate.rateEnd) + 1		
+	local monsterIdx =0
+	local randCount = 0
+	for idx =1 ,table.getn(MagicLightConfig.nBossId) do
+		randCount = randCount + MagicLightConfig.nBossId[idx].rate
+		if nRundomNum <= randCount then
+			monsterIdx = idx
+			break
+		end
+	end
+	--获取boss随机刷出坐标
+	local posX = 0
+	local posY = 0
+	local isPlatBoss = MagicLightConfig.nBossId[monsterIdx].isPlatBoss
+	if isPlatBoss == true then
+	   local randPosIdx = System.getRandomNumber( table.getn(MagicLightConfig.PlatBossPos) ) + 1
+	   posX = MagicLightConfig.PlatBossPos[randPosIdx].posX
+	   posY = MagicLightConfig.PlatBossPos[randPosIdx].posY
+	else
+	   local randPosIdx = System.getRandomNumber( table.getn(MagicLightConfig.GroundBossPos) ) + 1
+	   posX = MagicLightConfig.GroundBossPos[randPosIdx].posX
+	   posY = MagicLightConfig.GroundBossPos[randPosIdx].posY
+	end
+
+	--创建boss
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	local hScene = Fuben.getSceneHandleById(MagicLightConfig.nSceenId, fbHandle)		
+	local nMonster = Fuben.createMonster(hScene, MagicLightConfig.nBossId[monsterIdx].nMonsterID,
+	posX, posY,	MagicLightConfig.nBossId[monsterIdx].nLiveTime)
+
+	
+	if nMonster then
+		local monsterName = System.getMonsterNameById( MagicLightConfig.nBossId[monsterIdx].nMonsterID )
+		local tipStr = Lang.ScriptTips.MagicWaring003
+		tipStr = string.format(tipStr, monsterName,posX, posY )
+		Actor.sendTipmsg(sysarg,tipStr, ttFlyTip)
+		--如果是高台boss，则增加高台boss计数
+		if isPlatBoss == true then
+			local pFb = Actor.getFubenPrt(sysarg)
+			if pFb then
+				local sVal = Fuben.getDyanmicVar(pFb)												
+				sVal.BossCount = sVal.BossCount + 1		
+			end
+		end
+		--一定几率刷出灭灯魂
+		ShowMieDengHun(sysarg)
+	end			
+
+end
+
+--刷出灭灯魂
+function ShowMieDengHun(sysarg)
+	MieCfg = MagicLightConfig.nMieDengHun
+	if not MieCfg then
+		return 
+	end
+	local nRundomNum = System.getRandomNumber( MagicLightConfig.nRate.rateEnd) + 1
+	if nRundomNum <= 0 or nRundomNum > MieCfg.rate then
+		return 
+	end
+	local idx = 0
+	local posX = 0
+	local PosY = 0
+	idx = System.getRandomNumber( table.getn(MagicLightConfig.GroundBossPos) ) + 1
+	posX = MagicLightConfig.GroundBossPos[idx].posX
+	posY = MagicLightConfig.GroundBossPos[idx].posY
+
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	local hScene = Fuben.getSceneHandleById(MagicLightConfig.nSceenId, fbHandle)		
+	local nMonster = Fuben.createMonster(hScene, MieCfg.nMonsterID,posX, posY,MieCfg.nLiveTime)
+	if nMonster then
+	   	local monsterName = System.getMonsterNameById( MieCfg.nMonsterID )
+		local tipStr = Lang.ScriptTips.MagicWaring005
+		tipStr = string.format(tipStr,posX, posY )
+		Actor.sendTipmsg(sysarg,tipStr, ttFlyTip)
+	end
+
+end
+
+--检查高台BOSS是否到最大允许值
+function checkPlatBossIsFull(sysarg)
+	local pFb = Actor.getFubenPrt(sysarg)
+	if pFb then
+		local sVal = Fuben.getDyanmicVar(pFb)												
+		local platBossCount = 0 
+		if sVal.BossCount == nil then
+			sVal.BossCount = 0
+		end
+		platBossCount = sVal.BossCount
+		if platBossCount >= MagicLightConfig.PlatBossMaxCount then
+			return true
+		end		
+	end
+	return false		
+end
+
+
+

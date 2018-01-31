@@ -1,0 +1,73 @@
+﻿--lua script
+
+
+local INITSKILLSLOT = 3	--技能槽位偏移位置
+
+local function getPetCircleConsumeConfig(sysarg, args)
+  local petId = args[2] --宠物的ID
+  if (not petId) or (not PetCircleConsume) then return nil end
+  --宠物属性
+  local petCircle = Pet.getPetProperty(sysarg, petId, 3) --获取宠物的转数
+  
+  --配置最大属性限制
+  local CircleMax = table.getn(PetCircleConsume)
+  
+  --宠物是否属性满级
+  if (petCircle >= CircleMax) then return nil end
+  
+  local CircleLev = (petCircle+1)
+  if (not PetCircleConsume[CircleLev]) then return nil end
+  return  PetCircleConsume[CircleLev].consume
+end
+
+
+--玩家开始转生宠物, args = [操作的类型,宠物的ID,消耗的宠物的ID]
+function onPetCircle( sysarg, args )
+  local petId = args[2] --宠物的ID
+  local petCircle = Pet.getPetProperty(sysarg, petId, 3) --获取宠物的转数
+  --配置最大属性限制
+  local CircleMax = table.getn(PetCircleConsume)
+  --宠物是否属性满级
+  if (petCircle >= CircleMax) then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00119, tipMsg1),ttDialog ) 
+    return nil 
+  end
+  
+  local consumes = getPetCircleConsumeConfig(sysarg,args)
+  if nil == consumes then return end 
+  local canConsume, tipMsg1 = checkConsumes(sysarg, consumes, args)
+  if canConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00120, tipMsg1),ttDialog )
+    return
+  end
+  --包含有出战等无法消耗方式 因此放到最先检测 
+  local petConsume = args[3]
+  if Pet.delPet(sysarg, petConsume) == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00121, tipMsg1),ttDialog )
+    return    
+  end  
+  local hasConsume, tipMsg2 = getConsumes(sysarg, consumes, 13)
+  if hasConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00122, tipMsg2),ttDialog )
+    return
+  end 
+  local petCircle = Pet.getPetProperty(sysarg, petId, 3) --获取宠物的转数
+  
+  --宠物转生 
+  Pet.setCircle(sysarg, petId,petCircle +1)
+	Pet.sendPetOpResult(sysarg, petId, 3, true)	--发送结果
+	
+	--学习技能
+	--灵兽1转对应的是第5个槽位 
+  learnSkill(sysarg, args, petCircle +4)
+	
+end
+
+
+
+--获取宠物转生的消耗,args = [操作的类型,宠物的ID]
+function getPetCircleConsume( sysarg, args )
+  local consumes = getPetCircleConsumeConfig(sysarg,args)
+  if nil == consumes then return end    
+  sendClientPetOperateMsg(sysarg, args, consumes)
+end

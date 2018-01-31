@@ -1,0 +1,74 @@
+--lua script
+--Gm设置武林争霸
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\WuLinZhengBa\WuLinZhengBa.txt" once
+
+--Gm设置武林盟主
+function OnGmSetWulinMaster(nActorId)	
+	local pActor = System.getEntityPtrByActorID(nActorId)
+
+	if pActor then
+		local nName = Actor.getName(pActor)
+		OnBeWuLinChief(pActor,1,nActorId,nName)
+	end
+end
+
+--成为武林盟主 nIndex 1表示初级 2 表示高级
+function OnBeWuLinChief(sysarg,nIndex,nActorId,nName)
+	local ranking = Ranking.getRanking(WuLinZhengBaConfig.RankName)
+	if ranking then
+		local pItem = Ranking.getItemPtrByIndex(ranking,0)
+
+		if pItem then
+			Ranking.setItem(ranking,nActorId,nActorId)
+			Ranking.setSub(pItem,0,nName)
+			Ranking.setSub(pItem,1,tostring(0))
+		else
+			local nItem = Ranking.addItem(ranking,nActorId,nActorId)
+
+			if nItem then
+				Ranking.setSub(nItem,0,nName)
+				Ranking.setSub(nItem,1,tostring(0))
+			end
+		end
+
+		Ranking.save(ranking,WuLinZhengBaConfig.RankTxt)
+	end
+
+	if nIndex == 1 then
+		Actor.setSocialMask(sysarg,smIsWulinMaster,true)
+		System.setPrimaryWuLinId(nActorId)
+		local str1 = string.format(Lang.Activity.w00006,nName,nName)
+		System.broadcastTipmsg(str1,128)
+		local str2 = string.format(Lang.Activity.w00109,nName)
+		System.broadcastTipmsg(str2,2)
+		OnWuLinMasterAddBuff(sysarg,true)
+	end
+end
+
+--武林盟主属性加成
+function OnWuLinMasterAddBuff(sysarg,bFlag)
+	local nRate = 0
+	local fValue = 0
+	
+	--[[
+		if bFlag == true then
+			nRate = WuLinZhengBaConfig.fRate 
+			fValue = WuLinZhengBaConfig.nRate.fValue
+		else
+			nRate = -WuLinZhengBaConfig.fRate 
+			fValue = -WuLinZhengBaConfig.nRate.fValue
+		end
+	]]
+
+	--for i=1,table.getn(WuLinZhengBaConfig.MasterBuff) do
+		--Actor.addAttrToWuLinMaster(sysarg,WuLinZhengBaConfig.MasterBuff[i].type,nRate,false)
+	--end
+	if bFlag == true then
+		Actor.addBuff(sysarg,WuLinZhengBaConfig.AddBuff[1].buffType,WuLinZhengBaConfig.AddBuff[1].buffGroup,WuLinZhengBaConfig.AddBuff[1].value,WuLinZhengBaConfig.AddBuff[1].times,WuLinZhengBaConfig.AddBuff[1].interval,WuLinZhengBaConfig.AddBuff[1].buffName)
+	else
+		Actor.delBuff(sysarg,WuLinZhengBaConfig.AddBuff[1].buffType,WuLinZhengBaConfig.AddBuff[1].buffGroup)
+	end
+	--Actor.addAttrToWuLinMaster(sysarg,WuLinZhengBaConfig.nRate.type,fValue,true)
+end

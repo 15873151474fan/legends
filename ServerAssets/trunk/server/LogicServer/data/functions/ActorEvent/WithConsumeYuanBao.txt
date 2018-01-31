@@ -1,0 +1,21 @@
+--#include "data\functions\Activity\SuperRebate\SuperRebate.txt" once
+--#include "data\functions\Activity\MidAutumn\AutumnConsume.txt" once
+--#include "data\functions\Activity\NationalDayHorse\Dragon.txt" once --马年双十一活动盛世龙腾
+--#include "data\functions\Activity\ConsumeRankActivity\ConsumeRankAct.txt" once --消费排名
+
+EventCallDispatcher.WithConsumeYuanBaoHandler = function (sysarg, args)
+	local nYuanBao = args[1]	--消费元宝数目
+	OnConsumeYuanBao(sysarg, nYuanBao) --超级返利活动保存当天消耗元宝
+	
+	OnAutumnConsume(sysarg, nYuanBao) --中秋消费排行
+	
+	SaveDragonActorConsume(sysarg, 0, nYuanBao)--马年双十一活动盛世龙腾保存个人消费
+	SaveDragonTotalConsume(nYuanBao)--马年双十一活动盛世龙腾保存全服消费
+	
+	OnConsumeRankActivity(sysarg, nYuanBao) --消费排行 
+end
+
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeWithComsumeYuanBao, EventCallDispatcher.WithConsumeYuanBaoHandler)

@@ -1,0 +1,54 @@
+
+--#include "data\config\activityconfig\Arena\warriorArena.txt" once
+
+-- 购买自爆炸弹
+function BuySuicideBomber (sysarg)
+	needCoin = warriorArenaConfig.BuySuicideBomberNeedCoin
+	-- 检测：
+	-- 2.	玩家身上是否已有炸弹，已有则提示：你已经有炸弹了
+	local buff = warriorArenaConfig.SuicideBomber;
+	if Actor.hasBuff(sysarg,buff.buffType) then
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00209, ttFlyTip);
+		return;
+	end
+	-- 玩家在购买炸弹后只能在3分钟后再次购买，3分钟内只能购买一次
+	local userVar = Actor.getDyanmicVar(sysarg);
+	if not userVar then return end;
+	local now = System.getCurrMiniTime();
+	local notUsed = (nil == userVar.lastBuySuicideBomber); -- true 表示第一次使用	
+	if (not notUsed) and (now - userVar.lastBuySuicideBomber < 3*60) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.time00002, ttFlyTip);
+		return ;
+	end
+	local nNowDt = System.getCurrMiniTime()
+	if userVar.BuyBomberCd and nNowDt < userVar.BuyBomberCd then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000178, userVar.BuyBomberCd - nNowDt), ttFlyTip)
+		return
+	end
+	-- 1.	玩家身上是否有足够的金币，不足则提示：金币不足
+	if needCoin > 0 then
+		if not Actor.changeMoney(sysarg, mtCoin, -needCoin, 35, Lang.LogTips.coin00001) then
+			Actor.sendTipmsg(sysarg,string.format(Lang.Activity.t00043, needCoin), ttFlyTip);
+			return
+		end
+	end
+	userVar.BuyBomberCd = nNowDt + warriorArenaConfig.BuyBomCD
+	-- 条件满足者，将给予一个提示：成功购买炸弹，30秒后将会自爆
+	Actor.addBuff(sysarg, buff.buffType, buff.buffGroup, buff.value, buff.times, buff.interval,buff.buffName,buff.timeOverlay,nil,buff.param,buff.effectType,buff.effectId);
+	-- 使用技能
+	local skill = warriorArenaConfig.SuicideBomberSkill;
+	local x,y =	Actor.getEntityPosition(sysarg, 0, 0);
+	Actor.useSkill(sysarg,skill.skillId, x, y, false,skill.skillLevel);
+	-- 同时在玩家的头顶上会给予一个图标，并以30秒倒计时的形式显示
+	-- 图标以及倒计时在同屏内所有的玩家都可以见到
+	-- 30秒后将会爆炸，给予携带者附近的玩家造成大量的伤害
+
+	-- 炸弹爆炸后，被炸死的玩家除自己外，身上如果有5积分以上存在，那么将按照积分获取规则给予携带炸弹的玩家
+	-- 低于5分的玩家被炸死后将不扣除任何分数
+	-- 自己被炸死那么不扣除任何分数
+
+	-- 自爆炸弹图标消失处理
+	-- 当玩家退出活动、重新登录游戏、被杀死、爆炸后就会消失
+
+	Actor.closeNPCDialog(sysarg);
+end

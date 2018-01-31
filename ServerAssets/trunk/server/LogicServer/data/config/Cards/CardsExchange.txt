@@ -1,0 +1,191 @@
+--卡牌兑换和合成
+CardsExchangeConfig = 
+{
+	--兑换
+	ExchangeData = 
+	{
+		--card_itemId 表示卡牌的物品id coin是兑换一张这个卡牌需要的金币 soul 兑换一张这个卡牌获得的卡魂
+		{card_itemId = 2887,coin=3000, soul = 1,},
+		{card_itemId = 2888,coin=3000, soul = 3,},
+		{card_itemId = 2889,coin=3000, soul = 3,},
+		{card_itemId = 2890,coin=3000, soul = 3,},
+		{card_itemId = 2891,coin=3000, soul = 2,},
+		{card_itemId = 2892,coin=3000, soul = 2,},
+		{card_itemId = 2893,coin=3000, soul = 1,},
+		{card_itemId = 2894,coin=3000, soul = 1,},
+		{card_itemId = 2886,coin=3000, soul = 5,},
+		{card_itemId = 2885,coin=3000, soul = 4,},
+		{card_itemId = 2884,coin=3000, soul = 4,},
+		{card_itemId = 2883,coin=3000, soul = 7,},
+		{card_itemId = 2882,coin=3000, soul = 6,},
+		{card_itemId = 2881,coin=3000, soul = 6,},
+		{card_itemId = 2880,coin=3000, soul = 10,},
+		{card_itemId = 2879,coin=3000, soul = 10,},
+		{card_itemId = 2918,coin=3000, soul = 8,},
+		{card_itemId = 2919,coin=3000, soul = 7,},
+		{card_itemId = 2920,coin=3000, soul = 7,},
+		{card_itemId = 2921,coin=3000, soul = 10,},
+		{card_itemId = 2922,coin=3000, soul = 9,},
+		{card_itemId = 2923,coin=3000, soul = 9,},
+		{card_itemId = 2924,coin=3000, soul = 12,},
+		{card_itemId = 2925,coin=3000, soul = 12,},
+        {card_itemId = 2967,coin=3000, soul = 10,},--第四套
+		{card_itemId = 2968,coin=3000, soul = 9,},
+		{card_itemId = 2969,coin=3000, soul = 9,},
+		{card_itemId = 2970,coin=3000, soul = 12,},
+		{card_itemId = 2971,coin=3000, soul = 11,},
+		{card_itemId = 2972,coin=3000, soul = 11,},
+		{card_itemId = 2973,coin=3000, soul = 14,},
+		{card_itemId = 2974,coin=3000, soul = 14,},
+    	{card_itemId = 3019,coin=3000, soul = 12,},--第五套
+		{card_itemId = 3020,coin=3000, soul = 11,},
+		{card_itemId = 3021,coin=3000, soul = 11,},
+		{card_itemId = 3022,coin=3000, soul = 15,},
+		{card_itemId = 3023,coin=3000, soul = 14,},
+		{card_itemId = 3024,coin=3000, soul = 14,},
+		{card_itemId = 3025,coin=3000, soul = 18,},
+		{card_itemId = 3026,coin=3000, soul = 18,},
+	  	{card_itemId = 3030,coin=3000, soul = 14,},--第六套
+		{card_itemId = 3031,coin=3000, soul = 13,},
+		{card_itemId = 3032,coin=3000, soul = 13,},
+		{card_itemId = 3033,coin=3000, soul = 17,},
+		{card_itemId = 3034,coin=3000, soul = 16,},
+		{card_itemId = 3035,coin=3000, soul = 16,},
+		{card_itemId = 3036,coin=3000, soul = 20,},
+		{card_itemId = 3037,coin=3000, soul = 20,},
+	  	{card_itemId = 3114,coin=3000, soul = 16,},--第七套卡
+		{card_itemId = 3115,coin=3000, soul = 15,},
+		{card_itemId = 3116,coin=3000, soul = 15,},
+		{card_itemId = 3117,coin=3000, soul = 19,},
+		{card_itemId = 3118,coin=3000, soul = 18,},
+		{card_itemId = 3119,coin=3000, soul = 18,},
+		{card_itemId = 3120,coin=3000, soul = 22,},
+		{card_itemId = 3121,coin=3000, soul = 22,},
+	  	{card_itemId = 3318,coin=3000, soul = 18,},--第八套卡
+		{card_itemId = 3319,coin=3000, soul = 17,},
+		{card_itemId = 3320,coin=3000, soul = 17,},
+		{card_itemId = 3321,coin=3000, soul = 21,},
+		{card_itemId = 3322,coin=3000, soul = 20,},
+		{card_itemId = 3323,coin=3000, soul = 20,},
+		{card_itemId = 3324,coin=3000, soul = 24,},
+		{card_itemId = 3325,coin=3000, soul = 24,},
+--[[			
+		{card_itemId = 3371,coin=3000, soul = 20,},--第九套卡
+		{card_itemId = 3372,coin=3000, soul = 19,},
+		{card_itemId = 3373,coin=3000, soul = 19,},
+		{card_itemId = 3374,coin=3000, soul = 23,},
+		{card_itemId = 3375,coin=3000, soul = 22,},
+		{card_itemId = 3376,coin=3000, soul = 22,},
+		{card_itemId = 3377,coin=3000, soul = 26,},
+		{card_itemId = 3378,coin=3000, soul = 26,},
+--]]
+	},
+	
+	--合成
+	cardCombine = 
+	{
+		{
+			itemId = 2895,		
+			needCards = 
+			{
+				
+				
+			},
+			needSoul = 200,		
+			needCoin = 30000,		
+		},
+
+		{
+			itemId = 3326,		--合成的卡包
+			--需要的卡牌
+			needCards = 
+			{
+				{nItemId = 3318, nCount = 1,},
+			
+			},
+			needSoul = 200,		--需要的卡魂
+			needCoin = 5000,		--需要的金币
+		},
+
+		{
+			itemId = 3122,		--合成的卡包
+			--需要的卡牌
+			needCards = 
+			{
+				{nItemId = 3114, nCount = 1,},
+			
+			},
+			needSoul = 180,		--需要的卡魂
+			needCoin = 5000,		--需要的金币
+		},
+
+		{
+			itemId = 3039,		--合成的卡包
+			--需要的卡牌
+			needCards = 
+			{
+				{nItemId = 3030, nCount = 1,},
+			
+			},
+			needSoul = 160,		--需要的卡魂
+			needCoin = 5000,		--需要的金币
+		},
+
+		{
+			itemId = 2981,		
+			needCards = 
+			{
+				{nItemId = 2967, nCount = 1,},
+				
+			},
+			needSoul = 150,		
+			needCoin = 5000,		
+		},
+
+		{
+			itemId = 2937,		
+			needCards = 
+			{
+				{nItemId = 2918, nCount = 1,},
+				
+			},
+			needSoul = 122,		
+			needCoin = 5000,		
+		},
+
+		{
+			itemId = 2850,		
+			needCards = 
+			{
+				{nItemId = 2887, nCount = 1,},
+				
+			},
+			needSoul = 78,		
+			needCoin = 5000,		
+		},
+
+		{
+			itemId = 2849,		
+			needCards = 
+			{
+				{nItemId = 2886, nCount = 1,},
+				
+			},
+			needSoul = 37,		
+			needCoin = 5000,		
+		},
+
+		{
+			itemId = 2848,		--合成的卡包
+			--需要的卡牌
+			needCards = 
+			{
+				{nItemId = 2879, nCount = 1,},
+			
+			},
+			needSoul = 20,		--需要的卡魂
+			needCoin = 5000,		--需要的金币
+		},
+
+	},
+}

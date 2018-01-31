@@ -1,0 +1,63 @@
+﻿
+--#include "data\config\item\scriptItemConfig\ProbabilityIndex.txt" once
+
+ProbabilityIndexDropImpl = {}
+
+function ProbabilityIndexDrop( sysarg, params, paTaTab )
+	local dropName = "proabilityindex"..tostring(params.index) --按索引的
+    --print("ProbabilityIndexDropdropName"..dropName)
+	local drop = System.getObjectVar(dropName)
+	if (not drop) then
+		System.trace("getObjectVar is nil".. ItemTable.itemidx)
+		return
+	end
+	local logId = 95
+	local items = nil
+	if paTaTab then
+		items = drop:drop(sysarg)
+		logId = 58
+	else
+		items = drop:proabilityDrop(sysarg)
+	end
+	if ( items.itemCount > 0) then
+		local size = items.itemCount -1
+		for i=0, size do
+			if paTaTab then			
+				local pataIdx = i + 1
+				paTaTab[pataIdx] = {}
+				paTaTab[pataIdx][1] = items.itemList[i].btAwardType
+				paTaTab[pataIdx][2] = items.itemList[i].wItemId
+				paTaTab[pataIdx][3] = items.itemList[i].btCount
+			end
+			if items.itemList[i].btAwardType > 0 then
+				Actor.giveAward(sysarg, items.itemList[i].btAwardType, items.itemList[i].wItemId, items.itemList[i].btCount, items.itemList[i].btQuality, items.itemList[i].btStrong, items.itemList[i].btBind)
+			else
+				Actor.addItem(sysarg, 			
+				items.itemList[i].wItemId, 
+				items.itemList[i].btQuality,
+				items.itemList[i].btStrong,
+				items.itemList[i].btCount,
+				items.itemList[i].btBind,
+				items.itemList[i].nTime,"roll index", logId)
+				if items.itemList[i].btAuxParam ==1 then
+					local tipMsg = string.format(Lang.ScriptTips.mt00028,Actor.getName(sysarg),Item.getItemName(items.itemList[i].wItemId))   --要全服广播
+					System.broadcastTipmsg(tipMsg,ttScreenCenter )
+				end
+			end
+		end
+	end
+end
+
+function InitProbabilityIndexDrop()
+	for k, v in ipairs(ProbabilityIndexDropConfig) do
+		ProbabilityIndexDropImpl[v.index] = {func = ProbabilityIndexDrop, params = v}
+		local dropName = "proabilityindex"..tostring(v.index)
+		local boxdrop = System.getObjectVar(dropName)
+		if (not boxdrop) then
+			boxdrop = CBoxDropMgr:getSingleton():createBoxDrop(dropName)  -- 这里会返回一个宝箱掉落对象(CBoxDrop)
+		end
+		if(boxdrop) then
+			boxdrop:load(v.dropName)
+		end
+	end
+end

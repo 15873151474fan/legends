@@ -1,0 +1,88 @@
+﻿--万年古墓
+{
+	scenceid = 62,
+	scencename = Lang.SceneName.s00062,
+	mapfilename = "62WanNianGuMu",
+	minlevel = 40,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "zumashimiao.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 192,
+	sceneHeight = 208,
+	sceneType=2,
+	seckillId = 18,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+	--挂机的点 ,通常副本才配置 
+	autoFightPoints =
+	{
+		{x = 142 , y = 128},
+		{x = 132 , y = 140},
+		{x = 122 , y = 150},
+		{x = 112 , y = 160},
+		{x = 100 , y = 164},
+		{x = 90 , y = 154},
+		{x = 82 , y = 142},
+		{x = 70 , y = 134},
+		{x = 58 , y = 122},
+		{x = 48 , y = 110},
+		{x = 56 , y = 104},
+		{x = 68 , y = 92},
+		{x = 73 , y = 82},
+		{x = 80 , y = 80},
+		{x = 90 , y = 70},
+		{x = 100, y = 58},
+		{x = 108 , y = 46},
+	},
+
+
+	area =
+	{
+		{ name = Lang.SceneName.s00062, range = { 10,10,20,20,60,50}, center = { 151,119},attri = {{type=46,value = {}},{type=80,value = {}},{type=18,value = {}},{type=19,value = {}},{type=3,value = {}},{type=50,value = {1}},{type = 34,  value = {316,822,386,2272,2273,2274}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },}},	--默认配置场景，禁止行会的召集，传送，行会回程卷
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh62.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00156, posx = 147 , posy = 115,script = "data/script/FuBenScriptNpc/FuBenJieYinRen.txt",modelid = 1,icon = 1,funcId = 0},
+		{name = Lang.EntityName.n00132, posx = 112 , posy = 30,script = "data/script/FuBenScriptNpc/ShiMuYouLing.txt",modelid = 1,icon = 1,funcId = 0,title=Lang.NpcTitle.n00028, idleInterval = 20000},
+	},
+
+  teleport =
+  {
+     --{ posx =  122, posy = 29,toSceneid =  2,toPosx = 216, toPosy =  218,modelid = 50000,name = Lang.SceneName.s00002 },  --万年古墓→王城
+  },
+ landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=150,posy1=121,posx2=150,posy2=121,modelid=22,xinterval=1,yinterval=1},  --安全区的路灯
+		{posx1=142,posy1=129,posx2=142,posy2=129,modelid=22,xinterval=1,yinterval=1},
+		{posx1=135,posy1=137,posx2=135,posy2=137,modelid=22,xinterval=1,yinterval=1},
+		{posx1=126,posy1=146,posx2=126,posy2=146,modelid=22,xinterval=1,yinterval=1},
+		{posx1=116,posy1=156,posx2=116,posy2=156,modelid=22,xinterval=1,yinterval=1},
+		{posx1=92,posy1=155,posx2=48,posy2=112,modelid=24,xinterval=1,yinterval=1},
+
+		{posx1=67,posy1=130,posx2=67,posy2=130,modelid=24,xinterval=1,yinterval=1},
+		{posx1=60,posy1=102,posx2=60,posy2=102,modelid=18,xinterval=1,yinterval=1},
+		{posx1=68,posy1=91,posx2=68,posy2=91,modelid=18,xinterval=1,yinterval=1},
+		{posx1=89,posy1=67,posx2=89,posy2=67,modelid=18,xinterval=1,yinterval=1},
+		{posx1=98,posy1=59,posx2=98,posy2=59,modelid=18,xinterval=1,yinterval=1},
+		
+	 
+ },
+
+},

@@ -1,0 +1,632 @@
+﻿--lua script
+
+--#include "data\config\combat\combatPkConfig.txt"  once
+--#include "data\config\combat\combatRank.txt"  once  --基本设置 
+
+--PK流程
+function CombatPkCommon(sysarg,myPower,tagetPower,nActorId,tJop)
+	if myPower == nil or tagetPower == nil or nActorId == nil  or tJop == nil then
+		return
+	end
+
+	local ranking = Ranking.getRanking(CombatRanking.RankName)
+	if ranking then
+		local nIndex = 0  --胜利为0 失败为1
+		
+		local myBlood = myPower * CombatPkData.mannerRate
+		local tagetBlood = tagetPower * CombatPkData.mannerRate
+
+		local mHurtNum = {}	--自己攻击时造成的伤害
+		local tHurtNum = {}	--别人攻击时造成的商害
+		local mNum = 0		--自己攻击的次数
+		local tNum = 0		--别人攻击的次数
+		local mBaoJi = {}	--暴击数组
+		local tBaoJi = {}	--他人的暴击值
+		
+		local mLeftBlood = myBlood	--自己PK后剩下的血量
+		local tLeftBlood = tagetBlood	--他人PK剩下的血量
+		
+		local sRate = CombatPkData.skillRate
+		local BaseData = sRate * (CombatPkData.battleRate)
+		
+		local bVic = 0
+
+		--进行PK
+		for i=1,10 do
+			mHurtNum[i] = System.getRandomNumber(CombatPkData.randRate + 1)
+
+			if mHurtNum[i] <= 0 then
+				mHurtNum[i] = 1
+			end
+			local addHurt = 0
+			
+			--自己攻击
+			--暴击值
+			if mHurtNum[i] > (CombatPkData.randRate - 1) then
+				addHurt = CombatPkData.critRate
+				mBaoJi[i] = 1
+			else
+				mBaoJi[i] = 0
+			end
+			local mtepNum = (myPower/(myPower + tagetPower)) ^ CombatPkData.constNum
+			local hurtBlood = math.ceil(((BaseData * myPower * mtepNum) * (CombatPkData.baseRate + mHurtNum[i]) / 100) * (100+addHurt)/100)
+			mHurtNum[i] = hurtBlood
+			mNum = mNum + 1
+
+			tLeftBlood = tLeftBlood - hurtBlood
+			if tLeftBlood <= 0 then					--被杀死
+				mHurtNum[i] = hurtBlood + tLeftBlood
+				tLeftBlood = 0
+				nIndex = 0
+				bVic = 1
+				break
+			end
+			
+
+			--别人开始攻击
+			tHurtNum[i] = System.getRandomNumber(20)
+			if tHurtNum[i] <= 0 then
+				tHurtNum[i] = 1
+			end
+
+			addHurt = 0
+			
+			--是否暴击
+			if tHurtNum[i] > (CombatPkData.randRate - 1) then
+				addHurt = CombatPkData.critRate
+				tBaoJi[i] = 1
+			else
+				tBaoJi[i] = 0
+			end
+			local tempNum = (tagetPower/(myPower + tagetPower)) ^ CombatPkData.constNum
+			local TBlood = math.ceil(((BaseData *tagetPower*tempNum) * (CombatPkData.baseRate + tHurtNum[i]) / 100) * (100+addHurt)/100)
+			tHurtNum[i] = TBlood
+			tNum = tNum + 1
+			
+			mLeftBlood = mLeftBlood - TBlood
+			if mLeftBlood <= 0 then				--被杀死
+				tHurtNum[i] = TBlood + mLeftBlood
+				mLeftBlood = 0
+				nIndex = 1
+				bVic = 0
+				break
+			end
+		end
+		
+		local nMyActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		
+		local mJop = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+
+		if CombatPkData.skills[tJop] == nil or CombatPkData.skills[mJop] == nil then
+			return 
+		end
+		--print("nActorId:"..nActorId)
+		local tItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		local mModelId = Actor.getMyModelId(sysarg)
+
+		if mModelId < 0 then
+			mModelId = Actor.getIntProperty(sysarg,PROP_ENTITY_MODELID)
+		end
+
+		local mWeaper = Actor.getWeaperId(sysarg)  --Actor.getIntProperty(sysarg,PROP_ACTOR_WEAPONAPPEARANCE)
+
+		local maxSkillNum = table.getn(CombatPkData.skills[mJop])
+		local nName
+
+		local AwardCount = {0,0,0,0}
+		local AwardType = {0,0,0,0}
+
+		if tItem then
+			local pack = DataPack.allocPacket(sysarg, 38, 2)
+			if (pack ~= nil) then	
+				DataPack.writeByte(pack, nIndex)
+				DataPack.writeByte(pack,2)
+				local nIcon
+				for i =1,2 do
+					if i == 1 then
+						DataPack.writeByte(pack,0)
+						DataPack.writeInt(pack,mModelId)  
+						DataPack.writeInt(pack,mWeaper)
+						DataPack.writeInt(pack,myBlood)
+						nIcon = Actor.getIntProperty(sysarg,PROP_ENTITY_ICON)
+						DataPack.writeInt(pack,nIcon)
+						DataPack.writeInt(pack,Actor.getIntProperty(sysarg,PROP_ACTOR_SEX))
+
+						local mName = Actor.getName(sysarg)
+						DataPack.writeString(pack,mName)
+						
+					elseif i == 2 then 
+						DataPack.writeByte(pack,1)
+						local tModelId = Ranking.getSub(tItem,5)
+						DataPack.writeInt(pack,tonumber(tModelId))  
+
+						local twpeaId = tonumber(Ranking.getSub(tItem,6))
+						DataPack.writeInt(pack,twpeaId)
+
+						DataPack.writeInt(pack,tagetBlood)
+
+						local tIcon = tonumber(Ranking.getSub(tItem,7))
+						DataPack.writeInt(pack,tIcon)
+
+						local tSex = tonumber(Ranking.getSub(tItem,4))
+						DataPack.writeInt(pack,tSex)
+						DataPack.writeString(pack,Ranking.getSub(tItem,0))
+					end
+				end
+				
+				nName = Ranking.getSub(tItem,0)
+				DataPack.writeInt(pack,mNum+tNum)
+                --print("nActorIdnName:"..nName)
+				--print("攻击次数mNum："..mNum)
+				local bSkill = 0
+				local mJ = 1
+				local tJ = 1
+				
+				local randSkillNum = System.getRandomNumber(maxSkillNum)  -- 返回[0-100]的随机数
+				local mIndex = randSkillNum
+
+				local tagetSkillNum = System.getRandomNumber(maxSkillNum)  -- 返回[0-100]的随机数
+				local tIndex = tagetSkillNum
+
+				for i=1,mNum+tNum do
+					if bSkill == 0 and mJ <= mNum then
+						bSkill = 1
+						mIndex = mIndex % (maxSkillNum + 1) 
+						if mIndex <= 0 then
+							mIndex = 1
+						elseif mIndex > maxSkillNum then
+							mIndex = maxSkillNum
+						end
+						DataPack.writeByte(pack,0)
+						DataPack.writeInt(pack,CombatPkData.skills[mJop][mIndex][1])
+						DataPack.writeInt(pack,CombatPkData.skills[mJop][mIndex][2])
+						DataPack.writeInt(pack,mHurtNum[mJ])
+						DataPack.writeByte(pack,mBaoJi[mJ])
+						mJ = mJ + 1
+					elseif bSkill == 1 and tJ <= tNum then
+						bSkill = 0
+						tIndex = tJ % (maxSkillNum + 1) 
+
+						if tIndex <= 0 then
+							tIndex = 1
+						elseif tIndex > maxSkillNum then
+							tIndex = maxSkillNum
+						end
+						DataPack.writeByte(pack,1)
+						DataPack.writeInt(pack,CombatPkData.skills[tJop][tIndex][1])
+						DataPack.writeInt(pack,CombatPkData.skills[tJop][tIndex][2])
+						DataPack.writeInt(pack,tHurtNum[tJ])
+						DataPack.writeByte(pack,tBaoJi[tJ])
+						tJ = tJ + 1
+					end
+				end
+
+				local AwardNum = 0
+
+				local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+				--战胜
+				if nIndex == 0 then	
+					Actor.addConWinTimes(sysarg,1)		--增加连胜次数
+					AwardNum = table.getn(CombatRefreshPower.winningAward)
+					if AwardNum > 3 then
+						AwardNum = 3
+					end
+					for i=1,AwardNum do
+						if CombatRefreshPower.winningAward[i].type == 20 then	--如果是经验
+							AwardCount[i] = Actor.getActivityExp(sysarg,CombatRefreshPower.winningAward[i].id,CombatRefreshPower.winningAward[i].count,CombatRefreshPower.winningAward[i].quality)
+						else
+							AwardCount[i] = CombatRefreshPower.winningAward[i].count
+						end
+						AwardType[i] = CombatRefreshPower.winningAward[i].type
+					end
+				--失败
+				elseif nIndex == 1 then
+					AwardNum = table.getn(CombatRefreshPower.lostAward)
+					if AwardNum > 3 then
+						AwardNum = 3
+					end
+					for i=1,AwardNum do
+						if CombatRefreshPower.lostAward[i].type == 20 then	--如果是经验
+							AwardCount[i] = Actor.getActivityExp(sysarg,CombatRefreshPower.lostAward[i].id,CombatRefreshPower.lostAward[i].count,CombatRefreshPower.lostAward[i].quality)
+						else
+							AwardCount[i] = CombatRefreshPower.lostAward[i].count
+						end
+
+						AwardType[i] = CombatRefreshPower.lostAward[i].type
+					end
+					Actor.setConWinTimes(sysarg,0)
+				end
+
+				local cType = Actor.getConWinTimes(sysarg)		--连胜场次
+				local bIndex = 0
+				for i=1,table.getn(CombatRefreshPower.winTimes) do
+					if CombatRefreshPower.winTimes[i] == cType then
+						bIndex = i
+						break
+					end
+				end
+				
+				local bScore = 0
+				local bRate = 0
+				if bIndex >0 then		--连胜的奖励
+					bRate = 1
+					for i=2,bIndex do
+						bRate = bRate * CombatRefreshPower.conRate / 100
+					end
+					AwardNum = AwardNum + 1
+
+					AwardCount[AwardNum] =  CombatRefreshPower.continousAward[1].count * bRate
+					AwardType[AwardNum] = CombatRefreshPower.continousAward[1].type
+				end
+				
+				--奖励的消息
+				DataPack.writeInt(pack,AwardNum)
+				
+				for i=1,AwardNum do
+					DataPack.writeInt(pack,AwardType[i])
+					DataPack.writeInt(pack,AwardCount[i])
+				end
+
+				DataPack.flush(pack)  		
+			end
+			if nIndex == 0 then		--胜利
+				--我的排名
+				local mRanking = Ranking.getItemIndexFromId(ranking,nMyActorId) + 1
+				local tRanking = Ranking.getItemIndexFromId(ranking,nActorId) + 1
+				
+				if mRanking > tRanking or mRanking<= 0 then 
+					Actor.swapCombatRank(sysarg,nMyActorId,nActorId)
+					
+					local str2
+					local userName = Actor.getName(sysarg)
+					if mRanking > 0 then
+						str2 = string.format(Lang.ScriptTips.cj00011, userName, mRanking,tRanking)
+					else
+						str2 = string.format(Lang.ScriptTips.cj00013, userName, tRanking)
+					end
+					if tRanking > 0 and tRanking < 11 then
+						
+						System.broadcastTipmsgLimitLev(str2, ttScreenCenter + ttChatWindow,CombatRanking.LevLimit)
+						
+						System.broadcastTipmsg(string.format(Lang.ScriptTips.cj00014,nName,userName,tRanking,mRanking),2+128)
+					end
+
+					SendCurRankToClient(sysarg,tRanking,1)
+
+					local pActor = Actor.getActorByName(nName)
+					if pActor then
+						SendCurRankToClient(pActor,mRanking,2)
+					end
+					--print("
+                    GiveSiteBuff(userName)--胜利则交换排位和buff
+                    GiveSiteBuff(nName)--胜利则交换排位和buff
+				end
+			--else					--失败
+				--Actor.setConWinTimes(sysarg,0)
+				Actor.afterPkOp(sysarg,bVic,nActorId,nName,AwardType[1],AwardCount[1],AwardType[2],AwardCount[2],AwardType[3],AwardCount[3])
+			else
+				Actor.afterPkOp(sysarg,bVic,nActorId,nName,AwardType[1],AwardCount[1],0,0,AwardType[2],AwardCount[2])
+			end
+			Actor.triggerQuestEvent(sysarg, 127, 50097, 1)
+			--挑战后的一些处理
+		end
+	end
+
+end
+
+--一个判断给buff的逻辑
+function GiveSiteBuff(UserName)
+  --print("GiveSiteBuff:"..UserName) 
+  local pActor = Actor.getActorByName(UserName)
+  if not pActor then return end--玩家不在线则退出 
+  local ActorId = Actor.getIntProperty(pActor, PROP_ENTITY_ID)
+  --print("GiveSiteBuff0")
+  local ranking = Ranking.getRanking(CombatRanking.RankName)
+  if not ranking then return end--排行榜没有则退出 
+  local mRanking = Ranking.getItemIndexFromId(ranking, ActorId) + 1
+  --print("mRanking"..mRanking)
+  if mRanking <= 0 then return end--无名次则退出 
+  local BuffConfig = CombatRanking.DifferentBuff
+  --print("GiveSiteBuff1")
+  for i = 1, #BuffConfig do--先干掉存在的竞技场段位buff 
+      for j = 1, #BuffConfig[i].Buff do 
+          Actor.delBuff(pActor, BuffConfig[i].Buff[j].buffType, BuffConfig[i].Buff[j].buffGroup)
+      end  
+  end
+  local ndx = 0 
+  for k = 1, #BuffConfig do--获得其竞技场段位
+      if mRanking < BuffConfig[k].Rate then
+         ndx = k-1
+         break
+      end
+  end
+  --print("GiveSiteBuff2"..ndx)
+  if ndx == 0 then return end
+  local GiveBuff = CombatRanking.DifferentBuff[ndx].Buff
+  for h = 1, #GiveBuff do 
+  --print("GiveSiteBuff2"..ndx)
+      Actor.addBuff(pActor, GiveBuff[h].buffType, GiveBuff[h].buffGroup, GiveBuff[h].value, GiveBuff[h].times, GiveBuff[h].interval, GiveBuff[h].buffName, GiveBuff[h].timeOverlay) --添加buff
+  end  
+end 
+
+--发送排名给客户端显示升降
+function SendCurRankToClient(sysarg,nRank,bType)
+	local pack = DataPack.allocPacket(sysarg, 38, 13)
+	if (pack ~= nil) then	
+		DataPack.writeInt(pack,nRank)
+		DataPack.writeByte(pack,bType)
+		DataPack.flush(pack)  		
+	end
+end
+
+--爬塔PK流程
+function PaTaCombatPkCommon(sysarg,myPower,tagetPower,nActorId,tJop)
+	if myPower == nil or tagetPower == nil or nActorId == nil  or tJop == nil then
+		return -1
+	end
+
+	local ranking = Ranking.getRanking(CombatRanking.RankName)
+	if not ranking then
+		return -1
+	end
+	local nIndex = 0  --胜利为0 失败为1
+	
+	local myBlood = myPower * CombatPkData.mannerRate
+	local tagetBlood = tagetPower * CombatPkData.mannerRate
+
+	local mHurtNum = {}	--自己攻击时造成的伤害
+	local tHurtNum = {}	--别人攻击时造成的商害
+	local mNum = 0		--自己攻击的次数
+	local tNum = 0		--别人攻击的次数
+	local mBaoJi = {}	--暴击数组
+	local tBaoJi = {}	--他人的暴击值
+	
+	local mLeftBlood = myBlood	--自己PK后剩下的血量
+	local tLeftBlood = tagetBlood	--他人PK剩下的血量
+	
+	local sRate = CombatPkData.skillRate
+	local BaseData = sRate * (CombatPkData.battleRate)
+	
+	local bVic = 0
+
+	--进行PK
+	for i=1,10 do
+		mHurtNum[i] = System.getRandomNumber(CombatPkData.randRate + 1)
+
+		if mHurtNum[i] <= 0 then
+			mHurtNum[i] = 1
+		end
+		local addHurt = 0
+		
+		--自己攻击
+		--暴击值
+		if mHurtNum[i] > (CombatPkData.randRate - 1) then
+			addHurt = CombatPkData.critRate
+			mBaoJi[i] = 1
+		else
+			mBaoJi[i] = 0
+		end
+		local mtepNum = (myPower/(myPower + tagetPower)) ^ CombatPkData.constNum
+		local hurtBlood = math.ceil(((BaseData * myPower * mtepNum) * (CombatPkData.baseRate + mHurtNum[i]) / 100) * (100+addHurt)/100)
+		mHurtNum[i] = hurtBlood
+		mNum = mNum + 1
+
+		tLeftBlood = tLeftBlood - hurtBlood
+		if tLeftBlood <= 0 then					--被杀死
+			mHurtNum[i] = hurtBlood + tLeftBlood
+			tLeftBlood = 0
+			nIndex = 0
+			bVic = 1
+			break
+		end
+		
+
+		--别人开始攻击
+		tHurtNum[i] = System.getRandomNumber(20)
+		if tHurtNum[i] <= 0 then
+			tHurtNum[i] = 1
+		end
+
+		addHurt = 0
+		
+		--是否暴击
+		if tHurtNum[i] > (CombatPkData.randRate - 1) then
+			addHurt = CombatPkData.critRate
+			tBaoJi[i] = 1
+		else
+			tBaoJi[i] = 0
+		end
+		local tempNum = (tagetPower/(myPower + tagetPower)) ^ CombatPkData.constNum
+		local TBlood = math.ceil(((BaseData *tagetPower*tempNum) * (CombatPkData.baseRate + tHurtNum[i]) / 100) * (100+addHurt)/100)
+		tHurtNum[i] = TBlood
+		tNum = tNum + 1
+		
+		mLeftBlood = mLeftBlood - TBlood
+		if mLeftBlood <= 0 then				--被杀死
+			tHurtNum[i] = TBlood + mLeftBlood
+			mLeftBlood = 0
+			nIndex = 1
+			bVic = 0
+			break
+		end
+	end
+	
+	local nMyActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	
+	local mJop = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+
+	if CombatPkData.skills[tJop] == nil or CombatPkData.skills[mJop] == nil then
+		return 
+	end
+	
+	local tItem = Ranking.getItemPtrFromId(ranking,nActorId)
+	local mModelId = Actor.getMyModelId(sysarg)
+
+	if mModelId <= 0 then
+		mModelId = Actor.getIntProperty(sysarg,PROP_ENTITY_MODELID)
+	end
+
+	local mWeaper = Actor.getIntProperty(sysarg,PROP_ACTOR_WEAPONAPPEARANCE)
+
+	local maxSkillNum = table.getn(CombatPkData.skills[mJop])
+	local nName
+
+	local AwardCount = {0,0,0,0}
+	local AwardType = {0,0,0,0}
+
+	if not tItem then
+		return -1
+	end
+	local pack = DataPack.allocPacket(sysarg, 38, 2)
+	if (pack ~= nil) then	
+		DataPack.writeByte(pack, nIndex)
+		DataPack.writeByte(pack,2)
+		local nIcon
+		for i =1,2 do
+			if i == 1 then
+				DataPack.writeByte(pack,0)
+				DataPack.writeInt(pack,mModelId)  
+				DataPack.writeInt(pack,mWeaper)
+				DataPack.writeInt(pack,myBlood)
+				nIcon = Actor.getIntProperty(sysarg,PROP_ENTITY_ICON)
+				DataPack.writeInt(pack,nIcon)
+				DataPack.writeInt(pack,Actor.getIntProperty(sysarg,PROP_ACTOR_SEX))
+
+				local mName = Actor.getName(sysarg)
+				DataPack.writeString(pack,mName)
+				
+			elseif i == 2 then 
+				DataPack.writeByte(pack,1)
+				local tModelId = Ranking.getSub(tItem,5)
+				DataPack.writeInt(pack,tonumber(tModelId))  
+
+				local twpeaId = tonumber(Ranking.getSub(tItem,6))
+				DataPack.writeInt(pack,twpeaId)
+
+				DataPack.writeInt(pack,tagetBlood)
+
+				local tIcon = tonumber(Ranking.getSub(tItem,7))
+				DataPack.writeInt(pack,tIcon)
+
+				local tSex = tonumber(Ranking.getSub(tItem,4))
+				DataPack.writeInt(pack,tSex)
+				DataPack.writeString(pack,Ranking.getSub(tItem,0))
+			end
+		end
+		
+		nName = Ranking.getSub(tItem,0)
+		DataPack.writeInt(pack,mNum+tNum)
+
+		--print("攻击次数mNum："..mNum)
+		local bSkill = 0
+		local mJ = 1
+		local tJ = 1
+		
+		local randSkillNum = System.getRandomNumber(maxSkillNum)  -- 返回[0-100]的随机数
+		local mIndex = randSkillNum
+
+		local tagetSkillNum = System.getRandomNumber(maxSkillNum)  -- 返回[0-100]的随机数
+		local tIndex = tagetSkillNum
+
+		for i=1,mNum+tNum do
+			if bSkill == 0 and mJ <= mNum then
+				bSkill = 1
+				mIndex = mIndex % (maxSkillNum + 1) 
+				if mIndex <= 0 then
+					mIndex = 1
+				elseif mIndex > maxSkillNum then
+					mIndex = maxSkillNum
+				end
+				DataPack.writeByte(pack,0)
+				DataPack.writeInt(pack,CombatPkData.skills[mJop][mIndex][1])
+				DataPack.writeInt(pack,CombatPkData.skills[mJop][mIndex][2])
+				DataPack.writeInt(pack,mHurtNum[mJ])
+				DataPack.writeByte(pack,mBaoJi[mJ])
+				mJ = mJ + 1
+			elseif bSkill == 1 and tJ <= tNum then
+				bSkill = 0
+				tIndex = tJ % (maxSkillNum + 1) 
+
+				if tIndex <= 0 then
+					tIndex = 1
+				elseif tIndex > maxSkillNum then
+					tIndex = maxSkillNum
+				end
+				DataPack.writeByte(pack,1)
+				DataPack.writeInt(pack,CombatPkData.skills[tJop][tIndex][1])
+				DataPack.writeInt(pack,CombatPkData.skills[tJop][tIndex][2])
+				DataPack.writeInt(pack,tHurtNum[tJ])
+				DataPack.writeByte(pack,tBaoJi[tJ])
+				tJ = tJ + 1
+			end
+		end
+
+		local AwardNum = 0
+
+		local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+		--战胜
+		if nIndex == 0 then	
+			--Actor.addConWinTimes(sysarg,1)		--增加连胜次数
+			AwardNum = table.getn(CombatRefreshPower.winningAward)
+			if AwardNum > 3 then
+				AwardNum = 3
+			end
+			for i=1,AwardNum do
+				if CombatRefreshPower.winningAward[i].type == 20 then	--如果是经验
+					AwardCount[i] = Actor.getActivityExp(sysarg,CombatRefreshPower.winningAward[i].id,CombatRefreshPower.winningAward[i].count,CombatRefreshPower.winningAward[i].quality)
+				else
+					AwardCount[i] = CombatRefreshPower.winningAward[i].count
+				end
+				AwardType[i] = CombatRefreshPower.winningAward[i].type
+			end
+		--失败
+		elseif nIndex == 1 then
+			AwardNum = table.getn(CombatRefreshPower.lostAward)
+			if AwardNum > 3 then
+				AwardNum = 3
+			end
+			for i=1,AwardNum do
+				if CombatRefreshPower.lostAward[i].type == 20 then	--如果是经验
+					AwardCount[i] = Actor.getActivityExp(sysarg,CombatRefreshPower.lostAward[i].id,CombatRefreshPower.lostAward[i].count,CombatRefreshPower.lostAward[i].quality)
+				else
+					AwardCount[i] = CombatRefreshPower.lostAward[i].count
+				end
+
+				AwardType[i] = CombatRefreshPower.lostAward[i].type
+			end
+		end
+
+		local cType = Actor.getConWinTimes(sysarg)		--连胜场次
+		local bIndex = 0
+		for i=1,table.getn(CombatRefreshPower.winTimes) do
+			if CombatRefreshPower.winTimes[i] == cType then
+				bIndex = i
+				break
+			end
+		end
+		
+		local bScore = 0
+		local bRate = 0
+		if bIndex >0 then		--连胜的奖励
+			bRate = 1
+			for i=2,bIndex do
+				bRate = bRate * CombatRefreshPower.conRate / 100
+			end
+			AwardNum = AwardNum + 1
+
+			AwardCount[AwardNum] =  CombatRefreshPower.continousAward[1].count * bRate
+			AwardType[AwardNum] = CombatRefreshPower.continousAward[1].type
+		end
+		
+		--奖励的消息
+		DataPack.writeInt(pack,AwardNum)
+		
+		for i=1,AwardNum do
+			DataPack.writeInt(pack,AwardType[i])
+			DataPack.writeInt(pack,AwardCount[i])
+		end
+
+		DataPack.flush(pack)  		
+	end
+	return nIndex
+end

@@ -1,0 +1,190 @@
+--lua script
+--师徒管理员
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\friend\FriendConfig.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+function Teacher_Main(sysarg)
+	local str = ""
+	
+	str = str.."\\<#BL"..Lang.GuildLang.f00001.."/@PublishApplyMaster>"		--发布拜师
+	str = str.."\\<#BL"..Lang.GuildLang.f00002.."/@PublishFindStudent>"		--发布收徒
+	str = str.."\\<#BL"..Lang.GuildLang.f00003.."/@GetGruadateAward>"		--领取出师奖励
+
+	return str
+end
+
+--发布拜师
+function PublishApplyMaster(sysarg)
+	local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	local nCircle = Actor.getIntProperty(sysarg,PROP_ACTOR_CIRCLE)
+	
+	if (nCircle > 0) or (nLevel < FriendConfig.minAttendMaster) or (nLevel > FriendConfig.maxAttendMaster) then	--等级不符
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00005, ttFlyTip)
+		return
+	end
+
+	local nTagetId = Actor.getSocialRelationId(sysarg,2)
+	if nTagetId > 0 then		--已有师父
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00004, ttFlyTip)
+		return
+	end
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if nCoin < FriendConfig.publishAttendMaster then	--金币不够
+		local str = string.format(Lang.GuildLang.f00006,FriendConfig.publishAttendMaster)
+		Actor.sendTipmsg(sysarg, str, ttFlyTip)
+		return
+	end
+
+	local dvar = Actor.getDyanmicVar(sysarg)
+	if dvar.publisMasterTime == nil then
+		dvar.publisMasterTime = 0
+	end
+	local curTime = System.getCurrMiniTime()
+	if dvar.publisMasterTime + 10 > curTime then		--发布的太频繁
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00007, ttFlyTip)
+		return
+	end
+	
+	dvar.publisMasterTime = System.getCurrMiniTime()
+	Actor.changeMoney(sysarg,1,-FriendConfig.publishAttendMaster,823, Lang.LogTips.yb020)
+
+	local str1 = string.format(Lang.GuildLang.f00008,Actor.getName(sysarg))
+	System.broadcastTipmsgLimitLev(str1,128,nLevel+5)
+	Actor.sendTipmsg(sysarg, str1, 128)
+end
+
+--发布收徒
+function PublishFindStudent(sysarg)
+	local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	local nCircle = Actor.getIntProperty(sysarg,PROP_ACTOR_CIRCLE)
+	
+	if nCircle == 0 and nLevel < FriendConfig.canBeMaster then
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00009, ttFlyTip)
+		return
+	end
+
+	local nCount = Actor.getSocialCurNum(sysarg,3)
+	if nCount >= FriendConfig.maxDisciple then
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00010, ttFlyTip)
+		return
+	end
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if nCoin < FriendConfig.publishAttendMaster then	--金币不够
+		local str = string.format(Lang.GuildLang.f00011,FriendConfig.publishAttendMaster)
+		Actor.sendTipmsg(sysarg, str, ttFlyTip)
+		return
+	end
+
+	local dvar = Actor.getDyanmicVar(sysarg)
+	if dvar.publisStudentTime == nil then
+		dvar.publisStudentTime = 0
+	end
+	local curTime = System.getCurrMiniTime()
+	if dvar.publisStudentTime + 10 > curTime then		--发布的太频繁
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00007, ttFlyTip)
+		return
+	end
+	
+	dvar.publisStudentTime = System.getCurrMiniTime()
+	Actor.changeMoney(sysarg,1,-FriendConfig.publishAttendMaster,823, Lang.LogTips.yb020)
+	
+	local str1 = string.format(Lang.GuildLang.f00012,Actor.getName(sysarg))
+	System.broadcastTipmsgLimitLev(str1,128,25)
+
+	--Actor.sendTipmsg(sysarg, Lang.GuildLang.f00051, ttFlyTip)
+end
+
+--领取出师奖励
+function GetGruadateAward(sysarg)
+	local sVar = Actor.getStaticVar(sysarg)
+	
+	if sVar.GetGruaduateAwardFlag == nil then
+		sVar.GetGruaduateAwardFlag = 0
+	end
+	--sVar.GetGruaduateAwardFlag = 0
+	if sVar.GetGruaduateAwardFlag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00017, ttFlyTip)
+		return
+	end
+
+	local nTagetId = Actor.getSocialRelationId(sysarg,2)
+	
+	if nTagetId <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00055, ttFlyTip)
+		return
+	end
+
+	if Actor.checkActorLevel(sysarg,FriendConfig.graduateLevel) == false then		--等级
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.f00013, ttFlyTip)
+		return
+	end
+
+	local nIntimacy = Actor.getMasterIntimacy(sysarg,nTagetId,2)
+	if nIntimacy < FriendConfig.needIntimacy then		--亲密度不够
+		local str1 = string.format(Lang.GuildLang.f00014,FriendConfig.needIntimacy)
+		Actor.sendTipmsg(sysarg, str1, ttFlyTip)
+		return
+	end
+
+	--[[
+		local hasCount = Item.getBagEmptyGridCount(sysarg)
+		local needCount = 2
+		if hasCount < needCount then
+			Actor.sendTipmsg( sysarg, string.format(Lang.GuildLang.f00015,needCount),ttFlyTip)
+			return
+		end
+	]]
+	
+	local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	local sName = Actor.getSocialActorName(sysarg,nTagetId)
+	
+	local str = Lang.GuildLang.f00016
+	if sName then
+		str = string.format(Lang.GuildLang.f00016,Actor.getSocialActorName(sysarg,nTagetId))
+	end
+	Actor.sendTipmsg(sysarg, str, ttFlyTip)
+	
+	Actor.graduationGiveMasterWard(sysarg,nTagetId)
+
+	Awards.Give(sysarg,FriendConfig.StudentAwards,822,"Gruaduate Award")
+
+	local str1 = string.format(Lang.GuildLang.f00054,Actor.getName(sysarg),sName)
+	System.broadcastTipmsgLimitLev(str1,2 + 128)
+
+	local pActor = System.getEntityPtrByActorID(nTagetId)
+	if pActor then
+		local str2 = string.format(Lang.GuildLang.f00053,Actor.getName(sysarg),nLevel,Actor.getName(sysarg))
+		Actor.sendTipmsg(pActor, str2, 128)
+		Actor.sendGrauateToMate(pActor,Actor.getIntProperty(sysarg,PROP_ENTITY_ID),nLevel)
+	end
+
+	sVar.GetGruaduateAwardFlag = 1
+
+end
+
+--升级给师徒奖励
+function GiveAwardByUpLevel(sysarg)
+	local nTagetId = Actor.getSocialRelationId(sysarg,2)
+	if nTagetId <= 0 then return end
+
+	local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	
+	local nIndex = 0
+	for i=1,table.getn(FriendConfig.giveAwardByUplevel) do
+		if nLevel == FriendConfig.giveAwardByUplevel[i] then
+			nIndex = i
+			break
+		end
+	end
+
+	if nIndex == 0 then return end
+
+	Actor.giveUpLevelAwardTips(sysarg,nTagetId,nIndex)
+
+end
+
+table.insert(MainFnTable, Teacher_Main)

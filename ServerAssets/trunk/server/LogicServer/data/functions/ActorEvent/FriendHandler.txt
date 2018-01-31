@@ -1,0 +1,74 @@
+--lua script
+--#include "data\functions\Systems\FriendSystem\FriendSystemOp.txt" once
+--#include "data\functions\Activity\CorpsBattle\CorpsBattleCommon.txt" once
+
+--处理好友相关
+--[[
+local	cSendCanAddFriendList = 1,		--推荐好友列表
+local   cInitActorMood = 2,			--初始化玩家心情
+local   cGetMasterAward=3,			--师父领取出师奖励
+local	cGetAwardByUpLevel = 4,			--徒弟升级给奖励
+local   cExitCorpsScene = 5,			--战队竞技的占有着退出战队场景
+local   cGetCorpsBattleAward = 6,		--领取战队竞技的奖励
+local   cTakeOutAtorCmd = 7,			--洞房请出玩家
+local   cActorExitScene = 8,			--玩家退出场景
+local   cInitCorpsTitle = 9,			--初始化战队竞技头衔
+--]]
+
+FriendOpFuncList = {}
+
+EventCallDispatcher.HandlerFriendOp = function (sysarg, args)
+ --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = FriendOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--推荐好友列表
+FriendOpFuncList[1] = function (sysarg,args)
+	SendCanAddFriendList(sysarg,args)
+end
+
+--初始化玩家心情
+FriendOpFuncList[2] = function (sysarg,args)
+	InitActorMood(sysarg,args)
+end
+
+--师父领取出师奖励
+FriendOpFuncList[3] = function (sysarg,args)
+	MasterGetGruaduateAward(sysarg,args)
+end
+
+--徒弟升级给奖励
+FriendOpFuncList[4] = function (sysarg,args)
+	OnGiveAwardByUpLevelOp(sysarg,args)
+end
+
+--战队竞技的占有着退出战队场景
+FriendOpFuncList[5] = function (sysarg,args)
+	OnExitCorpsSceneOp(sysarg)
+end
+
+--领取战队的奖励
+FriendOpFuncList[6] = function (sysarg,args)
+	GetCorpsActivityAwards(sysarg)
+end
+
+FriendOpFuncList[7] = function (sysarg,args)
+	GetOutDongFangActor(sysarg,args)
+end
+
+--玩家退出场景
+FriendOpFuncList[8] = function (sysarg,args)
+	OnPreExitSceneOp(sysarg,args)
+end
+
+--初始化战队竞技头衔
+FriendOpFuncList[9] = function (sysarg,args)
+	SetFirstCorpsTitle(sysarg)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeFriend, EventCallDispatcher.HandlerFriendOp)
+

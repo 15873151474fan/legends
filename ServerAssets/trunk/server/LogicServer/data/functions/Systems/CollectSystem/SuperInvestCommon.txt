@@ -1,0 +1,101 @@
+
+--开启超值投资
+function OnOpenSuperInvest(sysarg,args)
+	local nIndex = args[2]
+	if nIndex <=0 or nIndex > table.getn(ItemConfig.Invests) then return end
+	
+	local nConfig = ItemConfig.Invests[nIndex]
+	if nConfig == nil then return end
+
+	local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	if myYb < nConfig.needYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0063, ttFlyTip)
+		return
+	end
+
+	if Actor.changeMoney(sysarg,3,-nConfig.needYb,940,Lang.Activity.sz0006) then
+		local pack = DataPack.allocPacket(sysarg, 50, 12)
+		if (pack ~= nil) then
+			DataPack.writeChar(pack, nIndex)
+			DataPack.writeChar(pack, 1)
+			DataPack.writeInt(pack, System.getCurrMiniTime())
+			DataPack.flush(pack)
+		end
+
+		Actor.setOpenSuperInvestFlag(sysarg,nIndex,1)
+		--System.broadcastTipmsg(string.format(Lang.Activity.ly0069,Actor.getName(sysarg)),2+128)
+	end
+end
+
+--领取超值投资奖励
+function OnGetSuperinvestFlag(sysarg,args)
+	local nType = args[2]
+	if nType <=0 or nType > table.getn(ItemConfig.Invests) then return end
+
+	local nIndex = args[3]
+	local nConfig = ItemConfig.Invests[nType]
+	if nConfig == nil then return end
+
+	if nIndex > 0 and nIndex <= table.getn(nConfig.awardsConfig) then
+		local nThaConfig = nConfig.awardsConfig[nIndex]
+		local nDays = Actor.getOpenSuperInvestDays(sysarg,nType)
+		if nDays < nThaConfig.nDays then 		--没到领取的时间
+			Actor.sendTipmsg(sysarg, Lang.Activity.sz0007, ttFlyTip)
+			return
+		end
+
+		if Awards.CheckBagGridCount(sysarg,nConfig.awardsConfig[nIndex].awards) then		--背包不够
+			local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+			
+			for i=1,table.getn(nThaConfig.awards) do
+				if nThaConfig.awards[i].nJob == nil then
+					nThaConfig.awards[i].nJob = 0
+				end
+				if nThaConfig.awards[i].nJob == 0 or myJob == nThaConfig.awards[i].nJob then
+					Actor.giveAward(sysarg,nThaConfig.awards[i].type,nThaConfig.awards[i].id,nThaConfig.awards[i].count,nThaConfig.awards[i].quality,
+					nThaConfig.awards[i].strong,nThaConfig.awards[i].bind,0,940,Lang.Activity.sz0006)
+				end
+			end
+
+			Actor.setIsGetSuperInvesetFlag(sysarg,nType,nIndex,1)
+
+			local pack = DataPack.allocPacket(sysarg, 50, 13)
+			if (pack ~= nil) then
+				DataPack.writeChar(pack, nType)
+				DataPack.writeChar(pack, nIndex)
+				DataPack.writeChar(pack, 1)
+				DataPack.flush(pack)
+			end
+		end
+
+	end
+end
+
+--离线消息领取奖励
+function OnGetsuperInvestByMsg(sysarg,args)
+	local nType = args[2]
+	if nType <=0 or nType > table.getn(ItemConfig.Invests) then return end
+
+	local nIndex = args[3]
+	local nConfig = ItemConfig.Invests[nType]
+	if nConfig == nil then return end
+
+	if nIndex > 0 and nIndex <= table.getn(nConfig.awardsConfig) then
+		local nThaConfig = nConfig.awardsConfig[nIndex]
+
+		if Awards.CheckBagGridCount(sysarg,nConfig.awardsConfig[nIndex].awards) then		--背包不够
+			local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+
+			for i=1,table.getn(nThaConfig.awards) do
+				if nThaConfig.awards[i].job == nil then
+					nThaConfig.awards[i].job = 0
+				end
+				if nThaConfig.awards[i].job == 0 or myJob == nThaConfig.awards[i].job then
+					Actor.giveAward(sysarg,nThaConfig.awards[i].type,nThaConfig.awards[i].id,nThaConfig.awards[i].count,nThaConfig.awards[i].quality,
+					nThaConfig.awards[i].strong,nThaConfig.awards[i].bind,0,940,Lang.Activity.sz0006)
+				end
+			end
+		end
+	end
+
+end

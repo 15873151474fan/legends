@@ -1,0 +1,36 @@
+﻿--主线勇战BOSS（指引玩家领取奖励）
+{
+  maxLevel = 55,
+  triggerList =
+  {
+		{ type = 2, valueList = {87,}},      --任务完成 
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 15,  helpId = 0, dataList = {36,} },      --在魔神殿 
+				{ type = 8,  helpId = 0, dataList = {87,} },      --任务完成 
+      },
+
+      action = { type = 1, helpId = 194, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc3 },  --指向任务追踪面板第2项
+    },
+
+    --第4步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 12,  helpId = 0, dataList = {23,} },		--不存在可接任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

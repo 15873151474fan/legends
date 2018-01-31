@@ -1,0 +1,25 @@
+﻿--增加狩猎BOSS积分点的功能 李昀 
+--#include "data\config\BossSystem\RandomBossGetPtr.txt" once
+--#include "data\language\LangCode.txt" once
+
+EventCallDispatcher.BossSystemHandler = function(sysarg,Param)
+  local OPID = Param[1]
+  local MonID = Param[2]
+  print(string.format("Boss::Hander OPID:%d , MonID : %d",OPID,MonID))
+  if OPID == 1 then
+     --设置获得狩猎点 
+     local Ptr = Actor.getIntProperty(sysarg,PROP_ACTOR_RandomBossPtr)
+     local AddPtr = RandomBossGetPtrTable[MonID] 
+     if not AddPtr then
+       AddPtr = RandomBossDefalutPtr   
+     end 
+     Ptr = Ptr + AddPtr
+     if AddPtr > 0 then
+       Actor.setUIntProperty(sysarg,PROP_ACTOR_RandomBossPtr,Ptr) 
+       Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.RandomBossPtrTips,AddPtr),ttTipmsgWindow)
+     end
+  end
+
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeBossOp, EventCallDispatcher.BossSystemHandler)

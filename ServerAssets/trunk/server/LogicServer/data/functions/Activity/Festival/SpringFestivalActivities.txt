@@ -1,0 +1,324 @@
+--[[File:SpringFestivalActivities.txt]]
+--#include "data\config\item\scriptItemConfig\MultiPropDrop.txt" once
+--#include "data\functions\Activity\Common\Consumes.txt" once 
+
+function GetActivityGift(sysarg,activityType)
+	-- activityType = tonumber(activityType);
+	-- --print("activityType="..activityType);
+	-- local config = nil;
+	-- if activityType == 3 then
+	-- 	config = MoneyPacketConfig;
+	-- else
+	-- 	config = MultiPropDropItemConfig[activityType];
+	-- end
+	-- if(config == nil) then 
+	-- 	System.trace("GetActivityGift config is nill");
+	-- 	return false; 
+	-- end
+	-- -- 1.	玩家等级是否达到50级，不足则提示：50级以后才能领取
+	-- --print("config.Minlevel="..config.MinLevel);
+	-- if not Actor.checkActorLevel(sysarg, config.MinLevel, config.Circle) then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.blesstree105, config.MinLevel), ttFlyTip)
+	-- 	return false;
+	-- end
+	-- -- 2.	是否已经领取过，是则提示：你已经领取过一次
+	-- local userVar = Actor.getStaticVar(sysarg); --getStaticVar 
+	-- if not userVar.lastGetActivityGiftTime then userVar.lastGetActivityGiftTime = {} end;
+	-- local lastTime = userVar.lastGetActivityGiftTime[activityType]; -- 上次领取时间
+	-- if lastTime then
+	-- 	--print("lastTime="..lastTime);
+	-- 	if activityType == 1 or activityType == 3 then -- 爆竹,开门利是一天一次
+	-- 		if System.isSameDay(lastTime,System.getCurrMiniTime()) then
+	-- 			Actor.sendTipmsg(sysarg, Lang.ScriptTips.blesstree106, ttFlyTip);
+	-- 			return false;
+	-- 		end
+	-- 	elseif activityType == 2 then -- 整个活动另一次
+	-- 			Actor.sendTipmsg(sysarg, Lang.ScriptTips.blesstree106, ttFlyTip);
+	-- 			return false;			
+	-- 	end
+	-- end
+	-- -- 3.	背包空间是否充足，不足则提示：背包空间不足--玩家身上的背包格子 
+	-- local count = Item.getBagEmptyGridCount(sysarg)
+	-- local needGridCount= config.needMinBagGrid or 1;   --需要背包格子的数量 	
+	-- if count < needGridCount then
+	-- 	local tipMsg = string.format(Lang.ScriptTips.x00074,needGridCount)
+	-- 	Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip );
+	-- 	return false;
+	-- end
+	
+	-- --检测魔珠背包
+	-- local count = MagicItem.getMagicBagEmptyGridCount(sysarg)
+	-- local needGridCount= config.checkMagicBeadBag or 0   --需要背包格子的数量 
+	
+	-- if count < needGridCount then
+	-- 	local tipMsg = string.format(Lang.ScriptTips.magic020,needGridCount)
+	-- 	Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip );
+	-- 	return false
+	-- end
+	
+	-- -- 是否在活动时间
+	-- -- print("是否在活动时间");
+	-- if config.ActivityTime.startTime and config.ActivityTime.endTime then
+	-- 	if not CheckTime(config.ActivityTime.startTime, config.ActivityTime.endTime) then		
+	-- 		Actor.sendTipmsg( sysarg,Lang.ScriptTips.blesstree107,ttFlyTip );
+	-- 		return false; -- 不在活动时间
+	-- 	end
+	-- end
+	-- -- 获取玩家元宝数量
+	-- local nYb =  Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	-- local needYb = config.needYuanBao or 0;
+	-- if config.needYuanBao ~= nil and needYb > 0 then
+	-- 	if nYb < needYb then
+	-- 		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00205,ttFlyTip )
+	-- 		return false
+	-- 	end
+	-- 	local itemName = Item.getItemName(config.item_id);
+	-- 	if not Actor.changeMoney(sysarg, 3, -needYb, 842, itemName) then
+	-- 		local msg = string.format(Lang.ScriptTips.x00207, needYb, itemName);
+	-- 		Actor.sendTipmsg( sysarg, msg, ttFlyTip );
+	-- 		return false;
+	-- 	end
+	-- end	
+	-- -- 给个礼物
+	-- userVar.lastGetActivityGiftTime[activityType] = System.getCurrMiniTime(); 
+	-- local attribute = config.attribute;
+	-- local result = Actor.addItem(sysarg, attribute.id,attribute.quality,attribute.strong,attribute.count,attribute.bind);
+	-- return result > 0;
+	--]]
+end
+
+-- 领取喜庆爆竹
+function GetFestiveFirecrackers(sysarg)
+	return GetActivityGift(sysarg,1);
+end
+
+-- 领取春节礼物
+function GetSpringFestivalGift(sysarg)
+	return GetActivityGift(sysarg,2);
+end
+
+-- 领取开门利是
+function GetMoneyPacket(sysarg)
+	return GetActivityGift(sysarg,3);
+end
+
+-- 驱年兽活动
+-- 发预告
+function QuNianShouPre()
+	local config = NianConfig;
+	-- 是否在活动时间
+	-- print("是否在活动时间");
+	if config.ActivityTime.startTime and config.ActivityTime.endTime then
+		if not CheckTime(config.ActivityTime.startTime, config.ActivityTime.endTime) then		
+			--Actor.sendTipmsg( sysarg,Lang.ScriptTips.blesstree107,ttFlyTip );
+			return false; -- 不在活动时间
+		end
+	end
+	System.broadcastTipmsg(Lang.Activity.ns0001,ttScreenCenter + ttChatWindow);
+end
+-- 发公告
+function QuNianShou()
+	local config = NianConfig;
+	-- 是否在活动时间
+	-- print("是否在活动时间");
+	if config.ActivityTime.startTime and config.ActivityTime.endTime then
+		if not CheckTime(config.ActivityTime.startTime, config.ActivityTime.endTime) then		
+			--Actor.sendTipmsg( sysarg,Lang.ScriptTips.blesstree107,ttFlyTip );
+			return false; -- 不在活动时间
+		end
+	end
+	System.broadcastTipmsg(Lang.Activity.ns0002,ttScreenCenter + ttChatWindow);
+	local sysVar = System.getDyanmicVar();
+	sysVar.NianActivityStarted = true;	
+end
+
+function QuNianShouShuaguai()	
+	local config = NianConfig;
+	-- 是否在活动时间
+	-- print("是否在活动时间");
+	if config.ActivityTime.startTime and config.ActivityTime.endTime then
+		if not CheckTime(config.ActivityTime.startTime, config.ActivityTime.endTime) then		
+			--Actor.sendTipmsg( sysarg,Lang.ScriptTips.blesstree107,ttFlyTip );
+			return false; -- 不在活动时间
+		end
+	end
+	local hScene = Fuben.getSceneHandleById(NianConfig.nSceenId, 0)
+	for _,monster in pairs(NianConfig.monsters) do
+		for _,item in pairs(monster) do
+			Fuben.createMonsters(hScene, item.nMonsterID, item.posX1, item.posX2, item.posY, item.nCount, item.nLiveTime);
+		end
+	end
+end
+
+-- 关闭驱年兽活动
+function QuNianShouClose()	
+	local sysVar = System.getDyanmicVar();
+	sysVar.NianActivityStarted = false;
+end
+
+-- 购买大爆竹
+function BuyBigFestiveFirecrackers(sysarg,count)
+	count = tonumber(count) or 1;
+	-- 背包是否足
+	local nBindFlag = -1;
+	local bagIdxs = Item.getBagEmptyGridCount(sysarg);
+	local destCount = 1;
+	local needGrid = Item.getAddItemNeedGridCount( sysarg, NianConfig.BigFestiveFirecrackers.item_id, count, -1, -1, nBindFlag)
+	if bagIdxs < needGrid then
+		local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+		Actor.sendTipmsg(sysarg,noticeStr, ttFlyTip)
+		return
+	end
+	-- 钱是否够
+	-- 获取玩家元宝数量
+	local nYb =  Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	local needYb = NianConfig.BigFestiveFirecrackers.Price * count;
+	local id = NianConfig.BigFestiveFirecrackers.item_id;
+	if needYb > 0 then
+		if nYb < needYb then
+			Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00205,ttFlyTip )
+			return false
+		end
+		local itemName = Item.getItemName(id);
+		if not Actor.changeMoney(sysarg, 3, -needYb, 842, itemName) then
+			local msg = string.format(Lang.ScriptTips.x00207, needYb, itemName);
+			Actor.sendTipmsg( sysarg, msg, ttFlyTip );
+			return false;
+		end
+	end	
+	-- 给物品
+	local result = Actor.addItem(sysarg, id,Item.getItemPropertyById(id, ipItemQuality),Item.getItemPropertyById(id, ipItemStrong),count,Item.getItemPropertyById(id, ipItemBind));
+	return result > 0;
+end
+-- 购买小爆竹
+function BuySmallFestiveFirecrackers(sysarg,count)	
+	count = tonumber(count) or 1;
+	-- 背包是否足
+	local nBindFlag = -1;
+	local bagIdxs = Item.getBagEmptyGridCount(sysarg);
+	local destCount = 1;
+	local needGrid = Item.getAddItemNeedGridCount( sysarg, NianConfig.SmallFestiveFirecrackers.item_id, count, -1, -1, nBindFlag)
+	if bagIdxs < needGrid then
+		local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+		Actor.sendTipmsg(sysarg,noticeStr, ttFlyTip)
+		return
+	end
+	-- 钱是否够
+	-- 获取玩家金币数量
+	local nCoin =  Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	local needCoin = NianConfig.SmallFestiveFirecrackers.Price * count;
+	local id = NianConfig.SmallFestiveFirecrackers.item_id;
+	if needCoin > 0 then
+		if nCoin < needCoin then
+			Actor.sendTipmsg( sysarg,Lang.ScriptTips.zf061,ttFlyTip )
+			return false
+		end
+		local itemName = Item.getItemName(id);
+		if not Actor.changeMoney(sysarg, 1, -needCoin, 842, itemName) then
+			local msg = zf061; --string.format(Lang.ScriptTips.x00207, needCoin, itemName);
+			Actor.sendTipmsg( sysarg, msg, ttFlyTip );
+			return false;
+		end
+	end	
+	-- 给物品	
+	local result = Actor.addItem(sysarg, id,Item.getItemPropertyById(id, ipItemQuality),Item.getItemPropertyById(id, ipItemStrong),count,Item.getItemPropertyById(id, ipItemBind));
+	return result > 0;
+end
+
+function NianConvertAward(sysarg, itemIndex)	
+	itemIndex = tonumber(itemIndex);
+	--print("itemIndex=",itemIndex);
+	local items = NianConfig.items;
+	if items then
+		--print("in function NianConvertAward itemIndex="..itemIndex);
+		local v = items[itemIndex]; 
+		local award = v.awards[1];
+		local itemName = Item.getItemName(award.id);
+		if v then
+			-- 检测条件
+			-- 1.	元宝是否充足，不足则提示：元宝不足，无法购买
+			-- 获取玩家元宝数量
+			local nYb =  Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+			local needYb = v.YuanBao or 0;
+			if v.YuanBao and v.YuanBao > 0 then
+				if nYb < needYb then
+					Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00205,ttFlyTip )
+					return false
+				end
+			end	
+			-- 2.	金币是否充足，不足则提示：金币不足，无法购买
+			-- 获取玩家金币数量
+			local nCoin =  Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+			local needCoin = v.Coin or 0;
+			if Coin and needCoin > 0 then
+				if nCoin < needCoin then
+					Actor.sendTipmsg( sysarg,Lang.ScriptTips.zf061,ttFlyTip )
+					return false
+				end
+			end	
+			-- 4.	背包空间是否充足，不足则提示：背包空间不足
+			local bagIdxs = Item.getBagEmptyGridCount(sysarg);
+			local needGrid = Item.getAddItemNeedGridCount( sysarg, award.id, award.count, -1, -1, award.bind)
+			if bagIdxs < needGrid then
+				local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+				Actor.sendTipmsg(sysarg,noticeStr, ttFlyTip)
+				return
+			end
+			-- 3.	年兽角是否充足，不足则提示：年兽角不足，无法兑换
+			local consumes = 
+				{
+					{type = 0, id = NianConfig.item_id, count = v.NianCount},
+				};
+
+			--检测消耗 consumes:消耗表 tips:消耗不足提示
+			if not Consumes.Check(sysarg, consumes, Lang.ScriptTips.blesstree115) then return false; end
+	
+			local bDeleteSuccess,_ = Consumes.RemoveItemBindFirst(sysarg, NianConfig.item_id, v.NianCount, -1, -1, 5, Lang.ScriptTips.blesstree114, -1, false);			
+			if bDeleteSuccess  then
+			else 
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.blesstree115, ttFlyTip);	
+				return false;
+			end
+			-- 给东西			
+			if needYb > 0 then
+				if not Actor.changeMoney(sysarg, 3, -needYb, 842, itemName) then
+					local msg = string.format(Lang.ScriptTips.x00207, needYb, itemName);
+					Actor.sendTipmsg( sysarg, msg, ttFlyTip );
+					return false;
+				end
+			end	
+			if needCoin > 0 then
+				if not Actor.changeMoney(sysarg, 1, -needCoin, 842, itemName) then
+					local msg = zf061; --string.format(Lang.ScriptTips.x00207, needCoin, itemName);
+					Actor.sendTipmsg( sysarg, msg, ttFlyTip );
+					return false;
+				end
+			end	
+			for _,award in pairs(v.awards) do
+				Actor.giveAward(sysarg,award.type,award.id,award.count,award.quality,award.strong,award.bind,0,205,"NisnAward");
+				if award.id == NianConfig.SupremeJinlongId then						
+					System.broadcastTipmsg(string.format(Lang.ScriptTips.blesstree116,Actor.getName(sysarg)),ttScreenCenter + ttChatWindow);
+				end
+			end
+			return true;
+		end
+	end
+	return false;
+end
+
+-- 兑换奖品
+function NianConvertAwardsMenu(sysarg)
+	local dlgstr = "";
+	local items = NianConfig.items;
+	if items then
+		for k,v in pairs(items) do
+			if 0 == v.YuanBao then
+				dlgstr = string.format("%s<#BL%s/@NianConvertAward,%d>",dlgstr,string.format(Lang.ScriptTips.blesstree112,v.NianCount,Item.getItemName(v.awards[1].id)),k);
+			else 
+				dlgstr = string.format("%s<#BL%s/@NianConvertAward,%d>",dlgstr,string.format(Lang.ScriptTips.blesstree113,v.NianCount, v.YuanBao, Item.getItemName(v.awards[1].id)),k);
+			end
+		end
+		dlgstr = dlgstr .. Lang.ScriptTips.back001;
+	end
+	return dlgstr;
+end

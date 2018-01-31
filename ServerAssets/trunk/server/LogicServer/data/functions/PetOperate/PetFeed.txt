@@ -1,0 +1,38 @@
+﻿--lua script
+
+
+--此函数用于客户端点击喂养按钮
+--玩家开始强化宠物, args = [操作的类型,宠物的ID]
+function onPetFeed( sysarg, args ) 
+  local petId = args[2] --宠物的ID
+  if (not petId) or (not PetFeedConsume) then return end
+  local consume = PetFeedConsume[CLIENTFEEDGROUP]
+  PetFeedFunc(sysarg, petId, consume)
+end
+
+function UsePetLoyaltyItem_Func(sysarg,itemidx,itemPtr,ItemTable)
+	local petId1 = Pet.getBattlePetId(sysarg)
+	local petId2 = Pet.getMergePetId(sysarg)
+	local petId = 0
+	if petId1 > 0 then
+		petId = petId1
+	elseif petId2 > 0 then
+		petId = petId2
+	end
+	if petId > 0 then
+		PetFeedFunc(sysarg, petId, ItemTable)
+	else
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.x00128), ttDialog)
+		return false
+	end
+end
+
+--使用宠物忠诚丹
+function UsePetLoyaltyItem_Init(sysarg)
+	for i = 1,table.getn(PetFeedConsume) do
+		local x = PetFeedConsume[i]
+    GlobalItemFn[x.item_id] = { func = UsePetLoyaltyItem_Func, params = x }
+  end
+end
+
+table.insert(InitFnTable, UsePetLoyaltyItem_Init)

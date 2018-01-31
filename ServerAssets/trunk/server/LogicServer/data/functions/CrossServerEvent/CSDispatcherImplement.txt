@@ -1,0 +1,53 @@
+--#ifndef _CROSSSERVER_HANDLER_DISPATCHER_IMPLEMENT_INCLIDED_ 
+--#define _CROSSSERVER_HANDLER_DISPATCHER_IMPLEMENT_INCLIDED_
+
+--[[
+  由脚本处理的跨服消息分派表，表下标是数据包ID
+]]
+local CrossServerHandlerDispatcher = { }
+
+--[[
+    函数名称：CrossServerHandlerDispatcher.registerHander
+    函数描述：注册一个数据包消息处理函数
+    参数 nPacketId 的描述：数据包ID
+    参数 proc 的描述： 系统消息的处理函数，函数形式为function (sysarg, nPacketId, msgid, packet)
+]]
+CrossServerHandlerDispatcher.registerHander = function (nPacketId, proc)
+	--print("nPacketId:"..nPacketId)
+	if not CrossServerHandlerDispatcher[nPacketId] then
+		CrossServerHandlerDispatcher[nPacketId] = { proc }
+	else
+		local i
+		local nPacketIdTable = CrossServerHandlerDispatcher[nPacketId]
+		for i = 1, #nPacketIdTable do
+			if nPacketIdTable[i] == proc then
+				return
+			end
+		end
+		--这里不能用局部table插入，否则不会修改到CrossServerHandlerDispatchers中
+		table.insert(CrossServerHandlerDispatcher[nPacketId], proc)
+	end
+end
+
+--[[
+    函数名称：CrossServerHandlerDispatcher.unregisterHander
+    函数描述：移除一个注册的系统消息处理函数
+    参数 nPacketId 的描述：系统ID
+    参数 proc 的描述： 系统消息处理函数
+]]
+CrossServerHandlerDispatcher.unregisterHander = function (nPacketId, proc)
+	if CrossServerHandlerDispatcher[nPacketId] then
+		local i
+		local nPacketIdTable = CrossServerHandlerDispatcher[nPacketId]
+		for i = 1, #nPacketIdTable do
+			if nPacketIdTable[i] == proc then
+				--这里不能从局部table中删除，否则不会修改到CrossServerHandlerDispatchers中
+				table.remove(CrossServerHandlerDispatcher[nPacketId], i)
+				break
+			end
+		end
+	end
+end
+
+
+--#endif //end of _CROSSSERVER_HANDLER_DISPATCHER_IMPLEMENT_INCLIDED_

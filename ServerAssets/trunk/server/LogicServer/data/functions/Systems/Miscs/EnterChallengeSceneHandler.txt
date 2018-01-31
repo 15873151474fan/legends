@@ -1,0 +1,42 @@
+--进入擂台场景的消息处理实现 
+
+--进入擂台场景消息号6
+MiscsImplement.enterChallengeSceneHandler = function (sysarg,msgid, packet)
+	local fbid = Actor.getFubenId(sysarg)
+	if fbid > 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00020, ttTipmsgWindow)
+		return
+	end
+	local ActorSceneid = Actor.getSceneId(sysarg)
+	if ActorSceneid == 2 then 
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00045, ttTipmsgWindow)
+		return
+	end
+	local Challengeid = Actor.getChallenge(sysarg)
+	local Status = ChallengeFun.getChallengeStatus(Challengeid)
+	if (Status == csReady or Status == csFight) then return end
+
+	--只能从安全区进入
+	if not Actor.hasMapAreaAttri(sysarg,aaSaft) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.l00001, ttDialog)
+		return
+	end
+	
+	if packet == nil then return end
+	
+	local type = DataPack.readByte(packet)
+  
+	--进入单人擂台
+	if type == 1 then              
+		local telresult = System.telportSceneByName( sysarg, Lang.SceneName.s00089, 54, 15)
+	--进入队伍擂台
+	elseif type == 2 then            
+		local telresult = System.telportSceneByName( sysarg, Lang.SceneName.s00089, 86, 15)
+	--进入看看
+	elseif type == 3 then           
+		local telresult = System.telportSceneByName( sysarg, Lang.SceneName.s00089, 64, 17)
+	end
+end
+
+
+MiscsImplement.registerMsgHandler(6, MiscsImplement.enterChallengeSceneHandler)

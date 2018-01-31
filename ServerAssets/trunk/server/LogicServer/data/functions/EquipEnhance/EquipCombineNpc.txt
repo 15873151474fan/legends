@@ -1,0 +1,631 @@
+--lua script
+--神兵熔合
+
+--#include "data\language\LangCode.txt" once  
+--#include "data\config\item\itemEnhance\EquipCombine.txt" once
+
+--神兵熔合npc对话
+function EquipCombineNpc_Main(sysarg)
+	local str = ""
+	
+	str = str.."\\\\"
+	str = str..getStrBackNullStr(2)
+
+	for i=1,table.getn(EquipCombieConfig.sJobName) do
+		str = str..EquipCombieConfig.sJobName[i]
+		if i < table.getn(EquipCombieConfig.sJobName) then
+			str = str..getStrBackNullStr(5)
+		end
+	end
+	
+	str = str.."\\\\"
+	
+	local nOpenDay = System.getDaysSinceOpenServer()
+	local nCount = 0
+	for j=1,table.getn(EquipCombieConfig.combineList) do
+		local nCurDay = EquipCombieConfig.combineList[j].openDay or 0
+		if nCurDay <= nOpenDay then
+			nCount = nCount + 1
+			str = str.."<#B"..EquipCombieConfig.combineList[j].name.."/@EquipCombineList,"..j..">"
+			
+			if nCount % 3 == 0 then
+				str = str.."\\\\"
+			elseif j < table.getn(EquipCombieConfig.combineList) then
+				str = str..getStrBackNullStr(1)
+			end
+		end
+	end
+	
+	local nIndex = 0
+	for j=1,table.getn(EquipCombieConfig.wellEquipList) do
+		local nCurDay = EquipCombieConfig.wellEquipList[j].openDay or 0
+		if nCurDay <= nOpenDay then
+			nIndex = nIndex + 1
+			str = str.."<#B"..EquipCombieConfig.wellEquipList[j].name.."/@EquipWellList,"..j..">"
+			
+			if nIndex % 3 == 0 then
+				str = str.."\\\\"
+			elseif j < table.getn(EquipCombieConfig.wellEquipList) then
+				str = str..getStrBackNullStr(1)
+			end
+		end
+	end
+
+	return str
+end
+
+--绝世装备合成
+function EquipWellList(sysarg,nIndex)
+	local idx = tonumber(nIndex)
+	local nConfig = EquipCombieConfig.wellEquipList[idx]
+	if nConfig == nil then 
+		return "" 
+	end
+
+	local str = Lang.ScriptTips.ecom0007
+	str = str.."\\\\"
+	
+	--local nCount = idx + table.getn(EquipCombieConfig.combineList)
+
+	for i=1,table.getn(nConfig.list) do
+		str = str..nConfig.list[i].comDesc..getStrBackNullStr(1).."<#B"..Lang.ScriptTips.ecom0009.."/@EquipWellCombineMesBox,"..idx..","..i..">"
+		--str = str.."<#B"..Lang.ScriptTips.ecom0009.."/@EquipWellCombineMesBox,"..idx..","..i..">"
+		str = str.."\\\\"
+	end
+	
+	str = str.."<#BL"..Lang.ScriptTips.ecom0010.."/@main>"
+
+	return str
+end
+
+--合成的列表
+function EquipCombineList(sysarg,nIndex)
+	--print("EquipCombineList:"..nIndex)
+	local idx = tonumber(nIndex)
+	local nConfig = EquipCombieConfig.combineList[idx]
+	if nConfig == nil then 
+		return "" 
+	end
+	
+	local str = Lang.ScriptTips.ecom0007
+	str = str.."\\\\"
+	
+	local curtimes = 0
+	local ranking = Ranking.getRanking(EquipCombieConfig.combineName)
+	local pItem = nil
+	if ranking then
+		pItem = Ranking.getItemPtrFromId(ranking,idx)
+		if pItem then
+			curtimes = Ranking.getPoint(pItem)
+		end
+	end
+	--print("EquipCombineListcurtimes:"..curtimes)
+	str = str..string.format(Lang.ScriptTips.ecom0080,nConfig.maxTimes - curtimes,nConfig.maxTimes)
+	str = str.."\\\\"
+	for i=1,table.getn(nConfig.list) do
+		str = str..nConfig.list[i].comDesc..getStrBackNullStr(1).."<#B"..Lang.ScriptTips.ecom0009.."/@EquipCombineMesBox,"..idx..","..i..">"
+		str = str.."\\\\"
+	end
+	
+	str = str.."<#BL"..Lang.ScriptTips.ecom0010.."/@main>"
+
+	return str
+end
+
+--绝世装备合成
+function EquipWellCombineMesBox(sysarg,nIndex,nType)
+	local str = Lang.ScriptTips.ecom0007
+	local index = tonumber(nIndex)
+	local type = tonumber(nType)
+	
+	local nTmpConfig = EquipCombieConfig.wellEquipList[index]
+	if nTmpConfig == nil then 
+		return "" 
+	end
+	
+	local nConfig = nTmpConfig.list[type]
+	if nConfig == nil then 
+		return "" 
+	end
+	
+	local rankIndex = index*100 + type
+
+	local curtimes = 0
+	local ranking = Ranking.getRanking(EquipCombieConfig.combineName)
+	local pItem = nil
+	if ranking then
+		pItem = Ranking.getItemPtrFromId(ranking,rankIndex)
+		if pItem then
+			curtimes = Ranking.getPoint(pItem)
+		end
+	end
+	
+	str = str..string.format(Lang.ScriptTips.ecom0080,nConfig.maxTimes - curtimes,nConfig.maxTimes)
+	str = str.."\\\\"
+	for i=1,table.getn(nConfig.combinItem) do
+		str = str..nConfig.combinItem[i].comDesc..getStrBackNullStr(1).."<#B"..Lang.ScriptTips.ecom0009.."/@EquipWellMesBox,"..index..","..type..","..i..">"
+		str = str.."\\\\"
+	end
+	
+	str = str.."<#BL"..Lang.ScriptTips.ecom0010.."/@EquipWellList,"..index..">"
+
+	return str
+end
+
+--绝世装备合成弹出框
+function EquipWellMesBox(sysarg,nIndex,nType,nComIndex)
+	if Actor.isDealing(sysarg) ~= false then 
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00073, ttFlyTip)
+		return
+	end
+
+	local index = tonumber(nIndex)
+	local type = tonumber(nType)
+	local comIndex = tonumber(nComIndex)
+	
+	local nTmpConfig = EquipCombieConfig.wellEquipList[index]
+	if nTmpConfig == nil then 
+		return
+	end
+	
+	local nConfig = nTmpConfig.list[type]
+	if nConfig == nil then 
+		return
+	end
+	
+	local nCombineConfig = nConfig.combinItem[comIndex]
+	if nCombineConfig == nil then
+		return
+	end
+	
+	local pEquip = Item.GetEquipPtrByItemId(sysarg,nCombineConfig.baseId,nCombineConfig.baseCircle)
+	if pEquip == nil then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom0011, ttFlyTip)
+		return
+	end
+	
+	local nCircle = Item.getItemProperty( sysarg, pEquip, Item.ipItemQuality, 0 )
+	if nCircle ~= nCombineConfig.baseCircle then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom0012, ttFlyTip)
+		return
+	end
+
+	local rankIndex = index*100 + type
+
+	local ranking = Ranking.getRanking(EquipCombieConfig.combineName)
+	local pItem = nil
+	if ranking then
+		pItem = Ranking.getItemPtrFromId(ranking,rankIndex)
+		if pItem then
+			local nUseTimes = Ranking.getPoint(pItem)
+			if nUseTimes == nil then
+				nUseTimes = 0
+			end
+			if nUseTimes >= nConfig.maxTimes then		--今天合成次数已用完
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.ecom0079,nConfig.comDesc), ttFlyTip)
+				return
+			end
+		else
+			pItem = Ranking.addItem(ranking,rankIndex,0)
+		end
+	end
+
+	for i=1,table.getn(nCombineConfig.consume) do
+		if Actor.checkConsume(sysarg,nCombineConfig.consume[i].type,nCombineConfig.consume[i].id,nCombineConfig.consume[i].count,nCombineConfig.consume[i].baseCircle) == false then
+			Actor.sendTipmsg(sysarg, nCombineConfig.consume[i].tips, ttFlyTip)
+			return
+		end
+	end
+
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom1771, ttFlyTip)
+		return
+	end
+
+	local npcHandle = Actor.getHandle(thisNPC)
+	local str = nCombineConfig.strMsgBox
+	if str == nil then
+		str = Lang.ScriptTips.ecom0016
+	end
+	Actor.messageBox(sysarg,npcHandle,0,str,Lang.ScriptTips.ecom0017.."/EquipWellCombineOP,"..index..","..type..","..comIndex,Lang.ScriptTips.ecom0018.."/CanleEquipCombine",NULL)
+
+end
+
+--弹出框
+function EquipCombineMesBox(sysarg,nIndex,nType)
+	local index = tonumber(nIndex)
+	local type = tonumber(nType)
+
+	local nConfig = EquipCombieConfig.combineList[index]
+	if nConfig == nil then 
+		return
+	end
+
+	local nCombineConfig = nConfig.list[type]
+	if nCombineConfig == nil then
+		return
+	end
+	
+	local pEquip = Item.GetEquipPtrByItemId(sysarg,nCombineConfig.baseId,nCombineConfig.baseCircle)
+	if pEquip == nil then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom0011, ttFlyTip)
+		return
+	end
+	
+	local nCircle = Item.getItemProperty( sysarg, pEquip, Item.ipItemQuality, 0 )
+	if nCircle ~= nCombineConfig.baseCircle then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom0012, ttFlyTip)
+		return
+	end
+
+	local ranking = Ranking.getRanking(EquipCombieConfig.combineName)
+	local pItem = nil
+	if ranking then
+		pItem = Ranking.getItemPtrFromId(ranking,index)
+		if pItem then
+			local nUseTimes = Ranking.getPoint(pItem)
+			if nUseTimes == nil then
+				nUseTimes = 0
+			end
+			if nUseTimes >= nConfig.maxTimes then		--今天合成次数已用完
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.ecom0079,nConfig.name), ttFlyTip)
+				return
+			end
+		else
+			pItem = Ranking.addItem(ranking,index,0)
+		end
+	end
+	for i=1,table.getn(nCombineConfig.consume) do
+		if Actor.checkConsume(sysarg,nCombineConfig.consume[i].type,nCombineConfig.consume[i].id,nCombineConfig.consume[i].count,nCombineConfig.consume[i].baseCircle) == false then
+			Actor.sendTipmsg(sysarg, nCombineConfig.consume[i].tips, ttFlyTip)
+			return
+		end
+	end
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom1771, ttFlyTip)
+		return
+	end
+
+	local npcHandle = Actor.getHandle(thisNPC)
+	local str = nCombineConfig.strMsgBox
+	if str == nil then
+		str = Lang.ScriptTips.ecom0016
+	end
+	Actor.messageBox(sysarg,npcHandle,0,str,Lang.ScriptTips.ecom0017.."/EquipCombineOP,"..index..","..type,Lang.ScriptTips.ecom0018.."/CanleEquipCombine",NULL)
+end
+
+--绝世装备合成实现
+function EquipWellCombineOP(sysarg,nIndex,nType,nComIndex)
+	local index = tonumber(nIndex)
+	local type = tonumber(nType)
+	local comIndex = tonumber(nComIndex)
+	
+	local nTmpConfig = EquipCombieConfig.wellEquipList[index]
+	if nTmpConfig == nil then 
+		return
+	end
+	
+	local nConfig = nTmpConfig.list[type]
+	if nConfig == nil then 
+		return
+	end
+	
+	local nCombineConfig = nConfig.combinItem[comIndex]
+	if nCombineConfig == nil then
+		return
+	end
+	
+	local pEquip = Item.GetEquipPtrByItemId(sysarg,nCombineConfig.baseId,nCombineConfig.baseCircle)
+	if pEquip == nil then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom0011, ttFlyTip)
+		return
+	end
+	
+	local nCircle = Item.getItemProperty( sysarg, pEquip, Item.ipItemQuality, 0 )
+	if nCircle ~= nCombineConfig.baseCircle then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom0012, ttFlyTip)
+		return
+	end
+
+	local rankIndex = index*100 + type
+	local ranking = Ranking.getRanking(EquipCombieConfig.combineName)
+	local pItem = nil
+	local nUseTimes = 0
+	if ranking then
+		pItem = Ranking.getItemPtrFromId(ranking,rankIndex)
+		if pItem then
+			nUseTimes = Ranking.getPoint(pItem)
+			if nUseTimes == nil then
+				nUseTimes = 0
+			end
+			if nUseTimes >= nConfig.maxTimes then		--今天合成次数已用完
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.ecom0079,nConfig.comDesc), ttFlyTip)
+				return
+			end
+		else
+			pItem = Ranking.addItem(ranking,rankIndex,0)
+		end
+	end
+
+	for i=1,table.getn(nCombineConfig.consume) do
+		if Actor.checkConsume(sysarg,nCombineConfig.consume[i].type,nCombineConfig.consume[i].id,nCombineConfig.consume[i].count,nCombineConfig.consume[i].baseCircle) == false then
+			Actor.sendTipmsg(sysarg, nCombineConfig.consume[i].tips, ttFlyTip)
+			return
+		end
+	end
+	
+	local nItemStrong = Item.getItemProperty( sysarg, pEquip, Item.ipItemStrong, 0)
+	local nQuality = Item.getItemProperty( sysarg, pEquip, Item.ipItemQuality, 0 )
+	local nLuck = Item.getItemProperty( sysarg, pEquip, Item.ipItemLuck, 0 )
+	local nInsure = Item.getItemProperty( sysarg, pEquip, Item.ipItemHole3Item, 0 )	--投保次数
+
+	local nInsureCount = Item.getItemPropertyById(nCombineConfig.baseId, Item.ipItemInsure) --投保金额 >0可投保
+
+	local authTimes = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeTimes, 0 )
+	local initSmith = Item.getItemProperty( sysarg, pEquip, Item.ipItemSpecSmith, 0)
+
+	local nProperty1 = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeProperty1Value, 0)
+	local nProperty2 = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeProperty2Value, 0)
+	local nProperty3 = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeProperty3Value, 0)
+	local nProperty4 = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeProperty4Value, 0)
+	
+	local nItemSharp = Item.getItemProperty( sysarg, pEquip, Item.ipItemSharp, 0)
+
+	if Actor.removeItemByPtr(sysarg, pEquip, 1, true, Lang.ScriptTips.ecom0015, 906) == 0 then
+		if Item.removeEquip(sysarg, pEquip, Lang.ScriptTips.ecom0015, 906, true) == 0 then
+			return
+		end
+	end
+
+	for i=1,table.getn(nCombineConfig.consume) do
+		Actor.removeConsume(sysarg,nCombineConfig.consume[i].type,nCombineConfig.consume[i].id,nCombineConfig.consume[i].count,nCombineConfig.consume[i].baseCircle,-1,-1,0,906,Lang.ScriptTips.ecom0015)
+	end
+
+	local newItemPtr = Item.createItem(nCombineConfig.result.nItemId, 1, nItemStrong, nCombineConfig.result.nCircle)
+	if newItemPtr then
+		Item.addItem(sysarg, newItemPtr, Lang.ScriptTips.ecom0015, 906)
+		if initSmith > 0 then
+			Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, initSmith)
+		end
+		--print("nInsureCount:"..nInsureCount)
+		--print("nInsure:"..nInsure)
+		if nInsure > 0 and nInsureCount > 0 then
+			if Item.setItemProperty( sysarg, newItemPtr, Item.ipItemHole3Item, 0) then
+				local nAddCount = nInsure * nInsureCount
+				Actor.changeMoney(sysarg, mtYuanbao, nAddCount, 92, Lang.LogTips.loo186)
+			end
+			--Item.setItemProperty( sysarg, newItemPtr, Item.ipItemHole3Item, nInsure)
+		end
+
+		Item.equipItem(sysarg, newItemPtr)
+		
+		--[[
+		if initSmith == 0 then
+			Item.initEquipBaseAttr(sysarg, newItemPtr, bawEquipUpgrade)
+			local newInitSmith = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, 0)
+			if newInitSmith > 0 then
+				local noticeStr = string.format(Lang.ScriptTips.q00097, Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+				System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+			end
+		end
+		]]
+
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemForgeProperty1Value, nProperty1)
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemForgeProperty2Value, nProperty2)
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemForgeProperty3Value, nProperty3)
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemForgeProperty4Value, nProperty4)
+
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSharp, nItemSharp)
+
+		if nLuck > 0 then
+			Item.setItemProperty( sysarg, newItemPtr, Item.ipItemLuck, nLuck)
+		end
+		
+		--保存合成的次数
+		if ranking and pItem then
+			Ranking.updateItem(ranking,rankIndex,1)
+		end
+
+		--EquipCombineList(sysarg,index)
+		Actor.closeNPCDialog(sysarg)
+
+		if nTmpConfig.strBroadCast then
+			nUseTimes = nUseTimes + 1
+			local noticeStr = string.format(nTmpConfig.strBroadCast, Actor.getName(sysarg), Item.getItemName(nCombineConfig.result.nItemId),nConfig.maxTimes-nUseTimes)
+			System.broadcastTipmsg(noticeStr, 2+128)
+		end
+	end
+
+end
+
+--合成的功能实现
+function EquipCombineOP(sysarg,nIndex,nType)
+	local index = tonumber(nIndex)
+	local type = tonumber(nType)
+
+	local nConfig = EquipCombieConfig.combineList[index]
+	if nConfig == nil then 
+		return
+	end
+
+	local nCombineConfig = nConfig.list[type]
+	if nCombineConfig == nil then
+		return
+	end
+	
+	local pEquip = Item.GetEquipPtrByItemId(sysarg,nCombineConfig.baseId,nCombineConfig.baseCircle)
+	if pEquip == nil then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom0011, ttFlyTip)
+		return
+	end
+	
+	local nCircle = Item.getItemProperty( sysarg, pEquip, Item.ipItemQuality, 0 )
+	if nCircle ~= nCombineConfig.baseCircle then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.ecom0012, ttFlyTip)
+		return
+	end
+	
+	local ranking = Ranking.getRanking(EquipCombieConfig.combineName)
+	local pItem = nil
+	local nUseTimes = 0
+	if ranking then
+		pItem = Ranking.getItemPtrFromId(ranking,index)
+		if pItem then
+			nUseTimes = Ranking.getPoint(pItem)
+			if nUseTimes == nil then
+				nUseTimes = 0
+			end
+			if nUseTimes >= nConfig.maxTimes then		--今天合成次数已用完
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.ecom0079,nConfig.name), ttFlyTip)
+				return
+			end
+		else
+			pItem = Ranking.addItem(ranking,index,0)
+		end
+	end
+
+	for i=1,table.getn(nCombineConfig.consume) do
+		if Actor.checkConsume(sysarg,nCombineConfig.consume[i].type,nCombineConfig.consume[i].id,nCombineConfig.consume[i].count,nCombineConfig.consume[i].baseCircle) == false then
+			Actor.sendTipmsg(sysarg, nCombineConfig.consume[i].tips, ttFlyTip)
+			return
+		end
+	end
+	
+	local nItemStrong = Item.getItemProperty( sysarg, pEquip, Item.ipItemStrong, 0)
+	local nQuality = Item.getItemProperty( sysarg, pEquip, Item.ipItemQuality, 0 )
+	local nLuck = Item.getItemProperty( sysarg, pEquip, Item.ipItemLuck, 0 )
+	local nInsure = Item.getItemProperty( sysarg, pEquip, Item.ipItemHole3Item, 0 )	--投保次数
+	local authTimes = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeTimes, 0 )
+	local initSmith = Item.getItemProperty( sysarg, pEquip, Item.ipItemSpecSmith, 0)
+
+	local nProperty1 = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeProperty1Value, 0)
+	local nProperty2 = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeProperty2Value, 0)
+	local nProperty3 = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeProperty3Value, 0)
+	local nProperty4 = Item.getItemProperty( sysarg, pEquip, Item.ipItemForgeProperty4Value, 0)
+
+	local nInsureCount = Item.getItemPropertyById(nCombineConfig.baseId, Item.ipItemInsure) --投保金额 >0可投保
+
+	local nItemSharp = Item.getItemProperty( sysarg, pEquip, Item.ipItemSharp, 0)
+
+	if Actor.removeItemByPtr(sysarg, pEquip, 1, true, Lang.ScriptTips.ecom0015, 906) == 0 then
+		if Item.removeEquip(sysarg, pEquip, Lang.ScriptTips.ecom0015, 906, true) == 0 then
+			return
+		end
+	end
+
+	for i=1,table.getn(nCombineConfig.consume) do
+		Actor.removeConsume(sysarg,nCombineConfig.consume[i].type,nCombineConfig.consume[i].id,nCombineConfig.consume[i].count,nCombineConfig.consume[i].baseCircle,-1,-1,0,906,Lang.ScriptTips.ecom0015)
+	end
+
+	local newItemPtr = Item.createItem(nCombineConfig.result.nItemId, 1, nItemStrong, nCombineConfig.result.nCircle)
+	if newItemPtr then
+		Item.addItem(sysarg, newItemPtr, Lang.ScriptTips.ecom0015, 906)
+		if initSmith > 0 then
+			Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, initSmith)
+		end
+		--local nInsureCount = Item.getItemPropertyById(newItemId, Item.ipItemInsure) --投保金额 >0可投保
+		if nInsure > 0 and nInsureCount > 0 then
+			if Item.setItemProperty( sysarg, newItemPtr, Item.ipItemHole3Item, 0) then
+				local nAddCount = nInsure * nInsureCount
+				Actor.changeMoney(sysarg, mtYuanbao, nAddCount, 92, Lang.LogTips.loo186)
+				--Item.setItemProperty( sysarg, newItemPtr, Item.ipItemHole3Item, nInsure)
+			end
+		end
+
+		Item.equipItem(sysarg, newItemPtr)
+		
+		--[[
+		if initSmith == 0 then
+			Item.initEquipBaseAttr(sysarg, newItemPtr, bawEquipUpgrade)
+			local newInitSmith = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, 0)
+			if newInitSmith > 0 then
+				local noticeStr = string.format(Lang.ScriptTips.q00097, Actor.getName(sysarg), Item.getItemLinkMsg(newItemId))
+				System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+			end
+		end
+		]]
+
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemForgeProperty1Value, nProperty1)
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemForgeProperty2Value, nProperty2)
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemForgeProperty3Value, nProperty3)
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemForgeProperty4Value, nProperty4)
+
+		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSharp, nItemSharp)
+
+		if nLuck > 0 then
+			Item.setItemProperty( sysarg, newItemPtr, Item.ipItemLuck, nLuck)
+		end
+		
+		--保存合成的次数
+		if ranking and pItem then
+			Ranking.updateItem(ranking,index,1)
+		end
+
+		--EquipCombineList(sysarg,index)
+		Actor.closeNPCDialog(sysarg)
+
+		if nConfig.strBroadCast then
+			nUseTimes = nUseTimes + 1
+			local noticeStr = string.format(nConfig.strBroadCast, Actor.getName(sysarg), Item.getItemName(nCombineConfig.result.nItemId),nConfig.maxTimes-nUseTimes)
+			System.broadcastTipmsg(noticeStr, 2+128)
+		end
+	end
+
+end
+
+function CanleEquipCombine()
+	return nil
+end
+
+--获取多少个空格
+function getStrBackNullStr(nLen)
+	local i
+	local nopstr = ""
+	
+	for i = 1, nLen do
+		nopstr = nopstr .. "  "
+	end
+
+	return nopstr
+end
+
+--清除装备合成的次数
+function ResetEquipCombineTimes()	
+	local ranking = Ranking.getRanking(EquipCombieConfig.combineName)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	local svar = System.getStaticVar()
+	svar.WinGuildBattleGuildId = nil
+end
+
+--积分排行榜初始化
+function EquipCombineRankInit()
+	--print("EquipCombineRankInit")
+	local RankNameList = Ranking.getRanking(EquipCombieConfig.combineName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(EquipCombieConfig.combineName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,EquipCombieConfig.combineFile)
+			
+			if isLoad == false then
+				Ranking.addColumn(RankNameList,"value1")
+				Ranking.addColumn(RankNameList,"value2")
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function EquipCombineRankFinality()
+	--print("EquipCombineRankFinality")
+	local ranking = Ranking.getRanking(EquipCombieConfig.combineName)
+	if ranking then
+		Ranking.save(ranking,EquipCombieConfig.combineFile,true)
+	end
+end
+
+table.insert(MainFnTable, EquipCombineNpc_Main)
+table.insert(InitFnTable,EquipCombineRankInit)
+table.insert(FinaFnTable,EquipCombineRankFinality)

@@ -1,0 +1,57 @@
+﻿--元宝的种植的配置文件
+--#include "..\..\language\LangCode.txt"
+YuanbaoPlant=
+{
+
+--默认的配置，如果没有配置运营商的就是要这个默认配置
+{	
+	spid= "*",
+
+	amounts= {100,500,1000,5000},   --可以种植元宝的数量
+	
+	--plantLevel表示种植的等级,gainLevel收获的等级,rate表示种植的比例
+	levels =
+	{
+		{plantLevel = 10,plantMaxLevel=19, gainLevel = 40, rate = 1.1},    --每个获取等级和倍率
+		{plantLevel = 20,plantMaxLevel=29, gainLevel = 42, rate = 1.1},
+		{plantLevel = 30,plantMaxLevel=39,gainLevel = 45, rate = 1.1},
+	},
+	
+	minLevel = 1,    --打开界面的最小的等级
+	
+	maxLevel = 40,     --打开界面的最大的等级
+	
+	openHours =72 ,  --从开服开始多少小时有效，如果一直有效填写0
+	
+	desc = Lang.Misc.m000300,  --元宝的描述
+},    
+
+--内网测试用的
+{	
+        spid ="wyi",
+
+	amounts= {100,500,1000,5000},   --可以种植元宝的数量
+	
+	--plantLevel表示种植的等级,gainLevel收获的等级,rate表示种植的比例
+	levels =
+	{
+		{plantLevel = 10,plantMaxLevel=19, gainLevel = 40, rate = 1.1},    --每个获取等级和倍率
+		{plantLevel = 20,plantMaxLevel=29, gainLevel = 42, rate = 1.1},
+		{plantLevel = 30,plantMaxLevel=39,gainLevel = 45, rate = 1.1},
+	},
+	
+	minLevel = 1,    --打开界面的最小的等级
+	
+	maxLevel =40,     --打开界面的最大的等级
+	
+	openHours =72 ,  --从开服开始多少小时有效，如果一直有效填写0
+	
+	desc = Lang.Misc.m000300,  --元宝的描述
+},    
+
+
+
+
+
+	
+}

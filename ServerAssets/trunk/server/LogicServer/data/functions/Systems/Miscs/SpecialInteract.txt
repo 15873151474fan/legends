@@ -1,0 +1,26 @@
+
+--#include "..\Interactive\Interact.txt" once
+--#include "data\functions\Systems\MarrySystem\MarryKiss.txt" once
+
+MiscsImplement.SpecialInteract = function( sysarg, msgid, packet )
+	local type = DataPack.readByte(packet)
+	local name = DataPack.readString(packet)
+	
+	InitInteractDatas(sysarg)
+	
+	if type == 1 then
+		DeliverSoap(sysarg, name)
+	elseif type == 2 then
+		RubBack(sysarg, name)
+	elseif type == 3 then
+		Massage(sysarg, name)
+	elseif type == 4 then
+		InviteKiss(sysarg,name)
+	elseif type == 5 then		--ÑûÇëÂ½µØÇ×ÎÇ
+		InviteKissOnLand(sysarg,name)
+	end
+	
+end
+
+
+MiscsImplement.registerMsgHandler(64, MiscsImplement.SpecialInteract)

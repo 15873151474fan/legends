@@ -1,0 +1,17 @@
+--#include "data\functions\Activity\BossDaZhaiMen\DaZhaiMenCommon.txt" once 
+
+MonDieDispatcher.BossDie = function (monster,sysarg,monId)  
+	OnDaZhaiMenBossDead( monster,sysarg,monId ) 
+end
+
+
+MonMobDispatcher.BossCreate = function ( monster, monId, sceneId, x,y )
+	OnDaZhaiMenBossCreate(monster, monId, sceneId,x,y)
+end
+
+--×¢²áboss
+for idx, bossConfig in ipairs(BossDaZhaiMenConfig.bossTab) do 
+	--MonDieDispatcher.register(bossConfig.id, MonDieDispatcher.BossDie)  
+	--MonMobDispatcher.register(bossConfig.id, MonMobDispatcher.BossCreate)
+end
+

@@ -1,0 +1,94 @@
+--爆焰魔法3级
+{
+
+	actions=
+	{
+		{act=1,effect=12,},
+	},
+	
+	desc=Lang.Skill.s11L3Desc,--技能的描述
+	
+	iconID=11,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					targetType=1,
+					conds=
+					{
+
+						
+					},
+					results=
+					{
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=13,keepTime=400,delay=300,always=true},					
+					},
+				},
+			},
+		},
+		
+		
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+		acts=
+			{
+				{
+					targetType=0,
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=4,delay=350, rate=11000,value=154},
+					},
+
+					specialEffects=
+					{
+						--{type=5,mj=0,id=50003,keepTime=1000,delay=500,always=true},					
+					},
+				},
+			},
+		},
+		
+	},
+
+	trainConds=
+	{
+		{cond=1,value=31,consume=false},--表示等级要31级
+		{cond=21,value=1000,consume=false},--表示需要1000熟练度
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=488,consume=true},--消耗蓝488
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

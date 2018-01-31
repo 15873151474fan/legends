@@ -1,0 +1,17 @@
+--拾取掉落物品
+--lua script
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\UnusualBoss\UnusualBossConfig.txt" once
+--#include "data\functions\Activity\OpenTenDaysActivity\LootRareDropItem.txt" once
+
+EventCallDispatcher.HandlerDropItemOp = function (sysarg, args)
+	if args[1] == nil then return end
+
+	if args[1] == UnusualBossConfig.DropItemId then
+		AfterLootDropItem(sysarg)
+	end
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeLootDropItem, EventCallDispatcher.HandlerDropItemOp)
+

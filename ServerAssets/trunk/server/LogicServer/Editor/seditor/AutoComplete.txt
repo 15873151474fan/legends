@@ -1,0 +1,211 @@
+fc
+|--函数
+=function |(sysarg)
+=end
+if
+|--if then end
+=if | then
+=end
+ife
+|--if then else end
+=if | then
+=else
+=end
+ifei
+|--if then elseif then end
+=if | then
+=elseif  then
+=end
+ei
+|--elseif then
+=elseif | then
+ft
+|--for to do
+=for | = ,  do
+=end
+fi
+|--for in do
+=for | in  do
+=end
+wl
+|--while do
+=while | do
+=end
+rep
+|--repeat until
+=repeat
+=  |
+=until 
+lc
+|--local
+=local |
+lca
+|--local with assignment
+=local | = 
+rt
+|--return
+=return |
+bk
+|--终止循环
+=break
+bc
+|--块注释]]
+=--[[
+=    |
+=]]
+icl
+|--包含文件]]
+=--#include "|"
+ss
+|--实例脚本模板
+=--[[当前脚本内的全局变量]]--
+=thisNPC = nil
+=InitFnTable = {}
+=FinaFnTable = {}
+=MainFnTable = {}
+=
+=--[[如果此NPC包含标准任务，请将下面一行的最前面的'-'去掉！]]
+=---#include "..\Functions\CommonTask.txt"
+=
+=--[[此NPC中标准任务发行表]]
+=PromMs =
+={
+=  --键入mp+分号，根据模板生成发行任务脚本模板
+=}
+=
+=--[[此NPC中标准任务受理表]]
+=CompMs =
+={
+=  --键入mc+分号，根据模板生成受理任务脚本模板
+=}
+=
+=--[[此NPC中标准任务过程表]]
+=PassMs =
+={
+=  --键入ma+分号，根据模板生成过程任务脚本模板
+=}
+=
+=--[[此处为NPC对白]]
+=NpcDialogue = {  --如果NPC随机对白数多与三个或少于三个，可适当增加或减少此表内的子表 
+=   { say = GetLangText(3) }, --在""内填写NPC对白内容 
+=}
+=
+=--[[脚本主函数]]--
+=function main(sysarg)
+=  local mission = TActor.formatMessionState( sysarg )        --通过引擎格式化任务状态
+=  --如果NPC具备过程任务，则请在此处使用pm进行自动完成
+=
+=  local str = NpcDialogue[1].say
+=  if mission then                                         --如果有任务状态描述
+=    return str..mission .."\\"..main_2(sysarg)   --则返回任务描述以及
+=  end
+=
+=  return str.."\\"..main_2(sysarg)
+=end
+=
+=--[[脚本功能分派函数]]
+=function main_2(sysarg)
+=  local i
+=  local str1 = ""
+=
+=  for i = 1, table.getn(MainFnTable) do
+=    str1 = str1 .. MainFnTable[i](sysarg)
+=  end
+=
+=  return str1
+=end
+=
+=--[[注销任务的系统回调函数]]
+=function OnAbortMessions(sysarg, mission)
+=  local messionid = tonumber(mission)
+=
+=end
+=
+=--[[初始化函数]]--
+=function initialization(npcobj)
+=  local i
+=  thisNPC = npcobj 
+=  for i = 1, table.getn(InitFnTable) do
+=    InitFnTable[i]( npcobj )
+=  end
+=end
+=
+=--[[析构化函数]]--
+=function finalization(npcobj)
+=  local i
+=  for i = 1, table.getn(FinaFnTable) do
+=    FinaFnTable[i]( npcobj )
+=  end
+=  thisNPC = nil
+=end
+mp
+|--生成发行任务脚本模板
+=--任务名称
+={
+=  MissionId = |, --任务id
+=  Talks = {
+=    --接受任务时对白  对白函数是：@commonMissionPromSteps，多个对白请用','隔开
+=  },
+=  Afters = {
+=    --接受任务后对白  对白函数是：@commonMissionPromSteps，多个对白请用','隔开
+=  },
+=  ValidData = function (sysarg, mission)
+=    return false, ""
+=  end,
+=  CallBack = function (sysarg, mission)
+=    
+=  end,
+=},
+mc
+|--生成受理任务脚本模板
+=--任务名称
+={
+=  MissionId = |, --任务id
+=  Talks = {
+=    --完成任务时对白  对白函数是：@commonMissionCompSteps，多个对白请用','隔开
+=  },
+=  Afters = {
+=    --完成任务后对白  对白函数是：@commonMissionCompAfters，多个对白请用','隔开
+=  },
+=  ValidData = function (sysarg, mission)
+=    return false, ""
+=  end,
+=  CallBack = function (sysarg, mission)
+=    
+=  end,
+=},
+ma
+|--生成过程任务脚本模板
+=--任务名称
+={
+=  MissionId = , --任务id
+=  MissionName = "",--任务过程名称（可以不同于任务名称）
+=  CheckItem = { Name = "", Count = 1, }, --检测物品，不需要检测物品就删除此行
+=  TakeItem = { Name = "", Count = 1, }, --取走物品，不取走物品就删除此行
+=  CustomNeedId = , --自定义任务需求ID,没有自定义任务需求就删除此行
+=  GiveItem = { Name = "", Count = 1, }, --给予物品，不给予物品就删除此行
+=  Talks = {
+=    --更改任务过程对白  对白函数是：@commonMissionPassSteps，多个对白请用','隔开
+=  },
+=  Afters = {
+=    --完成任务过程后对白  对白函数是：@commonMissionCompAfters，多个对白请用','隔开
+=  },
+=  ValidData = function (sysarg, mission)
+=    return false, ""
+=  end,
+=  CallBack = function (sysarg, mission)
+=    
+=  end,
+=},
+pm
+|--生成过程任务调用代码
+=
+=local passms = FormatMissionPass( sysarg )
+=if mission then
+=  if passms then
+=    mission = mission .. passms
+=  end
+=else
+=  mission = passms
+=end
+=

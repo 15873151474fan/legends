@@ -1,0 +1,325 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+
+OpenServerConfig = 
+{
+	activitys = 
+	{
+		--第一天 练级狂人（鲜花）奖励：盔甲
+		{
+			openDays = 1,			--开服第一天
+			rankName = "OpenServerTenDays1",			--保存的文件名称
+			fileName = "OpenServerTenDays1.txt",
+			columnName = 
+			{
+				{cName = Lang.Activity.w00073,},		--职业
+				{cName = Lang.Activity.w00074,},		--姓名
+				{cName = Lang.Activity.w00075,},		--转生次数
+				{cName = Lang.Activity.w00076,},		--等级
+				{cName = Lang.Activity.w00077,},		--经验
+				{cName = Lang.Activity.w00078,},		--状态   0 还没发放奖励 1 已发放奖励
+			},
+			
+			--主题活动的奖励
+			awards = 
+			{
+				{ type = 0, id = 574, count = 1, strong = 0, quality = 0, bind = 0 },
+				{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 683, count = 1, bind = 1, strong = 0, quality = 0 }, -- 奖励 4倍经验神符（8小时）
+			},
+			needValue = 40,				--全民奖励需要等级40级
+
+			effectId = 1,				--鲜花的特效id
+			lastTime = 60,				--鲜花持续的特效的时间 单位秒
+
+		},
+
+		--第二天 翅膀档次（经验Buff）奖励：宝石
+		{
+			openDays = 2,			
+			rankName = "OpenServerTenDays3",			
+			fileName = "OpenServerTenDays3.txt",
+			columnName = 
+			{
+				{cName = "name",},	
+				{cName = "swingid",},	
+				{cName = "swinglevel",},
+				{cName = "battle",},
+				{cName = "state",},
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 581, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+			
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 910, count = 10, strong = 0, quality = 0, bind = 1 },	--苹果×10
+			},
+			needValue = 2,				--全民奖励需要翅膀档次2级
+
+			--结算后的奖励
+			AddBuff = 
+			{
+				{buffType= 64, value=2, buffGroup= 106,times =1,interval= 1800,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00050,}, 
+			}
+		},
+
+		--第三天 经典沙城城战（鲜花）奖励：武器
+		{
+			openDays = 3,			
+			rankName = "OpenServerTenDays2",			
+			fileName = "OpenServerTenDays2.txt",
+			columnName = 
+			{
+				{cName = "jop",},		
+				{cName = "state",},	
+				{cName = "id",},
+				{cName = "name",},
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 573, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 962, count = 1, strong = 0, quality = 0, bind = 1 },	--坐骑跃升大礼包×1
+			},
+			needValue = 1500,			--全民奖励需要战力
+
+			effectId = 1,				--鲜花的特效id
+			lastTime = 60,				--鲜花持续的特效
+
+		},
+
+		--第四天 坐骑（经验Buff）奖励：腰带
+		{
+			openDays = 4,			
+			rankName = "OpenServerTenDays4",			
+			fileName = "OpenServerTenDays4.txt",
+			columnName = 
+			{
+				{cName = "jop",},
+				{cName = "state",},	
+				{cName = "id",},
+				{cName = "name",},
+				{cName = "state",},
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 579, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 963, count = 1, strong = 0, quality = 0, bind = 1 },	--代金券礼包×1
+			},
+			needValue = 10,				--全民奖励需要坐骑等级 (按照星来算)
+
+			--结算后的奖励
+			AddBuff = 
+			{
+				{buffType= 64, value=2, buffGroup= 106,times =1,interval= 1800,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00059,}, 
+			}
+		},
+
+		--第五天 消费排行榜（掉宝BOSS）奖励：头盔
+		{
+			openDays = 5,			
+			rankName = "OpenServerTenDays5",			
+			fileName = "OpenServerTenDays5.txt",
+			columnName = 
+			{
+				{cName = "jop",},
+				{cName = "state",},		
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 576, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 2127, count = 1, strong = 0, quality = 0, bind = 1 },	--消费回馈礼包×1
+			},
+			needValue = 50,				--全民奖励需要消耗元宝
+
+			monster =
+			{
+				{nSceenId=8, nMonsterID = 192, posX1 = 190, posX2 = 190,  posY = 208, nCount = 1, nLiveTime = 0,},
+			},
+		},
+
+		--第六天 魂石达人（掉宝BOSS） 奖励：项链
+		{
+			openDays = 6,			
+			rankName = "OpenServerTenDays6",
+			fileName = "OpenServerTenDays6.txt",
+			columnName = 
+			{
+				{cName = "jop",},
+				{cName = "state",},	
+				{cName = "id",},
+				{cName = "name",},
+				{cName = "state",},	
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 577, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 2128, count = 1, strong = 0, quality = 0, bind = 1 },	--战力活跃礼包×1
+			},
+			needValue = 1800,				--全民奖励需要战力
+
+			monster =
+			{
+				{nSceenId=8, nMonsterID = 192, posX1 = 190, posX2 = 190,  posY = 208, nCount = 1, nLiveTime = 0,},
+			},
+		},
+
+		--第七天 装备大师竞赛（掉宝BOSS）奖励：护腕
+		{
+			openDays = 7,			
+			rankName = "OpenServerTenDays7",
+			fileName = "OpenServerTenDays7.txt",
+			columnName = 
+			{
+				{cName = "jop",},
+				{cName = "state",},		
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 578, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 920, count = 1, strong = 0, quality = 0, bind = 1 },	--英雄金蚕王×1
+			},
+			needValue = 100,				--全民奖励需要结阵数
+
+
+			monster =
+			{
+				{nSceenId=8, nMonsterID = 192, posX1 = 190, posX2 = 190,  posY = 208, nCount = 1, nLiveTime = 0,},
+			},
+		},
+
+		--第八天 最强英雄（掉宝BOSS）奖励：靴子
+		{
+			openDays = 8,			
+			rankName = "OpenServerTenDays8",
+			fileName = "OpenServerTenDays8.txt",
+			columnName = 
+			{
+				{cName = "jop",},
+				{cName = "state",},	
+				{cName = "id",},
+				{cName = "name",},
+				{cName = "state",},	
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 580, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 2129, count = 1, strong = 0, quality = 0, bind = 1 },	--英雄大礼包×1
+			},
+			needValue = 45,				--全民奖励英雄奖励到达45级
+
+			monster =
+			{
+				{nSceenId=8, nMonsterID = 192, posX1 = 190, posX2 = 190,  posY = 208, nCount = 1, nLiveTime = 0,},
+			},
+		},
+
+		--第九天 鉴定宗师（经验buff）奖励：手套
+		{
+			openDays = 9,			
+			rankName = "OpenServerTenDays9",
+			fileName = "OpenServerTenDays9.txt",
+			columnName = 
+			{
+				{cName = "jop",},	
+				{cName = "state",},		
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 667, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 969, count = 1, strong = 0, quality = 0, bind = 1 },	--五级魂石大礼包×1
+			},
+			needValue = 300,				--全民奖励鉴定积分达300次
+
+			--结算后的奖励
+			AddBuff = 
+			{
+				{buffType= 64, value=2, buffGroup= 106,times =1,interval= 1800,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00057,}, 
+			},
+
+			AuthenScroe = 1,			--消耗鉴定图标获得积分
+			ClearScroe = 6,				--清洗积分
+			SuoScroe = 6,				--鉴定锁消耗积分
+		},
+
+		--第十天 职业战力比拼（鲜花） 奖励：翅膀
+		{
+			openDays = 10,			
+			rankName = "OpenServerTenDays10",
+			fileName = "OpenServerTenDays10.txt",
+			columnName = 
+			{
+				{cName = "name",},
+				{cName = "jop",},
+				{cName = "state",},		
+			},
+
+			awards = 
+			{
+				{ type = 0, id = 960, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+
+			--全民活动的奖励
+			allAwards = 
+			{
+				{ type = 0, id = 970, count = 1, strong = 0, quality = 0, bind = 1 },	--灵珠大礼包×1
+			},
+			needValue = 3000,				--全民奖励战力达3000
+
+			effectId = 1,				--鲜花的特效id
+			lastTime = 30,				--鲜花持续的特效
+
+		},
+	},
+}
+

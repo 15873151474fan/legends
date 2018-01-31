@@ -1,0 +1,244 @@
+
+--#include "data\config\activityconfig\Festival\OldPlayerBack.txt" once
+
+function AddMyJoinTimes(sysarg, name)
+	-- local sVar = Actor.getStaticVar(sysarg)
+	-- sVar.oldPlyBackJoinFlag = name
+end
+
+function GetMyJoinTimes(sysarg)
+	-- local sVar = Actor.getStaticVar(sysarg)
+	-- return sVar.oldPlyBackJoinFlag or ""
+end
+
+--发送给邀请的好友
+function SendMsgToOldPlayer(sysarg, sAcceptName)
+	local myName = Actor.getName(sysarg)
+	local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_DRAW_YB_COUNT)
+	local msgId = Lang.ScriptTips.opback10
+	if checkMyDrawYb(sysarg, myYb) then
+		msgId = Lang.ScriptTips.opback03
+	end
+	local msg = string.format(msgId, myName, myYb)
+	local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)	
+	System.sendCommonMsgByName(37, sAcceptName, msg, myId, myName, "", myYb,2)
+	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.opback08,sAcceptName), ttFlyTip)
+
+	local netPack = DataPack.allocPacket(sysarg,139,68)      
+	if netPack then
+		DataPack.writeString(netPack, sAcceptName)
+		DataPack.flush(netPack)
+	end
+end
+
+function checkMyDrawYb(sysarg, YbCount)
+	for k, v in ipairs(OldPlayerBackConfig.InvitedAward) do
+		if YbCount >=  v.ybMin and YbCount <= v.ybMax then
+			return true
+		end
+	end
+	return false
+end
+
+function JoinToRank(sysarg)
+	local rankName = Lang.Rank.oldPlayerBack 
+	local ranking = Ranking.getRanking( rankName )
+	if ranking then
+		local sName = Actor.getName(sysarg)
+		local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.updateItem(ranking, myId, 1)
+		if not pItem then
+			pItem = Ranking.addItem(ranking, myId, 1)
+			if pItem then
+				Ranking.setSub(pItem, 0, sName)
+			end
+		end
+		Ranking.save(ranking, rankName)
+	end
+end
+
+function OnOldPlayerBackMsg(sysarg, args)
+	local nType = args[1]
+	if nType == 1 then
+		local roleCount = args[2]
+		if roleCount > 0 then
+			local sAcceptName = args[3]
+			if GetMyJoinTimes(sysarg) ~= "" then
+				return
+			end
+			AddMyJoinTimes(sysarg, sAcceptName)
+			SendMsgToOldPlayer(sysarg, sAcceptName)
+		else
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.opback01,ttFlyTip)
+		end
+	elseif nType == 2 then
+		local frdYbCount = args[2]
+		local frdName = args[3]
+		return GetInvitedAward(sysarg, frdYbCount, frdName)
+	elseif nType == 3 then
+		local nIndex = args[2]
+		return GetInvitedRankAward(sysarg, nIndex)
+	end
+end
+
+function GetInvitedAward(sysarg, frdYbCount, frdName)
+	for k, v in ipairs(OldPlayerBackConfig.InvitedAward) do
+		if frdYbCount >=  v.ybMin and frdYbCount <= v.ybMax then
+			
+			local count = 0
+			for k, v in ipairs( v.award ) do
+				if v.type == 0 then
+					count = count + Item.getAddItemNeedGridCount( sysarg, v.id, v.count, v.quality, v.strong)
+				end
+			end
+			local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+			if bagIdxs < count then
+				Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+				return false
+			end
+			for k, it in ipairs( v.award ) do
+				Actor.giveAward(sysarg, it.type,it.id,it.count,it.strong,it.quality,it.bind, 0,855, Lang.LogTips.l00137)
+			end
+			JoinToRank(sysarg)
+			return true
+		end
+	end
+	JoinToRank(sysarg)
+	return true
+end
+
+--开启老玩家回归活动
+function StartOldPlayerBack()
+	System.setOldPlayerBack(1)
+end
+
+--关闭老玩家回归活动
+function OpenOldPlayerBack()
+	System.setOldPlayerBack(0)
+end
+
+--清老玩家回归数据
+function clearOldPlayerBack()
+	local rankName = Lang.Rank.oldPlayerBack 
+	local ranking = Ranking.getRanking( rankName )
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+function CalcOldPlayerBackRank()
+	local rankName = Lang.Rank.oldPlayerBack 
+	local ranking = Ranking.getRanking( rankName )
+	if ranking then
+		for i = 0, OldPlayerBackConfig.RankCount -1 do
+			local pItem = Ranking.getItemFromIndex(ranking, i)
+			if pItem then
+				local sName = Ranking.getSub(pItem, 0)
+				local msg = string.format(Lang.ScriptTips.opback05, i+1)
+				System.sendCommonMsgByName(37, sName, msg, 0, "", "", i+1, 3)
+			end
+		end
+
+		Ranking.clearRanking(ranking)
+	end
+end
+
+function GetInvitedRankAward(sysarg, index)
+	local awardCfg = OldPlayerBackConfig.TopRankAward[index]
+	if awardCfg then
+		local count = 0
+		for k, it in ipairs( awardCfg ) do
+			if it.type == 0 then
+				count = count + Item.getAddItemNeedGridCount( sysarg, it.id, it.count, it.quality, it.strong)
+			end
+		end
+		local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+		if bagIdxs < count then
+			Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+			return false
+		end
+		for k, it in ipairs( awardCfg ) do
+			Actor.giveAward(sysarg, it.type,it.id,it.count,it.strong,it.quality,it.bind, 0,855, Lang.LogTips.l00138)
+		end
+		return true
+	end
+	return false
+end
+
+function CheckOldPlayer(sysarg)
+	-- local sVar = Actor.getStaticVar( sysarg ) 
+	-- local days = sVar.oldPlyBackDays or 0
+	-- if days < OldPlayerBackConfig.MinDays then
+	-- 	Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.opback09,OldPlayerBackConfig.MinDays), ttFlyTip)
+	-- 	return false
+	-- end
+	-- if sVar.oldPlyBackLvled then
+	-- 	return true
+	-- end
+	-- Actor.sendTipmsg( sysarg, Lang.ScriptTips.opback07, ttFlyTip)
+	-- return false	
+end
+
+function GetActivityAward(sysarg, nVal)
+	-- if not CheckOldPlayer(sysarg) then
+	-- 	return
+	-- end
+	-- local awards = OldPlayerBackConfig.ActivityAward[nVal]
+	-- if awards then
+	-- 	local sVar = Actor.getStaticVar( sysarg ) 
+	-- 	if not sVar.OldPlayerActivity then
+	-- 		sVar.OldPlayerActivity = {}
+	-- 	end
+	-- 	if sVar.OldPlayerActivity[nVal] then
+	-- 		Actor.sendTipmsg(sysarg, Lang.ScriptTips.opback06, ttFlyTip)
+	-- 		return
+	-- 	end
+	-- 	local count = 0
+	-- 	for k, it in ipairs( awards ) do
+	-- 		if it.type == 0 then
+	-- 			count = count + Item.getAddItemNeedGridCount( sysarg, it.id, it.count, it.quality, it.strong)
+	-- 		end
+	-- 	end
+	-- 	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	-- 	if bagIdxs < count then
+	-- 		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+	-- 		return false
+	-- 	end
+	-- 	for k, it in ipairs( awards ) do
+	-- 		Actor.giveAward(sysarg, it.type,it.id,it.count,it.strong,it.quality,it.bind, 0,855, Lang.LogTips.l00138)
+	-- 	end
+	-- 	sVar.OldPlayerActivity[nVal] = nVal 
+	-- end
+end
+
+
+function calcOldPlayerBack(sysarg)
+	-- local sysVar = System.getStaticVar()
+	-- if sysVar.OldPlayerBackFlag and sysVar.OldPlayerBackFlag > 0 then
+	-- 	local sVar = Actor.getStaticVar( sysarg )
+	-- 	local oldPlyFlag = sVar.oldPlyBackDays
+	-- 	if oldPlyFlag then
+	-- 		return
+	-- 	end
+	-- 	local nLast = Actor.getLastLogoutTime(sysarg)   --获取角色上次下线的时间
+	-- 	local t = System.getCurrMiniTime() --获取当前的mini时间，单位秒
+	-- 	local days = math.floor((t - nLast) / (3600*24))
+	-- 	sVar.oldPlyBackDays = days
+	-- 	if Actor.checkActorLevel(sysarg, OldPlayerBackConfig.MinLevel,0) then
+	-- 		sVar.oldPlyBackLvled = 1   --达到了等级
+	-- 		if days >= OldPlayerBackConfig.MinDays then
+	-- 			local netPack = DataPack.allocPacket(sysarg,139,69)      
+	-- 			if netPack then
+	-- 				DataPack.flush(netPack)
+	-- 			end
+	-- 			for k, aId in ipairs(OldPlayerBackConfig.acheIds) do
+	-- 				if Actor.isAchieveFinished(sysarg, aId) then
+	-- 					return
+	-- 				end
+	-- 			end
+	-- 			local drawYbCount = Actor.getIntProperty(sysarg, PROP_ACTOR_DRAW_YB_COUNT)	
+	-- 			Actor.triggerAchieveEvent(sysarg, 1, 0, 0, sVar.oldPlyBackDays, drawYbCount)
+	-- 		end
+	-- 	end
+	-- end
+end

@@ -1,0 +1,184 @@
+﻿
+--#include "RankPointer.txt" once
+--#include "data\functions\Activity\Common\Scene.txt" once --活动通用 场景
+
+
+
+
+--开始活动
+function StartHorseRace()
+	local config = HorseRaceConfig
+	if (not config) then return end
+	
+	local pRank = Ranking.getRanking(HorseRaceRankPt.RankName)
+	if not pRank then return end
+	Ranking.clearRanking(pRank)
+	
+	--设定场景时间
+	for k, v in ipairs(config.actScene) do
+		local hScene = Fuben.getSceneHandleById(v, 0)
+		Fuben.setSceneTime(hScene, config.actTime)
+	end
+	
+	--刷栏栅
+	local hScene = Fuben.getSceneHandleById(config.barrier.sid, 0)
+	for k, v in ipairs(config.barrier.pos) do
+		Fuben.createMonster(hScene, config.barrier.mid, v[1], v[2],config.readyTime)
+	end
+	
+	local hEndScene = Fuben.getSceneHandleById(config.actScene[table.getn(config.actScene)], 0)
+	Fuben.setSceneAreaAttri(hEndScene, 1, 38, "", "OnEnterFinalArea", Actor.getHandle(thisNPC))
+	
+	--产生随机BUFF
+	--RandomAreaBuff()
+	
+	Actor.unregScriptCallback(thisNPC, "CountdownHorseRace")
+	Actor.unregScriptCallback(thisNPC, "BeginHorseRace")
+	--注册个时间
+	local result = Actor.regScriptCallback(thisNPC, thisNPC, (config.readyTime-config.countDown)*1000, 10000, 1, "CountdownHorseRace")
+
+	if not result then return end
+	
+	local dval = System.getDyanmicVar()
+	dval.HorseRaceStart = 1
+	
+	System.broadcastTipmsg(Lang.Activity.t00160, ttScreenCenter+ttChatWindow)
+	
+end
+
+--结束活动
+function OverHorseRace()
+	local config = HorseRaceConfig
+	if (not config) then return end
+	local dval = System.getDyanmicVar()
+	dval.HorseRaceStart = nil	--赛马 预备开始
+	dval.HorseRaceBegin = nil	--赛马 正式开炮
+	
+	
+	for k, v in pairs(config.actScene) do
+		local playerList = LuaHelp.getSceneActorListById(v)  --获取某场景玩家对象列表
+		if playerList ~= nil then
+			for i = 1, #playerList do
+				local player = playerList[i]
+				if player then
+					--直接把玩家传出来
+					ExitHorseRaceMap(player)
+				end
+			end
+		end
+	end
+	
+	System.broadcastTipmsg(Lang.Activity.t00161, ttScreenCenter+ttChatWindow)
+end
+
+--离开场景
+function ExitHorseRaceMap(sysarg)
+	--直接把玩家传出来
+	--local Pos = LuaHelp.getReloadMapPos(sysarg) 
+	local retScene = HorseRaceConfig.returnScene
+	if Actor.enterScene(sysarg, retScene.sid, unpack(retScene.range)) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+end
+
+function CountdownHorseRace()
+	local config = HorseRaceConfig
+	local hScene = Fuben.getSceneHandleById(config.readyScene.sid, 0)
+	
+	--注册个时间，30s后再提示一次
+	Actor.regScriptCallback(thisNPC, thisNPC, (config.countDown-2)*1000, 10000, 1, "BeginHorseRace")
+	
+	Fuben.sendCountDown(hScene, config.countDown)	--客户端显示10s的倒计时特效
+	
+end
+
+function BeginHorseRace()
+	local config = HorseRaceConfig
+	local playerList = LuaHelp.getSceneActorListById(config.readyScene.sid)  --获取某场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player then
+				Actor.changeActivityNotify(player, string.format(Lang.Activity.t00147, Lang.Activity.t00145))
+			end
+		end
+	end
+	local hScene = Fuben.getSceneHandleById(config.barrier.sid, 0)
+	Fuben.clearMonster(hScene, config.barrier.mid)
+	
+	Actor.unregScriptCallback(thisNPC, "CountdownHorseRace")
+	Actor.unregScriptCallback(thisNPC, "BeginHorseRace")
+	
+	local dval = System.getDyanmicVar()
+	dval.HorseRaceBegin = 1
+	
+	Fuben.sendMsgToScene(hScene, Lang.Activity.t00162, ttScreenCenter)
+end
+
+--进入终点操作
+function OnEnterFinalArea(sysarg)
+	local config = HorseRaceConfig
+	local dval = System.getDyanmicVar()
+	
+	if dval.HorseRaceStart ~= 1 then
+		return 
+	end
+	
+	if dval.HorseRaceBegin ~= 1 then
+		return 
+	end
+	
+	
+	local pRank = Ranking.getRanking(HorseRaceRankPt.RankName)
+	if not pRank then return end
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	if not pItem then
+		local pItem = Ranking.addItem(pRank, userId, 0)
+		if pItem then
+			local name = Actor.getName(sysarg)
+			Ranking.setSub(pItem, 0, name)
+			local rank = Ranking.getIndexFromPtr(pItem)+1
+			Actor.triggerAchieveEvent(sysarg,44,16,rank)		--成就
+
+			if rank <= 3 then
+				System.broadcastTipmsg(string.format(Lang.Activity.t00163, name, rank), ttScreenCenter+ttChatWindow)
+			end
+		end
+	end
+	
+end
+
+--随机生成不同区域的buff，出现的概率、区域等都在配置表里配置了,qgzsConfig.txt
+--在活动开始的是时候执行
+function RandomAreaBuff(sysarg)
+	local config = HorseRaceConfig
+	for k, v in ipairs(config.trapArea) do
+		for i = 1, v.maxTrap do
+			--在区域中产生随机数
+			local randArea = math.random(v.startArea, v.endArea)
+			--再随机选个buff
+			local randBuff = math.random(table.getn(config.randomBuff))
+			
+			--设置指定的场景指定的区域指定的buff
+			local hScene = Fuben.getSceneHandleById(v.sid, 0)
+			local flag = Fuben.setSceneAreaAttri(hScene, randArea, 2, config.randomBuff[randBuff], nil, 0)	--2代表加buff的区域属性
+			if not flag then
+				--print("setSceneAreaAttri error:"..QgzsConfig.randomBuff[randBuff+1])
+			end
+		end
+	end
+	qgzsVar.randBuffFlag = true
+end
+
+--type: 1开启前公告 2 预备是公告 time:时间
+function ForcastNotice(type, time)
+	local type, time = tonumber(type), tonumber(time)
+	local config = HorseRaceConfig
+	local hScene = Fuben.getSceneHandleById(config.actScene[1], 0)
+	if type == 1 then
+		System.broadcastTipmsg(string.format(Lang.Activity.t00164, time), ttScreenCenter+ttChatWindow)
+	elseif type == 2 then
+		Fuben.sendMsgToScene(hScene, string.format(Lang.Activity.t00165, time), ttScreenCenter)
+	end
+end

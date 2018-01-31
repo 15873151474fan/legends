@@ -1,0 +1,283 @@
+--2015元宵抽奖配置
+{
+	ldIdx = 4, --老虎机序号      
+	paramFile = "LanternLuckDrawParam.txt",  
+	infoFile = "LanternLuckDrawInfo.txt",  
+	--isAwardPool = 1, --需要发奖金池奖励
+	--awardPool = 10000, --奖金池初始值 
+	--addPoolYb = 20, --每抽一次奖金池增加的元宝
+	
+	--isRankPoint = 0, --需要按积分排名
+	--ybToPoint = 1,	--1元宝对应的积分
+
+	actTime = {2015, 3, 5, 0, 0, 0,  2015, 3, 9, 23, 59, 59},	--活动时间范围     
+	circle = 0, --转数 
+	level = 50, --等级
+	drawYb = 50,  --抽1次需要的元宝 
+	
+	isPullBa = 1, --是否是拉霸
+	
+	isFree = 1, --是否可以每天免费  
+	freeCount = 2, --每天免费次数  
+
+	--isSaveName = 1, --是否保存名字,一般积分排名需要用到     
+	
+	isMultAward = 1, --是否抽到相同的有多倍奖励
+	multAward = {1,2,5}, --奖励倍率，一个单倍，两个2倍，3个5倍 
+	
+	isBroadCastTip = 1, --是否需要使用播报 
+	awardTip = Lang.Activity.msd0017, --抽到其他奖励播报 
+	doubAwardTip = Lang.Activity.msd0018, -- 抽到奖池奖励播报
+	multAwardTip = Lang.Activity.msd0019, --抽到其他奖励播报
+	
+	itemCount = 1000, --每个库的最大物品数量   
+	turntableCount = 3,	--转盘的数量  
+	itemLists =  
+	{
+		--isInit为true表示系统刷的，为false需要花元宝才能刷到; rate为刷刷出的概率，startYb为起始元宝，ybCircle为间隔元宝，isBrocast为true表示播报
+		--第1个物品库
+		{
+			itemList = 
+			{
+				{--1
+					idx =1, type = 0, id = 731, count = 1, strong = 0, quality = 0, bind = 1, rate =500, startYb = 0, ybCircle = 0, isBrocast = false,
+				},
+				{--2
+					idx =2, type = 0, id = 2563, count = 1, strong = 0, quality = 0, bind = 1, rate =450, startYb = 0, ybCircle = 0,  isBrocast = false,
+				},
+				{--3
+					idx =3, type = 0, id = 3232, count = 1, strong = 0, quality = 0, bind = 1, rate =200, startYb = 100, ybCircle = 150,  isBrocast = false,
+				},
+				{--4
+					idx =4, type = 0, id = 3188, count = 1, strong = 0, quality = 0, bind = 1, rate =400, startYb = 10, ybCircle = 30,  isBrocast = false, 
+				},
+				{--5
+					idx =5, type = 0, id = 2984, count = 1, strong = 0, quality = 0, bind = 1, rate =500, startYb = 0, ybCircle = 50,  isBrocast = false, 
+				}, 
+
+				{--6
+					idx =6, type = 0, id = 2895, count = 1, strong = 0, quality = 0, bind = 1, rate =300, startYb = 100, ybCircle = 200,  isBrocast = false, 
+				}, 
+
+				{--7
+					idx =7, type = 0, id = 1037, count = 1, strong = 0, quality = 0, bind = 1, rate =500, startYb = 0, ybCircle = 0,  isBrocast = false, 
+				}, 
+
+				{--8
+					idx =8, type = 0, id = 2276, count = 1, strong = 0, quality = 0, bind = 1, rate =150, startYb = 0, ybCircle = 100,  isBrocast = false, 
+				}, 
+
+				{--9
+					idx =9, type = 0, id = 1991, count = 1, strong = 0, quality = 0, bind = 1, rate =250, startYb = 50, ybCircle = 300,  isBrocast = true, 
+				}, 
+
+				{--10
+					idx =10, type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 50, ybCircle = 300,  isBrocast = false, 
+				}, 
+
+				{--11
+					idx =11, type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 50, ybCircle = 300,  isBrocast = false, 
+				}, 
+
+				{--12
+					idx =12, type = 0, id = 3451, count = 1, strong = 0, quality = 0, bind = 0, rate =0, startYb = 600, ybCircle = 600,  isBrocast = false, 
+				}, 
+
+				{--13
+					idx =13, type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 300, ybCircle = 500,  isBrocast = false, 
+				}, 
+
+				{--14
+					idx =14, type = 0, id = 3247, count = 1, strong = 0, quality = 0, bind = 1, rate =15, startYb = 400, ybCircle = 500,  isBrocast = true, 
+				}, 
+
+				{--15
+					idx =15, type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 300, ybCircle = 500,  isBrocast = true, 
+				}, 
+
+				{--16
+					idx =16, type = 0, id = 3303, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 100, ybCircle = 300,  isBrocast = true, 
+				}, 
+
+				{--17
+					idx =17, type = 0, id = 414 , count = 1, strong = 0, quality = 0, bind = 1, rate =200, startYb = 100, ybCircle = 200,  isBrocast = true, 
+				}, 
+
+				{--18
+					idx =18, type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 500, ybCircle = 1000,  isBrocast = true, 
+				}, 
+
+				{--19
+					idx =19, type = 0, id = 3191, count = 1, strong = 0, quality = 0, bind = 1, rate =2, startYb = 10000, ybCircle = 10000,  isBrocast = true, 
+				}, 
+				{--20
+					idx =20, type = 0, id = 2817, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 10000, ybCircle = 20000,  isBrocast = true, 
+				}, 
+			},
+		},
+	
+		--第二个物品库
+		{
+			itemList = 
+			{
+				{--1
+					idx =1, type = 0, id = 731, count = 1, strong = 0, quality = 0, bind = 1, rate =300, startYb = 0, ybCircle = 0, isBrocast = false,
+				},
+				{--2
+					idx =2, type = 0, id = 2563, count = 1, strong = 0, quality = 0, bind = 1, rate =400, startYb = 0, ybCircle = 0,  isBrocast = false,
+				},
+				{--3
+					idx =3, type = 0, id = 3232, count = 1, strong = 0, quality = 0, bind = 1, rate =200, startYb = 150, ybCircle = 100,  isBrocast = false,
+				},
+				{--4
+					idx =4, type = 0, id = 3188, count = 1, strong = 0, quality = 0, bind = 1, rate =500, startYb = 10, ybCircle = 30,  isBrocast = false, 
+				},
+				{--5
+					idx =5, type = 0, id = 2984, count = 1, strong = 0, quality = 0, bind = 1, rate =350, startYb = 0, ybCircle = 20,  isBrocast = false, 
+				}, 
+
+				{--6
+					idx =6, type = 0, id = 2895, count = 1, strong = 0, quality = 0, bind = 1, rate =200, startYb = 100, ybCircle =100,  isBrocast = false, 
+				}, 
+
+				{--7
+					idx =7, type = 0, id = 1037, count = 1, strong = 0, quality = 0, bind = 1, rate =550, startYb = 0, ybCircle = 10,  isBrocast = false, 
+				}, 
+
+				{--8
+					idx =8, type = 0, id = 2276, count = 1, strong = 0, quality = 0, bind = 1, rate =80, startYb = 0, ybCircle = 100,  isBrocast = false, 
+				}, 
+
+				{--9
+					idx =9, type = 0, id = 1991, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 50, ybCircle = 300,  isBrocast = true, 
+				}, 
+
+				{--10
+					idx =10, type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, rate =200, startYb = 50, ybCircle = 300,  isBrocast = false, 
+				}, 
+
+				{--11
+					idx =11, type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 50, ybCircle = 300,  isBrocast = false, 
+				}, 
+
+				{--12
+					idx =12, type = 0, id = 3451, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 600, ybCircle = 600,  isBrocast = false, 
+				}, 
+
+				{--13
+					idx =13, type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, rate =15, startYb = 300, ybCircle = 500,  isBrocast = false, 
+				}, 
+
+				{--14
+					idx =14, type = 0, id = 3247, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 400, ybCircle = 500,  isBrocast = true, 
+				}, 
+
+				{--15
+					idx =15, type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, rate =15, startYb = 300, ybCircle = 500,  isBrocast = true, 
+				}, 
+
+				{--16
+					idx =16, type = 0, id = 3303, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 100, ybCircle = 300,  isBrocast = true, 
+				}, 
+
+				{--17
+					idx =17, type = 0, id = 414 , count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 100, ybCircle = 200,  isBrocast = true, 
+				}, 
+
+				{--18
+					idx =18, type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, rate =50, startYb = 500, ybCircle = 1000,  isBrocast = true, 
+				}, 
+
+				{--19
+					idx =19, type = 0, id = 3191, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 10000, ybCircle = 10000,  isBrocast = true, 
+				}, 
+				{--20
+					idx =20, type = 0, id = 2817, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 10000, ybCircle = 20000,  isBrocast = true, 
+				}, 
+			},
+		},
+		
+		--第三个物品库 
+		{
+			itemList = 
+			{
+				{--1
+					idx =1, type = 0, id = 731, count = 1, strong = 0, quality = 0, bind = 1, rate =450, startYb = 0, ybCircle = 0, isBrocast = false,
+				},
+				{--2
+					idx =2, type = 0, id = 2563, count = 1, strong = 0, quality = 0, bind = 1, rate =300, startYb = 0, ybCircle = 0,  isBrocast = false,
+				},
+				{--3
+					idx =3, type = 0, id = 3232, count = 1, strong = 0, quality = 0, bind = 1, rate =350, startYb = 150, ybCircle = 100,  isBrocast = false,
+				},
+				{--4
+					idx =4, type = 0, id = 3188, count = 1, strong = 0, quality = 0, bind = 1, rate =400, startYb = 10, ybCircle = 30,  isBrocast = false, 
+				},
+				{--5
+					idx =5, type = 0, id = 2984, count = 1, strong = 0, quality = 0, bind = 1, rate =500, startYb = 0, ybCircle = 20,  isBrocast = false, 
+				}, 
+
+				{--6
+					idx =6, type = 0, id = 2895, count = 1, strong = 0, quality = 0, bind = 1, rate =250, startYb = 100, ybCircle =100,  isBrocast = false, 
+				}, 
+
+				{--7
+					idx =7, type = 0, id = 1037, count = 1, strong = 0, quality = 0, bind = 1, rate =300, startYb = 0, ybCircle = 10,  isBrocast = false, 
+				}, 
+
+				{--8
+					idx =8, type = 0, id = 2276, count = 1, strong = 0, quality = 0, bind = 1, rate =150, startYb = 0, ybCircle = 100,  isBrocast = false, 
+				}, 
+
+				{--9
+					idx =9, type = 0, id = 1991, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 50, ybCircle = 300,  isBrocast = true, 
+				}, 
+
+				{--10
+					idx =10, type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 50, ybCircle = 300,  isBrocast = false, 
+				}, 
+
+				{--11
+					idx =11, type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1, rate =400, startYb = 50, ybCircle = 300,  isBrocast = false, 
+				}, 
+
+				{--12
+					idx =12, type = 0, id = 3451, count = 1, strong = 0, quality = 0, bind = 1, rate =100, startYb = 600, ybCircle = 600,  isBrocast = false, 
+				}, 
+
+				{--13
+					idx =13, type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 300, ybCircle = 500,  isBrocast = false, 
+				}, 
+
+				{--14
+					idx =14, type = 0, id = 3247, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 400, ybCircle = 500,  isBrocast = true, 
+				}, 
+
+				{--15
+					idx =15, type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 300, ybCircle = 500,  isBrocast = true, 
+				}, 
+
+				{--16
+					idx =16, type = 0, id = 3303, count = 1, strong = 0, quality = 0, bind = 1, rate =50, startYb = 100, ybCircle = 300,  isBrocast = true, 
+				}, 
+
+				{--17
+					idx =17, type = 0, id = 414 , count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 100, ybCircle = 200,  isBrocast = true, 
+				}, 
+
+				{--18
+					idx =18, type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 500, ybCircle = 1000,  isBrocast = true, 
+				}, 
+
+				{--19
+					idx =19, type = 0, id = 3191, count = 1, strong = 0, quality = 0, bind = 1, rate =0, startYb = 10000, ybCircle = 10000,  isBrocast = true, 
+				}, 
+				{--20
+					idx =20, type = 0, id = 2817, count = 1, strong = 0, quality = 0, bind = 1, rate =2, startYb = 10000, ybCircle = 20000,  isBrocast = true, 
+				}, 
+			},
+		},
+			
+	},
+	
+},

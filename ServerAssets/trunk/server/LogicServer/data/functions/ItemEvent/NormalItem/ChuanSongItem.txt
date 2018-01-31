@@ -1,0 +1,71 @@
+﻿--lua script
+--#include "data\language\LangCode.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+--回城卷的物品效果
+
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+local DELAYTIME = 3000
+function ChuanSongEffect(sysarg,itemdx,itemPtr,ItemTable)
+       -- Actor.setUIntProperty(sysarg,PROP_ACTOR_PK_VALUE,15)
+	--print("ItemID:"..itemdx)
+	if (ItemTable.type == 1) then      
+    Actor.openDialogs(sysarg,diFuncDia,Lang.Talk.t02475)
+  else 
+	--[[
+    local result = false
+    local postint,result = Actor.postEntityScriptDelayMsg(sysarg,DELAYTIME,result,ItemTable.DelayType,1551)
+    if not result then 
+  		--print("post delay is false")
+ 			return 
+	  end
+	  local npack = DataPack.allocPacket(sysarg,139,4)
+	  if npack == nil then return end
+	  DataPack.writeInt(npack,postint)
+	  DataPack.writeInt(npack,DELAYTIME)
+	  DataPack.writeByte(npack,1)
+	  DataPack.writeByte(npack,1)
+	  DataPack.writeString(npack,Lang.ScriptTips.x00189)
+		DataPack.flush(npack)
+	end
+	--]]
+	Actor.startSingWnd(sysarg,ItemTable.DelayType,3000,Lang.ScriptTips.x00189,true,true,false,1551)
+
+end
+
+function BackCityFunc(sysarg,type)
+  local type = tonumber(type)
+  local result = false 
+  
+  --print("type:"..type)
+  --[[
+	local postint,result = Actor.postEntityScriptDelayMsg(sysarg,DELAYTIME,result,1,1552,type)
+	if not result then 
+  	--print("post delay is false")
+ 		return 
+  end
+  local npack = DataPack.allocPacket(sysarg,139,4)
+  if npack == nil then return end
+  DataPack.writeInt(npack,postint)
+  DataPack.writeInt(npack,DELAYTIME)
+	DataPack.writeByte(npack,1)
+	DataPack.writeByte(npack,1)
+  	DataPack.writeString(npack,Lang.ScriptTips.x00189)	
+	DataPack.flush(npack)
+	--]]
+	
+end
+
+
+
+function ChuanSongEffectItemInit(sysarg)
+  for i = 1,table.getn(ChuanSongItems) do
+	local x = ChuanSongItems[i]
+	GlobalItemFn[x.item_id] = { func = ChuanSongEffect, params = x }
+  end
+end
+
+
+table.insert(InitFnTable,ChuanSongEffectItemInit)

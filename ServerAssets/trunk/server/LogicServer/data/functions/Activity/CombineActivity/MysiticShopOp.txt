@@ -1,0 +1,508 @@
+--神秘商店
+--lua script
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\CombineServerActivity\MysticShop.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--刷新什么商店物品
+function FreshMysticShopOnTime(sysarg,bSaveFlag)
+	local ranking = Ranking.getRanking(MysticShopConfig.rankName)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		
+		if pItem == nil then
+			pItem = Ranking.addItem(ranking,nActorId,MysticShopConfig.freshCount)
+		end
+
+		if pItem then
+			Ranking.setItem(ranking,nActorId,MysticShopConfig.freshCount)
+
+			local nMaxCount = table.getn(MysticShopConfig.items)
+			local nCount = 0
+			for j=1,nMaxCount do
+				nCount = nCount + MysticShopConfig.items[j].rate
+			end
+			
+			local nIndex = 1
+			while nIndex <= MysticShopConfig.freshCount do
+				local randNum = System.getRandomNumber(nCount)
+				if randNum <= 0 then
+					randNum = 1
+				end
+
+				if randNum > nCount then
+					randNum = nCount
+				end
+				
+				local curNum = MysticShopConfig.items[1].rate
+				local nResult = 1
+				while nResult <= nMaxCount do
+					if randNum < curNum then
+						--randNum = nResult
+						break
+					else
+						nResult = nResult + 1
+						curNum = curNum +  MysticShopConfig.items[nResult].rate
+					end
+				end
+
+				local bCan = true
+				for i=1,MysticShopConfig.freshCount do
+					local nIndex = tonumber(Ranking.getSub(pItem,i-1))
+					if nIndex == nResult then
+						bCan = false
+						break
+					end
+				end
+				
+				if bCan == true then
+					Ranking.setSub(pItem,nIndex-1,tostring(nResult))
+					Ranking.setSub(pItem,nIndex-1+MysticShopConfig.freshCount,0)
+					nIndex = nIndex + 1
+				end
+
+				Ranking.setSub(pItem,8,0)		--已刷新
+			end
+		end
+
+		if bSaveFlag == true then
+			Ranking.save(ranking,MysticShopConfig.fileName)
+		end
+	end
+end
+
+--下发神秘商店的物品
+function SendCombineMysticItemOp(sysarg)
+	local ranking = Ranking.getRanking(MysticShopConfig.rankName)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+
+		if pItem == nil then
+			FreshMysticShopOnTime(sysarg,true)
+			pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		end
+		
+		if pItem then
+			local nState = tonumber(Ranking.getSub(pItem,8))
+
+			if nState == 1 then
+				FreshMysticShopOnTime(sysarg,true)
+			end
+
+			local pack = DataPack.allocPacket(sysarg, 26, 37)
+
+			if (pack ~= nil) then
+				local nHoure,nmin,nSec = System.getTime(0,0,0)
+				
+				--print("SendCombineMysticItemOp1:"..nHoure)
+				local leftTime = 0
+				if nHoure % 2 == 0 then
+					leftTime =  1 * 60 * 60 + (60 - nmin) * 60
+				else
+					leftTime =  (60 - nmin) * 60
+				end
+				DataPack.writeInt(pack, leftTime)
+
+				local nCount = Ranking.getPoint(pItem)
+				DataPack.writeInt(pack, nCount)
+				for i=1,nCount do
+					local nIndex = tonumber(Ranking.getSub(pItem,i-1))
+					if MysticShopConfig.items[nIndex] == nil then 
+						nIndex = 1
+					end
+					
+					local nItemid = MysticShopConfig.items[nIndex].itemId
+					DataPack.writeInt(pack, MysticShopConfig.items[nIndex].itemId)
+					DataPack.writeInt(pack, MysticShopConfig.items[nIndex].type)
+					DataPack.writeInt(pack, MysticShopConfig.items[nIndex].curmoney)
+					DataPack.writeInt(pack, MysticShopConfig.items[nIndex].money)
+
+					DataPack.writeByte(pack,tonumber(Ranking.getSub(pItem,nCount+i-1)))
+					--print("SendCombineMysticItemOpRanking:"..Ranking.getSub(pItem,nCount+i-1))
+				end
+
+				DataPack.flush(pack)
+			end
+		end
+	end
+end
+
+--购买神秘商店的物品
+function OnBuyMysticItemOp(sysarg,args)
+	local nIndex = args[2]
+	local nItemId = args[3]
+
+	if System.getDaysSinceCombineServer() > 5 and System.getMysticState() == 1 then
+		local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+		local minLev = 50
+		if Actor.checkActorLevel(sysarg,minLev) == false then
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.com020,minLev), ttFlyTip)
+			return
+		end
+	end
+
+	local ranking = Ranking.getRanking(MysticShopConfig.rankName)
+	if ranking then
+
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+
+		if pItem then
+
+			local mysticIndex = tonumber(Ranking.getSub(pItem,nIndex-1))
+			if mysticIndex > 0 and mysticIndex <= table.getn(MysticShopConfig.items) then
+
+				local nCount  = Ranking.getPoint(pItem)
+				local nBuyFalg = tonumber(Ranking.getSub(pItem,nCount + nIndex - 1))
+				if nBuyFalg ~= nil and nBuyFalg == 0 then
+
+					local nConfig = MysticShopConfig.items[mysticIndex]
+					
+					if nConfig.itemId == nil then return end
+
+					local bCanAdd = false
+					local nMoney = nConfig.curmoney
+					if nConfig.type == 1 then		--金币
+						if nMoney <= Actor.getIntProperty(sysarg,PROP_ACTOR_COIN) then
+							bCanAdd = true
+						else
+							Actor.sendTipmsg(sysarg, Lang.Activity.com001, ttFlyTip)
+							return
+						end
+					elseif nConfig.type == 2 then		--礼卷
+						if nMoney <= Actor.getIntProperty(sysarg,PROP_ACTOR_BIND_YUANBAO) then
+							bCanAdd = true
+						else
+							Actor.sendTipmsg(sysarg, Lang.Activity.com002, ttFlyTip)
+							return
+						end
+					elseif nConfig.type == 3 then		--元宝
+						if nMoney <= Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO) then
+							bCanAdd = true
+						else
+							Actor.sendTipmsg(sysarg, Lang.Activity.com003, ttFlyTip)
+							return
+						end
+					end
+
+					if bCanAdd == true then
+						local hasCount = Item.getBagEmptyGridCount(sysarg)
+
+						if hasCount < 1 then
+							Actor.sendTipmsg(sysarg, Lang.Activity.com005, ttFlyTip)
+							return
+						end
+
+						local sItem = Item.getItemName(nConfig.itemId)
+						if sItem == nil then
+							sItem = Lang.Activity.com004
+						end
+
+						Actor.changeMoney(sysarg,nConfig.type,-nMoney,829,Lang.Activity.com004)
+						Actor.addItem(sysarg,nConfig.itemId,0,0,nConfig.count,nConfig.bind)
+						
+						System.addBuyMysticRecord(nConfig.itemId,Actor.getName(sysarg),nMoney,nConfig.type)
+
+						if nConfig.bBroadCast ~= nil then
+							if nConfig.bBroadCast == true then
+								local myName = Actor.getName(sysarg)
+								local strItem = Item.getItemName(nConfig.itemId)
+								if strItem ~= nil and myName ~= nil then 
+									if System.getMysticState() == 0 then
+										System.broadcastTipmsg(string.format(Lang.Activity.com017,myName,strItem),2+128)
+									else
+										System.broadcastTipmsg(string.format(Lang.Activity.com019,myName,strItem),2+128)
+									end
+								end
+							end
+						end
+
+						for i=1,nCount do 
+							Ranking.setSub(pItem,i-1+nCount,1)
+						end
+
+						local pack = DataPack.allocPacket(sysarg, 26, 38)
+						if (pack ~= nil) then
+							DataPack.writeInt(pack,nIndex)
+							DataPack.writeInt(pack,nItemId)
+							DataPack.writeByte(pack,1)
+							DataPack.flush(pack)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+--刷新神秘商店的物品
+function OnFreshMysticItemOp(sysarg,args)
+	local myYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+	if myYb < MysticShopConfig.freshNeedYb then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.com006,MysticShopConfig.freshNeedYb), ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,3,-MysticShopConfig.freshNeedYb,823,Lang.Activity.com007)
+
+	FreshMysticShopOnTime(sysarg,true)
+	SendCombineMysticItemOp(sysarg)
+end
+
+--定时刷新神秘商店
+function FreshMysticOnTime()
+	if System.getDaysSinceCombineServer() <= 5 or System.getMysticState() == 1 then
+		local ranking = Ranking.getRanking(MysticShopConfig.rankName)
+		if ranking then
+			local itemCount = Ranking.getRankItemCount(ranking)
+			for i=1,itemCount do
+				local pItem = Ranking.getItemFromIndex(ranking,i-1)
+				if pItem then
+					Ranking.setSub(pItem,8,1)		--需要刷新
+				end
+			end
+		end
+
+		local playerList = LuaHelp.getAllActorList()		--获取所有玩家
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					local pack = DataPack.allocPacket(sysarg, 26, 39)
+					if (pack ~= nil) then
+						DataPack.flush(pack)
+					end
+				end
+			end
+		end
+	end
+end
+
+--合区第五天24点结算
+function OnAccountCombineActivity()
+	AccountDrayYbOp()
+	AccountCombineLevelOp()
+	AccountCombineBattle()
+end
+
+--充值结算
+function AccountDrayYbOp()
+	local ranking = Ranking.getRanking("CombineServerActivity3")
+	if ranking then
+		local itemCount = Ranking.getRankItemCount(ranking)
+		for i=1,itemCount do
+			local pItem = Ranking.getItemFromIndex(ranking,i-1)
+			if pItem then
+				if i <= 3 and Ranking.getPoint(pItem) >= CombineActivity[3].allAwards[i].value then
+					System.onAccountCombineActivityOp(Ranking.getId(pItem),3,i,string.format(Lang.Activity.com008,i),table.getn(CombineActivity[3].allAwards[i].awards))
+				end
+
+				--if Ranking.getPoint(pItem) >= CombineActivity[3].allAwards[4].value then
+					--System.onAccountCombineActivityOp(Ranking.getId(pItem),3,4,Lang.Activity.com012,table.getn(CombineActivity[3].allAwards[4].awards))
+				--end
+			end
+		end
+	end
+end
+
+--等级结算
+function AccountCombineLevelOp()
+	local ranking = Ranking.getRanking("CombineServerActivity4")
+	if ranking then	
+		local itemCount = Ranking.getRankItemCount(ranking)
+		local awardJop = {0,0,0}
+
+		for j=1,3 do
+			for k=1,itemCount do
+				local pItem = Ranking.getItemFromIndex(ranking,k-1)
+				if pItem then
+					local nJob = tonumber(Ranking.getSub(pItem,1))
+					if nJob == j then
+						System.onAccountCombineActivityOp(Ranking.getId(pItem),4,j,string.format(Lang.Activity.com013,j),table.getn(CombineActivity[4].allAwards[j].awards))
+						awardJop[j] = k
+						break
+					end
+				end
+			end
+		end
+
+		for i=1,itemCount do
+			if i > 10 then
+				break
+			end
+			
+			local bWard = true
+			for k=1,3 do
+				if awardJop[k] == i then
+					bWard = false
+					break
+				end
+			end
+
+			local pItem = Ranking.getItemFromIndex(ranking,i-1)
+			if bWard == true and pItem then
+				local nLevel = tonumber(Ranking.getSub(pItem,3))
+				local sname = Ranking.getSub(pItem,0)
+				if Ranking.getPoint(pItem) >= CombineActivity[4].allAwards[1].value then
+					System.onAccountCombineActivityOp(Ranking.getId(pItem),4,4,Lang.Activity.com014,table.getn(CombineActivity[4].allAwards[4].awards))
+				end
+
+				local nCircle = tonumber(Ranking.getSub(pItem,2))
+				if nLevel >= CombineActivity[7].allAwards[1].value or nCircle > 0 then
+					--System.onAccountCombineActivityOp(Ranking.getId(pItem),7,1,Lang.Activity.com008,table.getn(MysticShopConfig[7].allAwards[1]))
+					Ranking.setSub(pItem,8,1)
+					local pActor = Actor.getActorByName(Ranking.getSub(pItem,0))
+					if pActor then
+						SendCombineLevelAwardTips(pActor)
+					end
+				end
+			end
+		end
+	end
+end
+
+--下发等级达到60级的玩家领取奖励提示
+function SendCombineLevelAwardTips(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 26, 36)
+	if (pack ~= nil) then
+		DataPack.flush(pack)
+	end
+end
+
+--战力结算
+function AccountCombineBattle()
+	local ranking = Ranking.getRanking("CombineServerActivity5")
+	if ranking then
+		local itemCount = Ranking.getRankItemCount(ranking)
+		for i=1,itemCount do
+			if i > 10 then
+				break
+			end
+
+			local pItem = Ranking.getItemFromIndex(ranking,i-1)
+			if pItem then
+				if i <= 3 and Ranking.getPoint(pItem) >= CombineActivity[5].allAwards[i].value then
+					System.onAccountCombineActivityOp(Ranking.getId(pItem),5,i,string.format(Lang.Activity.com015,i),table.getn(CombineActivity[5].allAwards[i].awards))
+				end
+
+				if i > 3 and Ranking.getPoint(pItem) >= CombineActivity[5].allAwards[4].value then
+					System.onAccountCombineActivityOp(Ranking.getId(pItem),5,4,Lang.Activity.com016,table.getn(CombineActivity[5].allAwards[4].awards))
+				end
+			end
+		end
+	end
+end
+
+--领取合区的奖励
+function OnGetCombineActivityAward(sysarg,args)
+	local nId = args[2]				--第几个活动
+	local nIndex = args[3]			--什么档次的奖励
+	
+	if CombineActivity[nId].allAwards[nIndex] == nil then return end
+	
+	if Awards.CheckBagGridCount(sysarg,CombineActivity[nId].allAwards[nIndex].awards) then
+		local nJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+		local nSex = Actor.getIntProperty( sysarg, PROP_ACTOR_SEX )
+		
+		local awardConfig = CombineActivity[nId].allAwards[nIndex].awards
+		for i=1,table.getn(CombineActivity[nId].allAwards[nIndex].awards) do
+			local bCanAward = true
+			if awardConfig[i].job ~= nil then
+				if awardConfig[i].job ~= nJob then
+					bCanAward = false
+				end
+			end
+
+			if awardConfig[i].sex ~= nil then
+				if awardConfig[i].sex ~= nSex then
+					bCanAward = false
+				end
+			end
+
+			if bCanAward == true then
+				Actor.giveAward(sysarg,awardConfig[i].type,awardConfig[i].id,awardConfig[i].count,awardConfig[i].quality,awardConfig[i].strong,awardConfig[i].bind,0,817,Lang.GuildLang.com009)
+			end
+		end
+		--Awards.Give(sysarg,CombineActivity[nId].allAwards[nIndex].awards,817,Lang.Activity.com009)
+	end
+end
+
+--领取等级60的合区奖励
+function OnGetCombineLevelAward(sysarg,args)
+	local ranking = Ranking.getRanking("CombineServerActivity4")
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		
+		if pItem then
+			local nLevel = tonumber(Ranking.getSub(pItem,3))
+			local nCircle = tonumber(Ranking.getSub(pItem,2))
+			if nLevel >= CombineActivity[7].allAwards[1].value or nCircle > 0 then
+				if tonumber(Ranking.getSub(pItem,8)) == 2 then
+					Actor.sendTipmsg(sysarg, Lang.Activity.com011, ttFlyTip)
+					return
+				end
+
+				if Awards.CheckBagGridCount(sysarg,CombineActivity[7].allAwards[1].awards) then
+					Awards.Give(sysarg,CombineActivity[7].allAwards[1].awards,817,Lang.Activity.com009)
+					Ranking.setSub(pItem,8,2)
+				end
+			else
+				Actor.sendTipmsg(sysarg, Lang.Activity.com010, ttFlyTip)
+			end
+		else
+			Actor.sendTipmsg(sysarg, Lang.Activity.com010, ttFlyTip)
+		end
+	end
+end
+
+--活动获得的奖励倍数
+function GetCombineActivityRate()
+	local nCombineDays = System.getDaysSinceCombineServer()
+	if nCombineDays > 0 and nCombineDays < 6 then
+		return 2
+	else
+		return 1
+	end
+end
+
+--合区等级排名提前刷新
+function OnFreshCombineLevelRank()
+	System.updateCombinebattleRank()
+	System.freshCombineLevelOnTime()
+end
+
+--更新战力排名
+function OnFreshCombineBattleRank()
+	System.updateCombinebattleRank()
+end
+
+
+--合区后提取元宝处理
+function OnCombineDrayOp(sysarg,args)
+	local ranking = Ranking.getRanking("CombineServerActivity3")
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+		
+		if pItem then
+			local nValue = tonumber(Ranking.getPoint(pItem))
+			local nCount = table.getn(CombineActivity[3].allAwards)
+			local nResult = tonumber(Ranking.getSub(pItem,8))
+			for i=4,nCount do
+				if nValue >= CombineActivity[3].allAwards[i].value and nResult < i - 3 then
+					System.onAccountCombineActivityOp(nActorId,3,i,string.format(Lang.Activity.com012,CombineActivity[3].allAwards[i].value),table.getn(CombineActivity[3].allAwards[i].awards))
+					nResult = nResult + 1
+				end
+			end
+
+			Ranking.setSub(pItem,8,tostring(nResult))
+		end
+
+		Ranking.save(ranking,"CombineServerActivity3.txt")
+	end
+end

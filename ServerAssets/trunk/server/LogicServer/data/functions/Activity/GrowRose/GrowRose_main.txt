@@ -1,0 +1,470 @@
+﻿--比奇城:玫瑰小姐
+
+--#include "CallParterCommon.txt" once
+--#include "data\functions\Activity\Common\Consumes.txt" once
+--#include "data\functions\Activity\GrowRose\AutoRun.txt" once
+
+
+--[[
+    函数名称：
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function GrowRose_Main(sysarg)
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- svar.getGrowSeed = nil
+	local config = GrowRoseConfig
+	if (not config) then return "" end
+	local str = ""
+	--str = str.."\\<#BL"..Lang.Activity.t00132.."/@OnGrowRose>"  --<领取玫瑰种子>
+	
+	for k, v in ipairs(config.bomb) do
+		if v.consume then
+			local name = Item.getAwardDesc(v.consume.type, v.consume.id)
+			if v.award.id > 0 then
+				local title = string.format(Lang.Activity.seed001,v.award.count,Item.getItemName(v.award.id), v.consume.count,name)
+				str = str.."\\<#BL"..title.."/@OnBuyBomb,"..k..">"  --<购买>
+			end
+		else
+			if v.award.id > 0 then
+				local title = string.format(Lang.Activity.seed002,v.award.count,Item.getItemName(v.award.id))
+				str = str.."\\<#BL"..title.."/@OnBuyBomb,"..k..">"  --<免费领取>
+			end
+		end
+	end
+	
+	--str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<离开>
+	return str
+end
+
+function OnBuyBomb(sysarg, idx)
+	-- local idx = tonumber(idx)
+	-- local bomb = GrowRoseConfig.bomb
+	
+	-- if not bomb then return end
+	-- if idx < 1 or idx > table.getn(bomb) then return end
+	-- local config = bomb[idx]
+	-- if not config then return end
+	
+	-- local name = ""
+	-- --等级
+	-- if Actor.checkActorLevel(sysarg, GrowRoseConfig.limitLevel, 0) ~= true  then 
+	-- 	local tips = string.format(Lang.Activity.t00112, name, GrowRoseConfig.limitLevel)
+	-- 	Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+	-- 	return false
+	-- end
+	
+	-- --检测背包
+	-- local hasCount = Item.getBagEmptyGridCount(sysarg)
+	-- if hasCount < 1 then 
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00111, name), ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- if config.consume then
+	-- 	--是否够消耗
+	-- 	local bCheck = Actor.checkConsume(sysarg, config.consume.type, config.consume.id, config.consume.count) 
+	-- 	if bCheck ~= true then
+	-- 		local desc = Item.getAwardDesc(config.consume.type, config.consume.id)
+	-- 		Actor.sendTipmsg(sysarg,  string.format(Lang.Activity.t00117, name, desc, config.consume.count), ttFlyTip)
+	-- 		return
+	-- 	end
+		
+	-- 	local consumes = {}
+	-- 	table.insert(consumes, config.consume)
+	-- 	local bResult = Consumes.Remove(sysarg, consumes, 703, Lang.LogTips.l00083)
+	-- 	if bResult ~= true then
+	-- 		return
+	-- 	end
+	-- else
+	-- 	--种植次数
+	-- 	local svar = Actor.getStaticVar(sysarg)
+	-- 	local getGrowSeed = svar.getFreeGrowSeed
+	-- 	if not getGrowSeed then
+	-- 		svar.getFreeGrowSeed = {}
+	-- 		svar.getFreeGrowSeed[config.award.id] = 0
+	-- 		getGrowSeed = svar.getFreeGrowSeed
+	-- 	end
+	-- 	if getGrowSeed[config.award.id] >= config.times then 
+	-- 		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.seed004, Item.getItemName(config.award.id)), ttFlyTip)
+	-- 		return 
+	-- 	end
+		
+	-- 	svar.getFreeGrowSeed[config.award.id] = getGrowSeed[config.award.id] + 1
+	-- end
+	
+	-- local award = config.award
+	-- if award ~= nil or award ~= {} then		--种植次数增加
+	-- 	Actor.giveAward(sysarg, award.type, award.id, award.count, 0, 0, award.bind, 0, 704, Lang.LogTips.l00084)
+	-- end
+	
+	
+	-- --local str = "\\<#BL"..Lang.Activity.t00104.."/@TelportMembers>"  --<传送到玫瑰种植区域>
+	-- local str = Lang.Activity.seed003
+	-- if config.consume then
+	-- 	str = Lang.Activity.t00138
+	-- end
+	-- return str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+end
+
+function OnGrowRose(sysarg)
+	local str = Lang.Activity.t00100
+	
+	str = str.."\\<#BL"..Lang.Activity.t00103.."/@GetSingleSeed>"  --<单人-领取玫瑰种子>
+	str = str.."\\<#BL"..Lang.Activity.t00101.."/@GetDoubleSeed>"  --<双人-领取玫瑰种子>
+	str = str.."\\<#BL"..Lang.Activity.t00102.."/@RecruitMembers>"  --<招募异性>
+	str = str.."\\<#BL"..Lang.Activity.t00104.."/@TelportMembers>"  --<传送到玫瑰种植区域>
+	str = str.."\\<#BL"..Lang.Activity.a00031.."/@AboutGrowRose>"  --<详情>
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+function GetDoubleSeed(sysarg)
+	local config = GrowRoseConfig
+	if not config.doubleSeed then return "" end
+	local str = Lang.Activity.t00105
+	for k, v in ipairs(config.doubleSeed) do
+		if not v.consume.type then
+			if v.award.id > 0 then
+				local title = string.format(Lang.Activity.t00106, Item.getItemName(v.award.id))
+				str = str.."\\<#BL"..title.."/@OnGetDoubleSeed,"..k..">"  --<双人-领取玫瑰种子>
+			end
+		else
+			local name = Item.getAwardDesc(v.consume.type, v.consume.id)
+			if v.award.id > 0 then
+				local title = string.format(Lang.Activity.t00107, v.consume.count, name, Item.getItemName(v.award.id))
+				str = str.."\\<#BL"..title.."/@OnGetDoubleSeed,"..k..">"  --<双人-领取玫瑰种子>
+			end
+		end
+	end
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@OnGrowRose>"  --<返回>
+	return str
+
+end
+
+function OnGetDoubleSeed(sysarg, idx)
+	-- local idx = tonumber(idx)
+	-- local doubleSeed = GrowRoseConfig.doubleSeed
+	-- local singleSeed  = GrowRoseConfig.singleSeed
+	-- if not doubleSeed then return end
+	-- if idx < 1 or idx > table.getn(doubleSeed) then return end
+	-- local config = doubleSeed[idx]
+	-- if not config then return end
+	-- if Actor.isInTeam(sysarg) ~= true then
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.t00108, ttFlyTip)
+	-- 	return
+	-- end
+	-- local teamMemb = LuaHelp.getTeamMemberList(sysarg)
+	-- if table.getn(teamMemb) ~= 2 then 
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.t00109, ttFlyTip)
+	-- 	return
+	-- end
+	-- if Actor.getIntProperty(teamMemb[1], PROP_ACTOR_SEX) == Actor.getIntProperty(teamMemb[2], PROP_ACTOR_SEX) then
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.t00110, ttFlyTip)
+	-- 	return
+	-- end
+	-- --检测背包
+	-- local hasCount = Item.getBagEmptyGridCount(sysarg)
+	-- if hasCount < 1 then 
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00111, ""), ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- --是否有物品
+	-- if doubleSeed ~= nil then
+	-- 	for m, n in ipairs(doubleSeed) do
+	-- 		local hasCount = Actor.getItemCount(sysarg, n.award.id)
+	-- 		if hasCount > 0 then
+	-- 			Actor.sendTipmsg(sysarg,  string.format(Lang.Activity.t00116, ""), ttFlyTip)
+	-- 			return
+	-- 		end
+	-- 	end
+	-- end
+	-- --是否有物品
+	-- if singleSeed ~= nil then
+	-- 	for m, n in ipairs(singleSeed) do
+	-- 		local hasCount = Actor.getItemCount(sysarg, n.award.id)
+	-- 		if hasCount > 0 then
+	-- 			Actor.sendTipmsg(sysarg,  string.format(Lang.Activity.t00116, ""), ttFlyTip)
+	-- 			return
+	-- 		end
+	-- 	end
+	-- end
+	-- local name = ""
+	-- local npcSceName,npcX,npcY = Actor.getSceneName(thisNPC, 0, 0)
+	-- for k, v in ipairs(teamMemb) do
+		
+	-- 	if v ~= sysarg then
+	-- 		name = Actor.getName(v)
+	-- 	end
+	-- 	--等级
+	-- 	if Actor.checkActorLevel(v, GrowRoseConfig.limitLevel, 0) ~= true  then 
+	-- 		local tips = string.format(Lang.Activity.t00112, name, GrowRoseConfig.limitLevel)
+	-- 		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+	-- 		return false
+	-- 	end
+		
+	-- 	--位置
+	-- 	local memSceName, memX, memY = Actor.getSceneName(v, 0, 0)
+	-- 	if npcSceName ~= memSceName or (math.abs(memX - npcX) > 10 and math.abs(memY - npcY) > 10) then
+	-- 		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00113, name), ttFlyTip)
+	-- 		return
+	-- 	end
+	-- end
+	
+	-- --种植次数
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- local getGrowSeed = svar.getGrowSeed
+	-- if not getGrowSeed then
+	-- 	getGrowSeed = 0
+	-- end
+	-- if getGrowSeed >= GrowRoseConfig.getSeedTimes then 
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00114, name,GrowRoseConfig.getSeedTimes), ttFlyTip)
+	-- 	return 
+	-- end
+	
+	-- if config.consume.type then
+	-- 	--是否够消耗
+	-- 	local bCheck = Actor.checkConsume(sysarg, config.consume.type, config.consume.id, config.consume.count) 
+	-- 	if bCheck ~= true then
+	-- 		local desc = Item.getAwardDesc(config.consume.type, config.consume.id)
+	-- 		Actor.sendTipmsg(sysarg,  string.format(Lang.Activity.t00117, "", desc, config.consume.count), ttFlyTip)
+	-- 		return
+	-- 	end
+		
+	-- 	local consumes = {}
+	-- 	table.insert(consumes, config.consume)
+	-- 	local bResult = Consumes.Remove(sysarg, consumes, 703, Lang.LogTips.l00083)
+	-- 	if bResult ~= true then
+	-- 		return
+	-- 	end
+	-- end
+		
+	-- local award = config.award
+	-- if award ~= nil or award ~= {} then
+	-- 	--种植次数增加
+	-- 	local svar = Actor.getStaticVar(sysarg)
+	-- 	local getGrowSeed = svar.getGrowSeed
+	-- 	if not getGrowSeed then
+	-- 		getGrowSeed = 0
+	-- 	end
+	-- 	getGrowSeed = getGrowSeed + 1
+	-- 	svar.getGrowSeed = getGrowSeed
+	-- 	Actor.triggerAchieveEvent(sysarg,44,13,getGrowSeed)		--成就
+	-- 	Actor.giveAward(sysarg, award.type, award.id, award.count, 0, 0, award.bind, 0, 704, Lang.LogTips.l00084)
+	-- end
+	
+	-- Actor.setWorkDayMask(sysarg, 0, 15, true)	--设置当天秒活动完成
+	
+	-- local str = "\\<#BL"..Lang.Activity.t00104.."/@TelportMembers>"  --<传送到玫瑰种植区域>
+	-- return str..Lang.Activity.t00118.."\\<#BL"..Lang.Activity.a00101.."/@OnGrowRose>"  --<返回>
+end
+
+function GetSingleSeed(sysarg)
+	local config = GrowRoseConfig
+	if not config.singleSeed then return "" end
+	local str = Lang.Activity.t00105
+	for k, v in ipairs(config.singleSeed) do
+		if not v.consume.type then
+			if v.award.id > 0 then
+				local title = string.format(Lang.Activity.t00106, Item.getItemName(v.award.id))
+				str = str.."\\<#BL"..title.."/@OnGetSingleSeed,"..k..">"  --<双人-领取玫瑰种子>
+			end
+		else
+			local name = Item.getAwardDesc(v.consume.type, v.consume.id)
+			if v.award.id > 0 then
+				local title = string.format(Lang.Activity.t00107, v.consume.count, name, Item.getItemName(v.award.id))
+				str = str.."\\<#BL"..title.."/@OnGetSingleSeed,"..k..">"  --<双人-领取玫瑰种子>
+			end
+		end
+	end
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@OnGrowRose>"  --<返回>
+	return str
+end
+
+function OnGetSingleSeed(sysarg, idx)
+	-- local idx = tonumber(idx)
+	-- local singleSeed = GrowRoseConfig.singleSeed
+	-- local doubleSeed = GrowRoseConfig.doubleSeed
+	-- if not singleSeed then return end
+	-- if idx < 1 or idx > table.getn(singleSeed) then return end
+	-- local config = singleSeed[idx]
+	-- if not config then return end
+	
+	-- local name = ""
+	-- --等级
+	-- if Actor.checkActorLevel(sysarg, GrowRoseConfig.limitLevel, 0) ~= true  then 
+	-- 	local tips = string.format(Lang.Activity.t00112, name, GrowRoseConfig.limitLevel)
+	-- 	Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+	-- 	return false
+	-- end
+
+	
+	-- --种植次数
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- local getGrowSeed = svar.getGrowSeed
+	-- if not getGrowSeed then
+	-- 	getGrowSeed = 0
+	-- end
+	-- if getGrowSeed >= GrowRoseConfig.getSeedTimes then 
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00114, name, GrowRoseConfig.getSeedTimes), ttFlyTip)
+	-- 	return 
+	-- end
+	
+	-- --检测背包
+	-- local hasCount = Item.getBagEmptyGridCount(sysarg)
+	-- if hasCount < 1 then 
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00111, name), ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- --是否有物品	
+	-- if singleSeed ~= nil then
+	-- 	for m, n in ipairs(singleSeed) do
+	-- 		local hasCount = Actor.getItemCount(sysarg, n.award.id)
+	-- 		if hasCount > 0 then
+	-- 			Actor.sendTipmsg(sysarg,  string.format(Lang.Activity.t00116, name), ttFlyTip)
+	-- 			return
+	-- 		end
+	-- 	end
+	-- end
+	-- if doubleSeed ~= nil then
+	-- 	for m, n in ipairs(doubleSeed) do
+	-- 		local hasCount = Actor.getItemCount(sysarg, n.award.id)
+	-- 		if hasCount > 0 then
+	-- 			Actor.sendTipmsg(sysarg,  string.format(Lang.Activity.t00116, name), ttFlyTip)
+	-- 			return
+	-- 		end
+	-- 	end
+	-- end
+	
+	-- if config.consume.type then
+	-- 	--是否够消耗
+	-- 	local bCheck = Actor.checkConsume(sysarg, config.consume.type, config.consume.id, config.consume.count) 
+	-- 	if bCheck ~= true then
+	-- 		local desc = Item.getAwardDesc(config.consume.type, config.consume.id)
+	-- 		Actor.sendTipmsg(sysarg,  string.format(Lang.Activity.t00117, name, desc, config.consume.count), ttFlyTip)
+	-- 		return
+	-- 	end
+		
+	-- 	local consumes = {}
+	-- 	table.insert(consumes, config.consume)
+	-- 	local bResult = Consumes.Remove(sysarg, consumes, 703, Lang.LogTips.l00083)
+	-- 	if bResult ~= true then
+	-- 		return
+	-- 	end
+	-- end
+	
+	-- local award = config.award
+	-- if award ~= nil or award ~= {} then
+	-- 	--种植次数增加
+	-- 	local svar = Actor.getStaticVar(sysarg)
+	-- 	local getGrowSeed = svar.getGrowSeed
+	-- 	if not getGrowSeed then
+	-- 		getGrowSeed = 0
+	-- 	end
+	-- 	getGrowSeed = getGrowSeed + 1
+	-- 	svar.getGrowSeed = getGrowSeed
+	-- 	Actor.triggerAchieveEvent(sysarg,44,13,getGrowSeed)		--成就
+
+	-- 	Actor.giveAward(sysarg, award.type, award.id, award.count, 0, 0, award.bind, 0, 704, Lang.LogTips.l00084)
+	-- end
+	
+	-- Actor.setWorkDayMask(sysarg, 0, 15, true)	--设置当天秒活动完成
+	
+	-- local str = "\\<#BL"..Lang.Activity.t00104.."/@TelportMembers>"  --<传送到玫瑰种植区域>
+	-- return str..Lang.Activity.t00118.."\\<#BL"..Lang.Activity.a00101.."/@OnGrowRose>"  --<返回>
+end
+
+function RecruitMembers(sysarg)
+	local config = GrowRoseConfig
+	local curTime = System.getCurrMiniTime()
+	local dvar = Actor.getDyanmicVar(sysarg)
+	local RecruitMembersTime = dvar.RecruitMembersTime
+	if RecruitMembersTime then
+		if curTime - RecruitMembersTime < config.recruitCd then
+			Actor.sendTipmsg(sysarg, Lang.Activity.t00129, ttFlyTip)
+			return
+		end
+	end
+	if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true then 
+		local tips = string.format(Lang.Activity.t00130, "", config.limitLevel)
+		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+		return 
+	end
+	if Actor.isInTeam(sysarg) ~= false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00131, ttFlyTip)
+		return 
+	end
+	local name = Actor.getName(sysarg)
+	local sex = {Lang.Activity.t00119, Lang.Activity.t00120}
+	local sex1, sex2 = 0, 0
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_SEX) == 0 then
+		sex1, sex2 = 1, 2
+	else
+		sex1, sex2 = 2, 1
+	end
+	dvar.RecruitMembersTime = curTime
+	System.broadcastTipmsgLimitLev(string.format(Lang.Activity.t00115, name,sex[sex1],sex[sex2],name), ttChatWindow, GrowRoseConfig.limitLevel)
+end
+
+function TelportMembers(sysarg)
+	local config = GrowRoseConfig
+	if CheckHasSeed(sysarg) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00133, ttFlyTip)
+		return
+	end
+	local teamMemb = LuaHelp.getTeamMemberList(sysarg)
+	if Actor.isInTeam(sysarg) ~= true or teamMemb == nil or table.getn(teamMemb) <= 1 then
+		Actor.enterScene(sysarg, config.transArea.sid, config.transArea.x, config.transArea.y)
+	else
+		for k, v in ipairs(teamMemb) do
+			if v ~= sysarg then
+				if CheckHasSeed(v) ~= true then
+					Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00136, Actor.getName(v)), ttFlyTip)
+					return
+				else
+					Actor.enterScene(v, config.transArea.sid, config.transArea.x, config.transArea.y)
+					Actor.enterScene(sysarg, config.transArea.sid, config.transArea.x, config.transArea.y)
+				end
+			end
+		end
+	end
+	
+	Actor.closeNPCDialog(sysarg)
+end
+
+function CheckHasSeed(sysarg)
+	local config = GrowRoseConfig
+	local singleSeed = config.singleSeed
+	local doubleSeed = config.doubleSeed
+	--是否有物品	
+	if singleSeed ~= nil then
+		for m, n in ipairs(singleSeed) do
+			local hasCount = Actor.getItemCount(sysarg, n.award.id)
+			if hasCount > 0 then
+				return true
+			end
+		end
+	end
+	if doubleSeed ~= nil then
+		for m, n in ipairs(doubleSeed) do
+			local hasCount = Actor.getItemCount(sysarg, n.award.id)
+			if hasCount > 0 then
+				return true
+			end
+		end
+	end
+	
+	return false
+end
+
+--详情
+function AboutGrowRose(sysarg)
+	local str = ""
+	str = str..Lang.Activity.t00121
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@OnGrowRose>"  --<返回>
+	return str
+end
+
+table.insert(MainFnTable, GrowRose_Main)

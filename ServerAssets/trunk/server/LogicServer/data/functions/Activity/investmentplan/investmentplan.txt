@@ -1,0 +1,184 @@
+﻿--#include "data\config\activityconfig\investmentplan\investmentplanConfig.txt" once		-- 配置文件
+
+--数据初始化
+function initinvestmentplan(sysarg)
+  local actorVar = Actor.getStaticVar(sysarg)
+  if not actorVar.Investmentplan then
+     actorVar.Investmentplan = {}
+  end
+  for i = 1, table.getn(investmentplanConfig) do
+      if not actorVar.Investmentplan[i] then
+         actorVar.Investmentplan[i] = {}
+      end
+      if actorVar.Investmentplan[i].time == nil then
+         actorVar.Investmentplan[i].time = 0
+      end 
+      if actorVar.Investmentplan[i].Awarglog == nil then
+         actorVar.Investmentplan[i].Awarglog = {}
+      end
+      local Config = investmentplanConfig[i].Award
+      for j = 1, table.getn(Config) do  
+          if actorVar.Investmentplan[i].Awarglog[j] == nil then
+             actorVar.Investmentplan[i].Awarglog[j] = 0
+          end
+      end
+      local Day = GetDaysinceinvestmentplan(sysarg, i)--第几天
+      --print("initinvestmentplanDay:"..Day)
+      if Day > 0 then
+         for k = 1, Day do
+             if actorVar.Investmentplan[i].Awarglog[k] == 0 then
+                actorVar.Investmentplan[i].Awarglog[k] = 1
+             end
+         end
+       end
+  end
+end
+
+--隔天或者请求的时候数据处理 
+ 
+--通过时间点来计算这是投资的第几天
+function GetDaysinceinvestmentplan(sysarg,nds)
+   local actorVar = Actor.getStaticVar(sysarg)
+   local time = actorVar.Investmentplan[nds].time 
+   --print("GetDaysinceinvestmentplan:time"..time)
+   if time ==0 then--小于当前时间返回0 
+      return 0
+   end
+   local Tomorrow = System.getTomorrow()--得到明天的时间节点 
+   --print("GetDaysinceinvestmentplan:Tomorrow"..Tomorrow)
+   --时间计算到当天零点
+   local Day = math.floor((Tomorrow - time)/3600/24) + 1 
+   return Day
+end
+
+ 
+--客户端请求投资 
+function ClientAskInvestment(sysarg, packet)
+   --请求第几项投资计划 
+   local nds = DataPack.readByte(packet)
+   if nds <= 0 or nds >table.getn(investmentplanConfig) then
+      Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan001, 130) 
+      return 
+   end--下标不对 
+   local nDay = System.getDaysSinceOpenServer()
+   if nDay >= investmentplanConfig[nds].EndDay then
+      Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan011, 130)
+      return
+   end 
+   local actorVar = Actor.getStaticVar(sysarg)
+   if actorVar.Investmentplan[nds].time ~= 0 then
+      Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan002, 130)
+      return
+   end 
+   local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+   local NeedYb = investmentplanConfig[nds].NeedYb
+   if myYb < NeedYb then
+      Actor.sendTipmsg(sysarg, string.format(Lang.Activity.investmentplan003, NeedYb), ttFlyTip)
+      return
+   end
+   if Actor.changeMoney(sysarg, 3, -NeedYb, 1020, string.format(Lang.Activity.investmentplan004, nds)) then
+	  actorVar.Investmentplan[nds].time = System.getCurrMiniTime()
+	  --print("ClientAskInvestmenttime"..actorVar.Investmentplan[nds].time)
+      System.broadcastTipmsg(string.format(Lang.Activity.investmentplan005,Actor.getName(sysarg)),2+128)
+      initinvestmentplan(sysarg)
+      SendClientAwardStatus(sysarg,nds)
+   end
+end
+
+--发送给客户端领取状态
+function SendClientAwardStatus(sysarg,nds)
+  local actorVar = Actor.getStaticVar(sysarg)
+  local Config = investmentplanConfig[nds].Award
+  local npack = DataPack.allocPacket(sysarg,145, 136)
+  DataPack.writeByte(npack, table.getn(Config)+2)
+  DataPack.writeByte(npack, nds)
+  if actorVar.Investmentplan[nds].time > 0 then
+     DataPack.writeByte(npack, 1)
+  else
+     DataPack.writeByte(npack, 0)
+  end
+  for i = 1 , table.getn(Config) do--0为不可领取，1为可领取,2为已领取
+      --print("SendClientAwardStatus"..actorVar.Investmentplan[nds].Awarglog[i])
+      DataPack.writeByte(npack, actorVar.Investmentplan[nds].Awarglog[i])
+  end
+  DataPack.flush(npack)
+end 
+
+--客户端请求投资信息 
+function ClientAskInvestmentInfo(sysarg, packet)
+  --请求第几项投资计划
+  local nds = DataPack.readByte(packet)
+  if nds <= 0 or nds >table.getn(investmentplanConfig) then
+     Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan001, 130)
+     return
+  end--下标不对
+  SendClientAwardStatus(sysarg,nds)
+end
+
+--客户端请求领取投资奖励 
+function ClientAskInvestmentAward(sysarg, packet)
+   --请求第几项投资计划的第几个奖励 
+   local nds = DataPack.readByte(packet)
+   local index = DataPack.readByte(packet)
+   --print("ClientAskInvestmentAward"..nds..","..index)
+   if nds <= 0 or nds >table.getn(investmentplanConfig) then
+      Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan001, 130)
+      return
+   end--下标不对
+   if index <= 0 or index >table.getn(investmentplanConfig[nds].Award) then
+      Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan001, 130)
+      return
+   end--下标不对
+   local actorVar = Actor.getStaticVar(sysarg)
+   if actorVar.Investmentplan[nds].time == 0 then
+      Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan006, 130)
+      return
+   end
+   if actorVar.Investmentplan[nds].Awarglog[index] == 0 then
+      Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan007, 130)
+      return
+   end
+   if actorVar.Investmentplan[nds].Awarglog[index] == 2 then
+      Actor.sendTipmsg(sysarg, Lang.Activity.investmentplan008, 130)
+      return
+   end
+  local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+  local totalGrid = 0
+  local Tb = investmentplanConfig[nds].Award[index]
+  for i = 1, #Tb do
+  	  if Tb[i] ~= nil then
+		 if Tb[i].type == 0 then
+		    if Tb[i].job == 0 or Tb[i].job == myJob then
+			   totalGrid = totalGrid + Item.getAddItemNeedGridCount(sysarg,Tb[i].id,Tb[i].count,Tb[i].quality,Tb[i].strong,Tb[i].bind)
+            end
+		 end
+      end
+  end
+  --判断能否获取物品，因为有背包满的情况
+  if Item.getBagEmptyGridCount(sysarg) < totalGrid then
+     Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.f00059, (totalGrid-Item.getBagEmptyGridCount(sysarg))) ,ttDialog)
+     return
+  end
+  for i = 1, #Tb do
+      if Tb[i].job == 0 or Tb[i].job == myJob then
+         Actor.giveAward(sysarg,Tb[i].type, Tb[i].id, Tb[i].count, Tb[i].quality, Tb[i].strong, Tb[i].bind,0,1015, string.format(Lang.Activity.investmentplan009, nds, index), -1)
+         --System.broadcastTipmsg(string.format(Lang.Activity.investmentplan010,Actor.getName(sysarg), Item.getItemLinkMsg(Tb[i].id)),2+128)
+      end
+  end
+  actorVar.Investmentplan[nds].Awarglog[index] = 2
+  SendClientAwardStatus(sysarg,nds)
+end
+
+--客户端请求投资计划 
+function ClientAskinvestmentplanhandle(sysarg, packet)
+  --数据初始化 
+  initinvestmentplan(sysarg)
+  local nds = DataPack.readByte(packet)
+  if nds == 1 then--请求投资计划信息 
+     ClientAskInvestmentInfo(sysarg, packet)
+  elseif nds == 2 then--请求开启投资计划 
+     ClientAskInvestment(sysarg, packet)
+  elseif nds == 3 then--请求投资计划领奖 
+     ClientAskInvestmentAward(sysarg, packet)
+  end
+end

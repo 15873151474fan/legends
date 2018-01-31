@@ -1,0 +1,67 @@
+--赤月恶魔 放毒
+{
+
+	actions=
+	{
+		{act=0,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+	actRange=
+	{		
+	 --隔一定时间会释放群毒技能；（每秒扣除 2300 血，2300魔，持续1分钟，冷却120S）
+		{
+
+			xStart=-15,--相对于中心点x左边的相对坐标
+			xEnd=15,--相对于中心点x右边的相对坐标
+			yStart=-15,--相对于中心点y上边的相对坐标
+			yEnd=15,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,	
+		  
+
+		  acts=
+		   {
+			{
+
+			 conds=
+			 {
+
+				--{cond = 1,value =1},
+			  {cond = 6,value =1},
+			  --{cond = 16,value =139,param = 78},
+			  --{cond = 22,value =70},
+			  --{cond = 57,value =14},
+			 },
+			 results=
+			 {
+			  {mj=0,timeParam=100,type=1,delay=0,  buffType=1,id=73,rate=0,value=-2300,interval=1,vt=0},
+			  {mj=0,timeParam=100,type=1,delay=0,  buffType=3,id=74,rate=0,value=-2300,interval=1,vt=0},
+			 },
+			 specialEffects=
+			 {
+			  {type=6,mj=0,id=145,keepTime=100000,delay=100,always=false},
+			  --{type=6,mj=0,id=149,keepTime=5000,delay=100,always=false},
+			 },
+			},
+		},
+	  },	  
+	},
+
+		trainConds=
+		{
+
+		},
+		
+		spellConds=
+	{
+		{cond=13,value=15,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=120000,
+	--攻击速度
+
+},

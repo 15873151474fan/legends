@@ -1,0 +1,87 @@
+﻿--lua script
+
+--#include "OperateFunctioins.txt" once --通用函数
+
+--玩家开始强化宠物, args = [操作的类型,宠物的ID]
+function onPetStrong( sysarg, args )
+  local petId = args[2] --宠物的ID
+  local protect =  args[3] --是否使用保护
+  if(protect ==nil) then
+    protect =0
+  end 
+  
+  if (not petId) or (not PetStrongConsume) then return end
+  --宠物属性
+  local petStrong = Pet.getPetProperty(sysarg, petId, 2)
+  --配置最大属性限制
+  local StrongMax = table.getn(PetStrongConsume)
+  --宠物是否属性满级
+  if (petStrong >= StrongMax) then
+    Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00114,ttDialog ) 
+    return 
+  end
+  local strongLev = (petStrong+1)
+  if (not PetStrongConsume[strongLev]) then return end
+  local consumes = PetStrongConsume[strongLev].consume
+  local protectConsumes =    PetStrongConsume[strongLev].protectConsume   --保护的消耗 
+  local canConsume, tipMsg1 = checkConsumes(sysarg, consumes)
+  if canConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00115, tipMsg1),ttDialog )
+    return   
+  end
+  
+  if(protect ==1) then
+    local hasConsume, tipMsg2 = checkConsumes(sysarg, protectConsumes)
+	  if hasConsume == false then
+	    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00185, tipMsg2),ttDialog )
+	    return
+	  end
+  end
+  
+   if(protect ==1) then
+    local hasConsume, tipMsg2 = getConsumes(sysarg, protectConsumes,11)
+	  if hasConsume == false then
+	    if(tipMsg2 ~= nil) then
+	       Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00185, tipMsg2),ttDialog )
+      end
+	    return
+	  end
+  end
+  
+  
+  local hasConsume, tipMsg2 = getConsumes(sysarg, consumes,11)
+  if hasConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00116, tipMsg2),ttDialog )
+    return
+  end 
+  
+ 
+  local rand = System.getRandomNumber( 10000 )
+  if rand < PetStrongConsume[strongLev].prob then
+    Pet.setPetStrong(sysarg, petId, strongLev)
+	Pet.sendPetOpResult(sysarg, petId, 1, true) --发送结果
+	--强化+10以上需要广播
+	if strongLev >=10 then
+		local name = Actor.getName(sysarg) 
+		local petName = Pet.getPetName(sysarg,petId)  --宠物的名字
+		local allmsg = string.format(Lang.ScriptTips.x00097,name,petName,strongLev)
+		System.broadcastTipmsg(allmsg,ttScreenCenter + ttChatWindow)
+	end
+  else
+    if(protect ~=1) then
+      Pet.setPetStrong(sysarg, petId, PetStrongConsume[strongLev].failLevel)
+    end 
+		Pet.sendPetOpResult(sysarg, petId, 1, false)
+  end
+  Actor.triggerQuestEvent(sysarg, 7, 1, 1)
+   
+end
+
+
+
+--获取宠物强化的消耗,args = [操作的类型,宠物的ID]
+function getPetStrongConsume( sysarg, args )
+  local consumes, prob,protectConsume = getPetConsume(sysarg, args, PetStrongConsume, 2)
+  if consumes == nil then return end
+  sendClientPetOperateMsg(sysarg, args, consumes, prob,protectConsume)
+end

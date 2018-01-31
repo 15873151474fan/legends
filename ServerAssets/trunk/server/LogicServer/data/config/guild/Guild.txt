@@ -1,0 +1,325 @@
+﻿--这里定义帮派相关的配置信息，主要是各个帮派等级的限制条件，比如人数上限等，还包括一些全局的帮派设定，比如创建帮派需要的达到的角色等级、
+--绑定银两（银两）等
+GuildConfig = {
+	global = {
+		--全局的配置
+		levelLimit = 53,	--创建帮派时，角色需要达到的最小等级
+		hornItemId = 617,		--行会号角的物品id
+		awardGuildMoney = 300000,	--创建行会时赠送的行会资金
+
+		zjItemId = 619,		--召集令的物品id号 316
+		zjItemId2 = 2200,	--非绑定的召集令
+		buItemId = 620,		--行会集结令的id号 317
+
+		leftTimeLimit = 1,		--恢复玩家主动脱离帮派的限制创建帮派加入其他帮派，这个是配置这个时间，以小时为单位（1小时）
+
+		coinLimit = 500000,		--捐献行会银票获得的行会资金
+		addCoinItemId = 618,		--行会银票的物品id
+
+		minGuildCoin = 0,		--行会资金降为0删除行会
+		decGuildCoinPerDay = 50000,	--每天定日扣除行会资金5000
+		noticeGuildCoin = 50000,		--行会资金低于 行会主殿×5000 的时候进行提示
+
+		warLastTime = 21600,		--宣战持续的时间 单位秒
+		DeclareWarNeedCoin = 50000,	--宣战需要的行会资金
+
+		bidCoin	= 10,			--行会排名竞技消耗的元宝
+		tipsLevel = 53,			--给玩家推荐行会的等级
+
+		SiegeItemId = 616,		--攻城头像
+		SignUpneedCoin = 100000,	--报名沙巴克需要的行会资金
+
+		AutoSignUpNeedCoin = 100000,	--自动报名沙巴克需要的行会资金
+
+		CrossItemId = 1560,			--跨服攻城头像
+		canSignDays = 10,			--开服10天后才可以报名
+
+		AwardYb = 10000,			--开服第一个占领的行会头领奖励的元宝
+
+		HelpNeedCoin = 1000,		--求救需要的个人银两
+		SceenId = 5,			--沙巴克皇宫的场景id
+
+		sendexp = 88,		--送经验
+		sendBindCoin = 88,	--送金币
+		sendGuildGx = 6,	--送荣誉
+		MaxLangNum = 19,		--祝福语的总数量
+
+		sbkOwnerTitleId = 1,				--沙城霸主的头衔id
+		sbkMemberTitleId = 2,				--沙城英雄的头衔id
+
+		nSbkOwnDays = 4,					--连续占领沙巴克的天数
+
+		sendCmdNeedCoin = 1000,				--发送沙巴克指令需要的行会资金
+
+		crossSbkSceneId = 148,				--跨服的玛沙克皇宫场景id
+		SecSbkSceneId = 194,				--卫城的场景id
+
+		SecSbkOwnerTitleId = 28,			--卫城领主的头衔id
+		SecSbkMemberTitleId = 26,			--卫城勇士的头衔id
+
+		GuildCoinGxRate = 1000,				--捐献1000行会获得1贡献
+
+		nEnterCrossId = 158,				--进入跨服战场的地图id
+		nPosX1 = 59,						--降魔进入坐标x
+		nPosY1 = 62,						--降魔进入坐标y
+
+		nPosX2 = 145,						--猎妖进入坐标x
+		nPosY2 = 156,						--猎妖进入坐标y
+
+		addCourage = 1,					--攻城期间被杀添加的勇气值
+		maxCourage = 1,				--勇气增加到10杀一个人清零
+
+		nArrowOpenDay = 7,				--卫城开放的时间
+	},
+
+	--以下是可以领取的召集令的数量
+	zj={
+		--不同权限的人每日可领取召集令的数量
+		--leader:表示帮主每天可领取的召集令的数量
+		--secLeader：副帮主可领取的召集令的数量
+		--member:普通帮众可领取的召集令的数量
+		leader = 2, secLeader = 2, member=1,
+	},
+
+	--领取的行会集结令数量
+	BuildUpItem = {
+		--不同权限的人每日可领取行会集结令的数量
+		--leader:表示帮主每天可领取的福利工资的数量
+		--secLeader：副帮主可领取的福利工资的数量
+		--member:普通帮众可领取的福利工资的数量
+		leader = 1, secLeader = 0, member = 0,
+	},
+
+	--以下是各个等级的配置
+	--注意：如果达到一定的等级后，以后所有的配置都一样的话，可以只配置到这个等级，以后的等级配置按照这个配置
+	--比如，如果帮派达到20级后，大于或等于20级的帮派都是按照20级的配置，那么这里配置文件就只需配置到20级，以后的级数不用再配置
+	guildLevel = {
+		{
+			level = 1,		--帮派等级,这个值起始是1，每次递增1级
+			maxFBZ = 2,		--副帮主数量的上限
+			maxMember = 30,		--该等级帮派所有成员的人数上限
+
+			--这个是升级到下一级需要的元宝
+			needYb = 1000,
+		},
+
+		{
+			--帮派等级2的配置
+			level = 2,
+			maxFBZ = 3,
+			maxMember = 40,
+
+			needYb = 1700,
+		},
+
+		{
+			--帮派等级3的配置
+			level = 3,
+			maxFBZ = 4,
+			maxMember = 50,
+
+			needYb = 2750,
+		},
+
+		{
+			--帮派等级4的配置
+			level = 4,
+			maxFBZ = 5,
+			maxMember = 60,
+
+			needYb = 4150,
+		},
+
+		{
+			--帮派等级5的配置
+			level = 5,
+			maxFBZ = 5,
+			maxMember = 70,
+
+			needYb = 5900,
+		},
+
+		{
+			--帮派等级6的配置
+			level = 6,
+			maxFBZ = 5,
+			maxMember = 80,
+
+			needYb = 8000,
+		},
+
+		{
+			--帮派等级7的配置
+			level = 7,
+			maxFBZ = 5,
+			maxMember = 90,
+
+			needYb = 10450,
+			needCultrueLev = 0,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		{
+			--帮派等级8的配置
+			level = 8,
+			maxFBZ = 5,
+			maxMember = 100,
+
+			needYb = 13250,
+			needCultrueLev = 0,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		{
+			--帮派等级9的配置
+			level = 9,
+			maxFBZ = 5,
+			maxMember = 110,
+
+			needYb = 16400,
+			needCultrueLev = 0,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		{
+			--帮派等级10的配置
+			level = 10,
+			maxFBZ = 5,
+			maxMember = 120,
+
+			needYb = 19900,
+			needCultrueLev = 0,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		--[[{
+			--帮派等级11的配置
+			level = 11,
+			maxFBZ = 5,
+			maxMember = 140,
+
+			needYb = 2500,
+			needCultrueLev = 10,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		{
+			--帮派等级12的配置
+			level = 12,
+			maxFBZ = 5,
+			maxMember = 150,
+
+			needYb = 3000,
+			needCultrueLev = 12,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		{
+			--帮派等级13的配置
+			level = 13,
+			maxFBZ = 5,
+			maxMember = 160,
+
+			needYb = 3500,
+			needCultrueLev = 14,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		{
+			--帮派等级14的配置
+			level = 14,
+			maxFBZ = 5,
+			maxMember = 170,
+
+			needYb = 4000,
+			needCultrueLev = 16,   --需要文明度的等级 默认为0 不用配置
+		},
+		
+		{
+			--帮派等级15的配置
+			level = 15,
+			maxFBZ = 5,
+			maxMember = 180,
+
+			needYb = 4500,
+			needCultrueLev = 18,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		{
+			--帮派等级16的配置
+			level = 16,
+			maxFBZ = 5,
+			maxMember = 190,
+
+			needYb = 5000,
+			needCultrueLev = 20,   --需要文明度的等级 默认为0 不用配置
+		},
+
+		{
+			--帮派等级17的配置
+			level = 17,
+			maxFBZ = 5,
+			maxMember = 200,
+
+			needYb = 0,
+		},]]
+
+	},
+
+	--语音聊天配置
+	guildChat =
+	{
+		{
+			gType = 1,		--语音类型 依次递增
+			chatName = "IS",		--语音名称
+			DownloadAddressD =		--下载地址
+			{
+				"http://d.ispeak.cn/isdown.aspx",
+			},
+			LickAddress =			--连接地址
+			{
+				"http://www.ispeak.cn/isto/?",
+			},
+		},
+
+		{
+			gType = 2,			--语音类型 一次递增
+			chatName = "YY",		--语音名称
+			DownloadAddressD =		--下载地址
+			{
+				"http://www.yy.com/s/download.html",				
+				"http://www.haomc.com/yydown.html?game_id=lhzs",
+			},
+			LickAddress =			--连接地址
+			{
+				"http://yy.duowan.com/go.html#",
+				"http://yy.duowan.com/go.html#",
+			},
+		},
+
+		{
+			gType = 3,			--语音类型 一次递增
+			chatName = "QT",		--语音名称
+			DownloadAddressD =		--下载地址
+			{
+				"http://qt.qq.com/",
+			},
+			LickAddress =			--连接地址
+			{
+				"http://qt.qq.com/go.html#",
+			},
+		},
+
+	},
+
+	FirstSbkAwards =				--首次沙巴克占领着获取奖励:天宫礼包
+	{
+		{type = 0, id = 895, count = 1, quality = 0, strong = 0, bind = 1, param = 0},
+	},
+
+	--首次守沙三次行会首领的奖励
+	DefendSbkThreeAward = 
+	{
+		{type = 0, id = 917, count = 1, quality = 0, strong = 0, bind = 1, param = 0},
+		{type = 0, id = 1222, count = 1, quality = 0, strong = 0, bind = 0, param = 0},
+	},
+
+	--[[首次守沙三次行会副首领的奖励
+	DefendSenMonsterAward = 
+	{
+		{type = 0, id = 624, count = 1, quality = 0, strong = 0, bind = 1, param = 0},
+	},]]
+}

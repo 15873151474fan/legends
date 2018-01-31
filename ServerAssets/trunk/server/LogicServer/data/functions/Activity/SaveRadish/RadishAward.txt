@@ -1,0 +1,241 @@
+﻿--lua script
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\SaveRadish\RadishConfig.txt" once
+
+--获取萝卜副本奖励
+--strPassNum 关数
+--strTimes 波次
+--strRank 排名次
+--strIsRankAward 是否有排名奖励
+--strIsPassAward 是否有通关奖励
+function getRadishFbAward(sysarg, strPassNum, strTimes, strRank, strIsRankAward, strIsPassAward)	
+	--print(sysarg, passNum, times, rank)
+	local passNum = tonumber(strPassNum) or 0
+	local times = tonumber(strTimes) or 0
+	local rank = tonumber(strRank) or 0
+	local isRankAward = tonumber(strIsRankAward) or 0
+	local isPassAward = tonumber(strIsPassAward) or 0
+	
+	if passNum == 0 or times == 0 or rank == 0 then
+		return
+	end
+	
+	local count = 0
+	if isRankAward == 1 then
+		local result = canGetRadishAward(sysarg, passNum, times, 1, rank)
+		count = count + result
+	end
+	
+	if isPassAward == 1 then
+		local result = canGetRadishAward(sysarg, passNum, times, 2, rank)
+		count = count + result
+	end
+	
+	local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+	
+	if bagEmptyGrids < count then
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.tf00008, count),ttFlyTip )
+		giveFubenAwards(sysarg, passNum, times, rank)
+		return
+	end 
+	
+	if isRankAward == 1 then
+		getRadishAwardByType(sysarg, passNum, times, 1, rank)
+	end
+	
+	if isPassAward == 1 then
+		getRadishAwardByType(sysarg, passNum, times, 2, rank)
+	end
+			
+end
+
+function canGetRadishAward(sysarg, passNum, times, awardType, rank)
+		local indexsTable = {}
+		local index = 0
+		local count = 0
+		if awardType == 1 then
+			indexsTable = RadishConfig.awards[passNum].rankAwards.awardIndexs
+		elseif awardType == 2 then
+			indexsTable = RadishConfig.awards[passNum].passAwards.awardIndexs
+		end
+		for i = 1, table.getn(indexsTable or {}) do
+			if times >= indexsTable[i].beginTimes and times <= indexsTable[i].endTimes then
+				index = i
+				break
+			end
+		end	
+		
+		if index > 0 then
+			if index > table.getn(indexsTable) then
+				index = table.getn(indexsTable)
+			end
+			
+			local awardList = {}
+			if awardType == 1 then
+				awardList = RadishConfig.awards[passNum].rankAwards[index]   
+				awardList = awardList[rank]  --排名奖励 
+			elseif awardType == 2 then
+				awardList = RadishConfig.awards[passNum].passAwards[index]  --通关奖励 
+			end
+			
+			for i = 1, table.getn(awardList or {}) do
+				if awardList[i].type == 0 then
+					count = count + Item.getAddItemNeedGridCount( sysarg, awardList[i].id, awardList[i].count, awardList[i].quality, awardList[i].strong, awardList[i].bind)
+				end
+			end
+		end
+		return count
+end
+
+--awardType 1为排名奖励，2为通关奖励
+function getRadishAwardByType(sysarg, passNum, times, awardType, rank)
+		local indexsTable = {}
+		local index = 0
+		if awardType == 1 then
+			indexsTable = RadishConfig.awards[passNum].rankAwards.awardIndexs
+		elseif awardType == 2 then
+			indexsTable = RadishConfig.awards[passNum].passAwards.awardIndexs
+		end
+		for i = 1, table.getn(indexsTable or {}) do
+			if times >= indexsTable[i].beginTimes and times <= indexsTable[i].endTimes then
+				index = i
+				break
+			end
+		end	
+		
+		if index > 0 then
+			if index > table.getn(indexsTable) then
+				index = table.getn(indexsTable)
+			end
+			
+			local awardList = {}
+			if awardType == 1 then
+				awardList = RadishConfig.awards[passNum].rankAwards[index]   
+				awardList = awardList[rank]  --排名奖励 
+			elseif awardType == 2 then
+				awardList = RadishConfig.awards[passNum].passAwards[index]  --通关奖励 
+			end
+			
+			for i = 1, table.getn(awardList or {}) do
+				local count = 0
+				if awardList[i].type == 20 then --活动经验
+	
+					if awardType == 1 then
+						Actor.giveAward(sysarg,awardList[i].type, awardList[i].id, awardList[i].count,0,0,awardList[i].bind,0,934,"get radish rank award")
+					elseif awardType == 2 then
+						Actor.giveAward(sysarg,awardList[i].type, awardList[i].id, awardList[i].count,0,0,awardList[i].bind,0,934,"get radish pass award")
+					end
+				else
+					if awardType == 1 then
+						Actor.giveAward(sysarg,awardList[i].type, awardList[i].id, awardList[i].count,0,0,awardList[i].bind,0,934,"get radish rank award")
+					elseif awardType == 2 then
+						Actor.giveAward(sysarg,awardList[i].type, awardList[i].id, awardList[i].count,0,0,awardList[i].bind,0,934,"get radish pass award")
+					end	
+				end
+			end	
+		end	
+end
+
+
+--给玩家副本排名、通关奖励
+function giveFubenAwards(sysarg, passNum, times, rank)
+    --print("giveFubenAwardspassNum:"..passNum.."times"..times)
+	local actorVar = Actor.getStaticVar(sysarg)
+	if (not actorVar) or (not actorVar.AwardFlag) or (actorVar.AwardFlag < 0) then
+		return 
+	end
+	
+	local sceneName = Fuben.getSceneNameById(RadishConfig.EnterScreens[passNum])
+	local passInfo = string.format(Lang.Activity.w00142, sceneName, times)
+	local rankInfo = ""
+	local isRankAward = 0
+	local isPassAward = 0
+	if times >= RadishConfig.awards[passNum].rankAwards.needGuardTimes then
+		rankInfo = string.format(Lang.Activity.w00143, rank)
+		isRankAward = 1
+	end
+	if times >= RadishConfig.awards[passNum].passAwards.needGuardTimes then
+		isPassAward = 1
+	end
+	
+	local awardInfo = getAwardInfo(sysarg, passNum, times, rank, isRankAward, isPassAward)
+	local title = passInfo
+	title = title .. rankInfo
+	title = title .. awardInfo
+	
+	actorVar.AwardFlag = -1 --设置领取奖励的标记
+	isRankAward = 0
+	--print("giveFubenAwardspassNum:"..passNum.."times"..times)
+	Actor.messageBox(sysarg,0,0, title, Lang.Activity.w00141.."/getRadishFbAward,"..passNum..","..times..","..rank..","..isRankAward..","..isPassAward, nil, nil, 0, 1, Lang.Activity.w00140, 54)
+
+end
+
+--获取奖励信息
+--passNum 关卡数
+--times 波次数
+--rank 排名数
+function getAwardInfo(sysarg, passNum, times, rank, isRankAward, isPassAward)
+	local rankAwardInfo = ""
+	local passAwardInfo = ""
+	local index = 0
+	if isRankAward == 1 then
+		rankAwardInfo = RadishAwardInfo(sysarg, passNum, times, 1, rank)
+		--print(rankAwardInfo)
+		rankAwardInfo = Lang.Activity.w00144 .. rankAwardInfo
+		--print(rankAwardInfo)
+	end
+	
+	if isPassAward == 1 then
+		passAwardInfo = RadishAwardInfo(sysarg, passNum, times, 2, rank)
+		passAwardInfo = Lang.Activity.w00145 .. passAwardInfo
+	end
+	
+	return rankAwardInfo .. passAwardInfo
+end
+
+function RadishAwardInfo(sysarg, passNum, times, awardType, rank)
+		local indexsTable = {}
+		local index = 0
+		local temp = ""
+		if awardType == 1 then
+			indexsTable = RadishConfig.awards[passNum].rankAwards.awardIndexs
+		elseif awardType == 2 then
+			indexsTable = RadishConfig.awards[passNum].passAwards.awardIndexs
+		end
+		for i = 1, table.getn(indexsTable or {}) do
+			if times >= indexsTable[i].beginTimes and times <= indexsTable[i].endTimes then
+				index = i
+				break
+			end
+		end	
+		
+		if index > 0 then
+			if index > table.getn(indexsTable) then
+				index = table.getn(indexsTable)
+			end
+			
+			local awardList = {}
+			if awardType == 1 then
+				awardList = RadishConfig.awards[passNum].rankAwards[index]   
+				awardList = awardList[rank]  --排名奖励 
+			elseif awardType == 2 then
+				awardList = RadishConfig.awards[passNum].passAwards[index]  --通关奖励 
+			end
+			
+			for i = 1, table.getn(awardList or {}) do
+				local count = 0
+				if awardList[i].type == 20 then
+					count = Actor.getActivityExp(sysarg, awardList[i].id, awardList[i].count, awardList[i].quality)
+					count = tostring(count)
+				else
+					count = tostring(awardList[i].count)
+				end
+				temp = temp .. " " .. count .. " " 
+				temp = temp .. Item.getAwardDesc(awardList[i].type, awardList[i].id)
+			end	
+		end
+		temp = temp .. ">"
+		--print(temp)
+		return temp
+end

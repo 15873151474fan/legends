@@ -1,0 +1,16 @@
+﻿--lua script
+--Do something about talk function of Challenge copy
+
+--#include "data\language\LangCode.txt" once
+
+--NPC对话处理擂台相关
+function ChallengeTalk( sysarg )
+  --获得副职技能数据 如果全满则不显示这些对话
+  --local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  --local deputyMakeAble = getActorData( sysarg, DEPUTYMAKEDATA )
+  return "\\<#b"..Lang.Misc.m000014.."/@@ShowChallengeArray>"
+	.."\\<#b"..Lang.Misc.m000015.."/@@ApplicateChallenge>"
+	.."\\<#b"..Lang.Misc.m000016.."/@@ChallengePlayer>"
+end
+
+--table.insert(MainFnTable,ChallengeTalk)

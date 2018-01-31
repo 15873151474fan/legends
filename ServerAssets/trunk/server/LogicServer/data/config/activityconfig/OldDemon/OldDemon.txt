@@ -1,0 +1,525 @@
+--#include "..\..\..\language\LangCode.txt"
+--魔神封印
+OldDemon =
+{
+	sBossPos = 	--小BOSS刷新位置
+	{
+		{statue = {95, 93}, monster = {54, 52}}, 	--statue:雕像坐标{x, y}, monster:boss刷新坐标{x,y}
+		{statue = {103, 101}, monster = {143, 142}}, 
+		{statue = {95, 101}, monster = {51, 145}}, 
+	},
+	bBossPos = {{146, 49},},	--大boss刷新坐标{x, y}
+	liveTime = 5400,		--boss生存期
+	coinItem = {id = 2240, count = 1, yb = 10},	--幸运币 
+
+	freeCount = 1,	--一次副本免费次数
+	boss =
+	{
+		{
+			--三个不同，组合1
+			rate = 800, 	--刷新概率 rate 总概率10000
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0}, 	--statue:雕像{模型id, 名字} mid:boss怪物id, iconId:大图标id, show:闪
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+			}, 
+			bBossId = {1089}, 	--大bossid
+			awards = 	--每次刷出奖励
+			{
+				{type = 7, id = 0, count = 5},
+			}, 
+			tips = Lang.Activity.dwj031,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj053,	--场景公告
+		},
+		
+		{
+			--三个不同，组合2
+			rate = 800, 
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 5},
+			}, 
+			tips = Lang.Activity.dwj031,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj053,	--场景公告
+		},
+
+		{
+			--三个不同，组合3
+			rate = 800, 
+			sBoss = 
+			{
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 5},
+			}, 
+			tips = Lang.Activity.dwj031,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj053,	--场景公告
+		},
+
+		{
+			--三个不同，组合4
+			rate = 800, 
+			sBoss = 
+			{
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0}, 			
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 5},
+			}, 
+			tips = Lang.Activity.dwj031,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj053,	--场景公告
+		},
+
+		{
+			--三个不同，组合5
+			rate = 800, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 	
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 5},
+			}, 
+			tips = Lang.Activity.dwj031,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj053,	--场景公告
+		},
+
+		{
+			--三个不同，组合6
+			rate = 800, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 5},
+			}, 
+			tips = Lang.Activity.dwj031,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj053,	--场景公告
+		},
+
+		{
+			--两个相同，组合1
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj041,	--场景公告
+		},
+
+		{
+			--两个相同，组合2
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1},  
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj041,	--场景公告
+		},
+
+		{
+			--两个相同，组合3
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0},
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1},  
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj041,	--场景公告
+		},
+
+		{
+			--两个相同，组合4
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1},
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 				 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj041,	--场景公告
+		},
+
+		{
+			--两个相同，组合5
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0},  
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj041,	--场景公告
+		},
+
+		{
+			--两个相同，组合6
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 938, iconId = 17, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj041,	--场景公告
+		},
+
+		{
+			--两个相同，组合7
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj052,	--场景公告
+		},
+
+		{
+			--两个相同，组合8
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0},
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1},
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj052,	--场景公告
+		},
+
+		{
+			--两个相同，组合9
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0},
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1},
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj052,	--场景公告
+		},
+
+		{
+			--两个相同，组合10
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1},  
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj052,	--场景公告
+		},
+
+		{
+			--两个相同，组合11
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj052,	--场景公告
+		},
+
+		{
+			--两个相同，组合12
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 943, iconId = 19, show = 0}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 941, iconId = 18, show = 1},   
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj052,	--场景公告
+		},
+
+		{
+			--两个相同，组合13
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1},  
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj051,	--场景公告
+		},
+
+		{
+			--两个相同，组合14
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0},
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj051,	--场景公告
+		},
+
+		{
+			--两个相同，组合15
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 937, iconId = 17, show = 0},
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj051,	--场景公告
+		},
+
+		{
+			--两个相同，组合16
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj051,	--场景公告
+		},
+
+		{
+			--两个相同，组合17
+			rate = 270, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0},
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj051,	--场景公告
+		},
+
+		{
+			--两个相同，组合18
+			rate = 270, 
+			sBoss = 
+			{ 
+				{statue = {76, Lang.Activity.dwj039}, mid = 940, iconId = 18, show = 0},
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 944, iconId = 19, show = 1}, 
+			}, 
+			bBossId = {1089}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 10},
+			}, 
+			tips = Lang.Activity.dwj032,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj051,	--场景公告
+		},
+
+		{
+			--三个相同，组合1
+			rate = 100, 
+			sBoss = 
+			{
+				{statue = {75, Lang.Activity.dwj038}, mid = 939, iconId = 17, show = 1},
+				{statue = {75, Lang.Activity.dwj038}, mid = 939, iconId = 17, show = 1}, 
+				{statue = {75, Lang.Activity.dwj038}, mid = 939, iconId = 17, show = 1}, 
+			}, 
+			bBossId = {1090}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 15},
+			}, 
+			tips = Lang.Activity.dwj033,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj042,	--场景公告
+		},
+
+		{
+			--三个相同，组合2
+			rate = 100, 
+			sBoss = 
+			{ 
+				{statue = {76, Lang.Activity.dwj039}, mid = 942, iconId = 18, show = 1}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 942, iconId = 18, show = 1}, 
+				{statue = {76, Lang.Activity.dwj039}, mid = 942, iconId = 18, show = 1}, 
+			}, 
+			bBossId = {1091}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 15},
+			}, 
+			tips = Lang.Activity.dwj033,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj042,	--场景公告
+		},
+
+		{
+			--三个相同，组合3
+			rate = 100, 
+			sBoss = 
+			{
+				{statue = {77, Lang.Activity.dwj040}, mid = 945, iconId = 19, show = 1}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 945, iconId = 19, show = 1}, 
+				{statue = {77, Lang.Activity.dwj040}, mid = 945, iconId = 19, show = 1}, 
+			}, 
+			bBossId = {1092}, 
+			awards = 
+			{
+				{type = 7, id = 0, count = 15},
+			}, 
+			tips = Lang.Activity.dwj033,	--刷出tips 请自行移动到语言包
+			notice = Lang.Activity.dwj042,	--场景公告
+		},
+
+	},
+	
+	--图标tips
+	bossDesc = 
+	{
+		{iconId = 10, desc = Lang.Activity.dwj035},	--图标id,tips
+		{iconId = 11, desc = Lang.Activity.dwj036},
+		{iconId = 11, desc = Lang.Activity.dwj037},
+	},
+	
+	--左边奖励表配置 
+	awardsDesc = 
+	{
+		Lang.Activity.dwj043,
+		Lang.Activity.dwj044,	
+		Lang.Activity.dwj045,
+		Lang.Activity.dwj046,	
+		Lang.Activity.dwj047,
+		Lang.Activity.dwj048,	
+	}
+}
+

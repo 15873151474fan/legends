@@ -1,0 +1,34 @@
+
+
+--#include "data\config\activityconfig\RobRose\RobRoseConfig.txt" once
+
+function IsActivityTime()
+	local sVar = System.getDyanmicVar()
+	return sVar.RobRoseFlag
+end
+
+function SetFlushMonsterFlag( result )
+	local sVar = System.getDyanmicVar()
+	sVar.RobRoseMonsterFlag = result
+end
+
+function GetFlushMonsterFlag()
+	local sVar = System.getDyanmicVar()
+	return sVar.RobRoseMonsterFlag
+end
+
+function SetActivityFlag(result)
+	local sVar = System.getDyanmicVar()
+	sVar.RobRoseFlag = result
+end
+
+function DelayFlushMonster()
+	Actor.regScriptCallback(thisNPC, thisNPC, RobRoseConfig.DelayFlushMonSec, 0, 1, "OnDelayFlushMonster")
+end
+
+function OnDelayFlushMonster()
+	local hScene = Fuben.getSceneHandleById(RobRoseConfig.SceneId, 0)
+	if hScene and IsActivityTime() and GetFlushMonsterFlag() then
+		Fuben.createMonster(hScene, RobRoseConfig.RoseMonId, RobRoseConfig.BossPos[1],RobRoseConfig.BossPos[2], RobRoseConfig.LiveTime)
+	end
+end

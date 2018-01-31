@@ -1,0 +1,73 @@
+﻿--狩猎任务（完成任务）
+{
+  maxLevel = 80,
+  guidePlace = 1,
+  triggerList =
+  {
+		{ type = 2, valueList = {8063,}},      --任务完成
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+
+    --第1步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 4,  helpId = 51, dataList = {1,} },		--任务追踪面板没有选中第一项
+				{ type = 5,  helpId = 0, dataList = {8063,} },			--存在任务
+				{ type = 8,  helpId = 0, dataList = {8063,} },			--完成任务
+      },
+
+      action = { type = 2, helpId = 51, data = 1, pointerValue = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项
+    },
+    
+     --第4步 指向任务的速传按钮
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第1项
+				{ type = 2,  helpId = 40, dataList = {0,} },		--npc对话框不可见
+				{ type = 8,  helpId = 0, dataList = {8063,} },		--任务完成
+				{ type = 16,  helpId = 0, dataList = {2,} },		--不在万安城
+      },
+
+      --指向速传按钮
+      action = { type = 12, helpId = 8063, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc14 },
+    },
+
+    --第2步 指任务连接（NPC，交任务）
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 5,  helpId = 0, dataList = {8063,} },			--存在任务
+				{ type = 8,  helpId = 0, dataList = {8063,} },		--任务完成
+				{ type = 15, helpId = 0, dataList = {2,} },         --在万安城
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 8063, data = Lang.GuideLang.name128, pointerValue = 1, desc = Lang.GuideLang.desc2 ,offX=-20,offY=0 },
+    },
+
+    
+
+    --第4步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 12,  helpId = 0, dataList = {3,} },		--不存在可接任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

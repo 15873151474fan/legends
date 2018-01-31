@@ -1,0 +1,96 @@
+﻿--lua script
+-- 宝物合成功能脚本处理逻辑
+--#include "GemCommon.txt" once
+
+local function checkGemComposeItemConsume(sysarg, itemList, bRemove)
+	if (not itemList) then
+		return true
+	end
+	
+	for i=1, table.getn(itemList) do
+		local reqItemId 	= itemList[i].item
+		local reqItemCnt 	= itemList[i].count
+		if (bRemove) then
+			if (reqItemCnt ~= Actor.removeItem(sysarg, reqItemId, reqItemCnt, -1, -1, -1, "gem compose", 74)) then
+				print("remove consume item failed")
+				return false
+			end
+		else
+			if (not CheckItemReq(sysarg, reqItemId, reqItemCnt)) then
+				return false
+			end
+			--[[
+			if (Actor.getItemCount(sysarg, reqItemId) < reqItemCnt) then
+				print(string.format("no enough item[id=%d count=%d] in bag", reqItemId, reqItemCnt))
+				return false
+			end
+			--]]
+		end
+	end
+	
+	return true
+end
+
+
+local function GemComposeImpl(sysarg, composeId)
+	--print("--------GemComposeImpl--------" .. composeId)
+	local composeCfg = GemGlobalConfig.gemComposeConfig[composeId]
+	if (composeCfg == nil) then
+		print("can't find compose config of composeid:" .. composeId)
+		return
+	end
+	
+	if (not CheckMoneyReq(sysarg, 0, composeCfg.reqBindCoin)) then return end
+	if (not CheckMoneyReq(sysarg, 1, composeCfg.reqNonBindCoin)) then return end
+	if (not checkGemComposeItemConsume(sysarg, composeCfg.requestItems, false)) then return end
+	
+	local gemId = composeCfg.destId
+	local isGem = false
+	if (composeCfg.destIsGem == 1) then
+		isGem = true
+	end
+	
+	if (isGem) then
+		if (Actor.getAvailGemSlot(sysarg) < 0) then
+			Actor.sendTipmsg(sysarg, Lang.Gem.t00012, ttTipmsgWindow)
+			return
+		end
+	else
+		if (Item.getBagEmptyGridCount(sysarg) < 1) then
+			return Lang.ScriptTips.c00007		
+		end
+	end
+	
+	if (composeCfg.reqBindCoin > 0) then
+		if (false == Actor.changeMoney(sysarg, 0, 0-composeCfg.reqBindCoin, 147,  Lang.LogTips.yb021)) then	
+			print("consume bind coin failed")
+			return
+		end
+	end
+	
+	if (composeCfg.reqNonBindCoin > 0) then
+		if (false == Actor.changeMoney(sysarg, 1, 0-composeCfg.reqNonBindCoin, 147, Lang.LogTips.yb021)) then	
+			print("consume non bind coin failed")
+			return
+		end
+	end
+	
+	if (not checkGemComposeItemConsume(sysarg, composeCfg.requestItems, true)) then return end
+		
+	if (isGem) then
+		if (Actor.addGemItem(sysarg, gemId)) then
+			Actor.sendTipmsg(sysarg, Lang.Gem.t00015, ttTipmsgWindow)
+		end
+	else
+		local newItem = Item.createItem(gemId, 1, 0, 0, 0);
+		Item.addItem(sysarg, newItem, "gem compose", 75)
+	end	
+end
+
+
+GemSystemImpl.GemComposeHandler = function (sysarg, msgid, packet)
+	local composeId = DataPack.readInt(packet)		-- 合成Id	
+	GemComposeImpl(sysarg, composeId)	
+end
+
+GemSystemImpl.registerMsgHandler(5, GemSystemImpl.GemComposeHandler)

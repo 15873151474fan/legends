@@ -1,0 +1,533 @@
+﻿--#include "data\config\activityconfig\RushToxic\ToxicRankFile.txt" once
+
+ --#include "data\functions\SpaceCopys\SpaceChallenge.txt" once
+--#include "data\functions\Systems\pkSystem\PkZhanHun.txt" once
+--#include "data\functions\Systems\pkSystem\PkExp.txt" once
+--#include "data\config\misc\ReliveConfig.txt" once
+--#include "RedActorRelive.txt" once
+--#include "data\functions\Activity\CampBattle\CampBattleCommon.txt" once --处理阵营战复活
+--#include "data\functions\Activity\WeekEnd\HuntingCommon.txt" once
+--#include "data\config\activityconfig\FuQiQueQiaoConfig\FuQiQueQiaoConfig.txt" once
+--#include "data\config\activityconfig\ProgrammerActivity\Config.txt" once
+--#include "data\functions\Activity\OpenBattleFiled\OpenBattleCommon.txt" once
+--#include "data\functions\Activity\BossDaZhaiMen\DaZhaiMenCommon.txt" once  大寨门
+
+
+--检查是否不用显示杀人者名字（用星号代替)
+function IsNotShowName(sysarg)
+	if IsInHuntScene(sysarg) then
+		return true
+	end
+	local nSceneId = Actor.getSceneId(sysarg)
+	for k, sId in ipairs(ReliveConfig.NoShowNameScene) do
+		if nSceneId == sId then
+			return true
+		end
+	end
+	return false
+end
+
+--打开复活窗口
+--nLiveTime: 窗口剩余时间
+function OpenReliveDialog(sysarg, nLiveTime)
+	--print("OpenReliveDialog")
+	local nDropZhanHun = 0
+	local nDropExp = 0
+	
+	local svar = Actor.getStaticVar(sysarg)	
+	local data = svar.killerData	--被击杀信息
+	if not data then 
+		svar.killerData = {}
+		data = svar.killerData
+		data[6] = 2
+	end
+	local campId = data[2]
+	local killerName = data[3]
+	local killerType = data[6]
+	
+	if not killerName then killerName = "" end
+	if not killerType then killerType = 2 end
+	if killerType == 0 then
+		nDropZhanHun = CalcOnKillDropZhanHun(sysarg)
+		nDropExp = CalcOnKillDropExp(sysarg)
+		data[7] = nDropZhanHun
+		data[8] = nDropExp
+	end
+	
+	--print(killerName)
+	--print(killerType)
+	--print(nDropZhanHun)
+	--print(nDropExp)
+	
+	--Actor.messageBox(sysarg,0,0,Lang.ScriptTips.x00031,Lang.ScriptTips.x00066.."/UseItemRelive",Lang.ScriptTips.x00067.."/safeResurrection", nil, ReliveConfig.reliveTime*1000)
+	
+	if IsNotShowName(sysarg) then
+		killerName = "******"
+	end
+	
+	SendToClientReliveMsg(sysarg, killerType, campId, killerName, nDropZhanHun, nDropExp,nLiveTime)
+	
+end
+
+--打开复活窗口不计算数值
+function OpenReliveDialogNotCalc(sysarg,nLiveTime)
+	local svar = Actor.getStaticVar(sysarg)	
+	local data = svar.killerData	--被击杀信息
+	if not data then 
+		svar.killerData = {}
+		data = svar.killerData
+		data[6] = 2
+	end
+	local campId = data[2]
+	local killerName = data[3]
+	local killerType = data[6]
+	local nDropZhanHun = data[7]
+	local nDropExp = data[8]
+	if not killerName then killerName = "" end
+	if not killerType then killerType = 2 end
+	if not nDropZhanHun then nDropZhanHun = 0 end
+	if not nDropExp then nDropExp = 0 end
+	
+	SendToClientReliveMsg(sysarg, killerType, campId, killerName, nDropZhanHun, nDropExp, nLiveTime)
+end
+
+--发送数据客户端打开复活界面
+function SendToClientReliveMsg(sysarg, killerType, campId, killerName, nDropZhanHun, nDropExp, nLiveTime)
+	local nDropZhanHun = tonumber(nDropZhanHun)
+	local nDropExp = tonumber(nDropExp)
+	local nLiveTime = tonumber(nLiveTime)
+	
+	--print("SendToClientReliveMsg")
+	-- print("killerType:"..killerType)
+	--print("killerName:"..killerName)
+	--print("nDropZhanHun:"..nDropZhanHun)
+	--print("nDropExp:"..nDropExp)
+	--print("nLiveTime:"..nLiveTime)
+	--通知客户端
+	--[[
+	if killerType == 0 then 
+		--local campName = Camp.getCampName(Camp.getCampById(campId))
+		killerName = string.format(Lang.ScriptTips.x00161,campName,killerName)
+	elseif killerType == 1 then
+		killerName = string.format(Lang.ScriptTips.x00162,killerName)
+	end
+	--]]
+	local nFlag = 12
+	-- if (Actor.hasMapAreaAttri(sysarg, aaEndPkCanHereRelive) == true) then
+		-- nFlag = 7
+		-- killerName = Lang.ScriptTips.mt00023
+	-- end
+	
+	if Actor.hasMapAreaAttri(sysarg, aaNotHereRelive) then		--要判断是否禁止原地复活
+		nFlag = 4
+	end
+	-- print("nFlag:"..nFlag)
+	local npack = DataPack.allocPacket(sysarg,LogicCmd.miscSys.sysId,LogicCmd.miscSys.sub.sOpenReliveDialog)
+	if npack == nil then return end
+	DataPack.writeByte(npack,killerType)	--击杀者类型  0 玩家 1怪物 2其他
+	DataPack.writeString(npack,killerName)	--击杀者名字
+	DataPack.writeInt(npack,nDropZhanHun) --掉落战魂
+	DataPack.writeInt(npack,nDropExp)	--掉落经验
+	DataPack.writeInt(npack,nLiveTime)	--窗口存活剩余时间
+	DataPack.writeByte(npack,nFlag)	--复活按钮显示
+	DataPack.flush(npack)
+end
+
+---------------------------------------------原地复活-----------------------------------------------
+
+--点击确定  原地复活按钮 type 复活类型  1复活石复活 2元宝复活 3安全复活 4原地复活---------------------------
+function GoReliveFunc(sysarg, type)
+	--print("GoReliveFunc")
+	-- local MaxHp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXHP)
+	-- local MaxMp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXMP)
+	-- local actorMp = Actor.getIntProperty(sysarg,PROP_CREATURE_MP)
+	-- Actor.changeHp(sysarg,MaxHp)
+	-- if MaxMp - actorMp == 0 then
+		-- Actor.changeMp(sysarg,-1)
+	-- else 
+		-- Actor.changeMp(sysarg,MaxMp-actorMp-1)
+	-- end
+	if Actor.hasMapAreaAttri(sysarg, aaNotHereRelive) then		--要判断是否禁止原地复活
+		safeResurrection(sysarg)
+	end
+	local maxhp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXHP)
+	Actor.changeHp(sysarg,maxhp*ReliveConfig.placeRate)
+	--local actorMp = Actor.getIntProperty(sysarg,PROP_CREATURE_MP)
+	local maxmp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXMP)
+	Actor.changeMp(sysarg,maxmp*ReliveConfig.placeRate)
+	local buff = ReliveConfig.protectBuff
+	if buff.type > 0 then
+		Actor.addBuff(sysarg,buff.type,1,1,1,buff.time,Lang.ScriptTips.b00009)
+	end
+	Actor.clearReliveTimeOut(sysarg)
+	Actor.onRelive(sysarg)
+	
+	--清除击杀者信息
+	ClearKillerData(sysarg)
+end
+
+--检测复活消耗 原地复活类型 1复活石复活 2元宝复活
+function CheckReliveFunc(sysarg, nType)
+	--print("CheckReliveFunc")
+	--print(nType)
+	local nType = tonumber(nType)
+	if Actor.getIntProperty(sysarg,PROP_CREATURE_HP) == 0 then 
+		if Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL) > ReliveConfig.limitLevel then 
+			if nType == 1 then
+				if Actor.getItemCount(sysarg,ReliveConfig.item.id,-1,-1) < ReliveConfig.item.count
+				or Actor.removeItem(sysarg,ReliveConfig.item.id,ReliveConfig.item.count,-1,-1,-1,Lang.LogTips.l00020, 34) < ReliveConfig.item.count then
+					--OpenReliveDialog(sysarg)
+					Actor.messageBox(sysarg,0,0,Lang.ScriptTips.x00032,Lang.ScriptTips.x00068.."/buyResurrecStone",Lang.ScriptTips.x00069.."/cancelFunc",nil)
+					return
+				end
+			elseif nType == 2 then
+				if (Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO ) < ReliveConfig.yuanbao)
+				or Actor.changeMoney(sysarg, 3, -ReliveConfig.yuanbao, 132, Lang.LogTips.l00021)	== false then 
+					local nLiveTime = Actor.getReliveTimeOut(sysarg)
+					OpenReliveDialog(sysarg, nLiveTime)
+					return 
+				end
+			end
+		end
+		
+		GoReliveFunc(sysarg, nType)
+	end
+end
+
+--使用复活石 原地复活按钮
+function UseItemRelive(sysarg)
+	--print("UseItemRelive")
+	local liveTime = Actor.getReliveTimeOut(sysarg)
+	----print("liveTime:"..liveTime)
+	local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	if level <= ReliveConfig.limitLevel then 
+		GoReliveFunc(sysarg, 3)
+		return
+	end	
+	if Actor.getItemCount(sysarg,ReliveConfig.item.id,-1,-1) < ReliveConfig.item.count then   --itemid为复活石的ID
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00003,ttTipmsgWindow)
+		Actor.messageBox(sysarg,0,0,Lang.ScriptTips.x00032,Lang.ScriptTips.x00068.."/buyResurrecStone",Lang.ScriptTips.x00069.."/cancelFunc",nil)
+		return 
+	else
+		CheckReliveFunc(sysarg, 1)
+		--Actor.messageBox(sysarg,0,0,Lang.ScriptTips.x00033,Lang.ScriptTips.x00068.."/CheckReliveFunc,1",Lang.ScriptTips.x00069.."/cancelFunc",nil)
+	end
+end
+
+--使用金钱 原地复活按钮
+function UseMoneyRelive(sysarg)
+	--print("UseMoneyRelive")
+	local liveTime = Actor.getReliveTimeOut(sysarg)
+	----print("liveTime:"..liveTime)
+	local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	--信春哥等级
+	if level <= ReliveConfig.limitLevel then 
+		GoReliveFunc(sysarg, 3)
+		return
+	end	
+	
+	if (Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO ) < ReliveConfig.yuanbao) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00160,ttTipmsgWindow)
+		local nLiveTime = Actor.getReliveTimeOut(sysarg)
+		OpenReliveDialogNotCalc(sysarg, nLiveTime)
+		return 
+	else 
+		CheckReliveFunc(sysarg, 2)
+		--Actor.messageBox(sysarg,0,0,Lang.ScriptTips.x00033,Lang.ScriptTips.x00068.."/CheckReliveFunc,2",Lang.ScriptTips.x00069.."/cancelFunc",nil)
+	end
+end
+
+function OnPlaceRelive(sysarg)
+	if Actor.hasMapAreaAttri(sysarg, aaNotHereRelive) then		--要判断是否禁止原地复活
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00026, ttTipmsgWindow)
+		local nLiveTime = Actor.getReliveTimeOut(sysarg)
+		OpenReliveDialogNotCalc(sysarg, nLiveTime)
+		return
+	end
+	--print("OnPlaceRelive")
+	local liveTime = Actor.getReliveTimeOut(sysarg)
+	----print("liveTime:"..liveTime)
+	local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	if level <= ReliveConfig.limitLevel then 
+		GoReliveFunc(sysarg, 4)
+		return
+	end	
+	
+	if Actor.getItemCount(sysarg,ReliveConfig.item.id,-1,-1) < ReliveConfig.item.count 
+	and (Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO ) < ReliveConfig.yuanbao) then   --itemid为复活石的ID
+		local itemName = Item.getItemName(ReliveConfig.item.id)
+		local tips = string.format(Lang.ScriptTips.mt00024, itemName, ReliveConfig.yuanbao)
+		Actor.sendTipmsg(sysarg,tips,ttTipmsgWindow)
+		cancelFunc(sysarg)
+		
+		--local tips = string.format("您的背包没有%s或者%d元宝，是否充值？", itemName, ReliveConfig.yuanbao)
+		--Actor.messageBox(sysarg,0,0,tips,"充值".."/buyResurrecStone",Lang.ScriptTips.x00069.."/cancelFunc",nil)
+		return 
+	else
+		if Actor.getItemCount(sysarg,ReliveConfig.item.id,-1,-1) >= ReliveConfig.item.count then
+			CheckReliveFunc(sysarg, 1)
+		else
+			CheckReliveFunc(sysarg, 2)
+		end
+		--Actor.messageBox(sysarg,0,0,Lang.ScriptTips.x00033,Lang.ScriptTips.x00068.."/CheckReliveFunc,1",Lang.ScriptTips.x00069.."/cancelFunc",nil)
+	end
+end
+--------------------------------------------------------------------------------------------------
+
+------------------------------------安全复活-----------------------------------------------------
+
+--回城复活
+function backResurrection(sysarg)
+	Actor.returnCity(sysarg)
+	if Actor.getIntProperty(sysarg,PROP_CREATURE_HP) == 0 then 
+		------------------------------------------------------------
+		--掉落操作
+		PkDropFunc(sysarg)
+		
+		--清除击杀者信息
+		ClearKillerData(sysarg)
+		----------------------------------------------------------
+		local maxhp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXHP)
+		Actor.changeHp(sysarg,maxhp*ReliveConfig.safeRate)
+		--local actorMp = Actor.getIntProperty(sysarg,PROP_CREATURE_MP)
+		local maxmp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXMP)
+		Actor.changeMp(sysarg,maxmp*ReliveConfig.safeRate)
+		-- Actor.changeHp(sysarg,1)
+		-- local actorMp = Actor.getIntProperty(sysarg,PROP_CREATURE_MP)
+		-- Actor.changeMp(sysarg,-400)
+	end
+	local buff = ReliveConfig.protectBuff
+	if buff.type > 0 then
+		Actor.addBuff(sysarg,buff.type,1,1,1,buff.time,Lang.ScriptTips.b00009)
+	end
+end
+
+--安全复活-----------------------  
+function safeResurrection(sysarg)
+    --print("safeResurrection") 
+	if Actor.getIntProperty(sysarg,PROP_CREATURE_HP) == 0 then
+		------------------------------------------------------------
+		--掉落操作
+		PkDropFunc(sysarg)
+		
+		----------------------------------------------------------
+		--回血回蓝
+		local maxhp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXHP)
+		Actor.changeHp(sysarg,maxhp*ReliveConfig.safeRate)
+		--local actorMp = Actor.getIntProperty(sysarg,PROP_CREATURE_MP)
+		local maxmp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXMP)
+		Actor.changeMp(sysarg,maxmp*ReliveConfig.safeRate)
+		
+		local bInCrossBattle = false
+		--在跨服中的处理
+		if System.isCommonServer() == true then
+			bInCrossBattle = OnSafeAliveInCommonOp(sysarg)
+		end
+
+		--复活
+		local boNotCheckRedName = false   --默认处理红名复活
+		if IsInCampBattle(sysarg) then
+			boNotCheckRedName = true
+		end
+		if not SendToFirstScene(sysarg) then
+		    --print("safeResurrection1")
+			if (boNotCheckRedName or TranRedActorToRedSceen(sysarg,false) == false) and bInCrossBattle == false then			--红名的处理
+                --print("safeResurrection2")
+				Actor.relive(sysarg)
+			else
+                --print("safeResurrection3")
+				Actor.onRelive(sysarg)
+			end
+		end
+		--加无敌罩
+		local buff = ReliveConfig.protectBuff
+		if buff.type > 0 then
+			Actor.addBuff(sysarg,buff.type,1,1,1,buff.time,Lang.ScriptTips.b00009)
+		end
+		--清除复活倒计时
+		Actor.clearReliveTimeOut(sysarg)
+		
+		------------------------------------------------------
+		--阵营运镖 被劫
+		--LootCampDart(sysarg)
+
+		--帮派运镖 被劫
+		--LootGuildDart(sysarg)
+
+		--清除击杀者信息
+		ClearKillerData(sysarg)
+
+		--如果在行会副本处理
+		OnGuildFubenOp(sysarg)
+
+		--如果在夫妻副本中复活
+		OnFuQiFubenOp(sysarg)
+
+		--如果在程序大神副本中复活
+		OnProgrammerActivityOp(sysarg)
+		-------------------------------------------------------
+		--新服战场复活
+		UpdateLiveUpInfo(sysarg)
+		
+		--boss大寨门活动复活
+		OnDaZhiMenBossMapOp(sysarg)  
+	end	
+end
+
+---------------------------------------------------------------------------
+
+--购买复活石
+function buyResurrecStone(sysarg)
+	local liveTime = Actor.getReliveTimeOut(sysarg)
+	--Actor.messageBox(sysarg,0,0,Lang.ScriptTips.x00031,Lang.ScriptTips.x00066.."/UseItemRelive",Lang.ScriptTips.x00067.."/safeResurrection",nil,liveTime*1000)
+	local nLiveTime = Actor.getReliveTimeOut(sysarg)
+	OpenReliveDialogNotCalc(sysarg, nLiveTime)
+	Actor.openDialogs(sysarg,diBuyAnItem,tostring(ReliveConfig.item.id))
+end
+
+--取消购买复活石 按钮的函数
+function cancelFunc(sysarg)
+ 	local liveTime = Actor.getReliveTimeOut(sysarg)
+	local nLiveTime = Actor.getReliveTimeOut(sysarg)
+	OpenReliveDialogNotCalc(sysarg, nLiveTime)
+	--Actor.messageBox(sysarg,0,0,Lang.ScriptTips.x00031,Lang.ScriptTips.x00066.."/UseItemRelive",Lang.ScriptTips.x00067.."/safeResurrection",nil,liveTime*1000)
+end
+
+
+--清除击杀者信息
+function ClearKillerData(sysarg)
+	--print("ClearKillerData")
+	local svar = Actor.getStaticVar(sysarg)
+	local data = svar.killerData	--被击杀者记录被杀信息
+	if not data then 
+		svar.killerData = {}
+		data = svar.killerData
+	end
+	data[1] = nil	--击杀者等级
+	data[2] = nil	--击杀者阵营ID
+	data[3] = nil --击杀者名字
+	data[6] = nil	--击杀者类型
+	data[7] = nil
+	data[8] = nil
+end
+
+--掉落操作
+function PkDropFunc(sysarg)
+	local svar = Actor.getStaticVar(sysarg)	
+	local data = svar.killerData	--被击杀信息
+	if(data == nil) then return end
+	local killerName	 = data[3]	--击杀者名字
+	local dropExpCount = data[4]	--每日PK经验掉落次数
+	local killerType = data[6]
+	local nDropZhanHun = data[7]
+	local nDropExp = data[8]
+	--print(nDropZhanHun)
+	if killerType == 0 then
+		if nDropZhanHun and nDropZhanHun > 0 then
+			Actor.giveAward(sysarg, 10,0, -nDropZhanHun, 0, 0, 1, 0, 205, "OnKillDropZhanHun")
+		end
+		--[[	--屏蔽PK经验掉落、获得功能
+		if nDropExp and nDropExp > 0 then
+			local pkExpConfig = PkConfig.pkExpParam
+			local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+			--掉落概率
+			local percent = pkExpConfig.dropPercent[level - pkExpConfig.levelStart + 1]
+			--print("percent:"..percent)
+			if percent and percent > 0 then 
+				--判断概率
+				local rand = math.random(1000)
+				--print("rand:"..rand)
+				if rand <= percent then 
+					--Actor.giveAward(sysarg, 10, 0,-nDropExp, 0, 0, 1, 0, 205, "OnKillDropZhanHun")
+					if Actor.giveAward(sysarg, 2, 0,-nDropExp, 0, 0, 1, 0, 205, "OnKillDropExp") == true then
+						if not dropExpCount then dropExpCount = 0 end
+						data[4] = dropExpCount + 1
+						Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.pk00001, killerName, nDropExp), ttTipmsgWindow)
+						
+						--如果被杀者有掉落经验 则击杀者获得经验
+						if nDropExp > 0 then
+							OnKillGetExp(sysarg, nDropExp)
+						end
+						
+					end
+				end
+			end
+		end
+		--]]
+	end
+end
+
+--在行会副本处理
+function OnGuildFubenOp(sysarg)
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+
+	if fhadle <= 0 then
+		return
+	end
+
+	if fhadle > 0 then
+		if Actor.getFubenHandle(sysarg) ~= fhadle then
+			return 
+		end
+	end
+	
+	local ranking = Ranking.getRanking(ToxicRankConfig.dayRankName)
+	
+	local mPoint = 0
+
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	local nTimes = System.getToxicFreshTimes(nGuildId)
+
+	if ranking then		
+		local nItem = Ranking.getItemPtrFromId(ranking,nGuildId)
+
+		if nItem then
+			mPoint = Ranking.getPoint(nItem)
+		end
+	end
+
+	local bFb = Actor.getFubenPrt(sysarg)
+	local nCount = Fuben.getKillMonsterCount(bFb)
+
+	local monsterCount = 1
+	local passTimes = 1
+	local nTime = Fuben.getFbTime(bFb)
+	Actor.initActivityWind(sysarg,Lang.Activity.w00102,nTime,Lang.Activity.w00111,Lang.Activity.w00103,nCount,
+		Lang.Activity.w00104,nTimes, Lang.Activity.HHfuben001, monsterCount, Lang.Activity.HHfuben002, passTimes)
+
+end
+
+--在夫妻副本中复活的特殊处理
+function OnFuQiFubenOp(sysarg)
+	local fbId = Actor.getFubenId(sysarg)
+	local fbHandle = Actor.getFubenHandle(sysarg)
+	local fqCfg = FuQiConfig
+	if not fqCfg then
+		return  false 
+	end
+	if fbId ~= fqCfg.nFubeId and fbId ~= fqCfg.nLoveFubenId then
+		return false 
+	end
+	local idx = Actor.getDyanmicValue(sysarg)
+	local posX = 0
+	local posY = 0
+	posX = fqCfg.couplePos[idx].posX
+	posY = fqCfg.couplePos[idx].posY	
+	Actor.enterFuBen(sysarg, fbHandle,fqCfg.nSceenId, posX, posY)	
+	return true
+end
+
+--如果在程序大神副本中复活的特殊处理
+function OnProgrammerActivityOp(sysarg)
+	local fbId = Actor.getSceneId(sysarg)
+	local config = ProgrammerActivityConfig
+	if not config then
+		return  false 
+	end
+	local enter = config.enterScene
+	if fbId ~= enter.sid then
+		return false 
+	end
+	
+	return Actor.enterScene(sysarg, fbId, unpack(enter.range))
+end

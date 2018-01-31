@@ -1,0 +1,23 @@
+﻿--lua script
+--活动 排行榜名单初始化
+
+--#include "RankPointer.txt" once
+
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function WSRanking_Init(npcobj)
+	local RankPt = WorshipRankPt
+	if not RankPt then return end
+	Rank.Init(RankPt.RankName, RankPt.RankFile, RankPt.RankColumn, RankPt.ClinetShowCount, RankPt.ClientShow)
+end
+
+function WSRanking_Fina(npcobj)
+	--Ranking.removeRanking(RankPt.RankName)
+	local RankPt = WorshipRankPt
+	if not RankPt then return end
+	Rank.Fina(RankPt.RankName, RankPt.RankFile)
+end
+
+table.insert(InitFnTable,WSRanking_Init)
+table.insert(FinaFnTable,WSRanking_Fina)

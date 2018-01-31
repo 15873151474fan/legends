@@ -1,0 +1,406 @@
+﻿-- 阵营盟主弹劾脚本
+--#include "data\config\camp\CampKingImpeach.txt" once
+
+-- 判断阵营是否处于盟主被弹劾状态
+MiscsImplement.IsCampInImpeachStatus = function(campId)
+	local isInImpeach = false
+	local var = System.getStaticVar()
+	local campImpeach = var.campImpeach
+	if (campImpeach ~= nil) then		
+		local curImpeach = campImpeach[campId]
+		if (curImpeach) then
+			if (curImpeach.isInImpeach == 1) then				
+				isInImpeach = true
+			end			
+		end
+	end
+	
+	return isInImpeach
+end
+
+-- 弹劾盟主者条件检测
+MiscsImplement.ImpeachCampKingConCheck = function(sysarg)
+	local campId = Actor.getCampId(sysarg)
+	if (MiscsImplement.IsCampInImpeachStatus(campId)) then		
+		local tips = Lang.TaskTalk.t00659
+		Actor.sendTipmsg(sysarg, tips, ttTipmsgWindow)
+		return false
+	end
+	-- check level req
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if (level < CampKingImpeachConfig.minLevelReq) then
+		local tips = string.format(Lang.TaskTalk.t00651, CampKingImpeachConfig.minLevelReq)
+		Actor.sendTipmsg(sysarg, tips, ttTipmsgWindow)
+		return false
+	end
+	
+	-- check camp contribute value req
+	local zyVal = Actor.getIntProperty(sysarg, PROP_ACTOR_ZYCONT_DONOT_DONOT_MODIFY_DIRECT)
+	if (zyVal < CampKingImpeachConfig.minCampContrReq) then
+		local tips = string.format(Lang.TaskTalk.t00652, CampKingImpeachConfig.minCampContrReq)
+		Actor.sendTipmsg(sysarg, tips, ttTipmsgWindow)
+		return false
+	end
+	
+	-- impeach time req
+	local curHour = System.getTime(0, 0, 0)		
+	local timeReqOK = false
+	for i=1, #CampKingImpeachConfig.timeReq do		
+		if (CampKingImpeachConfig.timeReq[i] == curHour) then
+			timeReqOK = true
+			break
+		end
+	end
+	
+	if (not timeReqOK) then
+		Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00653, ttTipmsgWindow)
+		return false
+	end	
+	
+	return true
+end
+
+MiscsImplement.ImpeachCampKingImpl = function(sysarg)	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local kingName, kingActorId, kingGuildId = "", 0, 0
+  local camp = Actor.getCamp(sysarg)
+  local campId = Camp.getCampId(camp)
+  kingName, kingActorId, kingGuildId = Camp.getKingInfo(camp, kingActorId, kingGuildId)
+  if (kingName == nil) then
+  	Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00655, ttDialog)
+  	return
+  end
+  if (kingActorId == actorId) then
+  	Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00656, ttDialog)
+  	return
+  end  
+  
+  -- check item consume
+  local reqItemId 	= CampKingImpeachConfig.reqItemId
+  local reqItemCnt 	= CampKingImpeachConfig.reqItemCnt
+  if (Actor.getItemCount(sysarg, reqItemId) < reqItemCnt) then
+		local itemName = Item.getItemName(reqItemId) or ""
+		local info = string.format(Lang.Gem.t00013, reqItemCnt, itemName)
+		Actor.sendTipmsg(sysarg, info, ttTipmsgWindow)
+		return false
+	end
+    
+  -- check condition
+  if (not MiscsImplement.ImpeachCampKingConCheck(sysarg)) then
+  	--print("impeach condition check failed")
+  	return
+  end
+    
+  -- do consume campContributeVal
+  --[[
+  if (Actor.changeZYCount(sysarg, 0-CampKingImpeachConfig.minCampContrReq, "impeach king")) then
+  	print("consume zyval failed")
+  	return
+  end
+  --]]
+  	
+	-- consume item
+	if (Actor.removeItem(sysarg, reqItemId, reqItemCnt, -1, -1, -1, "item use", 5) ~= reqItemCnt) then	
+		print("remove impeach king item failed")
+		return
+	end
+		
+	-- 记录当前阵营已经开启了盟主弹劾
+	local var = System.getStaticVar()
+	local campImpeach = var.campImpeach
+	if (campImpeach == nil) then
+		var.campImpeach = {}
+		campImpeach = var.campImpeach
+	end	
+	local curImpeach = campImpeach[campId]
+	if (curImpeach == nil) then
+		campImpeach[campId] = {}
+		curImpeach = campImpeach[campId]
+	end
+	
+	local actorName 								= Actor.getName(sysarg)
+	curImpeach.isInImpeach 					= 1   -- 处于弹劾状态
+	curImpeach.impeachActorId				= actorId		-- 发起弹劾者玩家Id
+	curImpeach.impeachActorGuildId 	= Actor.getIntProperty(sysarg, PROP_ACTOR_GUILD_ID)
+	curImpeach.impeachActorName 		= actorName	-- 发起弹劾者玩家名称
+	curImpeach.curKingName					= kingName  -- 被弹劾盟主名称
+	curImpeach.suppVoteCount 				= 0		-- 支持弹劾票数目
+	curImpeach.refuseVoteCount 			= 0	-- 反对弹劾票数目
+	
+	-- 本阵营内广播开始弹劾消息	
+	local pack = DataPack.allocPacketEx()
+	if (pack ~= nil) then
+		DataPack.writeByte(pack, 		139)
+		DataPack.writeByte(pack, 		30)				
+    DataPack.writeString(pack, 	actorName)   
+		Camp.broadCastMsg(camp, 		pack)
+		DataPack.freePacketEx(pack)
+	end
+end  
+ 
+-- 弹劾阵营盟主 
+MiscsImplement.ImpeachCampKing = function (sysarg, msgid, packet)
+  if packet == nil then return end  
+  MiscsImplement.ImpeachCampKingImpl(sysarg)
+end  
+
+-- 判断玩家是否已经进行了盟主弹劾投票
+MiscsImplement.IsActorVoteForImpeach = function(sysarg)
+	local var = Actor.getStaticVar(sysarg)
+	local hasVote = var.isVoteForImpeach	
+	if (hasVote == 1) then		
+		return true
+	else		
+		return false
+	end
+end
+
+-- 下发阵营当前弹劾结果
+MiscsImplement.SendImpeachVoteResult = function(sysarg, isInImpeach, name, suppVoteCnt, refuseVoteCnt)
+	local pack = DataPack.allocPacket(sysarg, 139, 31)	
+	if (pack ~= nil) then		
+		DataPack.writeByte(pack,	isInImpeach)
+		if (isInImpeach ~= 0) then
+			DataPack.writeString(pack,name)
+			DataPack.writeInt(pack,		suppVoteCnt)
+			DataPack.writeInt(pack,		refuseVoteCnt)
+			local isVoteAlready = MiscsImplement.IsActorVoteForImpeach(sysarg)
+			local hasVote = 0
+			if (isVoteAlready) then
+				hasVote = 1
+			end			
+			DataPack.writeByte(pack,	hasVote)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+-- 客户端查询盟主弹劾信息
+MiscsImplement.QueryImpeachInfo = function(sysarg, msgid, packet)
+	local camp 		= Actor.getCamp(sysarg)
+	local campId 	= Camp.getCampId(camp)
+	
+	local isInImpeach 			= 0
+	local impeachActorName 	= ""
+	local suppVoteCount 		= 0
+	local refuseVoteCount		= 0
+	
+	-- 全局变量中记录了当前阵营是否已经开始盟主弹劾
+	local var = System.getStaticVar()
+	local campImpeach = var.campImpeach
+	if (campImpeach ~= nil) then
+		local curImpeach = campImpeach[campId]
+		if (curImpeach) then
+			isInImpeach = curImpeach.isInImpeach
+			if (isInImpeach ~= 0) then				
+				impeachActorName 	= curImpeach.impeachActorName
+				suppVoteCount			= curImpeach.suppVoteCount
+				refuseVoteCount		= curImpeach.refuseVoteCount				
+			end
+		end
+	end
+	
+	--[[
+	print("0---- vote result -----")
+	print(isInImpeach)
+	print(impeachActorName)
+	print(suppVoteCount)
+	print(refuseVoteCount)
+	print("0---- vote result end -----")
+	--]]
+	-- send result	
+	MiscsImplement.SendImpeachVoteResult(sysarg, isInImpeach, impeachActorName, suppVoteCount, refuseVoteCount)	
+end
+
+-- 处理某个具体阵营的盟主弹劾
+MiscsImplement.HandleCampKingImpeachResultImpl = function(campId)	
+	--print("MiscsImplement.HandleCampKingImpeachResultImpl  campid=" .. campId)
+	local camp = Camp.getCampById(campId)
+	local var = System.getStaticVar()
+	
+	local suppVotecnt = 0
+	local refuseVoteCnt = 0
+	local isInImpeach = 0
+	local impeachActorId = 0
+	local impeachActorGuildId = 0
+	local impeachActorName = ""
+	local oldKingName = ""
+	
+	local campImpeach = var.campImpeach
+	local curImpeach = nil
+	if (campImpeach ~= nil) then		
+		curImpeach = campImpeach[campId]
+		if (curImpeach) then
+			isInImpeach = curImpeach.isInImpeach
+			if (isInImpeach == 1) then
+				suppVoteCnt 				= curImpeach.suppVoteCount
+				refuseVoteCnt 			= curImpeach.refuseVoteCount	
+				impeachActorId 			= curImpeach.impeachActorId
+				impeachActorGuildId = curImpeach.impeachActorGuildId		
+				impeachActorName		= curImpeach.impeachActorName	
+				oldKingName					= curImpeach.curKingName
+			end
+		end
+	end
+	
+	if (isInImpeach == 1) then
+		-- 重置阵营弹劾变量
+		if (curImpeach) then
+			curImpeach.isInImpeach 					= 0
+			curImpeach.suppVoteCount 				= 0
+			curImpeach.refuseVoteCount 			= 0
+			curImpeach.impeachActorId 			= 0
+			curImpeach.impeachActorGuildId 	= 0
+			curImpeach.impeachActorName 		= ""
+			curImpeach.curKingName 					= ""			
+		end
+		
+		--print("cur camp is in impeach, campid=" .. campId)
+		local totalVoteCnt = suppVoteCnt + refuseVoteCnt
+		local result = false
+		local totalVoteCnt = suppVoteCnt + refuseVoteCnt
+		if (totalVoteCnt >= CampKingImpeachConfig.minVoteCount) then
+			if (suppVoteCnt >= totalVoteCnt * CampKingImpeachConfig.succImpeachRate) then
+				result = true
+			end
+		end
+		
+		-- 弹劾成功
+		--print("vote result=" .. tostring(result))
+		if (result) then
+			Camp.setOfficer(camp, nil, 1, nil)
+			local newKing = Actor.getActorByName(impeachActorName)
+			if (not newKing) then
+				result = Camp.setOfflineOfficer(camp, 1, impeachActorId, 0, impeachActorName)
+			else
+				result = Camp.setOfficer(camp, nil, 1, newKing)				
+			end
+				
+			if (result) then
+				--【阵营名称】【发起弹劾者名字】成功弹劾盟主【现任盟主名字】，【发起弹劾者名字】将继任【阵营名称】盟主之位。
+				local campName = Camp.getCampName(camp)
+				local tips = string.format(Lang.TaskTalk.t00657, campName, impeachActorName, oldKingName, impeachActorName, campName)
+				System.broadcastTipmsg(tips, ttScreenCenter)				
+			end
+			return
+		end
+		
+		-- 弹劾失败公告
+		local campName = Camp.getCampName(camp)
+		local tips = string.format(Lang.TaskTalk.t00660, campName, impeachActorName, oldKingName)
+		System.broadcastTipmsg(tips, ttScreenCenter)				
+	end
+end
+
+-- 阵营盟主弹劾结果处理
+function CampKingImpeachHandler()
+	--print("CampKingImpeachHandler")
+	for campId=1, 3 do
+		MiscsImplement.HandleCampKingImpeachResultImpl(campId)
+	end
+end
+
+-- 设置玩家盟主弹劾投票 
+-- flag: boolean类型参数，为true表示已经投票过了，否则为false
+MiscsImplement.SetActorVoteForImpeach = function(sysarg, flag)
+	local var = Actor.getStaticVar(sysarg)
+	var.isVoteForImpeach = flag
+end
+
+-- 检测投票条件
+MiscsImplement.CheckAndConsumeVoteImpeach = function(sysarg)
+	if (MiscsImplement.IsActorVoteForImpeach(sysarg)) then
+		print("vote already")
+		Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00658, ttDialog)
+		return false
+	end
+	
+	-- check time
+	-- impeach time req
+	--[[
+	local curHour = System.getTime(0, 0, 0)		
+	local timeReqOK = false
+	for i=1, #CampKingImpeachConfig.voteTimeReq do		
+		if (CampKingImpeachConfig.voteTimeReq[i] == curHour) then
+			timeReqOK = true
+			break
+		end
+	end
+	
+	if (not timeReqOK) then
+		--Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00663, ttTipmsgWindow)
+		return false
+	end
+	--]]
+	-- check level req
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if (level < CampKingImpeachConfig.minLevelReq) then
+		local tips = string.format(Lang.TaskTalk.t00651, CampKingImpeachConfig.minLevelReq)
+		Actor.sendTipmsg(sysarg, tips, ttTipmsgWindow)
+		return false
+	end
+	
+	-- check coin
+	local curCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN) 
+	if (curCoin < CampKingImpeachConfig.coinReq) then
+		Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00654, ttTipmsgWindow)
+		return false
+	end
+	
+	-- do consume coin 
+  if (false == Actor.consumeCoin(sysarg, CampKingImpeachConfig.coinReq, 151, "impeach vote", true, false)) then
+		print("money not enough")
+		return false
+	end
+  
+	return true
+end
+
+MiscsImplement.ImpeachVoteImpl = function(sysarg, support)
+	support = support or 1
+	local camp 		= Actor.getCamp(sysarg)
+	local campId 	= Camp.getCampId(camp)
+	local var = System.getStaticVar()
+	local campImpeach = var.campImpeach
+	
+	local isInImpeach = 0
+	if (campImpeach ~= nil) then
+		local curImpeach = campImpeach[campId]
+		if (curImpeach) then
+			isInImpeach = curImpeach.isInImpeach
+			if (isInImpeach == 1) then
+				if (not MiscsImplement.CheckAndConsumeVoteImpeach(sysarg)) then
+					return
+				end				
+				
+				MiscsImplement.SetActorVoteForImpeach(sysarg, true)
+				if (support == 1) then
+					curImpeach.suppVoteCount 		= curImpeach.suppVoteCount 		+ 1
+				else
+					curImpeach.refuseVoteCount 	= curImpeach.refuseVoteCount 	+ 1
+				end
+				
+				MiscsImplement.SendImpeachVoteResult(sysarg, 
+																						1, 
+																						curImpeach.impeachActorName, 
+																						curImpeach.suppVoteCount, 
+																						curImpeach.refuseVoteCount
+																						)
+			else																		
+				return
+			end
+		end
+	end	
+end
+
+-- 盟主弹劾投票
+MiscsImplement.ImpeachVote = function(sysarg, msgid, packet)
+	if packet == nil then return end
+	local support = DataPack.readByte(packet)
+	MiscsImplement.ImpeachVoteImpl(sysarg, support)
+end
+
+--[[ 阵营弹劾消息处理注册 --]]
+MiscsImplement.registerMsgHandler(28, MiscsImplement.ImpeachCampKing)
+MiscsImplement.registerMsgHandler(29, MiscsImplement.QueryImpeachInfo)
+MiscsImplement.registerMsgHandler(30, MiscsImplement.ImpeachVote)

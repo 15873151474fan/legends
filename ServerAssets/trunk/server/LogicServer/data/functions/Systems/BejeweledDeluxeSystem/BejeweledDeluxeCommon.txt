@@ -1,0 +1,364 @@
+--宝石消除 通用处理
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--清除冷却时间
+function OnBDClearLeftTime(sysarg,args)
+	local nLastMinutes = args[2]
+	
+	if nLastMinutes <= 0 then return end
+
+	local config = BejeweledDeluxeConfig
+	if not config then return end
+	
+	local gcConfig = GemClearConfig
+	if not gcConfig then return end
+	
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+
+	local nLastSecond = nLastMinutes * 60
+	local nClearTimeNeedYB = math.floor(nLastSecond / gcConfig.clearTimeSec * gcConfig.clearTimeNeedYb)
+	if nYb < nClearTimeNeedYB then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bsxc0001, ttFlyTip)
+	else
+		Actor.changeMoney(sysarg,3,-nClearTimeNeedYB,191,Lang.Activity.bsxc0002)
+		Actor.changeTimeInfo(sysarg, 1, 0)
+	end
+end
+
+--增加游戏次数
+function OnBDAddTimes(sysarg,args)
+	local nMaxTimes = args[2]
+
+	if nMaxTimes < 0 then return end
+
+	local config = BejeweledDeluxeConfig
+	if not config then return end
+
+	local gcConfig = GemClearConfig
+	if not gcConfig then return end
+
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+
+	local nAddTimes = nMaxTimes - config.playTimes + 1
+	if nAddTimes > table.getn(gcConfig.costAddCountList or {}) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bsxc0015, ttFlyTip)
+		return
+	end
+
+	local costAddList = gcConfig.costAddCountList
+	if not costAddList then return end
+
+	local addTimesNeedYb = costAddList[nAddTimes].awards[1].count
+	if not addTimesNeedYb then return end
+
+	if nYb < addTimesNeedYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bsxc0003, ttFlyTip)
+	else
+		Actor.changeMoney(sysarg,3,-addTimesNeedYb,191,Lang.Activity.bsxc0004)
+		Actor.changeTimeInfo(sysarg, 0, 1)
+	end
+end
+
+--购买游戏道具
+function OnBDBuyItem(sysarg,args)
+	local nItemType = args[2]
+	local nItemId = args[3]
+	local nItemCount = args[4]
+	
+	local config = BejeweledDeluxeConfig
+	if not config then return end
+
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+
+	--炸弹
+	if nItemId == config.specialItems[1].id then
+		local consumeYb = config.buyBombNeedYb * nItemCount
+		if nYb < consumeYb then
+			Actor.sendTipmsg(sysarg, Lang.Activity.bsxc0005, ttFlyTip)
+		else
+			Actor.changeMoney(sysarg,3,-consumeYb,191,Lang.Activity.bsxc0006)
+			Actor.changeBDItem(sysarg, nItemCount, 0)
+		end
+	--抹除剂
+	elseif nItemId == config.specialItems[2].id then
+		local consumeYb = config.buyNanitesNeedYb * nItemCount
+		if nYb < consumeYb then
+			Actor.sendTipmsg(sysarg, Lang.Activity.bsxc0007, ttFlyTip)
+		else
+			Actor.changeMoney(sysarg,3,-consumeYb,191,Lang.Activity.bsxc0008)
+			Actor.changeBDItem(sysarg, 0, nItemCount)
+		end
+	end
+end
+
+--开始游戏
+function OnBDStartGame(sysarg,args)
+	local nUseTimes = args[2]
+	
+	local config = BejeweledDeluxeConfig
+	if not config then return end
+
+	local gcConfig = GemClearConfig
+	if not gcConfig then return end
+
+	local consumeCoin = 0
+	local consumeBindGold = 0
+	local gameCanStart = 1
+
+	local nNewUseTimes = nUseTimes + 1
+	if nNewUseTimes > table.getn(gcConfig.costCountList) then
+		return
+	end
+
+	local consumes = gcConfig.costCountList[nNewUseTimes]
+	if not consumes then return end
+
+	local nCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+	local nBindGold = Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO)
+	--先检查金币或礼券是否足够
+	for k, awards in ipairs(consumes.awards or {}) do
+		if awards.type == 6 then
+			if nCoin < awards.count then
+				gameCanStart = 0
+			end
+		elseif awards.type== 7 then
+			if nBindGold < awards.count then
+				gameCanStart = 0
+			end
+		end
+	end
+
+	if gameCanStart == 1 then
+		for k, awards in ipairs(consumes.awards or {}) do
+			if awards.type == 6 then
+				Actor.changeMoney(sysarg,1,-awards.count,191,Lang.Activity.bsxc0011)
+				consumeCoin = awards.count * config.addBonusRate / 10000
+			elseif awards.type== 7 then
+				Actor.changeMoney(sysarg,2,-awards.count,191,Lang.Activity.bsxc0010)
+				consumeBindGold = awards.count * config.addBonusRate / 10000
+			end
+		end
+		Actor.startBDGame(sysarg, consumeCoin, consumeBindGold)
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.bsxc0009, ttFlyTip)
+	end
+end
+
+--增加分数
+function OnBDAddScore(sysarg,args)
+	local nLinkCount = args[2]
+	local nDispelCount = args[3]
+	
+	local config = BejeweledDeluxeConfig
+	if not config then return end
+
+	--print("nLinkCount, nDispelCount", nLinkCount, nDispelCount)
+
+	local nScore = 0
+
+	if nLinkCount == 1 then
+		nScore = config.diamondScore[1] * nDispelCount
+	elseif nLinkCount == 3 then
+		nScore = config.diamondScore[2]
+	elseif nLinkCount == 4 then
+		nScore = config.diamondScore[3]
+	elseif nLinkCount == 5 then
+		nScore = config.diamondScore[4]
+	elseif nLinkCount == 6 then
+		nScore = config.diamondScore[5]
+	end
+
+	--print("nScore", nScore)
+	Actor.addBDScore(sysarg, nScore)
+end
+
+--获得道具
+function OnBDGainItem(sysarg,args)
+	local config = BejeweledDeluxeConfig
+	if not config then return end
+
+	local awardTabs = config.specialAward
+	if not awardTabs then
+		return
+	end
+
+	local nTotalRate = 0
+	for k, awardInfo in ipairs(awardTabs or {}) do
+		nTotalRate = nTotalRate + awardInfo.rate
+	end
+	local awardTab = GetRandomBejeweledDeluxeInfo(awardTabs, 1, nTotalRate)
+
+	if not awardTab then
+		return
+	end
+
+	for k, awardInfo in ipairs(awardTab or {}) do
+		--炸弹
+		if awardInfo.id == config.specialItems[1].id then
+			Actor.changeBDItem(sysarg, awardInfo.count, 0)
+		--抹除剂
+		elseif awardInfo.id == config.specialItems[2].id then
+			Actor.changeBDItem(sysarg, 0, awardInfo.count)
+		else
+			Dmkj.addItem(sysarg,awardInfo.id,awardInfo.count,awardInfo.quality,awardInfo.strong, awardInfo.bind,false)
+			--[[
+			if awardInfo.isRarity and awardInfo.isRarity == true then
+				local actorName = Actor.getName(sysarg)
+				local itemName = Item.getAwardDesc(awardInfo.type, awardInfo.id)
+				System.broadcastTipmsg(string.format(Lang.Activity.bsxc0013, actorName, itemName), ttScreenCenter)
+			end
+			]]
+		end
+		--print("Gain Item", awardInfo.id)
+		SendGainItem(sysarg, awardInfo.type, awardInfo.id)
+		--记录进史册
+		if awardInfo.isRarity and awardInfo.isRarity == true then
+			Actor.markBDLog(sysarg, awardInfo.id)
+		end
+	end
+
+end
+
+--游戏结束
+function OnBDGameOver(sysarg,args)
+	local nScore = args[2]
+
+	local config = BejeweledDeluxeConfig
+	if not config then return end
+
+	local nLotteryTimes = 0
+	local nExp = 0
+
+	for k, bonusTimes in ipairs(config.bonusTimes or {}) do
+		if nScore >= bonusTimes.score then
+			nLotteryTimes = bonusTimes.bonus
+		else
+			break
+		end
+	end
+
+	local nTotalExp = 0
+	for k, awardInfo in ipairs(config.ratedAward or {}) do
+		if awardInfo.type == 20 then
+			nExp = Actor.getActivityExp(sysarg, awardInfo.id, awardInfo.count, awardInfo.quality)
+			nTotalExp = nScore / 10000 * config.addExpRate * nExp
+			Actor.addExp(sysarg, nTotalExp, 0, 0)
+		else
+			local quality = awardInfo.quality
+			local bind = awardInfo.bind
+			local strong = awardInfo.strong
+			if quality == nil then quality =0 end
+			if bind == nil then bind =0 end
+			if strong == nil then strong =0 end
+
+			--如果放进背包失败就放进盗梦仓库
+			if Actor.giveAward(sysarg, awardInfo.type,awardInfo.id,awardInfo.count,quality,strong,bind,0,191,Lang.Activity.bsxc0012) ~= true then
+				Dmkj.addItem(sysarg,awardInfo.id,awardInfo.count,awardInfo.quality,awardInfo.strong, awardInfo.bind,false)
+			end
+		end
+
+	end
+
+	Actor.setBDCanLottery(sysarg, nLotteryTimes)
+	SendGameResult(sysarg, nScore, nLotteryTimes, nTotalExp)
+end
+
+--抽奖
+function OnBDLottery(sysarg,args)
+	local nCanGainBonus = args[2]
+
+	local config = BejeweledDeluxeConfig
+	if not config then return end
+
+	local awardTabs = config.bonusAward
+	if not awardTabs then
+		return
+	end
+
+	local nTotalRate = 0
+	for k, awardInfo in ipairs(awardTabs or {}) do
+		nTotalRate = nTotalRate + awardInfo.rate
+	end
+
+	local awardTab = nil
+	if nCanGainBonus == 1 then
+		awardTab = GetRandomBejeweledDeluxeInfo(awardTabs, 1, nTotalRate)
+	else
+		awardTab = GetRandomBejeweledDeluxeInfo(awardTabs, awardTabs[1].rate, nTotalRate)
+	end
+
+	if not awardTab then
+		return
+	end
+
+	for k, awardInfo in ipairs(awardTab or {}) do
+		--大奖
+		if (awardInfo.type == 127) and (awardInfo.id == 1) then
+			print("Gain Bonus")
+			Actor.gainBDBonus(sysarg, awardInfo.count, 1, bsxc0014)
+		--普通提取
+		elseif (awardInfo.type == 127) and (awardInfo.id == 2) then
+			Actor.gainBDBonus(sysarg, awardInfo.count, 2, bsxc0014)
+		else
+			--炸弹
+			if awardInfo.id == config.specialItems[1].id then
+				Actor.changeBDItem(sysarg, awardInfo.count, 0)
+			--抹除剂
+			elseif awardInfo.id == config.specialItems[2].id then
+				Actor.changeBDItem(sysarg, 0, awardInfo.count)
+			else
+				Dmkj.addItem(sysarg,awardInfo.id,awardInfo.count,awardInfo.quality,awardInfo.strong, awardInfo.bind,false)
+				--[[
+				if awardInfo.isRarity and awardInfo.isRarity == true then
+					local actorName = Actor.getName(sysarg)
+					local itemName = Item.getAwardDesc(awardInfo.type, awardInfo.id)
+					System.broadcastTipmsg(string.format(Lang.Activity.bsxc0013, actorName, itemName), ttScreenCenter)
+				end
+				]]
+			end
+			--print("Lottery Gain Item", awardInfo.id)
+			SendGainItem(sysarg, awardInfo.type, awardInfo.id)
+			--记录进史册
+			if awardInfo.isRarity and awardInfo.isRarity == true then
+				Actor.markBDLog(sysarg, awardInfo.id)
+			end
+		end
+	end
+end
+
+--根据概率获取值
+function GetRandomBejeweledDeluxeInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i].value
+			break
+		end
+	end
+	return result
+end
+
+--发送游戏结果
+function SendGameResult(sysarg, nScore, nLotteryTimes, nExp)
+	local pack = DataPack.allocPacket(sysarg, 54, 13)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nScore)
+		DataPack.writeChar(pack, nLotteryTimes)
+		DataPack.writeInt(pack, nExp)
+		DataPack.flush(pack)
+	end
+end
+
+--发送获得道具
+function SendGainItem(sysarg, nItemType, nItemId)
+	local pack = DataPack.allocPacket(sysarg, 54, 9)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, 1)
+		DataPack.writeInt(pack, nItemType)
+		DataPack.writeShort(pack, nItemId)
+		DataPack.flush(pack)
+	end
+end

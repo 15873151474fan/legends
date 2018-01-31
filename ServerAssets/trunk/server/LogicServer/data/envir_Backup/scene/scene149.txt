@@ -1,0 +1,55 @@
+﻿--天下第一战场
+{
+	scenceid = 149,
+	scencename = Lang.SceneName.s00149,
+	mapfilename = "149KuaFuDiTu",
+	minlevel = 26,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--music = "gongchenqu.mp3",
+	--musicInterval=30,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 244,
+	sceneHeight = 232,
+	posx = 15,
+	posy = 19,
+	area =
+	{
+		{ name = Lang.SceneName.s00149, range = { 10,10,20,20,60,50}, center = { 130,106},attri = {{type=6,value = {}},{type=3,value = {}},{type = 34,  value = {316,318,822,386,387,388,389,391,392,394,2272,2273,2274}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },{type=33,value = {10,56,57,58}},{type=20,value = {}},{type=56,value = {}},{type=80,value = {}},{type=89,value = {}},{type=21,value = {}},{type=45,value = {}},{type=50,value = {4}},{ type = 40,  value = {} },}},	--默认配置场景，重配地图、死亡复活区域（），不可使用行会召集等，新手保护失效，禁止骑马、不可交易物品，死亡不掉落物品，不可丢弃物品
+		{ name = Lang.SceneName.s00149, range = { 117,23,213,121,207,127,112,29}, center = { 163,78},attri = {{type=1,value = {}},}},	--安全区
+		{ name = Lang.SceneName.s00149, range = { 111,29,133,54,56,136,28,108}, center = { 93,69},attri = {{type=1,value = {}},}},	--安全区
+		{ name = Lang.SceneName.s00149, range = { 183,103,208,128,128,208,106,188}, center = { 166,143},attri = {{type=1,value = {}},}},	--安全区
+		{ name = Lang.SceneName.s00149, range = { 106,188,118,172,68,118,54,134}, center = { 89,155},attri = {{type=1,value = {}},}},	--安全区
+		{ name = Lang.SceneName.s00149, range = { 101,86,112,72,164,126,154,141}, center = { 134,110},attri = {{type=1,value = {}},}},	--安全区
+
+		{ name = Lang.SceneName.s00149, range = { 130,99,142,99,142,114,130,114}, center = { 130,106},attri = {{type=46,value = {}},{type=1,value = {}},}},	--安全复活区
+
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00215, posx = 145 , posy = 111,script= "data/script/KuaFuTianXiaDiYi/HuoDongShiZhe.txt",modelid=98,icon = 1,funcId= 0,},
+
+	},
+
+  teleport =
+  {
+		--传送点设置
+		
+  },
+
+},

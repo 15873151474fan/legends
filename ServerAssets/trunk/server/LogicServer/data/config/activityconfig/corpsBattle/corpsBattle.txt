@@ -1,0 +1,86 @@
+--lua script
+--战队竞技的配置
+--#include "data\language\LangCode.txt"
+
+corpsBattleConfig = 
+{
+	nSceneId = 85,						--战队竞技的场景id
+	chinaRange = {78,84,15,15},			--进入的场景坐标
+
+	outSceenId = 8,						--退出的场景id
+	outRange = {150,180,2,2},			--退出的场景坐标
+	
+	nTime = 1800,						--活动的持续时间
+
+	nLevel = 45,						--参加活动的最低等级
+
+	AwardScore = 5,						--击杀boss每人获得的积分
+	killActorScore = 1,					--击杀玩家获得的积分
+
+	lastTime = 5 * 60,					--占领5分钟获胜
+	
+	--刷出的boss
+	Monsters =	
+	{
+		{nMonsterID = 483, posX1 = 78, posX2 = 84,  posY = 85, nCount = 1, nLiveTime = 1800,name = "",},	
+	},
+	
+	--拿球的玩家死亡刷出的怪物
+	MonsterDie =	
+	{
+		{nMonsterID = 484, posX1 = 78, posX2 = 84,  posY = 85, nCount = 1, nLiveTime = 1800,name = "",},	
+	},
+
+	--拿球的玩家添加buff.
+	buffConfig = 
+	{
+		{buffType= 49, value=850, buffGroup= 10,times =1,interval= 300,needDelete =true,timeOverlay =true,buffName = "",},	--减速的buff
+		--{buffType= 91, value=1, buffGroup= 10,times =1,interval= 300,needDelete =true,timeOverlay =true,buffName = "",},	--头上添加球的buff
+	},
+
+	--连续杀人的配置
+	KillActorContinous =
+	{
+		{count=3,notice=Lang.Activity.c00017},							--连续杀3个玩家
+		{count=4,notice=Lang.Activity.c00018},							--连续杀4个玩家
+		{count=5,notice=Lang.Activity.c00024},							--连续杀5个玩家
+		{count=6,notice=Lang.Activity.c00025},							--连续杀6个玩家
+		{count=7,notice=Lang.Activity.c00026},							--连续杀7个玩家
+		{count=8,notice=Lang.Activity.c00027},							--连续杀8个玩家
+		{count=9,notice=Lang.Activity.c00028},							--连续杀9个玩家
+		{count=10,notice=Lang.Activity.c00029},							--连续杀10个或以上玩家
+	},
+	
+	IntervalTime = 10,					--杀人间隔时间 单位秒
+	--间隔一定时间连续杀人
+	IntervalKillActor = 
+	{
+		{count=2,notice=Lang.Activity.c00019},							--双杀
+		{count=3,notice=Lang.Activity.c00020},							--三杀
+		{count=4,notice=Lang.Activity.c00030},							--四杀
+		{count=5,notice=Lang.Activity.c00031},							--五杀
+	},
+	
+	--领取奖励配置
+	awardConfig = 
+	{
+		{ type = 0, id = 733, count = 1, strong = 0, quality = 0, bind = 1 },	
+	},
+
+	corpsTitleId = 11,			--第一战队的称号
+
+	perTime = 15,														--场景定时给经验时间 单位秒
+	
+	--定时给经验
+	givePerExp = 
+	{
+		{ type = 20, id = 2, count = 20, strong = 0, quality = 0, bind = 0 },	
+	},
+	
+	--定时给拥有球的战队成员经验
+	giveBollExp = 
+	{
+		{ type = 20, id = 2, count = 50, strong = 0, quality = 0, bind = 0 },	
+	},
+
+}

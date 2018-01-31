@@ -1,0 +1,28 @@
+--使用灵兽丹，增加兽魂值
+
+--#include "data\config\beastsoul\BeastSoulConfig.txt" once
+
+function BeastSoulItemFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.checkActorLevel(sysarg, BeastSoulGameConfig.level, BeastSoulGameConfig.circle) == false then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0011, ttFlyTip) 
+		return 
+	end
+	
+	if Actor.removeConsume(sysarg, itemConfig.type, itemConfig.id, itemConfig.count, itemConfig.quality, itemConfig.strong, itemConfig.bind, 0, 964, Lang.LogTips.bs0007) <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0011, ttFlyTip)
+		return  
+	end
+	
+	Actor.giveAward(sysarg, 41, 0, itemConfig.val, -1, -1, -1, 0, 964, Lang.LogTips.bs0009)
+	
+end
+
+function BeastSoulItemInit(sysarg)
+	for k, v in ipairs(BeastSoulGameConfig.BeastSoulItems or {}) do
+		GlobalItemFn[v.id] = { func = BeastSoulItemFunc, params = v } 
+	end
+
+end
+
+
+table.insert( InitFnTable, BeastSoulItemInit)

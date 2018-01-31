@@ -1,0 +1,59 @@
+﻿--lua script
+--for item add buffs
+
+--#include "data\config\item\BuffItemDatas.txt" once --BUFF配置表
+
+
+
+
+--[[
+--添加buff的物品
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+function AddItemBuffer(sysarg,itemidx,itemPtr,ItemTable)
+	--System.trace("使用id为"..itemidx.."物品成功")
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+  end
+  
+  --附身符的效果
+  if ItemTable.item_id == 1562 then 
+    Actor.setPkMode(sysarg,fpPeaceful) --立刻设置pk模式为和平模式，并且添加一个buff
+		if(ItemTable.needDelete) then --需要删除
+		  Actor.removeItemByPtr(sysarg,itemPtr,1,true,"AddItemBuffer",5)      --删除一个物品
+    end
+    if(Actor.hasBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup)) then
+      if Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE) >= 300 then 
+        Actor.addBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup, ItemTable.value, ItemTable.times, ItemTable.interval/2, Item.getItemName(itemidx), ItemTable.timeOverlay) --添加buff
+      else  
+        Actor.addBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup, ItemTable.value, ItemTable.times, ItemTable.interval, Item.getItemName(itemidx), ItemTable.timeOverlay) --添加buff
+	    end
+    else
+      Actor.addBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup, ItemTable.value, ItemTable.times, ItemTable.interval, Item.getItemName(itemidx), ItemTable.timeOverlay) --添加buff
+    end
+	elseif ItemTable.item_id == 1669 then
+		if ItemTable.needDelete then --需要删除
+			Actor.removeItemByPtr(sysarg,itemPtr,1,true,"AddItemBuffer",5)      --删除一个物品
+		end
+		Actor.useSkill(sysarg,161,0,0,false,1)
+  else
+		if(ItemTable.needDelete) then --需要删除
+		  Actor.removeItemByPtr(sysarg,itemPtr,1,true,"AddItemBuffer",5)      --删除一个物品
+    end
+    Actor.addBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup, ItemTable.value, ItemTable.times, ItemTable.interval, Item.getItemName(itemidx), ItemTable.timeOverlay) --添加buff
+  end
+end
+
+
+function AddItemBufferInit(sysarg)
+  for i = 1,table.getn(AddBuffItems) do
+	local x = AddBuffItems[i]
+	GlobalItemFn[x.item_id] = { func = AddItemBuffer, params = x }
+  end
+end
+
+table.insert(InitFnTable,AddItemBufferInit)

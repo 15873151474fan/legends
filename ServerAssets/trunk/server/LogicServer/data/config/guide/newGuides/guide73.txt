@@ -1,0 +1,53 @@
+﻿--护龙深潭指引 
+{
+  maxLevel = 60,
+  triggerList =
+  {
+		{ type = 2, valueList = {112,}},      --任务完成 
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步 显示系统提示 
+    {
+      condList =
+      {
+				{ type = 15,  helpId = 0, dataList = {48,} },			--在护龙深潭 
+				{ type = 8,  helpId = 0, dataList = {112,} },      --任务完成
+				{ type = 5,  helpId = 0, dataList = {112,} },      --存在任务
+				{ type = 39, helpId = 0, dataList = {Lang.GuideLang.desc63}},
+      },
+
+      action = { type = 17, helpId = 0, data = 30000, pointerValue = 1, desc = Lang.GuideLang.desc63,frame = 0 },  --显示提示 
+    },
+
+    --第2步 指向建造 
+    {
+      condList =
+      {
+				{ type = 40, helpId = 0, dataList = {Lang.GuideLang.desc63}},
+				{ type = 1,  helpId = 200, dataList = {0,} },		--塔防建造面板可见
+				{ type = 8,  helpId = 0, dataList = {112,} },		--任务完成
+				{ type = 5,  helpId = 0, dataList = {112,} },			--存在任务
+				{ type = 15, helpId = 0, dataList = {48,} },         --在护龙深潭
+				{ type = 38, helpId = 199,dataList = {}},
+      },
+
+      --指向建造按钮 
+      action = { type = 1, helpId = 199, data = 0, rot = 180, pointerValue = 1, desc = Lang.GuideLang.desc25 },
+    },
+    --第4步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 16,  helpId = 0, dataList = {48,} },		--不在护龙深潭 
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

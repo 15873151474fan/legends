@@ -1,0 +1,59 @@
+﻿--lua script
+--活动：
+--NPC:
+
+
+--[[
+    函数名称：传送
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function Transmit_Main(sysarg)	
+	local config = TranConfig
+	if (not config) then return "" end
+	local str = ""
+	for i=1, table.getn(config) do
+		local tran = config[i]
+		if tran.TranAsk == 0 then
+			str = str.."\\<#BL"..tran.TranTitle.."/@GoTransmitArea,"..i..">"  --<传送>
+		else 
+			str = str.."\\<#BL"..tran.TranTitle.."/@AskGoTransmitArea,"..i..">"  --<传送>
+		end
+	end
+	return str
+end
+
+
+--询问是否传送
+function AskGoTransmitArea(sysarg, idx)
+	local idx = tonumber(idx)
+	--print(idx)
+	local config = TranConfig[idx]
+	local NPChandle = Actor.getNpc(sysarg)
+	local sName = Fuben.getSceneNameById(config.TranMapId)
+	local tips = string.format(Lang.ScriptTips.x00194,sName)
+	Actor.messageBox(sysarg,NPChandle,0,tips,Lang.ScriptTips.mt00021.."/GoTransmitArea,"..idx,Lang.ScriptTips.mt00022.."/Cancel",nil)
+end
+
+--传送
+function GoTransmitArea(sysarg, idx)
+	local idx = tonumber(idx)
+	local config = TranConfig[idx]
+	if (not config) then return end
+
+	--传送玩家
+	local rand = math.random(table.getn(config.TranMapXY))    --随机坐标点组
+	local X = math.random( config.TranMapXY[rand][1], config.TranMapXY[rand][2])    --随机X
+	local Y = config.TranMapXY[rand][3]
+
+	Actor.enterScene(sysarg,config.TranMapId,X,Y)
+
+	Actor.closeNPCDialog(sysarg)
+end
+
+--取消
+function Cancel(sysarg)
+end
+
+
+table.insert(MainFnTable,Transmit_Main)

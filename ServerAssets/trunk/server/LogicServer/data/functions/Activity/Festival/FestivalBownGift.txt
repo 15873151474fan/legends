@@ -1,0 +1,367 @@
+--聚宝盆
+
+--#include "data\language\LangCode.txt" once --语言包 
+
+--打开聚宝盆
+function OnOpenBownGiftOp(sysarg,nType)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local pRanking = Ranking.getRanking(BownGiftConfig.BownGiftName)
+	local pItem = nil
+	local nBownLev = 0
+	if pRanking then
+		pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+		if pItem then
+			nBownLev = tonumber(Ranking.getSub(pItem,0))
+		end
+	end
+	
+	local bRanking = Ranking.getRanking(BownGiftConfig.BownGiftName)
+	local nTatolYb = 0
+	local mItem = nil
+	if bRanking then
+		mItem = Ranking.getItemPtrByIndex(bRanking,0)
+		if mItem then
+			nTatolYb = Ranking.getPoint(mItem)
+		else
+			mItem = Ranking.addItem(bRanking,1,0)
+		end
+	end
+
+	local nBownResult = 0
+	if nType > 0 then
+		if nType ~= (nBownLev+1) then
+			return
+		end
+	
+		if Dmkj.getStoreRestCount(sysarg) < 1 then
+			local str = string.format(Lang.ScriptTips.dm003,1)
+			Actor.sendTipmsg(sysarg,str,ttDialog)
+			return
+		end
+		for i=1,20000 do
+			local nConfig = BownGiftConfig.BownGiftList[nType]
+			if nConfig == nil then return end
+
+			local nTotalRate = 0
+			for k=1,table.getn(nConfig.awards) do
+				nTotalRate = nTotalRate + nConfig.awards[k].rate
+			end
+			local nNum = System.getRandomNumber(nTotalRate)
+			if nYb < nConfig.needYb then
+				Actor.sendTipmsg(sysarg,Lang.Activity.nh0003,ttFlyTip)
+				return
+			end
+
+			local nIndex = 0
+			local curRate = 0
+			for k=1,table.getn(nConfig.awards) do
+				curRate = curRate + nConfig.awards[k].rate
+				if nNum < curRate then
+					nIndex = k
+					break
+				end
+			end
+			
+			local bItem = nil
+			local needYb = 0
+			if bRanking and nConfig.awards[nIndex].intervalYb ~= nil then
+				bItem = Ranking.getItemPtrFromId(bRanking,nConfig.awards[nIndex].id)
+				if bItem then
+					needYb = Ranking.getPoint(bItem)
+				end
+			end
+			
+			if nTatolYb < needYb then
+				nIndex = 0
+			end
+
+			if nIndex > 0 then
+				Actor.changeMoney(sysarg,3,-nConfig.needYb,908,Lang.Activity.nh0004)
+
+				Actor.addHundredSvrLuckItem(sysarg,nConfig.awards[nIndex].id,nConfig.awards[nIndex].count,nConfig.awards[nIndex].quality,nConfig.awards[nIndex].strong,
+				nConfig.awards[nIndex].bind,908)
+
+				Actor.addBownGiftItem(sysarg,nConfig.awards[nIndex].type,nConfig.awards[nIndex].id,nConfig.awards[nIndex].count,nConfig.awards[nIndex].quality,
+				nConfig.awards[nIndex].strong,nConfig.awards[nIndex].bind,true)
+
+				Actor.sendBownGiftItem(sysarg)
+				if pItem then
+					Ranking.setSub(pItem,0,tostring(nType))
+					Ranking.updateItem(pRanking,nActorId,nConfig.needYb)
+				elseif pRanking then
+					pItem = Ranking.addItem(pRanking,nActorId,nConfig.needYb)
+					if pItem then
+						Ranking.setSub(pItem,0,tostring(nType))
+						Ranking.setSub(pItem,1,tostring(0))
+					end
+				end
+				
+				if nConfig.awards[nIndex].bBroad ~= nil then
+					
+					System.broadcastTipmsg(string.format(Lang.Activity.nh0016,Actor.getName(sysarg),Item.getItemName(nConfig.awards[nIndex].id)),2)
+				end
+
+				nBownResult = nType
+				
+				if bRanking and nConfig.awards[nIndex].intervalYb ~= nil then
+					needYb = nTatolYb + nConfig.awards[nIndex].intervalYb
+					if bItem then
+						Ranking.updateItem(bRanking,nConfig.awards[nIndex].id,nConfig.awards[nIndex].intervalYb)
+					else
+						bItem = Ranking.addItem(bRanking,nConfig.awards[nIndex].id,needYb)
+					end
+
+					nTatolYb = nTatolYb + nConfig.needYb
+					if mItem then
+						Ranking.updateItem(bRanking,1,nConfig.needYb)
+					end
+				end
+
+				break
+			end
+		end
+	else
+		local nIndex = 0
+		if nIndex >= table.getn(BownGiftConfig.BownGiftList) then		--全部打开了
+			Actor.sendTipmsg(sysarg,Lang.Activity.nh0005,ttFlyTip)
+			return
+		end
+		
+		if Dmkj.getStoreRestCount(sysarg) < table.getn(BownGiftConfig.BownGiftList) then
+			local str = string.format(Lang.ScriptTips.dm003,table.getn(BownGiftConfig.BownGiftList))
+			Actor.sendTipmsg(sysarg,str,ttDialog)
+			return
+		end
+
+		nIndex = nIndex + 1
+		local nTotalNeedYb = 0
+		for i=nIndex,table.getn(BownGiftConfig.BownGiftList) do
+			nTotalNeedYb = nTotalNeedYb + BownGiftConfig.BownGiftList[i].needYb
+		end
+
+		if nYb < nTotalNeedYb then
+			Actor.sendTipmsg(sysarg,Lang.Activity.nh0003,ttFlyTip)
+			return
+		end
+		
+		for i=nIndex,table.getn(BownGiftConfig.BownGiftList) do
+			for j=1,10000 do
+				local nConfig = BownGiftConfig.BownGiftList[i]
+
+				if nConfig then
+					local nTotalRate = 0
+					for k=1,table.getn(nConfig.awards) do
+						nTotalRate = nTotalRate + nConfig.awards[k].rate
+					end
+					local nNum = System.getRandomNumber(nTotalRate)
+					
+					local nResult = 0
+					local curRate = 0
+					for k=1,table.getn(nConfig.awards) do
+						curRate = curRate + nConfig.awards[k].rate
+						if nNum < curRate then
+							nResult = k
+							break
+						end
+					end
+
+					local bItem = nil
+					local needYb = 0
+					if bRanking and nConfig.awards[nResult].intervalYb ~= nil then
+						bItem = Ranking.getItemPtrFromId(bRanking,nConfig.awards[nResult].id)
+						if bItem then
+							needYb = Ranking.getPoint(bItem)
+						end
+					end
+					
+					if nTatolYb < needYb then
+						nResult = 0
+					end
+
+					if nResult > 0 then
+						Actor.addHundredSvrLuckItem(sysarg,nConfig.awards[nResult].id,nConfig.awards[nResult].count,nConfig.awards[nResult].quality,nConfig.awards[nResult].strong,
+						nConfig.awards[nResult].bind,908)
+
+						Actor.addBownGiftItem(sysarg,nConfig.awards[nResult].type,nConfig.awards[nResult].id,nConfig.awards[nResult].count,nConfig.awards[nResult].quality,
+						nConfig.awards[nResult].strong,nConfig.awards[nResult].bind,true)
+			
+						if nConfig.awards[nResult].bBroad ~= nil then
+							System.broadcastTipmsg(string.format(Lang.Activity.nh0016,Actor.getName(sysarg),Item.getItemName(nConfig.awards[nResult].id)),2)
+						end
+
+						if bRanking and nConfig.awards[nResult].intervalYb ~= nil then
+							needYb = nTatolYb + nConfig.awards[nResult].intervalYb
+							if bItem then
+								Ranking.updateItem(bRanking,nConfig.awards[nResult].id,nConfig.awards[nResult].intervalYb)
+							else
+								bItem = Ranking.addItem(bRanking,nConfig.awards[nResult].id,needYb)
+							end
+
+							nTatolYb = nTatolYb + nConfig.needYb
+							if mItem then
+								Ranking.updateItem(bRanking,1,nConfig.needYb)
+							end
+						end
+
+						break
+					end
+				end
+			end
+		end
+
+		Actor.changeMoney(sysarg,3,-nTotalNeedYb,908,Lang.Activity.nh0004)
+		Actor.sendBownGiftItem(sysarg)
+
+		nBownResult = table.getn(BownGiftConfig.BownGiftList)
+		
+		if pItem then
+			Ranking.setSub(pItem,0,tostring(nBownResult))
+			Ranking.updateItem(pRanking,nActorId,nTotalNeedYb)
+		elseif pRanking then
+			pItem = Ranking.addItem(pRanking,nActorId,nTotalNeedYb)
+			if pItem then
+				Ranking.setSub(pItem,0,tostring(nBownResult))
+				Ranking.setSub(pItem,1,tostring(0))
+			end
+		end
+	end
+	
+	local nLuckyNum = 0
+	if pItem then
+		nLuckyNum = Ranking.getPoint(pItem)
+		local nState = tonumber(Ranking.getSub(pItem,1)) or 0
+		if nLuckyNum >= BownGiftConfig.LuckyAward.needLucky then
+				--Actor.giveAward(sysarg,BownGiftConfig.LuckyAward.type,BownGiftConfig.LuckyAward.id,BownGiftConfig.LuckyAward.count,
+				--BownGiftConfig.LuckyAward.quality,BownGiftConfig.LuckyAward.strong,BownGiftConfig.LuckyAward.bind,0,838,Lang.Activity.nh0015)
+
+			Actor.addHundredSvrLuckItem(sysarg,BownGiftConfig.LuckyAward.id,BownGiftConfig.LuckyAward.count,BownGiftConfig.LuckyAward.quality,
+				BownGiftConfig.LuckyAward.strong,BownGiftConfig.LuckyAward.bind,908)
+			
+			Actor.sendTipmsg(sysarg,Lang.Activity.nh0017,ttFlyTip)
+
+			Ranking.setSub(pItem,1,tostring(1))
+			Ranking.setItem(pRanking,nActorId,0)
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 8, 29)
+	if (pack ~= nil) then
+		DataPack.writeByte(pack, nBownResult)
+		DataPack.writeInt(pack, nLuckyNum)
+		if nBownResult == table.getn(BownGiftConfig.BownGiftList) then
+			DataPack.writeInt(pack, 0)
+		else
+			DataPack.writeInt(pack, BownGiftConfig.BownGiftList[nBownResult+1].needYb)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--重置聚宝盆
+function OnResetBownGiftOp(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local pRanking = Ranking.getRanking(BownGiftConfig.BownGiftName)
+	local pItem = nil
+	local nBownLev = 0
+	if pRanking then
+		pItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+		if pItem then
+			nBownLev = tonumber(Ranking.getSub(pItem,0))
+		end
+	end
+	
+	if nYb < BownGiftConfig.ResetNeedYb then
+		Actor.sendTipmsg(sysarg,Lang.Activity.nh0008,ttFlyTip)
+		return
+	end
+
+	if nBownLev <= 0 then
+		Actor.sendTipmsg(sysarg,Lang.Activity.nh0007,ttFlyTip)
+		return
+	end
+
+	if pItem then
+		if nBownLev < table.getn(BownGiftConfig.BownGiftList) then
+			Actor.changeMoney(sysarg,3,-BownGiftConfig.ResetNeedYb,908,Lang.Activity.nh0006)
+		end
+		Ranking.setSub(pItem,0,tostring(0))
+		local pack = DataPack.allocPacket(sysarg, 8, 29)
+		if (pack ~= nil) then
+			DataPack.writeByte(pack, 0)
+			DataPack.writeInt(pack, Ranking.getPoint(pItem))
+			DataPack.writeInt(pack, BownGiftConfig.BownGiftList[1].needYb)
+			DataPack.flush(pack)
+		end
+	end
+end
+
+--返回聚宝盆信息
+function SendBownDataToClient(sysarg,args)
+	local nIndex = args[2]
+	local nvalue = args[3]
+
+	local pack = DataPack.allocPacket(sysarg, 8, 29)
+	if (pack ~= nil) then
+		DataPack.writeByte(pack, nIndex)
+		DataPack.writeInt(pack, nvalue)
+		if nIndex == table.getn(BownGiftConfig.BownGiftList) then
+			DataPack.writeInt(pack, 0)
+		else
+			DataPack.writeInt(pack, BownGiftConfig.BownGiftList[nIndex+1].needYb)
+		end
+
+		DataPack.flush(pack)
+	end
+
+	return true
+end
+
+--积分排行榜初始化
+function BownGiftRankInit()
+	local RankNameList = Ranking.getRanking(BownGiftConfig.BownGiftName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(BownGiftConfig.BownGiftName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,BownGiftConfig.BownGiftFile)
+			
+			if isLoad == false then
+				for i=1,5 do
+					Ranking.addColumn(RankNameList,"value"..i)
+				end
+			end
+		end
+	end
+
+	local pRanking = Ranking.getRanking(BownGiftConfig.BownIntervalYbFile)		--通过排行名称获取排行对象
+	if pRanking == nil then							--没有排行对象则创建并加载数据
+		pRanking = Ranking.add(BownGiftConfig.BownIntervalYbFile,1000,0)		--创建排行榜
+		if pRanking ~= nil then
+			local isLoad = Ranking.load(pRanking,BownGiftConfig.BownIntervalYbFile)
+			
+			if isLoad == false then
+				for i=1,5 do
+					Ranking.addColumn(pRanking,"value"..i)
+				end
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function BownGiftRankFinality()
+	local ranking = Ranking.getRanking(BownGiftConfig.BownGiftName)
+	if ranking then
+		Ranking.save(ranking,BownGiftConfig.BownGiftFile,true)
+	end
+
+	local pRanking = Ranking.getRanking(BownGiftConfig.BownIntervalYbFile)
+	if pRanking then
+		Ranking.save(pRanking,BownGiftConfig.BownIntervalYbFile,true)
+	end
+end
+
+table.insert(InitFnTable,BownGiftRankInit)
+table.insert(FinaFnTable,BownGiftRankFinality)

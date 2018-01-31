@@ -1,0 +1,63 @@
+﻿--荣誉神殿
+{
+	scenceid = 119,
+	scencename = Lang.SceneName.s00119,
+	mapfilename = "119RongYuShenDian",
+	minlevel = 40,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "zumashimiao.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 240,
+	sceneHeight = 248,
+	sceneType=1,
+	seckillId = 0,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+	area =
+	{
+		{ name = Lang.SceneName.s00119, range = { 10,10,20,20,60,50}, center = { 150,155 },attri = {{type=18,value = {}},{type=19,value = {}},{type=6,value = {}},{type=80,value = {}},{type = 34,  value = {316,822,386,2272,2273,2274}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },}},	--默认配置场景，禁止行会的召集，传送，不爆装备
+		{ name = Lang.SceneName.a00000, range = { 135,159,150,143,164,157,148,173 }, center = { 150,155 },attri = {{type=46,value = {}},}},	--安全复活区
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00178, posx = 163, posy = 160,script = "data/script/Activity/RongYuShenDian/ShenDianShiZhe.txt",modelid = 92,icon = 2,funcId = 0,classId=3},		--荣誉使者
+	},
+
+  teleport =
+  {
+  	{ posx =  163, posy = 169,toSceneid = 9,toPosx = 14, toPosy = 16,modelid = 50000,name = Lang.SceneName.s00009 },  --荣誉神殿→玛沙克皇宫
+  },
+
+landscape=
+	{
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+
+		{posx1=121,posy1=126,posx2=121,posy2=126,modelid=4,xinterval=2,yinterval=2},  --篝火的位置（燃烧的篝火）
+
+		{posx1=159,posy1=165,posx2=159,posy2=165,modelid=24,xinterval=1,yinterval=1},  --指引的位置
+		{posx1=153,posy1=159,posx2=153,posy2=159,modelid=24,xinterval=1,yinterval=1},  --指引的位置
+		{posx1=149,posy1=155,posx2=149,posy2=155,modelid=24,xinterval=1,yinterval=1},  --指引的位置
+		{posx1=143,posy1=149,posx2=143,posy2=149,modelid=24,xinterval=1,yinterval=1},  --指引的位置
+		{posx1=138,posy1=142,posx2=138,posy2=142,modelid=24,xinterval=1,yinterval=1},  --指引的位置
+		{posx1=131,posy1=135,posx2=131,posy2=135,modelid=24,xinterval=1,yinterval=1},  --指引的位置
+		{posx1=126,posy1=130,posx2=126,posy2=130,modelid=24,xinterval=1,yinterval=1},  --指引的位置
+
+	},
+
+
+},

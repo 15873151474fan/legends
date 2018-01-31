@@ -1,0 +1,194 @@
+﻿--#include "data\config\activityconfig\OldDemon\OldDemon.txt" once
+
+--#include "data\functions\Activity\Common\Consumes.txt" once --活动通用 消耗
+--#include "data\functions\Activity\Common\Awards.txt" once --活动通用 奖励
+
+
+function RefreshOldDemon(sysarg, packet)
+	--print("RefreshOldDemon")
+	local isRepCost = DataPack.readByte(packet) or 0
+	
+	--print(isRepCost)
+	
+	local nTeamId = Actor.getTeamId(sysarg)
+	local pLeader = TeamFun.getTeamCaptain(nTeamId)
+	
+	if pLeader ~= sysarg then
+		return
+	end
+	
+	local pFuben = Actor.getFubenPrt(sysarg)
+	if not pFuben then return end
+	
+	local nFubenId = Actor.getFubenId(sysarg)
+	
+	if nFubenId <= 0 then return end
+	
+	local bossConfig = OldDemon.boss
+	
+	--随机判断
+	local randNum = math.random(10000)
+	local rate = 0
+	local index = 0
+	for k, v in ipairs(bossConfig) do
+		rate = rate + v.rate
+		if rate >= randNum then
+			index = k
+			break
+		end
+	end
+	
+	local config = bossConfig[index]
+	--print(index)
+	if not config then return end
+	
+	
+	local dfvar = Fuben.getDyanmicVar(pFuben)
+	
+	
+	if not dfvar.refreshCount then
+		dfvar.refreshCount = 0
+	end
+	
+	if dfvar.hasOldDemon then
+		return
+	end
+	
+	--消耗
+	--if Consumes.Check(sysarg, OldDemon.consumes) ~= true then return end
+	local refreshCount = tonumber(dfvar.refreshCount) or 0
+	if refreshCount >= OldDemon.freeCount then
+		local consumes = {{type = 0, id = OldDemon.coinItem.id, count = OldDemon.coinItem.count, yb = OldDemon.coinItem.yb}}
+		local result = Consumes.SuccessCheck(sysarg, consumes, isRepCost, 0)
+			
+		if (result ~= successCheckResult.ok) then return end
+		
+		local result, isBind = Consumes.OnConsumes(sysarg, consumes, isRepCost, 0, 925, Lang.LogTips.l00185)
+		if (result ~= successCheckResult.ok) then return end
+	end
+	dfvar.refreshCount = refreshCount + 1
+	
+	--if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+	Awards.Give(sysarg, config.awards, 925, Lang.LogTips.l00185)
+	
+	--print(dfvar.oldDemon)
+	
+	dfvar.oldDemon = index
+	dfvar.isRepCost = isRepCost
+	
+	local teamList = LuaHelp.getTeamMemberList(sysarg)
+	
+	for k, v in ipairs(teamList) do
+		local pMemFuben = Actor.getFubenPrt(v)
+		if pMemFuben == pFuben then 
+			local pack = DataPack.allocPacket(v,145,18)      
+			if pack == nil then return end
+			DataPack.writeByte(pack, table.getn(config.sBoss))
+			for k, v in ipairs(config.sBoss) do
+				--print(v.iconId)
+				DataPack.writeWord(pack, v.iconId)
+				DataPack.writeByte(pack, v.show)
+			end
+			DataPack.writeString(pack, config.tips)
+			DataPack.flush(pack)
+		end
+	end
+	
+	Actor.closeNPCDialog(sysarg)
+end
+
+--转完后回调
+function OldDemonCallBack(sysarg)
+	--print("OldDemonCallBack")
+	local config = OldDemon
+	
+	local nFid = Actor.getFubenId(sysarg)
+	if nFid <= 0 then return end
+	
+	local pFuben = Actor.getFubenPrt(sysarg)
+	if not pFuben then return end
+	local nFubenId = Actor.getFubenId(sysarg)
+	if nFubenId <= 0 then return end
+	local dfvar = Fuben.getDyanmicVar(pFuben)
+	
+	if dfvar.hasOldDemon or not dfvar.oldDemon then
+		return
+	end
+	
+	local index = tonumber(dfvar.oldDemon) or 0
+	local isRepCost = tonumber(dfvar.isRepCost)
+	local refreshCount = tonumber(dfvar.refreshCount) or 0
+	
+	--print("index:"..index)
+	
+	local boss = config.boss[index]
+	if not boss then return end
+	--[[
+	--if Consumes.Remove(sysarg, OldDemon.consumes, 925, "上古魔神") ~= true then return end
+	if refreshCount >= config.freeCount then
+		local consumes = {{type = 0, id = OldDemon.coinItem.id, count = OldDemon.coinItem.count, yb = OldDemon.coinItem.yb}}
+		local result, isBind = Consumes.OnConsumes(sysarg, consumes, isRepCost, 0, 925, Lang.LogTips.l00185)
+		if (result ~= successCheckResult.ok) then return end
+	end
+	dfvar.refreshCount = refreshCount + 1
+	
+	--if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+	Awards.Give(sysarg, boss.awards, 925, Lang.LogTips.l00185)
+	--]]
+	local hScene = Actor.getSceneHandle(sysarg)
+	--Fuben.destroyLandscape(hScene, 0)	--先清掉之前的
+	for k, v in ipairs(boss.sBoss) do
+		local pos = config.sBossPos[k]
+		if pos then
+			--Fuben.createMonster(hScene, v[1], pos[1][1], pos[1][2])	--刷几个小雕像
+			Fuben.createLandscape(hScene, v.statue[1], pos.statue[1], pos.statue[2], config.liveTime*1000, v.statue[2],true)	--刷几个小雕像
+		end
+	end
+	
+end
+
+--刷怪
+function OldDemonCreate(sysarg)
+	--print("OldDemonCreate")
+	local config = OldDemon
+	
+	local nFid = Actor.getFubenId(sysarg)
+	if nFid <= 0 then return end
+	
+	local pFuben = Actor.getFubenPrt(sysarg)
+	if not pFuben then return end
+	local nFubenId = Actor.getFubenId(sysarg)
+	if nFubenId <= 0 then return end
+	local dfvar = Fuben.getDyanmicVar(pFuben)
+	
+	if dfvar.hasOldDemon or not dfvar.oldDemon then
+		return
+	end
+	
+	local index = tonumber(dfvar.oldDemon)
+	
+	local boss = config.boss[index]
+	if not boss then return end
+	
+	local hScene = Actor.getSceneHandle(sysarg)
+	
+	dfvar.hasOldDemon = 1 
+	
+	for k, v in ipairs(boss.sBoss) do
+		local pos = config.sBossPos[k]
+		if pos then
+			Fuben.createMonster(hScene, v.mid, pos.monster[1], pos.monster[2], config.liveTime)	--刷小BOSS
+		end
+	end
+	
+	local bBossPos = config.bBossPos
+	for k, v in ipairs(boss.bBossId) do
+		--print("big boss:"..v)
+		Fuben.createMonster(hScene, v, bBossPos[k][1], bBossPos[k][2], config.liveTime)	--刷大BOSS
+	end
+	
+	if boss.notice then
+		local hFuben = Fuben.getFubenHandle(pFuben)
+		Fuben.sendMsgToFb(hFuben, boss.notice, ttScreenCenter+ttChatWindow)
+	end
+end

@@ -1,0 +1,152 @@
+﻿--lua script
+--玩家打开补偿界面出来的脚本
+
+--#include "..\..\config\misc\CombineServerCompensate.txt" once
+
+--设置领取标志
+local function SetCSCompensateFlag(sysarg)
+	--获取服务器合区时间
+	local csTime = System.getServerCombineTime()
+	if not csTime or csTime == 0 then 
+		return false
+	end
+	
+	local svar = Actor.getStaticVar( sysarg )
+	svar.CombineSvrComp = csTime
+	--print("CombineSvrComp")
+	--print(svar.CombineSvrComp)
+	return true
+end
+
+--获取是否领取标志
+local function GetCSCompensateFlag(sysarg)
+	--获取服务器合区时间
+	local csTime = System.getServerCombineTime()
+	--print("csTime:"..csTime)
+	local svar = Actor.getStaticVar( sysarg )
+	local value = svar.CombineSvrComp
+	--合区时间为0 代表没有配置合区时间或不是合区服务器 不可以领取
+	if value == nil or (csTime ~= 0 and tonumber(value) ~= tonumber(csTime)) then
+		return false
+	end
+	return true
+end
+
+--判断value是否在tables里
+local function CheckValueInTable(tables, value)
+	for k,v in ipairs(tables) do
+		if v == value then 
+			return true
+		end
+	end
+	return false
+end
+
+--获得玩家的补偿的数据 
+local function GetCSCompensateId( sysarg )
+	local configs = CombineServerCompensateConfig
+	if not configs then return end
+	local spid = System.getSystemDef("SPID")
+	--local serverId = System.getServerId()
+	for i=1, table.getn(configs) do
+		local config = configs[i]
+		if spid == config.spid then
+			return i
+		end
+	end
+	--默认找寻 "*"
+	for i=1, table.getn(configs) do
+		local config = configs[i]
+		if "*" == config.spid then
+			return i
+		end
+	end
+	return 0
+end
+
+--判断领取时间
+local function CheckGetCSCompensateTime(times)
+	--获取服务器合区时间
+	local csTime = System.getServerCombineTime()
+	local nowTime = System.getCurrMiniTime()
+	if nowTime >= csTime and nowTime <= (csTime+(times*3600)) then
+		return true
+	end
+	return false
+end
+
+--领取补偿
+function GetCSCompensate(sysarg,args)
+	local id = tonumber(args) 
+	local configs = CombineServerCompensateConfig
+	if not configs then return end
+	if (not id or id > table.getn(configs) or id <=0) then print ("too big")  return end --失败
+
+	local config = configs[id]
+	if not config then return end
+	
+	if GetCSCompensateFlag(sysarg) ~= false then return end
+	
+	--判断领取时间
+	if CheckGetCSCompensateTime(config.times) ~= true then
+		return ""
+	end
+	
+	local bagGrid =Item.getBagEmptyGridCount(sysarg)      --玩家身上有多少个格子
+	local items = config.items
+	local needGrid =0
+	for i=1, table.getn(items) do
+		if(items[i].type==0) then
+			needGrid= needGrid + Item.getAddItemNeedGridCount(sysarg,items[i].id,items[i].count,items[i].quality,items[i].strong,items[i].bind)
+		end 
+	end
+	if (needGrid > bagGrid) then
+		local tipMsg = string.format(Lang.ScriptTips.x00074,needGrid)
+		Actor.sendTipmsg( sysarg,tipMsg,ttDialog )
+		return
+	end
+	
+	--设置领奖
+	if (SetCSCompensateFlag(sysarg) ~= true) then return print("set error") end 
+	
+	for i=1,table.getn(items) do
+		--print("id:"..items[i].id)
+		if(items[i].type == 0) then
+			Actor.addItem(sysarg,items[i].id,items[i].quality,items[i].strong,items[i].count,items[i].bind, 0,"compensate",1)
+		else
+			Actor.giveAward(sysarg,items[i].type,0,items[i].count,0, 0, 1, 0,205,"compensate")
+		end 
+	end
+	
+	Actor.closeNPCDialog(sysarg)
+end
+
+
+
+--获取合区补偿 
+function GetCSCompensateDesc(sysarg, args)
+	--判断是否可领取
+	if GetCSCompensateFlag(sysarg) ~= false then
+		return ""
+	end
+	--获取配置补偿ID
+    local comId = GetCSCompensateId(sysarg) 
+    --print(comId)
+    if not comId or comId == 0 then return "" end
+	
+	local config = CombineServerCompensateConfig[comId]
+	
+	if not config then return "" end
+	
+	--判断领取时间
+	if CheckGetCSCompensateTime(config.times) ~= true then
+		return ""
+	end
+	
+	local str =""
+	str = str.."<#BL"..config.name.."/@GetCSCompensate,"..comId..">"
+   
+    return str
+end
+
+table.insert(MainFnTable,GetCSCompensateDesc)

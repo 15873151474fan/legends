@@ -1,0 +1,175 @@
+﻿--怪物攻城及鉴定宗师
+--#include "data\config\activityconfig\IdentifyActivity\IdentifyActivityConfig.txt" once
+
+--预告
+function IdentifyNotice(nType)
+	local str
+	local nIndex = tonumber(nType)
+	if nIndex == 1 then
+		str = Lang.Activity.t00029
+	else
+		str = Lang.Activity.t00030
+	end
+
+	System.broadcastTipmsg(str,2+128)
+end
+
+--活动开始
+function StartIdentifyActivity()
+	local dVal = System.getDyanmicVar()
+	if dVal.StartIdentifyFlag == nil then
+		dVal.StartIdentifyFlag = 0 --怪物攻城开始标志 
+	end
+
+	dVal.StartIdentifyFlag = 1
+	
+	if dVal.FreshIdentifyTimes == nil then
+		dVal.FreshIdentifyTimes = 0  --刷怪波数 
+	end
+
+	local hScene = Fuben.getSceneHandleById(IdentifyActivityConfig.nSceenId, 0)
+	for i=1,table.getn(IdentifyActivityConfig.monsters[1]) do
+		Fuben.createMonsters(hScene, IdentifyActivityConfig.monsters[1][i].nMonsterID, IdentifyActivityConfig.monsters[1][i].posX1, IdentifyActivityConfig.monsters[1][i].posX2, IdentifyActivityConfig.monsters[1][i].posY, IdentifyActivityConfig.monsters[1][i].nCount, IdentifyActivityConfig.monsters[1][i].nLiveTime)
+	end
+	
+	dVal.FreshIdentifyTimes = 1
+	System.broadcastTipmsg(Lang.Activity.t00031,2+128)
+
+	Actor.regScriptCallback(thisNPC, thisNPC, IdentifyActivityConfig.perTime * 1000, IdentifyActivityConfig.perTime * 1000, IdentifyActivityConfig.TotalTimes, "OnFreshNextIdentifyBoss")
+end
+
+--刷怪
+function OnFreshNextIdentifyBoss()
+	System.broadcastTipmsg(Lang.Activity.t00032,2+128)
+	local hScene = Fuben.getSceneHandleById(IdentifyActivityConfig.nSceenId, 0)
+	for i=1,table.getn(IdentifyActivityConfig.monsters[1]) do
+		Fuben.createMonsters(hScene, IdentifyActivityConfig.monsters[1][i].nMonsterID, IdentifyActivityConfig.monsters[1][i].posX1, IdentifyActivityConfig.monsters[1][i].posX2, IdentifyActivityConfig.monsters[1][i].posY, IdentifyActivityConfig.monsters[1][i].nCount, IdentifyActivityConfig.monsters[1][i].nLiveTime)
+	end
+end
+
+--活动结束
+function IdentifyActvityOver()
+	local dVal = System.getDyanmicVar()
+	dVal.StartIdentifyFlag = nil --活动结束清零 
+	dVal.FreshIdentifyTimes = nil
+
+	Actor.unregScriptCallback(thisNPC, "OnFreshNextIdentifyBoss")
+end
+
+
+--鉴定宗师 主题活动
+function TopicIdenfityNotice()
+	System.broadcastTipmsg(Lang.Activity.t00033,2+128)
+end
+
+--全民活动
+function NightWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00034,2+128)
+end
+
+--19点后的播报
+function LastTopicIdentifyNotice()
+	BroadLeadTopicMsg(1)
+end
+
+--22点后的播报
+function TopickNotifyBroadcast()
+	BroadLeadTopicMsg(2)
+end
+
+--播报领先玩家的消息
+function BroadLeadTopicMsg(nType)
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[9].rankName)
+
+	if ranking then
+		local str = ""
+
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+
+			if pItem then
+				local str1 = string.format(Lang.Activity.t00017,Ranking.getSub(pItem,0),Ranking.getPoint(pItem))
+				str = str..str1
+			end
+		end
+
+		if str ~= "" then
+			if nType == 1 then
+				str = Lang.Activity.t00034..str
+			else
+				str = Lang.Activity.t00035..str
+			end
+
+			System.broadcastTipmsg(str,2+128)
+		end
+	end
+end
+
+--结算主题活动
+function AccountIdentifyActivity()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[9].rankName)
+	
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+
+		if pItem then
+			local str = string.format(Lang.Activity.t00036,Ranking.getSub(pItem,0),Item.getItemName(OpenServerConfig.activitys[9].awards[1].id))
+			System.broadcastTipmsg(str,2+128)
+			System.giveTenDaysActivityAward(Ranking.getId(pItem),8)
+
+			GiveActivityAddBuff()
+		end
+
+		local nCount = Ranking.getRankItemCount(ranking)
+
+		for i=0,nCount-1 do
+			local mItem = Ranking.getItemFromIndex(ranking,i)
+
+			if mItem then
+				local actorId = Ranking.getId(mItem)
+				if Ranking.getPoint(mItem) >= OpenServerConfig.activitys[9].needValue then
+					System.sendOfflineAward(OpenServerConfig.activitys[9].openDays,OpenServerConfig.activitys[9].needValue,actorId)
+				end
+			end
+		end
+	end
+
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+end
+
+--结算后的播报
+function BroadAfterAccount()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[9].rankName)
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+
+		if pItem then
+			local str = string.format(Lang.Activity.t00036,Ranking.getSub(pItem,0),Item.getItemName(OpenServerConfig.activitys[9].awards[1].id))
+			System.broadcastTipmsg(str,2+128)
+		end
+	end
+
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+end
+
+--提前一天预告
+function PreBroadAfterAccount()
+	System.broadcastTipmsg(Lang.Activity.t00055,2+128)
+end
+
+--庆典加经验buff
+function GiveActivityAddBuff()
+	local awardConfig = OpenServerConfig.activitys[9].AddBuff[1]
+	local playerList = LuaHelp.getAllActorList()	
+
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.addBuff(player,awardConfig.buffType,awardConfig.buffGroup,awardConfig.value,awardConfig.times,awardConfig.interval,awardConfig.buffName)
+			end
+		end
+	end
+
+	System.broadcastTipmsg(Lang.Activity.t00053,2+128)
+end

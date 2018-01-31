@@ -1,0 +1,80 @@
+--lua script
+
+--#include "GodWealthCommon.txt"
+--#include "data\functions\Activity\Festival\FestivalFireCommon.txt" once
+
+--[[
+	local cRollDiceResultOp = 1,			-- 摇骰子后的处理
+	local cMovePointResult = 2,				-- 移动到某格的动画播放完毕
+	local cRandProduceEvent = 3,			-- 随机产生事件
+	local cInitWealthInfo = 4,				-- 初始化玩家
+	local cAddRollTimesOp = 5,				-- 增加摇骰子的次数
+	local cClearRollLeftTimeOp = 6,			-- 清除摇骰子的剩余时间
+	local cResetWealtheventOp = 7,			-- 重置财富事件
+	local cInitWealthEventOnLogin = 8,		-- 登陆时初始化财富事件(每次登陆现改为固定的)
+	local cMagicRollNum   =9,               -- 魔法骰子 
+--]]
+
+GodWealthFuncList = {}
+
+EventCallDispatcher.HandlerGodWealthOp = function (sysarg, args)
+ --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = GodWealthFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--摇骰子后的处理
+GodWealthFuncList[1] = function (sysarg, args)
+	OnAfterRollResultOp(sysarg,args)
+end
+
+--移动到某格的动画播放完毕
+GodWealthFuncList[2] = function (sysarg, args)
+	OnMoveToDestPointOp(sysarg,args)
+end
+
+--随机产生事件
+GodWealthFuncList[3] = function (sysarg, args)
+	OnRandProduceEvent(sysarg,args)
+end
+
+--初始化玩家的财富闯关数据
+GodWealthFuncList[4] = function (sysarg, args)
+	OnInitActorWealthInfo(sysarg,args)
+end
+
+--增加摇骰子的次数
+GodWealthFuncList[5] = function (sysarg, args)
+	OnAddRollTimesOp(sysarg,args)
+end
+
+--清除摇骰子的剩余时间
+GodWealthFuncList[6] = function (sysarg, args)
+	OnClearRollLeftTime(sysarg,args)
+end
+
+--重置财富事件
+GodWealthFuncList[7] = function (sysarg, args)
+	OnResetWealthEventOp(sysarg,args)
+end
+
+--登陆时初始化财富事件(每次登陆现改为固定的)
+GodWealthFuncList[8] = function (sysarg, args)
+	InitGodEventOnLogin(sysarg,args)
+end
+
+--登陆时初始化财富事件(每次登陆现改为固定的)
+GodWealthFuncList[9] = function (sysarg, args)
+	MagicRoll(sysarg,args)
+end
+
+function EventCallDispatcher.HandlerFestivalFire(sysarg, args)
+	return OnGiveFestivalFire(sysarg, args[1], args[2],args[3],args[4],args[5])
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeGodWealth, EventCallDispatcher.HandlerGodWealthOp)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeFastivalFire, EventCallDispatcher.HandlerFestivalFire)

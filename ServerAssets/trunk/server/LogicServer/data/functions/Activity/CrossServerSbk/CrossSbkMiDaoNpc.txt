@@ -1,0 +1,53 @@
+--lua script
+--沙巴克秘道npc
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\CrossGuildSbk\CrossGuildSbk.txt" once 
+
+function OnCrossSbkMiDaoNpcDialog(sysarg)
+	local str = ""
+
+	str = str.."\\<#BL"..Lang.Activity.ku0053.."/@ChuanSongToCrossSbkScene>"		--领取税收
+
+	return str
+end
+
+--传送到
+function ChuanSongToCrossSbkScene(sysarg)
+	local gVar = System.getStaticVar()
+	if gVar.CrossSbkStartFlag == nil then
+		gVar.CrossSbkStartFlag = 0
+	end
+	
+	if gVar.CrossSbkStartFlag == 0 then
+		Actor.sendTipmsg( sysarg, Lang.Activity.ku0054,ttFlyTip)
+		return
+	end
+
+	local nLevel = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+	if Actor.checkActorLevel(sysarg,CrossSbkConfig.minLevel) == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.ku0055,CrossSbkConfig.minLevel),ttFlyTip)
+		return
+	end
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local sbkGuildId = System.getSbkGuildId()
+	if nGuildId > 0 and nGuildId== sbkGuildId then 
+		Actor.sendTipmsg( sysarg, Lang.Activity.ku0056,ttFlyTip)
+		return 
+	end
+
+	local nCount = table.getn(CrossSbkConfig.MiDaoEnterPalace)
+
+	local randNum = System.getRandomNumber(nCount+1)
+	if randNum <= 0 then
+		randNum = 1
+	end
+
+	local PosConfig = CrossSbkConfig.MiDaoEnterPalace[randNum]
+
+	if PosConfig then
+		Actor.enterScene(sysarg,CrossSbkConfig.PalaceSceenId,unpack(PosConfig.enterPos))
+	end
+end
+
+table.insert(MainFnTable, OnCrossSbkMiDaoNpcDialog)

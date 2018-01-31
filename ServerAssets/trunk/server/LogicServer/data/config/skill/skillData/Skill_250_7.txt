@@ -1,0 +1,91 @@
+--南疆宝藏
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+
+	desc=Lang.Skill.s14L1Desc,--技能的描述
+	iconID=14,--图标的ID
+
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						--{mj=0,timeParam=1,type=24,buffType=1,value=256,id=218},--技能说话		
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=309,keepTime=400,delay=0,always=false},
+					},
+				},
+			},
+		},
+		
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,value=256,id=224},--技能说话
+						{mj=0,timeParam=1,type=24,buffType=4,value=2,id=225,vt=1},--技能说话
+						{mj=0,timeParam=1,type=17,id=1538,delay=0,interval=1800,value=1,buffType=1},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=154,keepTime=400,delay=0,always=false},
+					},
+				},
+			},
+		},
+
+	},
+
+	trainConds=
+	{
+		--{cond=1,value=30,consume=false},--表示等级要1级
+		--{cond=3,value=437,consume=true,exceptVip=true },--表示书本
+	},
+
+	spellConds=
+	{
+		{cond=13,value=3,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,
+	cooldownTime=0,
+
+},

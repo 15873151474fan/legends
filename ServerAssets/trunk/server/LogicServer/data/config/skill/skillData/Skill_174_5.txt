@@ -1,0 +1,128 @@
+--解buff
+{
+
+	actions=
+	{
+		
+	},
+	
+	desc=Lang.Skill.s181L2Desc,--技能的描述
+	
+	iconID=2,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		
+		{
+
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 62,value =60,param=-1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0,rate=1000,value=10000},
+													
+					},
+
+					specialEffects=
+					{
+					{type=4,mj=0,id=13,keepTime=500,delay=0,always=false},
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+						{cond = 62,value =60,param=-1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=2,delay=0,buffType=60,id=81},
+													
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+						{cond = 21,value =97},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=2,delay=0, buffType=21,id=73},
+						{mj=0,timeParam=1,type=2,delay=0,buffType=23,id=74},
+						{mj=0,timeParam=1,type=2,delay=0,buffType=25,id=75},
+						{mj=0,timeParam=1,type=2,delay=0,buffType=27,id=76},
+						{mj=0,timeParam=1,type=2,delay=0,buffType=117,id=78},
+						{mj=0,timeParam=1,type=21,delay=0,id=97,value=1,vt=1},
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+
+	},					
+
+	trainConds=
+	{
+		
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=13,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=2000,
+
+},

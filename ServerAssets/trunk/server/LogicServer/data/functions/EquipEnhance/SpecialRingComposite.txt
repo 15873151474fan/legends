@@ -1,0 +1,131 @@
+﻿--lua script
+--#include "data\functions\EquipEnhance\EquipAuthenticate.txt" once -- 鉴定属性
+
+--特戒融合
+
+function SpecialRingComposite(sysarg, args)
+	local ptrCount = args[1]
+	print("SpecialRingComposite "..ptrCount)
+	local itemPtrList = {}
+	local ItemId = {}
+    for i = 1, ptrCount do
+        table.insert(itemPtrList, args[i+1])
+        table.insert(itemPtrList, Item.getItemProperty( sysarg, args[i+1], Item.ipItemID, 0))
+    end 
+
+	--local itemGuid = Item.getItemGuid(itemPtr1)
+
+
+	local itemId = args[ptrCount+3]
+	local needGold = args[ptrCount+4] --yb
+	--print("needGold"..needGold)
+	local ringCfg = GetSpecialRingCompositeConfig(itemId) -- 通过ID获取表
+    --print("SpecialRingCompositeitemId"..itemId)
+	if not ringCfg then
+		return false
+	end
+	--print("SpecialRingComposite1"..ptrCount)
+	--ID不对的话则不给合成 
+	for i = 1, table.getn(ItemId) do
+	    if ItemId[i] ~= ringCfg.SrcId[i] then
+           return
+        end
+    end 
+    --print("SpecialRingComposite2"..ptrCount) 
+	local myGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)	
+-- 判断够不够材料，不够就退出，不扣费
+	local needGoldCount = ringCfg.NeedYb
+	local consumeCoin = 0
+	for idx, tab in ipairs(ringCfg.consumes) do
+		if tab.usetype == Any_Stuff then
+			local remCount = Actor.getItemCount(sysarg, tab.id, -1, -1)
+			if remCount < tab.count then
+				if needGold < 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu021, ttFlyTip)
+					return
+				end
+				if myGold < needGoldCount then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu023, ttFlyTip)
+					return
+				end
+			end
+		elseif tab.usetype == Any_Silver then
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_COIN )
+				consumeCoin = consumeCoin + tab.count
+			if myCoin < consumeCoin then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fpu024, tab.count), ttFlyTip) -- 提示金币不够 
+				return
+			end
+		end
+		
+	end
+	--print("SpecialRingComposite3"..ptrCount)
+	local logId = Lang.LogTips.l00222
+	--扣除材料
+    if needGold > 0 then
+	   if myGold < needGoldCount then
+	      Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu023, ttFlyTip)
+	      return
+	   else
+	     Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 873, logId)
+	   end
+    else
+       for idx, tab in ipairs(ringCfg.consumes) do
+	      if tab.usetype == Any_Silver then
+              if not Actor.changeMoney(sysarg, mtCoin, -tab.count , 873, logId) then
+				 return
+			  end
+           elseif tab.usetype == Any_Stuff then
+	          --print("SpecialRingComposite4Any_Stuff")
+               local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1, logId, 873)
+	           if remCount < tab.count then
+                  Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu021, ttFlyTip)
+	              return
+               end
+	       end
+	   end
+    end 	
+	-- 扣除
+	for i = 1, table.getn(itemPtrList) do
+	   local remCount = Item.removeEquip(sysarg, itemPtrList[i], logId, 873, true)
+	   if remCount == 0 then
+		   remCount = Item.removeItem(sysarg, itemPtrList[i], 1, logId, 873)
+	   end
+
+	   if remCount < 1 then
+		   Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu021, ttFlyTip)
+	   	   return
+	   end
+	end
+    --print("SpecialRingComposite4"..ptrCount) 
+	--创建一个装备
+	local newItemPtr = Item.createItem(ringCfg.Ringid, 1, 0, 0, 0)--创建物品
+	if not newItemPtr then
+		System.trace("createItem error, id = "..ringCfg.Ringid)
+		return false
+	end
+	Item.setItemProperty(sysarg, newItemPtr, Item.ipItemBind, 0)
+
+	local ItemId = Item.getItemProperty( sysarg, newItemPtr, Item.ipItemID, 0 )
+	local ItemName = Item.getItemName( ItemId )
+ 	local s = string.format(Lang.ScriptTips.q00105, Actor.getName(sysarg), ItemName)
+ 	System.broadcastTipmsg(s, ttScreenCenter+ttChatWindow)
+	--给玩家添加一个装备
+	if (Item.addItem(sysarg, newItemPtr, logId, 873, 1) ~= 1) then
+		System.trace("add Item error, id = "..ringCfg.Ringid)
+		return false
+	end
+
+	return true
+end
+
+-- 通过指定序号获取对应的配置表
+function GetSpecialRingCompositeConfig(itemId)
+	local config = SpecialRingCompositeConfig
+	for i = 1, table.getn(config) do
+	    if config[i].Ringid == itemId then
+	       return config[i]
+	    end
+	end
+	return nil
+end

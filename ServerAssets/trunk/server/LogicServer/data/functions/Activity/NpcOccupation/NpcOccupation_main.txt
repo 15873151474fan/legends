@@ -1,0 +1,21 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --ÓïÑÔ°ü
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\NpcOccupation\NpcOccupationConfig.txt" once
+--#include "RankPointer.txt" once
+--#include "data\functions\Activity\NpcOccupation\NpcOccupation.txt" once
+
+
+function NpcOccupation_Main(sysarg)	
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.nzl0015.."/@CallCrystalKeeper,1>"  --<¹ºÂòºìÉ«Ë®¾§ÊØÎÀ>
+	str = str.."\\<#BL"..Lang.Activity.nzl0016.."/@CallCrystalKeeper,2>"  --<¹ºÂòºìÉ«Ë®¾§ÊØÎÀ>
+	str = str.."\\<#BL"..Lang.Activity.nzl0017.."/@CallCrystalKeeper,3>"  --<¹ºÂòºìÉ«Ë®¾§ÊØÎÀ>
+	str = str.."\\<#BL"..Lang.Activity.nzl0018.."/@CallCrystalKeeper,4>"  --<¹ºÂòºìÉ«Ë®¾§ÊØÎÀ>
+	str = str.."\\<#BL"..Lang.Activity.nzl0019.."/@CallCrystalKeeper,5>"  --<¹ºÂòºìÉ«Ë®¾§ÊØÎÀ>
+	str = str.."\\<#BL"..Lang.Activity.nzl0027.."/@ExitNpcOccupation>"  --<Àë¿ª»î¶¯>
+	str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<Àë¿ª>
+	return str
+end
+
+table.insert(MainFnTable, NpcOccupation_Main)

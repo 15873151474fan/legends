@@ -1,0 +1,80 @@
+﻿--lua script
+--行政官员对话
+
+--#include "data\language\LangCode.txt" once   --语言包
+
+
+function GuildNpc_Main(sysarg)
+	local str = ""
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	
+	if nGuildId <= 0 then
+		str = str.."\\<#BL"..Lang.GuildLang.z00104.."/@OnCreateGuildOp>"
+	end
+
+	str = str.."\\<#BL"..Lang.GuildLang.z00105.."/@OnSignUpAttackSbk>"
+	--str = str.."\\<#BL"..Lang.GuildLang.z00106.."/@OnOpenGuildDpot>"
+	--str = str.."\\<#BL"..Lang.GuildLang.z00108.."/@OnOpenGuildBuff>"
+
+	return str
+end
+
+--创建行会
+function OnCreateGuildOp(sysarg)
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+
+	if nGuildId <= 0 then
+		SendOpenFormToClient(sysarg,1)
+	end
+end
+
+--报名攻城沙巴克
+function OnSignUpAttackSbk(sysarg)
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	
+	if nGuildId > 0 then
+		local nPos = Actor.getGuildPos(sysarg)
+
+		if nPos == 2 or nPos == 3 then
+			SendOpenFormToClient(sysarg,2)
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00107,ttFlyTip )
+		end
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00107,ttFlyTip )
+	end
+end
+
+--开启光环
+function OnOpenGuildBuff(sysarg)
+	local nPos = Actor.getGuildPos(sysarg)
+
+	if nPos == 2 or nPos == 3 then
+		SendOpenFormToClient(sysarg,4)	
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00109,ttFlyTip )
+	end
+end
+
+--打开行会仓库
+function OnOpenGuildDpot(sysarg)
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	
+	if nGuildId > 0 then
+		SendOpenFormToClient(sysarg,3)
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00107,ttFlyTip )
+	end
+end
+
+--下发打开面板的消息
+function SendOpenFormToClient(sysarg,nType)
+	local pack = DataPack.allocPacket(sysarg, 10, 52)
+
+	if (pack ~= nil) then
+		DataPack.writeChar(pack,nType)
+		DataPack.flush(pack)
+	end
+end
+
+table.insert(MainFnTable, GuildNpc_Main)

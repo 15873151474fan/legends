@@ -1,0 +1,250 @@
+﻿--lua script
+
+--#include "data\functions\GlobalDefine.txt" once
+--#include "data\envir\FuBenTongGuan.txt" once
+--#include "data\envir\FuBen.txt" once
+--#include "data\config\quest\MiscQuest.txt" once
+
+local REWARDINDEX = 10
+
+--根据副本的剩余时间计算通关后可获得的分数
+function getTimePoint(restTime,totalTime,mode)
+	restTime = (totalTime-restTime)/totalTime
+	--根据消耗的时间计算分数
+	local times = 0
+	local allPointItem = FbTimePoint[mode]
+	for i=1,#allPointItem do
+		local pointItem = allPointItem[i]
+		if restTime >= pointItem.sp and restTime <= pointItem.ep then
+			times = pointItem.point
+			break
+		end
+	end
+	return times
+end
+
+--根据副本的杀怪数量和总怪物数量计算通关后可获得的分数
+function getKillMonsterPoint(kill,total,mode)
+	--print("kill:"..kill.."total"..total)
+	kill = kill / total
+	local point = 0
+	local allFbMon = FbMonKillPoint[mode]
+	for i=1,#allFbMon do
+		local item = allFbMon[i]
+		if kill >= item.sp and kill <= item.ep then
+			point = item.point
+			break
+		end
+	end
+	return point
+end
+--根据通关分计算通关的等级
+function getFbLevel(point,maxPoint)
+	local level = 0
+	local pre = point / maxPoint
+	for i=1,#FbPoint do
+		local item = FbPoint[i]
+		if pre >= item.sp and pre <= item.ep then
+			level = (i-1)
+			break
+		end
+	end
+	return level
+end
+
+--通关后，调用该接口给玩家发送通关评价
+function SendFbAward(sysarg)
+	local fbid = Actor.getFubenId(sysarg)
+	if fbid == 0 then return end
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if fbPtr == nil then return end
+	
+	local hardLevel = 1	--通过难度分
+	local totalTime = 3600		--默认是1小时
+	local maxExp = 50000
+	local maxSw = 0
+	local maxPoint = 1000
+	local minLevel = 10
+	local fbConfig = FuBen[fbid]
+	if  fbConfig ~= nil then
+		if fbConfig.hardLevel ~= nil then
+			hardLevel = fbConfig.hardLevel
+		end
+		if fbConfig.fbTime ~= nil then
+			totalTime = fbConfig.fbTime
+		end
+		if fbConfig.maxExp ~= nil then
+			maxExp = fbConfig.maxExp
+		end
+		if fbConfig.maxSw ~= nil then
+			maxSw = fbConfig.maxSw
+		end
+		--[[
+		if fbConfig.maxPoint ~= nil then
+			maxPoint = fbConfig.maxPoint
+		end
+		--]]
+		if fbConfig.minLevel ~= nil then
+			minLevel = fbConfig.minLevel
+		end
+	end
+	--获取副本的玩家列表,最多5个
+	local actors = 
+	{
+		[1] = { ptr = nil,killcount =0,exp=0,sw=0,},
+		[2] = { ptr = nil,killcount =0,exp=0,sw=0,},
+		[3] = { ptr = nil,killcount =0,exp=0,sw=0,},
+		[4] = { ptr = nil,killcount =0,exp=0,sw=0,},
+		[5] = { ptr = nil,killcount =0,exp=0,sw=0,},
+	}
+	
+	local actorCount = 0
+	if Actor.getTeamId(sysarg) == 0 then
+		actors[1].ptr = sysarg
+		actorCount = 1
+	else
+		local templist = LuaHelp.getTeamMemberList(sysarg)
+		local tempCount = table.getn(templist)
+		for i = 1, #actors do
+			if i <= tempCount then
+				actors[i].ptr = templist[i]
+				actorCount = actorCount + 1
+			end
+		end
+	end
+	
+	local mode = 0	--单人模式的副本
+	if actorCount > 1 then
+		mode = 1	--多人模式
+	end
+		
+	--根据副本难度等级查对应的分值
+	local hardPoint = 0
+	if FbHardLevel ~= nil and FbHardLevel[hardLevel] ~= nil then
+		hardPoint = FbHardLevel[hardLevel]
+	end
+
+	
+	local restTime = Fuben.getFbTime(fbPtr)
+	local timePoint = getTimePoint(restTime,totalTime,mode)
+	--获取死亡次数
+	local diePoint = Fuben.getActorDieCount(fbPtr) * 100			--死亡一次扣100分
+	
+	local totalMon = Fuben.getFbMonsterTotal(fbPtr)
+	local mons = getKillMonsterPoint(Fuben.getKillMonsterCount(fbPtr),totalMon,mode)	--在副本中一共击杀的敌人数量（包括BOSS）占整体敌人数量的百分比
+	
+	--计算通关分
+	--print("hardp:"..hardPoint.." timep:"..timePoint.." diePoint:"..diePoint.." mons:"..mons)
+	local fbPoint = hardPoint + timePoint - diePoint + mons
+	
+	local levelSubPoint = {50,200}
+	
+	for ia=1,actorCount do
+		actors[ia].killcount = Actor.getKillMonsterCount(actors[ia].ptr)
+		--看副本的等级和玩家等级的差距，减去相应的分
+		local templevel = Actor.getIntProperty(actors[ia].ptr,PROP_CREATURE_LEVEL) - minLevel -20
+		if templevel < 0 then
+			templevel = 0
+		end
+		--单人50，队伍200
+		fbPoint = fbPoint - templevel * levelSubPoint[mode+1]
+	end
+	
+	--队伍模式有加成
+	if mode == 1 then
+		if TeamFbAdd[actorCount] ~= nil then
+			fbPoint = fbPoint + fbPoint*TeamFbAdd[actorCount]
+		end
+	end
+	--计算通关等级
+	if fbPoint <= 0 then
+		fbPoint = 10
+	end
+	
+	maxPoint = FbLevelPoint[mode][hardLevel]
+	
+	local fbLevel = getFbLevel(fbPoint,maxPoint)
+	
+	--获取每个玩家的杀怪数量，并排序
+	local max = 0
+	for i=1,actorCount do
+		max = i
+		for j = i+1,actorCount do
+			if actors[j].killcount > actors[max].killcount then
+				max = j
+			end
+		end
+		if i ~= max then
+			--swap
+			local temp = actors[i]
+			actors[i] = actors[max]
+			actors[max] = temp		--i的位置是最大的
+		end
+	end
+	
+
+	--计算每个玩家获得的经验值
+	local killBossCount = Fuben.getKillBossCount(fbPtr)
+	--print("killbosscount"..killBossCount)
+	--print("sysid:"..LogicCmd.miscSys.sysId.."sub:"..LogicCmd.miscSys.sub.sFbResult)
+	
+	for i=1,actorCount do
+		--给经验
+		local al = Actor.getIntProperty(actors[i].ptr,PROP_CREATURE_LEVEL)
+		actors[i].exp = maxExp * (fbPoint/maxPoint) + 0 * al
+		actors[i].sw = maxSw * (fbPoint/maxPoint)
+		Actor.addExp(actors[i].ptr,actors[i].exp,0,0)
+		Actor.giveAward(actors[i].ptr,qatRenown,0,actors[i].sw,0, 0, 1, 0,604,Fuben.getFubenNameByPtr(fbPtr))
+	end
+	
+	--以下是广播消息
+	for i=1,actorCount do
+		
+		local npack = DataPack.allocPacket(actors[i].ptr,LogicCmd.miscSys.sysId,LogicCmd.miscSys.sub.sFbResult)  --申请一个数据包		
+		DataPack.writeInt(npack,fbid)
+		DataPack.writeString(npack,Fuben.getFubenNameByPtr(fbPtr))
+		DataPack.writeByte(npack,fbLevel)				--评级,
+		DataPack.writeInt(npack,fbPoint)
+		DataPack.writeByte(npack,actorCount)
+		for id=1,actorCount do
+			DataPack.writeInt(npack,actors[id].exp)		--发送获取到的经验
+			DataPack.writeInt(npack,actors[id].sw)		--发送获取到的经验
+			DataPack.writeString(npack,Actor.getName(actors[id].ptr))
+		end
+		
+		DataPack.writeByte(npack,killBossCount)--计算击杀了boss的玩家个数
+		
+		for ik=1,killBossCount do		--击杀boss的玩家名称
+			DataPack.writeString(npack,Fuben.getKillBossActorName(fbPtr,ik-1))
+		end
+		
+		--已排好序
+		DataPack.writeByte(npack,1)
+		for id=1,1 do
+			DataPack.writeString(npack,Actor.getName(actors[id].ptr))
+		end
+
+		DataPack.flush(npack)		--发送数据包
+		
+			--副本通关相关的任务
+		for qi = 1, #FbFinishQuest do
+			local data = FbFinishQuest[qi]
+			Actor.setQuestValue(actors[i].ptr,data.qid,data.id,data.count)
+		end
+		
+		--如是特等，可完成另外的任务
+		if fbLevel == 0 then
+			for qi = 1, #FbAwardQuest do
+				local data = FbAwardQuest[qi]
+				Actor.setQuestValue(actors[i].ptr,data.qid,data.id,data.count)
+			end
+		end
+		
+		--完成成就
+		Actor.triggerAchieveEvent(actors[i].ptr,46,fbLevel+1)	--1表示特等，2表示1等，类推
+	end
+	
+	Fuben.setFubenProgress(fbPtr,FB_FS_GETAWARD)	--设置其在领奖的状态了，其他状态下不能领奖
+	Fuben.setFbValue(fbPtr,FB_FR_IDX_LEVEL,fbLevel)	
+end
+

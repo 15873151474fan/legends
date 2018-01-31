@@ -1,0 +1,10 @@
+--lua script
+
+BackRoomConfig = {
+	defendNpcs = {
+		{id = 100, x = 100, y = 100},
+		{id = 100, x = 100, y = 100},
+		{id = 100, x = 100, y = 100},
+		{id = 100, x = 100, y = 100},
+	},
+}

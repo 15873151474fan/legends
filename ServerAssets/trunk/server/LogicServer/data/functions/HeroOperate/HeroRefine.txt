@@ -1,0 +1,88 @@
+--lua script
+--#include "data\config\hero\HeroRefine.txt" once
+
+--英雄炼化处理
+function OnHeroRefine( sysarg, args ) 
+	local mainHeroId = args[2] --主英雄的ID
+	local secHeroId = args[3] --副英雄的ID
+	
+	if mainHeroId <= 0 or secHeroId <= 0 or mainHeroId == secHeroId then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00208 ,ttFlyTip )
+		return
+	end
+	
+	local condition = true
+	local mainHeroCircle = Hero.getHeroProperty(sysarg, mainHeroId, 3) --获取英雄的转数
+	local secHeroCircle = Hero.getHeroProperty(sysarg, secHeroId, 3) --获取英雄的转数
+	
+	local mainHeroLevel = Hero.getHeroProperty(sysarg, mainHeroId, 1) --获取英雄的等级
+	local secHeroLevel = Hero.getHeroProperty(sysarg, secHeroId, 1) --获取英雄的等级
+
+	if secHeroCircle < mainHeroCircle then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00209 ,ttFlyTip )
+		return
+	elseif secHeroCircle == mainHeroCircle then
+		if secHeroLevel <= mainHeroLevel then
+			Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00210 ,ttFlyTip )
+			return
+		end
+	end
+	
+	local mainHeroState = Hero.getHeroProperty(sysarg, mainHeroId, 7) --获取英雄的状态
+	local secHeroState = Hero.getHeroProperty(sysarg, secHeroId, 7) --获取英雄的状态
+	if mainHeroState ~= 0 or secHeroState ~= 0 then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00212 ,ttFlyTip )
+		return
+	end
+	
+	local count = Hero.getHeroEquipCount(sysarg, secHeroId)
+	if count > 0 then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00211 ,ttFlyTip )
+		return
+	end
+	
+	local needGold = 0
+	local needCoin = 0
+	for k, v in ipairs(HeroRefineConfig or {}) do
+		if v.circle == secHeroCircle then
+			needGold = v.gold
+			needCoin = v.coin
+			break
+		end
+	end
+	
+	if needGold <= 0 and needCoin <= 0 then
+		return
+	end
+	
+	if Actor.checkConsume(sysarg, 15, 0, needGold) ~= true then 
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00213 ,ttFlyTip )
+		return 
+	end
+	
+	if Actor.checkConsume(sysarg, 6, 0, needCoin) ~= true then 
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00214 ,ttFlyTip )
+		return
+	end
+	
+	if needGold > 0 then
+		Actor.removeConsume(sysarg, 15, 0, needGold, 0, 0, 0, 0, 685, Lang.LogTips.p00011)
+	end 
+	if needCoin > 0 then
+		Actor.removeConsume(sysarg, 6, 0, needCoin, 0, 0, 0, 0, 685, Lang.LogTips.p00011)
+	end
+	
+	--Hero.setCircle(sysarg, mainHeroId, secHeroCircle)
+	--Hero.setLevel(sysarg, mainHeroId, secHeroLevel)
+	
+	Hero.setHeroRefineAttr(sysarg, mainHeroId, secHeroId)
+	
+	local result = Hero.delHero(sysarg, secHeroId)  
+	
+	local pack = DataPack.allocPacket(sysarg, 44, 23)
+	if (pack ~= nil) then	
+		DataPack.writeChar(pack, ((result and 0) or -1))  
+		DataPack.flush(pack)  			
+	end
+
+end

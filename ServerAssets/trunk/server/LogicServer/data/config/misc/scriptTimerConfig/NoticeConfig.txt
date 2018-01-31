@@ -1,0 +1,43 @@
+﻿--[[
+	//系统提示的类型
+	enum tagTipmsgType
+	{
+		ttInvalidTmType = -1, // 无效的Tipmsg类型
+		ttTipmsgWindow =1, //只在右侧提示栏显示
+		ttScreenCenter=2, //屏幕中央，用于xxx把xxx强化到6级之类的全服公告
+		ttDialog =4,      //弹出框
+		ttBroadcast =8,  //公告栏，用于GM发通知
+		ttMessage = 16,	//短消息，在屏幕中央悬挂，点击后查看内容，
+		ttWarmTip  =32,   //温馨提示
+		ttGmTip = 64,	// Gm提示信息
+		ttChatWindow =128, //左侧聊天栏里，用于一些系统公告在聊天栏显示
+		//ttMaxTmType,		// 最大Tipmsg类型
+	};
+--]]
+--公告表 
+--用于自动执行所需的公告
+--注意：项只能向后添加，就算以后没用到的项都要保留不能删除或用{}占位，防止index错乱
+NoticeMsg = 
+{
+	--世界BOSS公告
+	[1] = {Lang.Activity.dwj027},	--魔幻星宫预告播报
+	[2] = {Lang.Activity.dwj028},	--天火降临预告播报
+	[3] = {Lang.Activity.dwj029},	--3倍杀怪开启播报
+	[4] = {Lang.Activity.dwj030},	--3倍杀怪结束播报
+	[5] = {Lang.Activity.dwj104},	--疯狂玉兔播报
+	[6] = {Lang.Activity.zq0002},	--国庆瑞兽播报
+	[7] = {Lang.Activity.dwj116},	--巡游天神预告
+	[8] = {Lang.Activity.dwj117},	--五福童子公告
+	[9] = {Lang.Activity.dwj120},	--紫面狼妖公告
+	[10] = {Lang.Activity.dwj121},	--贪吃年兽公告
+	[11] = {Lang.Activity.xl0036},	--修罗场公告
+	[12] = {Lang.Activity.wy0008},	--修罗场公告
+	[13] = {Lang.Activity.hmr0023},	--鸿蒙幻境公告
+	[14] = {Lang.Activity.mzq0008},	--嫦娥奔月公告
+	[15] = {Lang.Activity.mzn0120},	--暗涌风云公告
+	[16] = {Lang.Activity.msd0125},	--圣诞大盗公告
+	[17] = {Lang.Activity.yyd0217},	--元旦BOSS公告
+	[18] = {Lang.Activity.sqm0027},	--清明刷怪公告
+	[19] = {Lang.Activity.dwj021},  --散财金龟开始预告
+    [20] = {Lang.Activity.dwj023},  --散财金龟结束预告 
+}

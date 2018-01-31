@@ -1,0 +1,22 @@
+﻿-- posx: 102  
+-- posy: 15
+
+--#include "data\language\LangCode.txt" once
+
+function ChangeUserMap(sysarg)
+   local TaskDone = Actor.isFinishQuest(sysarg,3)
+   if not TaskDone then
+      return
+   end
+   
+   local jop = Actor.getMenPai( sysarg )
+   if jop == 1 then
+      System.telportSceneByName(sysarg,Lang.SceneName.s00001,10,70)
+   elseif jop == 2 then
+      System.telportSceneByName(sysarg,Lang.SceneName.s00003,10,70)
+   elseif jop == 3 then
+      System.telportSceneByName(sysarg,Lang.SceneName.s00004,10,70)
+   else
+      System.telportSceneByName(sysarg,Lang.SceneName.s00005,10,70)
+   end
+end

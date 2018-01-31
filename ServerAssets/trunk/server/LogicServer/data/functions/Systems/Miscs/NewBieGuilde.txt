@@ -1,0 +1,44 @@
+
+--#include "data\config\misc\NewbieGuide.txt" once
+
+MiscsImplement.NewBieGuildeFunc = function( sysarg, msgid, packet )
+	local tabIdx = DataPack.readInt(packet)
+	local answerStr = DataPack.readString(packet)
+	local strCfg = NewBieGuideBook[tabIdx]
+	if strCfg then
+		local itemCount = Actor.getItemCount(sysarg, GuideItemId)
+		if itemCount <= 0 then
+			return
+		end
+		local netPack = DataPack.allocPacket( sysarg, 139, 49)
+		if netPack then
+			if answerStr == strCfg[3] then
+				DataPack.writeByte(netPack, 0)
+				DataPack.flush(netPack)
+				if Actor.removeItem(sysarg, GuideItemId, 1, -1,-1,-1, "useGuideBook", 69) == 1 then
+					local randAwardIdx = math.random(1, #NewBieGuideAward)
+					local awardTab = NewBieGuideAward[randAwardIdx]
+					if awardTab then
+						Actor.giveAward( sysarg, awardTab.type, awardTab.id, awardTab.count, awardTab.strong, awardTab.quality, awardTab.bind, 0, 205, "guide book award")
+					end
+				end
+			else
+				DataPack.writeByte(netPack, 2)
+				DataPack.writeInt(netPack, tabIdx)
+				DataPack.writeString(netPack, strCfg[1])
+				DataPack.writeString(netPack, "")
+				DataPack.writeString(netPack, strCfg[3])
+				DataPack.writeByte(netPack, #NewBieGuideAward)
+				for k, v in ipairs(NewBieGuideAward) do
+					DataPack.writeByte( netPack, v.type)
+					DataPack.writeInt( netPack, v.id)
+					DataPack.writeInt( netPack, v.count)
+				end
+				DataPack.flush(netPack)
+			end			
+		end
+	end
+end
+
+
+MiscsImplement.registerMsgHandler(60, MiscsImplement.NewBieGuildeFunc)

@@ -1,0 +1,92 @@
+﻿--lua script
+--处理法宝系统相关的操作
+
+--#include "data\config\item\MagicItem.txt" once --
+
+
+EquipOpId = 
+{
+	enInsure = 1,		--装备投保
+
+}
+
+EquipOpFuncList = {}
+
+EventCallDispatcher.HandlerEquipOp = function (sysarg, args)
+	--print("HandlerEquipOp================"..args[1])
+	if args[1] == nil then return end   --
+	local func = EquipOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args)
+	end
+end
+
+
+--装备投保
+EquipOpFuncList[EquipOpId.enInsure] = function (sysarg,args)
+	local itemPtr = args[2]	--处理的装备指针
+	local nCount = args[3]	--投保次数
+	
+	local nCount = tonumber(nCount)
+	
+	local equipGuid = Item.getItemGuid(itemPtr)
+	local equipPtr, nItemPos, nHeroId = Item.getEquipItemPtr(sysarg, equipGuid, 0, 0)
+	
+	if equipPtr == nil then return end
+	
+	if nItemPos ~= 1 and nItemPos ~= 2 and nItemPos ~= 3 then return end
+	
+	local nowTimes = Item.getItemProperty(sysarg, equipPtr, Item.ipItemHole3Item,0)
+	local bBind = Item.getItemProperty(sysarg, equipPtr, Item.ipItemBind,0)
+	if bBind ~= 0 then 
+		return 
+	end
+	
+	if nowTimes >= GlobalConfig.equipInsureCount then 
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.insure001, ttFlyTip)
+		return 
+	end
+	
+	if nowTimes + nCount > GlobalConfig.equipInsureCount then
+		nCount = GlobalConfig.equipInsureCount - nowTimes
+	end
+	
+	local needPrice = Item.getItemProperty(sysarg, equipPtr, Item.ipItemInsure,0)
+	
+	local needYb = nCount * needPrice
+	
+	local needGold = nCount * GlobalConfig.equipInsureGold
+	
+	if needYb <= 0 or needGold <= 0 then return end
+	
+	local goldCount = Actor.getMoneyCount(sysarg, mtCoin)
+	if goldCount < needGold then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.insure002, ttFlyTip)
+		return 
+	end
+	
+	local ybCount = Actor.getMoneyCount(sysarg, mtYuanbao)
+	if ybCount < needYb then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.insure003, ttFlyTip)
+		return 
+	end
+	
+	if Actor.changeMoney(sysarg, mtCoin, -needGold, 911, Lang.LogTips.l00164) ~= true then
+		return 
+	end
+	if Actor.changeMoney(sysarg, mtYuanbao, -needYb, 911, Lang.LogTips.l00164) ~= true then
+		return 
+	end
+	
+	if Item.setItemProperty(sysarg, equipPtr, Item.ipItemHole3Item, nowTimes + nCount) ~= true then
+		System.trace("set equip insure error id=%d",Actor.getIntProperty(sysarg,PROP_ENTITY_ID))
+		return
+	end
+	
+	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.insure004, Item.getItemName(Item.getItemId(equipPtr)), nowTimes + nCount), ttFlyTip)
+	
+end
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeEquipOp, EventCallDispatcher.HandlerEquipOp)

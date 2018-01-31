@@ -1,0 +1,91 @@
+﻿--鉴定转移
+
+
+--玩家, args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function OnMoveAuthenticate( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]				--转移装备指针
+	local destPtr = args[3]				--目标装备指针
+
+	local opType = args[ptrCount+2]		--操作类型
+	local isRepCost = args[ptrCount+3]	--是否元宝替代
+	
+	if not srcPtr or not destPtr then return false end
+	
+	--local srcVocation = Item.getItemProperty(sysarg, srcPtr, Item.ipItemNeedVocation, 0)
+	--local destVocation = Item.getItemProperty(sysarg, destPtr, Item.ipItemNeedVocation, 0)
+	--if srcVocation ~= destVocation then return end
+	
+	local srcType = Item.getItemProperty(sysarg, srcPtr, Item.ipItemType, 0)
+	local destType = Item.getItemProperty(sysarg, destPtr, Item.ipItemType, 0)
+	if srcType ~= destType then return end
+	
+	if srcType < Item.itWeapon or srcType > Item.itMeterial then return end
+	if destType < Item.itWeapon or destType > Item.itMeterial then return end
+	
+	local srcForgeTimes = Item.getItemProperty(sysarg, srcPtr, Item.ipItemForgeTimes, 0)
+	local srcForge1 = Item.getItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty1Value, 0)
+	local srcForge2 = Item.getItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty2Value, 0)
+	local srcForge3 = Item.getItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty3Value, 0)
+	local srcForge4 = Item.getItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty4Value, 0)
+	
+	local config = MoveAuthenticate
+	if srcForge1 == 0 or srcForge2 == 0 or srcForge3 == 0 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mep001, ttFlyTip)
+		return 
+	end
+	
+	local consumes = config.consumes
+	
+	local resultCheck = SuccessCheck(sysarg, opType, consumes, isRepCost, 0, true)
+	
+	if (resultCheck ~= successCheckResult.ok) then return false end
+	
+	local logstr = string.format(Lang.LogTips.l00180)
+	local result, isBind = EnhanceConsumes(sysarg, opType, consumes, isRepCost, 0, 921, logstr, true)
+	if (result ~= successCheckResult.ok) then return false end
+	
+	--结果处理
+	Item.setItemProperty(sysarg, srcPtr, Item.ipItemForgeTimes, 0)
+	Item.setItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty1Value, 0)
+	Item.setItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty2Value, 0)
+	Item.setItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty3Value, 0)
+	Item.setItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty4Value, 0)
+	
+	
+	Item.setItemProperty(sysarg, destPtr, Item.ipItemForgeTimes, srcForgeTimes)
+	Item.setItemProperty(sysarg, destPtr, Item.ipItemForgeProperty1Value, srcForge1)
+	Item.setItemProperty(sysarg, destPtr, Item.ipItemForgeProperty2Value, srcForge2)
+	Item.setItemProperty(sysarg, destPtr, Item.ipItemForgeProperty3Value, srcForge3) 
+	
+	if IsOpenSmithExt(sysarg, srcPtr, Item.ipItemForgeProperty4Value) and IsOpenSmithExt(sysarg, destPtr, Item.ipItemForgeProperty4Value) then
+		Item.setItemProperty(sysarg, destPtr, Item.ipItemForgeProperty4Value, srcForge4)
+	else
+		Item.setItemProperty(sysarg, destPtr, Item.ipItemForgeProperty4Value, 0)
+	end
+	
+	local itemId =  Item.getItemProperty(sysarg, destPtr, Item.ipItemID ,0)
+	local itemName = Item.getItemLinkMsg(itemId, destPtr)
+	local noticeStr = string.format(Lang.ScriptTips.mep004, Actor.getName(sysarg), itemName, srcStrong)
+	System.broadcastTipmsg(noticeStr, ttScreenCenter+ttChatWindow)
+	
+	--返回客户端处理结果
+	Item.sendItemProcessResult(sysarg, destPtr, opType, false)
+	return true
+	
+end
+
+--获取消耗,args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function GetMoveAuthenticateConsumes(sysarg, args)	
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]				--转移装备指针
+	--local destPtr = args[3]				--目标装备指针
+	local opType = args[ptrCount+2]		--操作类型
+	
+	if not srcPtr then return false end
+	
+	local config = MoveAuthenticate
+	
+	local consumes = config.consumes
+	SendConsumesToClient(sysarg, opType, consumes)
+end

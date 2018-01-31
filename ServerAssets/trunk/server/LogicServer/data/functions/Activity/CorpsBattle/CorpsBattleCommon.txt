@@ -1,0 +1,419 @@
+--lua script
+--战队竞技 通用处理
+
+--#include "data\config\activityconfig\corpsBattle\CorpsBattleRank.txt" once
+--#include "data\config\activityconfig\corpsBattle\corpsBattle.txt" once
+--#include "data\functions\Activity\Arena\Arena_common.txt" once
+--#include "data\functions\Activity\AsuraField\Asura_common.txt" once
+
+--进入活动
+function EnterCorpsBattle(sysarg)
+	local dvar = System.getDyanmicVar()
+
+	if dvar.StartCorpsBattleFlag == nil then
+		dvar.StartCorpsBattleFlag = 0
+	end
+	
+	if dvar.StartCorpsBattleFlag == 0 then							--活动没开始
+		Actor.sendTipmsg(sysarg, Lang.Activity.c00011, ttFlyTip)
+		return
+	end
+
+	local nCorpsId = Actor.getCorpsId(sysarg)
+	if nCorpsId <= 0 then											--没有战队
+		Actor.sendTipmsg(sysarg, Lang.Activity.c00012, ttFlyTip)
+		return
+	end
+	
+	if Actor.checkActorLevel(sysarg,corpsBattleConfig.nLevel) == false then		--等级不够
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.c00016,corpsBattleConfig.nLevel), ttFlyTip)
+		return
+	end
+
+	Actor.enterScene(sysarg, corpsBattleConfig.nSceneId, unpack(corpsBattleConfig.chinaRange))
+
+	local nHandle = Fuben.getSceneHandleById(corpsBattleConfig.nSceneId, 0)
+	local nTime = Fuben.getSceneTime(nHandle)
+	
+	local nActorId = System.getCorpsOwnId()
+	local pActor = System.getEntityPtrByActorID(nActorId)
+	
+	local ownCorpsId = 0
+	local sname = ""
+	if pActor then
+		ownCorpsId = Actor.getCorpsId(pActor)
+		sname = Actor.getName(pActor)
+	end
+
+	local str = string.format(Lang.Activity.c00014,sname)
+	local nScore = Actor.getCorpsCurScore(sysarg)
+	Actor.initActivityWind(sysarg,Lang.Activity.c00013,nTime,str,Lang.Activity.c00015,nScore)
+end
+
+--领取战队竞技奖励
+function GetCorpsActivityAwards(sysarg)
+	if Awards.CheckBagGridCount(sysarg,corpsBattleConfig.awardConfig) then
+		Awards.Give(sysarg,corpsBattleConfig.awardConfig,822,"Corps Battle Awards")
+	end
+end
+
+--战队竞技的boss被杀掉
+function CorpsBossDie(sysarg)
+	local playerList = LuaHelp.getSceneActorListById(corpsBattleConfig.nSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				Actor.changeCorpsCurScore(player, corpsBattleConfig.AwardScore)
+			end
+		end
+	end
+	
+	for i=1,table.getn(corpsBattleConfig.buffConfig) do
+		Actor.addBuff(sysarg,corpsBattleConfig.buffConfig[i].buffType,corpsBattleConfig.buffConfig[i].buffGroup,corpsBattleConfig.buffConfig[i].value,corpsBattleConfig.buffConfig[i].times,corpsBattleConfig.buffConfig[i].interval,corpsBattleConfig.buffConfig[i].buffName)
+	end
+	
+	Actor.addState(sysarg,esStateInCorpsBattle)
+
+	System.setCorpsOwnId(Actor.getIntProperty(sysarg,PROP_ENTITY_ID))
+
+	UpdateCorpsBattleForm()
+	AddRebackWinFunction(sysarg)
+end
+
+--有玩家退出刷出的怪物
+function OnKillOtherMonsterDie(sysarg)
+	for i=1,table.getn(corpsBattleConfig.buffConfig) do
+		Actor.addBuff(sysarg,corpsBattleConfig.buffConfig[i].buffType,corpsBattleConfig.buffConfig[i].buffGroup,corpsBattleConfig.buffConfig[i].value,corpsBattleConfig.buffConfig[i].times,corpsBattleConfig.buffConfig[i].interval,corpsBattleConfig.buffConfig[i].buffName)
+	end
+	
+	Actor.addState(sysarg,esStateInCorpsBattle)
+
+	System.setCorpsOwnId(Actor.getIntProperty(sysarg,PROP_ENTITY_ID))
+
+	UpdateCorpsBattleForm()
+	AddRebackWinFunction(sysarg)
+end
+
+--玩家击杀其他玩家获得战队积分
+function ActorKillOtherGetScore(sysarg,Killer)
+	local myCorpsId = Actor.getCorpsId(sysarg)
+	local killCorpsId = Actor.getCorpsId(Killer)
+	
+	local nActorId = System.getCorpsOwnId()
+	local myActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	
+	local dvar = System.getDyanmicVar()
+
+	if myCorpsId > 0 then
+		if nActorId == myActorId then
+			for i=1,table.getn(corpsBattleConfig.buffConfig) do
+				Actor.addBuff(Killer,corpsBattleConfig.buffConfig[i].buffType,corpsBattleConfig.buffConfig[i].buffGroup,corpsBattleConfig.buffConfig[i].value,corpsBattleConfig.buffConfig[i].times,corpsBattleConfig.buffConfig[i].interval,corpsBattleConfig.buffConfig[i].buffName)
+			end
+			
+			Actor.addState(Killer,esStateInCorpsBattle)
+
+			for i=1,table.getn(corpsBattleConfig.buffConfig) do
+				Actor.delBuff(sysarg,corpsBattleConfig.buffConfig[i].buffType,corpsBattleConfig.buffConfig[i].buffGroup)
+			end
+
+			if Actor.hasState(sysarg,esStateInCorpsBattle) then
+				Actor.removeState(sysarg,esStateInCorpsBattle)
+			end
+
+			System.setCorpsOwnId(Actor.getIntProperty(Killer,PROP_ENTITY_ID))
+			AddRebackWinFunction(Killer)
+		end
+	end
+	
+	if myCorpsId ~= killCorpsId then
+		if Actor.getCorpsCurScore(sysarg) > 0 then
+			Actor.changeCorpsCurScore(Killer, corpsBattleConfig.killActorScore)
+			Actor.changeCorpsCurScore(sysarg, -corpsBattleConfig.killActorScore)
+		end
+		SetCorpsKillActorCount(Killer)
+	end
+
+	UpdateCorpsBattleForm()
+
+	ClearCorpsBattleFlag(sysarg)
+end
+
+--清除杀人的数据
+function ClearCorpsBattleFlag(sysarg)
+	local dvar = Actor.getDyanmicVar(sysarg)
+	dvar.killActorContinouNum = nil		--连续杀人的数量
+	dvar.intervalKillActor = nil		--间隔内连续杀人
+	dvar.intervalKillActorTime = nil	--上次杀人的时间
+end
+
+--杀人后的设定
+function SetCorpsKillActorCount(sysarg)
+	local dvar = Actor.getDyanmicVar(sysarg)
+
+	if dvar.killActorContinouNum == nil then
+		dvar.killActorContinouNum = 0
+	end
+	dvar.killActorContinouNum = dvar.killActorContinouNum + 1
+	
+	--双杀等设定
+	if dvar.intervalKillActor == nil then
+		dvar.intervalKillActor = 0
+	end
+	dvar.intervalKillActor = dvar.intervalKillActor + 1
+
+	if dvar.intervalKillActorTime == nil then
+		dvar.intervalKillActorTime = 0
+	end
+	
+	local myName = Actor.getName(sysarg)
+	local playerList = LuaHelp.getSceneActorListById(corpsBattleConfig.nSceneId)		--获取某场景玩家对象列表
+
+	if dvar.intervalKillActorTime > 0 and dvar.intervalKillActorTime + 10 > System.getCurrMiniTime() then
+			local bIndex = 0
+			for i=1,table.getn(corpsBattleConfig.IntervalKillActor) do
+				if dvar.intervalKillActor >= corpsBattleConfig.IntervalKillActor[i].count then
+					bIndex = i
+				end
+			end
+
+			if bIndex > 0 then
+				if playerList ~= nil then
+					for j = 1, #playerList do
+						local player = playerList[j]
+						if player then	
+							local mpack = DataPack.allocPacket(player,31,7)  --申请一个数据包
+							if mpack == nil then return end
+							DataPack.writeByte(mpack,2)
+							DataPack.writeByte(mpack,dvar.intervalKillActor)
+							DataPack.flush(mpack)
+							
+							local str = string.format(corpsBattleConfig.IntervalKillActor[bIndex].notice,myName)
+							Actor.sendTipmsg(player, str, 2+128)
+						end
+					end
+				end
+			end
+	else
+		dvar.intervalKillActor = 0
+	end
+
+	dvar.intervalKillActorTime = System.getCurrMiniTime()
+
+	--超神等设定
+	local nIndex = 0
+	for i=1,table.getn(corpsBattleConfig.KillActorContinous) do
+		if dvar.killActorContinouNum >= corpsBattleConfig.KillActorContinous[i].count then
+			nIndex = i
+		end
+	end
+	
+	if nIndex > 0 then
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then	
+					local npack = DataPack.allocPacket(player,31,7)  --申请一个数据包
+					if npack == nil then return end
+					DataPack.writeByte(npack,1)
+					DataPack.writeByte(npack,dvar.killActorContinouNum)
+					DataPack.flush(npack)
+					
+					local str1 = string.format(corpsBattleConfig.KillActorContinous[nIndex].notice,myName,corpsBattleConfig.KillActorContinous[nIndex].count)
+					Actor.sendTipmsg(player, str1, 2+128)
+				end
+			end
+		end
+	end
+end
+
+--更新战队竞技的活动面板
+function UpdateCorpsBattleForm()
+	local nActorId = System.getCorpsOwnId()
+	local pActor = System.getEntityPtrByActorID(nActorId)
+	
+	local ownCorpsId = 0
+	local sname = ""
+	if pActor then
+		ownCorpsId = Actor.getCorpsId(pActor)
+		sname = Actor.getName(pActor)
+	end
+
+	local str = string.format(Lang.Activity.c00014,sname)
+
+	local playerList = LuaHelp.getSceneActorListById(corpsBattleConfig.nSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				local nScore = Actor.getCorpsCurScore(player)
+				Actor.changeActivityProgress(player, nScore)
+				Actor.changeActivityNotify(player,str)
+			end
+		end
+	end
+end
+
+--添加回调
+function AddRebackWinFunction(sysarg)
+	local hScene = Fuben.getSceneHandleById(corpsBattleConfig.outSceenId, 0)
+	local npcPtr = Fuben.getNpcPtrByName(hScene,Lang.EntityName.n00154)
+
+	if npcPtr then
+		Actor.unregScriptCallback(npcPtr,"HaveBollFullTime")
+
+		Actor.regScriptCallback(npcPtr, npcPtr, corpsBattleConfig.lastTime * 1000, corpsBattleConfig.lastTime * 1000, 1, "HaveBollFullTime")
+	end
+end
+
+--获得球的时间有5分钟了
+function HaveBollFullTime(sysarg)
+	OnOverCorpsBattle()
+end
+
+--战队竞技结束
+function OnOverCorpsBattle()
+	local nActorId = System.getCorpsOwnId()
+	local pActor = System.getEntityPtrByActorID(nActorId)
+	
+	local dvar = System.getDyanmicVar()
+	if dvar.StartCorpsBattleFlag == nil then
+		dvar.StartCorpsBattleFlag = 0
+	end
+	
+	if dvar.StartCorpsBattleFlag == 0 then return end
+	dvar.StartCorpsBattleFlag = 0
+
+	local nCorpsId = 0
+	if pActor then
+		local dvar = System.getStaticVar()
+		dvar.CorpsBattleWinId = Actor.getCorpsId(pActor)
+		nCorpsId = dvar.CorpsBattleWinId
+
+		for i=1,table.getn(corpsBattleConfig.buffConfig) do
+			Actor.delBuff(pActor,corpsBattleConfig.buffConfig[i].buffType,corpsBattleConfig.buffConfig[i].buffGroup)
+		end
+		
+		if Actor.hasState(pActor,esStateInCorpsBattle) then
+			Actor.removeState(pActor,esStateInCorpsBattle)
+		end
+
+		UpdateCorpsBattleForm()
+		System.broadcastTipmsg(string.format(Lang.Activity.c00034,Actor.getName(pActor)),2+128)
+	end
+
+	local playerList = LuaHelp.getSceneActorListById(corpsBattleConfig.nSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				Actor.enterScene(player, corpsBattleConfig.outSceenId, unpack(corpsBattleConfig.outRange))
+			end
+		end
+	end
+	
+	System.onCorpsBattleOver(nCorpsId,CorpsBattleRank.CorpsScoreName)
+	if nCorpsId > 0 then
+		System.setCorpsTitle(nCorpsId,corpsBattleConfig.corpsTitleId,true)
+	end
+
+	System.setCorpsOwnId(0)
+
+	System.broadcastTipmsg(Lang.Activity.c00010,2+128)
+
+	local pScene = Fuben.getSceneHandleById(corpsBattleConfig.outSceenId, 0)
+	local npcPtr = Fuben.getNpcPtrByName(pScene,Lang.EntityName.n00154)
+
+	if npcPtr then
+		Actor.unregScriptCallback(npcPtr,"HaveBollFullTime")
+	end
+
+	local RankNameList = Ranking.getRanking(CorpsBattleRank.CorpsScoreName)		--通过排行名称获取排行对象
+	if RankNameList then
+		Ranking.save(RankNameList,CorpsBattleRank.CorpsScoreRanking)
+	end
+end
+
+--下线或者是退出场景
+function OnExitCorpsSceneOp(sysarg)
+	local nActorId = System.getCorpsOwnId()
+	
+	if nActorId == Actor.getIntProperty(sysarg,PROP_ENTITY_ID) then		--球的战力着退出
+		local x, y = Actor.getEntityPosition(sysarg, 0, 0)
+		local hScene = Fuben.getSceneHandleById(corpsBattleConfig.nSceneId, 0)
+		
+		local nMonster = Fuben.createOneMonsters(hScene, corpsBattleConfig.MonsterDie[1].nMonsterID, x, x, y, corpsBattleConfig.MonsterDie[1].nCount, corpsBattleConfig.MonsterDie[1].nLiveTime)
+
+		for i=1,table.getn(corpsBattleConfig.buffConfig) do
+			Actor.delBuff(sysarg,corpsBattleConfig.buffConfig[i].buffType,corpsBattleConfig.buffConfig[i].buffGroup)
+		end
+		
+		if Actor.hasState(sysarg,esStateInCorpsBattle) then
+			Actor.removeState(sysarg,esStateInCorpsBattle)
+		end
+
+		System.setCorpsOwnId(0)
+		
+		local pScene = Fuben.getSceneHandleById(corpsBattleConfig.outSceenId, 0)
+		local npcPtr = Fuben.getNpcPtrByName(pScene,Lang.EntityName.n00154)
+
+		if npcPtr then
+			Actor.unregScriptCallback(npcPtr,"HaveBollFullTime")
+		end
+
+		UpdateCorpsBattleForm()
+	end
+end
+
+--玩家登陆的处理
+function OnActorLoginCorpsOp(sysarg)
+	for i=1,table.getn(corpsBattleConfig.buffConfig) do
+		if Actor.hasBuff(sysarg,corpsBattleConfig.buffConfig[i].buffType) then
+			Actor.delBuff(sysarg,corpsBattleConfig.buffConfig[i].buffType,corpsBattleConfig.buffConfig[i].buffGroup)
+		end
+	end
+end
+
+--离开场景处理
+function OnPreExitSceneOp(sysarg,args)
+	local nSceneId = Actor.getSceneId(sysarg)
+	local svar = System.getDyanmicVar()
+	if svar.ArenaStartFlag == nil then
+		svar.ArenaStartFlag = 0
+	end
+	if nSceneId == warriorArenaConfig.nSceenId and svar.ArenaStartFlag > 0 then			--勇士角斗场的特殊处理下
+		local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+		if ranking then
+			local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+			local item = Ranking.getItemPtrFromId( ranking, nActorId )
+			if item then
+				local myPoint = Ranking.getPoint(item)
+				if myPoint > 1 then
+					Ranking.updateItem(ranking,nActorId,1-myPoint)
+					SendActivityToAll()
+				end
+			end
+		end
+	end
+	if nSceneId == MarriedConfig.miyueFubenId then
+		Actor.unregScriptCallback(sysarg, "GiveMiYueAwardExp")
+	end
+	if nSceneId == AsuraFieldConfig.nSceenId and (svar.AsuraStart) and (svar.AsuraStart == 1) then	--修罗场的特殊处理下
+		local nScore = GetActorRankInfo(sysarg)
+		UpdateAsuraRank(sysarg, -nScore)
+	end
+end
+
+--设置第一战队的头衔
+function SetFirstCorpsTitle(sysarg)
+	local dvar = System.getStaticVar()
+
+	if dvar.CorpsBattleWinId == nil then
+		dvar.CorpsBattleWinId = 0
+	end
+	
+	local nCorpsid = Actor.getCorpsId(sysarg)
+	if nCorpsid > 0 and nCorpsid == dvar.CorpsBattleWinId then
+		Actor.setTopTitle(sysarg, corpsBattleConfig.corpsTitleId,true)
+	end
+end

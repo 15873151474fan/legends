@@ -1,0 +1,889 @@
+--充值套餐活动配置表
+--#include "..\..\language\LangCode.txt"
+--[[
+
+--]]
+
+ExtractSuitConfig=
+{
+
+	--------begin 列表头(导航)  
+	tabList=
+	{
+		--活动类型     --类型名称               --描述                   --说明
+
+                --累积充值(方案1)   name:充值类型名称  desc:活动说明
+		{id=1,name = Lang.Misc.year111, desc = Lang.Misc.year117,info=Lang.Misc.year117}, 
+		--累积充值(金额1)
+		{id=2,name = Lang.Misc.year111, desc = Lang.Misc.year117,info=Lang.Misc.year117},
+		--累积充值(金额2)
+		{id=3,name = Lang.Misc.year111, desc = Lang.Misc.year117,info=Lang.Misc.year117},
+		--累积充值(金额3)
+		{id=4,name = Lang.Misc.year111, desc = Lang.Misc.year117,info=Lang.Misc.year117},
+		--累积充值(金额4)
+		{id=5,name = Lang.Misc.year111, desc = Lang.Misc.year117,info=Lang.Misc.year117},
+		--累积充值(金额5)
+
+
+		--单笔充值豪礼(方案1)
+		{id=11,name = Lang.Misc.year112, desc = Lang.Misc.year118,info=Lang.Misc.year118},
+		--单笔充值豪礼(方案2)
+		{id=12,name = Lang.Misc.year112, desc = Lang.Misc.year118,info=Lang.Misc.year118},
+		--单笔充值豪礼(方案3)
+		{id=13,name = Lang.Misc.year112, desc = Lang.Misc.year118,info=Lang.Misc.year118},
+
+
+
+		--循环充值豪礼(方案1)
+		{id=21,name = Lang.Misc.year113, desc = Lang.Misc.year120,info=Lang.Misc.year120},	
+		--循环充值豪礼(方案2)
+		{id=22,name = Lang.Misc.year113, desc = Lang.Misc.year120,info=Lang.Misc.year120},
+		--循环充值豪礼(方案3)
+		{id=23,name = Lang.Misc.year113, desc = Lang.Misc.year120,info=Lang.Misc.year120},
+		
+		--单日充值豪礼(目标奖励)(方案1)
+		{id=31,name = Lang.Misc.year114, desc = Lang.Misc.year119,info=Lang.Misc.year119},
+		--单日充值豪礼(目标奖励)(方案2)
+		{id=32,name = Lang.Misc.year114, desc = Lang.Misc.year119,info=Lang.Misc.year119},
+		--单日充值豪礼(目标奖励)(方案3)
+		{id=33,name = Lang.Misc.year114, desc = Lang.Misc.year119,info=Lang.Misc.year119},
+		
+		--自选充值豪礼(方案1)
+		{id=41,name = Lang.Misc.year115, desc = Lang.Misc.year121,info=Lang.Misc.year121},
+		--自选充值豪礼(方案2)
+		{id=42,name = Lang.Misc.year115, desc = Lang.Misc.year121,info=Lang.Misc.year121},
+		--自选充值豪礼(方案3)
+		{id=43,name = Lang.Misc.year115, desc = Lang.Misc.year121,info=Lang.Misc.year121},
+
+		--充值积分换购(方案1)
+		{id=51,name = Lang.Misc.year116, desc = Lang.Misc.year122,info=Lang.Misc.year122},
+		--充值积分换购(方案2)
+		{id=52,name = Lang.Misc.year116, desc = Lang.Misc.year122,info=Lang.Misc.year122},
+
+		--单日充值豪礼(完成N档奖励)(方案1)
+		{id=131,name = Lang.Misc.year114, desc = Lang.Misc.year119,info=Lang.Misc.year119},
+		--单日充值豪礼(完成N档奖励)(方案2)
+		{id=132,name = Lang.Misc.year114, desc = Lang.Misc.year119,info=Lang.Misc.year119},
+	},	
+   --------end 列表头(导航)------------ 
+
+  
+  ---------begin 活动通用列表--------------------
+	commonList= 
+	{
+
+                ----------------------------begin 累积充值----------------------------
+
+		{
+		 --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=101,
+			--活动类型		
+			type=1, 
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 500},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 749, count = 1, strong = 0, quality = 0, bind = 1, job = 1, sex = -1, },
+				{ type = 0, id = 759, count = 1, strong = 0, quality = 0, bind = 1, job = 2, sex = -1, },
+				{ type = 0, id = 769, count = 1, strong = 0, quality = 0, bind = 1, job = 3, sex = -1, },
+				{ type = 0, id = 1120, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 1756, count = 2, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 731, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },			
+			},	
+			
+		},		
+		{
+		      --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=102,
+			--活动类型		
+			type=1,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 3000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 750, count = 1, strong = 0, quality = 0, bind = 1, job = 1, sex = -1, },
+				{ type = 0, id = 760, count = 1, strong = 0, quality = 0, bind = 1, job = 2, sex = -1, },
+				{ type = 0, id = 770, count = 1, strong = 0, quality = 0, bind = 1, job = 3, sex = -1, },
+				{ type = 0, id = 1083, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 1122, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 2136, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 731, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+			},		
+		
+		},
+				{
+		      --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=103,
+			--活动类型		
+			type=1, 	
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 15000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 2663, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 2674, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 1991, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 559, count = 50, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+			},		
+		
+		},
+				{
+		      --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=104,
+			--活动类型		
+			type=1, 	
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 60000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 456, count = 1, strong = 0, quality = 0, bind = 1, job = 1, sex = -1, },
+				{ type = 0, id = 457, count = 1, strong = 0, quality = 0, bind = 1, job = 2, sex = -1, },
+				{ type = 0, id = 458, count = 1, strong = 0, quality = 0, bind = 1, job = 3, sex = -1, },
+				{ type = 0, id = 2817, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 920, count = 3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 1175, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 3183, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 3186, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				
+			},		
+		
+		},
+		{
+		      --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=105,
+			--活动类型		
+			type=1, 	
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 150000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 3140, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 2817, count = 2, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 920, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 2949, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 2136, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 1991, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				
+			},	
+		
+		},
+		{
+		      --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=106,
+			--活动类型		
+			type=1, 	
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 300000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 644, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 971, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 2817, count = 3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 3247, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 2136, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+				{ type = 0, id = 1991, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, },
+			},		
+		
+		},
+
+		{
+		 --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=201,
+			--活动类型		
+			type=2, 
+			--名称	   
+			name=Lang.Misc.year123,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 200},},
+			--获得的奖励
+			awards = {{ type = 0, id = 662, count = 1 },},				
+		
+		},		
+		{
+		      --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=202,
+			--活动类型		
+			type=2, 	
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 662, count = 1 },{type = 0, id = 731, count = 1},},			
+		
+		},
+		{
+		      --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=203,
+			--活动类型		
+			type=2, 	
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 5000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 918, count = 3 },{type = 0, id = 731, count = 20},{type = 0, id = 2136, count = 1},},			
+		
+		},
+		{
+		      --活动id(命名规则，三位数,第一位为类型,最后一位为序号)		  	
+			id=204,
+			--活动类型		
+			type=2, 	
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 20000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 918, count = 3 },{type = 0, id = 731, count = 20},{type = 0, id = 2136, count = 1},},			
+		
+		},
+		
+
+
+		----------------------------end 累积充值----------------------------
+
+		----------------------------begin 单笔充值豪礼----------------------
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1101,
+			--活动类型		
+			type=11, 
+			--名称	   
+			name=Lang.Misc.year124,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 3303, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2982, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2276, count = 2, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2984, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},		
+	
+		},	
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1102,
+			--活动类型		
+			type=11, 	
+			--名称	   
+			name=Lang.Misc.year124,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 3000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 3302, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 1757, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2836, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 731, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},	
+		
+		},
+		
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1103,
+			--活动类型		
+			type=11, 	
+			--名称	   
+			name=Lang.Misc.year124,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 5000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 3302, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 1083, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2916, count = 2, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2603, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2627, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},	
+		
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1104,
+			--活动类型		
+			type=11, 	
+			--名称	   
+			name=Lang.Misc.year124,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 10000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 3343, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2662, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2673, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2136, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 1991, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},		
+		
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1105,
+			--活动类型		
+			type=11, 	
+			--名称	   
+			name=Lang.Misc.year124,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 50000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 3140, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2817, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2910, count = 3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2136, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 1991, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},			
+		
+		},
+		
+
+
+
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1201,
+			--活动类型		
+			type=12, 
+			--名称	   
+			name=Lang.Misc.year124,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 2562, count = 1 },{type = 0, id = 2561, count = 1},},			
+		 
+		},		
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1202,
+			--活动类型		
+			type=12, 	
+			--名称	   
+			name=Lang.Misc.year124,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 2561, count = 1 },{type = 0, id = 2561, count = 1},},			
+	
+		},
+				{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1203,
+			--活动类型		
+			type=12, 	
+			--名称	   
+			name=Lang.Misc.year124,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 2561, count = 1 },{type = 0, id = 2561, count = 1},},			
+	
+		},
+				{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=1204,
+			--活动类型		
+			type=12, 	
+			--名称	   
+			name=Lang.Misc.year124,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 2561, count = 1 },{type = 0, id = 2561, count = 1},},			
+	
+		},
+
+		----------------------------end 单笔充值豪礼----------------------
+
+
+               ----------------------------begin 循环充值豪礼----------------------
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=2101,
+			--活动类型		
+			type=21, 
+			--名称	   
+			name=Lang.Misc.year125,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 2000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2982, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2276, count = 3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 1756, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 731, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},			
+	
+		},		
+
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=2201,
+			--活动类型		
+			type=22, 
+			--名称	   
+			name=Lang.Misc.year125,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 5000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 1122, count = 2, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2662, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 1983, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 1981, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			
+			},		
+	
+		},
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=2301,
+			--活动类型		
+			type=23, 
+			--名称	   
+			name=Lang.Misc.year125,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 10000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 1122, count = 3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 549, count = 1, strong = 0, quality = 0, bind = 1, job = 1, sex = -1},
+				{ type = 0, id = 550, count = 1, strong = 0, quality = 0, bind = 1, job = 2, sex = -1},
+				{ type = 0, id = 551, count = 1, strong = 0, quality = 0, bind = 1, job = 3, sex = -1},
+				{ type = 0, id = 2662, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2872, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2873, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			
+			},	
+	
+		},
+
+		----------------------------end 循环充值豪礼----------------------
+
+
+		 ----------------------------begin 单日充值豪礼----------------------
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=3101,
+			--活动类型		
+			type=31, 
+			--名称	   
+			name=Lang.Misc.year128,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 1500},},
+			--获得的奖励
+			awards =
+				{
+					{ type = 0, id = 749, count = 1, strong = 0, quality = 0, bind = 1, job = 1, sex = -1},
+					{ type = 0, id = 759, count = 1, strong = 0, quality = 0, bind = 1, job = 2, sex = -1},
+					{ type = 0, id = 769, count = 1, strong = 0, quality = 0, bind = 1, job = 3, sex = -1},
+					{ type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 1990, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2111, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				},			
+	
+		},		
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=3102,
+			--活动类型		
+			type=31, 	
+				--名称	   
+			name=Lang.Misc.year129,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 1500},},
+			--获得的奖励
+			awards =
+				{
+					{ type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2984, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2983, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				},	
+	
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=3103,
+			--活动类型		
+			type=31, 	
+				--名称	   
+			name=Lang.Misc.year130,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 1500},},
+			--获得的奖励
+			awards =
+				{
+					{ type = 0, id = 2661, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2672, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 1987, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 3188, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				},		
+		
+		},
+
+
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=3201,
+			--活动类型		
+			type=32, 
+			--名称	   
+			name=Lang.Misc.year128,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 2561, count = 1 },{type = 0, id = 2561, count = 1},},		
+	
+		},		
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=3202,
+			--活动类型		
+			type=32, 	
+				--名称	   
+			name=Lang.Misc.year129,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 2561, count = 1 },{type = 0, id = 2561, count = 1},},		
+		
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=3203,
+			--活动类型		
+			type=32, 	
+				--名称	   
+			name=Lang.Misc.year130,	
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards = {{ type = 0, id = 2561, count = 1 },{type = 0, id = 2561, count = 1},},		
+		
+		},
+
+
+
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=13101,
+			--活动类型		
+			type=131, 
+			--名称	   
+			name=Lang.Misc.year126,		
+			--花费货币或道具
+			--costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+				{
+					{ type = 0, id = 2632, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 3303, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2895, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2558, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+
+				},	
+		
+		},	
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=13102,
+			--活动类型		
+			type=131, 
+			--名称	   
+			name=Lang.Misc.year127,		
+			--花费货币或道具
+			--costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+				{
+					{ type = 0, id = 1666, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 2986, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					{ type = 0, id = 731, count = 50, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+					
+				},	
+		
+		},	
+
+		----------------------------end 单日充值豪礼----------------------
+
+
+		----------------------------begin 自选充值豪礼----------------------
+
+		{
+		 --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4101,
+			--活动类型		
+			type=41, 
+			--名称	   
+			name=Lang.Misc.year123,		
+			--花费货币或道具
+			costAwards={{ type=15, count = 500},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2276, count = 2, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 1120, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			
+			},	
+		
+		},		
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4102,
+			--活动类型		
+			type=41,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 500},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 749, count = 1, strong = 0, quality = 0, bind = 1, job = 1, sex = -1},
+				{ type = 0, id = 759, count = 1, strong = 0, quality = 0, bind = 1, job = 2, sex = -1},
+				{ type = 0, id = 769, count = 1, strong = 0, quality = 0, bind = 1, job = 3, sex = -1},
+				
+			},	
+		
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4103,
+			--活动类型		
+			type=41, 
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 500},},
+			--获得的奖励
+			awards = {{ type = 0, id = 779, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},},		
+		
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4104,
+			--活动类型		
+			type=41,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 500},},
+			--获得的奖励
+			awards = {{ type = 0, id = 789, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},},		
+			
+		},
+				{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4105,
+			--活动类型		
+			type=41,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 500},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				
+			},
+			
+		},
+				{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4106,
+			--活动类型		
+			type=41,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 500},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				
+			},	
+			
+		},
+----
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4201,
+			--活动类型		
+			type=42,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2747, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			
+			},	
+			
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4202,
+			--活动类型		
+			type=42,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 1057, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				
+			},		
+			
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4203,
+			--活动类型		
+			type=42,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 1991, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},	
+			
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4204,
+			--活动类型		
+			type=42,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			
+			},		
+			
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4205,
+			--活动类型		
+			type=42,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			
+			},		
+			
+		},
+		{
+		      --活动id(命名规则，四位数,第一位为类型,最后一位为序号)		  	
+			id=4206,
+			--活动类型		
+			type=42,
+			--名称	   
+			name=Lang.Misc.year123,
+			--花费货币或道具
+			costAwards={{ type=15, count = 1000},},
+			--获得的奖励
+			awards =
+			{
+				{ type = 0, id = 1175, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			
+			},		
+			
+		},
+
+
+		----------------------------end 自选充值豪礼----------------------
+
+    },		
+      -----------end活动通用列表--------------------------
+
+
+       --------begin充值套餐活动 前端配置(数组下标+1),与后端索引映射.
+	extSuitMappingList= 
+	{
+	                    --导航类型      方案Ids
+		{
+		  --累积充值
+		   serNavPos=1,id=1, subTabs={1,2},
+		},
+		{
+		  --单笔充值豪礼
+		   serNavPos=2,id=11, subTabs={11,12},
+		},	
+		{
+		   --循环充值豪礼
+		   serNavPos=3,id=21, subTabs={21,22,23},
+		},			  
+		{
+		   --单日充值豪礼
+		   serNavPos=4,id=31, subTabs={31,32},
+		},	
+		{
+		   --自选充值豪礼
+		   serNavPos=5,id=41, subTabs={41,42},
+		},	
+		{
+		   --充值积分换购
+		   serNavPos=6,id=51, subTabs={51,52},
+		},
+		{
+		 --单日充值豪礼(完成N档奖励)
+		   serNavPos=101,id=131,subTabs={131},
+		}
+	},
+
+	
+
+	--------end充值套餐活动 前端配置(数组下标+1),与后端索引映射.
+	
+}

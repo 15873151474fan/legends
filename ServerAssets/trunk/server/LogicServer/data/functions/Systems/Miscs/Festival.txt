@@ -1,0 +1,15 @@
+
+--#include "data\functions\Activity\Festival\FestivalAct.txt" once
+
+function MiscsImplement.WishBottleOpt(sysarg, msgid, packet)
+	local nType = DataPack.readByte(packet)
+	if nType == 1 then
+		FlushWishBottle(sysarg)
+	elseif nType == 2 then
+		local newSayHi = DataPack.readString(packet)
+		PostWishBottle(sysarg, newSayHi)
+	end
+end
+
+
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cWishBottleOpt,MiscsImplement.WishBottleOpt)

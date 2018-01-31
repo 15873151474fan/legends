@@ -1,0 +1,106 @@
+
+--#include "CQEquipEnhance.txt" once
+--#include "data\config\item\itemEnhance\MoveInitAttrConfig.txt" once
+
+function OnMoveInitAttr(sysarg, args)
+	local ptrCount = args[1]
+	local srcItemPtr = args[2]		--主装备id
+	local destItemPtr = args[3]		--极品属性装备
+	local useGold = args[ptrCount+3]
+	if not srcItemPtr or not destItemPtr then
+		return
+	end
+	
+	--从物品身上取得类型
+	local itemType1 = Item.getItemProperty( sysarg, srcItemPtr, Item.ipItemType, 0 )
+	local itemType2 = Item.getItemProperty( sysarg, destItemPtr, Item.ipItemType, 0 )
+	--是否幻武
+	if itemType1 == Item.itWeaponExtend or itemType2 == Item.itWeaponExtend then
+		return false
+	end
+	
+	for k, tab in ipairs(MoveInitAttrConfig.stuff) do
+		if tab.usetype == 1 then
+			if Actor.getItemCount(sysarg, tab.id) < tab.count then
+				if useGold > 0 then
+					local myGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+					if tab.yb and tab.yb * tab.count <= myGold then
+					else
+						return
+					end
+				else
+					local itemName = Item.getItemName(tab.id)
+					local strNotice = string.format(Lang.ScriptTips.c000176, tab.count, itemName)
+					Actor.sendTipmsg(sysarg, strNotice, ttFlyTip)
+					return
+				end
+			end
+		end		
+	end
+	local initSmith = Item.getItemProperty( sysarg, destItemPtr, Item.ipItemSpecSmith, 0)
+	if initSmith == 0 then
+		return
+	end
+	if Actor.removeItemByPtr(sysarg, destItemPtr, 1, true, Lang.LogTips.l00119, 66) > 0 then
+		for k, tab in ipairs(MoveInitAttrConfig.stuff) do
+			if tab.usetype == 1 then
+				local remCount = Actor.removeItem(sysarg, tab.id, tab.count,0,0,-1, Lang.LogTips.l00120, 66)
+				if remCount < tab.count then
+					if tab.yb and tab.yb > 0 and useGold > 0 then
+						local needGoldCount = tab.yb * ( tab.count - remCount )
+						Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 66, Lang.LogTips.l00120)
+					else
+						return
+					end
+				end
+			end
+		end
+		local itemGuid = Item.getItemGuid(srcItemPtr)
+		Item.setItemProperty( sysarg, srcItemPtr, Item.ipItemSpecSmith, initSmith)
+		SendEquipOptResult(sysarg, itemGuid, itEquipMoveInitAttr, 0)
+		local itemId =  Item.getItemProperty( sysarg, srcItemPtr, Item.ipItemID ,0)
+		local itemName = Item.getItemLinkMsg(itemId)
+		local noticeStr = string.format(Lang.ScriptTips.c000175, Actor.getName(sysarg), itemName)
+		System.broadcastTipmsg(noticeStr, ttScreenCenter+ttChatWindow)
+	else
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000177, ttFlyTip)
+	end
+end
+
+function OnMoveInitAttrConsume(sysarg, args)
+	local ptrCount = args[1]
+	local itemPtr = args[2]
+	if not itemPtr then
+		return
+	end
+	local opType = args[ptrCount+2]		--操作类型
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, #MoveInitAttrConfig.stuff)
+	for k, curTab in ipairs(MoveInitAttrConfig.stuff) do
+		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack,curTab.id or 0)
+		DataPack.writeInt(netPack,curTab.count)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	DataPack.flush(netPack)
+end
+
+function OnClearInitAttr(sysarg, args)
+	local ptrCount = args[1]
+	local itemPtr = args[2]
+	local stuffPtr = args[3]
+	if not itemPtr or not stuffPtr then
+		return
+	end
+	if Item.getItemId(stuffPtr) ~= MoveInitAttrConfig.ClearInitAttrItemId then
+		return
+	end
+	local initSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+	if initSmith == 0 then
+		return
+	end
+	if Actor.removeItemByPtr(sysarg, stuffPtr, 1, true, Lang.LogTips.l00121, 66) > 0 then
+		Item.setItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+	end
+end

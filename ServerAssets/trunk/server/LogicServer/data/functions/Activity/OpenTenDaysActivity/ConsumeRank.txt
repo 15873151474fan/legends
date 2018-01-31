@@ -1,0 +1,126 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+
+--第五天 消费排行榜（掉宝BOSS）
+
+--预告当天主题活动
+function BroadConsumeTopicNotice()
+	System.broadcastTipmsg(Lang.Activity.t00001,2+128)
+end
+
+--全民活动
+function FiveWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00029,2+128)
+end
+
+--19点后的提示
+function OnActorConsumeNotice()
+	BroadConsumeMsgToAll(1)
+end
+
+--22点后的提示
+function OnActorConsumeLastNotice()
+	BroadConsumeMsgToAll(2)
+end
+
+function BroadConsumeMsgToAll(nType)
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[5].rankName)
+	
+	if RankNameList then
+		local str = ""
+
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(RankNameList,i)
+
+			if pItem then
+				local str2
+				if i == 0 then
+					str2 = Lang.Activity.t00002
+				elseif i == 1 then
+					str2 = Lang.Activity.t00003
+				elseif i == 2 then
+					str2 = Lang.Activity.t00004
+				end
+				
+				local str1 = string.format(str2,Ranking.getSub(pItem,0))
+				str = str..str1
+			end
+		end
+
+		if str ~= "" then
+			if nType == 1 then
+				str = Lang.Activity.t00005..str
+			else
+				str = Lang.Activity.t00006..str
+			end
+			System.broadcastTipmsg(str,2+128)
+		end
+	end
+
+end
+
+--23点结算
+function OnAccountConsumeRank()
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[5].rankName)
+	
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+
+		if pItem then
+			local nActorId = Ranking.getId(pItem)
+			System.giveTenDaysActivityAward(nActorId,4)
+			
+			local strName =Ranking.getSub(pItem,0)
+			local str = string.format(Lang.Activity.t00007,strName,Item.getItemName(OpenServerConfig.activitys[5].awards[1].id))
+
+			System.broadcastTipmsg(str,2+128)
+
+			System.broadcastTipmsg(Lang.Activity.t00008,2+128)
+		end
+	end
+
+	System.onAccountAllActivity(OpenServerConfig.activitys[5].openDays,OpenServerConfig.activitys[5].needValue)		--全民活动结算
+	System.broadcastTipmsg(Lang.Activity.k00030,2+128)
+end
+
+
+--23点后没6分钟播放一次
+function BroadConsumePerMinute()
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[5].rankName)
+	
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+
+		if pItem then
+			local nActorId = Ranking.getId(pItem)			
+			local strName =Ranking.getSub(pItem,0)
+			local str = string.format(Lang.Activity.t00007,strName,Item.getItemName(OpenServerConfig.activitys[5].awards[1].id))
+
+			System.broadcastTipmsg(str,2+128)
+		end
+	end
+
+	System.broadcastTipmsg(Lang.Activity.k00030,2+128)
+end
+
+--奖励 刷一个boss
+function FreshAwardBoss()
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[5].rankName)
+	
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+
+		if pItem then
+			local hScene = Fuben.getSceneHandleById(OpenServerConfig.activitys[5].monster[1].nSceenId, 0)
+			local monsterConfig = OpenServerConfig.activitys[5].monster[1]
+			local nMonster = Fuben.createOneMonsters(hScene, monsterConfig.nMonsterID, monsterConfig.posX1, monsterConfig.posX2, monsterConfig.posY, monsterConfig.nCount, monsterConfig.nLiveTime)
+		end
+	end
+end
+
+
+--提前一天预告
+function PreConsumeBroadMsg()
+	System.broadcastTipmsg(Lang.Activity.t00051,2+128)
+end
+

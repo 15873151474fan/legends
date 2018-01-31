@@ -1,0 +1,238 @@
+
+
+--#include "data\config\activityconfig\Blessing\BlessingConfig.txt" once
+
+local WorldBless = 1
+local GuildBless = 2
+
+function BlessingMainInit( sysarg )
+	local dlgStr = string.format("\\<#BL%s/@RequestBless, %d>", Lang.ScriptTips.bless001, WorldBless)
+	dlgStr = string.format("%s\\<#BL%s/@RequestBless, %d>", dlgStr, Lang.ScriptTips.bless002, GuildBless)
+	dlgStr = string.format("%s\\<#BL%s/@GetBlessAward>", dlgStr, Lang.ScriptTips.bless003)
+	dlgStr = string.format("%s\\<#BL%s/@BlessRank>", dlgStr, Lang.ScriptTips.bless004)
+	return dlgStr
+end
+
+function RequestBless(sysarg, blessType)
+	blessType = tonumber(blessType)
+	local dlgStr = ""
+	for k, v in ipairs(BlessingConfig.BlessMoney) do
+		local optStr = string.format(Lang.ScriptTips.bless005, v)
+		dlgStr = string.format("%s\\<#BL%s/@BuyBless, %d, %d>", dlgStr, optStr, v, blessType)
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function BuyBless( sysarg, blessMoney, blessType )
+	blessMoney = tonumber(blessMoney)
+	blessType = tonumber(blessType)
+	local guildId = 0
+	if blessType == GuildBless then
+		guildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID)
+		if guildId <= 0 then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.bless011, ttFlyTip)
+			return
+		end
+	end
+	local myYb = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	if myYb < blessMoney then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.bless016, ttFlyTip)
+		return
+	end
+	if blessMoney > 0 and Actor.changeMoney(sysarg, mtYuanbao, -blessMoney, 170, Lang.LogTips.yb005) then
+		AddPoint( sysarg, blessMoney)
+		local noticeId = nil
+		local chatNoticeId = nil
+		if blessType == WorldBless then
+			noticeId = Lang.ScriptTips.bless006
+			chatNoticeId = Lang.ScriptTips.bless013
+		else
+			noticeId = Lang.ScriptTips.bless007
+			chatNoticeId = Lang.ScriptTips.bless014
+		end
+		Actor.regScriptCallback(thisNPC, thisNPC, BlessingConfig.GiveGiftTiime*1000, 0, 1, "OnGiveGift", blessType, 2*blessMoney, guildId)
+		if noticeId then
+			local myName = Actor.getName(sysarg)
+			System.broadcastTipmsg(string.format(noticeId, myName, blessMoney, myName), ttChatWindow)
+			System.broadcastTipmsg(string.format(chatNoticeId, myName, blessMoney), ttScreenCenter)
+		end
+		if blessMoney >= BlessingConfig.MinRoseNotice then
+			System.playScrEffectCode(BlessingConfig.RoseEffectId, BlessingConfig.RoseSecs)	--È«·þ
+		end
+
+		Actor.triggerAchieveEvent(sysarg, 80, GetPoint(sysarg))
+	end
+end
+
+function OnGiveGift( npcObj, blessType, allGiftCount, guildId )
+	blessType = tonumber(blessType)
+	allGiftCount = tonumber(allGiftCount)
+	guildId = tonumber(guildId)
+	
+	local sceneCount = #BlessingConfig.MoneyEffect
+	for i = 3, sceneCount do
+		local scenePlyList = LuaHelp.getSceneActorListById(BlessingConfig.MoneyEffect[i])
+		for k, v in ipairs(scenePlyList or {}) do
+			Actor.playScrEffectCode(v, BlessingConfig.MoneyEffect[1], BlessingConfig.MoneyEffect[2])
+		end
+	end
+	if blessType == WorldBless then
+		local playerList = {}
+		local entityList = LuaHelp.getNearEntityList( thisNPC, 10)
+		for k, ptr in ipairs(entityList or {}) do
+			if Actor.getEntityType( ptr ) == 0 then
+				table.insert(playerList, ptr)
+			end
+		end
+		local playerCount = #playerList
+		if playerCount > 0 then
+			local givePoint = allGiftCount / playerCount
+			local remainder = allGiftCount % playerCount
+			for k, v in ipairs(playerList) do
+				local tempPoint = givePoint
+				if remainder > 0 then
+					tempPoint = tempPoint + 1
+					remainder = remainder -1
+				end
+				Actor.changeMoney(v, mtBindYuanbao, tempPoint, 168, Lang.LogTips.yb006)
+			end
+		end
+	elseif blessType == GuildBless then
+		if guildId > 0 then
+			Guild.sendBlessGift(guildId, allGiftCount)
+		end
+	end
+end
+
+function GetBlessAward(sysarg)
+	local dlgStr = string.format(Lang.ScriptTips.bless012, GetPoint( sysarg ))
+	dlgStr = string.format("%s<#BL%s/@DoGetBlessAward>%s", dlgStr, Lang.Activity.a00113,Lang.ScriptTips.back001)
+	return dlgStr
+end
+
+function DoGetBlessAward( sysarg )
+	local sVar = Actor.getStaticVar(sysarg)
+	local curPoint = sVar.BlessingPoint or 0
+	if curPoint < BlessingConfig.blessCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.bless009, BlessingConfig.blessCount), ttFlyTip)
+		return
+	end
+	sVar.BlessingPoint = sVar.BlessingPoint - BlessingConfig.blessCount
+	for k, v in ipairs(BlessingConfig.award) do
+		if v.type == 0 then
+			 Actor.addItem(sysarg, v.id, 0,0,v.count,0,0, "bless charge",55)
+		else
+			Actor.giveAward( sysarg, v.type, v.id, v.count, 0, 0, 0, 0, 205, "bless charge")
+		end
+	end
+	Actor.sendTipmsg(sysarg, Lang.ScriptTips.bless010, ttFlyTip)
+	return GetBlessAward(sysarg)
+end
+
+function BlessRank(sysarg)
+	local dlgStr = Lang.ScriptTips.bless015
+	local ranking = Ranking.getRanking(BlessingConfig.RankName)
+	if ranking then
+		for i = 0, BlessingConfig.TopRankCount - 1 do
+			local item = Ranking.getItemFromIndex(ranking, i)
+			if item then
+				local title = ""
+				local point = Ranking.getPoint(item)
+				dlgStr = string.format("%s\\%d\t%s\t%s", dlgStr, i + 1, Ranking.getSub(item, 0), title)
+			end
+		end
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function InitFunc(sysarg)
+	local ranking = Ranking.getRanking(BlessingConfig.RankName)
+	if ranking then
+		return		
+	end
+	ranking = Ranking.add(BlessingConfig.RankName, BlessingConfig.TopRankCount)
+	if not Ranking.load(ranking, BlessingConfig.RankName) then
+		Ranking.addColumn(ranking, Lang.ScriptTips.bless008)
+	end
+	Ranking.addRef(ranking)
+	Ranking.save(ranking, BlessingConfig.RankName)
+end
+
+function GetPoint( sysarg )	
+	local sVar = Actor.getStaticVar(sysarg)
+	return sVar.BlessingPoint or 0
+end
+
+function SetPoint( sysarg, point )	
+	local sVar = Actor.getStaticVar(sysarg)
+	sVar.BlessingPoint = GetPoint(sysarg) + point
+end
+
+function UpdateTitle( ranking )
+	if not ranking then
+		return
+	end
+	local newTitleActName = ""
+	local item = Ranking.getItemFromIndex(ranking, 0)
+	if item then
+		newTitleActName = Ranking.getSub( item, 0)
+	end
+	local isSet = false
+	local sVar = System.getStaticVar()
+	local oldTitleActName = sVar.BlessingTitleActName
+	if oldTitleActName then
+		if newTitleActName ~= "" and newTitleActName ~= oldTitleActName then
+			isSet = true
+			local oldActorPtr = Actor.getActorPtrByName(oldTitleActName)
+			if oldActorPtr then
+				Actor.setTopTitle(oldActorPtr, BlessingConfig.TitleId, false)
+			end
+		end
+	else
+		isSet = true
+	end
+	if isSet then
+		local actorPtr = Actor.getActorPtrByName(newTitleActName)
+		if actorPtr then
+			Actor.setTopTitle(actorPtr, BlessingConfig.TitleId, true)
+		end
+		sVar.BlessingTitleActName = newTitleActName
+	end
+end
+
+function AddPoint( sysarg, point )
+	SetPoint( sysarg, point)
+	local ranking = Ranking.getRanking(BlessingConfig.RankName)
+	if ranking then
+		local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+		local item = Ranking.getItemPtrFromId( ranking, myId)
+		if item then
+			Ranking.updateItem( ranking, myId, point)
+		else
+			item = Ranking.addItem(ranking, myId, point)
+			Ranking.setSub( item, 0, Actor.getName( sysarg ))
+		end
+		UpdateTitle(ranking)
+		Ranking.save(ranking, BlessingConfig.RankName)
+	end
+end
+
+function ResetRanking()
+	local ranking = Ranking.getRanking(BlessingConfig.RankName)
+	if ranking then
+		Ranking.clearRanking( ranking )
+		Ranking.save(ranking, BlessingConfig.RankName)
+		local sVar = System.getStaticVar()
+		local topName = sVar.BlessingTitleActName
+		if topName then
+			local actorPtr = Actor.getActorPtrByName(topName)
+			if actorPtr then
+				Actor.setTopTitle(actorPtr, BlessingConfig.TitleId, false)
+			end
+			sVar.BlessingTitleActName = nil
+		end
+	end
+end
+
+table.insert(MainFnTable, BlessingMainInit)
+table.insert(InitFnTable, InitFunc)

@@ -1,0 +1,148 @@
+﻿--怪物死亡处理
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\SaveRadish\RadishConfig.txt" once
+--#include "RadishAward.txt" once
+--#include "RadishCommon.txt" once
+
+----[[
+--怪物死亡
+function OnRadishMonsterDie(monster,guard,monId)
+	if Actor.getFubenId(monster) ~= RadishConfig.fubenId then return end
+	local fbPtr = Actor.getFubenPrt(monster)
+	local actorPtr = GetActorByPrt( fbPtr )
+	if not actorPtr then return end -- 玩家可能离线了
+
+	local TafangData = GetTafangData(actorPtr)
+	if not TafangData then return end
+
+	local monData = RadishConfig.monsters.monAttr[monId]
+	local addExp = 0
+
+	if guard then 
+		local handle = Actor.getHandle(guard)
+		local allTowerData = getActorTowerData(actorPtr)
+		local tower = getTower(allTowerData, nil, handle)
+		addExp = RadishConfig.towers[tower.towerId].nMod * monData.nExp
+	else -- 区域消失
+		addExp = monData.nLossExp
+	end
+
+	TafangData.monsterExp = TafangData.monsterExp + addExp -- 刷怪获得的总经验
+	TafangData.killCount = TafangData.killCount + 1
+	local countList = RadishConfig.monsters.monCounts.countList
+	local passMaxTimes = #countList
+	local x = 0
+
+	for i=1,(TafangData.passTimes+1) do
+		x = x + countList[i]
+	end
+
+	-- 过关 读取经验库 波数经验
+	if TafangData.killCount == x then
+		TafangData.passTimes = TafangData.passTimes + 1
+		local ExpData = RadishConfig.passAwards.awardIndexs[TafangData.passTimes]
+		if ExpData.type ~= 20 then
+	        addExp = ExpData.count
+	    else
+	        addExp = Actor.getActivityExp(actorPtr, ExpData.id, ExpData.count, 0)
+	    end
+
+	    TafangData.passExp = TafangData.passExp + addExp
+	end	
+
+	-- 设置属性
+	local tafang = GetActorTafangData( actorPtr )
+	tafang.killCount = TafangData.killCount
+	tafang.passTimes = TafangData.passTimes
+	tafang.passExp = TafangData.passExp
+	tafang.monsterExp = TafangData.monsterExp
+
+	updateExp(actorPtr, (TafangData.monsterExp+TafangData.passExp), 1)
+	if TafangData.passTimes >= passMaxTimes then
+		TafangData.passTimes = passMaxTimes
+		passHandle(actorPtr, TafangData, fbPtr)
+	end
+end
+
+--通关处理 龙仔死亡 or 怪全ko
+function passHandle(actorPtr, TafangData, fbPtr)
+	
+	
+	-------------------------------------------------------
+	Actor.exitFuben(actorPtr) 
+	Actor.closeActivityWind(actorPtr)
+	local fbHandle = Fuben.getFubenHandle(fbPtr)
+	local hScene = Fuben.getSceneHandleById(RadishConfig.EnterScreens[1], fbHandle)
+	Fuben.sendMsgToScene(hScene,Lang.Activity.w00153, ttScreenCenter)
+	OnExitSaveRadishFb(actorPtr)
+end
+
+--怪刷出
+function OnRadishMonsterCreate(monster, monId, sceneId, x, y)
+	local fbPtr = Actor.getFubenPrt(monster)
+	local TafangData = GetTafangData( monster )
+	if not TafangData then
+		return
+	end
+
+	TafangData.monsterCount = TafangData.monsterCount + 1
+	-- 第%d波怪刷完 进入下一波
+	local appearTimes = TafangData.appearTimes
+	if appearTimes == 0 then
+		appearTimes = 1
+	end
+	local count = 0
+	local countList = RadishConfig.monsters.monCounts.countList
+	for i,v in ipairs(countList) do
+		if i <= TafangData.appearTimes then
+			count = count + v
+		end
+	end
+
+	if TafangData.monsterCount == count then
+		appearTimes = appearTimes + 1
+	end
+
+	if (appearTimes<=#countList) and (appearTimes~=TafangData.appearTimes) then
+		local actorPtr = GetActorByPrt( fbPtr )
+		ChangeFubenProgress( actorPtr, TafangData.appearTimes + 1, RadishConfig.towersMax )
+		TafangData.appearTimes = appearTimes
+	end
+end
+
+function GetActorByPrt( fbPtr )
+	if fbPtr == nil then
+		print("fbPtr is nil")
+		return
+	end
+	local actorPtr = nil -- 获取玩家
+	local actorList = LuaHelp.getFbActorList(fbPtr)
+	if not actorList then
+		return
+	end
+	for k, v in ipairs(actorList) do
+		if v then
+			actorPtr = v
+			break
+		end	
+	end
+
+	if actorPtr == nil then
+		print("FbActorList actor count is zero!")
+	end
+	return actorPtr
+end
+
+MonMobDispatcher.RadishMonsterCreate = function(monster, monId, sceneId, x, y)
+	OnRadishMonsterCreate(monster, monId, sceneId, x, y)
+end
+
+MonDieDispatcher.RadishMonsterDie = function(monster, sysarg, monId, ...)
+	OnRadishMonsterDie(monster, sysarg, monId, ...)
+end
+
+--注册怪刷出，死亡处理
+for monsterId, monsterInfo in pairs(RadishConfig.monsters.monAttr) do
+	MonMobDispatcher.register(monsterId, MonMobDispatcher.RadishMonsterCreate)
+	MonDieDispatcher.register(monsterId, MonDieDispatcher.RadishMonsterDie)
+end

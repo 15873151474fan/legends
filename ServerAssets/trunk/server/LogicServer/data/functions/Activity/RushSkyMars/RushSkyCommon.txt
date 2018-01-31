@@ -1,0 +1,827 @@
+--lua script
+
+--#include "data\config\activityconfig\RushSkyMars\RushSkyMarsConfig.txt" once
+
+--进入副本
+function OnEnterRushSkyFb(sysarg, fbHandle, fubenId)
+	local vocation = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION) 
+	if vocation <= 0 or vocation > 3 then 
+		return
+	end
+	
+	--[[
+	local passConfig = RushSkyMarsConfig.passLists 
+	local monstersConfig = passConfig[1].monsters
+	local hScene = Fuben.getSceneHandleById(RushSkyMarsConfig.scenceId, fbHandle)  --获得场景句柄 
+
+	for k, monterInfo in ipairs(monstersConfig[vocation]) do 
+		local count = Fuben.createMonstersInRange(hScene, monterInfo.id, monterInfo.x1, monterInfo.y1, monterInfo.x2, monterInfo.y2, monterInfo.count, monterInfo.liveTime)
+	end
+	--]]
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local passNum = 0
+	
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName ) 
+	if RushSkyRankPtr then
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		if RushSkyItemPtr then
+			Ranking.setSub(RushSkyItemPtr, 0, 0)
+			Ranking.setSub(RushSkyItemPtr, 2, 0) 
+			Ranking.setSub(RushSkyItemPtr, 3, 0)
+		else
+			--RushSkyItemPtr = Ranking.addItem(RushSkyRankPtr, actorId, 0)
+			RushSkyItemPtr = Ranking.addItemExt(RushSkyRankPtr, actorId, 0, false)	
+			if RushSkyItemPtr then
+				for index = 1, 7 do 
+					Ranking.setSub(RushSkyItemPtr, index-1, 0)
+				end
+			end
+		end
+	end
+	
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if fbPtr then
+		Fuben.setFubenProgressListVal(fbPtr, 0, 0)
+		Fuben.setFubenProgressListVal(fbPtr, 1, 0)
+		Fuben.setFubenProgressListVal(fbPtr, 2, 0)
+		Fuben.setFubenProgressListVal(fbPtr, 3, 0)
+	end
+	
+	local RushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.RushSkyMarsName )
+	if RushSkyMarsRankPtr then
+		local RushSkyMarsItemPtr = Ranking.getItemPtrByIndex(RushSkyMarsRankPtr, 0)
+		if RushSkyMarsItemPtr then
+			local id = Ranking.getId(RushSkyMarsItemPtr)
+			SetRushSkyMarsStatue(nil, id, RushSkyMarsConfig.scenceId, fbHandle)
+		end
+ 	end
+	
+	--Fuben.sendMsgToScene(hScene, string.format(Lang.Activity.tg0005,1), 2+128)
+end
+
+--退出副本
+function OnExitRushSkyFb(sysarg, fubenId)
+	CheckIsMars(sysarg) 
+	SendAwardInfo(sysarg)
+end
+
+--检查是否可以成为战神
+function CheckIsMars(sysarg)
+	local count = 0
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local name = Actor.getName(sysarg)
+	local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+	
+	local isMars = false
+	
+	local minTime = 0
+	local maxPass = 0
+	
+	local RushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.RushSkyMarsName )
+	
+	if RushSkyMarsRankPtr then
+		local count = Ranking.getRankItemCount(RushSkyMarsRankPtr)
+		
+		if count <= 0 then
+			local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+			if RushSkyRankPtr then
+				local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+				if RushSkyItemPtr then
+					local maxPassNum = Ranking.getPoint(RushSkyItemPtr)
+					local costTime = tonumber(Ranking.getSub(RushSkyItemPtr, 1))
+					
+					local RushSkyMarsItemPtr = Ranking.addItem(RushSkyMarsRankPtr, actorId, maxPassNum)
+					if RushSkyMarsItemPtr then
+						Ranking.setSub(RushSkyMarsItemPtr, 0, costTime)
+						Ranking.setSub(RushSkyMarsItemPtr, 1, name)
+						Ranking.setSub(RushSkyMarsItemPtr, 2, sex)
+						isMars = true
+						minTime = costTime
+						maxPass = maxPassNum
+					end
+				end
+			end
+		else
+			local RushSkyMarsItemPtr = Ranking.getItemFromIndex(RushSkyMarsRankPtr, 0)
+			
+			if RushSkyMarsItemPtr then
+				local id = Ranking.getId(RushSkyMarsItemPtr)
+				local point = Ranking.getPoint(RushSkyMarsItemPtr)
+				local costTime = tonumber(Ranking.getSub(RushSkyMarsItemPtr, 0))
+				local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+				if RushSkyRankPtr then
+					local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+					if RushSkyItemPtr then
+						local curPoint = Ranking.getPoint(RushSkyItemPtr)
+						local curCostTime = tonumber(Ranking.getSub(RushSkyItemPtr, 1))
+						
+						if actorId == id then
+							if curPoint > point then
+								Ranking.setItem(RushSkyMarsRankPtr, actorId, curPoint)
+								Ranking.setSub(RushSkyMarsItemPtr, 0, curCostTime)
+								isMars = true
+							elseif curPoint == point then
+								if curCostTime < costTime then
+									Ranking.setSub(RushSkyMarsItemPtr, 0, curCostTime)
+									isMars = true
+								end
+							end
+						else
+							if curPoint > point then
+								isMars = true
+							elseif curPoint == point then
+								if curCostTime < costTime then
+									isMars = true
+								end
+							end
+							
+							if isMars == true then
+								Ranking.removeId(RushSkyMarsRankPtr, id)
+								Ranking.addItem(RushSkyMarsRankPtr, actorId, curPoint) 
+								Ranking.setSub(RushSkyMarsItemPtr, 0, curCostTime)
+								Ranking.setSub(RushSkyMarsItemPtr, 1, name)
+								Ranking.setSub(RushSkyMarsItemPtr, 2, sex)
+							end
+
+						end
+						
+						if isMars == true then
+							minTime = curCostTime
+							maxPass = curPoint
+						end
+					end
+				end
+			end
+			
+		end
+		
+		if isMars == true then
+			if minTime <= 0 or maxPass <= 0 then
+				return
+			end
+			local nMin = minTime / 60
+			local nSecond = minTime % 60
+			System.broadcastTipmsg(string.format(Lang.Activity.tg0011,name,nMin,nSecond,maxPass), 2+128)
+			
+			SetRushSkyMarsStatue(sysarg, actorId, RushSkyMarsConfig.tcScenceId, 0)
+			
+			local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+			local count = Ranking.getRankItemCount(RushSkyRankPtr) 
+			
+			for i = 1, count do 
+				local RushSkyItemPtr = Ranking.getItemFromIndex(RushSkyRankPtr, i-1)
+				if RushSkyItemPtr then
+					local playerId = Ranking.getId(RushSkyItemPtr)
+					local playerPtr = System.getEntityPtrByActorID(playerId)
+					if playerPtr then--and playerPtr ~= sysarg then
+						local tempSceneId = Actor.getSceneId(playerPtr)
+						if tempSceneId == RushSkyMarsConfig.scenceId then
+							local fbHandle = Actor.getFubenHandle(playerPtr)
+							SetRushSkyMarsStatue(sysarg, actorId, RushSkyMarsConfig.scenceId, fbHandle)
+						end	
+					end
+				end
+			end
+		end
+	end
+end
+
+
+
+--创建怪物
+function CreatRushSkyMonsters(sysarg, passNum)
+	local vocation = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION) 
+	if vocation <= 0 or vocation > 3 then 
+		return
+	end
+	
+	
+	local passConfig = RushSkyMarsConfig.passLists 
+	local monstersConfig = passConfig[passNum].monsters
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if not fbPtr then
+		return 
+	end	
+	local fbHandle = Fuben.getFubenHandle(fbPtr)
+	local hScene = Fuben.getSceneHandleById(RushSkyMarsConfig.scenceId, fbHandle)  --获得场景句柄 
+	
+	for k, monterInfo in ipairs(monstersConfig[vocation]) do 
+		local count = Fuben.createMonstersInRange(hScene, monterInfo.id, monterInfo.x1, monterInfo.y1, monterInfo.x2, monterInfo.y2, monterInfo.count, monterInfo.liveTime)
+	end
+
+	
+	--Actor.changeActivityProgress(sysarg, passNum, -1, -1)
+	
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if fbPtr then
+		Fuben.setFubenProgressListVal(fbPtr, 0, passNum)
+	end
+	Fuben.sendMsgToScene(hScene, string.format(Lang.Activity.tg0005,passNum), 2+128)
+	
+end
+
+--更新闯关数据
+function UpdateRushSkyRank(sysarg)
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		if not RushSkyItemPtr then 
+			--RushSkyItemPtr = Ranking.addItem(RushSkyRankPtr, actorId, 0)
+			RushSkyItemPtr = Ranking.addItemExt(RushSkyRankPtr, actorId, 0, false)
+			if RushSkyItemPtr then
+				for index = 1, 5 do 
+					Ranking.setSub(RushSkyItemPtr, index-1, 0)
+				end
+				local curtime = System.getCurrMiniTime()
+				Ranking.setSub(RushSkyItemPtr, 4, curtime)
+			end
+		end
+		
+		
+		if RushSkyItemPtr then
+			local passListConfig = RushSkyMarsConfig.passLists
+			local curPass = tonumber(Ranking.getSub(RushSkyItemPtr, 0))
+			local maxPass = Ranking.getPoint(RushSkyItemPtr)
+			local fbPtr = Actor.getFubenPrt(sysarg)
+			
+			if not fbPtr then 
+				return 
+			end
+			
+			local fbCurPassNum = Fuben.getFubenProgressListVal(fbPtr, 1)
+			
+			
+			if fbCurPassNum <= table.getn(passListConfig) then
+				curPass = fbCurPassNum
+			else
+				curPass = table.getn(passListConfig)
+			end
+			Ranking.setSub(RushSkyItemPtr, 0, curPass)
+			
+			local leftTime = Fuben.getFbTime(fbPtr)
+			local costTime = RushSkyMarsConfig.activityTime - leftTime
+			if curPass > maxPass then 
+				Ranking.setItem(RushSkyRankPtr, actorId, curPass)
+				Ranking.setSub(RushSkyItemPtr, 1, costTime)
+			elseif curPass == maxPass then
+				local curCostTime = tonumber(Ranking.getSub(RushSkyItemPtr, 1))
+				if costTime < curCostTime then
+					Ranking.setSub(RushSkyItemPtr, 1, costTime)
+				end
+			end
+			
+			local curExp = 0
+			local passConfig = passListConfig[curPass]
+			local expConfig = passConfig.nExp 
+			curExp = Actor.getActivityExp(sysarg, expConfig.id, expConfig.count, expConfig.quality)
+			
+			if curExp > 0 then
+				Ranking.setSub(RushSkyItemPtr, 2, curExp)
+			end 
+			
+			local curPoint = passConfig.point
+			
+			if curPoint > 0 then
+				Ranking.setSub(RushSkyItemPtr, 3, curPoint)
+			end
+			
+			local curCircleSoul = passConfig.circleSoul
+			
+		
+			if fbPtr then
+				Fuben.setFubenProgressListVal(fbPtr, 0, curPass)
+				Fuben.setFubenProgressListVal(fbPtr, 1, curPoint)
+				Fuben.setFubenProgressListVal(fbPtr, 2, curExp)
+				Fuben.setFubenProgressListVal(fbPtr, 3, curCircleSoul)
+				
+				local fbHandle = Fuben.getFubenHandle(fbPtr)
+				Fuben.sendMsgToFb(fbHandle, Lang.Activity.tg0028, 2+128)
+				
+				if curPass >= table.getn(passListConfig) then
+					local actorName = Actor.getName(sysarg)
+					System.broadcastTipmsg(string.format(Lang.Activity.tg0034, actorName, curPass), 2 + 128)
+				end
+			end
+			
+		end
+	
+		CheckIsMars(sysarg)
+	end
+	
+end
+
+--判断怪物是否全部死亡
+function CheckAllMonsterDie(sysarg)
+	
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if fbPtr then
+		local fbCurPassNum = Fuben.getFubenProgressListVal(fbPtr, 1)
+		if fbCurPassNum <= 0 then
+			return true
+		end
+		
+		local vocation = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)		
+		if vocation <= 0 or vocation > 3 then 
+			return false
+		end
+		
+		local passListConfig = RushSkyMarsConfig.passLists
+		local passConfig = passListConfig[fbCurPassNum]
+		if passConfig == nil then
+			return 
+		end 
+		
+		local mosterListConfig = passConfig.monsters[vocation]
+		
+		for k, monsterInfo in ipairs(mosterListConfig) do 
+			
+			if Actor.isKillAllMonster(sysarg, monsterInfo.id) ~= true then
+				return false
+			end
+		end
+		
+	end
+	return true
+end
+
+--获取当前已通关数
+function GetCurPassNum(sysarg) 
+	local passNum = 0
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		if RushSkyItemPtr then
+			passNum = tonumber(Ranking.getSub(RushSkyItemPtr, 0))
+		end
+	end
+	return passNum
+end
+
+--获取最多通关数
+function GetMaxPassNum(sysarg)
+	local passNum = 0
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		if RushSkyItemPtr then
+			passNum = Ranking.getPoint(RushSkyItemPtr)
+		end
+	end
+	return passNum
+end
+
+--[[
+--判断是否需刷宝箱
+function CheckIsRefeshBox(sysarg) 
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		if RushSkyItemPtr then
+			local curPassNum = tonumber(Ranking.getSub(RushSkyItemPtr, 0))
+			if curPassNum > 0 and curPassNum % 5 == 0 then
+				local fbPtr = Actor.getFubenPrt(sysarg)
+				if fbPtr then
+					local fbHandle = Fuben.getFubenHandle(fbPtr) 
+					local hScene = Fuben.getSceneHandleById(RushSkyMarsConfig.scenceId, fbHandle)  --获得场景句柄 
+					
+					for k, boxMonsterInfo in ipairs(RushSkyMarsConfig.boxMonsters) do 
+						Fuben.createMonstersInRange(hScene, boxMonsterInfo.id, boxMonsterInfo.x1, boxMonsterInfo.y1, 
+							boxMonsterInfo.x2, boxMonsterInfo.y2, boxMonsterInfo.count, boxMonsterInfo.liveTime)
+					end
+					
+				end
+			end
+		end
+	end
+end
+--]]
+
+--发送奖励信息 
+function SendAwardInfo(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	local passNum = 0
+	local point = 0
+	local nexp = 0
+	
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		if RushSkyItemPtr then
+			passNum = tonumber(Ranking.getSub(RushSkyItemPtr,0)) or 0
+			nexp = tonumber(Ranking.getSub(RushSkyItemPtr,2)) or 0
+			point = tonumber(Ranking.getSub(RushSkyItemPtr,3)) or 0
+			
+			local name = Actor.getName(sysarg)
+			local curPoint = Actor.getIntProperty(sysarg, PROP_ACTOR_SKY_POINT)
+			System.sendCommonLog(943, actorId, name, passNum, curPoint, point, Lang.LogTips.tg005)
+			
+			if passNum > 0 then
+				local curFbTime = System.getCurrMiniTime()
+				Ranking.setSub(RushSkyItemPtr, 4, curFbTime)
+
+				if passNum <= table.getn(RushSkyMarsConfig.passLists) then
+					local circleSoul = RushSkyMarsConfig.passLists[passNum].circleSoul
+					System.addOfflineMsg(actorId, 51, Lang.Activity.tg0023, 0, passNum, nexp, circleSoul, point)
+				end
+			end
+		end
+	end
+
+end
+
+--领取副本奖励
+function GetRushSkyFbAward(sysarg, packet)
+	local getType = DataPack.readChar(packet)
+	local getPassNum = DataPack.readByte(packet)
+	
+	local curTime = System.getCurrMiniTime()
+	local nexp = 0
+	local nexpCopy = 0
+	local passNum = 0
+	local point = 0
+	local expRatio = 1
+	
+		local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+		if RushSkyRankPtr then
+			local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+			local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+			if RushSkyItemPtr then
+				
+				if getType == -1 then  --设置是否需要发送离线消息的标记
+					Ranking.setSub(RushSkyItemPtr, 5, -1)
+					return
+				end
+			
+				passNum = tonumber(Ranking.getSub(RushSkyItemPtr, 0))
+				
+				nexp = tonumber(Ranking.getSub(RushSkyItemPtr,2))
+				nexpCopy = nexp
+				
+				point = tonumber(Ranking.getSub(RushSkyItemPtr, 3))
+				local getTime = tonumber(Ranking.getSub(RushSkyItemPtr, 4))
+				if System.isSameDay(curTime, getTime) ~= true then
+					Actor.sendTipmsg(sysarg, Lang.Activity.tg0025, ttFlyTip)
+					closeAwardDialog(sysarg)
+					Ranking.setSub(RushSkyItemPtr, 5, 0) --重置标记
+					return
+				end
+				
+				if getPassNum ~= passNum then
+					Actor.sendTipmsg(sysarg, Lang.Activity.tg0025, ttFlyTip)
+					closeAwardDialog(sysarg)
+					Ranking.setSub(RushSkyItemPtr, 5, 0) --重置标记
+					return
+				end
+				
+				local expListConfig = RushSkyMarsConfig.exchangeExp
+				if getType < 0 or getType > table.getn(expListConfig) or passNum > table.getn(RushSkyMarsConfig.passLists) then
+					closeAwardDialog(sysarg)
+					Ranking.setSub(RushSkyItemPtr, 5, 0) --重置标记
+					return 
+				end
+	
+				local expConfig = nil
+				local retFlag = true
+				if getType == 0 then
+					retFlag = false
+				else
+					expConfig = expListConfig[getType]
+					if expConfig.gold > 0 then
+						local num = passNum
+						local len = table.getn(expConfig.consumRatio)
+						if num >= len then
+							num = len
+						end
+						
+						local needGold = expConfig.gold * expConfig.consumRatio[num]
+						if Actor.checkConsume(sysarg, 15, 0, needGold) ~= true then
+							Actor.sendTipmsg(sysarg, Lang.Activity.tg0019, ttFlyTip)
+							retFlag = false
+						end
+					end 
+					
+					expRatio = expConfig.ratio
+					
+					if nexp <= 0 then
+						nexp = 0 
+					end	
+				end
+				
+				local circleSoul = 0
+				if passNum <= table.getn(RushSkyMarsConfig.passLists) then
+					circleSoul = RushSkyMarsConfig.passLists[passNum].circleSoul
+				end
+				
+				if retFlag == true then
+					if expConfig.gold > 0 then
+						local num = passNum
+						local len = table.getn(expConfig.consumRatio)
+						if num >= len then
+							num = len
+						end
+						local needGold = expConfig.gold * expConfig.consumRatio[num]
+
+						if Actor.changeMoney(sysarg, 3, -needGold, 943, Lang.LogTips.tg001) == true then
+							local passConfig = RushSkyMarsConfig.passLists[passNum]
+							local getExpConfig = passConfig.nExp
+							retFlag = Actor.giveAward(sysarg, getExpConfig.type, getExpConfig.id, getExpConfig.count*expRatio, getExpConfig.quality, getExpConfig.strong, getExpConfig.bind, 0, 943, Lang.LogTips.tg007)
+							if retFlag == true then
+								local accPoint = Actor.getIntProperty(sysarg, PROP_ACTOR_SKY_POINT)
+								Actor.setUIntProperty(sysarg, PROP_ACTOR_SKY_POINT, accPoint + point)
+								Actor.sendTipmsg(sysarg, string.format(Lang.Activity.tg0033, point), ttTipmsgWindow) 
+								Actor.giveAward(sysarg, 22, 0, circleSoul, 0,0,0,0, 943, Lang.LogTips.tg007)
+							end
+						else
+							retFlag = false
+						end
+					elseif expConfig.gold == 0 then
+						local passConfig = RushSkyMarsConfig.passLists[passNum]
+						local getExpConfig = passConfig.nExp
+						retFlag = Actor.giveAward(sysarg, getExpConfig.type, getExpConfig.id, getExpConfig.count*expRatio, getExpConfig.quality, getExpConfig.strong, getExpConfig.bind, 0, 943, Lang.LogTips.tg007)
+						if retFlag == true then
+							local accPoint = Actor.getIntProperty(sysarg, PROP_ACTOR_SKY_POINT)
+							Actor.setUIntProperty(sysarg, PROP_ACTOR_SKY_POINT, accPoint + point)
+							Actor.sendTipmsg(sysarg, string.format(Lang.Activity.tg0033, point), ttTipmsgWindow) 
+							Actor.giveAward(sysarg, 22, 0, circleSoul, 0,0,0,0, 943, Lang.LogTips.tg007)
+						end
+						
+					end
+				end
+		
+				if retFlag == true then
+					Ranking.setSub(RushSkyItemPtr, 2, 0)
+					Ranking.setSub(RushSkyItemPtr, 3, 0)
+					Ranking.setSub(RushSkyItemPtr, 4, 0)
+				else
+					
+					System.addOfflineMsg(actorId, 51, Lang.Activity.tg0023, 0, passNum, nexpCopy, circleSoul, point)
+					--System.addOfflineMsg(actorId, 51, Lang.Activity.tg0023, 0, passNum, nexpCopy, 0, point)
+				end
+				
+				Ranking.setSub(RushSkyItemPtr, 5, 0) --重置标记
+			else
+				if getType == -1 then
+					return
+				end
+				Actor.sendTipmsg(sysarg, Lang.Activity.tg0025, ttFlyTip)
+			end
+		else
+			if getType == -1 then
+				return
+			end
+			Actor.sendTipmsg(sysarg, Lang.Activity.tg0025, ttFlyTip)
+		end
+		
+		closeAwardDialog(sysarg)
+end
+
+--检测是否需要发离线奖励消息,(如果打开面板，并未领取奖励)
+function CheckSendAwardInfo(sysarg)
+
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		
+		if RushSkyItemPtr then
+			local flag = tonumber(Ranking.getSub(RushSkyItemPtr, 5))
+			
+			if flag == -1 then
+		
+				local passNum = tonumber(Ranking.getSub(RushSkyItemPtr, 0))
+				local nexp = tonumber(Ranking.getSub(RushSkyItemPtr, 2))
+				local point = tonumber(Ranking.getSub(RushSkyItemPtr, 3))
+				
+				if passNum > 0 and passNum <= table.getn(RushSkyMarsConfig.passLists) then
+					local circleSoul = RushSkyMarsConfig.passLists[passNum].circleSoul
+					System.addOfflineMsg(actorId, 51, Lang.Activity.tg0023, 0, passNum, nexp, circleSoul, point)
+				end
+				Ranking.setSub(RushSkyItemPtr, 5, 0) --重置标记
+		
+			else
+				local fubenId = Actor.getFubenId(sysarg)
+				if fubenId == RushSkyMarsConfig.fubenId then
+					local passNum = tonumber(Ranking.getSub(RushSkyItemPtr, 0))
+					if passNum <= 0 or passNum > table.getn(RushSkyMarsConfig.passLists) then
+						return 
+					end
+					local curTime = System.getCurrMiniTime()
+					Ranking.setSub(RushSkyItemPtr, 6, curTime) --掉线保存时间
+					Ranking.setSub(RushSkyItemPtr, 5, 1) --标记奖励可以领取，防止玩家掉线后，副本时间到了不能领取奖励
+				end
+				
+			end
+			
+		end
+	end
+end
+
+--关闭奖励窗口
+function closeAwardDialog(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 28)
+	if pack then
+		DataPack.flush(pack)  
+	end
+end
+
+--请求前端打开积分兑换窗口
+function OpenExchangeDialog(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 29) 
+	local point = Actor.getIntProperty(sysarg, PROP_ACTOR_SKY_POINT)
+
+	if pack ~= nil then
+		DataPack.writeUInt(pack, point)
+		DataPack.flush(pack)  
+	end  
+	
+end
+
+--兑换积分
+function ReqExchangePoint(sysarg, packet)
+	local opFlag = false
+	local itemId = DataPack.readUInt(packet)
+	local point = Actor.getIntProperty(sysarg, PROP_ACTOR_SKY_POINT)
+
+	for k, itemInfo in ipairs(RushSkyMarsConfig.exchangePoint) do 
+		if itemInfo.id == itemId then
+			if Actor.checkConsume(sysarg, 15, 0, itemInfo.gold) ~= true then
+				Actor.sendTipmsg(sysarg, Lang.Activity.tg0019, ttFlyTip)
+				return 
+			end
+			
+			if point < itemInfo.point then
+				Actor.sendTipmsg(sysarg, Lang.Activity.tg0020, ttFlyTip)
+				return 
+			end
+			
+			if Item.getBagEmptyGridCount(sysarg) < 1 then 
+				Actor.sendTipmsg(sysarg, Lang.Activity.tg0021, ttFlyTip)
+				return 
+			end
+			
+			if itemInfo.job ~= 0 then
+				local vaction = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION) 
+				if vaction ~= itemInfo.job then
+					Actor.sendTipmsg(sysarg, Lang.Activity.tg0022, ttFlyTip)
+					return 
+				end
+			end
+			
+			local ret = false
+			if itemInfo.gold > 0 then
+				if Actor.changeMoney(sysarg, 3 , -itemInfo.gold, 943, Lang.LogTips.tg002) == true then
+					ret = true
+				end
+			elseif itemInfo.gold == 0 then
+				ret = true
+			end
+			
+			if ret == true then
+				local ret = Actor.giveAward(sysarg, itemInfo.type, itemInfo.id, itemInfo.count, itemInfo.quality, itemInfo.strong, itemInfo.bind, 0, 943, Lang.LogTips.tg008)
+				if ret then
+					point = point - itemInfo.point 
+					if point <= 0 then
+						point = 0
+					end
+					Actor.setUIntProperty(sysarg, PROP_ACTOR_SKY_POINT, point)
+					opFlag = true
+				end
+			end
+		
+			break
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 30) 
+	if pack ~= nil then
+		if opFlag == true then
+			DataPack.writeChar(pack, 0)
+			DataPack.writeUInt(pack, point)
+		else
+			DataPack.writeChar(pack, -1)
+			DataPack.writeUInt(pack, point)
+		end
+		DataPack.flush(pack)  
+	end
+end
+
+--修改npc雕像
+function SetRushSkyMarsStatue(sysarg, actorId, sceneId, fbHandle)
+	
+	local modelId = 20
+	local name = ""
+	local sex = 0
+	
+	local RushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.RushSkyMarsName )
+	if RushSkyMarsRankPtr then
+		local RushSkyMarsItemPtr = Ranking.getItemPtrByIndex(RushSkyMarsRankPtr, 0)
+		if RushSkyMarsItemPtr then
+			name = Ranking.getSub(RushSkyMarsItemPtr, 1)
+			sex = tonumber(Ranking.getSub(RushSkyMarsItemPtr, 2))
+			
+		end
+	end
+	
+	if sex == 0 then
+		modelId = RushSkyMarsConfig.maleModelId
+	elseif sex == 1 then
+		modelId = RushSkyMarsConfig.femaleModelId
+	end
+	
+	if actorId == 0 then
+		name = Lang.EntityName.n00303
+		modelId = 20
+	end
+	
+	local nHandle = Fuben.getSceneHandleById(sceneId, fbHandle)
+	local NpcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00303)
+	
+	
+	Actor.changeShowName(NpcPtr, 20, name)
+	Actor.setUIntProperty(NpcPtr, PROP_ENTITY_ID, actorId)
+	Actor.changeEntityModel(NpcPtr, 20, modelId)
+
+end
+
+
+--重置天关战神数据
+function ResetRuahSkyData()
+
+	local RushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.RushSkyMarsName )
+	if RushSkyMarsRankPtr then
+		local RushSkyMarsItemPtr = Ranking.getItemPtrByIndex(RushSkyMarsRankPtr, 0)
+		if RushSkyMarsItemPtr then
+			local actorId = Ranking.getId(RushSkyMarsItemPtr)
+			local maxPassNum = Ranking.getPoint(RushSkyMarsItemPtr)
+			if maxPassNum >= RushSkyMarsConfig.mixMarsPassNum then
+				local marsAwardConfig = RushSkyMarsConfig.marsAward 
+				if marsAwardConfig ~= nil then
+					System.addItemMsgById(actorId, 0, marsAwardConfig.id , marsAwardConfig.count, marsAwardConfig.bind,  Lang.Activity.tg0027, "", 943, Lang.LogTips.tg004, true, 52)
+				end
+			end
+			local sex = tonumber(Ranking.getSub(RushSkyMarsItemPtr, 2))
+			local name = Ranking.getSub(RushSkyMarsItemPtr, 1)
+			local costTime = tonumber(Ranking.getSub(RushSkyMarsItemPtr, 0))
+			System.sendCommonLog(943, actorId, name, maxPassNum, costTime, 0, Lang.LogTips.tg006)
+			
+			local LastRushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.LastRushSkyMarsName )
+			if LastRushSkyMarsRankPtr then
+				Ranking.clearRanking(LastRushSkyMarsRankPtr)
+				local LastRushMarsItemPtr = Ranking.addItem(LastRushSkyMarsRankPtr, actorId, maxPassNum)
+				if LastRushMarsItemPtr then
+					Ranking.setSub(LastRushMarsItemPtr, 0, costTime)
+					Ranking.setSub(LastRushMarsItemPtr, 1, name)
+					Ranking.setSub(LastRushMarsItemPtr, 2, sex)
+				end
+			end
+		end
+		
+		Ranking.clearRanking(RushSkyMarsRankPtr)
+	end
+	
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		Ranking.clearRanking(RushSkyRankPtr)
+	end
+	
+	SetRushSkyMarsStatue(nil, 0, RushSkyMarsConfig.tcScenceId, 0)
+end
+
+--进入副本的条件
+function OnEnterRushSkyFbCondition(sysarg, fbId)
+	if System.isInTimeRange(unpack(RushSkyMarsConfig.forbitTimeRange)) == true then
+		return false
+	end
+	return true
+end
+
+function RuahSkyLoginHandle(sysarg)
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		
+		if RushSkyItemPtr then
+			local flag = tonumber(Ranking.getSub(RushSkyItemPtr, 5)) or 0
+			if flag == 1 then 
+				local fubenId = Actor.getFubenId(sysarg)
+				if fubenId ~= RushSkyMarsConfig.fubenId then
+					local curTime = System.getCurrMiniTime()
+					local logoutTime = tonumber(Ranking.getSub(RushSkyItemPtr, 6)) or 0
+					if System.isSameDay(curTime, logoutTime) == true then 
+						SendAwardInfo(sysarg)
+						Ranking.setSub(RushSkyItemPtr, 5, 0) --重置标记, 1表示有奖励为领取(玩家掉线后，副本时间到了，玩家登陆的时候发奖励)
+					end
+				end
+			end
+		end
+	end
+end

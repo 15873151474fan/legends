@@ -1,0 +1,93 @@
+﻿--lua script
+--村长 
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+  thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+
+--#include "data\language\LangCode.txt" once          
+---#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once           --用于处理副本的通用函数 
+--#include "data\functions\NormalFuncForQuest.txt" once --任务内容
+----#include "data\config\vehicle\transmit\Transmit1.txt" once	--传送
+----#include "data\functions\Activity\Dart\DartMain.txt"        --主线任务护送公主脚本 
+
+--[[此NPC中标准任务发行表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = Lang.NormalTalk.h00001, },
+
+}
+
+--[[ 此处为NPC发言内容 每条发言信息包括：info(发言内容) + bctype(发言广播类型)   
+	 bcType定义:  1：附近  2：场景 3：副本  4：世界
+--]]
+NpcSayContent = {	
+	PreSayIdx = 0,
+	content = {
+		{ info = Lang.TaskTalk.t00003, bctype = 1, },
+	},
+}
+
+
+--[[此NPC中标准任务发行表]]
+PromMs =
+{
+  --键入mp+分号，根据模板生成发行任务脚本模板
+--#include "data\config\quest\quests\task2.txt"
+--#include "data\config\quest\quests\task119.txt"
+}
+
+--[[此NPC中标准任务受理表]]
+CompMs =
+{
+--#include "data\config\quest\quests\task1.txt" 
+--#include "data\config\quest\quests\task118.txt"
+}
+
+--[[此NPC中标准任务过程表]]
+PassMs =
+{
+
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+    return commonQuestNpcMain(sysarg)
+end
+
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end
+
+function idleTalk()
+	if NpcSayContent == nil or NpcSayContent.content == nil then return end
+	local count = table.getn(NpcSayContent.content)
+	if count <= 0 then return end
+	local CurrSayIdx = System.getRandomNumber(count)+1	
+	if (CurrSayIdx == NpcSayContent.PreSayIdx) then
+		CurrSayIdx = CurrSayIdx + 1
+		if (CurrSayIdx > count) then
+			CurrSayIdx = 1
+		end
+	end
+	Actor.monsterSay(thisNPC, NpcSayContent.content[CurrSayIdx].info, NpcSayContent.content[CurrSayIdx].bctype)
+	NpcSayContent.PreSayIdx = CurrSayIdx;
+end

@@ -1,0 +1,14 @@
+﻿--lua script
+
+--#include "data\config\quest\PetQuest.txt" once --任务相关的配置
+
+--宠物出动，完成任务
+function onPetBattle( sysarg, args )
+	--完成相关的任务
+	for i = 1, #PetBattlequestData do
+		local qData = PetBattlequestData[i]
+		if qData then
+			Actor.setQuestValue(sysarg, qData.qid, qData.tid, qData.count)
+		end
+	end
+end

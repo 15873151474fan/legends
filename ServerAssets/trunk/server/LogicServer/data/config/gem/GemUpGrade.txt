@@ -1,0 +1,84 @@
+﻿--宝物档次进阶配置
+--例如：第二个配置项为30，表示从1级升到2级，需要30点经验
+--#include "..\..\language\LangCode.txt"
+GemUpGradeConfig=
+{
+minLvlFall=0, -- 档次进阶失败降低等级下限
+maxLvlFall=0,-- 档次进阶失败降低等级上限
+consumeYB=38, -- 没有进阶符时，可以直接消耗元宝
+-- 档次进阶消耗、概率配置
+gradesUpgrade = 
+{
+-- 1档进阶2档
+{
+moneyType =0,
+money=1000,
+maxUpGradeVal = 100,  -- 当前档次最大进阶度（当超过此进阶度，自动进阶到下一档。1档宝物默认进阶度为0）
+-- 宝物进阶操作增加的进阶度配置表
+-- 这里配置的是给予n点的概率，n是元素在数组中的索引，基于1。例如这里表示20%概率给1点进阶度，10%概率
+-- 给2点进阶，10%概率给3点... 5%的概率给9点，5%的概率给9点。表元素个数不限，需要保证总和为100即可。
+-- 如果某个配置为0，表明不会给予指定的进阶度
+upGradeValCfg = {20, 10, 10, 10, 10, 10, 10, 10, 5, 5},
+
+requestItems =
+{
+{ item =1916, count =3},
+},
+rate=50 ,
+displayRate=60 ,
+},
+-- 2档进阶3档
+{
+moneyType =0,
+money=3000,
+maxUpGradeVal = 200,
+upGradeValCfg = {20, 10, 10, 10, 10, 10, 10, 10, 5, 5},
+requestItems =
+{
+{ item =1916, count =4},
+},
+rate=24 ,
+displayRate=30 ,
+},
+-- 3档进阶4档
+{
+moneyType =0,
+money=5000,
+maxUpGradeVal = 300,
+upGradeValCfg = {20, 10, 10, 10, 10, 10, 10, 10, 5, 5},
+requestItems =
+{
+{ item =1916, count =5},
+},
+rate=5 ,
+displayRate=8 ,
+},
+-- 4档进阶5档
+{
+moneyType =1,
+money=2000,
+maxUpGradeVal = 400,
+upGradeValCfg = {20, 10, 10, 10, 10, 10, 10, 10, 5, 5},
+requestItems =
+{
+{ item =1916, count =6},
+},
+rate=3 ,
+displayRate=5 ,
+},
+-- 5档进阶6档
+{
+moneyType =1,
+money=4000,
+maxUpGradeVal = 500,
+upGradeValCfg = {20, 10, 10, 10, 10, 10, 10, 10, 5, 5},
+requestItems =
+{
+{ item =1916, count =7},
+},
+rate=2 ,
+displayRate=3 ,
+},
+},
+
+},

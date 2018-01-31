@@ -1,0 +1,66 @@
+--怪物刺杀攻击两个1级
+{
+
+	actions=
+	{
+		{act=0,effect=2,},
+	},
+	
+	desc=Lang.Skill.s7L1Desc,--技能的描述
+	
+	iconID=7,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		
+		
+		
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=-0,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=-1,--相对于中心点y下边的相对坐标
+		rangeType=2,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 6,value =1},
+					},
+					results=
+					{
+
+						{mj=0,timeParam=1,type=4,delay=1000, rate=8000,value=1},
+					},
+
+					specialEffects=
+					{
+					--	{type=1,mj=0,id=38,keepTime=500,delay=0,always=false},							
+					},
+				},						
+			},
+		},
+				
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=2,consume=false},
+		{cond=35,value=1,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=500,
+
+},

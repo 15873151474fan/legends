@@ -1,0 +1,51 @@
+﻿--时空密室二层 
+{
+	scenceid = 88,
+	scencename = Lang.SceneName.s00102,
+	mapfilename = "52Shikongmishi",
+	minlevel = 70,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "shikongfudao.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 60,
+	sceneHeight = 64,
+	posx = 17,
+	posy = 85,
+
+	area =
+	{
+		{ name = Lang.SceneName.s00102, range = { 29,12,45,28,29,44,13,29}, center = { 27,31},attri = {{type=80,value = {}},{ type = 104, value = {} },{type=18,value = {}},{type=19,value = {}},{type=3,value = {}},{type=44,value = {}},{type=6,value = {}},{type = 34,  value = {613,619,620,626,627,628,629,630,631,912,1192}},{ type = 23,  value = {1,2,3,4} },{ type = 33,  value = {10}},{ type = 30,  value = {1,2,3,4} },},},	--默认配置场景
+
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh58.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+    --{name = Lang.EntityName.n00047, posx = 102 , posy = 87,script= "data/script/ManHuangYiCeng/ShenTuAoTian.txt",modelid=11,icon = 11,funcId=0},
+         {name = Lang.EntityName.n00068, posx = 31 , posy = 27,script = "data/NPC/activity/shikongjiaocuo/mishilaoren.txt",modelid = 366,icon = 1,funcId = 0},
+	},
+
+  teleport =
+  {
+		--传送点设置
+		--{ posx = 13, posy = 77,toSceneid = 21,toPosx = 50, toPosy = 260,modelid = 50000,name = Lang.SceneName.s00021 },  --蛮荒一层→伏魔谷
+		--{ posx = 105, posy = 115,toSceneid = 31,toPosx = 22, toPosy = 39,modelid = 50000,name = Lang.SceneName.s00031 },  --蛮荒一层→蛮荒二层
+
+  },
+
+},

@@ -1,0 +1,156 @@
+﻿--lua script
+
+--type :条件的类型，1 为杀死某个BOSS，2 为清除所有的怪物。 ..
+--monsterid :怪物ID，amount = 数量，也可作为存活的时间数（单位为秒）
+
+--type=1表示杀死怪物311即可通关，如果type = 2，则表示杀死所有怪物，则不能出现type=1的条件，因为这两个有矛盾
+--如果type=2，monsterid不用配置
+--amount没什么意义，考虑去掉
+TongGuanCondition =
+{
+	[1] = {   --玄天洞队伍
+		{type = 1 , monsterid = 311,amount = 0 },		
+	},
+	[2] = {   --松门口队伍
+		{type = 1 , monsterid = 314,amount = 0 },
+		{type = 1 , monsterid = 315,amount = 0 },
+		{type = 1 , monsterid = 316,amount = 0 },
+	},
+	[3] = {  --黄泉寨队伍
+		{type = 1 , monsterid = 322,amount = 0 },
+	},	
+	[4] = {   --阎王寨队伍
+		{type = 1 , monsterid = 318,amount = 0 },
+	},
+	[5] = {  --秘密基地双人
+		{type = 1 , monsterid = 324,amount = 0 },
+	},
+	
+	[14] = {   --黑风寨队伍
+		{type = 1 , monsterid = 242,amount = 0 },
+	},
+	[8] = {   --悬空寺
+		{type = 1 , monsterid = 133,amount = 0 },
+	},
+	[9] = {   --幽影毒林
+		{type = 1 , monsterid = 365,amount = 0 },
+	},
+	[19] = {   --屠龙山谷
+		{type = 1 , monsterid = 377,amount = 0 },
+	},
+	[20] = {   --十面埋伏
+		{type = 1 , monsterid = 503,amount = 0 },
+	},
+	[23] = {   --剑冢崖 
+		{type = 1 , monsterid = 310,amount = 0 },
+	},
+}
+
+--副本难度对应的分值
+FbHardLevel = {
+	[1] = 50,
+	[2] = 100,
+	[3] = 200,
+	[4] = 400,
+}
+
+--用于计算副本消耗时间分值
+FbTimePoint = {
+	[0] = 
+	{	--单人配置
+		{sp = 0.00,ep = 0.08,point = 350,},		--花费的时间是副本总时间的1%~10%	得500	
+		{sp = 0.08,ep = 0.11,point = 320,},
+		{sp = 0.11,ep = 0.15,point = 290,},
+		{sp = 0.15,ep = 0.19,point = 260,},
+		{sp = 0.19,ep = 0.23,point = 230,},
+		{sp = 0.23,ep = 0.27,point = 200,},	
+		{sp = 0.27,ep = 0.32,point = 150,},
+		{sp = 0.32,ep = 0.38,point =  20,},
+		{sp = 0.38,ep = 0.50,point =   0,},
+		{sp = 0.50,ep = 1.00,point = -300,},
+	},
+	[1] = 
+	{	--队伍配置
+		{sp = 0.00,ep = 0.13,point = 1000,},
+		{sp = 0.13,ep = 0.16,point = 885,},
+		{sp = 0.16,ep = 0.20,point = 770,},
+		{sp = 0.20,ep = 0.24,point = 655,},
+		{sp = 0.24,ep = 0.28,point = 540,},
+		{sp = 0.28,ep = 0.32,point = 425,},
+		{sp = 0.32,ep = 0.36,point = 200,},
+		{sp = 0.36,ep = 0.40,point = 100,},
+		{sp = 0.40,ep = 0.50,point = -100,},
+		{sp = 0.50,ep = 1.00,point = -850,},
+	},
+}
+
+--在副本中一共击杀的敌人数量（包括BOSS）占整体敌人数量的百分比
+FbMonKillPoint = {
+	[0] ={
+		{sp = 0.99,ep = 1000,point =  600,},		--
+		{sp = 0.89,ep = 0.99,point =  500,},		--类推
+		{sp = 0.79,ep = 0.89,point =  400,},		--类推
+		{sp = 0.59,ep = 0.79,point =  300,},		--类推
+		{sp = 0.39,ep = 0.59,point =  150,},		--类推
+		{sp = 0.19,ep = 0.39,point =   80,},		--类推
+		{sp = 0.09,ep = 0.19,point =   10,},		--类推
+		{sp = 0.00,ep = 0.09,point = -300,},		--类推
+	},
+	[1] ={
+		{sp = 0.99,ep = 1000,point =  3000,},		--
+		{sp = 0.89,ep = 0.99,point =  2800,},		--类推
+		{sp = 0.79,ep = 0.89,point =  2500,},		--类推
+		{sp = 0.59,ep = 0.79,point =  2000,},		--类推
+		{sp = 0.39,ep = 0.59,point =  1500,},		--类推
+		{sp = 0.19,ep = 0.39,point =  1000,},		--类推
+		{sp = 0.09,ep = 0.19,point =   100,},		--类推
+		{sp = 0.00,ep = 0.09,point = -1500,},		--类推
+	},
+}
+
+--队伍模式的通关分加成
+TeamFbAdd =
+{
+	[2] = 0.02,
+	[3] = 0.04,
+	[4] = 0.06,
+	[5] = 0.08,
+}
+
+--用于计算通关评级
+FbPoint = {
+	{sp = 0.95,ep = 100.0,},
+	{sp = 0.90,ep = 0.95,},
+	{sp = 0.80,ep = 0.90,},
+	{sp = 0.60,ep = 0.80,},
+	{sp = 0.30,ep = 0.60,},
+	{sp = 0.0, ep = 0.30,},
+}
+
+FbLevelPoint ={
+	[0] = {	--单人
+		[1] = 1000,
+		[2] = 1050,
+		[3] = 1150,
+		[4] = 1350,
+	},
+	[1] = {	--队伍
+		[1] = 4250,
+		[2] = 4300,
+		[3] = 4400,
+		[4] = 4600,
+	},
+}
+
+--副本通关奖励,从多选一中抽取
+
+FubenPassReward = {
+	{ type = 0, id = 328, count = 1, strong = 0,quality = 0,bind = 1 },
+	{ type = 0, id = 531, count = 1, strong = 0,quality = 0,bind = 1 },
+	{ type = 0, id = 815, count = 1, strong = 0,quality = 0,bind = 1 },
+	{ type = 0, id = 944, count = 1, strong = 0,quality = 0,bind = 1 },
+	{ type = 0, id = 564, count = 1, strong = 0,quality = 0,bind = 1 },
+	{ type = 0, id = 992, count = 1, strong = 0,quality = 0,bind = 1 },
+	{ type = 0, id = 993, count = 1, strong = 0,quality = 0,bind = 1 },
+	{ type = 0, id = 994, count = 1, strong = 0,quality = 0,bind = 1 },
+}

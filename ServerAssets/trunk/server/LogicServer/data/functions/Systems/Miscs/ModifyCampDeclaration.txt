@@ -1,0 +1,12 @@
+﻿
+MiscsImplement.ModifyCampDeclaration = function (sysarg,msgid, packet)
+  if packet == nil then return end
+  local dec = DataPack.readString(packet)
+  local camp = Actor.getCamp(sysarg)
+  if not dec or not camp then return end
+  Camp.setCampKingDeclaration(camp, dec)
+  Actor.sendTipmsg(sysarg, Lang.ScriptTips.c00043,ttDialog)
+end
+
+
+MiscsImplement.registerMsgHandler(22,MiscsImplement.ModifyCampDeclaration)

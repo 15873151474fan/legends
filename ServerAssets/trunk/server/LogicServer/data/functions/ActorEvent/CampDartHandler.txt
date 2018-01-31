@@ -1,0 +1,71 @@
+﻿--lua script
+--To do something about Login and Logout
+ --#include "data\functions\Tasks\CampTasks\CampDart\CampDartCommon.txt" once                                                                                  
+                            
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+--[[
+EventCallDispatcher.LoginCampDartTip = function(sysarg, arg)	
+	local CampDartCount = GetCampDartCount(sysarg)
+	if (CampDartCount < 0) then 		
+		return 
+	end
+	
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if (level >= LocalDT.CampDartDefine.minLevelLmt and CampDartCount < LocalDT.CampDartDefine.CampDartCntLmtEveryDay) then
+		-- 每天的第一次登录给出护镖提示
+		local lastLogouttime = Actor.getLastLogoutTime(sysarg)
+		if (lastLogouttime < System.getToday()) then
+			SendLoginCampDartTip(sysarg)	
+		end
+	end
+end
+]]
+
+--[[
+    函数名称：LogoutCampDartHandler
+    函数描述：阵营运镖 角色下线处理 
+    参数 sysarg 的描述：
+]]
+EventCallDispatcher.LogoutCampDartHandler = function(sysarg, arg)
+	--print("player logout:")	
+	
+	local sval = Actor.getDyanmicVar(sysarg)		
+	if (sval.CampDartMonster ~= nil) then
+	
+		--角色死亡下线，当镖车被劫
+		if Actor.getIntProperty(sysarg, PROP_CREATURE_HP) > 0 or LootCampDart(sysarg) ~= true then
+			--print(" guarg monster=" .. sval.CampDartMonster)
+			--调用运镖失败处理 删除怪物
+			OnCampDartFailed(sysarg, CampDartConst.DartSetup.CampDartFailActorLogout)
+		end
+	end
+end
+
+EventCallDispatcher.OnFollowedFailedHandler = function(sysarg, arg)	
+	local param_count = #arg
+	if (param_count > 0) then
+		--print(arg[1])
+	end
+	
+	if (arg[1] == nil) then 
+		--print("!!! get follower failed, param is nil")
+		return 
+	end
+	local svar = Actor.getDyanmicVar(sysarg)
+	if (svar.CampDartStatus ~= CampDartConst.DartSetup.CampDartStatusIdle) then
+		local followerHdl = Actor.getHandle(arg[1])
+		if (svar.CampDartMonster == followerHdl) then  -- 是跟随怪
+			Actor.sendTipmsg(sysarg, Lang.TaskTalk.t0071, ttScreenCenter)
+			--OnCampDartFailed(sysarg, CampDartConst.DartSetup.CampDartFailOverMaxDist)
+		end		
+	end
+end
+
+
+
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, EventCallDispatcher.LoginCampDartTip)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogout, EventCallDispatcher.LogoutCampDartHandler)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeOnFollowedFailed, EventCallDispatcher.OnFollowedFailedHandler)

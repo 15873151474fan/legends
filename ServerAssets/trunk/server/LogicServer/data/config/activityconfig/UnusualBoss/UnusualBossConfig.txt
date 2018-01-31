@@ -1,0 +1,12 @@
+--稀有boss配置
+UnusualBossConfig = 
+{
+	nSceenId = 8,			--刷怪的场景id
+	--刷怪
+	monsters =
+	{
+		{nMonsterID = 193, posX1 = 60, posX2 = 60,  posY = 150, nCount = 1, nLiveTime = 0,},
+	},
+
+	DropItemId = 667,		--掉落的物品id
+}

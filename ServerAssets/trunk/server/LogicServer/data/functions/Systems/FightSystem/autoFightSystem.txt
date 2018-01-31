@@ -1,0 +1,65 @@
+
+--读取玩家挂机数据 
+function loadActorFightData(sysarg,msgid)
+  local var = Actor.getStaticVar( sysarg )
+  local hook = var.hook
+  if hook == nil or hook == {} then
+	  --print("hook is nil !!")
+	  local npack = DataPack.allocPacket(sysarg,129,msgid)  --申请一个数据包
+	  if npack == nil then
+		print("npack:nil")
+		return
+	  end
+	  DataPack.writeInt(npack,0)
+	  DataPack.flush(npack)
+	  return
+  end
+  local npack = DataPack.allocPacket(sysarg,129,msgid)  --申请一个数据包
+  if npack == nil then
+	--print("npack:nil")
+	return
+  end
+  local ncount = hook[1]
+  --print("ncount:"..ncount)
+  DataPack.writeInt(npack,ncount)
+  for i = 1 ,ncount*2 do
+  
+  if hook[i+1] ~= nil then 
+  	DataPack.writeInt(npack,hook[i+1])
+  else
+  	DataPack.writeInt(npack,0)
+  end
+	
+	--print("hook[]:"..hook[i+1])
+  end
+  DataPack.flush(npack)
+end
+--保存挂机数据 
+function saveActorFightData(sysarg,msgid,pack)
+  --print("save actor fight data!!")
+  local var = Actor.getStaticVar( sysarg )
+  local hook =var.hook
+  if hook == nil then
+		var.hook = {}
+		hook = var.hook
+  end
+  if pack == nil then 
+  	print("pack is nil !!")
+  end
+  local nCount = DataPack.readInt(pack)
+  hook[1] = nCount
+  --print("Count:"..nCount)
+  for i = 1,nCount*2 do
+	  hook[i+1] = DataPack.readInt(pack)
+    --print("hook:"..hook[i])
+  end
+end
+
+function FightDataSystem(sysarg, systemid, msgid, packet)
+  if msgid == 1 then
+    loadActorFightData(sysarg,msgid)
+  elseif msgid == 2 then
+    saveActorFightData(sysarg,msgid,packet)
+  end
+end
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.autoFightSystem, FightDataSystem)

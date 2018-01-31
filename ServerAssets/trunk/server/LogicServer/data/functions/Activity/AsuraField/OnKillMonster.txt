@@ -1,0 +1,56 @@
+﻿
+--#include "Asura_common.txt" once
+--#include "data\config\activityconfig\AsuraField\AsuraFieldConfig.txt" once	--
+
+--击杀修罗门怪物
+function MonDieDispatcher.OnKillAsuraZone(pMonster, pKiller, monId)
+	OnKillZoneMonster(pKiller, monId, 3)
+end
+
+--击杀炼狱门怪物
+function MonDieDispatcher.OnKillPurgatoryZone(pMonster, pKiller, monId)
+	OnKillZoneMonster(pKiller, monId, 4)
+end
+
+--击杀万鬼门怪物
+function MonDieDispatcher.OnKillGhostZone(pMonster, pKiller, monId)
+	OnKillZoneMonster(pKiller, monId, 5)
+end
+
+--击杀普通区域怪物
+function MonDieDispatcher.OnKillCommonZone(pMonster, pKiller, monId)
+	OnKillCommonZoneMonster(pKiller, monId)
+end
+
+--注册修罗场怪物
+function RegisterAsuraMonsters()
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	for k, zoneRange in ipairs(config.zoneRange or {}) do
+		--注册修罗门怪物
+		if zoneRange.zoneId == 3 then
+			for j, monster in ipairs(zoneRange.monsters or {}) do
+				--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.OnKillAsuraZone)
+			end
+		--注册炼狱门怪物
+		elseif zoneRange.zoneId == 4 then
+			for j, monster in ipairs(zoneRange.monsters or {}) do
+				--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.OnKillPurgatoryZone)
+			end
+		--注册万鬼门怪物
+		elseif zoneRange.zoneId == 5 then
+			for j, monster in ipairs(zoneRange.monsters or {}) do
+				--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.OnKillGhostZone)
+			end
+		end
+	end
+
+	for k, monster in ipairs(config.monsters or {}) do
+		--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.OnKillCommonZone)
+	end
+end
+
+RegisterAsuraMonsters()

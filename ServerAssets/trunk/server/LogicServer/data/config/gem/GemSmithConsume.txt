@@ -1,0 +1,17 @@
+﻿--宝物开光消耗配置
+--#include "..\..\language\LangCode.txt"
+-- smithCount: 开光次数区间的最大值
+-- reqCount 开光需要消耗的物品数量
+-- moneyType 开光消耗的金钱类型
+-- moneyCount 开光消耗的金钱数量
+-- 例如下面的配置{ smithCount=100, moneyType=0, moneyCount=1000,}意义为：
+-- 开光次数小于100的，需要消耗1000绑定银两
+
+gemSmithConsume=
+{
+  reqItemId = 1921,
+  info = {
+
+		{ smithCount=1001,reqCount=1, moneyType=0, moneyCount=1000,},
+	},	
+},

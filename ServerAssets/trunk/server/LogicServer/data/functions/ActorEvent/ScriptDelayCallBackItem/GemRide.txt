@@ -1,0 +1,12 @@
+﻿--lua script
+
+--宝物骑乘
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+
+
+function RideGemCallback(sysarg,arg)
+	Actor.mount(sysarg, false)
+end
+
+
+table.insert(LocalDT.ScriptDelayConfig[10], RideGemCallback)

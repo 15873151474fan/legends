@@ -1,0 +1,259 @@
+﻿--宝石消除
+
+BejeweledDeluxeConfig =
+{
+	openCircle = 8,			--开放的转数
+	openLev = 50,			--开放的等级
+	gameTime = 180,			--游戏时间(秒)
+	gameInterval = 3780,		--游戏冷却时间(秒)
+	playTimes = 5,			--每天可玩游戏次数
+
+	buyBombNeedYb = 8,		--购买炸弹需要的元宝
+	buyNanitesNeedYb = 10,		--购买抹除剂需要的元宝
+
+	addBonusRate = 5000,		--报名增加奖金比率，1点表示万分之一
+	specialDiamondRate = 2000,	--特殊宝石产出概率，1点表示万分之一
+	addExpRate = 5000,		--结束发放经验比率，1点表示万分之一
+
+	--大奖初始最低奖金，奖金低于这两个值时取这两个值
+	initBonusCoin = 10000000,
+	initBonusBindGold = 100,
+
+	--大奖最低奖金，两者超过该值才可能中大奖
+	minBonusCoin = 20000000,
+	minBonusBindGold = 200,
+
+	--大奖最高累积奖金
+	maxBonusCoin = 1000000000,
+	maxBonusBindGold = 10000,
+
+	--消除分数
+	diamondScore =
+	{
+		1,	--消除一个宝石
+		3,	--消除三个宝石
+		8,	--消除四个宝石
+		15,	--消除五个宝石
+		30,	--消除六个宝石
+	},
+
+	--分数对应抽奖次数
+	bonusTimes =
+	{
+		{score = 0, bonus = 0,},
+		{score = 300, bonus = 1,},
+		{score = 600, bonus = 2,},
+		{score = 900, bonus = 4,},
+		{score = 1200, bonus = 6,},
+	},
+
+	--特殊道具，修改需程序支持
+	specialItems =
+	{
+		{type = 0, id = 2787,},	--炸弹
+		{type = 0, id = 2788,},	--抹除剂
+	},
+
+	--消除特殊宝石奖励
+	--isRarity = true 表示珍贵物品需要记录进全服史册, false表示不用
+	specialAward =
+	{
+		{
+		--1级原符石
+			rate = 5000,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2743, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+		--2级原符石
+			rate = 2500,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2744, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+		--3级原符石
+			rate = 500,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2745, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+		--神力结晶(小)
+			rate = 1000,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2602, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+		--焰光铁
+			rate = 9,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2603, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+		--天赋丹
+			rate = 500,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2558, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+		--强效英雄经验丹
+			rate = 30,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 1408, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+			},
+		},
+		{
+		--4级原符石
+			rate = 50,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2746, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+		--5级原符石
+			rate = 10,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2747, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+		--6级原符石
+			rate = 1,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2748, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},		
+		{
+			--炸弹
+			rate = 200,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2787, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+			},
+		},
+		{
+			--抹除剂
+			rate = 200,		--奖励概率
+			value =
+			{
+				{ type = 0, id = 2788, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = false},
+			},
+		},
+		totalRate = 10000,  --总概率数
+	},
+
+	--额定奖励，游戏结束就有这个奖励，经验之类的东西
+	ratedAward =
+	{
+		{ type = 20, id = 3, count = 5, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+	},
+	
+	--抽奖奖励
+	--isRarity = true 表示珍贵物品需要记录进全服史册, false表示不用
+	bonusAward =
+	{
+		{
+			--大奖，type=127, id=1，大奖位置不要移动，否则会出现问题
+			rate = 5,		--奖励概率
+			--isBonus = 0,		--是否大奖 0 不是 1 是
+			value =
+			{
+				--大奖，type=127, id=1, count为普通抽奖提取奖金比率，1点表示万分之一
+				{ type = 127, id = 1, count = 5000, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		{
+			--普通奖励，type=127, id=2
+			rate = 95,		--奖励概率
+			--isBonus = 0,		--是否大奖 0 不是 1 是
+			value =
+			{
+				--普通奖励，type=127, id=2, count为普通抽奖提取奖金比率，1点表示万分之一
+				{ type = 127, id = 2, count = 100, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				--{ type = 0, id = 1991, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+			},
+		},
+		{
+			--普通奖励，type=127, id=2
+			rate = 5500,		--奖励概率
+			--isBonus = 0,		--是否大奖 0 不是 1 是
+			value =
+			{
+				--普通奖励，type=127, id=2, count为普通抽奖提取奖金比率，1点表示万分之一
+				{ type = 0, id = 2745, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+				{ type = 127, id = 2, count = 100, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		{
+			--普通奖励，type=127, id=2
+			rate = 2400,		--奖励概率
+			--isBonus = 0,		--是否大奖 0 不是 1 是
+			value =
+			{
+				--普通奖励，type=127, id=2, count为普通抽奖提取奖金比率，1点表示万分之一
+				{ type = 0, id = 2746, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+				{ type = 127, id = 2, count = 100, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		{
+			--普通奖励，type=127, id=2
+			rate = 500,		--奖励概率
+			--isBonus = 0,		--是否大奖 0 不是 1 是
+			value =
+			{
+				--普通奖励，type=127, id=2, count为普通抽奖提取奖金比率，1点表示万分之一
+				{ type = 0, id = 2747, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+				{ type = 127, id = 2, count = 100, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		{
+			--普通奖励，type=127, id=2
+			rate = 100,		--奖励概率
+			--isBonus = 0,		--是否大奖 0 不是 1 是
+			value =
+			{
+				--普通奖励，type=127, id=2, count为普通抽奖提取奖金比率，1点表示万分之一
+				{ type = 0, id = 2748, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1, isRarity = true},
+				{ type = 127, id = 2, count = 100, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		{
+			--普通奖励，type=127, id=2
+			rate = 1000,		--奖励概率
+			--isBonus = 0,		--是否大奖 0 不是 1 是
+			value =
+			{
+				--普通奖励，type=127, id=2, count为普通抽奖提取奖金比率，1点表示万分之一
+				{ type = 0, id = 2276, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 127, id = 2, count = 100, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		{
+			--普通奖励，type=127, id=2
+			rate = 300,		--奖励概率
+			--isBonus = 0,		--是否大奖 0 不是 1 是
+			value =
+			{
+				--普通奖励，type=127, id=2, count为普通抽奖提取奖金比率，1点表示万分之一
+				{ type = 0, id = 2819, count = 3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 127, id = 2, count = 100, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		totalRate = 10000,  --总概率数
+	},
+}

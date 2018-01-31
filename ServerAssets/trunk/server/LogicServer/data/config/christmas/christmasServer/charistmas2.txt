@@ -1,0 +1,152 @@
+--活动二、圣诞老人的礼物
+
+CharistmasMan = 
+{
+	timeRang = {2013, 12, 20, 0, 0, 0,  2014, 1, 10, 23, 59, 59},	--活动时间范围
+	awardTime = {2013, 12, 20, 0, 0, 0,  2014, 1, 11, 23, 59, 59},	--可领取奖励时间
+
+	rankName = "Charistmas2.txt",		--存文件的名字
+	rankLast = "CharistmasLast.txt",		--昨天的排行
+	
+	--免费领取礼包的最低等级
+	minLev = 50,
+	GetAward = 
+	{
+		{type = 0, id = 2777, count = 1, strong = 0, quality = 0, bind = 1},	
+	},
+
+	--小偷首领
+	BossMonster = 
+	{
+		{nMonsterID = 1254, nSceneId = 8, posX = 182,  posY = 206, nCount = 1, nLiveTime = 3600,},
+	},
+
+	nScore = 1000,					--每到1000分刷出小偷首领
+	
+	--提交获得的奖励
+	AllAwards = 
+	{
+		--提交 圣诞帽子
+		{
+			nItemId = 2770,			--圣诞帽子 的物品id
+			awardScore = 10,		--增加礼物积分
+			awards = 
+			{
+				--经验
+				{type = 20, id = 3, count = 50, strong = 0, quality = 0, bind = 0},	
+				--转生灵魄
+				{type = 22, id = 0, count = 50, strong = 0, quality = 0, bind = 0},
+				 
+			},
+		},
+
+				--提交 圣诞袜子
+		{
+			nItemId = 2771,
+			awardScore = 3,		--增加礼物积分
+			awards = 
+			{
+				--经验
+				{type = 20, id = 3, count = 25, strong = 0, quality = 0, bind = 0},		
+				--荣誉
+				{ type = 21, id = 0, count = 1000, strong = 0, quality = 0, bind = 1 },	 
+			},
+		},
+
+		--提交 圣诞星星
+		{
+			nItemId = 2772,
+			awardScore = 30,		--增加礼物积分
+			awards = 
+			{
+				--经验
+				{type = 20, id = 3, count = 100, strong = 0, quality = 0, bind = 0},	
+				--礼券
+				{ type = 7, id = 0, count = 10, strong = 0, quality = 0, bind = 1 },	 
+			},
+		},
+
+		--提交 糖果棒
+		{
+			nItemId = 2773,
+			awardScore = 1,		--增加礼物积分
+			awards = 
+			{
+				--经验
+				{type = 20, id = 3, count = 10, strong = 0, quality = 0, bind = 0},		
+				--荣誉
+				{ type = 21, id = 0, count = 500, strong = 0, quality = 0, bind = 1 },	 	 
+			},
+		},
+
+	},
+	
+	--前30名的积分排名奖励
+	rankAward = 
+	{
+		{
+			rank = {1,1},		--1名的奖励
+			awards = 
+			{
+				{ type = 0, id = 2628, count = 1, strong = 0, quality = 0, bind = 1 },	
+				{ type = 0, id = 2774, count = 3, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1083, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1402, count = 5, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2136, count = 2, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1986, count = 3, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2603, count = 5, strong = 0, quality = 0, bind = 1 },
+			},
+		},
+
+		{
+			rank = {2,2},		--2名的奖励
+			awards = 
+			{
+					
+				{ type = 0, id = 2774, count = 2, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2276, count = 5, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1402, count = 3, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1986, count = 2, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2603, count = 3, strong = 0, quality = 0, bind = 1 }, 
+			},
+		},
+
+		{
+			rank = {3,3},		--3名的奖励
+			awards = 
+			{
+				{ type = 0, id = 2774, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2276, count = 3, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1986, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1987, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2603, count = 1, strong = 0, quality = 0, bind = 1 }, 	 
+			},
+		},
+
+		{
+			rank = {4,10},
+			awards = 
+			{
+				{ type = 0, id = 1371, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2627, count = 2, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1757, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2291, count = 6, strong = 0, quality = 0, bind = 1 },
+					 
+			},
+		},
+
+		{
+			rank = {11,30},
+			awards = 
+			{
+				{ type = 0, id = 1371, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 1757, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2558, count = 1, strong = 0, quality = 0, bind = 1 },
+				{ type = 0, id = 2291, count = 3, strong = 0, quality = 0, bind = 1 },
+					 
+			},
+		},
+	},
+}
+

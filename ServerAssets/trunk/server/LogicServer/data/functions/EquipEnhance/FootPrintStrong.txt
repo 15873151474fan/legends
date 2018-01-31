@@ -1,0 +1,184 @@
+﻿
+--足迹强化
+function FootPrintStrong( sysarg, args)
+	local itemPtr = args[2]
+	local needGold = args[5]
+	
+	local opType = itFootPrintStrong
+	if not itemPtr then return end 
+	
+	local itemType = Item.getItemProperty(sysarg, itemPtr, Item.ipItemType, 0) 
+	if itemType ~= Item.itFootPrint then return end 
+
+	local optResult = 2
+	local itemGuid = Item.getItemGuid(itemPtr)
+
+	local grade = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	local strongCfg = GetFootPritStrongConfig(grade)
+	if not strongCfg then
+		SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu009, ttFlyTip)
+		return
+	end
+
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	local strongRate = GetFootPrintStrongUpRate(sysarg, strongCfg, itemPtr)	
+	for idx, tab in ipairs(strongCfg.strong) do
+		if tab.usetype == Any_Stuff  and tab.id > 0 then
+			local itemCount = Actor.getItemCount(sysarg, tab.id, -1, -1)
+			if itemCount < tab.count then
+				if needGold <= 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu010, ttFlyTip) --不能强化,强化材料不够
+					SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+					return
+				end
+				if not tab.yb or tab.yb == 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu011, ttFlyTip) --不能强化,强化材料不够且不能用元宝代替
+					SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - itemCount)
+				if myGold < needGoldCount then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu012, ttFlyTip) -- 不能强化,代替强化材料的元宝不够
+					SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+					return
+				end
+			end
+		elseif tab.usetype == Any_Silver then
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_COIN )
+			if myCoin < tab.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fpu013, tab.count), ttFlyTip) -- 提示金币不够 
+				SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+				return
+			end
+		end
+	end
+	--扣费
+	for idx, tab in ipairs(strongCfg.strong) do
+		if tab.usetype == Any_Silver then
+			if not Actor.changeMoney(sysarg, mtCoin, -tab.count, 872, Lang.LogTips.l00221) then
+				SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+				return
+			end
+		elseif tab.usetype == Any_Stuff then
+			local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1,Lang.LogTips.l00221,872)
+			if remCount < tab.count then
+				if needGold <= 0 then
+					SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - remCount)
+				Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 872, Lang.LogTips.l00221)
+			end
+		end
+	end
+	
+	local optResult = 1 --默认失败
+	local nCurSharp = Item.getItemProperty( sysarg, itemPtr, Item.ipItemHole3Item, 0) -- 获取第三个槽的值 足迹强化值
+	local nCurStrongVal = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0) -- 获取足迹强化等级值
+	local nSetSharpVal = 0
+	local nSetStrongVal = nCurStrongVal
+	if math.random(RandomBase) <= strongRate then
+		nSetStrongVal = nSetStrongVal + 1
+		optResult = 0
+	else
+		if strongCfg.RandSharp and table.getn(strongCfg.RandSharp) > 0 then
+			local RandRate = math.random(10000)
+			local rate, RandSharp = 0
+			for k, v in ipairs(strongCfg.RandSharp) do
+				rate = rate + v.rate
+				if rate >= RandRate then
+					RandSharp = v.sharp
+					break
+				end
+			end
+			nSetSharpVal = nCurSharp + RandSharp
+
+			local nMaxSharpVal = strongCfg.maxSharp or 65000		--这里写一个很大的值，防配置有错会刷
+			if nSetSharpVal >= nMaxSharpVal then
+				nSetStrongVal = nCurStrongVal + 1
+				optResult = 0
+				nSetSharpVal = 0
+			end
+		end
+	end
+
+	if nCurSharp > 0 or nSetSharpVal > 0 then
+		Item.setItemProperty( sysarg, itemPtr, Item.ipItemHole3Item, nSetSharpVal)
+	end	
+	if nSetStrongVal > nCurStrongVal then
+		Item.setItemProperty( sysarg, itemPtr, Item.ipItemStrong, nSetStrongVal) --保存等级
+		local strongCfg = GetFootPritStrongConfig(nSetStrongVal)
+		if not strongCfg then
+			SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+			return
+		end		
+		local netPack = DataPack.allocPacket(sysarg, 8, 15) --通知前端升级了
+		DataPack.writeByte(netPack, opType)
+		DataPack.writeByte(netPack, #strongCfg.strong)
+		for k, curTab in ipairs(strongCfg.strong) do
+			DataPack.writeByte(netPack,curTab.type)
+			DataPack.writeInt(netPack,curTab.id or 0)
+			DataPack.writeInt(netPack,curTab.count)
+			DataPack.writeByte(netPack, curTab.usetype)
+		end
+		DataPack.writeInt(netPack, 0)
+		DataPack.writeWord(netPack, 0)
+		DataPack.writeWord(netPack, strongCfg.maxSharp)
+		DataPack.flush(netPack)
+	end
+	SendEquipOptResult(sysarg, itemGuid, opType, optResult )
+	return true
+end
+
+
+--读取强化数据 --获取强化一件装备需要的消耗
+function FootPrintStrongConsume( sysarg, args )
+	local ptrCount = args[1]
+	local itemPtr = args[2]
+	if not itemPtr then
+		return
+	end
+	local opType = args[ptrCount+2]		--操作类型
+	local grade = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	local strongCfg = GetFootPritStrongConfig(grade)
+	if not strongCfg then
+		return
+	end
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, #strongCfg.strong)
+	for k, curTab in ipairs(strongCfg.strong) do
+		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack,curTab.id or 0)
+		DataPack.writeInt(netPack,curTab.count)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	DataPack.writeInt(netPack, 0)
+	DataPack.writeWord(netPack, 0)
+	DataPack.writeWord(netPack, strongCfg.maxSharp)	--maxSharp
+	DataPack.flush(netPack)
+end
+
+
+-- 通过等级来查找对应的表
+function GetFootPritStrongConfig(grade)
+	local config = FootPrintStrongConfig
+	if config[grade+1] ~= nil then
+		return config[grade+1]
+	end
+	return nil
+end
+
+-- 获取每次强化随机升1级概率
+function GetFootPrintStrongUpRate(sysarg, strongCfg, itemPtr)
+	if not sysarg or not itemPtr then return 0 end
+	local nCurSharp = Item.getItemProperty( sysarg, itemPtr, Item.ipItemHole3Item, 0)
+	for k, v in ipairs(strongCfg.upRate) do
+		if nCurSharp >= v.sharpRange[1] and nCurSharp <= v.sharpRange[2] then
+			return v.rate
+		end
+	end
+	
+	return 0
+end

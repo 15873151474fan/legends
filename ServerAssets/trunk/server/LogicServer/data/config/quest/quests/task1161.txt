@@ -1,0 +1,71 @@
+﻿{
+	id = 1161,
+	name = Lang.Quest.q02322,
+	parentid = 0,
+	type = 1,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q02323,
+
+	prom =
+  {
+    type = 0,
+	scene = Lang.SceneName.s00049,
+	npc = Lang.EntityName.n00367,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00049,
+	npc = Lang.EntityName.n00367,
+  },
+
+  target =
+  {
+     { 
+       type = 0, id = 308,count = 1 ,
+       location = 
+       {
+         sceneid=136,entityName=Lang.EntityName.m00308,
+         pass = 
+         {
+           {sceneid=49,entityName=Lang.EntityName.n00367,actionDesc =Lang.Talk.t10064},
+         },
+        hideFastTransfer = true, 
+       },
+    },
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 25503,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 327,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 12, id = 0,count = 15 }, 
+},
+  --任务条件表
+  conds =
+  {
+
+    { type = 0, id = 0,count = 200 },  --1级可接
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t03483,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t03484,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t03485,
+  }, 
+
+	PromCallBack = "OnPromEnterFuben",
+	PromCallBackArg = {18}, 
+},

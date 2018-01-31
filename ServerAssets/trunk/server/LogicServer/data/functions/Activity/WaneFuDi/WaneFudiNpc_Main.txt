@@ -1,0 +1,53 @@
+﻿--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\WaneFudi\WaneFudiConfig.txt" once --万恶府邸副本配置
+
+--[[
+    函数名称：恶灵府邸 
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function EnterWaneFuDi_Main(sysarg)
+  local Str = ""
+  Str = Str.."\\<#BL".."魂珠兑换".."/@DuiHuanHunZhu>"  --<魂珠兑换>
+  return Str
+end
+     
+function DuiHuanHunZhu(sysarg)
+  local HunValue = Actor.getIntProperty( sysarg, PROP_ACTOR_HUN_VALUE)
+  local Power = WaneFudiConfig.Power
+  local str1 = string.format(Lang.Activity.w00171, HunValue, WaneFudiConfig.PlayerMaxHunValue)  
+  local str2 = string.format(Lang.Activity.w00172, WaneFudiConfig.Items.HunValue)
+  local str3 = string.format(Lang.Activity.w00173, Power, WaneFudiConfig.Items.HunValue*Power)
+  local Str = ""
+  Str = Str.. str1
+  Str = Str.."\\<#BL"..str2.."/@DuiHuanHunZhuFunc,1>"  --<单倍兑换>
+  Str = Str.."\\<#BL"..str3.."/@DuiHuanHunZhuFunc,"..Power..">"  --<多倍兑换>
+  Str = Str..Lang.Activity.w00110
+  return Str
+end
+
+--兑换魂珠函数实现
+function DuiHuanHunZhuFunc(sysarg, Power)
+  local Power = tonumber(Power)
+  local HunValue = Actor.getIntProperty( sysarg, PROP_ACTOR_HUN_VALUE)
+  local Tb = WaneFudiConfig.Items
+  if HunValue < Tb.HunValue*Power then
+     Actor.sendTipmsg(sysarg, string.format(Lang.Activity.w00174, Tb.HunValue*Power), ttFlyTip)
+     return
+  end 
+  local totalGrid = 0
+  if Tb.type == 0 then
+     totalGrid =  Item.getAddItemNeedGridCount(sysarg, Tb.id, Tb.count*Power, Tb.quality, Tb.strong, Tb.bind)
+  end
+  --print("DuiHuanHunZhuFunc:"..totalGrid)
+  --判断能否获取物品，因为有背包满的情况
+  if Item.getBagEmptyGridCount(sysarg) < totalGrid then
+     Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.f00059, (totalGrid-Item.getBagEmptyGridCount(sysarg))) ,ttDialog)
+     return
+  end
+  Actor.setUIntProperty(sysarg, PROP_ACTOR_HUN_VALUE, HunValue - Tb.HunValue*Power) 
+  Actor.giveAward(sysarg, Tb.type, Tb.id, Tb.count*Power, Tb.quality, Tb.strong, Tb.bind, 0, 999, Lang.Activity.w00175)
+  return DuiHuanHunZhu(sysarg)
+end
+ 
+table.insert(MainFnTable, EnterWaneFuDi_Main)

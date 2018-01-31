@@ -1,0 +1,92 @@
+
+--lua script 
+--#include "data\config\activityconfig\NewYearSheep\NewYearSheepAct.txt" once
+--#include "data\functions\Activity\MidAutumn\MidAutumnLogin.txt" once
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once
+--#include "data\functions\Activity\NewYearSheep\NewClothes.txt" once --新装过节活动
+--#include "data\functions\Activity\NewYearSheep\NewYearBoss.txt" once --元旦boss活动
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseLuckDraw.txt" once --财神晃树,折扣许愿
+
+--登陆处理
+function NewYearSheepLoginHandle(sysarg)
+	local activityTime = {}
+	for k, v in ipairs(NewYearSheepActConfig.actTime) do 
+		table.insert(activityTime, v)
+	end
+
+	if System.isInDateRange(unpack(activityTime)) == true then
+		SendNewYearSheepOpenFlag(sysarg, 1)
+	else
+		SendNewYearSheepOpenFlag(sysarg, 0)
+	end
+end
+
+--新的一天处理
+function NewYearSheepNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(NewYearSheepActConfig.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(NewYearSheepActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendNewYearSheepOpenFlag(sysarg, 1)
+		end		
+	else
+		local activityTime = {}
+		for k, v in ipairs(NewYearSheepActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[1] = activityTime[7]
+		activityTime[2] = activityTime[8]
+		activityTime[3] = activityTime[9] + 1
+		activityTime[9] = activityTime[9] + 1
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendNewYearSheepOpenFlag(sysarg, 0)
+		end
+	end
+
+end
+
+function SendNewYearSheepOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 113)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end
+
+
+--羊年元旦活动0点重置
+function ResetNewYearSheep()
+	ResetMidAutumnLoginAward()
+	ResetLuckDrawData(3) --重置折扣许愿免费次数
+end
+
+--羊年元旦活动结束清除数据
+function OnClearNewYearSheep()
+	OnGiveAwardNewYearSheep()
+
+	--充值排行
+	ClearRechargeCommonActivityRank(15)
+	
+	--登录奖励
+	OnClearMidAutumnLogin()
+
+	ClearNewClothesActEnd() --新装过节活动
+	ClearNewYearBossDada() --元旦boss活动
+	
+	ClearLuckDrawData(2) --清除财神晃树
+	ClearLuckDrawData(3) --清除折扣许愿
+end
+
+--羊年元旦活动发放奖励
+function OnGiveAwardNewYearSheep()
+	--充值排行
+	CloseRechargeCommon(15)
+end

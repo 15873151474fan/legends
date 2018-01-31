@@ -1,0 +1,1536 @@
+﻿--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\Cards\CardsProperty.txt" once
+--#include "data\config\Cards\CardsWarConfig.txt" once
+--#include "RankPointer.txt" once
+--#include "CardsWarEventId.txt" once
+
+shieldCardsWar = false	--屏蔽卡牌对战
+
+--加载卡牌对战数据
+function LoadCardsWar(sysarg)
+	local name = ""
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	if (not CardsWarRankPt) then
+		return name, tmpTable
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(CardsWarRankPt.CardsWarFile)
+	if not ranking then
+		ranking = Ranking.add(CardsWarRankPt.CardsWarFile, 1000, 1, 10)
+		if not ranking then
+			return name, tmpTable
+		end
+
+		if not Ranking.load(ranking, CardsWarRankPt.CardsWarFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, CardsWarRankPt.RankColumn[i+1])
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if pItem then
+		--[[
+		local tmpVal = 0
+		tmpVal = Ranking.getPoint(pItem)
+		tmpTable[1] = tmpVal
+		]]
+		tmpTable[1] = (Ranking.getIndexFromPtr(pItem) or 0) + 1
+		name = Ranking.getSub(pItem,0)
+		for i=1,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return name, tmpTable
+end
+
+--保存卡牌对战数据
+function SaveCardsWar(sysarg, tmpTable)
+	if not CardsWarRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(CardsWarRankPt.CardsWarFile)
+	if not ranking then
+		ranking = Ranking.add(CardsWarRankPt.CardsWarFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, CardsWarRankPt.CardsWarFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, CardsWarRankPt.RankColumn[i+1])
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		local nRankCount = Ranking.getRankItemCount(ranking)
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		--pItem = Ranking.addItem(ranking,nActorId,nRankCount+1)
+		--tmpTable[1] = nRankCount + 1
+		--tmpTable[5] = nRankCount + 1
+		tmpTable[5] = nRankCount + 1
+
+	end
+
+	local headId = Actor.getIntProperty(sysarg,PROP_ENTITY_ICON)
+	local sexId = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	tmpTable[8] = System.setIntWord(tmpTable[8], headId, 1)
+	tmpTable[8] = System.setIntWord(tmpTable[8], sexId, 0)
+
+	if pItem then
+		--[[
+		local myPoint = Ranking.getPoint(pItem)
+		if myPoint ~= tmpTable[1] then
+			Ranking.setItem(ranking, nActorId, tmpTable[1])
+		end
+		]]
+		Ranking.setSub(pItem,0,Actor.getName(sysarg))
+		for i=1,table.getn(tmpTable or {}) do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--根据排名加载卡牌对战数据
+function LoadCardsWarByPoint(nPos)
+	local name = ""
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+	local nRankCount = 0
+	local nId = 0
+
+	if (not CardsWarRankPt) then
+		return name, tmpTable, nRankCount, nId
+	end
+
+	local ranking = Ranking.getRanking(CardsWarRankPt.CardsWarFile)
+	if not ranking then
+		ranking = Ranking.add(CardsWarRankPt.CardsWarFile, 1000, 1, 10)
+		if not ranking then
+			return name, tmpTable, nRankCount, nId
+		end
+
+		if not Ranking.load(ranking, CardsWarRankPt.CardsWarFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, CardsWarRankPt.RankColumn[i+1])
+			end
+		end
+	end
+	nRankCount = Ranking.getRankItemCount(ranking)
+	--if nRankCount < nPos then
+	if (nPos <= 0) or (nRankCount < nPos) then
+		return name, tmpTable, nRankCount, nId
+	end
+	--local pItem = Ranking.getItemPtrByIndex(ranking, nRankCount-nPos)
+	local pItem = Ranking.getItemPtrByIndex(ranking, nPos-1)
+
+	--玩家加入排行榜
+	if pItem then
+		--[[
+		local tmpVal = 0
+		tmpVal = Ranking.getPoint(pItem)
+		tmpTable[1] = tmpVal
+		]]
+		tmpTable[1] = nPos
+		name = Ranking.getSub(pItem,0)
+		for i=1,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+
+		nId = Ranking.getId(pItem)
+
+		local myPoint = Ranking.getPoint(pItem)
+		if myPoint ~= 0 then
+			Ranking.setItem(ranking, nId, 0)
+		end
+	end
+
+	return name, tmpTable, nRankCount, nId
+end
+
+--根据排名保存卡牌对战数据
+function SaveCardsWarByPoint(nPos, tmpTable)
+	if not CardsWarRankPt then return end
+
+	local ranking = Ranking.getRanking(CardsWarRankPt.CardsWarFile)
+	if not ranking then
+		ranking = Ranking.add(CardsWarRankPt.CardsWarFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, CardsWarRankPt.CardsWarFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, CardsWarRankPt.RankColumn[i+1])
+			end
+		end
+	end
+	local nRankCount = Ranking.getRankItemCount(ranking)
+	--if nRankCount < nPos then
+	if (nPos <= 0) or (nRankCount < nPos) then
+		return
+	end
+	--local pItem = Ranking.getItemPtrByIndex(ranking, nRankCount-nPos)
+	local pItem = Ranking.getItemPtrByIndex(ranking, nPos-1)
+
+	if pItem then
+		--[[
+		local myPoint = Ranking.getPoint(pItem)
+		if myPoint ~= tmpTable[1] then
+			Ranking.setItem(ranking, nActorId, tmpTable[1])
+		end
+		Ranking.setSub(pItem,0,Actor.getName(sysarg))
+		]]
+		for i=1,table.getn(tmpTable or {}) do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--交换两个玩家的排名位置
+function ExchangeCardsWarPos(nPosSrc, nPosDes)
+	if not CardsWarRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(CardsWarRankPt.CardsWarFile)
+	if not ranking then
+		ranking = Ranking.add(CardsWarRankPt.CardsWarFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, CardsWarRankPt.CardsWarFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, CardsWarRankPt.RankColumn[i+1])
+			end
+		end
+	end
+	local nRankCount = Ranking.getRankItemCount(ranking)
+	if (nRankCount < nPosSrc) or (nRankCount < nPosDes) then
+		return
+	end
+
+	Ranking.swapItem(ranking, nPosSrc-1, nPosDes-1)
+	--[[
+	local pSrcItem = Ranking.getItemPtrByIndex(ranking, nRankCount-nPosSrc)
+	local pDesItem = Ranking.getItemPtrByIndex(ranking, nRankCount-nPosDes)
+
+	if (not pSrcItem) or (not pDesItem) then
+		return
+	end
+
+	local srcId = Ranking.getId(pSrcItem)
+	local desId = Ranking.getId(pDesItem)
+
+	Ranking.setItem(ranking, desId, nPosSrc)
+	Ranking.setItem(ranking, srcId, nPosDes)
+	]]
+end
+
+--请求对战卡牌
+function OnGetCardsFormationOp(sysarg, args)
+	local nFormation = args[2]
+
+	if shieldCardsWar then
+		return
+	end
+
+	local name, tmpTable = LoadCardsWar(sysarg)
+
+	if (nFormation == 0) or (nFormation == 1) then
+		SendCardsFormationInfo(sysarg, nFormation, tmpTable)
+	end
+end
+
+--下发对战卡牌阵型
+function SendCardsFormationInfo(sysarg, nFormation, tmpTable)
+	local config = CardsWarConfig
+	if not config then return end
+
+	local nCardCount = 0
+	for i = 1, config.maxCardWarCount do
+		local tmpCards, tmpIndex = GetCardsInfo(nFormation, tmpTable, i)
+		if (tmpCards == 0) or (tmpIndex == 0) then
+			break
+		end
+		nCardCount = nCardCount + 1
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 56, 10)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nFormation)
+		DataPack.writeChar(pack, nCardCount)
+
+		for i = 1, nCardCount do
+			local tmpCards, tmpIndex = GetCardsInfo(nFormation, tmpTable, i)
+
+			DataPack.writeChar(pack, tmpCards)
+			DataPack.writeChar(pack, tmpIndex)
+		end
+
+		DataPack.flush(pack)
+	end
+	
+	local awardFlag = tmpTable[2]		--领奖标记 0:不可领 1:可领取 2:已领取
+	local awardRank = tmpTable[4]		--领奖名次
+
+	SendGetCardsWarHourAwards(sysarg, awardRank, awardFlag)
+end
+
+--获取卡牌信息
+function GetCardsInfo(nFormation, tmpTable, nPos)
+	local nCards = 0
+	local nIndex = 0
+	local nLevel = 0
+
+	if (nFormation ~= 0) and (nFormation ~= 1) then
+		return nCards, nIndex, nLevel
+	end
+
+	local tmpPos = math.floor((nPos-1) / 4)
+	local tmpValPos = math.floor((nPos-1) % 4)
+
+	for i = 3, 0, -1 do
+		nIndex = nIndex * 2
+		local bitVal = System.getIntBit(tmpTable[9+nFormation*2+tmpPos], tmpValPos*8+i)
+		nIndex = nIndex + bitVal
+
+		nCards = nCards * 2
+		bitVal = System.getIntBit(tmpTable[9+nFormation*2+tmpPos], tmpValPos*8+4+i)
+		nCards = nCards + bitVal
+	end
+
+	nLevel = GetCardslevel(nFormation, tmpTable, nPos)
+
+	return nCards, nIndex, nLevel
+end
+
+--设置卡牌信息
+function SetCardsInfo(nFormation, tmpTable, nPos, nCards, nIndex, nLevel)
+	if (nFormation ~= 0) and (nFormation ~= 1) then
+		return tmpTable
+	end
+
+	local tmpPos = math.floor((nPos-1) / 4)
+	local tmpValPos = math.floor((nPos-1) % 4)
+
+	local tmpVal = tmpTable[9+nFormation*2+tmpPos]
+	for i = 0, 3 do
+		local bBit = (math.floor(nIndex % 2) ~= 0) or false
+		tmpVal = System.setIntBit(tmpVal, tmpValPos*8+i, bBit)
+		nIndex = math.floor(nIndex / 2)
+
+		bBit = (math.floor(nCards % 2) ~= 0) or false
+		tmpVal = System.setIntBit(tmpVal, tmpValPos*8+4+i, bBit)
+		nCards = math.floor(nCards / 2)
+	end
+
+	tmpTable[9+nFormation*2+tmpPos] = tmpVal
+	tmpTable = SetCardsLevel(nFormation, tmpTable, nPos, nLevel)
+
+	return tmpTable
+end
+
+--操作对战卡牌
+function OnOpeCardsFormationOp(sysarg, args)
+	local nOpeType = args[2]
+	local nFormation = args[3]
+	local nCards = args[4]
+	local nIndex = args[5]
+
+	if shieldCardsWar then
+		return
+	end
+
+	local config = CardsWarConfig
+	if not config then return end
+
+	if (nFormation ~= 0) and (nFormation ~= 1) then
+		return
+	end
+
+	local name, tmpTable = LoadCardsWar(sysarg)
+	
+	local nCardCount = 0
+	for i = 1, config.maxCardWarCount do
+		local tmpCards, tmpIndex = GetCardsInfo(nFormation, tmpTable, i)
+		if (tmpCards == 0) or (tmpIndex == 0) then
+			break
+		end
+		nCardCount = nCardCount + 1
+	end
+
+	if nOpeType == 0 then	--重整阵型
+		if nCardCount <= 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0051, ttFlyTip)
+			return
+		end
+		local pack = DataPack.allocPacket(sysarg, 56, 11)
+		if (pack ~= nil) then
+			DataPack.writeChar(pack, nOpeType)
+			DataPack.writeChar(pack, nFormation)
+			DataPack.writeChar(pack, nCardCount)
+
+			for i = 1, nCardCount do
+				local tmpCards, tmpIndex = GetCardsInfo(nFormation, tmpTable, i)
+
+				DataPack.writeChar(pack, tmpCards)
+				DataPack.writeChar(pack, tmpIndex)
+			end
+
+			DataPack.flush(pack)
+		end
+
+		for i = 1, nCardCount do
+			tmpTable = SetCardsInfo(nFormation, tmpTable, i, 0, 0, 0)
+		end
+
+		SaveCardsWar(sysarg, tmpTable)
+	elseif nOpeType == 1 then	--放置卡牌
+		if nCardCount >= config.maxCardWarCount then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0032, ttFlyTip)
+			return
+		end
+
+		if Actor.getCardStar(sysarg, nCards, nIndex) == 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0041, ttFlyTip)
+			return
+		end
+
+		for j = 0, 1 do
+			for i = 1, config.maxCardWarCount do
+				local tmpCards, tmpIndex = GetCardsInfo(j, tmpTable, i)
+				if (tmpCards == 0) or (tmpIndex == 0) then
+					break
+				end
+
+				if (tmpCards == nCards) and (tmpIndex == nIndex) then
+					Actor.sendTipmsg(sysarg, Lang.Activity.kp0042, ttFlyTip)
+					return
+				end
+			end
+		end
+
+		local nLevel = Actor.getCardLevel(sysarg, nCards, nIndex)
+		tmpTable = SetCardsInfo(nFormation, tmpTable, nCardCount+1, nCards, nIndex, nLevel)
+
+		local pack = DataPack.allocPacket(sysarg, 56, 11)
+		if (pack ~= nil) then
+			DataPack.writeChar(pack, nOpeType)
+			DataPack.writeChar(pack, nFormation)
+			DataPack.writeChar(pack, 1)
+			DataPack.writeChar(pack, nCards)
+			DataPack.writeChar(pack, nIndex)
+
+			DataPack.flush(pack)
+		end
+
+		SaveCardsWar(sysarg, tmpTable)
+	elseif nOpeType == 2 then	--取回卡牌
+		if nCardCount <= 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0052, ttFlyTip)
+			return
+		end
+
+		local bFind = 0
+		for i = 1, config.maxCardWarCount do
+			local tmpCards, tmpIndex = GetCardsInfo(nFormation, tmpTable, i)
+			if (tmpCards == 0) or (tmpIndex == 0) then
+				break
+			end
+
+			if (tmpCards == nCards) and (tmpIndex == nIndex) then
+				bFind = 1
+				for j = i + 1, config.maxCardWarCount do
+					local tmpNextCards, tmpNextIndex, nNextLevel = GetCardsInfo(nFormation, tmpTable, j)
+					tmpTable = SetCardsInfo(nFormation, tmpTable, j-1, tmpNextCards, tmpNextIndex, nNextLevel)
+				end
+				tmpTable = SetCardsInfo(nFormation, tmpTable, config.maxCardWarCount, 0, 0, 0)
+				
+				SaveCardsWar(sysarg, tmpTable)
+				break
+			end
+		end
+		
+		if bFind == 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0053, ttFlyTip)
+			return
+		else
+			local pack = DataPack.allocPacket(sysarg, 56, 11)
+			if (pack ~= nil) then
+				DataPack.writeChar(pack, nOpeType)
+				DataPack.writeChar(pack, nFormation)
+				DataPack.writeChar(pack, 1)
+				DataPack.writeChar(pack, nCards)
+				DataPack.writeChar(pack, nIndex)
+
+				DataPack.flush(pack)
+			end
+		end
+	end
+end
+
+--请求卡牌对战信息
+function OnGetCardsWarInfoOp(sysarg, args)
+	local config = CardsWarConfig
+	if not config then return end
+
+	local propConfig = CardPropertyConfig
+	if not propConfig then return end
+
+	if shieldCardsWar then
+		return
+	end
+
+	local nFormation = 0
+
+	local name, tmpTable = LoadCardsWar(sysarg)
+
+	local nPoint = tmpTable[1]
+	--local nWinCount = tmpTable[3]
+	local awardFlag = tmpTable[2]		--领奖标记 0:不可领 1:可领取 2:已领取
+	local awardRank = tmpTable[4]		--领奖名次
+	local nUseTimes = math.floor(tmpTable[6] / 65536)
+	local nAddTimes = math.floor(tmpTable[6] % 65536)
+	local nNextTime = tmpTable[7]
+
+	local name, nWinCount, nBattle, nCardCount = GetCardsWarBaseInfo(nPoint, nFormation)
+
+	local nLastTimes = nAddTimes + config.freeTimes - nUseTimes
+	if nLastTimes < 0 then
+		nLastTimes = 0
+	end
+
+	local nCanBuyTimes = config.addTimes - nAddTimes
+	if nCanBuyTimes < 0 then
+		nCanBuyTimes = 0
+	end
+
+	local nCurrTime = System.getCurrMiniTime()
+	local nLastPlayTime = 0
+	if nNextTime > nCurrTime then
+		nLastPlayTime = nNextTime - nCurrTime
+	end
+	local nOnRankCount = table.getn(config.hourRankAwards or {})
+	local challengePlayerCount = config.challengePlayerCount
+	local nameOne, tmpTableOne, nRankCount = LoadCardsWarByPoint(1)
+
+	if nOnRankCount > nRankCount then
+		nOnRankCount = nRankCount
+	end
+	local nChallengeCount = config.challengePlayerCount
+	if ((nRankCount-1) < nChallengeCount) then
+		nChallengeCount = nRankCount - 1
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 56, 12)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nPoint)
+		DataPack.writeInt(pack, nWinCount)
+		DataPack.writeInt(pack, nBattle)
+		DataPack.writeInt(pack, nLastTimes)
+		DataPack.writeInt(pack, nCanBuyTimes)
+		DataPack.writeInt(pack, nLastPlayTime)
+		DataPack.writeChar(pack, nOnRankCount)
+
+		for i = 1, nOnRankCount do
+			local otherName, nOtherWinCount, nOtherBattle = GetCardsWarBaseInfo(i, 1)
+			local nameOther, tmpTableOther = LoadCardsWarByPoint(i)
+			local otherHead = tmpTableOther[8]
+
+			DataPack.writeString(pack, otherName)
+			DataPack.writeInt(pack, i)
+			DataPack.writeInt(pack, nOtherWinCount)
+			DataPack.writeInt(pack, nOtherBattle)
+			DataPack.writeChar(pack, System.getIntWord(otherHead, 1))
+			DataPack.writeChar(pack, System.getIntWord(otherHead, 0))
+		end
+		
+		DataPack.writeChar(pack, nChallengeCount)
+
+		local nBeforeCount = nChallengeCount
+		if nPoint <= nChallengeCount then
+			nBeforeCount = nPoint - 1
+			local nAfterCount = nChallengeCount - nBeforeCount
+			for i = nPoint+nAfterCount, nPoint+1, -1 do
+				local otherName, nOtherWinCount, nOtherBattle = GetCardsWarBaseInfo(i, 1)
+				local nameOther, tmpTableOther = LoadCardsWarByPoint(i)
+				local otherHead = tmpTableOther[8]
+
+				DataPack.writeString(pack, otherName)
+				DataPack.writeInt(pack, i)
+				DataPack.writeInt(pack, nOtherWinCount)
+				DataPack.writeInt(pack, nOtherBattle)
+				DataPack.writeChar(pack, System.getIntWord(otherHead, 1))
+				DataPack.writeChar(pack, System.getIntWord(otherHead, 0))
+			end
+		end
+		for i = nPoint-1, nPoint-nBeforeCount, -1 do
+			local otherName, nOtherWinCount, nOtherBattle = GetCardsWarBaseInfo(i, 1)
+			local nameOther, tmpTableOther = LoadCardsWarByPoint(i)
+			local otherHead = tmpTableOther[8]
+
+			DataPack.writeString(pack, otherName)
+			DataPack.writeInt(pack, i)
+			DataPack.writeInt(pack, nOtherWinCount)
+			DataPack.writeInt(pack, nOtherBattle)
+			DataPack.writeChar(pack, System.getIntWord(otherHead, 1))
+			DataPack.writeChar(pack, System.getIntWord(otherHead, 0))
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--获取卡牌对战基本信息
+function GetCardsWarBaseInfo(nPoint, nFormation)
+	local name, tmpTable = LoadCardsWarByPoint(nPoint)
+	local nWinCount = tmpTable[3]
+	local nBattle = 0
+	local nCardCount = 0
+	
+	local config = CardsWarConfig
+	local propConfig = CardPropertyConfig
+	if (not config) or (not propConfig) then
+		return name, nWinCount, nBattle, nCardCount
+	end
+
+	for j = 1, config.maxCardWarCount do
+		local tmpCards, tmpIndex = GetCardsInfo(nFormation, tmpTable, j)
+		if (tmpCards == 0) or (tmpIndex == 0) then
+			break
+		end
+		nCardCount = nCardCount + 1
+		local nLevel = GetCardslevel(nFormation, tmpTable, j)
+		local propCfg = propConfig[tmpCards].cardList[tmpIndex]
+		local maxHp = propCfg.hpBase * math.pow((1 + propCfg.hpGrop / 10000), nLevel)
+		local maxAttack = propCfg.attackBase * math.pow((1 + propCfg.attackGrop / 10000), nLevel)
+
+		nBattle = nBattle + maxHp + maxAttack
+	end
+
+	return name, nWinCount, math.floor(nBattle), nCardCount
+end
+
+--获取卡牌等级
+function GetCardslevel(nFormation, tmpTable, nPos)
+	local nLevel = 0
+	
+	if (nFormation ~= 0) and (nFormation ~= 1) then
+		return nLevel
+	end
+
+	local tmpPos = math.floor((nPos-1) / 4)
+	local tmpValPos = math.floor((nPos-1) % 4)
+
+	for i = 7, 0, -1 do
+		nLevel = nLevel * 2
+		local bitVal = System.getIntBit(tmpTable[13+nFormation*2+tmpPos], tmpValPos*8+i)
+		nLevel = nLevel + bitVal
+	end
+
+	if nLevel > CardUpgradeConfig.maxLevel then
+		nLevel = 1
+	end
+
+	return nLevel
+end
+
+--设置卡牌等级
+function SetCardsLevel(nFormation, tmpTable, nPos, nLevel)
+	if (nFormation ~= 0) and (nFormation ~= 1) then
+		return tmpTable
+	end
+
+	local tmpPos = math.floor((nPos-1) / 4)
+	local tmpValPos = math.floor((nPos-1) % 4)
+
+	local tmpVal = tmpTable[13+nFormation*2+tmpPos]
+	for i = 0, 7 do
+		local bBit = math.floor(nLevel % 2) ~= 0 or false
+		tmpVal = System.setIntBit(tmpVal, tmpValPos*8+i, bBit)
+		nLevel = math.floor(nLevel / 2)
+	end
+	tmpTable[13+nFormation*2+tmpPos] = tmpVal
+
+	return tmpTable
+end
+
+--进入战场
+function OnStartCardsWarOp(sysarg, args)
+	local nChallengePos = args[2]
+
+	if shieldCardsWar then
+		return
+	end
+
+	local config = CardsWarConfig
+	if not config then return end
+
+	local nFormation = 0
+
+	local name, tmpTable = LoadCardsWar(sysarg)
+
+	local nPoint = tmpTable[1]
+	local nUseTimes = math.floor(tmpTable[6] / 65536)
+	local nAddTimes = math.floor(tmpTable[6] % 65536)
+	local nNextTime = tmpTable[7]
+
+	local nLastTimes = nAddTimes + config.freeTimes - nUseTimes
+
+	if nLastTimes <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0043, ttFlyTip)
+		return
+	end
+
+	local nCurrTime = System.getCurrMiniTime()
+
+	if nNextTime > nCurrTime then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0044, ttFlyTip)
+		return
+	end
+
+	local name, nWinCount, nBattle, nCardCount = GetCardsWarBaseInfo(nPoint, nFormation)
+
+	if (nCardCount < 1) or (nCardCount > config.maxCardWarCount) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0033, ttFlyTip)
+		return
+	end
+
+	local challengePlayerCount = config.challengePlayerCount
+	local nameOne, tmpTableOne, nRankCount = LoadCardsWarByPoint(1)
+	local nChallengeCount = config.challengePlayerCount
+	if ((nRankCount-1) < nChallengeCount) then
+		nChallengeCount = nRankCount - 1
+	end
+
+	local nBeforeCount = nChallengeCount
+	local nAfterCount = 0
+	if nPoint <= nChallengeCount then
+		nBeforeCount = nPoint - 1
+	end
+	nAfterCount = nChallengeCount - nBeforeCount
+
+	if (nChallengePos ~= nPoint) and ((nChallengePos >= 1) or (nChallengePos <= config.canChallengeTop)) then
+	else
+		if (nChallengePos < nPoint - nBeforeCount) or (nChallengePos > nPoint + nAfterCount) or (nChallengePos == nPoint) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0040, ttFlyTip)
+			return
+		end
+	end
+
+	nUseTimes = nUseTimes + 1
+	nNextTime = nCurrTime + config.challengeCD
+
+	tmpTable[6] = nUseTimes * 65536 + nAddTimes
+	tmpTable[7] = nNextTime
+	
+	SaveCardsWar(sysarg, tmpTable)
+
+	CardsWarChallenge(sysarg, nChallengePos)
+end
+
+--清除挑战倒计时
+function OnClearCardsWarTimeOp(sysarg, args)
+	local config = CardsWarConfig
+	if not config then return end
+
+	if shieldCardsWar then
+		return
+	end
+
+	local name, tmpTable = LoadCardsWar(sysarg)
+
+	local nUseTimes = math.floor(tmpTable[6] / 65536)
+	local nAddTimes = math.floor(tmpTable[6] % 65536)
+	local nNextTime = tmpTable[7]
+
+	local nLastTimes = nAddTimes + config.freeTimes - nUseTimes
+	if nLastTimes < 0 then
+		nLastTimes = 0
+	end
+	
+	local nCanBuyTimes = config.addTimes - nAddTimes
+	if nCanBuyTimes < 0 then
+		nCanBuyTimes = 0
+	end
+
+	local nCurrTime = System.getCurrMiniTime()
+
+	if nNextTime <= nCurrTime then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0034, ttFlyTip)
+		return
+	end
+
+	local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+
+	for k, consume in ipairs(config.challengeCDConsumes or {}) do
+		if consume.type == 15 then
+			if myYb < consume.count then
+				Actor.sendTipmsg(sysarg, Lang.Activity.kp0035, ttFlyTip)
+				return
+			end
+		end
+	end
+	
+	for k, consume in ipairs(config.challengeCDConsumes or {}) do
+		if consume.type == 15 then
+			if myYb >= consume.count then
+				Actor.changeMoney(sysarg,3,-consume.count,101,Lang.Activity.kp0036)
+			end
+		end
+	end
+
+	nNextTime = nCurrTime
+	tmpTable[7] = nNextTime
+
+	SaveCardsWar(sysarg, tmpTable)
+
+	SendCardsWarTimes(sysarg, nNextTime-nCurrTime, nLastTimes, nCanBuyTimes)
+end
+
+--购买次数
+function OnBuyCardsWarTimesOp(sysarg, args)
+	local nBuyTimes = args[2]
+	
+	if shieldCardsWar then
+		return
+	end
+
+	local config = CardsWarConfig
+	if not config then return end
+
+	local name, tmpTable = LoadCardsWar(sysarg)
+
+	local nUseTimes = math.floor(tmpTable[6] / 65536)
+	local nAddTimes = math.floor(tmpTable[6] % 65536)
+	local nNextTime = tmpTable[7]
+
+	local nLastTimes = nAddTimes + config.freeTimes - nUseTimes
+	if nLastTimes < 0 then
+		nLastTimes = 0
+	end
+	
+	local nCanBuyTimes = config.addTimes - nAddTimes
+	if nCanBuyTimes < 0 then
+		nCanBuyTimes = 0
+	end
+
+	local nCurrTime = System.getCurrMiniTime()
+	local nTime = nNextTime - nCurrTime
+	if nTime < 0 then
+		nTime = 0
+	end
+
+	if nCanBuyTimes < nBuyTimes then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0038, ttFlyTip)
+		return
+	end
+
+	local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+
+	for k, consume in ipairs(config.addTimesConsumes or {}) do
+		if consume.type == 15 then
+			if myYb < consume.count * nBuyTimes then
+				Actor.sendTipmsg(sysarg, Lang.Activity.kp0035, ttFlyTip)
+				return
+			end
+		end
+	end
+	
+	for k, consume in ipairs(config.addTimesConsumes or {}) do
+		if consume.type == 15 then
+			if myYb >= consume.count * nBuyTimes then
+				Actor.changeMoney(sysarg,3,-consume.count * nBuyTimes,101,Lang.Activity.kp0039)
+			end
+		end
+	end
+
+	nAddTimes = nAddTimes + nBuyTimes
+	local nLastTimes = nAddTimes + config.freeTimes - nUseTimes
+	if nLastTimes < 0 then
+		nLastTimes = 0
+	end
+	
+	local nCanBuyTimes = config.addTimes - nAddTimes
+	if nCanBuyTimes < 0 then
+		nCanBuyTimes = 0
+	end
+
+	tmpTable[6] = nUseTimes * 65536 + nAddTimes
+
+	SaveCardsWar(sysarg, tmpTable)
+
+	SendCardsWarTimes(sysarg, nTime, nLastTimes, nCanBuyTimes)
+end
+
+--下发对战时间次数
+function SendCardsWarTimes(sysarg, nTime, nLastTimes, nCanBuyTimes)
+	local pack = DataPack.allocPacket(sysarg, 56, 13)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nTime)
+		DataPack.writeInt(pack, nLastTimes)
+		DataPack.writeInt(pack, nCanBuyTimes)
+
+		DataPack.flush(pack)
+	end
+end
+
+--挑战
+function CardsWarChallenge(sysarg, nChallengePos)
+	local config = CardsWarConfig
+	local propConfig = CardPropertyConfig
+	if (not config) or (not propConfig) then
+		return
+	end
+
+	local nameSelf, tmpTableSelf = LoadCardsWar(sysarg)
+	local nameOther, tmpTableOther, nRankCount, idOther = LoadCardsWarByPoint(nChallengePos)
+
+	local nPoint = tmpTableSelf[1]
+	local name, nWinCount, nBattle, nCardCount = GetCardsWarBaseInfo(nPoint, 0)
+	local otherName, nOtherWinCount, nOtherBattle, nOtherCount = GetCardsWarBaseInfo(nChallengePos, 1)
+
+	local selfHead = tmpTableSelf[8]
+	local otherHead = tmpTableOther[8]
+	local selfId = 1
+	local otherId = 2
+
+	local cardsWarData = {}		--战斗数据
+
+	local attacker = selfId		--攻击玩家
+	local beAttacker = otherId	--被攻击玩家
+	local winPlayer = otherId	--胜利玩家
+	local roundCount = 1		--回合数
+
+	local playerData =
+	{
+		{
+			cardCount = nCardCount,		--卡牌数
+			cardIndex = 1,			--卡牌索引
+			hp = 0,				--生命值
+			maxHp = 0,			--最大生命值
+			attack = 0,			--攻击力
+			formation = 0,			--阵型
+			buffData = {},			--BUFF
+			tmpTable = tmpTableSelf,	--卡牌
+		},
+		{
+			cardCount = nOtherCount,	--卡牌数
+			cardIndex = 1,			--卡牌索引
+			hp = 0,				--生命值
+			maxHp = 0,			--最大生命值
+			attack = 0,			--攻击力
+			formation = 1,			--阵型
+			buffData = {},			--BUFF
+			tmpTable = tmpTableOther,	--卡牌
+		},
+	}
+
+	if nOtherCount < playerData[otherId].cardIndex then	--结束
+		winPlayer = attacker
+	else
+		for k, v in ipairs(playerData or {}) do
+			local tmpPlayerData = playerData[k]
+			local tmpCards, tmpIndex = GetCardsInfo(tmpPlayerData.formation, tmpPlayerData.tmpTable, tmpPlayerData.cardIndex)
+
+			local propCfg = propConfig[tmpCards].cardList[tmpIndex]
+			local nLevel = GetCardslevel(tmpPlayerData.formation, tmpPlayerData.tmpTable, tmpPlayerData.cardIndex)
+
+			tmpPlayerData.hp = propCfg.hpBase * math.pow((1 + propCfg.hpGrop / 10000), nLevel)
+			tmpPlayerData.maxHp = tmpPlayerData.hp
+			tmpPlayerData.attack = propCfg.attackBase * math.pow((1 + propCfg.attackGrop / 10000), nLevel)
+		end
+
+		--最多50回合
+		for i = 1, 50*2 do
+			local tmpPlayerData = playerData[attacker]
+			local tmpBeAttackData = playerData[beAttacker]
+--print("attacker="..attacker.." tmpPlayerData.hp="..tmpPlayerData.hp)
+			--回合前检查已有buff
+			for j, buff in ipairs(tmpPlayerData.buffData or {}) do
+				if buff.currRound < buff.maxRound then
+					if buff.propertyId == CardsPropertyId.cpHp then
+--print("tmpPlayerData.hp="..tmpPlayerData.hp.." buff.value="..buff.value)
+						tmpPlayerData.hp = tmpPlayerData.hp + buff.value
+
+						local oneData = {CardsWarEventId.cwePropertyChange, attacker, CardsPropertyId.cpHp, buff.value}
+						table.insert(cardsWarData, oneData)
+						--print(CardsWarEventId.cwePropertyChange.." "..attacker.." "..CardsPropertyId.cpHp.." "..buff.value)
+
+						if tmpPlayerData.hp <= 0 then		--攻击者挂了
+							tmpPlayerData.hp = 0
+--print("tmpPlayerData.hp="..tmpPlayerData.hp)
+							break
+						end
+						if tmpPlayerData.hp > tmpPlayerData.maxHp then	--加血加爆了
+							tmpPlayerData.hp = tmpPlayerData.maxHp
+						end
+--print("tmpPlayerData.hp="..tmpPlayerData.hp)
+					end
+					
+					buff.currRound = buff.currRound + 1
+				else
+					local oneData = {CardsWarEventId.cweDelBuff, attacker, buff.buffId}
+					table.insert(cardsWarData, oneData)
+					--print(CardsWarEventId.cweDelBuff.." "..attacker.." "..buff.buffId)
+
+					table.remove(tmpPlayerData.buffData, j)
+					j = j - 1
+				end
+			end
+
+			local tmpCards, tmpIndex = GetCardsInfo(tmpPlayerData.formation, tmpPlayerData.tmpTable, tmpPlayerData.cardIndex)
+			local propCfg = propConfig[tmpCards].cardList[tmpIndex]
+
+			if tmpPlayerData.hp > 0 then		--攻击者没挂
+				--攻击前检查技能
+				for j, skill in ipairs(propCfg.skill or {}) do
+					if math.random(10000) < skill.rate then
+						local oneData = {CardsWarEventId.cweUseSkill, attacker, skill.id}
+						table.insert(cardsWarData, oneData)
+						--print(CardsWarEventId.cweUseSkill.." "..attacker.." "..skill.id)
+
+						local addBuffPlayer = attacker
+						if skill.buffId == 2 then
+							addBuffPlayer = beAttacker
+						end
+						local twoData = {CardsWarEventId.cweAddBuff, addBuffPlayer, skill.buffId}
+						table.insert(cardsWarData, twoData)
+						--print(CardsWarEventId.cweAddBuff.." "..addBuffPlayer.." "..skill.buffId)
+
+						local addBuffPlayerData = playerData[addBuffPlayer]
+						local isExist = 0
+						--先检查buff是否已经存在
+						for k, buffData in ipairs(addBuffPlayerData.buffData or {}) do
+							if buffData.buffId == skill.buffId then
+								isExist = 1
+								buffData.currRound = 0
+								break
+							end
+						end
+						--不存在需要添加buff
+						if isExist == 0 then
+							local addPos = table.getn(addBuffPlayerData.buffData or {})
+							for k, buffData in ipairs(addBuffPlayerData.buffData or {}) do
+								if buffData.priority >= skill.priority then
+									addPos = k
+									break
+								end
+							end
+
+							local buffData = {buffId = skill.buffId, currRound = 0, maxRound = skill.round, value = skill.value, propertyId = CardsPropertyId.cpNone, priority = skill.priority,}
+							if skill.buffId == 2 then
+								buffData.value = -buffData.value
+								buffData.propertyId = CardsPropertyId.cpHp
+							elseif skill.buffId == 3 then
+								buffData.propertyId = CardsPropertyId.cpHp
+							end
+							if addPos == 0 then
+								addPos = 1
+							end
+							table.insert(addBuffPlayerData.buffData, addPos, buffData)
+						end
+					end
+				end
+
+				--攻击
+				local addAttack = 0
+				for k, buff in ipairs(tmpPlayerData.buffData or {}) do
+					if buff.buffId == 1 then
+						addAttack = buff.value
+						
+						buff.currRound = buff.currRound + 1
+						if buff.currRound >= buff.maxRound then
+							local oneData = {CardsWarEventId.cweDelBuff, attacker, buff.buffId}
+							table.insert(cardsWarData, oneData)
+							--print(CardsWarEventId.cweDelBuff.." "..attacker.." "..buff.buffId)
+
+							table.remove(tmpPlayerData.buffData, k)
+						end
+
+						break
+					end
+				end
+				local realAttack = math.floor(tmpPlayerData.attack * (1 + addAttack / 10000))
+
+				local oneData = {CardsWarEventId.cwePhysicsAttack, attacker}
+				table.insert(cardsWarData, oneData)
+				--print(CardsWarEventId.cwePhysicsAttack.." "..attacker)
+
+				--是否有免伤buff
+				local nFlag = 0
+				for k, buff in ipairs(tmpBeAttackData.buffData or {}) do
+					if buff.buffId == 4 then
+						nFlag = 1
+
+						buff.currRound = buff.currRound + 1
+						if buff.currRound >= buff.maxRound then
+							local oneData = {CardsWarEventId.cweDelBuff, beAttacker, buff.buffId}
+							table.insert(cardsWarData, oneData)
+							--print(CardsWarEventId.cweDelBuff.." "..beAttacker.." "..buff.buffId)
+
+							table.remove(tmpPlayerData.buffData, k)
+						end
+
+						break
+					end
+				end
+				--免伤
+				if nFlag == 1 then
+					realAttack = 0
+				end
+--print("tmpBeAttackData.hp="..tmpBeAttackData.hp.." realAttack="..realAttack)
+				tmpBeAttackData.hp = tmpBeAttackData.hp - realAttack
+				local twoData = {CardsWarEventId.cwePropertyChange, beAttacker, CardsPropertyId.cpHp, -realAttack}
+				table.insert(cardsWarData, twoData)
+				--print(CardsWarEventId.cwePropertyChange.." "..beAttacker.." "..CardsPropertyId.cpHp.." "..-realAttack)
+--print("tmpBeAttackData.hp="..tmpBeAttackData.hp)
+				if tmpBeAttackData.hp > 0 then		--还没挂，交换攻击者与被攻击者
+					local tmpAttacker = attacker
+					attacker = beAttacker
+					beAttacker = tmpAttacker
+				end
+			end
+
+			local nWarEndFlag = 0
+			for k, v in ipairs(playerData or {}) do
+				if v.hp <= 0 then	--挂了
+					if k == attacker then	--如果自己死，给对方先攻
+						local tmpAttacker = attacker
+						attacker = beAttacker
+						beAttacker = tmpAttacker
+					end
+
+					local diePlayerData = playerData[k]	--死亡玩家
+					diePlayerData.cardIndex = diePlayerData.cardIndex + 1
+					if diePlayerData.cardIndex <= diePlayerData.cardCount then
+						--删除所有buff
+						for j, buff in ipairs(diePlayerData.buffData or {}) do
+							local oneData = {CardsWarEventId.cweDelBuff, k, buff.buffId}
+							table.insert(cardsWarData, oneData)
+							--print(CardsWarEventId.cweDelBuff.." "..k.." "..buff.buffId)
+						end
+						diePlayerData.buffData = {}
+
+						local tmpPlayerData = playerData[k]
+						local tmpCards, tmpIndex = GetCardsInfo(tmpPlayerData.formation, tmpPlayerData.tmpTable, tmpPlayerData.cardIndex)
+						local propCfg = propConfig[tmpCards].cardList[tmpIndex]
+						local nLevel = GetCardslevel(tmpPlayerData.formation, tmpPlayerData.tmpTable, tmpPlayerData.cardIndex)
+
+						tmpPlayerData.hp = propCfg.hpBase * math.pow((1 + propCfg.hpGrop / 10000), nLevel)
+						tmpPlayerData.maxHp = tmpPlayerData.hp
+						tmpPlayerData.attack = propCfg.attackBase * math.pow((1 + propCfg.attackGrop / 10000), nLevel)
+
+						local oneData = {CardsWarEventId.cweNextDebut, k, diePlayerData.cardIndex}
+						table.insert(cardsWarData, oneData)
+						--print(CardsWarEventId.cweNextDebut.." "..k.." "..diePlayerData.cardIndex)
+					else
+						nWarEndFlag = 1
+						
+						if k == selfId then
+							winPlayer = otherId
+						else
+							winPlayer = selfId
+						end
+					end
+
+					break
+				end
+			end
+
+			if nWarEndFlag == 1 then		--战斗结束
+				local oneData = {CardsWarEventId.cweWarEnd}
+				table.insert(cardsWarData, oneData)
+
+				break
+			end
+		end
+	end
+
+	local hisrank = tmpTableSelf[5]	--历史名次
+	if hisrank == 0 then
+		hisrank = nRankCount
+	end
+	local selfWinFlag = 0
+	local otherWinFlag = 1
+	local upRank = 0
+	local selfNewPos = nPoint
+	local otherNewPos = nChallengePos
+	local selfUpDownFlag = 2	--0 降 1 升 2 不变
+	local otherselfUpDownFlag = 2	--0 降 1 升 2 不变
+	local awardIndex = 1		--1 失败 2 成功
+	if winPlayer == selfId then	--挑战成功
+		selfWinFlag = 1
+		otherWinFlag = 0
+
+		awardIndex = 2
+
+		tmpTableSelf[3] = tmpTableSelf[3] + 1	--胜利次数
+
+		if nPoint > nChallengePos then	--挑战前面玩家
+			selfUpDownFlag = 1
+			otherselfUpDownFlag = 0
+			if hisrank > nChallengePos then
+				hisrank = nChallengePos
+			end
+			tmpTableSelf[5] = hisrank
+
+			upRank = nPoint - nChallengePos
+			selfNewPos = nChallengePos
+			otherNewPos = nPoint
+			tmpTableSelf[1] = nChallengePos
+
+			ExchangeCardsWarPos(nPoint, nChallengePos)
+		end
+
+		SaveCardsWar(sysarg, tmpTableSelf)
+	end
+
+	local awards = config.challengeAwards[awardIndex].awards
+	if awards then
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,969,Lang.Activity.kp0045, -1, awards[i].expireTime)
+				end
+			end
+		end
+	end
+
+	SendChallengeRecord(sysarg, 0, otherName, selfWinFlag, selfUpDownFlag, selfNewPos)
+	local otherPtr = System.getEntityPtrByActorID(idOther)
+	if otherPtr ~= nil then
+		SendChallengeRecord(otherPtr, 1, name, otherWinFlag, otherselfUpDownFlag, otherNewPos)
+	end
+
+	local actCount = table.getn(cardsWarData or {})
+
+	local pack = DataPack.allocPacket(sysarg, 56, 14)
+	if (pack ~= nil) then
+		--挑战者
+		DataPack.writeChar(pack, selfId)
+		DataPack.writeString(pack, name)
+		DataPack.writeChar(pack, System.getIntWord(selfHead, 1))
+		DataPack.writeChar(pack, System.getIntWord(selfHead, 0))
+		DataPack.writeChar(pack, 1)
+		DataPack.writeChar(pack, nCardCount)
+		for i = 1, nCardCount do
+			local tmpCards, tmpIndex = GetCardsInfo(0, tmpTableSelf, i)
+
+			DataPack.writeChar(pack, tmpCards)
+			DataPack.writeChar(pack, tmpIndex)
+			DataPack.writeChar(pack, GetCardslevel(0, tmpTableSelf, i))
+		end
+		
+		--被挑战者
+		DataPack.writeChar(pack, otherId)
+		DataPack.writeString(pack, otherName)
+		DataPack.writeChar(pack, System.getIntWord(otherHead, 1))
+		DataPack.writeChar(pack, System.getIntWord(otherHead, 0))
+		DataPack.writeChar(pack, 1)
+		DataPack.writeChar(pack, nOtherCount)
+		for i = 1, nOtherCount do
+			local tmpCards, tmpIndex = GetCardsInfo(1, tmpTableOther, i)
+
+			DataPack.writeChar(pack, tmpCards)
+			DataPack.writeChar(pack, tmpIndex)
+			DataPack.writeChar(pack, GetCardslevel(1, tmpTableOther, i))
+		end
+
+		DataPack.writeChar(pack, awardIndex)
+		DataPack.writeInt(pack, hisrank)
+		DataPack.writeInt(pack, selfNewPos)
+		DataPack.writeInt(pack, upRank)
+
+		DataPack.writeShort(pack, actCount)
+
+		for i, act in ipairs(cardsWarData or {}) do
+			if act[1] == CardsWarEventId.cwePhysicsAttack then
+				DataPack.writeChar(pack, act[1])
+				DataPack.writeChar(pack, act[2])
+			elseif act[1] == CardsWarEventId.cwePropertyChange then
+				DataPack.writeChar(pack, act[1])
+				DataPack.writeChar(pack, act[2])
+				DataPack.writeChar(pack, act[3])
+				DataPack.writeInt(pack, act[4])
+			elseif act[1] == CardsWarEventId.cweUseSkill then
+				DataPack.writeChar(pack, act[1])
+				DataPack.writeChar(pack, act[2])
+				DataPack.writeChar(pack, act[3])
+			elseif act[1] == CardsWarEventId.cweAddBuff then
+				DataPack.writeChar(pack, act[1])
+				DataPack.writeChar(pack, act[2])
+				DataPack.writeChar(pack, act[3])
+			elseif act[1] == CardsWarEventId.cweDelBuff then
+				DataPack.writeChar(pack, act[1])
+				DataPack.writeChar(pack, act[2])
+				DataPack.writeChar(pack, act[3])
+			elseif act[1] == CardsWarEventId.cweNextDebut then
+				DataPack.writeChar(pack, act[1])
+				DataPack.writeChar(pack, act[2])
+				DataPack.writeChar(pack, act[3])
+			elseif act[1] == CardsWarEventId.cweWarEnd then
+				DataPack.writeChar(pack, act[1])
+			end
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--下发挑战记录
+function SendChallengeRecord(sysarg, challengeFlag, otherName, winFlag, upDownFlag, pos)
+	local nCurrTime = System.getCurrMiniTime()
+
+	local pack = DataPack.allocPacket(sysarg, 56, 15)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nCurrTime)
+		DataPack.writeChar(pack, challengeFlag)
+		DataPack.writeString(pack, otherName)
+		DataPack.writeChar(pack, winFlag)
+		DataPack.writeChar(pack, upDownFlag)
+		DataPack.writeInt(pack, pos)
+
+		DataPack.flush(pack)
+	end
+end
+
+--定时下发排行奖励
+function GiveCardsWarHourAwards()
+	local config = CardsWarConfig
+	if not config then return end
+	local nameOne, tmpTableOne, nRankCount = LoadCardsWarByPoint(1)
+
+	if shieldCardsWar then
+		return
+	end
+
+	local posAwardsCount = nRankCount
+	if nRankCount > table.getn(config.hourRankAwards or {}) then
+		posAwardsCount = table.getn(config.hourRankAwards or {})
+	end
+	
+	--先清上一小时领奖信息
+	for i = 1, nRankCount do
+		local name, tmpTable, nPosRankCount, actorId = LoadCardsWarByPoint(i)
+		
+		tmpTable[2] = 0		--领奖标记 0:不可领 1:可领取 2:已领取
+		tmpTable[4] = 0		--领奖名次
+		
+		SaveCardsWarByPoint(i, tmpTable)
+	end
+
+	for i = 1, posAwardsCount do
+		local name, tmpTable, nPosRankCount, actorId = LoadCardsWarByPoint(i)
+		
+		tmpTable[2] = 1		--领奖标记 0:不可领 1:可领取 2:已领取
+		tmpTable[4] = i		--领奖名次
+
+		SaveCardsWarByPoint(i, tmpTable)
+
+		local actorPtr = System.getEntityPtrByActorID(actorId)
+		if actorPtr ~= nil then
+			SendGetCardsWarHourAwards(actorPtr, i, tmpTable[2])
+		end
+	end
+end
+
+--发放一周奖励
+function GiveCardsWarWeekAwards()
+	local config = CardsWarConfig
+	if not config then return end
+
+	if shieldCardsWar then
+		return
+	end
+
+	local nameOne, tmpTableOne, nRankCount = LoadCardsWarByPoint(1)
+
+	local posAwardsCount = nRankCount
+	if nRankCount > table.getn(config.weekRankAwards or {}) then
+		posAwardsCount = table.getn(config.weekRankAwards or {})
+	end
+
+	for i = 1, posAwardsCount do
+		local name, tmpTable, nPosRankCount, actorId = LoadCardsWarByPoint(i)
+		
+		local title = config.weekRankAwards[i].offlineMsg
+		local offlineNeedBagCount = config.weekRankAwards[i].offlineNeedBagCount
+		if not offlineNeedBagCount then
+			offlineNeedBagCount = 6
+		end
+		System.addOfflineMsg(actorId, 61, title, 0, i, offlineNeedBagCount)
+		
+		System.sendCommonLog(969, actorId, name, i)	--日志记录玩家排名
+	end
+end
+
+--下发领奖
+function SendGetCardsWarHourAwards(sysarg, pos, getFlag)
+	local pack = DataPack.allocPacket(sysarg, 56, 16)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, pos)
+		DataPack.writeChar(pack, getFlag)
+
+		DataPack.flush(pack)
+	end
+end
+
+--请求领奖
+function OnGetCardsWarHourAwardsOp(sysarg, args)
+	local config = CardsWarConfig
+	if not config then return end
+
+	if shieldCardsWar then
+		return
+	end
+
+	local name, tmpTable = LoadCardsWar(sysarg)
+
+	local awardFlag = tmpTable[2]		--领奖标记 0:不可领 1:可领取 2:已领取
+	local awardRank = tmpTable[4]		--领奖名次
+
+	local nameOne, tmpTableOne, nRankCount = LoadCardsWarByPoint(1)
+
+	local posAwardsCount = nRankCount
+	if nRankCount > table.getn(config.hourRankAwards or {}) then
+		posAwardsCount = table.getn(config.hourRankAwards or {})
+	end
+
+	if (awardFlag == 0) or (awardRank == 0) or awardRank > posAwardsCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0046, ttFlyTip)
+		return
+	end
+
+	if (awardFlag == 2) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0047, ttFlyTip)
+		return
+	end
+
+	local awards = config.hourRankAwards[awardRank].awards
+	if awards then
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,969,Lang.Activity.kp0045, -1, awards[i].expireTime)
+					--[[记录卡牌命运日志
+					if awards[i].type == 44 then
+						local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+						local name = Actor.getName(sysarg)
+						System.sendCommonLog(969, actorId, name, awards[i].count)  --语言包暂时用，以后要改
+					end
+					]]
+				end
+			end
+		end
+
+		awardFlag = 2
+		SendGetCardsWarHourAwards(sysarg, awardRank, awardFlag)
+
+		tmpTable[2] = awardFlag
+		SaveCardsWar(sysarg, tmpTable)
+	end
+end
+
+--领取一周奖励
+function OnGetCardsWarWeekAwardsOp(sysarg, args)
+	local nIndex = args[2]
+
+	if shieldCardsWar then
+		return
+	end
+
+	local config = CardsWarConfig
+	if not config then return end
+
+	if (nIndex <= 0) or (nIndex > table.getn(config.weekRankAwards or {})) then
+	end
+
+	local awards = config.weekRankAwards[nIndex].awards
+	if awards then
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,969,Lang.Activity.kp0045, -1, awards[i].expireTime)
+				end
+			end
+		end
+	end
+end
+
+--重置卡牌对战
+function ResetCardsWar()
+	if shieldCardsWar then
+		local ranking = Ranking.getRanking(CardsWarRankPt.CardsWarFile)
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+		return
+	end
+
+	local nameOne, tmpTableOne, nRankCount = LoadCardsWarByPoint(1)
+
+	for i = 1, nRankCount do
+		local tmpName, tmpTable = LoadCardsWarByPoint(i)
+
+		tmpTable[6] = 0		--高16位:游戏次数 高16位:增加次数
+		tmpTable[7] = 0		--下次游戏时间
+
+		SaveCardsWarByPoint(i, tmpTable)
+	end
+end
+
+--设置阵型卡牌等级
+function OnSetFormationCardLevelOp(sysarg, args)
+	local nCards = args[2]
+	local nIndex = args[3]
+	local nLevel = args[4]
+
+	if shieldCardsWar then
+		return
+	end
+
+	local name, tmpTable = LoadCardsWar(sysarg)
+	for i = 0, 1 do
+		for j = 1, CardsWarConfig.maxCardWarCount do
+			local tmpCards, tmpIndex = GetCardsInfo(i, tmpTable, j)
+			if (tmpCards == 0) or (tmpIndex == 0) then
+				break
+			end
+			--已出战的卡牌调整等级
+			if (tmpCards == nCards) and (tmpIndex == nIndex) then
+				SetCardsLevel(i, tmpTable, j, nLevel)
+				SaveCardsWar(sysarg, tmpTable)
+				break
+			end
+		end
+	end
+end

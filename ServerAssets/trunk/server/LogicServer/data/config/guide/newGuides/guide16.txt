@@ -1,0 +1,66 @@
+--合成的引导
+{
+  maxLevel = 35,
+  --触发条件
+	triggerList =
+	{
+		{ type = 1, valueList = {1977,}},      --有这个任务
+	} ,
+  
+
+  --引导的步骤 
+	steps = 
+	{
+
+    --第1步 指向导航强化按钮
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1977,} },    --任务进行中
+				{ type = 2,  helpId = 120, dataList = {0,} },      --强化界面没打开
+			},
+
+			action = { type = 1, helpId = 3, data = 0, desc = Lang.GuideLang.desc38 },
+		},
+
+
+    --第2步 指向合成导航按钮
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1977,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },        --强化界面打开
+				{ type = 15,  helpId = 121, dataList = {5,} },      --导航没有选中第5项
+				{ type = 2,  helpId = 134, dataList = {0,} },      --合成按钮不可见
+			},
+
+			action = { type = 2, helpId = 121, data = 5, desc = Lang.GuideLang.desc52 },
+		},
+
+    --第3步 自动弹到2级生命宝石,并选中生命宝石合成选项
+		{
+			condList = 
+			{
+				{ type = 29,  helpId = 33, dataList = {1977,} },    --任务进行中
+				{ type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+				{ type = 3,  helpId = 121, dataList = {5,} },      --导航选中第5项
+			},
+
+      --引导玩家 点击身上装备
+			action = { type = 14, helpId = 120, data = {4,1,5,134}, desc = Lang.GuideLang.desc53 },   --{4,1,5,}是指打开强化面板的第4项(合成页),选中二级宝石按钮,选中生命宝石,134是合成按钮
+		},
+	
+
+    --第4步 结束
+    {
+      condList = 
+      {
+				{ type = 30,  helpId = 40, dataList = {1977,} },     --任务完成
+      },
+      
+      --无内容
+      action = { type = 0, helpId = 0, data = 3, desc = Lang.GuideLang.desc5 },
+    },
+
+	}
+}

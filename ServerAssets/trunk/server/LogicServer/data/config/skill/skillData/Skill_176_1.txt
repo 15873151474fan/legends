@@ -1,0 +1,65 @@
+--冰霜龙王
+{
+
+	actions=
+	{
+		{act=0,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+	actRange=
+	{		
+	 --（施法2秒后 1格范围内全部秒杀） （90S）
+		 {
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+		   xEnd=1,--相对于中心点x右边的相对坐标
+		   yStart=-1,--相对于中心点y上边的相对坐标
+		   yEnd=1,--相对于中心点y下边的相对坐标
+		   
+		  rangeType=3,    
+		  rangeCenter=1,
+		  
+
+		  acts=
+		   {
+			{
+
+			 conds=
+			 {
+			  {cond = 13,value =1},
+			 },
+			 results=
+			 {
+			  {mj=0,timeParam=1,type=1,delay=0,buffType=1,id=45,rate=0,value=-100000,interval=1,vt=0},
+			 },
+			 specialEffects=
+			 {
+			   {type=4,mj=0,id=99,keepTime=500,delay=200,always=false},
+			  --{type=3,mj=0,id=64,keepTime=800,delay=4200,always=false},
+			  --{type=4,mj=0,id=112,keepTime=800,delay=5000,always=false},
+			 },
+			},
+		},
+	  },
+	  
+	  
+	},
+
+		trainConds=
+		{
+
+		},
+		
+		spellConds=
+	{
+		{cond=13,value=20,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=2500,	
+	cooldownTime=90000,
+	--攻击速度
+
+},

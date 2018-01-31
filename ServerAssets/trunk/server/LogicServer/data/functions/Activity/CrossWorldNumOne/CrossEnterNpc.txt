@@ -1,0 +1,183 @@
+--跨服天下第一战场npc对话
+--lua script
+--#include "data\language\LangCode.txt" once			--语言包
+--#include "data\config\activityconfig\CrossGuildSbk\CrossWorldNumOne.txt" once	
+--#include "CrossWorldOneMain.txt" once
+
+function CrossWorldOneNpc_Main(sysarg)
+	local str = ""
+
+	str = str.."\\<#BL"..Lang.Activity.ku0028.."/@OnEnterCrossWorldWar>"		--进入擂台
+	str = str.."\\<#BL"..Lang.Activity.ku0036.."/@OnGetCrossWorldAward>"		--领取天下第一战神勋章
+
+	return str
+end
+
+--进入比赛区
+function OnEnterCrossWorldWar(sysarg)
+	local sVar = System.getStaticVar()
+	if sVar.CanEnterCrossWorldOneFlag == nil or sVar.CanEnterCrossWorldOneFlag == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0034, ttFlyTip)
+		return
+	end
+	
+	local RankNameList = Ranking.getRanking(CrossWorldOneConfig.CrossWorldRankName)
+	if RankNameList then
+		local bFirstTime = 0
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		
+		
+		local nCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+		
+		if nCoin < CrossWorldOneConfig.needCoin then
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0076,CrossWorldOneConfig.needCoin), ttFlyTip)
+			return
+		end
+
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+		if pItem then
+			bFirstTime = 1
+		else
+			pItem = Ranking.addItem(RankNameList,nActorId,0)
+			if sVar.StartCrossWorldFiveMin == nil then
+				sVar.StartCrossWorldFiveMin = 0
+			end
+
+			if sVar.StartCrossWorldFiveMin == 1 then
+				bFirstTime = 1
+			end
+		end
+		
+		
+		if bFirstTime == 0 then
+			Actor.enterScene(sysarg,CrossWorldOneConfig.LTSceneConfig[1].nSceneId,unpack(CrossWorldOneConfig.LTSceneConfig[1].enterRange))
+			OnInitCrossWorldForm(sysarg,1)
+		else
+			Actor.enterScene(sysarg,CrossWorldOneConfig.LTSceneConfig[5].nSceneId,unpack(CrossWorldOneConfig.LTSceneConfig[5].enterRange))
+			OnInitCrossWorldForm(sysarg,5)
+		end
+		Actor.changeMoney(sysarg,1,-CrossWorldOneConfig.needCoin,186,Lang.Activity.ku0035)
+	end
+end
+
+--领取天下第一战神勋章
+function OnGetCrossWorldAward(sysarg)
+	if Actor.bisCrossWorldFirst(sysarg) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0037, ttFlyTip)
+		return
+	end
+	
+	local sVar = System.getStaticVar()
+	if sVar.GetCrossWorldAwardFlag == nil then
+		sVar.GetCrossWorldAwardFlag = 0
+	end
+	
+	if sVar.GetCrossWorldAwardFlag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0077, ttFlyTip)
+		return
+	end
+
+	local nFreeBag = Item.getBagEmptyGridCount(sysarg)
+	if nFreeBag < 1 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0038, ttFlyTip)
+		return
+	end
+	
+	Actor.addItem(sysarg,CrossWorldOneConfig.AwardItemId.id,CrossWorldOneConfig.AwardItemId.quality,CrossWorldOneConfig.AwardItemId.strong,CrossWorldOneConfig.AwardItemId.count,CrossWorldOneConfig.AwardItemId.bind,0,Lang.Activity.ku0029,186)
+
+	sVar.GetCrossWorldAwardFlag = 1
+	--Actor.giveAward(sysarg,CrossWorldOneConfig.type,CrossWorldOneConfig.id,CrossWorldOneConfig.count,CrossWorldOneConfig.quality,CrossWorldOneConfig.strong,CrossWorldOneConfig.bind,0,186,Lang.Activity.ku0029)
+end
+
+--天下第一战场开始
+function StartCrossWorldWar()
+	local sVar = System.getStaticVar()
+	sVar.CanEnterCrossWorldOneFlag = 1
+	sVar.GetCrossWorldAwardFlag = nil
+	sVar.CrossWorldStartTime = System.getCurrMiniTime() + CrossWorldOneConfig.allTime
+
+	local RankNameList = Ranking.getRanking(CrossWorldOneConfig.CrossWorldRankName)
+	if RankNameList then
+		Ranking.clearRanking(RankNameList)
+	end
+
+	System.broadcastTipmsg(Lang.Activity.ku0032,2+128)
+	
+	GiveCrossWorldPerExp()
+	Actor.regScriptCallback(thisNPC, thisNPC, CrossWorldOneConfig.LTSceneConfig[1].nTime * 1000, CrossWorldOneConfig.LTSceneConfig[1].nTime * 1000, -1, "GiveCrossWorldPerExp")
+end
+
+--天下第一结束
+function EndCrossWorldWar()
+	local sVar = System.getStaticVar()
+	sVar.CanEnterCrossWorldOneFlag = nil
+	sVar.StartCrossWorldFiveMin = nil
+	sVar.StartCrossWorldHalfHour = nil
+	sVar.CrossWorldStartTime = nil
+
+	GiveCrossWorldResult()
+
+	Actor.unregScriptCallback(thisNPC, "GiveCrossWorldPerExp")
+	
+	for i=1,table.getn(CrossWorldOneConfig.LTSceneConfig) do
+		local nConfig = CrossWorldOneConfig.LTSceneConfig[i]
+		local nHandle = Fuben.getSceneHandleById(nConfig.nSceneId,0)
+		
+		local playerList = LuaHelp.getSceneAliveActorListById(nConfig.nSceneId)		--获取某场景玩家对象列表
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then	
+					Actor.enterScene(player,CrossWorldOneConfig.outSceneId,CrossWorldOneConfig.outX,CrossWorldOneConfig.outY)
+				end
+			end
+		end
+	end
+	
+
+	System.broadcastTipmsg(Lang.Activity.ku0033,2+128)
+end
+
+--开始五分钟处理
+function CrossWorldFiveMun()
+	local sVar = System.getStaticVar()
+	sVar.StartCrossWorldFiveMin = 1
+end
+
+--开始半个小时的处理
+function CrossWorldHalfHour()
+	local sVar = System.getStaticVar()
+	sVar.StartCrossWorldHalfHour = 1
+end
+
+--播报跨服关闭倒计时
+function BroadLastCloaseCoss(bType)
+	local str
+	local nIndex = tonumber(nType)
+	if nIndex == 1 then
+		str = Lang.Activity.ku0078
+	else
+		str = Lang.Activity.ku0079
+	end
+
+	System.broadcastTipmsg(str,2+128)
+end
+
+--每10秒给经验
+function GiveCrossWorldPerExp()
+	for i=1,table.getn(CrossWorldOneConfig.LTSceneConfig) do
+		GiveAwardToCrossWorld(i)
+	end
+end
+
+--每20分钟刷次boss
+function OnFreshMosterPerMin(nType)
+	local nIndex = tonumber(nType)
+
+	if nIndex > 0 and nIndex < table.getn(CrossWorldOneConfig.perMonster) then
+		local hScene = Fuben.getSceneHandleById(CrossWorldOneConfig.NumOneSceneId, 0)
+		--Fuben.createMonster(hScene, CrossWorldOneConfig.perMonster[nIndex].id, CrossWorldOneConfig.perMonster[nIndex].posx, CrossWorldOneConfig.perMonster[nIndex].posy, CrossWorldOneConfig.perMonster[nIndex].liveTime)
+	end
+end
+
+table.insert(MainFnTable, CrossWorldOneNpc_Main)

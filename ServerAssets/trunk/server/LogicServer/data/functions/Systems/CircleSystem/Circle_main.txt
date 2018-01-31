@@ -1,0 +1,140 @@
+﻿--NPC执行：转生老人（盟重土城）
+
+--#include "data\config\circle\CircleConsumes.txt" once	--转生消耗配置
+--#include "data\config\boss\HongMengRealm.txt" once	--转生需要鸿蒙境界配置
+--#include "data\functions\Activity\Common\Consumes.txt" --消耗 通用
+
+--我要进行nCircle次转生
+function AskCircle(sysarg, packet)
+    local nCircle = DataPack.readByte(packet)
+	--local nCircle = tonumber(nCircle)
+	local config = CircleConsumes[nCircle]
+	if not config then
+		System.trace("Can not find CircleConsumes config, circle="..nCircle)
+		return 
+	end
+	
+	local maxCircle = System.getMaxCircleTimes()		--当前能转生的最大次数,世界文明度 
+	if (nCircle-1) >= maxCircle then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000063, maxCircle), ttFlyTip)
+		return
+	end             
+    --当前能转生的最大次数
+	if (nCircle-1) >= #CircleConsumes then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000063, #CircleConsumes), ttFlyTip)
+		return
+	end
+
+    --[[ 
+	local nHongMengRealm = Actor.getIntProperty(sysarg, PROP_ACTOR_HONGMENG_REALM)
+	if (nHongMengRealm < 0) or (nHongMengRealm > (table.getn(HongMengRealmConfig.HongMengRealmprop or {})-1)) then
+		return
+	end
+	
+	if HongMengRealmConfig.HongMengRealmprop[nHongMengRealm+1].nCanUpCircleTimes < nCircle then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.c0000143, ttFlyTip)
+		return
+	end --]] --屏蔽鸿蒙境界的东西 李昀 
+
+	--条件检测
+	local bCheck, nReqSoul, reqGold, reqVigour = CheckCircleCondition(sysarg, config)
+	if bCheck ~= true then return end
+	
+	--消耗检测
+	if Consumes.Check(sysarg, config.consumes) ~= true then
+		return
+	end
+
+	local sAskMsg = ""
+	if reqVigour == 0 then
+		sAskMsg = string.format(Lang.ScriptTips.c000004, nReqSoul, reqGold, nCircle, config.chgLevel)
+	else
+		sAskMsg = string.format(Lang.ScriptTips.c0000144, nReqSoul, reqGold, reqVigour, nCircle, config.chgLevel)
+	end
+    OnCircle(sysarg, nCircle)	
+end
+
+--转生
+function OnCircle(sysarg, nCircle)
+	local nCircle = tonumber(nCircle)
+	local config = CircleConsumes[nCircle]
+	if not config then
+		System.trace("Can not find CircleConsumes config, circle="..nCircle)
+		return 
+	end
+	
+	--条件检测
+	local bCheck, nReqSoul = CheckCircleCondition(sysarg, config)
+	
+	if bCheck ~= true then return end
+	
+	local logStr = string.format(Lang.LogTips.l00076, nCircle)
+	local bResult = Consumes.CheckAndRemove(sysarg, config.consumes, 809, logStr)
+	if bResult ~= true then return end
+	
+	--转生
+	Actor.setActorCircle(sysarg, nCircle, config.chgLevel)
+    
+    --触发成就事件	
+	Actor.triggerAchieveEvent(sysarg, 78,nCircle)
+
+	System.broadcastTipmsg(string.format(Lang.ScriptTips.c000024, Actor.getName(sysarg), nCircle), ttScreenCenter+ttChatWindow)
+	
+	--Actor.onActorCircleOp(sysarg)		--第一天开服活动结算
+
+	if nCircle > 0 then
+		local proMaxLev = System.getPlayerMaxLevel(nCircle-1)
+		local nowMaxLev = System.getPlayerMaxLevel(nCircle)
+		if proMaxLev < nowMaxLev then
+			Actor.messageBox(sysarg,0,0,string.format(Lang.ScriptTips.c0000141, nowMaxLev),Lang.ScriptTips.x00050.."/Cancel",nil,nil)
+		end
+	end
+	
+	SendUpCirCle(sysarg)
+	return string.format(Lang.ScriptTips.c000009, nCircle)
+end
+
+--转生条件检测
+function CheckCircleCondition(sysarg, config)
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if level < config.reqLevel then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000007, config.reqLevel), ttFlyTip)
+		return false, 0
+	end
+
+	local reqSoul = 0
+	local reqVigour = 0
+	local reqGold = 0
+	for k, v in ipairs(config.consumes) do
+		if v.type == 22 then
+			reqSoul = v.count
+		end
+		if v.type == 6 then
+			reqGold = v.count
+		end
+		if v.type == 40 then
+			reqVigour = v.count
+		end
+	end
+	--[[
+	local cSoul = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE_SOUL)
+	if cSoul < reqSoul then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000008, reqSoul), ttFlyTip)
+		return false, reqSoul
+	end
+	--]]
+
+	local result = Consumes.Check(sysarg, config.consumes)
+
+
+	return result, reqSoul, reqGold, reqVigour
+end
+
+
+--下发转生
+function SendUpCirCle(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 152, 1)
+	if (pack ~= nil) then
+		DataPack.flush(pack)
+	end
+end

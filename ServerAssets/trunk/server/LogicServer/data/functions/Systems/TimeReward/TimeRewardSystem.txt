@@ -1,0 +1,167 @@
+﻿--在线时间奖励
+
+--#include "data\language\LangCode.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+TimeRewardImplement = 
+{
+	--客户端申请领取在线奖励
+	getOnlineReward = function ( sysarg, systemid, msgid, packet )
+		if msgid ~= 1 then return end
+		local config = OnlineTimeAward
+		if not config then return end
+		
+		InitOnlineTimeAwardData(sysarg)
+		
+		local var = Actor.getStaticVar( sysarg )
+		local leaveReward = var.leaveReward
+		
+		local t = System.getCurrMiniTime()
+		
+		
+		
+		if not config[leaveReward[1]] then return end
+
+		local ordertotime = config[leaveReward[1]].interval
+
+		if (ordertotime == nil) then return end
+
+		--时间间隔是否已过
+		if ( t - leaveReward[4] < ordertotime ) then
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00004,ttFlyTip)
+			return
+		end
+		if leaveReward[5] == nil or leaveReward[5] == 0 then 
+			--local rand,config = getRewardOnlineRand(sysarg,LocalDT.TimeRewardConst.LOGINREWARD + leaveReward[1])  --记录奖励的索引
+			leaveReward[5] = GetOnlineTimeAwards(leaveReward[1])
+		end
+		local rand = leaveReward[5]
+		if rand == nil or rand == 0 then return end
+		
+		local awards = config[leaveReward[1]].awards[leaveReward[5]].award
+	
+		if not awards then return end
+		
+		local checkresult,needspace = Awards.CheckBagGridCount(sysarg, awards)
+		
+		if (checkresult ~= true) then
+			local str = string.format(Lang.ScriptTips.f00016,needspace)
+			--Actor.sendTipmsg(sysarg, str, ttFlyTip )
+			return
+		end
+		--doOnlineReward( sysarg, LocalDT.TimeRewardConst.LOGINREWARD + leaveReward[1],rand )
+		Awards.Give(sysarg, awards, 57, Lang.LogTips.l00081)
+		
+		--跨日处理
+		if ( math.floor(leaveReward[4]/86400) ~= math.floor(t/86400) ) then  
+			leaveReward[1] = 1
+			leaveReward[3] = 0
+		else
+			leaveReward[1] = leaveReward[1] + 1
+			
+		end
+		
+		if leaveReward[1] > table.getn(OnlineTimeAward) then 
+			return 
+		end    --领奖次数限制，防止发送多余次数给客户端 
+		
+		if not config[leaveReward[1]] then 
+			return 
+		end
+		leaveReward[2] = config[leaveReward[1]].interval or 0
+		leaveReward[4] = t
+		--local nextrand,nextReward = getRewardOnlineRand(sysarg,LocalDT.TimeRewardConst.LOGINREWARD + leaveReward[1])
+		leaveReward[5] = GetOnlineTimeAwards(leaveReward[1])
+		
+		--local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+		--if ( level > GetOnlineTimeAwardLimitLevel ) then return end
+		local getFlag = 1
+		if leaveReward[1] >= table.getn(OnlineTimeAward) then
+			getFlag = 0
+		end
+		
+		local nextAwards = config[leaveReward[1]].awards[leaveReward[5]].award
+		SendOnlineTimeAwardToClient(sysarg, getFlag, leaveReward[2], nextAwards)
+		
+	end,
+}
+
+function SendOnlineTimeAwardToClient(sysarg, getFlag, interval, awards)
+	
+	--138 通知客户端一次在线奖励 1
+	local npack = DataPack.allocPacket(sysarg,138,1)  --申请一个数据包
+	if (npack == nil) then return end
+	
+	local getAwards = Awards.CanGiveAwards(sysarg, awards)
+	
+	DataPack.writeByte(npack, getFlag)
+	DataPack.writeUInt(npack, interval)
+	DataPack.writeByte(npack, table.getn(getAwards))
+	for k, v in ipairs(getAwards) do
+		DataPack.writeByte(npack, v.type)
+		DataPack.writeWord(npack, v.id)
+		DataPack.writeUInt(npack, v.count) 
+		DataPack.writeByte(npack, v.strong)
+		DataPack.writeByte(npack, v.quality)
+		DataPack.writeByte(npack, v.bind)
+	end
+	
+	--DataPack.writeByte(npack,0)
+
+	DataPack.flush(npack)
+end
+
+
+function InitOnlineTimeAwardData(sysarg)
+	local var = Actor.getStaticVar( sysarg )
+	local leaveReward = var.leaveReward	--获得上次剩余的在线奖励记录 
+	local rand = 0
+	local nextReward = {} 
+	
+	local t = System.getCurrMiniTime()
+	
+	if (leaveReward == nil) then
+		var.leaveReward = {}
+		leaveReward = var.leaveReward
+		leaveReward[1] = 1 	--当前领奖次数
+		leaveReward[2] = OnlineTimeAward[1].interval or 0 --剩余倒数时间
+		leaveReward[3] = 0		--上次下线时间
+		leaveReward[4] = t		--上次领奖时间
+		--rand, nextReward = getRewardOnlineRand(sysarg, LocalDT.TimeRewardConst.LOGINREWARD + leaveReward[1])  --记录奖励的索引
+		leaveReward[5] = GetOnlineTimeAwards(leaveReward[1])	--随机到的领奖项
+	end
+	
+	if leaveReward[1] == nil then
+		leaveReward[1] = 1
+	end
+	if leaveReward[2] == nil then 
+		leaveReward[2] =  OnlineTimeAward[1].interval or 0
+	end
+	if leaveReward[3] == nil then
+		leaveReward[3] = 0 
+	end
+	if leaveReward[4] == nil then 
+		leaveReward[4] = t 
+	end
+	if leaveReward[5] == nil then 
+		--rand, nextReward = getRewardOnlineRand(sysarg, LocalDT.TimeRewardConst.LOGINREWARD + leaveReward[1])  --记录奖励的索引
+		leaveReward[5] = GetOnlineTimeAwards(leaveReward[1]) 
+	end
+end
+
+function GetOnlineTimeAwards(configIdx)
+	local randNum = math.random(100)
+	local configIdx = tonumber(configIdx)
+	local config = OnlineTimeAward[configIdx]
+	if not config or not config.awards then return 0 end
+	local awardIdx = 0
+	for k, v in ipairs(config.awards) do
+		if randNum >= v.rate[1] and randNum <= v.rate[2] then
+			awardIdx = k
+		end
+	end
+
+	return awardIdx
+end
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.timeRewardSystem, TimeRewardImplement.getOnlineReward)

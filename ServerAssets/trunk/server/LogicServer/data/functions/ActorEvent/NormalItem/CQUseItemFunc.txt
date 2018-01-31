@@ -1,0 +1,178 @@
+--lua script
+
+--#include "data\functions\Activity\PKChallenge\PKChallengeCommon.txt" once  --处理pk挑战退出
+--#include "data\functions\ExpandFunc\RedActorRelive.txt" once
+
+--祝福油
+function useBlessOilFunc(sysarg,itemidx,itemPtr,ItemTable)
+	local weaponPtr = Item.getEquipByType(sysarg, Item.itWeapon)
+	if not weaponPtr then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf047, ttDialog)		
+		return
+	end
+	local luckVal = Item.getItemProperty(sysarg, weaponPtr, Item.ipItemLuck, 0)	
+	local msgId = Lang.ScriptTips.zf042
+	if luckVal <= 0 then
+		msgId = Lang.ScriptTips.zf041
+		luckVal = luckVal + ItemTable.blessVal
+	else
+		if ItemTable.maxLv > 0 and luckVal >= ItemTable.maxLv then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf055, ttDialog)
+			return
+		end
+		local succRates = ItemTable.succRate[luckVal + ItemTable.blessVal] or ItemTable.succRate[#ItemTable.succRate]
+		local noChgRates = ItemTable.noChgRate[luckVal + ItemTable.blessVal] or ItemTable.noChgRate[#ItemTable.failRate]
+		local randVal = math.random(10000)
+		if randVal <= succRates then
+			luckVal = luckVal + ItemTable.blessVal
+			msgId = Lang.ScriptTips.zf041
+		elseif randVal > (succRates + noChgRates) then
+			luckVal = luckVal - ItemTable.blessVal
+			msgId = Lang.ScriptTips.zf043
+		end
+	end
+	if Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "use Blessing oil", 318) > 0 then
+		Item.setItemProperty(sysarg, weaponPtr, Item.ipItemLuck, luckVal )
+		Actor.sendTipmsg(sysarg, msgId, ttChatWindow)
+	end
+end
+
+--回城券
+function BackToCityFunc(sysarg,itemidx,itemPtr,ItemTable,delType)
+	if not Actor.canUseItem(sysarg,itemidx) then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00043,ttTipmsgWindow )
+		return
+	end
+	
+	--押镖不能回城
+	if Actor.getIsDartFlag(sysarg) == true then
+		Actor.sendTipmsg( sysarg, Lang.Activity.g00031,ttFlyTip )
+		return
+	end
+
+	if Actor.hasState(sysarg, esPaTaFubenBattle) then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.pataNotice021,ttFlyTip )
+		return
+	end
+
+	local delCount = 0
+	if delType == 0 then
+		delCount = Actor.removeItemByPtr(sysarg, itemPtr, 1, true, Lang.LogTips.l00112, 2)
+	elseif delType == 1 then
+		delCount = Item.removeItemDura(sysarg, itemPtr, 1, Lang.LogTips.l00112, 2, true)
+	end
+	
+	if delCount < 1 then
+		return false
+	end
+	
+	if IsInPkChallengeScene(sysarg) then
+		doClearPkData(sysarg)
+	end
+	local sendType = ItemTable.type or 2
+	if sendType == 1 then
+		if TranRedActorToRedSceen(sysarg,true) == false then
+			System.telportScene(sysarg, ItemTable.SceneId, ItemTable.x, ItemTable.y)
+		end
+	elseif sendType == 2 then
+		System.telportRandPos(sysarg)
+	elseif sendType == 3 then
+		if TranRedActorToRedSceen(sysarg,true) == false then
+			Actor.returnCity(sysarg)
+		end
+	end
+	
+	return true
+end
+
+function repairAllEquipItemFunc(sysarg,itemidx,itemPtr,ItemTable)
+	local repairTabEquip = {}
+	local repairTabMaxDua = {}
+	local equipCount = Item.getEquipCount( sysarg )  --玩家穿着装备数
+	for i = 1, equipCount do
+		local equipPtr = Item.getEquipBySortID( sysarg, i )
+		if equipPtr then
+			local curDua = Item.getItemProperty( sysarg, equipPtr, Item.ipItemDua, 0 )
+			local maxDua = Item.getItemProperty( sysarg, equipPtr, Item.ipItemDuaMax, 0 )
+			if curDua < maxDua then
+				table.insert(repairTabEquip, equipPtr)
+				table.insert(repairTabMaxDua, maxDua)
+			end
+		end
+	end
+	local msgId = Lang.ScriptTips.zf045
+	if #repairTabEquip > 0 then
+		if ItemTable.needDelete then
+			if Actor.removeItemByPtr(sysarg, itemPtr, 1, true, Lang.LogTips.l00111, 9) <= 0 then
+				return
+			end
+		end
+		for idx, equipPtr in ipairs(repairTabEquip) do
+			Item.setItemProperty( sysarg, equipPtr, Item.ipItemDua, repairTabMaxDua[idx] )
+		end
+		msgId = Lang.ScriptTips.zf044
+	end
+	Actor.sendTipmsg(sysarg, msgId, ttChatWindow)
+end
+
+function PackSmallRose( sysarg, itemidx,itemPtr,ItemTable)
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	local needGrid = Item.getAddItemNeedGridCount(sysarg, ItemTable.destId, ItemTable.destCount)
+	if bagIdxs < needGrid then
+		local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+		Actor.sendTipmsg(sysarg, noticeStr, ttScreenCenter)
+		return
+	end
+	local bindFlag = Item.getItemProperty(sysarg, itemPtr, Item.ipItemBind, 0)        --绑定
+	if Actor.removeItemByPtr( sysarg, itemPtr, 1, true, "pack rose", 5 ) > 0 then
+		Actor.addItem(sysarg, ItemTable.destId, 0, 0, ItemTable.destCount, bindFlag)
+		local destItName = Item.getItemName(ItemTable.destId)
+		local noticeStr = string.format(Lang.ScriptTips.c000057, destItName)
+		Actor.sendTipmsg(sysarg, noticeStr, ttScreenCenter)
+	end
+end
+
+function UseItemGetBuff(sysarg,itemidx,itemPtr,ItemTable)
+	if Actor.removeItemByPtr( sysarg, itemPtr, 1, true, Lang.LogTips.l00141, 860 ) > 0 then
+		for k, v in ipairs(ItemTable.buffs or {}) do
+			Actor.addBuff(sysarg,v.buffType,v.buffGroup,v.value, v.times, v.interval,v.buffName,v.timeOverlay) --添加buff
+		end
+		return true
+	end
+	return false
+end
+
+function UseItemReleaseSkill(sysarg,itemidx,itemPtr,ItemTable)
+	if Actor.removeItemByPtr( sysarg, itemPtr, 1, true, Lang.LogTips.l00142, 860 ) > 0 then
+		local x,y =	Actor.getEntityPosition(sysarg, 0, 0);
+		Actor.useSkill(sysarg, ItemTable.skillId, x, y, false, ItemTable.skillLevel)
+		return true
+	end
+	return false
+end
+
+--初始化物品使用时回调
+function CQUseItemFunc_Init(sysarg)
+	for idx, x in ipairs(BlessOil) do
+		GlobalItemFn[x.item_id] = {func = useBlessOilFunc,params = x}
+	end
+	for idx, v in ipairs(BackToCity) do
+		GlobalItemFn[v.item_id] = {func = BackToCityFunc,params = v}
+	end
+	for i = 1,table.getn(RepairItems) do
+		local x = RepairItems[i]
+		GlobalItemFn[x.item_id] = { func = repairAllEquipItemFunc, params = x }
+	end
+	for idx, v in ipairs(RosePack) do
+		GlobalItemFn[v.item_id] = {func = PackSmallRose, params = v}
+	end
+	for idx, v in ipairs(UseGetBuff) do
+		GlobalItemFn[v.item_id] = {func = UseItemGetBuff,params = v}
+	end
+	for idx, v in ipairs(UsedUseSkill) do
+		GlobalItemFn[v.item_id] = {func = UseItemReleaseSkill, params = v}
+	end
+end
+
+
+table.insert(InitFnTable, CQUseItemFunc_Init)

@@ -1,0 +1,124 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+
+--第三天 翅膀档次
+function PreBroadSwingNotice()
+	System.broadcastTipmsg(Lang.Activity.k00001,2+128)
+end
+
+--18点前的播报
+function BroadSwingTopicMsgOnTime()
+	System.broadcastTipmsg(Lang.Activity.k00002,2+128)
+end
+
+--全民活动播报
+function ThdWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00027,2+128)
+end
+
+--19点后的播报
+function BroadLeadSwingName()
+	System.broadSwingTopicMsg(0)
+end
+
+--播报信息
+function OnBroadLeadSwingMsg()
+	local nHoure,nMin,nSec = System.getTime(0,0,0)
+	if nHoure >=23 then
+		EndSwingLevelTopicMsg()
+	end
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[2].rankName)
+
+	if RankNameList ~= nil then
+		local str1 = ""
+		local str2 = ""
+		local str3 = ""
+		
+		for i=0,2 do
+			local nItemId = 0
+			local sName
+			local pItem = Ranking.getItemFromIndex(RankNameList,i)
+			local itemName
+			if pItem then
+				if i == 0 then
+					sName = Ranking.getSub(pItem,0)
+					nItemId = tonumber(Ranking.getSub(pItem,1))
+					if nItemId > 0 then
+						itemName = Item.getItemName(nItemId)
+						str1 = "<(n"..sName..")>,"..itemName
+					end
+				elseif i == 1 then
+					sName = Ranking.getSub(pItem,0)
+					nItemId = tonumber(Ranking.getSub(pItem,1))
+					if nItemId > 0 then
+						itemName = Item.getItemName(nItemId)
+						str2 =  " <(n"..sName..")>,"..itemName
+					end
+				elseif i == 2 then
+					sName = Ranking.getSub(pItem,0)
+					nItemId = tonumber(Ranking.getSub(pItem,1))
+					if nItemId > 0 then
+						itemName = Item.getItemName(nItemId)
+						str3 =  " <(n"..sName..")>"..Item.getItemName(nItemId)
+					end
+				end
+			end
+		end
+		local str = str1..str2..str3
+		
+		local tmpStr = ""
+		if nHoure >= 19  and nHoure <22 then
+			tmpStr = string.format(Lang.Activity.k00003,str)
+			System.broadcastTipmsg(tmpStr,2+128)
+		elseif nHoure < 23 then
+			tmpStr = string.format(Lang.Activity.k00004,str)
+			System.broadcastTipmsg(tmpStr,2+128)
+		end
+	end
+end
+
+--23点后的播报
+function EndSwingLevelTopicMsg()
+	local nHoure,nMin,nSec = System.getTime(0,0,0)
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[2].rankName)
+
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0) 
+		if pItem then
+			local sName = Ranking.getSub(pItem,0)
+			tmpStr = string.format(Lang.Activity.k00005,sName,Item.getItemName(OpenServerConfig.activitys[2].awards[1].id))
+			System.broadcastTipmsg(tmpStr,2+128)
+			if nMin <= 5 then
+				System.giveTenDaysActivityAward(Ranking.getId(pItem),1)
+				BroadSwingEndEffect()
+			end
+		end
+	end
+
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+end
+
+--结算后处理
+function AccountSwingTpoicActivity()
+	System.broadSwingTopicMsg(0)
+
+	System.onAccountAllActivity(OpenServerConfig.activitys[2].openDays,OpenServerConfig.activitys[2].needValue)		--全民活动结算
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+
+end
+
+--播放庆典烟花
+function BroadSwingEndEffect()
+	System.broadcastTipmsg(Lang.Activity.k00006,2+128)
+	local playerList = LuaHelp.getAllActorList()		
+	if playerList ~= nil then
+		local awardConfig = OpenServerConfig.activitys[2].AddBuff[1]
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.addBuff(player,awardConfig.buffType,awardConfig.buffGroup,awardConfig.value,awardConfig.times,awardConfig.interval,awardConfig.buffName)
+			end
+		end
+	end
+end

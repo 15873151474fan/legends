@@ -1,0 +1,608 @@
+--lua script
+--封印兽碑
+
+--#include "..\..\language\LangCode.txt"
+
+guildBossConfig =
+{
+	nTimes = 1,				--个人挑战的次数
+
+	nAddTimes = 2,			--vip玩家可以增加的次数
+	nNeedYb = {50,50},		--增加次数需要的元宝，对应第一次和第二次
+	
+	nSceneId = 169,			--封印兽碑的场景id
+	nFubenId = 50,			--个人封印兽碑的副本id
+	nPosX = 150,			--进入的坐标x
+	nPosY = 155,			--进入的坐标y
+	
+	nEnerSeneId = 8,			--进入的场景id
+
+	nBossPosX = 120,		--BOSS的刷新坐标
+	nBossPosY = 127,		--BOSS的刷新坐标
+
+	nGuildFubenId = 51,		--行会的副本id
+
+	bossConfig = 
+	{
+		--封印兽碑 第一级
+		{
+			nLevel = 1,						--封印兽碑 第一级			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 3,				--需要主殿等级
+			
+			needLevel = 40,					--需要个人等级
+			needGx = 230,					--个人挑战需要的贡献
+			guildNeedCoin = 500000,			--行会挑战消耗的行会资金
+		
+			monsterId = 784,				--怪物id
+			guildMonsterId = 774,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 0,				--升至本级需要的行会资金
+			nCdTime = 0,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 120, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 2200, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 2,
+			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 3,
+
+			needLevel = 40,	
+			needGx = 240,					--个人挑战需要的贡献
+			guildNeedCoin = 1000000,			--行会挑战消耗的行会资金
+
+			monsterId = 785,				--怪物id
+			guildMonsterId = 775,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 8000000,				--升至本级需要的行会资金
+			nCdTime = 28800,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 140, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 2400, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 3,						--封印兽碑 第一级
+			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 3,
+
+			needLevel = 40,	
+			needGx = 250,					--个人挑战需要的贡献
+			guildNeedCoin = 1500000,			--行会挑战消耗的行会资金
+
+			monsterId = 786,				--怪物id
+			guildMonsterId = 776,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 12000000,				--升至本级需要的行会资金
+			nCdTime = 36000,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 160, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 2600, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 4,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 4,
+
+			needLevel = 40,	
+			needGx = 270,
+			guildNeedCoin = 2000000,
+
+			monsterId = 787,	
+			guildMonsterId = 777,
+			nLiveTime = 1800,				
+
+			needCoin = 16000000,				--升至本级需要的行会资金
+			nCdTime = 43200,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 180, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 2800, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 5,						--封印兽碑 第一级
+			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 5,
+
+			needLevel = 40,	
+			needGx = 290,					--个人挑战需要的贡献
+			guildNeedCoin = 2500000,			--行会挑战消耗的行会资金
+
+			monsterId = 788,				--怪物id
+			guildMonsterId = 778,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 20000000,				--升至本级需要的行会资金
+			nCdTime = 50400,					--升至本级冷却时间
+ 
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 200, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 3000, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 6,
+			
+			nGuildTimes = 1,
+
+			nNeedHallLev = 6,
+
+			needLevel = 40,	
+			needGx = 310,
+			guildNeedCoin = 3000000,
+
+			monsterId = 789,	
+			guildMonsterId = 779,
+			nLiveTime = 1800,				
+
+			needCoin = 24000000,				--升至本级需要的行会资金
+			nCdTime = 64800,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 220, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 3200, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 7,						--封印兽碑 第一级
+			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 7,
+
+			needLevel = 40,	
+			needGx = 320,					--个人挑战需要的贡献
+			guildNeedCoin = 3500000,			--行会挑战消耗的行会资金
+
+			monsterId = 790,				--怪物id
+			guildMonsterId = 780,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 28000000,				--升至本级需要的行会资金
+			nCdTime = 79200,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 240, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 3400, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 8,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 8,
+
+			needLevel = 40,	
+			needGx = 350,
+			guildNeedCoin = 4000000,
+
+			monsterId = 791,	
+			guildMonsterId = 781,
+			nLiveTime = 1800,				
+
+			needCoin = 32000000,				--升至本级需要的行会资金
+			nCdTime = 93600,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 260, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 3600, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 9,						--封印兽碑 第一级
+			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 9,
+
+			needLevel = 40,	
+			needGx = 380,					--个人挑战需要的贡献
+			guildNeedCoin = 4500000,			--行会挑战消耗的行会资金
+
+			monsterId = 792,				--怪物id
+			guildMonsterId = 782,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 36000000,				--升至本级需要的行会资金
+			nCdTime = 108000,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 280, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 3800, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 10,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 10,
+
+			needLevel = 40,	
+			needGx = 410,
+			guildNeedCoin = 5000000,
+
+			monsterId = 793,	
+			guildMonsterId = 783,
+			nLiveTime = 1800,				
+
+			needCoin = 40000000,				--升至本级需要的行会资金
+			nCdTime = 122400,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 300, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 4000, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 11,						--封印兽碑 第一级
+			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 11,
+
+			needLevel = 40,	
+			needGx = 430,					--个人挑战需要的贡献
+			guildNeedCoin = 5500000,			--行会挑战消耗的行会资金
+
+			monsterId = 807,				--怪物id
+			guildMonsterId = 797,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 44000000,				--升至本级需要的行会资金
+			nCdTime = 144000,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 320, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 4200, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 12,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 12,
+
+			needLevel = 40,	
+			needGx = 470,
+			guildNeedCoin = 6000000,
+
+			monsterId = 808,	
+			guildMonsterId = 798,
+			nLiveTime = 1800,				
+
+			needCoin = 48000000,				--升至本级需要的行会资金
+			nCdTime = 165600,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 340, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 4400, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 13,
+			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 13,
+
+			needLevel = 40,	
+			needGx = 500,					--个人挑战需要的贡献
+			guildNeedCoin = 6500000,			--行会挑战消耗的行会资金
+
+			monsterId = 809,				--怪物id
+			guildMonsterId = 799,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 52000000,				--升至本级需要的行会资金
+			nCdTime = 187200,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 360, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 4600, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 14,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 14,
+
+			needLevel = 40,	
+			needGx = 540,
+			guildNeedCoin = 7000000,
+
+			monsterId = 810,	
+			guildMonsterId = 800,
+			nLiveTime = 1800,				
+
+			needCoin = 56000000,				--升至本级需要的行会资金
+			nCdTime = 208800,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 380, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 4800, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 15,						--封印兽碑 第一级
+			
+			nGuildTimes = 1,				--行会的挑战次数
+			
+			nNeedHallLev = 15,
+
+			needLevel = 40,	
+			needGx = 580,					--个人挑战需要的贡献
+			guildNeedCoin = 7500000,			--行会挑战消耗的行会资金
+
+			monsterId = 811,				--怪物id
+			guildMonsterId = 801,				--行会怪物id
+			nLiveTime = 1800,				--存活时间		
+
+			needCoin = 60000000,				--升至本级需要的行会资金
+			nCdTime = 230400,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 400, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 5000, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 16,
+			
+			nGuildTimes = 1,
+
+			nNeedHallLev = 16,
+
+			needLevel = 40,	
+			needGx = 620,
+			guildNeedCoin = 8000000,
+
+			monsterId = 812,	
+			guildMonsterId = 802,
+			nLiveTime = 1800,				
+
+			needCoin = 64000000,				--升至本级需要的行会资金
+			nCdTime = 259200,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 420, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 5200, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 17,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 17,
+
+			needLevel = 40,	
+			needGx = 670,	
+			guildNeedCoin = 8500000,
+
+			monsterId = 813,
+			guildMonsterId = 803,	
+			nLiveTime = 1800,		
+
+			needCoin = 68000000,				--升至本级需要的行会资金
+			nCdTime = 288000,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 440, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 5400, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 18,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 18,
+
+			needLevel = 40,	
+			needGx = 710,
+			guildNeedCoin = 9000000,
+
+			monsterId = 814,	
+			guildMonsterId = 804,
+			nLiveTime = 1800,				
+
+			needCoin = 72000000,				--升至本级需要的行会资金
+			nCdTime = 316800,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 460, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 5600, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 19,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 19,
+
+			needLevel = 40,	
+			needGx = 760,	
+			guildNeedCoin = 9500000,
+
+			monsterId = 815,
+			guildMonsterId = 805,	
+			nLiveTime = 1800,
+
+			needCoin = 76000000,				--升至本级需要的行会资金
+			nCdTime = 345600,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 480, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 5800, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+		{
+			nLevel = 20,
+			
+			nGuildTimes = 1,
+			
+			nNeedHallLev = 20,
+
+			needLevel = 40,	
+			needGx = 810,
+			guildNeedCoin = 10000000,
+
+			monsterId = 816,	
+			guildMonsterId = 806,
+			nLiveTime = 1800,				
+
+			needCoin = 80000000,				--升至本级需要的行会资金
+			nCdTime = 374400,					--升至本级冷却时间
+
+			--奖励的类型
+			awards = 
+			{
+				--aType 奖励的类型  nValue奖励的数量
+				{type = 3, id = 0, count = 500, strong = 0, quality = 0,},		--行会贡献
+				{type = 20, id = 3, count = 6000, strong = 0, quality = 0,},	--经验
+
+			},
+
+		},
+
+	},
+}

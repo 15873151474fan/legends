@@ -1,0 +1,67 @@
+
+--黑帮打手 张玉莲 (追踪面板的引导)
+{
+  maxLevel = 20,
+  --触发条件
+  triggerList =
+  {
+		{ type = 1, valueList = {1124,}},      --身上存在该任务（正在做）
+  } ,
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步 指向 任务追踪 导航
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },       --任务追踪面板可见
+				{ type = 15,  helpId = 51, dataList = {1,} },      --任务追踪面板没有选中第一项
+				{ type = 16,  helpId = 40, dataList = {1124,} },   --存在任务
+      },
+
+      --指向任务追踪面板第一项
+     action = { type = 2, helpId = 51, data = 1, desc = Lang.GuideLang.desc22},
+    },
+
+    --第2步 指向任务导航的怪物
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+				{ type = 27,  helpId = 40, dataList = {41,} },     --在指定场景
+				{ type = 29,  helpId = 40, dataList = {1124,} },     --任务未完成
+      },
+
+      --指向npc对话框功能选择的第一项
+      action = { type = 5, helpId = 1124, data = Lang.GuideLang.name99, desc = Lang.GuideLang.desc23 },
+    },
+
+    --第3步 指向 任务追踪 人名连接
+    {
+      condList =
+      {
+				--{ type = 1,  helpId = 50, dataList = {0,} },   		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },     --任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+				{ type = 30,  helpId = 40, dataList = {1124,} }, --任务完成
+				{ type = 16,  helpId = 40, dataList = {1124,} }, --存在任务
+      },
+
+      --指向任务寻路连接
+     action = { type = 5, helpId = 1124, data = Lang.GuideLang.name85, desc = Lang.GuideLang.desc2},
+    },
+
+    --第4步 结束占位
+    {
+      condList =
+      {
+				{ type = 17,  helpId = 40, dataList = {1124,} }, --不存在任务
+      },
+
+      --无内容
+     action = { type = 1, helpId = 0, data = 0, desc = 0},
+    },
+ }
+}

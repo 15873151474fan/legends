@@ -1,0 +1,53 @@
+
+
+function FirstLoginToLearnSkill(sysarg,arg)
+  if arg == nil then return end
+  local isFirstLogin = arg[1]
+  --print("arg[1]:"..arg[1])
+  if (isFirstLogin == 1) then
+	Actor.sendLearnSkill(sysarg) --下发技能列表
+	if Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) == enVocJianzong then	    	--如果是剑宗 
+	     	local err = Actor.learnSkill(sysarg,3,1)		--学会技能4，初始是1级的技能	 
+	     	--print("learnSkill:skillid=3,err = "..err)
+		end
+
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) == enVocQizong then	    	--如果是气宗 
+	     	local err = Actor.learnSkill(sysarg,3,1)		--学会技能4，初始是1级的技能	     
+	     	--print("learnSkill:skillid=3,err = "..err)	
+		end
+
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) == enVocLinghua then	    	--如果是灵华 
+	     	local err = Actor.learnSkill(sysarg,32,1)		--学会技能5，初始是1级的技能	 
+	     	--print("learnSkill:skillid=32,err = "..err)
+		end
+
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) == enVocSiming then	    	--如果是司命 
+	     	local err = Actor.learnSkill(sysarg,32,1)		--学会技能5，初始是1级的技能	 
+	     	--print("learnSkill:skillid=32,err = "..err)
+		end
+		
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) == enVocYijin then	    	--如果是易筋 
+	     	local err = Actor.learnSkill(sysarg,17,1)		--学会技能5，初始是1级的技能	 
+	     	--print("learnSkill:skillid=17,err = "..err)
+		end
+
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) == enVocXisui then	    	--如果是冼髓
+	     	local err = Actor.learnSkill(sysarg,17,1)		--学会技能5，初始是1级的技能	 
+	     	--print("learnSkill:skillid=17,err = "..err)
+		end
+
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) == enVocJianshi then	    	--如果是剑士
+	     	local err = Actor.learnSkill(sysarg,45,1)		--学会技能5，初始是1级的技能	 
+	     	--print("learnSkill:skillid=45,err = "..err)
+		end
+
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) == 	enVocRenzhe then	    	--如果是忍者 
+	     	local err = Actor.learnSkill(sysarg,58,1)		--学会技能5，初始是1级的技能	 
+	     	--print("learnSkill:skillid=58,err = "..err)
+		end    
+  end 
+
+end
+
+
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, FirstLoginToLearnSkill)

@@ -1,0 +1,368 @@
+﻿--lua script
+--宠物操作功能通用功能接口
+
+
+
+
+local DROPNAME = "rollskill" --掉落 对象前缀
+
+
+
+
+--[[
+    函数名称：sendClientHeroOperateMsg
+    函数描述：组包发给宠物消耗信息客户端
+    参数 sysarg 的描述：
+    参数 args 的描述： 事件参数
+    参数 consumes 的描述：消耗表
+]]
+function sendClientHeroOperateMsg(sysarg, args, consumes, prob,protestConsume)
+  local type = tonumber(args[1])
+  local count = table.getn(consumes)
+  if prob == nil then prob = 0 end
+	local npack = DataPack.allocPacket(sysarg,34,12)    -- 返回34号子系统的12号包  客户端向服务器请求消耗，需要组包发给客户端
+	if npack == nil then return end
+	DataPack.writeByte(npack,type)       --消耗的类型，也就是第1个参数  1：表示强化2：表示洗资质3：表示转生
+	DataPack.writeByte(npack,count)  --消耗的数目  消耗的类型数目，比如有n个，那么后面接n个数据为
+	for i=1, count do
+		DataPack.writeByte(npack,consumes[i].type)     --消耗的类型，同任务奖励的类型
+		DataPack.writeShort(npack,consumes[i].id)     --消耗的id
+		DataPack.writeInt(npack,consumes[i].count)     --消耗的数目
+	end
+	DataPack.writeShort(npack,prob) --成功率
+  --没有保护的消耗 
+  if(protestConsume ==nil) then
+	   DataPack.writeByte(npack,0)   
+  else
+      count = table.getn(protestConsume)
+      DataPack.writeByte(npack,count)   
+      for i=1, count do
+     	  DataPack.writeByte(npack,protestConsume[i].type)     --消耗的类型，同任务奖励的类型
+	     	DataPack.writeShort(npack,protestConsume[i].id)     --消耗的id
+		    DataPack.writeInt(npack,protestConsume[i].count)     --消耗的数目
+      end
+  end 
+	DataPack.flush(npack)
+end
+
+
+--[[
+    函数名称：getHeroConsume
+    函数描述：获取宠物消耗
+    参数 sysarg 的描述：
+    参数 args 的描述：
+    参数 HeroConsume 的描述：消耗表
+    参数 enHeroType 的描述： 类型
+]]
+function getHeroConsume(sysarg, args, HeroConsume, enHeroType)
+  local petId = args[2] --宠物的ID
+  if (not petId) or (not HeroConsume) then return false end
+  --宠物属性
+  local petMsg = Hero.getHeroProperty(sysarg, petId, enHeroType)
+  --配置最大属性限制
+  local Max = table.getn(HeroConsume)
+  --宠物是否属性满级
+  if (petMsg >= Max) then return nil,0,nil end
+  local pet = (petMsg+1)
+  if (not HeroConsume[pet]) then return false end
+  return HeroConsume[pet].consume,HeroConsume[pet].showprop,HeroConsume[pet].protectConsume  
+end
+
+
+
+--[[
+    函数名称：checkConsumes
+    函数描述：检测材料是否满足条件
+    参数 sysarg 的描述：
+    参数 consumes 的描述：材料表
+]]
+function checkConsumes(sysarg, consumes, args)
+  if (not consumes) then return false end
+  local canConsume = true
+  local tipMsg = ""
+
+  for _,v in ipairs(consumes) do
+	local consume = v
+    --[[
+			atEquipment=0,//道具或者装备
+			atXiuwei =1,  //修为
+			atExp =2,	//角色经验值
+			atGuildContribution=3,	//帮派贡献值
+			atZYContribution=4,//阵营贡献
+			atBindMoney=5,	//绑定银两
+			atMoney=6,	//银两
+			atLiJin=7,	//礼金
+			atTitle=8,	//称谓
+			atSkill=9,	//奖励技能
+			atZhanhun=10, // 战魂
+			atchengjiupoint = 11,	//成就点
+			qatHero =13,                  //宠物,这里id表示宠物的等级,count表示宠物的个数
+      --]]
+    if consume.type == 0 then
+      if Actor.getItemCount(sysarg, consume.id, -1, -1, -1) < consume.count then
+        local itemName = Item.getItemName(consume.id)
+        tipMsg = itemName 
+        canConsume = false
+        break
+      end
+    elseif consume.type == 1 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_XIUWEI) < consume.count then
+        tipMsg = Lang.ScriptTips.x00100
+        canConsume = false
+        break
+      end
+    elseif consume.type == 2 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_EXP) < consume.count then
+        tipMsg = Lang.ScriptTips.x00101 
+        canConsume = false
+        break
+      end
+    elseif consume.type == 3 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_GUILDEXP) < consume.count then
+        tipMsg = Lang.ScriptTips.x00102
+        canConsume = false
+        break
+      end
+    elseif consume.type == 4 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_ZYCONT_DONOT_DONOT_MODIFY_DIRECT) < consume.count then
+        tipMsg = Lang.ScriptTips.x00103
+        canConsume = false
+        break
+      end
+    elseif consume.type == 5 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_COIN) + Actor.getIntProperty(sysarg, PROP_ACTOR_COIN) < consume.count then
+
+		tipMsg = Lang.ScriptTips.x00104
+		canConsume = false
+		break		
+      end
+    elseif consume.type == 6 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_COIN) < consume.count then
+        tipMsg = Lang.ScriptTips.x00105
+        canConsume = false
+        break
+      end
+    elseif consume.type == 7 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO) < consume.count then
+        tipMsg = Lang.ScriptTips.x00106
+        canConsume = false
+        break
+      end
+    --[[
+    elseif consume.type == 8 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_MAX_XIUWEI) < consume.count then
+        canConsume = false
+        break
+      end
+    elseif consume.type == 9 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_MAX_XIUWEI) < consume.count then
+        canConsume = false
+        break
+      end
+    --]]
+    elseif consume.type == 10 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_ZHANHUN) < consume.count then
+        tipMsg = Lang.ScriptTips.x00107
+        canConsume = false
+        break
+      end
+    elseif consume.type == 11 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_ACIEVEPOINT) < consume.count then
+        tipMsg = Lang.ScriptTips.x00108
+        canConsume = false
+        break
+      end
+    elseif consume.type == 13 then
+      local petConsume = args[3]
+      if not petConsume then
+        tipMsg = Lang.ScriptTips.x00117
+        canConsume = false
+        break
+      elseif Hero.getHeroProperty(sysarg, petConsume, 1) < consume.id then
+        tipMsg = Lang.ScriptTips.x00118
+        canConsume = false
+        break
+      end
+    elseif  consume.type == 15 then    --元宝
+        if Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO) < consume.count then
+          tipMsg = Lang.ScriptTips.x00096
+          canConsume = false
+          break
+        end
+    end
+  end
+  return canConsume, tipMsg
+end
+
+
+
+ 
+ --[[
+    函数名称：getHeroOpLogIdDesc
+    函数描述：获取宠物的消费的日志的ID和描述
+    参数 reaseon 的描述：消费的原因 
+      local seHeroStrong =11            --开始强化
+			local seHeroSmith =12             --开始洗资质
+			local seHeroCircle =13            --转生
+			local seHeroFeed =14              --喂养宠物
+			local seHeroBorn =15              --宠物出生
+			local seHeroBattle = 16			     --宠物出战
+			local seHeroChangeType =17        --宠物改变攻击类型
+			local seHeroChangeSkin =18        --宠物改变外形
+			local seHeroChangeMergeRate =19   --宠物改变附体品质
+    参数 consumeType 的描述：消费的类型 
+]]
+local  function getHeroOpLogIdDesc(reaseon,consumeType)
+    local logid=0
+    local desc =Lang.LogTips.p00000
+    if(consumeType == 5 or consumeType == 6 or  consumeType == 15 or consumeType == 7) then --金钱 
+      logid = 155
+    elseif(consumeType ==0) then --道具 
+      logid = 84
+    end  
+    
+    if(reaseon == 11) then
+       desc =Lang.LogTips.p00001
+    elseif(reaseon == 12) then
+       desc =Lang.LogTips.p00002
+    elseif(reaseon == 13) then
+       desc =Lang.LogTips.p00003
+    elseif(reaseon == 14) then
+       desc =Lang.LogTips.p00004
+    elseif(reaseon == 15) then
+       desc =Lang.LogTips.p00005
+    elseif(reaseon == 16) then
+       desc =Lang.LogTips.p00006
+    elseif(reaseon == 17) then
+       desc =Lang.LogTips.p00007
+    elseif(reaseon == 18) then
+       desc =Lang.LogTips.p00008
+    elseif(reaseon == 19) then
+       desc =Lang.LogTips.p00009
+    elseif(reaseon == 20) then
+       desc =Lang.LogTips.p00010
+    end
+    return logid, desc
+end
+
+
+--[[
+    函数名称：getConsumes
+    函数描述：扣除材料是否成功
+    参数 sysarg 的描述：
+    参数 consumes 的描述：材料表
+    参数 reason 的描述：消耗的原因
+]]
+function getConsumes(sysarg, consumes,reason)
+  
+  if (not consumes) then return false end
+  local canConsume = true
+  local tipMsg = ""
+  
+  --for i=1, #consumes do
+  for _,v in ipairs(consumes) do
+    --local consume = consumes[i]
+    local consume = v
+    --[[
+			atEquipment=0,//道具或者装备
+			atXiuwei =1,  //修为
+			atExp =2,	//角色经验值
+			atGuildContribution=3,	//帮派贡献值
+			atZYContribution=4,//阵营贡献
+			atBindMoney=5,	//绑定银两
+			atMoney=6,	//银两
+			atLiJin=7,	//礼金
+			atTitle=8,	//称谓
+			atSkill=9,	//奖励技能
+			atZhanhun=10, // 战魂
+			atchengjiupoint = 11,	//成就点
+			qatHero =13,                  //宠物,这里id表示宠物的等级,count表示宠物的个数
+			14 :活跃度
+      15 元宝 
+      --]]
+    local logid,logDesc = getHeroOpLogIdDesc(reason,consume.type)
+    if consume.type == 0 then
+      if Actor.removeItem(sysarg, consume.id, consume.count, -1, -1, -1,logDesc, logid) < consume.count then
+        local itemName = Item.getItemName(consume.id)
+        tipMsg = itemName
+        canConsume = false
+        break
+      end
+    elseif consume.type == 1 then
+      local prop = Actor.getIntProperty(sysarg, PROP_ACTOR_XIUWEI)
+      if Actor.setUIntProperty(sysarg, PROP_ACTOR_XIUWEI, tonumber(prop-consume.count)) == false then
+        tipMsg = Lang.ScriptTips.x00100
+        canConsume = false
+        break
+      end
+    elseif consume.type == 2 then
+      local prop = Actor.getIntProperty(sysarg, PROP_ACTOR_EXP)
+      if Actor.setUIntProperty(sysarg, PROP_ACTOR_EXP, tonumber(prop-consume.count)) == false then
+        tipMsg = Lang.ScriptTips.x00101
+        canConsume = false
+        break
+      end
+    elseif consume.type == 3 then
+      local prop = Actor.getIntProperty(sysarg, PROP_ACTOR_GUILDEXP)
+      if Actor.setUIntProperty(sysarg, PROP_ACTOR_GUILDEXP, tonumber(prop-consume.count)) == false then
+        tipMsg = Lang.ScriptTips.x00102
+        canConsume = false
+        break
+      end
+    elseif consume.type == 4 then
+      Actor.changeZYCount(sysarg, -(consume.count),"pet")
+    elseif consume.type == 5 then
+		if(Actor.consumeCoin(sysarg,consume.count,logid,logDesc,true,true) ==false) then
+			tipMsg = Lang.ScriptTips.x00104
+			canConsume = false
+			break
+		end
+    elseif consume.type == 6 then
+      if Actor.changeMoney(sysarg, mtCoin, -(consume.count), logid, logDesc) == false then
+        tipMsg = Lang.ScriptTips.x00105
+        canConsume = false
+        break
+      end
+    elseif consume.type == 7 then
+      if Actor.changeMoney(sysarg, mtBindYuanbao, -(consume.count), logid, logDesc) == false then
+        tipMsg = Lang.ScriptTips.x00106
+        canConsume = false
+        break
+      end
+    --[[
+    elseif consume.type == 8 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_MAX_XIUWEI) < consume.count then
+        canConsume = false
+        break
+      end
+    elseif consume.type == 9 then
+      if Actor.getIntProperty(sysarg, PROP_ACTOR_MAX_XIUWEI) < consume.count then
+        canConsume = false
+        break
+      end
+    --]]
+    elseif consume.type == 10 then
+      local prop = Actor.getIntProperty(sysarg, PROP_ACTOR_ZHANHUN)
+      if Actor.setUIntProperty(sysarg, PROP_ACTOR_ZHANHUN, tonumber(prop-consume.count)) == false then
+        tipMsg = Lang.ScriptTips.x00107
+        canConsume = false
+        break
+      end
+    elseif consume.type == 11 then
+      local prop = Actor.getIntProperty(sysarg, PROP_ACTOR_ACIEVEPOINT)
+      if Actor.setUIntProperty(sysarg, PROP_ACTOR_ACIEVEPOINT, tonumber(prop-consume.count)) == false then
+        tipMsg = Lang.ScriptTips.x00108
+        canConsume = false
+        break
+      end
+    elseif consume.type == 15 then  --扣除元宝 
+        if Actor.changeMoney(sysarg, mtYuanbao, -(consume.count), logid, logDesc) == false then
+          tipMsg = Lang.ScriptTips.x00096
+          canConsume = false
+          break
+       end
+    end
+  end
+  return canConsume, tipMsg
+end
+

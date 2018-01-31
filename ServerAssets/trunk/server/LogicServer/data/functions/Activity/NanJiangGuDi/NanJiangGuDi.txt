@@ -1,0 +1,331 @@
+﻿--lua script
+--南疆谷地
+
+--#include "data\config\activityconfig\NanJiangGuDi\NanJiangGuDiConfig.txt" once 
+--#include "data\functions\Activity\Common\Misc.txt" once
+
+--请求挖宝
+function ReqDigTreasure(sysarg, packet) 
+	local actorVar = Actor.getDyanmicVar(sysarg)
+	if actorVar.TmPosX == nil or actorVar.TmPosY == nil then
+		actorVar.TmPosX = 0
+		actorVar.TmPosY = 0
+	end
+
+	if Actor.getItemCount(sysarg,NanJiangGuDiConfig.treasureMapId) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd015, ttFlyTip)  
+		actorVar.TmPosX = 0
+		actorVar.TmPosY = 0
+		SendDigTreasureRet(sysarg, 0)
+		return
+    end
+	
+	local hScene = Fuben.getSceneHandleById(8,0)
+	local npcPtr = Fuben.getNpcPtrByName(hScene, FireworksFeastCfg.npcName) 
+	
+	
+	local sceneId = Actor.getSceneId(sysarg)
+	local actorSceName, acotrX, actorY = Actor.getSceneName(sysarg, 0, 0)
+	
+	if sceneId ~= NanJiangGuDiConfig.sceneId or (math.abs(actorVar.TmPosX - acotrX) > 5 or math.abs(actorVar.TmPosY - actorY) > 5) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd013, ttFlyTip)
+		return 
+	end	
+
+	local idx = GetCfgRandomInfo(NanJiangGuDiConfig.treasureAwardList, nil) 
+	if idx <= 0 then
+		idx = table.getn(NanJiangGuDiConfig.treasureAwardList)
+	end
+	
+	Actor.useSkill(sysarg, NanJiangGuDiConfig.treasureAwardList[idx].skillId, 0, 0, false, 
+		NanJiangGuDiConfig.treasureAwardList[idx].level)
+	
+	Actor.removeConsume(sysarg, 0, NanJiangGuDiConfig.treasureMapId, 1, -1, -1, -1, 0, 974, Lang.LogTips.njgd001) 
+	
+	actorVar.TmPosX = 0
+	actorVar.TmPosY = 0
+	
+	SendDigTreasureRet(sysarg, 0)
+end
+
+--发送藏宝位置
+function SendTreasurePos(sysarg, itemPtr)
+	local actorVar = Actor.getDyanmicVar(sysarg)
+	if actorVar.TmPosX == nil or actorVar.TmPosY == nil then
+		actorVar.TmPosX = 0
+		actorVar.TmPosY = 0
+	end
+	
+	local posX = 0
+	local posY = 0
+	if actorVar.TmPosX == 0 and actorVar.TmPosY == 0 then
+		local idx = GetCfgRandomInfo(NanJiangGuDiConfig.posTab, nil)  
+		if idx <= 0 then
+			idx = table.getn(NanJiangGuDiConfig.posTab)
+		end
+		local posConfig = NanJiangGuDiConfig.posTab[idx]
+		
+		actorVar.TmPosX = posConfig.posX
+		actorVar.TmPosY = posConfig.posY 
+		posX = posConfig.posX
+		posY = posConfig.posY 
+	
+	else
+		posX = actorVar.TmPosX
+		posY = actorVar.TmPosY
+	end
+
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 97)
+	if not pack then
+		return
+	end
+	
+	DataPack.writeWord(pack, NanJiangGuDiConfig.sceneId) 
+	DataPack.writeWord(pack, posX)
+	DataPack.writeWord(pack, posY)
+	
+	DataPack.flush(pack)
+
+end 
+
+--发送挖宝结果
+function SendDigTreasureRet(sysarg, result)
+	local pack = DataPack.allocPacket(sysarg, 145, 98) 
+	if not pack then
+		return
+	end
+	DataPack.writeWord(pack, result)
+	DataPack.flush(pack)
+
+end
+
+--使用蓝翔铁铲给奖励
+function GiveUseShovelAward(sysarg)
+	
+	local idx = GetCfgRandomInfo(NanJiangGuDiConfig.shovelAwardList, nil) 
+	if idx <= 0 then
+		idx = table.getn(NanJiangGuDiConfig.shovelAwardList)
+	end
+	
+	local shovelAwardList = NanJiangGuDiConfig.shovelAwardList[idx]
+	for k, v in ipairs(shovelAwardList.awardList or {}) do 
+		Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 974, Lang.LogTips.njgd003) 
+		if v.isBrocast then
+           System.broadcastTipmsg(string.format(Lang.Activity.njgd048, Actor.getName(sysarg), Item.getItemLinkMsg(v.id)),2+128)
+		end
+	end	
+end
+
+--设置元宝出售开启状态
+function SetOpenYbSell() 
+	local SysVar = System.getDyanmicVar()
+	SysVar.OpenYbSell = 0
+
+	local itemIdx = GetCfgRandomInfo(NanJiangGuDiConfig.specialItemPriceList, nil)  
+	if itemIdx <= 0 then
+		itemIdx = table.getn(NanJiangGuDiConfig.specialItemPriceList)
+	end
+	
+	local itemConfig = NanJiangGuDiConfig.specialItemPriceList[itemIdx] 
+	SysVar.YsItemId = itemConfig.itemId
+	
+	local priceIdx = GetCfgRandomInfo(itemConfig.priceList, nil)  
+	if priceIdx <= 0 then
+		priceIdx = table.getn(itemConfig.priceList)
+	end
+	SysVar.YsItemPrice = itemConfig.priceList[priceIdx].price
+	
+	local countIdx = GetCfgRandomInfo(itemConfig.countList, nil)  
+	if countIdx <= 0 then
+		countIdx = table.getn(itemConfig.countList)
+	end
+	SysVar.YsItemCount = itemConfig.countList[countIdx].count
+	
+	SysVar.OpenYbSell = true
+
+end
+
+function ForcastOpenYbSell(type, time)
+  local type = tonumber(type)
+  local time = tonumber(time) 
+  if type == 1 then
+     System.broadcastTipmsg(Lang.Activity.njgd049,2+128)   
+  elseif type == 2 then
+     System.broadcastTipmsg(string.format(Lang.Activity.njgd047, time),2+128)
+  end 
+end
+ 
+--元宝出售
+function SellByYb(sysarg)
+	local SysVar = System.getDyanmicVar()
+	if SysVar.OpenYbSell == nil or SysVar.OpenYbSell == 0 then
+		return 
+	end
+	
+	if SysVar.YsItemCount and SysVar.YsItemCount <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd009, ttFlyTip)
+		return 
+	end
+	
+	if SysVar.YsItemId and SysVar.YsItemId > 0 then
+		if Actor.getItemCount(sysarg, SysVar.YsItemId) < 1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.njgd010, ttFlyTip)
+			return
+		end
+	end
+	
+	if Actor.removeConsume(sysarg, 0, SysVar.YsItemId, 1, -1, -1, -1, 0, 974, Lang.LogTips.njgd007) > 0 then
+		if SysVar.YsItemPrice and SysVar.YsItemPrice > 0 then
+			Actor.changeMoney(sysarg, 3, SysVar.YsItemPrice, 974, Lang.LogTips.njgd005) 
+            System.broadcastTipmsg(string.format(Lang.Activity.njgd050, Actor.getName(sysarg), Item.getItemLinkMsg(SysVar.YsItemId)),2+128)
+		end
+	
+		if SysVar.YsItemCount and SysVar.YsItemCount > 0 then
+			SysVar.YsItemCount = SysVar.YsItemCount - 1 
+		end
+	end
+	
+	return HaiYanShanFanDialog(sysarg)
+	
+end
+
+--离开
+function Quit(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+--金币出售
+function SellItemByCoin(sysarg, strIdx)
+	local idx = tonumber(strIdx)
+	if idx < 0 or idx > table.getn(NanJiangGuDiConfig.itemPriceList) then
+		return 
+	end	
+	
+	local itemConfig = NanJiangGuDiConfig.itemPriceList[idx] 
+	
+	if Actor.getItemCount(sysarg, itemConfig.itemId) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd010, ttFlyTip) 
+		return 
+	end
+	
+	if Actor.removeConsume(sysarg, 0, itemConfig.itemId, 1, -1, -1, -1, 0, 974, Lang.LogTips.njgd007) > 0 then
+		Actor.changeMoney(sysarg, 0, itemConfig.coin, 974, Lang.LogTips.njgd006) 
+	end
+	
+end
+
+--金币出售
+function SellByCoin(sysarg)
+	local str = ""	
+	for k, v in ipairs(NanJiangGuDiConfig.itemPriceList or {}) do 
+		local itemName = Item.getAwardDesc(0, v.itemId)
+		str = str.."\\<#BL"..(string.format(Lang.Activity.njgd007, itemName, v.coin)).."/@SellItemByCoin,"..k..">"
+	end
+	
+	str = str.."\\<#BL"..Lang.Activity.njgd008.."/@OpenHaiYaoShanFan>" --返回 
+
+	return str
+
+end
+
+
+--购买蓝翔铁铲
+function BuyShovel(sysarg)
+	local curCount  = GetNanjiangGuDiData(sysarg, 0)
+	if curCount >= NanJiangGuDiConfig.buyShovelCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd012, ttFlyTip)
+		return 
+	end
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.njgd002, 1), ttFlyTip)    
+		return
+	end
+	
+	if Actor.changeMoney(sysarg, 3, -(NanJiangGuDiConfig.buyShovelYb), 974, Lang.LogTips.njgd004) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.njgd011, ttFlyTip)
+		return
+	end
+	
+	if Actor.giveAward(sysarg, 0, NanJiangGuDiConfig.shovelId, 1, 0, 0, 0, 0, 974, Lang.LogTips.njgd008) then
+		UpdateNanJiangGuDiData(sysarg, 0, 1)
+	end
+	
+	return HaiYanShanFanDialog(sysarg)
+end 
+
+--更新购买次数
+function UpdateNanJiangGuDiData(sysarg, subIdx, val)
+	local rankPtr = Ranking.getRanking(Lang.Rank.NanJiangGuDiFile) 
+	if not rankPtr then
+		return 
+	end
+	
+	local id = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local itemPtr = Ranking.getItemPtrFromId(rankPtr, id)
+	if not itemPtr then
+		itemPtr = Ranking.addItem(rankPtr, id, 0)
+	end
+	
+	if itemPtr then
+		local curVal = tonumber(Ranking.getSub(itemPtr, subIdx)) or 0  
+		Ranking.setSub(itemPtr, subIdx, curVal+val) 
+	end
+
+end 
+
+--获取购买次数
+function GetNanjiangGuDiData(sysarg, subIdx) 
+	local val = 0
+	local rankPtr = Ranking.getRanking(Lang.Rank.NanJiangGuDiFile)
+	if not rankPtr then
+		return val
+	end
+
+	local id = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local itemPtr = Ranking.getItemPtrFromId(rankPtr, id)
+	if itemPtr then
+		val = tonumber(Ranking.getSub(itemPtr, subIdx)) or 0 
+	end
+	
+	return val
+end
+
+--重置购买次数
+function ResetNanjiangGuDiData() 
+	local rankPtr = Ranking.getRanking( Lang.Rank.NanJiangGuDiFile ) 		
+	if rankPtr then
+		Ranking.clearRanking(rankPtr)
+	end
+end
+
+function HaiYanShanFanDialog(sysarg)
+	local str = ""
+	local SysVar = System.getDyanmicVar()
+	
+	if SysVar.OpenYbSell and SysVar.OpenYbSell == 1 then 
+		local itemName = ""
+		local itemPrice = 0
+		local itemCount = 0
+		if SysVar.YsItemId and SysVar.YsItemId > 0 then
+			itemName = Item.getAwardDesc(0, SysVar.YsItemId)
+		end
+		if SysVar.YsItemPrice and SysVar.YsItemPrice > 0 then
+			itemPrice = tonumber(SysVar.YsItemPrice) 
+			
+		end
+		if SysVar.YsItemCount and SysVar.YsItemCount > 0 then 
+			itemCount = tonumber(SysVar.YsItemCount)
+		end
+		
+		str = str.."\\<#BL"..(string.format(Lang.Activity.njgd003, itemPrice, itemName, itemCount)).."/@SellByYb>"  --元宝出售
+		
+	end
+	
+	local remainCount = NanJiangGuDiConfig.buyShovelCount - GetNanjiangGuDiData(sysarg, 0)
+	str = str.."\\<#BL"..(string.format(Lang.Activity.njgd004, NanJiangGuDiConfig.buyShovelYb, remainCount)).."/@BuyShovel>" --购买铁铲
+	str = str.."\\<#BL"..Lang.Activity.njgd005.."/@SellByCoin>" --金币出售 
+	str = str.."\\<#BL"..Lang.Activity.njgd008.."/@main>" --返回 
+	return str
+end

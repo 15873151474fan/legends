@@ -1,0 +1,149 @@
+--夫妻副本，高级丢人
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s14L1Desc,--技能的描述
+	
+	iconID=14,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-10,--相对于中心点x左边的相对坐标
+			xEnd=10,--相对于中心点x右边的相对坐标
+			yStart=-10,--相对于中心点y上边的相对坐标
+			yEnd=10,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 6,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=1,delay=0, buffType=62,id=64,interval=10,value=197,level=9},
+						{mj=0,timeParam=10000,type=20,delay=0,value=1,id=1},
+					},
+
+					specialEffects=
+					{
+					--{type=1,mj=0,id=18,keepTime=1000,delay=500,always=false},					
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-10,--相对于中心点x左边的相对坐标
+			xEnd=10,--相对于中心点x右边的相对坐标
+			yStart=-10,--相对于中心点y上边的相对坐标
+			yEnd=10,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 6,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=62,delay=0,id=0,value=0,},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=8,keepTime=420,delay=500,always=false},					
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=2,id=176,value=2},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=8,keepTime=420,delay=500,always=false},					
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=17,id=1150,delay=0, interval=60,value=10,buffType=1,rate=5},
+					},
+
+					specialEffects=
+					{
+					--{type=1,mj=0,id=18,keepTime=1000,delay=500,always=false},					
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		--{cond=1,value=30,consume=false},--表示等级要1级
+		--{cond=3,value=437,consume=true,exceptVip=true },--表示书本
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=20,consume=false},--消耗蓝10
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=40000,
+
+},

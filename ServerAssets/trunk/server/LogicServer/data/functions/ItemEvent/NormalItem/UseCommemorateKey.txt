@@ -1,0 +1,24 @@
+﻿--清明活动之祭念先贤活动 使用宝箱
+--#include "data\config\activityconfig\SheepQingMing\CommemorateConfig.txt" once
+--#include "data\functions\Activity\SheepQingMing\Commemorate.txt" once
+
+--[[
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表
+--]]
+
+--使用物品
+function UseCommemorate(sysarg, itemidx)
+	UseCommemorateKey(sysarg, itemidx)
+end
+
+--注册钥匙以及宝箱
+function CommemorateKeyInit(sysarg)
+	for k,v in ipairs(CommemorateConfig.keyId) do
+		GlobalItemFn[v] = { func = UseCommemorate}
+	end
+end
+
+table.insert(InitFnTable, CommemorateKeyInit)

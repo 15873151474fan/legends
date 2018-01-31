@@ -1,0 +1,31 @@
+--按照概率和掉落的配置,id表示物品的id   表名要一致用drops 
+--count表示物品的数量,
+--strong 强化等级,如果是小于0的表示0-n随机
+-- quality 品质如果是小于0的表示0-n随机 ,比如-3表示0到3之间随机
+-- strongMin 表示最小的强化等级, 如果配置了，那么随出了一个物品的强化低于这个值将设置为这个值，这个不配置就是0
+-- qualityMin:表示最小的品质等级
+--propability概率，概率的数字越大的话掉的物品的概率越高
+--bind绑定的标记
+--group是分组的id，类似怪物的爆率的配置
+
+--掉落配置 
+drops=
+{
+ { id=785,count=1,strong =0,quality=0, propability=2, bind=1,group=1,},
+ { id=1002,count=1,strong =0,quality=0, propability=2, bind=1,group=1,},
+ { id=1559,count=1,strong =0,quality=0, propability=4, bind=1,group=1,},
+ { id=1662,count=1,strong =0,quality=0, propability=5, bind=1,group=1,},
+ { id=1588,count=1,strong =0,quality=0, propability=4, bind=1,group=1,},
+ { id=1552,count=1,strong =0,quality=0, propability=5, bind=1,group=1,},
+ { id=1551,count=1,strong =0,quality=0, propability=5, bind=1,group=1,},
+ { id=599,count=10,strong =0,quality=0, propability=12, bind=1,group=1,},
+ { id=1442,count=1,strong =0,quality=0, propability=5, bind=1,group=1,},
+ { id=1658,count=1,strong =0,quality=0, propability=5, bind=1,group=1,},
+ { id=606,count=10,strong =0,quality=0, propability=12, bind=1,group=1,},
+ { id=596,count=2,strong =0,quality=0, propability=12, bind=1,group=1,},
+ { id=1688,count=1,strong =0,quality=0, propability=5, bind=1,group=1,},
+ { id=602,count=2,strong =0,quality=0, propability=12, bind=1,group=1,},
+ { id=1694,count=1,strong =0,quality=0, propability=5, bind=1,group=1,},
+ { id=1700,count=1,strong =0,quality=0, propability=5, bind=1,group=1,},
+
+}

@@ -1,0 +1,98 @@
+--lua script
+--马年圣诞大盗宝箱配置
+
+ChristmasTreasureCfg =
+{
+	actTime = {2014, 12, 23, 0, 0, 0,  2014, 12, 27, 23, 59, 59}, --活动时间范围
+	level = 50, --等级要求
+	keyId = {3333,3334,3335,3336}, --青铜，白银，黄金 三种钥匙的id 以及 宝箱id
+
+	--购买钥匙
+	buyKey =
+	{
+		--青铜钥匙
+		{
+			consumes = {type=15, id=0, count=20},
+			awards = {type=0, id=3333, count=1, bind = 1},
+		},
+		--白银钥匙
+		{
+			consumes = {type=15, id=0, count=100},
+			awards = {type=0, id=3334, count=1, bind = 1},
+		},
+		--黄金钥匙
+		{
+			consumes = {type=15, id=0, count=200},
+			awards = {type=0, id=3335, count=1, bind = 1},
+		},
+	},
+
+	actiList = 
+	{
+		--使用青铜钥匙
+		{
+			needBagCount = 3,--需要的空格数
+			awards = 
+			{
+				{id = 3231,  count = 5,  strong = 0, quality = 0, bind = 1, rate = 1389, broadcast = 0,}, --概率和为10000
+				{id = 2984,  count = 2,  strong = 0, quality = 0, bind = 1, rate = 1389, broadcast = 0,},
+				{id = 2627,  count = 1,  strong = 0, quality = 0, bind = 1, rate = 833 , broadcast = 0,},
+				{id = 1172,  count = 2,  strong = 0, quality = 0, bind = 1, rate = 833 , broadcast = 0,},
+				{id = 2986,  count = 1,  strong = 0, quality = 0, bind = 1, rate = 1111, broadcast = 0,},
+				{id = 2895,  count = 1,  strong = 0, quality = 0, bind = 1, rate = 833 , broadcast = 0,},
+				{id = 3326,  count = 1,  strong = 0, quality = 0, bind = 1, rate = 278 , broadcast = 1,},
+				{id = 3182,  count = 2,  strong = 0, quality = 0, bind = 1, rate = 556 , broadcast = 1,},
+				{id = 3185,  count = 2,  strong = 0, quality = 0, bind = 1, rate = 556 , broadcast = 1,},
+				{id = 3188,  count = 2,  strong = 0, quality = 0, bind = 1, rate = 278 , broadcast = 1,},
+				{id = 279 ,  count = 3,  strong = 0, quality = 0, bind = 1, rate = 556 , broadcast = 0,},
+				{id = 731 ,  count = 5,  strong = 0, quality = 0, bind = 1, rate = 1388, broadcast = 0,},
+
+			},
+		},
+		--使用白银钥匙
+		{
+			needBagCount = 3,--需要的空格数
+			awards = 
+			{
+				{id = 1036, count = 3,  strong = 0, quality = 0, bind = 1, rate = 1047, broadcast = 0,}, --概率和为10000
+				{id = 2603, count = 2,  strong = 0, quality = 0, bind = 1, rate = 785 , broadcast = 0,},
+				{id = 3326, count = 3,  strong = 0, quality = 0, bind = 1, rate = 419 , broadcast = 0,},
+				{id = 2836, count = 3,  strong = 0, quality = 0, bind = 1, rate = 524 , broadcast = 0,},
+				{id = 1022, count = 2,  strong = 0, quality = 0, bind = 1, rate = 262 , broadcast = 0,},
+				{id = 1402, count = 2,  strong = 0, quality = 0, bind = 1, rate = 1047, broadcast = 0,},
+				{id = 2660, count = 1,  strong = 0, quality = 0, bind = 1, rate = 785 , broadcast = 1,},
+				{id = 2671, count = 1,  strong = 0, quality = 0, bind = 1, rate = 785 , broadcast = 1,},
+				{id = 918 , count = 1,  strong = 0, quality = 0, bind = 1, rate = 419 , broadcast = 1,},
+				{id = 2276, count = 2,  strong = 0, quality = 0, bind = 1, rate = 785 , broadcast = 1,},
+				{id = 2558, count = 10, strong = 0, quality = 0, bind = 1, rate = 1309, broadcast = 0,},
+				{id = 1756, count = 1,  strong = 0, quality = 0, bind = 1, rate = 1309, broadcast = 0,},
+				{id = 3341, count = 1,  strong = 0, quality = 0, bind = 0, rate = 524 , broadcast = 1,},
+
+			},
+		},
+		--使用黄金钥匙
+		{
+			needBagCount = 3,--需要的空格数
+			awards = 
+			{
+				{id = 2949, count = 1,  strong = 0, quality = 0, bind = 1, rate = 529 , broadcast = 1,}, --概率和为10000
+				{id = 3247, count = 1,  strong = 0, quality = 0, bind = 1, rate = 132 , broadcast = 1,},
+				{id = 3326, count = 5,  strong = 0, quality = 0, bind = 1, rate = 529 , broadcast = 0,},
+				{id = 1991, count = 2,  strong = 0, quality = 0, bind = 1, rate = 926 , broadcast = 0,},
+				{id = 2136, count = 2,  strong = 0, quality = 0, bind = 1, rate = 926 , broadcast = 0,},
+				{id = 2258, count = 2,  strong = 0, quality = 0, bind = 1, rate = 926 , broadcast = 0,},
+				{id = 799 , count = 1,  strong = 0, quality = 0, bind = 1, rate = 794 , broadcast = 1,},
+				{id = 809 , count = 1,  strong = 0, quality = 0, bind = 1, rate = 794 , broadcast = 1,},
+				{id = 779 , count = 1,  strong = 0, quality = 0, bind = 1, rate = 794 , broadcast = 1,},
+				{id = 789 , count = 1,  strong = 0, quality = 0, bind = 1, rate = 794 , broadcast = 1,},
+				{id = 2910, count = 1,  strong = 0, quality = 0, bind = 1, rate = 212 , broadcast = 1,},
+				{id = 2982, count = 1,  strong = 0, quality = 0, bind = 1, rate = 794 , broadcast = 0,},
+				{id = 3099, count = 2,  strong = 0, quality = 0, bind = 1, rate = 1058, broadcast = 0,},
+				{id = 2916, count = 1,  strong = 0, quality = 0, bind = 1, rate = 395 , broadcast = 1,},
+				{id = 3341, count = 1,  strong = 0, quality = 0, bind = 0, rate = 265 , broadcast = 1,},
+				{id = 3340, count = 1,  strong = 0, quality = 0, bind = 0, rate = 132 , broadcast = 1,},
+
+			},
+		},
+	},
+}

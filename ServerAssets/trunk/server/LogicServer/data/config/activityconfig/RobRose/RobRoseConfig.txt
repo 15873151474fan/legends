@@ -1,0 +1,22 @@
+
+
+
+RobRoseConfig = {
+	MinPlayerLevel = 35,		--进入活动最低等级
+	RoseMonId = 158,			--玫瑰怪id
+
+	SceneId = 53,				--进入活动场景id
+	ScenePos = {31,56,38,52},		--进入的坐标
+	BossPos = {46,43},		--刷怪的坐标
+	LiveTime = 30*60,			--怪的生存期,比每次判断怪是否存在的时间要长才能检测怪是否被打死的
+
+	ExitSceneId = 8,			--退出场景id
+	ExitScenePos = {139,155,174,185},		--退出场景的坐标
+
+	EverySecFlush = 5*60,		--每5分钟判断一次怪是否生存
+	FlushMonsCount = 5,			--一共判断几次  30分钟判断5次，最后5分钟后不刷
+
+	DelayFlushMonSec = 60,		--如果怪没被打死，多久后再刷新
+
+	ActivityTime = 1800,		--活动持续时间
+}

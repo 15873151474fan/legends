@@ -1,0 +1,80 @@
+﻿--lua script
+
+--用于副本中段的提醒npc
+
+--[[当前脚本内的全局变量]]--
+thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+--#include "data\language\LangCode.txt"          -- 语言表 
+--#include "data\functions\NormalFuncForQuest.txt" once
+--#include "data\functions\ChuanSongNextScene.txt" once
+
+
+--这个包含这个副本场景通过需要达到的条件文件
+CondMs = 
+{
+--#include "data\envir\FubenCondition\ShiMuYouLing.txt" once
+}
+
+--[[ 此处为NPC发言内容 每条发言信息包括：info(发言内容) + bctype(发言广播类型)   
+	 bcType定义:  1：附近  2：场景 3：副本  4：世界
+--]]
+NpcSayContent = {	
+	PreSayIdx = 0,
+	content = {
+		{ info = Lang.TaskTalk.t00001, bctype = 1, },
+	},
+}
+
+
+--[[此处为NPC对白]]
+NpcDialogue = {  --如果NPC随机对白数多与三个或少于三个，可适当增加或减少此表内的子表 
+	{ say = Lang.NormalTalk.n02038, },
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+	local str,f = commonQuestNpcMain(sysarg)
+	if f then
+		return str
+	end
+	str = str .. OnQuestTalk(sysarg, 20,50013)
+	return str
+end
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  --SPID = TSystem.getGlobalVariant( "spid" )  
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end
+
+function idleTalk()
+	if NpcSayContent == nil or NpcSayContent.content == nil then return end
+	local count = table.getn(NpcSayContent.content)
+	if count <= 0 then return end
+	local CurrSayIdx = System.getRandomNumber(count)+1	
+	if (CurrSayIdx == NpcSayContent.PreSayIdx) then
+		CurrSayIdx = CurrSayIdx + 1
+		if (CurrSayIdx > count) then
+			CurrSayIdx = 1
+		end
+	end
+	Actor.monsterSay(thisNPC, NpcSayContent.content[CurrSayIdx].info, NpcSayContent.content[CurrSayIdx].bctype)
+	NpcSayContent.PreSayIdx = CurrSayIdx;
+end

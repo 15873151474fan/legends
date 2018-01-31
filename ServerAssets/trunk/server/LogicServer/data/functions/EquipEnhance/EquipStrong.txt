@@ -1,0 +1,213 @@
+﻿
+--装备强化
+function EquipStrong( sysarg, args)  	--2 装备强化
+	local itemPtr = args[2]
+	local protectFlag = args[4]
+	local needGold = args[5]
+	--local nEntityId = 0		--装备所属ID  id=0：玩家 id>0:英雄ID
+	
+	local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0) 
+	if nLevel < EquipStrongCond.minItLv then
+		return
+	end
+	local optResult = 2
+	local itemGuid = Item.getItemGuid(itemPtr)
+	local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	local strongCfg = EquipStrongConfig[nItemStrong + 1]
+	if not strongCfg then
+		SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf024, ttFlyTip)
+		return
+	end
+
+	local nCultrueLev = System.getCultureLevel()
+	local nNeedCulLev = strongCfg.nCultureLev or 0
+	if nCultrueLev < nNeedCulLev then		--文明度等级不够
+		SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf323,nNeedCulLev), ttFlyTip)
+		return
+	end
+
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	
+	local strongRate = strongCfg.rate
+	for idx, tab in ipairs(strongCfg.strong) do
+		if tab.usetype == Any_Stuff  and tab.id > 0 then
+			local itemCount = Actor.getItemCount(sysarg, tab.id)
+			
+			if itemCount < tab.count then
+				if needGold <= 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf025, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+					return
+				end
+				if not tab.yb or tab.yb == 0 then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf036, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - itemCount)				
+				if myGold < needGoldCount then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf026, ttFlyTip)
+					SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+					return
+				end
+				myGold = myGold - needGoldCount
+			end
+		elseif tab.usetype == Any_Protect  and tab.id > 0 then
+			if protectFlag > 0 then
+				local itemCount = Actor.getItemCount(sysarg, tab.id)
+				if itemCount < tab.count then
+					if needGold <= 0 then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf028, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+						return
+					end
+					if not tab.yb or tab.yb == 0 then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf036, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+						return
+					end
+					local needGoldCount = tab.yb * (tab.count - itemCount)
+					if myGold < needGoldCount then
+						Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf034, ttFlyTip)
+						SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+						return
+					end
+					myGold = myGold - needGoldCount
+				end
+				strongRate = RandomBase
+			end
+		elseif tab.usetype == Any_Silver then
+			local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_BIND_COIN )
+			if myCoin < tab.count then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf027, tab.count), ttFlyTip)
+				SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+				return
+			end
+		end
+	end
+	--扣费
+	for idx, tab in ipairs(strongCfg.strong) do
+		if tab.usetype == Any_Silver then
+			if not Actor.changeMoney(sysarg, mtBindCoin, -tab.count, 134, Lang.LogTips.l00103) then
+				SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+				return
+			end
+		elseif tab.usetype == Any_Stuff then
+			local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1,Lang.LogTips.l00113,19)
+			if remCount < tab.count then
+				if needGold <= 0 then
+					SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+					return
+				end
+				local needGoldCount = tab.yb * (tab.count - remCount)
+				Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 19, Lang.LogTips.l00070)
+			end
+		elseif tab.usetype == Any_Protect and tab.id > 0 then
+			if protectFlag > 0 then
+				local remCount = Actor.removeItem(sysarg, tab.id, tab.count,-1,-1,-1,Lang.LogTips.l00113,19)
+				if remCount < tab.count then
+					if needGold <= 0 then
+						SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+						return
+					end
+					local needGoldCount = tab.yb * (tab.count - remCount)
+					Actor.changeMoney(sysarg, mtYuanbao, -needGoldCount, 19, Lang.LogTips.l00070)
+				end
+			end
+		end
+	end
+	local optResult = 1 --默认失败
+	local nCurSharp = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSharp, 0)
+	local nSetSharpVal = 0
+	if math.random(RandomBase) <= strongRate then
+		nItemStrong = nItemStrong + 1
+		optResult = 0
+	else
+		if nItemStrong >= EquipStrongCond.MinStrongSharp then
+			nSetSharpVal = nCurSharp + math.random(EquipStrongCond.RandSharp[1], EquipStrongCond.RandSharp[2])
+			local nMaxSharpVal = EquipStrongCond.MaxSharp[nItemStrong - EquipStrongCond.MinStrongSharp + 1] or 250		--这里写一个很大的值，防配置有错会刷
+			if nSetSharpVal >= nMaxSharpVal then
+				nItemStrong = nItemStrong + 1
+				optResult = 0
+				nSetSharpVal = 0
+			end
+		end
+		if optResult ~= 0 then
+		   nItemStrong = nItemStrong - 1 
+		end
+	end
+	if nCurSharp > 0 or nSetSharpVal > 0 then
+		Item.setItemProperty( sysarg, itemPtr, Item.ipItemSharp, nSetSharpVal)
+	end	
+	if optResult == 0 and nItemStrong >= EquipStrongCond.UpToBuildAttr then
+		local initSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+		if initSmith == 0 then
+			Item.initEquipBaseAttr(sysarg, itemPtr, bawEquipStrong)
+			local newInitSmith = Item.getItemProperty( sysarg, itemPtr, Item.ipItemSpecSmith, 0)
+			if newInitSmith > 0 then   --如果产生了极品，就公告
+				local itemId = Item.getItemId(itemPtr)
+				local noticeStr = string.format(Lang.ScriptTips.q00098, Actor.getName(sysarg), Item.getItemLinkMsg(itemId))
+				System.broadcastTipmsg(noticeStr, ttScreenCenter+ ttChatWindow)
+			end
+		end
+	end
+	Item.setItemProperty( sysarg, itemPtr, Item.ipItemStrong, nItemStrong)
+	if nItemStrong > 3 then  --强化大于3则全服公告
+   	   local ItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0 )
+       local ItemName = Item.getItemName( ItemId )
+	   if ItemName then
+	      local itemId = Item.getItemId(itemPtr)
+	      --print("getItemLinkMsg:"..(Item.getItemLinkMsg(itemId)))
+   	      local str2 = string.format(Lang.ScriptTips.q00102,Actor.getName(sysarg), Item.getItemLinkMsg(itemId), nItemStrong)
+	      System.broadcastTipmsg(str2,ttScreenCenter+ttChatWindow)
+	   end 
+	end
+	SendEquipOptResult(sysarg, itemGuid, itEquipStrong, optResult )
+	if optResult == 0 and nItemStrong > EquipStrongCond.MinStrongSharp then
+		local itemId = Item.getItemId(itemPtr)
+		local noticeStr = string.format(Lang.ScriptTips.c000088, Actor.getName(sysarg), nLevel, Item.getItemLinkMsg(itemId), nItemStrong)
+		System.broadcastTipmsg(noticeStr, ttScreenCenter+ ttChatWindow)
+	end
+	
+	if optResult == 0 and nItemStrong == EquipStrongCond.MinStrongAuth then
+		local itemId = Item.getItemId(itemPtr)
+		local noticeStr = string.format(Lang.ScriptTips.c000090, Actor.getName(sysarg), nLevel, Item.getItemLinkMsg(itemId), nItemStrong)
+		System.broadcastTipmsg(noticeStr, ttScreenCenter+ ttChatWindow)
+	end
+	
+	return true
+end
+
+
+
+--读取强化数据
+function EquipStrongConsume( sysarg, args )
+	local ptrCount = args[1]
+	local itemPtr = args[2]
+	if not itemPtr then
+		return
+	end
+	local opType = args[ptrCount+2]		--操作类型
+	local nLevel = Item.getItemProperty(sysarg, itemPtr, Item.ipItemActorLevel, 0) 
+	if nLevel < EquipStrongCond.minItLv then
+		return
+	end
+	local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)
+	local strongCfg = EquipStrongConfig[nItemStrong+1]
+	if not strongCfg then
+		return
+	end
+	local netPack = DataPack.allocPacket(sysarg, 8, 15)
+	DataPack.writeByte(netPack, opType)
+	DataPack.writeByte(netPack, #strongCfg.strong)
+	for k, curTab in ipairs(strongCfg.strong) do
+		DataPack.writeByte(netPack,curTab.type)
+		DataPack.writeInt(netPack,curTab.id or 0)
+		DataPack.writeInt(netPack,curTab.count)
+		DataPack.writeByte(netPack, curTab.usetype)
+	end
+	DataPack.writeInt(netPack, strongCfg.rate)
+	DataPack.flush(netPack)
+end

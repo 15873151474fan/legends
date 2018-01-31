@@ -1,0 +1,9 @@
+﻿--lua script
+
+local INITSKILLSLOT = 2	--技能槽位偏移位置 
+
+--宠物出生, args = [操作的类型,宠物的ID]
+function onPetBorn( sysarg, args )
+	--学习技能
+	learnSkill(sysarg, args, INITSKILLSLOT)
+end

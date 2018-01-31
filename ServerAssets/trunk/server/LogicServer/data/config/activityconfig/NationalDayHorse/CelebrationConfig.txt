@@ -1,0 +1,147 @@
+--烟花庆典配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+CelebrationConfig = 
+{
+	circle = 0, --转数
+	level = 50, --等级
+	
+	--礼包配置
+	celPacksList = 
+	{
+		--第一个礼包
+		{
+			limitTimes = 1,	--领取次数
+			consumeYb = 0,	--花费元宝
+			awards = 
+			{
+				{type = 0, id = 3298, count = 1, strong = 0, quality = 0, bind = 1, }, --消费礼盒
+				{type = 0, id = 3297, count = 3, strong = 0, quality = 0, bind = 1, }, --庆典烟花
+			},
+		},
+		--第二个礼包
+		{
+			limitTimes = 10,	--领取次数
+			consumeYb = 30,	--花费元宝
+			awards = 
+			{
+				{type = 0, id = 3298, count = 1, strong = 0, quality = 0, bind = 1, }, --消费礼盒
+				{type = 0, id = 3297, count = 5, strong = 0, quality = 0, bind = 1, }, --庆典烟花
+				{type = 0, id = 731, count = 10, strong = 0, quality = 0, bind = 1, }, --快马鞭
+			},
+		},
+		--第三个礼包
+		{
+			limitTimes = 10,	--领取次数
+			consumeYb = 300,	--花费元宝
+			awards = 
+			{
+				{type = 0, id = 3298, count = 1, strong = 0, quality = 0, bind = 1, }, --消费礼盒
+				{type = 0, id = 1402, count = 3, strong = 0, quality = 0, bind = 1, }, --五级灵珠
+				{type = 0, id = 3297, count = 10, strong = 0, quality = 0, bind = 1, }, --庆典烟花
+				{type = 0, id = 731, count = 20, strong = 0, quality = 0, bind = 1, }, --快马鞭
+			},
+		},
+	},
+	
+	--礼炮额外奖励
+	fireworksAward =  
+	{
+		{
+			rate = 400,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			}
+		},
+		{
+			rate = 15,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true,},
+			}
+		},
+		{
+			rate = 10,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true,},
+			}
+		},
+		{
+			rate = 10,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true,},
+			}
+		},
+		{
+			rate = 10,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 1175, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true,},
+			}
+		},
+		{
+			rate = 50,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 1371, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = false,},
+			}
+		},
+		{
+			rate = 18,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 1402, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = false,},
+			}
+		},
+		{
+			rate = 18,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 1021, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true,},
+			}
+		},
+		{
+			rate = 18,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 2872, count = 2, strong = 0, quality = 0, bind = 1, isBrocast = true,},
+			}
+		},
+		{
+			rate = 18,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 2873, count = 2, strong = 0, quality = 0, bind = 1, isBrocast = true,},
+			}
+		},
+		{
+			rate = 2,
+			awards =
+			{
+				{ type = 20, id = 2, count = 500, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{type = 0, id = 414, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true,},
+			}
+		},
+	},
+	
+	fireworksId  = 3297, --烟花id 
+	fireworksPoint = 5000, --5000, --烟花指数
+	addPoint = 1, --使用一个烟花礼包增加的指数
+	bossConfig = --boss配置
+	{
+		monsterid = 1553, sceneId =8 ,posX = 191, posY = 228, liveTime = 1800, 
+	},
+	
+}

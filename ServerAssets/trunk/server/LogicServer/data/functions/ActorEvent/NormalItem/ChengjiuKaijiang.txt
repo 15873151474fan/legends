@@ -1,0 +1,115 @@
+--lua script
+local CHENGJIUREWARDINDEX = 30
+local GETREWARDING = 33
+
+--#include "data\config\item\ChengjiuReward.txt" once
+
+
+--[[
+    函数名称：ChengjiuAndRepairFunc
+    函数描述：点击打开成就礼盒 
+    参数 sysarg 的描述：
+    参数 itemidx 的描述：
+    参数 itemPtr 的描述：
+    参数 ItemTable 的描述：
+]]
+function ChengjiuAndRepairFunc(sysarg,itemidx,itemPtr,ItemTable)
+  --通知客户端
+  --140 成就系统子系统 1
+  if ItemTable.item_id == 1572 then
+		--Actor.sendTipmsg(sysarg,"getRTIntValue:"..Actor.getRTIntValue(sysarg,GETREWARDING),ttTipmsgWindow)
+		if Actor.getRTIntValue(sysarg,GETREWARDING) == 1 then 
+			return 
+		else 
+			Actor.setRTIntValue(sysarg,GETREWARDING,1)
+		end
+	  local npack = DataPack.allocPacket(sysarg,140,1)  --申请一个数据包
+	  if (npack == nil) then
+	   ----print("npack:nil")
+	   return
+	  end
+	  DataPack.writeByte(npack,16)
+	  local rand = 0
+	  --31保存组数 32保存结果
+	  --运行时变量31保存随机物品组，如果没产生到随机组则从新生成
+    --用运行时变量保存抽奖结果可以防止玩家再次点击物品请求是产生不同的结果 
+	  if(Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+1) == 0) then
+	    rand = math.random(1,table.getn(ChengjiuReward))
+	  else
+	    rand = Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+1)
+	  end
+	  Actor.setRTIntValue(sysarg,CHENGJIUREWARDINDEX+1,rand)  --记录奖励组数
+	  -----------发送随机到组的物品到客户端 
+	  local c = ChengjiuReward[rand]
+	  for i=1,16 do
+	    local x = c[i]
+	    ----print(x.itemid)
+	    DataPack.writeWord(npack,x.itemid)
+	    DataPack.writeWord(npack,x.count)
+	    DataPack.writeByte(npack,x.quality)
+	    DataPack.writeByte(npack,x.strong)
+	    DataPack.writeByte(npack,x.bind)
+	  end
+	  ---------------运行时变量32保存随机物品组里随机到的物品，如果没产生到随机物品则从新生成 
+	  local result = 0
+	  if(Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+2) == 0) then
+	    result = math.random(1,16)
+	  else
+	    result = Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+2)
+	  end
+	  Actor.setRTIntValue(sysarg,CHENGJIUREWARDINDEX+2,result)  --记录奖励结果
+	  ---------------- 
+	  DataPack.writeString(npack,Lang.Item.n1572) --抽奖界面显示标题 
+	  DataPack.writeByte(npack,result) --抽奖物品的结果 
+	  DataPack.writeShort(npack,1572) --抽奖物品ID
+	  ----print("result:"..result)
+	  DataPack.flush(npack)
+  end
+end
+
+function ChengjiuKaijiang(sysarg)
+	  local npack = DataPack.allocPacket(sysarg,140,1)  --申请一个数据包
+	  if (npack == nil) then
+	   ----print("npack:nil")
+	   return
+	  end
+	  DataPack.writeByte(npack,16)
+	  local rand = 0
+	  --31保存组数 32保存结果
+	  if(Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+1) == 0) then
+	    rand = math.random(1,table.getn(ChengjiuReward))
+	  else
+	    rand = Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+1)
+	  end
+	  Actor.setRTIntValue(sysarg,CHENGJIUREWARDINDEX+1,rand)  --记录奖励组数
+	  local c = ChengjiuReward[rand]
+	  for i=1,16 do
+	    local x = c[i]
+	    ----print(x.itemid)
+	    DataPack.writeWord(npack,x.itemid)
+	    DataPack.writeWord(npack,x.count)
+	    DataPack.writeByte(npack,x.quality)
+	    DataPack.writeByte(npack,x.strong)
+	    DataPack.writeByte(npack,x.bind)
+	  end
+	  local result = 0
+	  if(Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+2) == 0) then
+	    result = math.random(1,16)
+	  else
+	    result = Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+2)
+	  end
+	  Actor.setRTIntValue(sysarg,CHENGJIUREWARDINDEX+2,result)  --记录奖励结果
+	  DataPack.writeString(npack,Lang.Item.n1572) --抽奖界面显示
+	  DataPack.writeByte(npack,result) --抽奖物品的结果
+	  DataPack.writeShort(npack,1572) --抽奖物品ID
+	  ----print("result:"..result)
+	  DataPack.flush(npack)
+end
+function ChengjiuAndRepairItemsInit(sysarg)
+  for i = 1,table.getn(ChengjiuAndRepairItems) do
+	local x = ChengjiuAndRepairItems[i]
+	GlobalItemFn[x.item_id] = { func = ChengjiuAndRepairFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable,ChengjiuAndRepairItemsInit)

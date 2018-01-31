@@ -1,0 +1,193 @@
+--VIP等级配置表
+--#include "..\..\language\LangCode.txt"
+--[[
+/**会员等级*/
+		public var vipLv:int;
+		
+/**名称*/
+		public var name:String;
+
+/**列表排位靠前  1:开启	0:不开启*/
+		public var listFront:int;
+		
+/**每日签到加成(配整数,不需配+号)*/
+		public var daySign:int;
+		
+/**专属礼包  Array<ActiveAward>*/
+		public var awards:Array;
+		
+/**队长光环  1:有光环 0:没有*/
+		public var leaderHalo:int;
+		
+/**自动签到  1:有 0:没有 */
+		public var autoSign:int; 
+		
+/**补签次数 0:没有 其他写数字*/
+		public var fillUpSign:int;
+		
+/**矿石自动出售  1:有 0:没有*/
+		public var oreAutoSold:int;
+		
+/**财神闯关(额外免费次数)	0:没有 其他写数字*/
+		public var mammonPassGate:int;
+		
+/**天书任务(额外免费次数) 0:没有 其他写数字*/
+		public var missionBook:int;
+		
+/**离线经验加成 (配整数,不需配%号)*/
+		public var outlineExp:int;
+		
+/**杀怪经验加成 (配整数,不需配%号)*/
+		public var killMonsterExp:int;
+		
+/**扩展仓库 0:没有 其他写数字*/
+		public var extendStorage:int;
+		
+/**随身仓库*/
+		public var carryStorage:int;
+		
+/**地图Id,情景Id  0:没有, 其他写地图Id,情景id*/
+		public var mapId:int;
+		
+/**尊属bossId  0:没有,其他写bossId*/
+		public var monsterIds:Array;
+		
+/**享受权利数*/
+		public var enjoyRightNum:int;
+		
+/**需要转身数*/
+		public var needActorCircle:int;
+		
+/**是否需要挂机时间  1:需要  0:不需要*/
+		public var needAutoPlay:int;
+		
+/**升级最大数目*/
+		public var maxUpgradeNum:int;
+
+--]]
+
+viplevelconfig=
+{
+
+	--专属bossId列表
+	bossList = { 1230 },
+
+	--vip列表头
+	headList=
+	{
+	--名称	--tip描述
+		--{ idStr = Lang.Misc.v000101, desc = Lang.Misc.v000201 },
+		{ idStr = Lang.Misc.v000102, desc = Lang.Misc.v000202 },
+		{ idStr = Lang.Misc.v000103, desc = Lang.Misc.v000203, tipStr = Lang.Misc.v000603, },--地图
+		{ idStr = Lang.Misc.v000104, desc = Lang.Misc.v000204, tipStr = Lang.Misc.v000604, },--BOSS
+		{ idStr = Lang.Misc.v000105, desc = Lang.Misc.v000205, tipStr = Lang.Misc.v000605, },--仓库
+		{ idStr = Lang.Misc.v000106, desc = Lang.Misc.v000206 },
+		{ idStr = Lang.Misc.v000107, desc = Lang.Misc.v000207 },
+		{ idStr = Lang.Misc.v000108, desc = Lang.Misc.v000208 },
+		{ idStr = Lang.Misc.v000109, desc = Lang.Misc.v000209 },
+		{ idStr = Lang.Misc.v000110, desc = Lang.Misc.v000210 },
+		{ idStr = Lang.Misc.v000111, desc = Lang.Misc.v000211 },
+		{ idStr = Lang.Misc.v000112, desc = Lang.Misc.v000212 },
+		{ idStr = Lang.Misc.v000113, desc = Lang.Misc.v000213 },
+		{ idStr = Lang.Misc.v000114, desc = Lang.Misc.v000214 },
+		{ idStr = Lang.Misc.v000115, desc = Lang.Misc.v000215 },
+	},
+  
+  --vip等级列表
+	commonList= 
+	{
+		--VIP等级配置项	
+--[[
+		{vipLv =1, listFront=1,daySign=1,leaderHalo=1,autoSign=1,fillUpSign=1,oreAutoSold=1,mammonPassGate=1,missionBook=0,outlineExp=1,killMonsterExp=1,extendStorage=1,carryStorage=1,mapId=1,enjoyRightNum=8,needActorCircle=1,needAutoPlay=0,
+			monsterIds={146},maxUpgradeNum=200,
+			--道具配置
+			awards=
+			{ 
+			  {id=314,type=0,count=1},
+			  {id=273,type=0,count=1},
+			},	
+		},
+--]]
+		{						
+			vipLv = 1,	maxUpgradeNum = 100,	enjoyRightNum = 4,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = {0},	mapId = 200,		
+			carryStorage = 0,	extendStorage = 0,	leaderHalo = 1,	fillUpSign = 0,	missionBook = 0,	mammonPassGate = 0, leaderHaloDesc = Lang.Misc.v000301,
+			oreAutoSold = 0,	autoSign = 0,	daySign = 5,	killMonsterExp = 1,	outlineExp = 0,	
+			needActorCircle = 0,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 2,	maxUpgradeNum = 300,	enjoyRightNum = 7,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = {0},	mapId = 0,		
+			carryStorage = 0,	extendStorage = 0,	leaderHalo = 1,	fillUpSign = 2,	missionBook = 0,	mammonPassGate = 0, leaderHaloDesc = Lang.Misc.v000302,
+			oreAutoSold = 0,	autoSign = 1,	daySign = 5,	killMonsterExp = 3,	outlineExp = 5,	
+			needActorCircle = 0,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 3,	maxUpgradeNum = 700,	enjoyRightNum = 9,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = {0},	mapId = 0,		
+			carryStorage = 0,	extendStorage = 0,	leaderHalo = 1,	fillUpSign = 3,	missionBook = 1,	mammonPassGate = 0, leaderHaloDesc = Lang.Misc.v000303,
+			oreAutoSold = 1,	autoSign = 1,	daySign = 5,	killMonsterExp = 6,	outlineExp = 10,	
+			needActorCircle = 0,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 4,	maxUpgradeNum = 1200,	enjoyRightNum = 10,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = {0},	mapId = 0,		
+			carryStorage = 1,	extendStorage = 0,	leaderHalo = 1,	fillUpSign = 4,	missionBook = 2,	mammonPassGate = 0, leaderHaloDesc = Lang.Misc.v000304,
+			oreAutoSold = 1,	autoSign = 1,	daySign = 5,	killMonsterExp = 10,	outlineExp = 15,	
+			needActorCircle = 0,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 5,	maxUpgradeNum = 1800,	enjoyRightNum = 12,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = {0},	mapId = 212,		
+			carryStorage = 1,	extendStorage = 1,	leaderHalo = 1,	fillUpSign = 5,	missionBook = 2,	mammonPassGate = 5, leaderHaloDesc = Lang.Misc.v000305,
+			oreAutoSold = 1,	autoSign = 1,	daySign = 10,	killMonsterExp = 15,	outlineExp = 20,	
+			needActorCircle = 4,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 6,	maxUpgradeNum = 2500,	enjoyRightNum = 13,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = {0},	mapId = 0,		
+			carryStorage = 1,	extendStorage = 1,	leaderHalo = 1,	fillUpSign = 6,	missionBook = 3,	mammonPassGate = 6, leaderHaloDesc = Lang.Misc.v000306,
+			oreAutoSold = 1,	autoSign = 1,	daySign = 10,	killMonsterExp = 20,	outlineExp = 25,	
+			needActorCircle = 4,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 7,	maxUpgradeNum = 3500,	enjoyRightNum = 13,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = {0},	mapId = 213,		
+			carryStorage = 1,	extendStorage = 2,	leaderHalo = 1,	fillUpSign = 7,	missionBook = 3,	mammonPassGate = 7, leaderHaloDesc = Lang.Misc.v000307,
+			oreAutoSold = 1,	autoSign = 1,	daySign = 10,	killMonsterExp = 25,	outlineExp = 30,	
+			needActorCircle = 6,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 8,	maxUpgradeNum = 5000,	enjoyRightNum = 14,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = { 1230 },	mapId = 0,		
+			carryStorage = 1,	extendStorage = 2,	leaderHalo = 1,	fillUpSign = 8,	missionBook = 4,	mammonPassGate = 8, leaderHaloDesc = Lang.Misc.v000308,
+			oreAutoSold = 1,	autoSign = 1,	daySign = 15,	killMonsterExp = 30,	outlineExp = 35,	
+			needActorCircle = 6,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 9,	maxUpgradeNum = 7000,	enjoyRightNum = 14,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = { 1230 },	mapId = 214,		
+			carryStorage = 1,	extendStorage = 3,	leaderHalo = 1,	fillUpSign = 9,	missionBook = 4,	mammonPassGate = 9, leaderHaloDesc = Lang.Misc.v000309,
+			oreAutoSold = 1,	autoSign = 1,	daySign = 15,	killMonsterExp = 40,	outlineExp = 40,	
+			needActorCircle = 8,	needAutoPlay = 1,				
+		},						
+
+		{						
+			vipLv = 10,	maxUpgradeNum = 10000,	enjoyRightNum = 14,			
+			listFront = 1,	awards = {{ type = 0, id = 2561, count = 1 },},	monsterIds = { 1230 },	mapId = 215,		
+			carryStorage = 1,	extendStorage = 4,	leaderHalo = 1,	fillUpSign = 10,	missionBook = 5,	mammonPassGate = 10, leaderHaloDesc = Lang.Misc.v000310,
+			oreAutoSold = 1,	autoSign = 1,	daySign = 20,	killMonsterExp = 50,	outlineExp = 50,	
+			needActorCircle = 10,	needAutoPlay = 1,				
+		},						
+		
+	},
+	
+}

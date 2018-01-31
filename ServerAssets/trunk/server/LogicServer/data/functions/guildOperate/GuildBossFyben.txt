@@ -1,0 +1,181 @@
+--lua script
+
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\guild\GuildBossScreen.txt"  once  --基本设置 
+--#include "data\config\guild\GuildBoss.txt" once		--帮派斗魂
+
+--#include "GuildBossCommon.txt"
+
+function EnterGuildBossFuben(sysarg)
+	local str = ""
+	
+	if GuildBossConst == nil then return "" end
+
+
+	local sceneId = Actor.getSceneId(sysarg)  --获取当前场景ID
+	if sceneId == GuildBossConst.enterscreen then
+		str = str..Lang.TaskTalk.t00708
+		return str
+	end
+
+	--Hfuben = Fuben.createFuBen(GuildBossConst.FubId)
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+
+	if fhadle == nil then
+		Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00719, ttDialog)
+		return
+	end
+	
+	Actor.setGuldBossFlag(sysarg,true)
+	Actor.enterFuBen(sysarg,fhadle,GuildBossConst.enterscreen,GuildBossConst.MAPX,GuildBossConst.MAPY)
+	--Actor.setFubenData(sysarg,1,0)
+end
+
+function openGuildBossOne(sysarg)
+	local str = ""
+
+	local nPos = Actor.getGuildPos(sysarg)
+	
+	if(nPos ~= 3 and nPos ~= 2)	then	--只有帮主才能开启
+		return Lang.TaskTalk.t00707
+	end
+
+	--系统级静态变量 
+	local var = System.getStaticVar(sysarg)
+
+	
+	if var.openGuildBTimes == nil then
+		var.openGuildBTimes = 0
+	end
+	
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+	if fhadle > 0 then	--已经开启
+		Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00712, ttDialog)
+		return Lang.TaskTalk.t00712
+	end
+	
+	local bFlag = Actor.getGuildBossCallFlag(sysarg)
+	
+	--斗魂已经召唤出来了
+	if bFlag == true then
+		Actor.sendTipmsg(sysarg, Lang.GuildLang.z00042, ttDialog)
+		return Lang.GuildLang.z00042
+	end
+
+	if GuildBossConst.maxTime > 0 then	
+		if var.openGuildBTimes >= GuildBossConst.maxTime then	--开启次数已达上限
+			Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00711, ttDialog)
+			return Lang.TaskTalk.t00711
+		end
+	end
+
+	local bType = Actor.getBossType(sysarg)
+
+	if bType == 0 then
+		Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00713, ttDialog)
+		return str
+	end
+
+	local newbScore = Actor.getBossScore(sysarg)
+	local bLev = 0 --GetGuildBossLev(sysarg,newbScore)
+
+	if bLev < 1 then		--boss等级不够
+		Actor.sendTipmsg(sysarg, Lang.TaskTalk.t00714, ttDialog)
+		return str
+	end
+
+	local nGuildCoin = Actor.getGuildCoin(sysarg)
+
+	if nGuildCoin < GuildBossConst.needCoin then		--帮派资金不够
+		return string.format(Lang.GuildLang.z00012, GuildBossConst.needCoin )
+	end
+
+
+	local fhadle = Fuben.createFuBen(GuildBossConst.FubId)
+
+	if fhadle > 0 then
+		local mType = Actor.getBossType(sysarg)
+		
+		--mType = 1
+		if mType <= 0 or mType > GuildBossConst.bossNum then
+			return
+		end
+
+		local bLev = 0 --GetGuildBossLev(sysarg,newbScore)
+		--bLev = 1
+		if bLev <= 0 or bLev > GuildBossConst.levCount then
+			return
+		end
+		
+		local aName = Actor.getName(sysarg)
+
+		local gStr = string.format(Lang.GuildLang.z00002, aName)
+		Actor.sendGuildMsg(sysarg,smGuildCommon,gStr,2)	--发帮派广播
+		
+		Actor.setGuildCoin(sysarg,-GuildBossConst.needCoin)
+
+		local hScene = Fuben.getSceneHandleById(GuildBossConst.enterscreen, fhadle)
+	
+		--创建boss
+		Fuben.createMonster(hScene, GuildBossConst.monsters[mType][bLev].nMonsterID, GuildBossConst.monsters[mType][bLev].posX1, GuildBossConst.monsters[mType][bLev].posX2, GuildBossConst.monsters[mType][bLev].posY, GuildBossConst.monsters[mType][bLev].nCount, GuildBossConst.monsters[mType][bLev].nLiveTime)
+		
+		var.openGuildBTimes = var.openGuildBTimes + 1
+		var.openGuildBoss = 1
+		Actor.setGuildFuBenHandle(sysarg,fhadle)
+
+		Actor.unregScriptCallback(thisNPC, "exitGuildBossFuben")
+		Actor.regScriptCallback(thisNPC, thisNPC, GuildBossConst.ACTTIME * 1000, 10000, 1, "exitGuildBossFuben",fhadle)
+
+		str = str.."\\<#BL"..Lang.TaskTalk.t00706.."/@EnterGuildBossFuben>"
+	end
+	return str
+end
+
+--退出副本的函数
+function exitGuildBossFuben(sysarg,arg)
+	--Actor.exitFuben(sysarg)
+	
+	local fhadle = arg--Fuben.getFubenHandle(sysarg)
+	--print("b帮派bossfhadle："..fhadle)
+	if fhadle<= 0 then
+		return 
+	end
+	
+	local gId = System.getGuildId(fhadle)
+	--print("b帮派boss："..gId)
+	if gId <= 0 then
+		return 
+	end
+
+	local newbScore = System.getBossScore(gId)
+	local bLev = 0 --GetGuildBossLev(sysarg,newbScore)
+	
+	local bScore = 0
+	
+	if bLev > 1 then
+		bScore = guildBoss.bosslev[bLev-1].initvalue
+	else
+		bScore = 0
+	end
+	
+	System.setBossScore(gId,bScore-newbScore)
+	bLev = 0 --GetGuildBossLev(sysarg,bScore)
+
+	--local bType = Actor.getBossType(sysarg)
+	--SendGuildBossInfo(sysarg,bType,bLev,bScore)
+
+	System.setGuildFuBenHandle(gId,0)
+	--Guild.setGuldBossFlag(gId,false)
+	Actor.unregScriptCallback(sysarg, "exitGuildBossFuben")
+end
+
+--清除帮派boss副本的状态
+function clearGuildBossFlag(sysarg)
+	local fhadle = Actor.getFubenHandle(sysarg)
+	
+	if fhadle<= 0 then
+		return 
+	end
+
+	Actor.setGuldBossFlag(sysarg,false)
+end

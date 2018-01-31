@@ -1,0 +1,35 @@
+--拾取稀有boss掉落的物品后的处理
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+
+function AfterLootDropItem(sysarg)
+	if System.getActivityFinishDays(7) > 0 then return end
+
+	local str = string.format(Lang.Activity.t00064,Actor.getName(sysarg))
+	System.broadcastTipmsg(str,2+128)
+
+	--local str1 = string.format(Lang.Activity.t00065,Actor.getName(sysarg))
+	--System.broadcastTipmsg(str1,2+128)
+
+	--System.broadcastTipmsg(Lang.Activity.t00066,2+128)
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+	
+	--[[
+	if ranking then
+		Ranking.clearRanking(ranking)
+
+		local pItem = Ranking.addItem(ranking,nActorId,1)
+		if pItem then
+			local sName = Actor.getName(sysarg)
+			Ranking.setSub(pItem,0,sName)
+			Ranking.setSub(pItem,1,tostring(0))
+		end
+	end
+
+	System.giveTenDaysActivityAward(nActorId,6)
+	]]
+end

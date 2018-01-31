@@ -1,0 +1,763 @@
+ 
+--全民折上折商城配置
+DouDiscountMallConfig =    
+{
+	circle = 0,
+	level = 50,
+	consumeYb = 20, --每次刷新消耗的元宝 
+	refreshInterval = 1*3600,  --刷新间隔时间 1小时
+	itemCountA = 8,  --每次A区面板出售的商品数量 
+	itemCountB = 8,  --每次B区面板出售的商品数量 
+	partitionIdx = 500, --分区序号， 1-500为A区物品序号，500以上为B区序号   
+	
+	disPrices =  --B区打折配置
+	{   --fulfil 满5000 discounts 减 1600
+
+		{startVal = 200, endVal = 4000, discounts = 0.8, isBrocast = false},    
+		{startVal = 4001, endVal = 9999, discounts = 0.6, isBrocast = true},   
+		{startVal = 10000, endVal = -1, discounts = 0.4, isBrocast = true},   --最大值
+		   
+	},
+	
+	
+--A区物品库
+itemListA = {  
+
+{--1
+idx =1,type = 0, id = 2661, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 486,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 778,   ybCircle =2334,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 656,   ybCircle =1968,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =1,   startYb = 510,   ybCircle =1530,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 389,   ybCircle =1167,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =1,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 219,   ybCircle =657,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =2,type = 0, id = 2672, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 486,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 778,   ybCircle =2334,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 656,   ybCircle =1968,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 510,   ybCircle =1530,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 389,   ybCircle =1167,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 219,   ybCircle =657,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =3,type = 0, id = 1757, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 999,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 1598,   ybCircle =4794,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =30,   startYb = 1349,   ybCircle =4047,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =1,   startYb = 1049,   ybCircle =3147,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =40,   startYb = 799,   ybCircle =2397,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 674,   ybCircle =2022,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 450,   ybCircle =1350,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =4,type = 0, id = 1934, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 450,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 720,   ybCircle =2160,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 608,   ybCircle =1824,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 473,   ybCircle =1419,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 360,   ybCircle =1080,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 304,   ybCircle =912,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 203,   ybCircle =609,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =5,type = 0, id = 1756, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 100,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 105,   ybCircle =315,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 80,   ybCircle =240,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 68,   ybCircle =204,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 45,   ybCircle =135,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =6,type = 0, id = 2276, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 100,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =30,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =1,   startYb = 105,   ybCircle =315,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =40,   startYb = 80,   ybCircle =240,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 68,   ybCircle =204,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 45,   ybCircle =135,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =7,type = 0, id = 1175, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 500,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 800,   ybCircle =2400,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 675,   ybCircle =2025,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 525,   ybCircle =1575,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 400,   ybCircle =1200,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 338,   ybCircle =1014,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 225,   ybCircle =675,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =8,type = 0, id = 1991, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 500,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 800,   ybCircle =2400,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =30,   startYb = 675,   ybCircle =2025,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =1,   startYb = 525,   ybCircle =1575,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =40,   startYb = 400,   ybCircle =1200,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 338,   ybCircle =1014,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 225,   ybCircle =675,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =9,type = 0, id = 2136, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 500,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 800,   ybCircle =2400,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 675,   ybCircle =2025,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 525,   ybCircle =1575,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 400,   ybCircle =1200,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 338,   ybCircle =1014,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 225,   ybCircle =675,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =10,type = 0, id = 2258, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 500,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 800,   ybCircle =2400,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =30,   startYb = 675,   ybCircle =2025,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =10,   startYb = 525,   ybCircle =1575,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =30,   startYb = 400,   ybCircle =1200,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 338,   ybCircle =1014,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 225,   ybCircle =675,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =11,type = 0, id = 2982, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 500,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 800,   ybCircle =2400,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 675,   ybCircle =2025,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 525,   ybCircle =1575,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =1,   startYb = 400,   ybCircle =1200,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 338,   ybCircle =1014,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 225,   ybCircle =675,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =12,type = 0, id = 2949, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 550,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 880,   ybCircle =2640,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =30,   startYb = 743,   ybCircle =2229,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =10,   startYb = 578,   ybCircle =1734,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =30,   startYb = 440,   ybCircle =1320,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 371,   ybCircle =1113,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 248,   ybCircle =744,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =13,type = 0, id = 2916, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 900,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 1440,   ybCircle =4320,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 1215,   ybCircle =3645,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 945,   ybCircle =2835,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 720,   ybCircle =2160,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 608,   ybCircle =1824,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 405,   ybCircle =1215,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =40,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =20,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =14,type = 0, id = 2872, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 100,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =1,   startYb = 105,   ybCircle =315,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =40,   startYb = 80,   ybCircle =240,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 68,   ybCircle =204,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 45,   ybCircle =135,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =15,type = 0, id = 2873, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 100,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 105,   ybCircle =315,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 80,   ybCircle =240,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 68,   ybCircle =204,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 45,   ybCircle =135,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =16,type = 0, id = 2583, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 200,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 320,   ybCircle =960,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =30,   startYb = 270,   ybCircle =810,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =1,   startYb = 210,   ybCircle =630,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =40,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 90,   ybCircle =270,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =17,type = 0, id = 2586, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 200,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 320,   ybCircle =960,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 270,   ybCircle =810,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 210,   ybCircle =630,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 90,   ybCircle =270,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =18,type = 0, id = 2634, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 200,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 320,   ybCircle =960,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =30,   startYb = 270,   ybCircle =810,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =1,   startYb = 210,   ybCircle =630,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =40,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 90,   ybCircle =270,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =19,type = 0, id = 2548, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 200,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 320,   ybCircle =960,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 270,   ybCircle =810,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 210,   ybCircle =630,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 90,   ybCircle =270,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =20,type = 0, id = 2553, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 200,
+discountTab =
+{
+{discount = 2,   rate =10,   startYb = 320,   ybCircle =960,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 270,   ybCircle =810,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =10,   startYb = 210,   ybCircle =630,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =40,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =40,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =50,   startYb = 90,   ybCircle =270,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =30,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =21,type = 0, id = 2557, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 200,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 320,   ybCircle =960,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 270,   ybCircle =810,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 210,   ybCircle =630,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 160,   ybCircle =480,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 135,   ybCircle =405,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 90,   ybCircle =270,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =22,type = 0, id = 750, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 729,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 1166,   ybCircle =3498,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 984,   ybCircle =2952,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 765,   ybCircle =2295,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 583,   ybCircle =1749,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 492,   ybCircle =1476,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =23,type = 0, id = 760, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 729,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 1166,   ybCircle =3498,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 984,   ybCircle =2952,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 765,   ybCircle =2295,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 583,   ybCircle =1749,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 492,   ybCircle =1476,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =24,type = 0, id = 770, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 729,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 1166,   ybCircle =3498,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 984,   ybCircle =2952,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 765,   ybCircle =2295,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 583,   ybCircle =1749,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 492,   ybCircle =1476,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =25,type = 0, id = 780, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 729,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 1166,   ybCircle =3498,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 984,   ybCircle =2952,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 765,   ybCircle =2295,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 583,   ybCircle =1749,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 492,   ybCircle =1476,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =26,type = 0, id = 790, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 729,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 1166,   ybCircle =3498,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 984,   ybCircle =2952,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 765,   ybCircle =2295,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 583,   ybCircle =1749,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 492,   ybCircle =1476,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =27,type = 0, id = 800, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 729,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 1166,   ybCircle =3498,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 984,   ybCircle =2952,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 765,   ybCircle =2295,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 583,   ybCircle =1749,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 492,   ybCircle =1476,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+{
+idx =28,type = 0, id = 810, count = 30000, strong = 0, quality = 0, bind = 1, 
+price = 729,
+discountTab =
+{
+{discount = 2,   rate =5,   startYb = 1166,   ybCircle =3498,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3,   rate =20,   startYb = 984,   ybCircle =2952,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 3.5,   rate =20,   startYb = 765,   ybCircle =2295,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4,   rate =20,   startYb = 583,   ybCircle =1749,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 4.5,   rate =20,   startYb = 492,   ybCircle =1476,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5,   rate =25,   startYb = 328,   ybCircle =984,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 5.5,   rate =25,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 6.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 7.5,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = false   ,isBrocast =  false},
+{discount = 8.5,   rate =10,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+{discount = 9,   rate =0,   startYb = 0,   ybCircle =0,   refreshCount = 0,  limitCount = 0,  isInit = true   ,isBrocast =  false},
+},
+},
+
+
+
+
+
+},
+
+
+
+--B区物品库
+itemListB = {   
+
+{idx = 1, type = 0, id = 549, count = 99, strong = 0, quality = 0, bind = 1, price = 3000, rate =10,}, 
+
+{idx = 2, type = 0, id = 550, count = 99, strong = 0, quality = 0, bind = 1, price = 3000, rate =10,},
+
+{idx = 3, type = 0, id = 551, count = 99, strong = 0, quality = 0, bind = 1, price = 3000, rate =10,},
+
+{idx = 4, type = 0, id = 2812, count = 99, strong = 0, quality = 0, bind = 1, price = 7000, rate =10,},
+
+{idx = 5, type = 0, id = 2663, count = 99, strong = 0, quality = 0, bind = 1, price = 4374, rate =10,},
+
+{idx = 6, type = 0, id = 2674, count = 99, strong = 0, quality = 0, bind = 1, price = 4374, rate =10,},
+
+{idx = 7, type = 0, id = 3044, count = 99, strong = 0, quality = 0, bind = 1, price = 9000, rate =10,},
+
+{idx = 8, type = 0, id = 3055, count = 99, strong = 0, quality = 0, bind = 1, price = 9000, rate =10,},
+
+{idx = 9, type = 0, id = 3100, count = 99, strong = 0, quality = 0, bind = 1, price = 2000, rate =10,},
+
+{idx = 10, type = 0, id = 2463, count = 99, strong = 0, quality = 0, bind = 1, price = 4000, rate =10,}, 
+
+{idx = 11, type = 0, id = 2500, count = 99, strong = 0, quality = 0, bind = 1, price = 3000, rate =10,}, 
+
+{idx = 12, type = 0, id = 2470, count = 99, strong = 0, quality = 0, bind = 1, price = 4000, rate =10,}, 
+
+{idx = 13, type = 0, id = 2638, count = 99, strong = 0, quality = 0, bind = 1, price = 4000, rate =10,}, 
+
+},
+
+	
+}

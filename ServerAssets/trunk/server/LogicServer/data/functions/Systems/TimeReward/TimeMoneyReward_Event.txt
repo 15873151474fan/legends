@@ -1,0 +1,177 @@
+﻿--在线送元宝系统中于登录登出相关联的事件处理
+
+--#include "TimeMoneyReward_Const.txt" once 
+
+--在线送元宝奖励
+--登录处理  --登录由客户端请求 不发送信息 
+EventCallDispatcher._NoviceLoginMoneyReward = function ( sysarg )
+  --print("----new day")
+  if LocalDT.TimeMoneyRewardConst ~= nil then timeReward = LocalDT.TimeMoneyRewardConst else return end
+  --[[
+  local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  if ( level < timeReward.REWARDLIMLEVEL[1] ) then return end          --领取最低等级限制
+  if ( level > timeReward.REWARDLIMLEVEL[2] ) then return end          --领取最高等级限制
+  ]]
+  --获取当前的mini时间，单位秒
+  local time = System.getCurrMiniTime()
+
+  local var = Actor.getStaticVar( sysarg )       --获得上次剩余的在线奖励记录
+  local timeMoneyReward = var.timeMoneyReward	   --在线领取绑定元宝静态变量
+  --如果不存在领取绑定元宝在线数据，则初始化
+  if ( timeMoneyReward == nil ) then
+		var.timeMoneyReward = {}
+	  timeMoneyReward = var.timeMoneyReward
+		timeMoneyReward[1] = 0  --在线累计时间
+		timeMoneyReward[2] = 0  --在线累计金钱
+	  timeMoneyReward[3] = time  --记录登录初始时间
+    timeMoneyReward[4] = 0  --记录领取累计时间
+    timeMoneyReward[5] = time  --记录时间用于判断隔天
+  end
+
+  if timeMoneyReward[1] == nil then
+ 	  timeMoneyReward[1] = 0
+ 	end
+ 	if timeMoneyReward[2] == nil then
+    timeMoneyReward[2] = 0
+  end
+  --记录初始时间 如果为空 则赋予当前登录时间，否则 初始时间推移到上次下线时累计时间
+  if timeMoneyReward[3] == nil then
+    timeMoneyReward[3] = time
+  else
+    timeMoneyReward[3] = tonumber(time - timeMoneyReward[1])
+  end
+  if timeMoneyReward[4] == nil then
+    timeMoneyReward[4] = 0  --记录领取当天总累计时间
+  end
+  if timeMoneyReward[5] == nil then
+    timeMoneyReward[5] = time  --记录时间用于判断隔天
+  end
+  --print(timeMoneyReward[5])
+  --print(time)
+  --用前一次记录的mini时间与当前登录的mini时间相对比是否为同一天
+  if ( math.floor(timeMoneyReward[5]/timeReward.DAYTIME) ~= math.floor(time/timeReward.DAYTIME) ) then
+    --print("next day -------")
+    timeMoneyReward[1] = 0  --在线累计时间
+		timeMoneyReward[2] = 0  --在线累计金钱
+	  timeMoneyReward[3] = time  --记录登录初始时间
+	  timeMoneyReward[4] = 0  --记录领取当天总累计时间
+	  timeMoneyReward[5] = time  --记录时间用于判断隔天
+  end
+
+  --[[ --登录由客户端请求 
+	--服务端返回在线信息
+	local npack = DataPack.allocPacket(sysarg,138,2)  --申请一个数据包
+	if (npack == nil) then
+		--print("npack:nil")
+		return
+	end
+
+   
+  DataPack.writeUInt(npack,timeReward.REWARDLIMITTIME)    --一天能换取元宝的总时间
+  DataPack.writeUInt(npack,timeReward.REWARDMONEY)    --单位时间能换取的元宝数
+  DataPack.writeUInt(npack,timeMoneyReward[4])    --已换取元宝的时间
+  DataPack.writeUInt(npack,timeMoneyReward[1])  --累计未换取元宝的时间
+  DataPack.writeUInt(npack,timeReward.REWARDTIME)    --每次领取元宝所需时间间隔数
+	DataPack.flush(npack)   --发送数据包
+  ]]
+end
+
+--跨日处理  --跨日由服务端自动下发
+EventCallDispatcher._NewDayMoneyReward = function ( sysarg )
+
+  if LocalDT.TimeMoneyRewardConst ~= nil then timeReward = LocalDT.TimeMoneyRewardConst else return end
+  --[[
+  local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  if ( level < timeReward.REWARDLIMLEVEL[1] ) then return end          --领取最低等级限制
+  if ( level > timeReward.REWARDLIMLEVEL[2] ) then return end          --领取最高等级限制
+  ]]
+  --获取当前的mini时间，单位秒
+  local time = System.getCurrMiniTime()
+
+  local var = Actor.getStaticVar( sysarg )       --获得上次剩余的在线奖励记录
+  local timeMoneyReward = var.timeMoneyReward	   --在线领取绑定元宝静态变量
+  --如果不存在领取绑定元宝在线数据，则初始化
+  if ( timeMoneyReward == nil ) then
+		var.timeMoneyReward = {}
+	  timeMoneyReward = var.timeMoneyReward
+		timeMoneyReward[1] = 0  --在线累计时间
+		timeMoneyReward[2] = 0  --在线累计金钱
+	  timeMoneyReward[3] = time  --记录登录初始时间
+    timeMoneyReward[4] = 0  --记录领取累计时间
+    timeMoneyReward[5] = time  --记录时间用于判断隔天
+  end
+
+  if timeMoneyReward[1] == nil then
+ 	  timeMoneyReward[1] = 0
+ 	end
+ 	if timeMoneyReward[2] == nil then
+    timeMoneyReward[2] = 0
+  end
+  --记录初始时间 如果为空 则赋予当前登录时间，否则 初始时间推移到上次下线时累计时间
+  if timeMoneyReward[3] == nil then
+    timeMoneyReward[3] = time
+  else
+    timeMoneyReward[3] = tonumber(time - timeMoneyReward[1])
+  end
+  if timeMoneyReward[4] == nil then
+    timeMoneyReward[4] = 0  --记录领取当天总累计时间
+  end
+  if timeMoneyReward[5] == nil then
+    timeMoneyReward[5] = time  --记录时间用于判断隔天
+  end
+  --print(timeMoneyReward[5])
+  --print(time)
+  --用前一次记录的mini时间与当前登录的mini时间相对比是否为同一天
+  if ( math.floor(timeMoneyReward[5]/timeReward.DAYTIME) ~= math.floor(time/timeReward.DAYTIME) ) then
+    --print("next day -------")
+    timeMoneyReward[1] = 0  --在线累计时间
+		timeMoneyReward[2] = 0  --在线累计金钱
+	  timeMoneyReward[3] = time  --记录登录初始时间
+	  timeMoneyReward[4] = 0  --记录领取当天总累计时间
+	  timeMoneyReward[5] = time  --记录时间用于判断隔天
+  end
+
+
+	--服务端返回在线信息 --跨日由服务端自动下发 
+	local npack = DataPack.allocPacket(sysarg,138,2)  --申请一个数据包
+	if (npack == nil) then
+		--print("npack:nil")
+		return
+	end
+
+  DataPack.writeUInt(npack,timeReward.REWARDLIMITTIME)    --一天能换取元宝的总时间
+  DataPack.writeUInt(npack,timeReward.REWARDMONEY)    --单位时间能换取的元宝数
+  DataPack.writeUInt(npack,timeMoneyReward[4])    --已换取元宝的时间
+  DataPack.writeUInt(npack,timeMoneyReward[1])  --累计未换取元宝的时间
+  DataPack.writeUInt(npack,timeReward.REWARDTIME)    --每次领取元宝所需时间间隔数
+	DataPack.flush(npack)   --发送数据包
+
+end 
+
+--在线送元宝奖励的情况的下线存储
+--下线处理 
+EventCallDispatcher._LogoutRecordMoneyAwardTime = function ( sysarg )
+  if LocalDT.TimeMoneyRewardConst ~= nil then timeReward = LocalDT.TimeMoneyRewardConst else return end
+  --[[
+  local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  if ( level < timeReward.REWARDLIMLEVEL[1] ) then return end          --领取最低等级限制
+  if ( level > timeReward.REWARDLIMLEVEL[2] ) then return end          --领取最高等级限制
+  ]]
+  local time = System.getCurrMiniTime()
+  local timeMoneyReward = Actor.getStaticVar( sysarg ).timeMoneyReward	--获得上次剩余的在线奖励记录
+  if timeMoneyReward ~= nil then
+	  --记录累计的奖励时间供下次上线用
+	  if (time - timeMoneyReward[3]) <= 0 then
+      timeMoneyReward[1] = 0
+	  else
+      timeMoneyReward[1] = tonumber(time - timeMoneyReward[3])
+	  end
+	  timeMoneyReward[5] = time		--记录本次下线时间供下次上线用
+  end
+end
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, EventCallDispatcher._NoviceLoginMoneyReward)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogout, EventCallDispatcher._LogoutRecordMoneyAwardTime)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeNewDayArrive, EventCallDispatcher._NewDayMoneyReward)

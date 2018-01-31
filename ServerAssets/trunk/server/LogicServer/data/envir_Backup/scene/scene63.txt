@@ -1,0 +1,78 @@
+﻿--妖月峡谷
+{
+	scenceid = 63,
+	scencename = Lang.SceneName.s00063,
+	mapfilename = "63YaoYueXiaGu",
+	minlevel = 30,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0, 
+	music = "shayuanchun.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 124,
+	sceneHeight = 144,
+	sceneType=2,
+	seckillId = 17,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+	--挂机的点 ,通常副本才配置 
+	autoFightPoints =
+	{
+		{x = 83 , y = 96},
+		{x = 69 , y = 98},
+		{x = 63 , y = 104},
+		{x = 59 , y = 106},
+		{x = 46 , y = 106},
+		{x = 31 , y = 96},
+		{x = 32 , y = 78},
+		{x = 28 , y = 60},
+		{x = 39 , y = 46},
+		{x = 56 , y = 35},
+		{x = 74 , y = 27},
+		{x = 93 , y = 44},
+		{x = 69 , y = 69},
+
+	},
+
+	area =
+	{
+		{ name = Lang.SceneName.s00063, range = { 10,10,20,20,60,50}, center = { 95,92},attri = {{type=46,value = {}},{type=80,value = {}},{type=18,value = {}},{type=19,value = {}},{type=3,value = {}},{type=50,value = {1}},{type = 34,  value = {316,822,386,2272,2273,2274}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },}},	--默认配置场景，禁止行会的召集，传送，行会回程卷
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh63.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00156, posx = 85 , posy = 90,script = "data/script/FuBenScriptNpc/FuBenJieYinRen.txt",modelid = 1,icon = 1,funcId = 0},
+		{name = Lang.EntityName.n00131, posx = 57 , posy = 67,script = "data/script/FuBenScriptNpc/YaoYueJieYinRen.txt",modelid = 1,icon = 1,funcId = 0,title=Lang.NpcTitle.n00028, idleInterval = 20000},
+	},
+
+  teleport =
+  {
+     --传送点设置
+		--{ posx =  53, posy = 69,toSceneid =  2,toPosx = 212, toPosy =  216,modelid = 50000,name = Lang.SceneName.s00002 },  --妖月峡谷→王城
+  },
+ landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=87,posy1=95,posx2=87,posy2=95,modelid=22,xinterval=1,yinterval=1},  --安全区的路灯
+		{posx1=34,posy1=76,posx2=34,posy2=76,modelid=24,xinterval=1,yinterval=1},
+		{posx1=41,posy1=45,posx2=41,posy2=45,modelid=18,xinterval=1,yinterval=1},
+		{posx1=65,posy1=31,posx2=65,posy2=31,modelid=18,xinterval=1,yinterval=1},
+		{posx1=75,posy1=29,posx2=75,posy2=29,modelid=20,xinterval=1,yinterval=1},
+		{posx1=82,posy1=34,posx2=82,posy2=34,modelid=20,xinterval=1,yinterval=1},
+		{posx1=85,posy1=59,posx2=85,posy2=59,modelid=22,xinterval=1,yinterval=1},
+		{posx1=78,posy1=66,posx2=78,posy2=66,modelid=22,xinterval=1,yinterval=1},
+ },
+},

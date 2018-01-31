@@ -1,0 +1,878 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\AsuraField\AsuraFieldConfig.txt" once	--
+--#include "RankPointer.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+
+--进入修罗场
+function EnterAsura(sysarg)
+	local config = AsuraFieldConfig
+	if not config then return end
+
+	if Actor.checkActorLevel(sysarg, config.minLevel, config.minCircle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.xl0006,config.minCircle,config.minLevel), ttFlyTip)
+		return
+	end
+
+	local sval = System.getStaticVar()
+	local dval = System.getDyanmicVar()
+	if dval.AsuraStart ~= 1 then
+		local y = 0
+		local m = 0
+		local d = 0
+		y,m,d = System.getDate( y, m, d )
+		if sval.AsuraDate and sval.AsuraDate == d then		
+			Actor.sendTipmsg(sysarg, Lang.Activity.xl0018, ttFlyTip)
+		else
+			Actor.sendTipmsg(sysarg, Lang.Activity.xl0019, ttFlyTip)
+		end
+		return 
+	end
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	
+	local ranking = Ranking.getRanking(AsuraRankPt.RankName)
+	
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家进入加入排行榜
+	if not pItem then
+		local tagItem = Ranking.addItem(ranking,nActorId,0)
+		if tagItem then
+			local tagName = Actor.getName(sysarg)
+			Ranking.setSub(tagItem,0,"0")
+			Ranking.setSub(tagItem,1,tagName)
+			Ranking.setSub(tagItem,2,"0")
+		end
+	end
+	
+	local nHandle = Fuben.getSceneHandleById(config.nSceenId,0)
+	
+	local nPosX = System.getRandomNumber(config.nPosX[2]-config.nPosX[1])
+	nPosX = nPosX + config.nPosX[1]
+
+	local nPosY = System.getRandomNumber(config.nPosY[2]-config.nPosY[1])
+	nPosY = nPosY + config.nPosY[1]
+	
+	if Actor.enterFuBen(sysarg,nHandle,config.nSceenId,nPosX,nPosY) == false then return end
+	
+	local nScore = GetActorRankInfo(sysarg)
+	UpdateAsuraRank(sysarg, -nScore)
+
+	UpdateAsuraActivityForm(sysarg,1)
+end
+
+--更新活动面板信息 1 表示进入 2 表示在场景内更新
+function UpdateAsuraActivityForm(sysarg,nType)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+	
+	local ranking = Ranking.getRanking(AsuraRankPt.RankName)
+	
+	local nRank = 0
+	local nScore = {0,0,0}
+	local mPoint = 0
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		
+		local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+
+		if nItem then
+			mPoint = Ranking.getPoint(nItem)
+			--伤害大于0时，排名才不为0
+			if mPoint > 0 then
+				nRank = Ranking.getItemIndexFromId(ranking,nActorId) + 1
+			end
+		end
+
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+			if pItem then
+				nScore[i+1] = Ranking.getPoint(pItem)
+			end
+		end
+	end
+
+	if nType == 1 then
+		local nHandle = Fuben.getSceneHandleById(config.nSceenId, 0)
+		local nTime = Fuben.getSceneTime(nHandle)
+		Actor.initActivityWind(sysarg,Lang.Activity.xl0007,nTime,Lang.Activity.xl0008,Lang.Activity.xl0009,nScore[1],Lang.Activity.xl0010,nScore[2],Lang.Activity.xl0011,nScore[3],Lang.Activity.xl0012,mPoint,Lang.Activity.xl0013,nRank)
+	else
+		Actor.changeActivityProgress(sysarg,nScore[1],nScore[2],nScore[3],mPoint,nRank)
+	end
+end
+
+--是否在修罗场
+function IsInAsuraMap(sysarg)
+	local nSceneId = Actor.getSceneId(sysarg)
+	if AsuraFieldConfig.nSceenId == nSceneId then
+		return true
+	end
+	return false
+end	
+
+--离开场景
+function ExitAsuraMap(sysarg)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local dval = System.getDyanmicVar()
+	--活动期间离开场景清除所有积分
+	if (dval.AsuraStart ~= nil) and (dval.AsuraStart == 1) then
+		local nScore = GetActorRankInfo(sysarg)
+		UpdateAsuraRank(sysarg, -nScore)
+	end
+	
+	local nPosX = System.getRandomNumber(config.ePosX[2]-config.ePosX[1])
+	nPosX = nPosX + config.ePosX[1]
+
+	local nPosY = System.getRandomNumber(config.ePosY[2]-config.ePosY[1])
+	nPosY = nPosY + config.ePosY[1]
+
+	local nHandle = Fuben.getSceneHandleById(config.exitSceenId,0)
+	if Actor.enterFuBen(sysarg,nHandle,config.exitSceenId,nPosX,nPosY) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+	Actor.closeNPCDialog(sysarg)
+
+	local buff = config.buff
+	if not buff then return end
+
+	Actor.delBuff(sysarg, buff.buffType, buff.groupId)
+	Actor.onAutoHeadNumber(sysarg, 0)
+end
+
+--详情
+function AboutAsura(sysarg)
+	local str = ""
+	str = str..Lang.Activity.xl0014
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+--领取活动奖励
+function GetAsuraAward(sysarg)	
+	local config = AsuraFieldConfig
+	if (not config) then return "" end
+	if (not AsuraRankPt) then return "" end
+	local str = ""
+	str = str..string.format(Lang.Activity.xl0016, config.showRank)
+	local pRank = Ranking.getRanking(AsuraRankPt.RankName)
+	if pRank then
+		local rankList = LuaHelp.getRankingItemList(pRank, config.showRank)
+		if not rankList then
+			str = str..Lang.Activity.t00151
+		else
+			for k, v in pairs(rankList) do
+				local pItem = Ranking.getItemFromIndex(pRank, k - 1)
+				if pItem and Ranking.getPoint(pItem) == 0 then
+					break
+				end
+				local name = Ranking.getSub(v, 1)
+				local score = Ranking.getPoint(v)
+				str = str..string.format(Lang.Activity.xl0038, k, name, score)
+			end
+		end
+		local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local rank = Ranking.getItemIndexFromId(pRank, userId)+1
+		local pItem = Ranking.getItemFromIndex(pRank, rank - 1)
+		if rank > 0 and Ranking.getPoint(pItem) > 0 then
+			str = str..string.format(Lang.Activity.t00153, rank)
+			str = str..string.format(Lang.Activity.xl0039, Ranking.getPoint(pItem))
+		else
+			str = str..Lang.Activity.t00154..Lang.Activity.xl0040
+		end
+	end
+	
+	str = str.."\\<#BL"..Lang.Activity.xl0015.."/@OnGetAsuraAward>"  --<领取奖励>
+	--str = str.."\\<#BL"..Lang.Activity.xl0028.."/@OnGetAsuraScoreAward>"  --<领取积分奖励>
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	
+	return str
+end
+
+--领取奖励
+function OnGetAsuraAward(sysarg)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+	
+	local dval = System.getDyanmicVar()
+	
+	if (dval.AsuraStart) and (dval.AsuraStart == 1) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.xl0017, ttFlyTip)
+		return
+	end
+	
+	local pRank = Ranking.getRanking(AsuraRankPt.RankName)
+	if not pRank then
+		return
+	end
+
+	local index = 0
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	if not pItem then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00156, ttFlyTip)
+		return
+	end
+	
+	local nRank = Ranking.getItemIndexFromId(pRank, userId)+1
+	if nRank <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00156, ttFlyTip)
+		return
+	end
+	
+	local nFlag = tonumber(Ranking.getSub(pItem,0))
+	
+	--已领取过奖励
+	if nFlag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00157, ttFlyTip)
+		return
+	end
+	
+	local nRate = 1
+	
+	--排行榜奖励
+	if config.rankAward and table.getn(config.rankAward) > 0 then
+		for k, v in pairs(config.rankAward) do
+			if Ranking.getPoint(pItem) == 0 then
+				Actor.sendTipmsg(sysarg, Lang.Activity.t00156, ttFlyTip)
+				return
+			end
+			if nRank >= v.rankInterval[1] and nRank <= v.rankInterval[2] then
+				
+				local awards = {}
+				for m, n in ipairs(v.awards) do
+					local award = {type=n.type, id=n.id,count=n.count*nRate,quality=n.quality,strong=n.strong,bind=n.bind}
+					table.insert(awards, award)
+				end
+				
+				if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+				--设置领取标志
+				Ranking.setSub(pItem, index, "1")
+				
+				Awards.Give(sysarg, awards, 961, Lang.LogTips.l00189)
+				Actor.sendTipmsg(sysarg, Lang.Activity.t00158, ttFlyTip)
+				
+				return
+			end
+		end
+	end
+	
+	Actor.sendTipmsg(sysarg, Lang.Activity.t00156, ttFlyTip)
+end
+
+--领取积分奖励
+function OnGetAsuraScoreAward(sysarg)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+	
+	local dval = System.getDyanmicVar()
+	
+	if (dval.AsuraStart) and (dval.AsuraStart == 1) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.xl0017, ttFlyTip)
+		return
+	end
+	
+	local pRank = Ranking.getRanking(AsuraRankPt.RankName)
+	if not pRank then
+		return
+	end
+
+	local index = 2
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	if not pItem then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00156, ttFlyTip)
+		return
+	end
+	
+	local nRank = Ranking.getItemIndexFromId(pRank, userId)+1
+	if nRank <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00156, ttFlyTip)
+		return
+	end
+	
+	local nFlag = tonumber(Ranking.getSub(pItem,2))
+	
+	--已领取过奖励
+	if nFlag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00157, ttFlyTip)
+		return
+	end
+	
+	local nRate = Ranking.getPoint(pItem)
+	
+	if nRate == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00156, ttFlyTip)
+		return
+	end
+		
+	local awards = {}
+	for m, n in ipairs(config.scoreAward or {}) do
+		local award = {type=n.type, id=n.id,count=n.count*nRate,quality=n.quality,strong=n.strong,bind=n.bind}
+		table.insert(awards, award)
+	end
+	
+	if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+	--设置领取标志
+	Ranking.setSub(pItem, index, "1")
+	
+	Awards.Give(sysarg, awards, 961, Lang.LogTips.l00189)
+	Actor.sendTipmsg(sysarg, Lang.Activity.t00158, ttFlyTip)
+end
+
+--随机刷传送阵
+function RandTransmitMonster()
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local hScene = Fuben.getSceneHandleById(config.nSceenId,0)  --获得场景句柄
+	for k, monInfo in ipairs(config.transmitMonsters or {}) do
+		Fuben.createMonstersInRange(hScene, monInfo.nMonsterID, monInfo.posX1, monInfo.posY1, monInfo.posX2, monInfo.posY2, monInfo.nCount, monInfo.nLiveTime)
+	end
+	
+	Actor.unregScriptCallback(thisNPC, "ZoneChallengeFinished")
+	Actor.regScriptCallback(thisNPC, thisNPC, config.randTransmitConfig.nTime * 1000, 0, 1, "ZoneChallengeFinished")
+
+	--local dval = System.getDyanmicVar()
+	--dval.RandAsuraTime = System.getCurrMiniTime()
+
+	for k, zoneRange in ipairs(config.zoneRange or {}) do
+		--修罗门刷BOSS
+		if zoneRange.zoneId == 3 then
+			for j, monInfo in ipairs(zoneRange.monsters or {}) do
+				Fuben.createMonstersInRange(hScene, monInfo.nMonsterID, monInfo.posX1, monInfo.posY1, monInfo.posX2, monInfo.posY2, monInfo.nCount, monInfo.nLiveTime)
+			end
+		--炼狱门刷采集怪
+		elseif zoneRange.zoneId == 4 then
+			for j, monInfo in ipairs(zoneRange.monsters or {}) do
+				Fuben.createMonstersInRange(hScene, monInfo.nMonsterID, monInfo.posX1, monInfo.posY1, monInfo.posX2, monInfo.posY2, monInfo.nCount, monInfo.nLiveTime)
+			end
+			
+			Actor.unregScriptCallback(thisNPC, "OnPurgatoryTimer")
+			Actor.regScriptCallback(thisNPC, thisNPC, 0, zoneRange.nGiveScoreTime * 1000, -1, "OnPurgatoryTimer")
+		end
+	end
+
+	Fuben.sendMsgToScene(hScene,Lang.Activity.xl0025,2+128)
+end
+
+--获取玩家排行信息
+function GetActorRankInfo(sysarg)
+	local nScore = 0
+	local ranking = Ranking.getRanking(AsuraRankPt.RankName)
+
+	if ranking then
+		local nMyActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId( ranking, nMyActorId )
+
+		if item then
+			nScore = Ranking.getPoint(item)
+		end
+	end
+
+	return nScore
+end
+
+--更新信息群发
+function SendAsuraActivityToAll()
+	local playerList = LuaHelp.getSceneActorListById(AsuraFieldConfig.nSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				UpdateAsuraActivityForm(player,1)
+			end
+		end
+	end
+end
+
+--更新玩家积分
+function UpdateAsuraRank(sysarg,nScore)
+	local dval = System.getDyanmicVar()
+	if dval.AsuraStart == nil or dval.AsuraStart == 0 then
+		return
+	end
+	local ranking = Ranking.getRanking(AsuraRankPt.RankName)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId( ranking, nActorId )
+		local oldRank = Ranking.getItemIndexFromId( ranking, nActorId )
+
+		if item then
+			local nPoint = Ranking.getPoint(item)
+
+			Ranking.updateItem(ranking,nActorId,nScore)
+
+			Ranking.setSub(item,0,"0")
+			Ranking.setSub(item,1,Actor.getName(sysarg))
+			Ranking.setSub(tagItem,2,"0")
+		else
+			local pItem = Ranking.addItem(ranking,nActorId,nScore)
+
+			if pItem then
+				Ranking.setSub(pItem,0,"0")
+				Ranking.setSub(pItem,1,Actor.getName(sysarg))
+				Ranking.setSub(tagItem,2,"0")
+			end
+		end
+
+		local newRank = Ranking.getItemIndexFromId( ranking, nActorId )
+
+		if newRank < 3 then
+			SendAsuraActivityToAll()
+		else
+			UpdateAsuraActivityForm(sysarg,2)
+		end
+	end
+
+	local str2 = ""
+	if nScore > 0 then
+		str2 = string.format(Lang.Activity.xl0022,nScore)
+	elseif nScore < 0 then
+		str2 = string.format(Lang.Activity.xl0023,-nScore)
+	end
+	if str2 ~= "" then
+		Actor.sendTipmsg(sysarg,str2,1)
+	end
+end
+
+--计算击杀者和被击杀者的积分
+function CalcKillScore(nZoneId, myPoint)
+	local nMyPoint = 0
+	local nTargetPoint = 0
+
+	local config = AsuraFieldConfig
+	if (not config) then
+		return nMyPoint, nTargetPoint
+	end
+
+	if (nZoneId == 1) then
+		nMyPoint = config.zoneRange[nZoneId].beKillScore
+		nTargetPoint = config.zoneRange[nZoneId].killerScore
+	elseif (nZoneId == 2) then
+		nMyPoint = config.zoneRange[nZoneId].beKillScore
+		nTargetPoint = config.zoneRange[nZoneId].killerScore
+	else
+		nMyPoint = math.ceil(myPoint * config.killActorPoint / 100)
+		nTargetPoint = math.ceil(myPoint * config.killActorPoint / 100)
+	end
+
+	return nMyPoint, nTargetPoint
+end
+
+--获取玩家所在区域
+function GetActorZone(sysarg)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local nSceendId = Actor.getSceneId(sysarg)
+
+	if nSceendId ~= config.nSceenId then return end
+
+	local myPosX, myPosY = Actor.getEntityPosition(sysarg, 0, 0)
+
+	for k, zone in ipairs(config.zoneRange or {}) do
+		if (myPosX >= zone.nPosX1) and (myPosX <= zone.nPosX2) and (myPosY >= zone.nPosY1) and (myPosY <= zone.nPosY2) then
+			return zone.zoneId
+		end
+	end
+
+	return 0
+end
+
+--在修罗场被玩家击杀
+function OnKillByActorInAsuraFeild(sysarg, killer)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local nSceendId = Actor.getSceneId(sysarg)
+
+	if nSceendId ~= config.nSceenId then return end
+
+	local hScene = Fuben.getSceneHandleById(config.nSceenId, 0)
+	
+	local nZoneId = GetActorZone(sysarg)
+
+	local myName = Actor.getName(sysarg)
+	local tagName = Actor.getName(killer)
+
+	local str = ""
+	local buff = config.buff
+	if not buff then return end
+
+	if Actor.hasBuff(sysarg, buff.buffType, buff.groupId) then
+		Actor.delBuff(sysarg, buff.buffType, buff.groupId)
+		Actor.onAutoHeadNumber(sysarg, 0)
+		local myScore = GetActorRankInfo(sysarg)
+		UpdateAsuraRank(sysarg, -myScore)
+		UpdateAsuraRank(killer, myScore)
+		str = string.format(Lang.Activity.xl0030,tagName,myName,myScore)
+		Fuben.sendMsgToScene(hScene,str,2+128)
+
+		if nZoneId == 0 then
+			return
+		end
+	end
+	if Actor.hasBuff(killer, buff.buffType, buff.groupId) then
+		Actor.delBuff(killer, buff.buffType, buff.groupId)
+		Actor.onAutoHeadNumber(sysarg, 0)
+		local myScore = GetActorRankInfo(sysarg)
+		UpdateAsuraRank(sysarg, -myScore)
+		UpdateAsuraRank(killer, myScore)
+		str = string.format(Lang.Activity.xl0031,tagName,myName,myScore)
+		Fuben.sendMsgToScene(hScene,str,2+128)
+
+		if nZoneId == 0 then
+			return
+		end
+	end
+
+	if (nZoneId == 0) then
+		if (myName ~= nil) and (tagName ~= nil) then
+			local myScore = GetActorRankInfo(sysarg)
+			if myScore >= config.minPoint then
+				local newMyScore, newKillerScore = CalcKillScore(nZoneId, myScore)
+				UpdateAsuraRank(sysarg, -newMyScore)
+				UpdateAsuraRank(killer, newKillerScore)
+				str = string.format(Lang.Activity.xl0021,tagName,myName,newKillerScore)
+			else
+				str = string.format(Lang.Activity.xl0020,tagName,myName)
+			end
+			Fuben.sendMsgToScene(hScene,str,2+128)
+		end
+	elseif (nZoneId == 1) or (nZoneId == 2) then
+		local myScore = GetActorRankInfo(sysarg)
+		local newMyScore, newKillerScore = CalcKillScore(nZoneId, myScore)
+		UpdateAsuraRank(sysarg, newMyScore)
+		UpdateAsuraRank(killer, newKillerScore)
+		TransmitActorToCenter(sysarg)
+		TransmitActorToCenter(killer)
+	elseif (nZoneId == 3) or (nZoneId == 5) then
+		TransmitActorToCenter(sysarg)
+	elseif (nZoneId == 4) then
+		local buff = config.zoneRange[nZoneId].buff
+		if not buff then return end
+
+		local nActorRemainTime = Actor.getBuffRemainTime(sysarg, buff.buffType, buff.groupId)
+		local nKillerRemainTime = Actor.getBuffRemainTime(killer, buff.buffType, buff.groupId)
+		Actor.delBuff(sysarg, buff.buffType, buff.groupId)
+		Actor.addBuff(killer, buff.buffType, buff.groupId, buff.value, buff.times, nActorRemainTime+nKillerRemainTime, buff.buffName, buff.timeOverlay)
+	end
+end
+
+--在修罗场被怪物击杀
+function OnKillByMonInAsuraFeild(sysarg, killer)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local nSceendId = Actor.getSceneId(sysarg)
+
+	if nSceendId ~= config.nSceenId then return end
+
+	local hScene = Fuben.getSceneHandleById(config.nSceenId, 0)
+
+	local nZoneId = GetActorZone(sysarg)
+	
+	local myName = Actor.getName(sysarg)
+
+	local str = ""
+
+	local buff = config.buff
+	if not buff then return end
+	if Actor.hasBuff(sysarg, buff.buffType, buff.groupId) or (killer == nil) then
+		Actor.delBuff(sysarg, buff.buffType, buff.groupId)
+		Actor.onAutoHeadNumber(sysarg, 0)
+		local myScore = GetActorRankInfo(sysarg)
+		UpdateAsuraRank(sysarg, -myScore)
+		str = string.format(Lang.Activity.xl0032,myName,myScore)
+		if (killer == nil) then
+			str = string.format(Lang.Activity.xl0037,myName,myScore)
+		end
+		Fuben.sendMsgToScene(hScene,str,2+128)
+
+		if nZoneId == 0 then
+			return
+		end
+	end
+
+	if (nZoneId == 0) then
+		local myScore = GetActorRankInfo(sysarg)
+		if myScore >= config.minPoint then
+			local newMyScore, newKillerScore = CalcKillScore(nZoneId, myScore)
+			UpdateAsuraRank(sysarg, -newMyScore)
+		end
+	else
+		TransmitActorToCenter(sysarg)
+	end
+end
+
+--传送玩家到中间区域
+function TransmitActorToCenter(sysarg)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+	
+	local nSceendId = Actor.getSceneId(sysarg)
+
+	if nSceendId ~= config.nSceenId then return end
+
+	nPosX = System.getRandomNumber(config.nPosX[2]-config.nPosX[1])
+	nPosX = nPosX + config.nPosX[1]
+
+	nPosY = System.getRandomNumber(config.nPosY[2]-config.nPosY[1])
+	nPosY = nPosY + config.nPosY[1]
+	
+	if Actor.enterFuBen(sysarg,nHandle,config.nSceenId,nPosX,nPosY) == false then return end
+end
+
+--区域挑战结束
+function ZoneChallengeFinished()
+	local dval = System.getDyanmicVar()
+	if dval.AsuraStart == nil or dval.AsuraStart == 0 then
+		return
+	end
+	
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local playerList = LuaHelp.getSceneActorListById(config.nSceenId)	--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player then
+				local nZoneId = GetActorZone(player)
+				if (nZoneId == 1) then
+					UpdateAsuraRank(player, config.zoneRange[nZoneId].beKillScore)
+				elseif (nZoneId == 2) then
+					UpdateAsuraRank(player, config.zoneRange[nZoneId].beKillScore)
+				end
+
+				if nZoneId ~= 0 then
+					TransmitActorToCenter(player)
+				end
+			end
+		end
+	end
+	
+	Actor.unregScriptCallback(thisNPC, "OnPurgatoryTimer")
+end
+
+--击杀怪物
+function OnKillZoneMonster(sysarg, monId, monZoneId)
+	local dval = System.getDyanmicVar()
+	if dval.AsuraStart == nil or dval.AsuraStart == 0 then
+		return
+	end
+	
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local nSceendId = Actor.getSceneId(sysarg)
+
+	if nSceendId ~= config.nSceenId then return end
+	
+	local nZoneId = GetActorZone(sysarg)
+	if nZoneId ~= monZoneId then return end
+
+	for k, zoneRange in ipairs(config.zoneRange or {}) do
+		if zoneRange.zoneId == monZoneId then
+			if monZoneId == 4 then
+				for j, buff in ipairs(zoneRange.buff or {}) do
+					Actor.addBuff(sysarg, buff.buffType, buff.groupId, buff.value, buff.times, buff.interval, buff.buffName, buff.timeOverlay)
+				end
+			end
+			for j, monster in ipairs(zoneRange.monsters or {}) do
+				if monId == monster.nMonsterID then
+					KillMonsterGiveScore(sysarg, monster, monZoneId)
+					break
+				end
+			end
+			break
+		end
+	end
+--[[
+	if monZoneId == 3 then
+		local playerList = LuaHelp.getSceneActorListById(config.nSceenId)	--获取某场景玩家对象列表
+		if playerList ~= nil then
+			for i = 1, #playerList do
+				local player = playerList[i]
+				if player then
+					local nZoneId = GetActorZone(player)
+					if nZoneId == monZoneId then
+						TransmitActorToCenter(player)
+					end
+				end
+			end
+		end
+	end
+]]
+end
+
+--击杀普通区域怪物
+function OnKillCommonZoneMonster(sysarg, monId)
+	local dval = System.getDyanmicVar()
+	if dval.AsuraStart == nil or dval.AsuraStart == 0 then
+		return
+	end
+	
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+	local monZoneId = 0
+	local hScene = Fuben.getSceneHandleById(config.nSceenId, 0)
+
+	for k, monster in ipairs(config.monsters or {}) do
+		if monId == monster.nMonsterID then
+			KillMonsterGiveScore(sysarg, monster, monZoneId)
+			if (monster.modelId) and (Actor.isDeath(sysarg) ~= true) then	--死亡不加buff
+
+				local moId = Actor.getMyModelId(sysarg)
+
+				local buff = config.buff
+				if not buff then return end
+
+				Actor.delBuff(sysarg, buff.buffType, buff.groupId)
+				Actor.addBuff(sysarg, buff.buffType, buff.groupId, buff.value, buff.times, buff.interval, buff.buffName, buff.timeOverlay)
+				Actor.changeEntityModel(sysarg, 30, monster.modelId)
+				Actor.onAutoHeadNumber(sysarg, buff.interval)
+				
+				local myName = Actor.getName(sysarg)
+				local str = string.format(Lang.Activity.xl0033,myName)
+				Fuben.sendMsgToScene(hScene,str,2+128)
+			end
+			break
+		end
+	end
+end
+
+--处理炼狱门定时事件
+function OnPurgatoryTimer()
+	local dval = System.getDyanmicVar()
+	if dval.AsuraStart == nil or dval.AsuraStart == 0 then
+		return
+	end
+	
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+	
+	local nZoneId = 4
+	local playerList = LuaHelp.getSceneActorListById(config.nSceenId)	--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player then
+				local nMyZoneId = GetActorZone(player)
+				if nZoneId == nMyZoneId then
+					local dVar = Actor.getDyanmicVar(player)
+					if not dVar.PurgatoryTimes then
+						dVar.PurgatoryTimes = 0
+					end
+					dVar.PurgatoryTimes = dVar.PurgatoryTimes + 1
+					local giveScore = config.zoneRange[nZoneId].giveScore
+					--local nPlayerHp = Actor.getIntProperty(player, PROP_CREATURE_HP)
+					if (dVar.PurgatoryTimes < table.getn(giveScore)) then
+						--if (nPlayerHp > giveScore[dVar.PurgatoryTimes].nSubHp) then
+							UpdateAsuraRank(player, giveScore[dVar.PurgatoryTimes].nGiveScore)
+						--end
+						--Actor.changeHp(player, -giveScore[dVar.PurgatoryTimes].nSubHp)
+					end
+				end
+			end
+		end
+	end
+end
+
+--击杀怪物发放积分奖励
+function KillMonsterGiveScore(sysarg, monster, monZoneId)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local nSceendId = Actor.getSceneId(sysarg)
+
+	if nSceendId ~= config.nSceenId then return end
+
+	if monster.nGetScoreFlag == 0 then
+		local playerList = LuaHelp.getSceneActorListById(config.nSceenId)	--获取某场景玩家对象列表
+		if playerList ~= nil then
+			local nPlayCount = 0
+			--计算区域人数
+			for i = 1, #playerList do
+				local player = playerList[i]
+				if player then
+					local nZoneId = GetActorZone(player)
+					if nZoneId == monZoneId then
+						nPlayCount = nPlayCount + 1
+					end
+				end
+			end
+			if nPlayCount == 0 then
+				return
+			end
+			local nAveScore = math.floor(monster.nScore / nPlayCount)
+			--给区域玩家发放积分
+			for i = 1, #playerList do
+				local player = playerList[i]
+				if player then
+					local nZoneId = GetActorZone(player)
+					if nZoneId == monZoneId then
+						UpdateAsuraRank(player, nAveScore)
+					end
+				end
+			end
+		end
+	else
+		UpdateAsuraRank(sysarg, monster.nScore)
+	end
+end
+
+--购买道具
+function BuyAsuraItemOP(sysarg)
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local myYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	if myYb < config.nItem.needYb then
+		Actor.sendTipmsg(sysarg,Lang.Activity.xl0027, ttFlyTip)
+		return
+	end
+
+	if checkBagGrids(sysarg, config.nItem.id, config.nItem.ncount, config.nItem.nBind) and Actor.changeMoney(sysarg, mtYuanbao, -config.nItem.needYb, 115, Lang.Activity.xl0026) then
+		Actor.addItem(sysarg, config.nItem.id, 0, 0, config.nItem.ncount, config.nItem.nBind, 0, Lang.Activity.xl0026, 115)
+	end
+end
+
+--尸化状态消失
+function OnZombieRemove(sysarg,args)
+	local killer = nil
+	OnKillByMonInAsuraFeild(sysarg, killer)
+end

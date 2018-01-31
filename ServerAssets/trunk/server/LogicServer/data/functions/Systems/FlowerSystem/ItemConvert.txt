@@ -1,0 +1,62 @@
+--[[File:ItemConvert.txt]]
+--#include "data\config\item\ItemConvertConfig.txt" once
+
+function ConvertOtp( sysarg, convertType )
+	convertType = tonumber(convertType);
+	local cfg = ItemConvertConfig[convertType];
+	local dlgStr = cfg.description;
+	local optionsMenu = cfg["OptionsMenu"];
+	for _, v in ipairs(optionsMenu or {}) do
+		dlgStr = string.format("%s\\<#BL%s/@DoConvert,%d,%d,%d,%d,%d>", dlgStr, v.opt, convertType,v.srcId, v.destId, v.srcCount, v.destCount);
+	end
+	dlgStr = dlgStr .. Lang.ScriptTips.back001; -- 返回
+	return dlgStr
+end
+
+function DoConvert( sysarg, convertType, srcId, destId, srcCount, destCount )
+	convertType = tonumber(convertType);
+	local cfg = ItemConvertConfig[convertType];
+	local optionsMenu = cfg["OptionsMenu"];
+
+	-- 检测：
+	-- 1.	玩家背包中是否有对应的灵珠，没有则提示：背包中缺少%d
+	local srcItName = Item.getItemName(srcId)
+	local destItName = Item.getItemName(destId)
+	local nBindFlag = 0
+	local srcItemCount = Actor.getItemCount( sysarg, srcId, -1, -1, nBindFlag)
+	if srcItemCount < 1 then
+		nBindFlag = 1
+		local bindItemCount = Actor.getItemCount( sysarg, srcId, -1, -1, nBindFlag)
+		if bindItemCount < 1 then
+			local noticeStr = string.format(Lang.ScriptTips.c000056, srcItName)
+			Actor.sendTipmsg(sysarg,noticeStr, ttFlyTip)
+			return
+		end
+	end
+	-- 2.	玩家的背包空间是否充足，不足则提示：背包空间不足，无法分解
+	local bagIdxs = Item.getBagEmptyGridCount(sysarg)
+	local needGrid = Item.getAddItemNeedGridCount( sysarg, destId, destCount, -1, -1, nBindFlag)
+	if bagIdxs < needGrid then
+		local noticeStr = string.format(Lang.ScriptTips.zf060, needGrid)
+		Actor.sendTipmsg(sysarg,noticeStr, ttFlyTip)
+		return
+	end
+	-- 3.	玩家金币是否充足，不足则提示：每次分解需要1万金币
+	if cfg.needCoin > 0 then
+		if not Actor.changeMoney(sysarg, mtCoin, -cfg.needCoin, 35, Lang.LogTips.coin00001) then
+			Actor.sendTipmsg(sysarg,string.format(cfg.debitedCoinFailed, cfg.needCoin), ttFlyTip);
+			return
+		end
+	end
+	-- 条件符合则将灵珠分解，并给予提示：成功分解%d
+	if Actor.removeItem( sysarg, srcId, srcCount, -1, -1, nBindFlag, Lang.ScriptTips.lz000001, 5) > 0 then
+		Actor.addItem( sysarg, destId, 0, 0, destCount, nBindFlag)
+		local noticeStr = string.format(Lang.ScriptTips.c000058, destItName)
+		Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+	end
+	-- 灵珠分解规则：
+	-- 1.	对应的灵珠分解后，每次获得低一等级的灵珠，每次只能获得3个
+	-- 2.	绑定的灵珠分解后，灵珠为绑定的
+	-- 3.	不绑定的灵珠分解后，灵珠为不绑定的
+	-- 4.	每次分解需要1万的金币
+end

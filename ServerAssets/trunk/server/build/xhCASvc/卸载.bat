@@ -1,0 +1,2 @@
+xhCASvc.exe /UNINSTALL
+puase

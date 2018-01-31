@@ -1,0 +1,64 @@
+﻿--宝物合成，用于合成宝物以及合成增加宝物灵力的药品
+--宝物相关的合成是100%成功。
+--#include "..\..\language\LangCode.txt"
+
+gemComposeConfig=
+{	
+	-- 飞剑	
+	{
+		name=Lang.Gem.n1,	-- 合成目标的描述（客户端显示用）
+		destIsGem=0, -- 合成目标是宝物还是宝物灵力物品 0表示物品，1表示宝物
+		destId=1972, -- 合成后宝物Id或者是宝物灵力物品Id		
+		reqBindCoin=0, -- 消耗绑定银两数量
+		reqNonBindCoin=100000, -- 消耗非绑定银两数量
+		requestItems = -- 消耗的物品列表
+		{	
+				{ item =1910, count = 1 },
+				{ item =1914, count = 20 },
+				{ item =1915, count = 30 },
+		},
+	},
+	-- 风火轮
+	{
+		name=Lang.Gem.n7,	-- 合成目标的描述（客户端显示用）
+		destIsGem=0, -- 合成目标是宝物还是宝物灵力物品
+		destId=1973, -- 合成后宝物Id或者是宝物灵力物品Id		
+		reqBindCoin=0, -- 消耗绑定银两数量
+		reqNonBindCoin=100000, -- 消耗非绑定银两数量
+		requestItems = -- 消耗的物品列表
+		{	
+				{ item =1913, count = 1 },
+				{ item =1914, count = 20 },
+				{ item =1915, count = 30 },
+		},
+	},
+	-- 飞毯	
+	{
+		name=Lang.Gem.n13,	-- 合成目标的描述（客户端显示用）
+		destIsGem=0, -- 合成目标是宝物还是宝物灵力物品
+		destId=1975, -- 合成后宝物Id或者是宝物灵力物品Id		
+		reqBindCoin=0, -- 消耗绑定银两数量
+		reqNonBindCoin=100000, -- 消耗非绑定银两数量
+		requestItems = -- 消耗的物品列表
+		{	
+				{ item =1911, count = 1 },
+				{ item =1914, count = 20 },
+				{ item =1915, count = 30 },
+		},
+	},
+	-- 莲花宝座	
+	{
+		name=Lang.Gem.n19,	-- 合成目标的描述（客户端显示用）
+		destIsGem=0, -- 合成目标是宝物还是宝物灵力物品
+		destId=1974, -- 合成后宝物Id或者是宝物灵力物品Id		
+		reqBindCoin=0, -- 消耗绑定银两数量
+		reqNonBindCoin=100000, -- 消耗非绑定银两数量
+		requestItems = -- 消耗的物品列表
+		{	
+				{ item =1912, count = 1 },
+				{ item =1914, count = 20 },
+				{ item =1915, count = 30 },
+		},
+	},
+},
+

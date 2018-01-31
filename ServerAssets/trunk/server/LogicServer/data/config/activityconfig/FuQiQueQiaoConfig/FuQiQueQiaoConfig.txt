@@ -1,0 +1,130 @@
+--lua script
+--夫妻鹊桥配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+FuQiConfig = 
+{
+	nFuQiId      =	64,
+	--nFubeId		 =  64,					--组队副本的id
+	nLoveFubenId =  64,                 --夫妻组队副本id
+	nSceenId	 =  202,				--场景id 
+	ExitPos = {nSceneId = 2 ,posX = 212 ,posY = 212 ,},--退出坐标点
+	--夫妻进入随机坐标
+	couplePos = 
+	{
+		{posX = 52,  posY =  132, }, 
+		{posX = 143, posY =  40, },  
+	},
+	--大殿npc坐标
+	npcPos = {posX = 98 ,posY = 89,},
+	--王母玉钗ID,坐标，生存时间
+	WmJadePin = { nMonsterID = 1146, posX = 92, posY = 92, nLiveTime = 1800, }, 
+	--王母金钗ID,坐标，生存时间，出现几率(百分比)
+	WmGoldPin = { nMonsterID = 1147, posX = 92, posY = 92, nLiveTime = 1800, nRate = 5, },
+	--喜鹊配置,ID,生存时间(红黄蓝绿紫)
+	MagPie = 
+	{
+		{ nMonsterID = 1139,	nLiveTime = 1800, },      --红
+		{ nMonsterID = 1140,   nLiveTime = 1800, },	  --黄
+		{ nMonsterID = 1141,   nLiveTime = 1800, },	  --蓝
+		{ nMonsterID = 1142,   nLiveTime = 1800, },	  --绿
+		{ nMonsterID = 1143,  nLiveTime = 1800, },	  --紫
+	},
+	--真爱之门满血量
+	DoorMaxHp =  5201314,
+	--消灭一只喜鹊，增加或减的血量
+	ChangeHp = 999999,
+
+	--喜鹊坐标
+	MagPiePos =
+	{
+		{
+			{posX = 36  , posY = 142 ,},
+			{posX = 42	, posY = 148 ,},
+			{posX =	39	, posY = 139,},
+			{posX =	45	, posY = 145,},
+			{posX =	42	, posY = 136,},
+			{posX =	48	, posY = 142,},
+			{posX =	45	, posY = 133,},
+			{posX =	51	, posY = 139,},
+			{posX =	48	, posY = 130,},
+			{posX =	54	, posY = 136,},
+		},		   
+		{		   	
+			{posX =	147	, posY = 31 ,},
+			{posX =	149	, posY = 39 ,},
+			{posX =	144	, posY = 34 ,},
+			{posX =	146	, posY = 42 ,},
+			{posX =	141	, posY = 37 ,},
+			{posX =	143	, posY = 45 ,},
+			{posX =	138	, posY = 40,},
+			{posX =	140	, posY = 48,},
+			{posX =	135	, posY = 43,},
+			{posX =	137	, posY = 51,},
+		},
+	},
+	
+	--真爱之门石柱怪配置 ID和生存时间
+	LoveDoor =
+	{
+		{nMonsterID = 1134 ,  nLiveTime = 1800, }, 
+		{nMonsterID = 1135 ,  nLiveTime = 1800, }, 
+		{nMonsterID = 1136 ,  nLiveTime = 1800, }, 
+		{nMonsterID = 1137 ,  nLiveTime = 1800, }, 
+		{nMonsterID = 1138 ,  nLiveTime = 1800, },  
+	},
+	--真爱之门坐标配置
+	LoveDoorPos = 
+	{
+		{		   	
+			{posX =	66	, posY = 123 ,},
+			{posX =	65	, posY = 122 ,},
+			{posX =	64	, posY = 121 ,},
+			{posX =	63	, posY = 120 ,},
+			{posX =	62	, posY = 119 ,},
+			{posX =	61	, posY = 118 ,},
+			{posX =	61	, posY = 119 ,},
+			{posX =	62	, posY = 120 ,},
+			{posX =	63	, posY = 121 ,},
+			{posX =	64	, posY = 122 ,},
+			{posX =	65	, posY = 123 ,},
+
+		},
+		{
+			{posX = 119     , posY = 70 ,},
+			{posX = 118	, posY = 69 ,},
+			{posX =	117	, posY = 68 ,},
+			{posX =	116	, posY = 67 ,},
+			{posX =	115	, posY = 66 ,},
+			{posX =	114	, posY = 65 ,},
+		        {posX = 114     , posY = 66 ,},
+			{posX = 115	, posY = 67 ,},
+			{posX = 116	, posY = 68 ,},
+			{posX = 117	, posY = 69 ,},
+			{posX = 118	, posY = 70 ,},
+
+			
+			
+
+		},		   
+
+	},
+	--真爱之心(ID,价格，金钱类型)
+	LoveHeart = {nItemID = 2277, ItemPrice = 2, moneyType =3 ,},
+
+	--月老(ID,生存时间，金钱类型，价格，最多召唤个数)
+	YueLao = { nMonsterID = 1149, posX= 90, posY = 90, nLiveTime = 1800, moneyType = 3, yuelaoPrice = 10,  },
+
+	--王母(ID,坐标，生存时间，金钱类型，价钱)
+	QueenMother = { nMonsterID = 1148, posX= 92, posY = 92, nLiveTime = 1800, moneyType = 3, Price = 188,  },
+	
+ 	--天兵配置ID,生存时间，一波天兵数量，一轮刷出n(WavePerCircle)波怪
+	SkySolider = {nMonsterID = 1144,  nLiveTime = 1800, monsterCount = 10, WavePerCircle = 3 },
+
+	--天将配置ID,生存时间,刷出两个
+	SkyGeneral = {nMonsterID = 1145,  nLiveTime = 1800, MaxCount = 3 },
+	
+	--刷出天兵的大概坐标范围
+	SkyMonsterRange = {startX = 87 , endX = 97, startY = 93 , endY = 97,},
+
+}

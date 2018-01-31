@@ -1,0 +1,175 @@
+﻿
+--#include "AnswerCommon.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+
+function Answer_Main(sysarg)
+	local useCount = GetTodayAnswerTime(sysarg)
+	local lastCount = AnswerConfig.CoinCount
+	if useCount > 0 then
+		lastCount = lastCount - useCount
+	end
+	local dlgStr = string.format(Lang.ScriptTips.ans001, useCount, lastCount)
+	if lastCount > 0 then
+		dlgStr = string.format("%s<#BL%s/@NoticeCoinAnswer>", dlgStr, Lang.ScriptTips.ans002)
+	end	
+	dlgStr = string.format("%s<#BL%s/@ViewRanking>", dlgStr, Lang.ScriptTips.ans003)
+	dlgStr = string.format("%s<#BL%s/@ViewLastRank>", dlgStr, Lang.ScriptTips.ans014)
+	dlgStr = string.format("%s<#BL%s/@AnswerInfo>", dlgStr, Lang.ScriptTips.ans004)
+	dlgStr = string.format("%s<#BL%s/@CloseWnd>", dlgStr, Lang.ScriptTips.x00079)
+	return dlgStr
+end
+
+
+function ViewRanking( sysarg )
+	local netPack = DataPack.allocPacket(sysarg, 26, 30)  --申请一个数据包
+	if netPack then
+		DataPack.writeString(netPack, Lang.Rank.AnswerRank)
+		DataPack.flush(netPack)
+	end
+end
+
+function AnswerInfo( sysarg )
+	return Lang.ScriptTips.ans008 .. Lang.ScriptTips.back001
+end
+
+function CloseWnd( sysarg )
+	Actor.closeNPCDialog(sysarg)
+end
+
+--提示公告
+function NoticeFreeAnswer( )
+	System.broadcastTipmsg(Lang.ScriptTips.ans007, ttScreenCenter)
+end
+
+--正式答题
+function BeginFreeAnswer()
+	GetSysAnswerList()
+	local playerList = LuaHelp.getAllActorList()  --获取在线玩家对象列表
+	for k, plyPtr in ipairs(playerList or {}) do
+		local myLevel = Actor.getIntProperty(plyPtr, PROP_CREATURE_LEVEL)
+		if myLevel >= AnswerConfig.FreeMinLevel then
+			local dVar = Actor.getDyanmicVar(plyPtr)
+			dVar.FreeAnswerFlag = 0
+			SendAnswerPack( plyPtr, SC_CanFreeAnswer, SubType_Free, 0, 0)
+			--Actor.setWorkDayMask(plyPtr, 0, 1, true)	--设置当天秒活动完成
+		end
+	end
+end
+
+function ViewLastRank( sysarg )
+	local sysVar = System.getStaticVar()
+	local size = AnswerConfig.TopCount - 1
+	local dlgStr = Lang.ScriptTips.ans015
+	local myAward = -1
+	local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	
+	local ranking = Ranking.getRanking( Lang.Rank.LastWeekAnswer )
+	if not ranking then
+		return
+	end
+	for i = 0, size do
+		local item = Ranking.getItemFromIndex( ranking, i)
+		if item then
+			local point = Ranking.getPoint(item) or 0
+			local name = Ranking.getSub(item, 0) or ""
+			local reward = Ranking.getSub(item, 1)		
+			local entityId = Ranking.getId(item) or 0
+			
+			dlgStr = string.format("%s%d,\t%s,\t%d\\", dlgStr, i + 1, name, point)
+			if myId == entityId and reward == '0' and point >= AnswerConfig.MinAwardPoint then
+				myAward = i
+			end
+		end
+	end
+	if myAward >= 0 then
+		dlgStr = string.format("%s<#BL%s/@GetAnswerAward,%d>", dlgStr, Lang.Misc.m000431, myAward)
+	end	
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function GetAnswerAward( sysarg, awardIdx )
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+
+	--双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(6) == 1 then
+		doubleAwardActRate = 1
+	end
+
+	awardIdx = tonumber(awardIdx)
+	local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	local ranking = Ranking.getRanking( Lang.Rank.LastWeekAnswer )
+	if ranking then
+		local item = Ranking.getItemFromIndex( ranking, awardIdx)
+		if item then
+			--local name = Ranking.getSub(item, 0)
+			local entityId = Ranking.getId(item) or 0
+			
+			local point = Ranking.getPoint(item)
+			local reward = Ranking.getSub(item, 1)
+			if entityId == myId and reward == "0" and point >= AnswerConfig.MinAwardPoint then
+				local newIdx = awardIdx + 1
+				if newIdx > 4 and newIdx <= AnswerConfig.TopCount then
+					newIdx = 4
+				end
+				local awardTab = AnswerConfig.AnswerAward[newIdx]
+				if awardTab then
+					Actor.giveAward(sysarg, awardTab.type,awardTab.id,awardTab.count*(1+doubleAwardActRate),awardTab.quality,awardTab.strong,awardTab.bind,0,0,"getAnswerAward")
+					Ranking.setSub(item, 1, "1")
+				end
+			end
+		end
+	end
+end
+
+function InitDialog( sysarg )
+	InitRanking( sysarg )
+	InitPaTaRanking()
+	InitLastWeekRank()
+	InitOldPlayerBackRank()
+end
+
+function InitOldPlayerBackRank()
+	local rankName = Lang.Rank.oldPlayerBack 
+	local ranking = Ranking.getRanking( rankName )
+	if not ranking then
+		ranking = Ranking.add( rankName, 10 )
+		if ranking then			
+			if not Ranking.load(ranking, rankName) then
+				Ranking.addColumn(ranking, "name")
+				Ranking.addColumn(ranking, "count")
+			end
+			Ranking.addRef( ranking )
+		end
+		--Ranking.save(ranking, rankName)		
+	end
+end
+
+function FinDialog(sysarg)
+	local lastRanking = Ranking.getRanking( Lang.Rank.LastWeekAnswer )
+	if lastRanking then		
+		Ranking.save(lastRanking, Lang.Rank.LastWeekAnswer)		
+	end
+
+	local anwRanking = Ranking.getRanking( Lang.Rank.AnswerRank )
+	if anwRanking then
+		Ranking.save(anwRanking, Lang.Rank.AnswerRank)
+	end
+
+	local fubenRanking = Ranking.getRanking( Lang.Rank.FubenRank )
+	if fubenRanking then
+		Ranking.save(fubenRanking, Lang.Rank.FubenRank )
+	end
+
+	local lastFuRanking = Ranking.getRanking( Lang.Rank.LastFubenRank )
+	if lastFuRanking then
+		Ranking.save(lastFuRanking, Lang.Rank.LastFubenRank )
+	end
+end
+
+--table.insert(MainFnTable, Answer_Main)
+table.insert(InitFnTable, InitDialog)
+table.insert(FinaFnTable, FinDialog)

@@ -1,0 +1,765 @@
+﻿--#include "data\config\activityconfig\StartAct\StartActConfig.txt" once		-- 配置文件
+
+--=======================================公共数据============================================
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+local RANKING_JOB = 1 -- 排行榜key 存入 职业的job
+local RANKING_SEX = 2 -- 排行榜key 存入 性别的job
+
+function StartActInit(npcobj)
+     for i = 1, #StartActRankConfig do
+      local config = StartActRankConfig[i]
+      --print("StartActInit:"..config.RankName) 
+  	  Rank.Init(config.RankName, config.RankFile, config.RankColumn, 0, 0)
+  end
+end
+
+function StartActFinal(npcobj)
+  for i = 1, #StartActRankConfig do
+      local config = StartActRankConfig[i]
+  	  Rank.Fina(config.RankName, config.RankFile)
+  end
+end
+
+
+table.insert(InitFnTable, StartActInit)
+table.insert(FinaFnTable, StartActFinal)
+
+--获取名单中对应阶段的值
+function GetStartActPeriodValue(sysarg, nMainIndex, AssistIndex)
+
+  local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local RankNameList = Ranking.getRanking(StartActRankConfig[nMainIndex].RankName)
+  if RankNameList then
+     local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+     if pItem == nil then
+  		pItem = Ranking.addItem(RankNameList,nActorId,AssistIndex)
+        for i = 1, #StartActRankConfig[nMainIndex].RankColumn do
+	  	    Ranking.setSub(pItem, i-1, "0")
+        end
+	    Ranking.setSub(pItem,0,Actor.getName(sysarg))
+     end
+     if pItem then
+	    local Staus = tonumber(Ranking.getSub(pItem,AssistIndex))
+	    return Staus
+ 	 end
+  end
+  return 0
+end
+
+--设置阶段奖励的值
+function SetStartActPeriodValue(sysarg, nMainIndex, AssistIndex, value , Point)
+ 
+  local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local RankNameList = Ranking.getRanking(StartActRankConfig[nMainIndex].RankName)
+  if RankNameList then
+    local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+    if pItem == nil then
+      pItem = Ranking.addItem(RankNameList,nActorId,AssistIndex)
+      for i = 1, #StartActRankConfig[nMainIndex].RankColumn do
+        Ranking.setSub(pItem, i-1, "0")
+      end
+      Ranking.setSub(pItem,0,Actor.getName(sysarg))
+    end
+    if pItem then
+      --Ranking.setItem(RankNameList,nActorId,AssistIndex)
+      Ranking.setSub(pItem,AssistIndex,tostring(value))		--0 没奖励  1 有奖励还没领取 2 已领取奖励
+      local Point = tonumber(Point)
+      --print("SetStartActPeriodValuePoint:"..Point)
+      if Point > 0 then
+        local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+        local mySex = Actor.getIntProperty( sysarg, PROP_ACTOR_SEX )
+        Ranking.setSub(pItem,RANKING_JOB,tostring(myJob))
+        Ranking.setSub(pItem,RANKING_SEX,tostring(mySex))
+        Ranking.updateItem(RankNameList, nActorId, Point)
+      end
+      Ranking.save(RankNameList, StartActRankConfig[nMainIndex].RankFile)
+    end
+  end
+end
+--=======================================公共数据============================================
+
+--=======================================充值排行============================================
+function SendClientReChargeData(sysarg)--发送客户端充值排行数据 
+  local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local RankNameList = Ranking.getRanking(StartActRankConfig[1].RankName)
+  local SelfReChargeYb = 0
+  if RankNameList then
+     local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+     if pItem == nil then
+  		pItem = Ranking.addItem(RankNameList, nActorId, 0)
+        for i = 1, #StartActRankConfig[1].RankColumn do
+	  	    Ranking.setSub(pItem, i-1, "0")
+        end
+	    Ranking.setSub(pItem,0,Actor.getName(sysarg))
+     end
+     if pItem then
+	    SelfReChargeYb = Ranking.getPoint(pItem)
+ 	 end
+  end
+  --print("SelfReChargeYb:"..SelfReChargeYb) 
+  local npack = DataPack.allocPacket(sysarg,145, 134)
+  DataPack.writeByte(npack, 1)
+  DataPack.writeUInt(npack, SelfReChargeYb)
+  DataPack.writeByte(npack, StartActConfig.ReChargeAct.RankingPos)
+  for i = 1, StartActConfig.ReChargeAct.RankingPos do
+	  DataPack.writeByte(npack,i)
+	  local item = Ranking.getItemFromIndex(RankNameList, i-1)
+	  if item then
+	     local Score = Ranking.getPoint( item )
+	     if Score >= StartActConfig.ReChargeAct.MiniMumReChargeYb then
+	        DataPack.writeString(npack, Ranking.getSub(item, 0))
+         else
+            DataPack.writeString(npack,"")
+         end
+	     --print("SendClientReChargeDataName:"..Ranking.getSub(item, 0))
+	  else
+	     DataPack.writeString(npack,"")
+	  end
+	  --print("SendClientUiData:"..Ranking.getSub(pItem, 1))
+  end
+  DataPack.flush(npack)
+
+end
+
+local function getJobAward(xAward, job, sex)
+  local Award = {}
+  for i,v in ipairs(xAward) do
+    if (v.job == job or v.job == 0) and (v.sex == sex or v.sex == -1) then
+      Award[#Award+1] =  { type = v.type, itemid = v.itemid, count = v.count, strong = v.strong, quality = v.quality, bind = v.bind, }
+    end
+  end
+  return Award
+end
+
+function SendStartActMail()--活动结束后发送给玩家充值排行奖励
+  --print("SendStartActMail")
+  local RankNameList = Ranking.getRanking(StartActRankConfig[1].RankName)
+  local SelfReChargeYb = 0
+  if RankNameList then
+     for i = 1, StartActConfig.ReChargeAct.RankingPos do
+         local item = Ranking.getItemFromIndex(RankNameList, i-1)
+         if item then
+            local ActorId = Ranking.getId(item) 
+            local myJob = tonumber(Ranking.getSub(item,RANKING_JOB)) or 0
+            local mySex = tonumber(Ranking.getSub(item,RANKING_SEX)) or -1
+            local Award = StartActConfig.ReChargeAct.Award[i]
+            Award = getJobAward(Award, myJob, mySex)
+            local Sname = Ranking.getSub(item, 0)
+            local actorPtr = Actor.getActorPtrByName(Sname)
+            local Score = Ranking.getPoint( item )
+            if Score >= StartActConfig.ReChargeAct.MiniMumReChargeYb then--达到条件再发送邮件
+               if actorPtr == nil then
+                  System.addMail(ActorId,"游戏小秘书", Lang.Activity.StartAct001, Lang.Activity.StartAct002, 7*24*3600, Award)
+               else
+                  System.addMail(actorPtr,"游戏小秘书", Lang.Activity.StartAct001, Lang.Activity.StartAct002, 7*24*3600, Award)
+               end 
+            end
+         end     
+     end
+     local RankingCount = Ranking.getRankItemCount(RankNameList) 
+     for i = 1, RankingCount do
+         local item = Ranking.getItemFromIndex(RankNameList, i-1)
+         if item then
+            local ActorId = Ranking.getId(item)
+            local myJob = tonumber(Ranking.getSub(item,RANKING_JOB))
+            local mySex = tonumber(Ranking.getSub(item,RANKING_SEX))
+            local Award = StartActConfig.ReChargeAct.Award[4]
+            Award = getJobAward(Award, myJob, mySex)
+            local Sname = Ranking.getSub(item, 0)
+            local actorPtr = Actor.getActorPtrByName(Sname)
+            if Ranking.getPoint( item ) > 0 then
+              if actorPtr == nil then
+                 System.addMail(ActorId,"游戏小秘书", Lang.Activity.StartAct001, Lang.Activity.StartAct002, 7*24*3600, Award)
+              else
+                 System.addMail(actorPtr,"游戏小秘书", Lang.Activity.StartAct001, Lang.Activity.StartAct002, 7*24*3600, Award)
+              end
+            end
+         end
+     end
+  end
+ 
+end
+
+function StopStartActCharge()--开服活动吃充值活动停止 
+  local SysVar = System.getStaticVar()
+  if not SysVar.SartActCharge then
+     SysVar.SartActCharge = 0
+  end 
+  SysVar.SartActCharge = 1 
+end
+
+function StartStartActCharge()--开服活动吃充值活动开始
+  local SysVar = System.getStaticVar()
+  if not SysVar.SartActCharge then
+     SysVar.SartActCharge = 0
+  end
+  SysVar.SartActCharge = 0
+end
+
+--=======================================充值排行============================================
+
+
+--=======================================特惠礼包============================================
+function ClientAskStartActTeHuiData(sysarg, packet)
+  local Count = table.getn(StartActConfig.TeHuiAct.Award)
+  local npack = DataPack.allocPacket(sysarg,145, 134)
+  DataPack.writeByte(npack, 2)
+  DataPack.writeByte(npack, Count)
+  for i = 1, Count do
+      local Ret = GetStartActPeriodValue(sysarg, 2, i) 
+      DataPack.writeByte(npack, Ret)
+      --print("ClientAskStartActTeHuiData:Ret"..Ret)
+  end
+  DataPack.flush(npack)
+end
+
+function ClientAskBuyStartActTeHui(sysarg, packet)--客户端请求购买特惠礼包
+  local Index = DataPack.readByte(packet)
+  local Award = StartActConfig.TeHuiAct.Award
+  if not Award[Index] then return end
+  local totalGrid = 0
+  local Tb = Award[Index]
+  for i = 1, #Tb do
+  	  if Tb[i] ~= nil then
+		 if Tb[i].type == 0 then
+			totalGrid = totalGrid + Item.getAddItemNeedGridCount(sysarg,Tb[i].id,Tb[i].count,Tb[i].quality,Tb[i].strong,Tb[i].bind)
+		 end
+      end
+  end
+  --判断能否获取物品，因为有背包满的情况
+  if Item.getBagEmptyGridCount(sysarg) < totalGrid then
+     Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.f00059, (totalGrid-Item.getBagEmptyGridCount(sysarg))) ,ttDialog)
+     return
+  end
+  
+  local Ret = GetStartActPeriodValue(sysarg, 2, Index)
+  if Ret == 2 then
+     Actor.sendTipmsg(sysarg, Lang.Activity.StartAct004, 130)
+     return
+  end
+  
+  local NeedYb = StartActConfig.TeHuiAct.NeedYb[Index]
+  local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+  if myGold < NeedYb then
+     Actor.sendTipmsg(sysarg, string.format(Lang.Activity.StartAct003, NeedYb), 130)
+     return
+  end
+  if not Actor.changeMoney(sysarg, mtYuanbao, -NeedYb, 1014, string.format(Lang.Activity.StartAct017, Index)) then
+     return
+  end
+  for i = 1, #Tb do
+      Actor.giveAward(sysarg,Tb[i].type, Tb[i].id, Tb[i].count, Tb[i].quality, Tb[i].strong, Tb[i].bind,0,1014,string.format(Lang.Activity.StartAct017, Index), -1)
+  end
+  SetStartActPeriodValue(sysarg, 2, Index, 2 , 0)
+  ClientAskStartActTeHuiData(sysarg, 0)
+  local TIPS = "tips001" .. Index
+  System.broadcastTipmsg(string.format(Lang.AchieveName[TIPS],Actor.getName(sysarg)), ttScreenCenter+ttChatWindow)
+end 
+
+--=======================================特惠礼包============================================
+
+--=======================================超值礼包============================================
+function ClientAskSuperValueActData(sysarg, packet)
+  local Count = table.getn(StartActConfig.SuperValueAct.Award)
+  local npack = DataPack.allocPacket(sysarg,145, 134)
+  DataPack.writeByte(npack, 3)
+  DataPack.writeByte(npack, Count)
+  for i = 1, Count do
+      local Ret = GetStartActPeriodValue(sysarg, 3, i)
+      DataPack.writeByte(npack, Ret)
+      --print("ClientAskSuperValueActData:Ret"..Ret)
+  end
+  DataPack.flush(npack)
+end
+
+function ClientAskBuySuperValueAct(sysarg, packet)--客户端请求购买超值礼包
+  local Index = DataPack.readByte(packet)
+  local Award = StartActConfig.SuperValueAct.Award
+  if not Award[Index] then return end
+  local totalGrid = 0
+  local Tb = Award[Index]
+  for i = 1, #Tb do
+  	  if Tb[i] ~= nil then
+		 if Tb[i].type == 0 then
+			totalGrid = totalGrid + Item.getAddItemNeedGridCount(sysarg,Tb[i].id,Tb[i].count,Tb[i].quality,Tb[i].strong,Tb[i].bind)
+		 end
+      end
+  end
+  --判断能否获取物品，因为有背包满的情况
+  if Item.getBagEmptyGridCount(sysarg) < totalGrid then
+     Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.f00059, (totalGrid-Item.getBagEmptyGridCount(sysarg))) ,ttDialog)
+     return
+  end
+
+  local Ret = GetStartActPeriodValue(sysarg, 3, Index)
+  if Ret == 2 then
+     Actor.sendTipmsg(sysarg, Lang.Activity.StartAct005, 130)
+     return
+  end
+
+  local NeedYb = StartActConfig.SuperValueAct.NeedYb[Index]
+  local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+  if myGold < NeedYb then
+     Actor.sendTipmsg(sysarg, string.format(Lang.Activity.StartAct006, NeedYb), 130)
+     return
+  end
+  if not Actor.changeMoney(sysarg, mtYuanbao, -NeedYb, 1015, string.format(Lang.Activity.StartAct018, Index)) then
+     return
+  end
+  for i = 1, #Tb do
+      Actor.giveAward(sysarg,Tb[i].type, Tb[i].id, Tb[i].count, Tb[i].quality, Tb[i].strong, Tb[i].bind,0,1015, string.format(Lang.Activity.StartAct018, Index), -1)
+  end
+  SetStartActPeriodValue(sysarg, 3, Index, 2 , 0)
+  ClientAskSuperValueActData(sysarg, 0)
+  local TIPS = "tips002" .. Index
+  System.broadcastTipmsg(string.format(Lang.AchieveName[TIPS],Actor.getName(sysarg)), ttScreenCenter+ttChatWindow)
+end
+--=======================================超值礼包============================================
+
+
+--=======================================全民BOSS============================================
+function SetBossActSecond(sysarg, BossId)
+  --print("SetBossActSecondBossId:"..BossId) 
+  local nDay = System.getDaysSinceOpenServer()
+  local BossId = tonumber(BossId)
+  if nDay >= StartActConfig.EndOpenServerDay then return end--天数过了则关闭
+  local BossMes = StartActConfig.BossAct.NeedKillBoss
+  local Index = 0
+  local MiniIndex = 0
+  for i = 1, table.getn(BossMes) do
+      for j = 1, table.getn(BossMes[i]) do
+          if BossMes[i][j] == BossId then
+             Index = i
+             MiniIndex = j
+             break
+          end 
+      end
+  end
+  if Index == 0 or MiniIndex == 0 then return end--不是那个配置的Boss则退出
+  --print("SetBossActSecondBossId:"..BossId)
+  local Indexs = (Index - 1)*(table.getn(BossMes[Index]) + 1) + MiniIndex
+  local Ret = GetStartActPeriodValue(sysarg, 4, Indexs)
+  if Ret == BossId then return end--已经记录了则退出
+  SetStartActPeriodValue(sysarg, 4, Indexs, BossId , 0)
+  local Count = 0
+  for i = 1, table.getn(BossMes[Index]) do
+      local Indexks =  (Index - 1)*(table.getn(BossMes[Index]) + 1) + i
+      --print("SetBossActSecondIndexks:"..Indexks)
+      local Rets = GetStartActPeriodValue(sysarg, 4, Indexks)
+      if Rets > 0 then
+         Count = Count + 1
+      end
+  end
+  if Count == table.getn(BossMes[Index]) then --全部击杀四只的话则记录奖励可领取
+     --print("SetBossActSecondBossId:"..BossId)
+     SetStartActPeriodValue(sysarg, 4, (Index - 1)*(table.getn(BossMes[Index]) + 1) + 5, 1 , 0)
+  end
+  ClientAskBossActData(sysarg, 0)
+  --print("SetBossActSecondBossId:"..BossId)
+end
+
+function ClientAskBossActData(sysarg, packet)
+  local Count = table.getn(StartActConfig.BossAct.NeedKillBoss)
+  local npack = DataPack.allocPacket(sysarg,145, 134)
+  DataPack.writeByte(npack, 4)
+  DataPack.writeByte(npack, Count)
+  for i = 1, Count*5 do
+      local Ret = GetStartActPeriodValue(sysarg, 4, i)
+      DataPack.writeByte(npack, Ret)
+      --print("ClientAskBossActData:Ret"..Ret)
+  end
+  DataPack.flush(npack)
+end
+
+--客户端请求领取全民BOSS奖励
+function ClientAskBossActGetAward(sysarg, packet)
+  local Index = DataPack.readByte(packet)
+  local Award = StartActConfig.BossAct.Award
+  if not Award[Index] then return end
+  local totalGrid = 0
+  local Tb = Award[Index]
+  for i = 1, #Tb do
+  	  if Tb[i] ~= nil then
+		 if Tb[i].type == 0 then
+			totalGrid = totalGrid + Item.getAddItemNeedGridCount(sysarg,Tb[i].id,Tb[i].count,Tb[i].quality,Tb[i].strong,Tb[i].bind)
+		 end
+      end
+  end
+  --判断能否获取物品，因为有背包满的情况
+  if Item.getBagEmptyGridCount(sysarg) < totalGrid then
+     Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.f00059, (totalGrid-Item.getBagEmptyGridCount(sysarg))) ,ttDialog)
+     return
+  end
+
+  local Ret = GetStartActPeriodValue(sysarg, 4, Index*5)
+  if Ret == 0 then
+     Actor.sendTipmsg(sysarg, Lang.Activity.StartAct008, 130)
+     return
+  end 
+  
+  if Ret == 2 then
+     Actor.sendTipmsg(sysarg, Lang.Activity.StartAct007, 130)
+     return
+  end
+  
+  local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+  for i = 1, #Tb do
+      if Tb[i].job == 0 or Tb[i].job == myJob then
+         Actor.giveAward(sysarg,Tb[i].type, Tb[i].id, Tb[i].count, Tb[i].quality, Tb[i].strong, Tb[i].bind,0,1016, "StartAct Boss", -1)
+      end
+  end
+  SetStartActPeriodValue(sysarg, 4, Index*5, 2 , 0)
+  ClientAskBossActData(sysarg, 0)
+end
+
+--=======================================全民BOSS============================================
+
+
+--=======================================玛沙克争霸============================================
+function ClientAskMaShaKeActData(sysarg, packet)
+  local Count = table.getn(StartActConfig.BossAct.NeedKillBoss)
+  local npack = DataPack.allocPacket(sysarg,145, 134)
+  DataPack.writeByte(npack, 5)
+  DataPack.writeByte(npack, 1)
+  local Ret = GetStartActPeriodValue(sysarg, 5, 1)
+  DataPack.writeByte(npack, Ret)
+  DataPack.flush(npack)
+end
+
+--客户端请求领取玛沙克争霸奖励
+function ClientAskMaShaKeActGetAward(sysarg, packet)
+  local Award = StartActConfig.MaShaKeAct.Award
+  local totalGrid = 0
+  local Tb = Award
+  for i = 1, #Tb do
+  	  if Tb[i] ~= nil then
+		 if Tb[i].type == 0 then
+			totalGrid = totalGrid + Item.getAddItemNeedGridCount(sysarg,Tb[i].id,Tb[i].count,Tb[i].quality,Tb[i].strong,Tb[i].bind)
+		 end
+      end
+  end
+  --判断能否获取物品，因为有背包满的情况
+  if Item.getBagEmptyGridCount(sysarg) < totalGrid then
+     Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.f00059, (totalGrid-Item.getBagEmptyGridCount(sysarg))) ,ttDialog)
+     return
+  end
+
+  local Ret = GetStartActPeriodValue(sysarg, 5, 1)
+  if Ret == 0 then
+     Actor.sendTipmsg(sysarg, Lang.Activity.StartAct010, 130)
+     return
+  end
+
+  if Ret == 2 then
+     Actor.sendTipmsg(sysarg, Lang.Activity.StartAct009, 130)
+     return
+  end
+
+  for i = 1, #Tb do
+      Actor.giveAward(sysarg,Tb[i].type, Tb[i].id, Tb[i].count, Tb[i].quality, Tb[i].strong, Tb[i].bind,0,1017, "MaShaKeAct", -1)
+  end
+  SetStartActPeriodValue(sysarg, 5, 1, 2 , 0)
+  ClientAskMaShaKeActData(sysarg, 0)
+end 
+
+
+--=======================================玛沙克争霸============================================
+
+--=======================================聚沙成塔============================================
+
+ function ClientAskMiniToManyActData(sysarg, packet) --客户端请求聚沙成塔数据 
+   local nDay = System.getDaysSinceOpenServer()
+   local DoSaveItemId = GetStartActPeriodValue(sysarg, 6, nDay)
+   local npack = DataPack.allocPacket(sysarg,145, 134)
+   DataPack.writeByte(npack, 6)
+   DataPack.writeUInt (npack, DoSaveItemId)
+   --print("ClientAskMiniToManyActDataDoSaveItemId:"..DoSaveItemId)
+   local sval = System.getDyanmicVar()
+   if sval.MiniToManyActLog == nil then
+     sval.MiniToManyActLog = {}
+   end
+
+   local S = ""
+   for i = 1 , 20 do
+     local str = sval.MiniToManyActLog[i]
+     if str ~= nil then
+       S = S..str.."|"
+     else
+       break
+     end
+   end
+  DataPack.writeString(npack,S)
+  DataPack.flush(npack)
+
+  --print("ClientAskMiniToManyActData:"..S)
+   
+ end
+ 
+ function ClientAskMiniToManyActSaveItem(sysarg, packet) --客户端请求放入东西给聚沙成塔
+   local ItemId = DataPack.readUInt(packet)
+   --print("ClientAskMiniToManyActSaveItemItemId:"..ItemId)
+   --不是指定物品 
+   local ItemList = StartActConfig.MiniToManyAct.CanSaveItemId
+   local IsCanSave = false
+   for i = 1, table.getn(ItemList) do
+       if ItemList[i] == ItemId then
+          IsCanSave =  true
+          break
+       end
+   end
+   if IsCanSave == false then      
+      Actor.sendTipmsg(sysarg, Lang.Activity.StartAct011, 130)
+      return
+   end 
+ 
+   --今天已经存入过物品
+   local nDay = System.getDaysSinceOpenServer()
+   --print("getDaysSinceOpenServernDay:"..nDay) 
+   local DoSaveItemId = GetStartActPeriodValue(sysarg, 6, nDay)
+   if DoSaveItemId > 0 then
+      Actor.sendTipmsg(sysarg, Lang.Activity.StartAct013, 130)
+      return
+   end
+   
+   --活动期间重复存入 
+   for j = 1, StartActConfig.EndOpenServerDay do
+       local DoSaveItemId = GetStartActPeriodValue(sysarg, 6, j) 
+       if ItemId == DoSaveItemId then
+          Actor.sendTipmsg(sysarg, Lang.Activity.StartAct012, 130)
+          return
+       end
+   end
+   
+   --物品不足 
+   local itemCount = Actor.getItemCount(sysarg, ItemId)
+   local NeedSaveItemNumber = StartActConfig.MiniToManyAct.SaveItemNumber
+   if itemCount < NeedSaveItemNumber then
+      Actor.sendTipmsg(sysarg, string.format(Lang.Activity.StartAct014, Item.getItemName(ItemId), NeedSaveItemNumber), ttFlyTip)
+      return
+   end
+   local remCount = Actor.removeItem(sysarg, ItemId, NeedSaveItemNumber, -1, -1, -1, string.format(Lang.LogTips.l00163,Item.getItemName(ItemId)), 92)
+   if remCount < NeedSaveItemNumber then return end
+   SetStartActPeriodValue(sysarg, 6, nDay, ItemId, 0)
+   local sLog = string.format("%s,%d", Actor.getName(sysarg), ItemId)
+   local sval = System.getDyanmicVar()
+   if sval.MiniToManyActLog == nil then
+     sval.MiniToManyActLog = {}
+   end
+   local Count = 0
+   for i = 1 , 20 do
+     local str = sval.MiniToManyActLog[i]
+     if str ~= nil then
+        Count = Count + 1
+     else
+        break
+     end
+   end
+
+  for i = Count + 1 , 2 , -1 do
+    sval.MiniToManyActLog[i] = sval.MiniToManyActLog[i - 1]
+  end
+
+  sval.MiniToManyActLog[1] = sLog
+  ClientAskMiniToManyActData(sysarg, packet)
+ end 
+ 
+ 
+ --聚沙成塔每天凌晨做一次邮件结算
+ function SendMiniToManyActOrder() 
+   --print("SendMiniToManyActOrder")
+   local RankNameList = Ranking.getRanking(StartActRankConfig[6].RankName)
+   if RankNameList then
+      local RankingCount = Ranking.getRankItemCount(RankNameList)
+      for i = 1, RankingCount do
+          local item = Ranking.getItemFromIndex(RankNameList, i-1)
+          if item then
+             local ActorId = Ranking.getId(item)
+             local nDay = System.getDaysSinceOpenServer()
+             --print("SendMiniToManyActOrderDoSaveItemnDay"..nDay)
+             local DoSaveItemId = GetMiniToManyActPeriodValue(ActorId, 6, nDay)
+             --print("SendMiniToManyActOrderDoSaveItemId"..DoSaveItemId)
+             if DoSaveItemId > 0 then
+                local CanGetSaveItemNumber = 1
+                local RandomValue = math.random(100)
+                local Index = 1
+                for i = 1, table.getn(StartActConfig.MiniToManyAct.PowerRate) do
+                    if RandomValue <= StartActConfig.MiniToManyAct.PowerRate[i] then
+                       Index = i
+                       break
+                    end
+                end
+                --print("SendMiniToManyActOrderDoSaveItemnDay"..nDay.."Index"..Index)
+                local ItemNumber = StartActConfig.MiniToManyAct.CanGetNumber[Index]
+                Award = {
+                   { type = 0, itemid = DoSaveItemId, count = ItemNumber, strong = 0, quality = 0, bind = 1 },
+                } 
+                --print("Award:"..Award[1].count)
+                --在线发在线邮件，离线发离线邮件 
+                local Sname = Ranking.getSub(item, 0)
+                local actorPtr = Actor.getActorPtrByName(Sname)
+                if actorPtr == nil then 
+                   System.addMail(ActorId,"游戏小秘书", Lang.Activity.StartAct015, Lang.Activity.StartAct016, 7*24*3600, Award)   
+                else
+                   System.addMail(actorPtr,"游戏小秘书", Lang.Activity.StartAct015, Lang.Activity.StartAct016, 7*24*3600, Award)
+                end      
+             end
+          end
+      end
+   end
+ end
+ 
+ --获取名单中对应阶段的值
+function GetMiniToManyActPeriodValue(nActorId, nMainIndex, AssistIndex)
+  --local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local RankNameList = Ranking.getRanking(StartActRankConfig[nMainIndex].RankName)
+  if RankNameList then
+     local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+     if pItem == nil then
+  		pItem = Ranking.addItem(RankNameList,nActorId,AssistIndex)
+        for i = 1, #StartActRankConfig[nMainIndex].RankColumn do
+	  	    Ranking.setSub(pItem, i-1, "0")
+        end
+	    --Ranking.setSub(pItem,0,Actor.getName(sysarg))
+     end
+     if pItem then
+	    local Staus = tonumber(Ranking.getSub(pItem,AssistIndex))
+	    return Staus
+ 	 end
+  end
+  return 0
+end
+
+ 
+--=======================================聚沙成塔============================================
+--=======================================开服活动标签控制============================================
+function SendClientStartActIndex(sysarg)--这个发送放在登录和变天 
+  --首先是大标签,如果玩家没有购买的话则一直出现
+  local IsBuyLiBao1 = false
+  local IsBuyLiBao2 = false  
+  local Count = table.getn(StartActConfig.TeHuiAct.Award)
+  for i = 1, Count do
+      local Ret = GetStartActPeriodValue(sysarg, 2, i)
+      if Ret ~= 2 then
+         IsBuyLiBao1 = true--是否有没有购买或者没有领取的特惠礼包 
+         break
+      end
+  end
+  
+  local Count = table.getn(StartActConfig.SuperValueAct.Award)
+  for i = 1, Count do
+      local Ret = GetStartActPeriodValue(sysarg, 3, i)
+      if Ret ~= 2 then
+         IsBuyLiBao2 = true--是否有没有购买或者没有领取的超值礼包
+         break
+      end
+  end
+  
+  local nDay = System.getDaysSinceOpenServer()
+  --print("SendClientStartActIndex:") 
+  local npack = DataPack.allocPacket(sysarg,145, 134)
+  DataPack.writeByte(npack, 10)
+  if nDay < StartActConfig.EndOpenServerDay then
+     DataPack.writeByte(npack, 1)
+     for i = 1, 6 do
+         if i == 2 then
+            if IsBuyLiBao1 == true then
+               --print("SendClientStartActIndex1:")
+               DataPack.writeByte(npack, 1)
+            else
+               --print("SendClientStartActIndex2:")
+               DataPack.writeByte(npack, 0)
+            end
+         elseif i == 3 then
+            if IsBuyLiBao2 == true then
+               DataPack.writeByte(npack, 1)
+               --print("SendClientStartActIndex3:")
+            else
+               DataPack.writeByte(npack, 0)
+               --print("SendClientStartActIndex4:")
+            end
+         else
+           DataPack.writeByte(npack, 1)
+           --print("SendClientStartActIndex5:")
+         end
+     end
+  else
+    if IsBuyLiBao1 == true or IsBuyLiBao2 == true then
+       DataPack.writeByte(npack, 1)
+    else
+       DataPack.writeByte(npack, 0)
+    end 
+    for i = 1, 6 do
+        if i == 2 then
+           if IsBuyLiBao1 == true then
+              DataPack.writeByte(npack, 1)
+           else
+              DataPack.writeByte(npack, 0)
+           end
+        elseif i == 3 then
+           if IsBuyLiBao2 == true then
+              DataPack.writeByte(npack, 1)
+           else
+              DataPack.writeByte(npack, 0)
+           end
+        else
+          DataPack.writeByte(npack, 0)
+        end
+     end
+    
+  end
+  DataPack.flush(npack)
+end
+--=======================================开服活动标签控制============================================
+
+
+--客户端请求开服活动信息
+function ClientAskStartActInfo(sysarg, packet)
+   local nds = DataPack.readByte(packet)
+   -- print("ClientAskStartActInfo:"..nds)
+   --时间过了就不需要查看面板，不返回数据
+   local nDay = System.getDaysSinceOpenServer()
+   if nDay <= 0 then return end
+   if nds == 1 then--请求充值排行数据 
+      if nDay >= StartActConfig.EndOpenServerDay then return end
+      SendClientReChargeData(sysarg, packet)
+   elseif nds == 2 then--请求特惠礼包数据与购买 
+      local Mininds = DataPack.readByte(packet)
+      if Mininds == 1 then
+         ClientAskStartActTeHuiData(sysarg, packet)
+      elseif Mininds == 2 then
+         ClientAskBuyStartActTeHui(sysarg, packet)
+      end
+   elseif nds == 3 then--请求超值礼包数据与购买
+      local Mininds = DataPack.readByte(packet)
+      if Mininds == 1 then
+         ClientAskSuperValueActData(sysarg, packet)
+      elseif Mininds == 2 then
+         ClientAskBuySuperValueAct(sysarg, packet)
+      end
+   elseif nds == 4 then--请求全民BOSS数据与领奖
+      if nDay >= StartActConfig.EndOpenServerDay then return end
+      local Mininds = DataPack.readByte(packet)
+      if Mininds == 1 then
+         ClientAskBossActData(sysarg, packet)
+      else
+         ClientAskBossActGetAward(sysarg, packet)
+      end
+   elseif nds == 5 then--请求沙城争霸 
+      if nDay >= StartActConfig.EndOpenServerDay then return end
+      local Mininds = DataPack.readByte(packet)
+      if Mininds == 1 then
+         ClientAskMaShaKeActData(sysarg, packet)
+      else
+         ClientAskMaShaKeActGetAward(sysarg, packet)
+      end
+   elseif nds == 6 then--请求聚沙成塔数据与奖励 
+      if nDay >= StartActConfig.EndOpenServerDay then return end
+      local Mininds = DataPack.readByte(packet)
+      if Mininds == 1 then
+         ClientAskMiniToManyActData(sysarg, packet)
+      else
+         ClientAskMiniToManyActSaveItem(sysarg, packet)
+      end
+   end
+end

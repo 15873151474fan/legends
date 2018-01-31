@@ -1,0 +1,193 @@
+﻿
+--#include "data\config\activityconfig\Dart\DartAdvConfig.txt"  once  --基本设置
+--#include "data\functions\Activity\DartAdv\ApplyDartCommon.txt" once
+
+--高级运镖上线处理
+EventCallDispatcher.LoginDartAdvTipByFollow = function(sysarg, arg)	
+	--跨服限制
+	if OnCsActorLoginLmt() == true then return end
+	
+	local config = DartAdvConfig
+	local sVar = Actor.getStaticVar(sysarg)	
+	
+	if (sVar.ActorDartAdvStatus ~= nil) and sVar.ActorDartAdvMonster ~=nil and sVar.ActorDartAdvType ~= nil then
+		if  sVar.ActorDartAdvStatus == 1 then
+			local nTime = System.getCurrMiniTime()
+			local lastTime = sVar.ActorDartAdvTime + config.DartSetup.actionTime - nTime
+			if lastTime <= 0 then 
+				ResetActorDartAdvInfo(sysarg,true)
+				return 
+			end
+
+			local idx = sVar.ActorDartAdvType
+			local monsterInfo = config.DartHorse[idx]   
+
+			if monsterInfo ~= nil then
+				Actor.onTakeOffRide(sysarg)		--下坐骑
+
+				--Actor.setDartFlag(sysarg,true)
+				local x, y = Actor.getEntityPosition(sysarg, 0, 0)		--获取实体X Y坐标
+				local monster = Actor.createMonster(sysarg, monsterInfo.id, x, y, 0)	
+				if (monster ~= nil) then
+					Actor.followActor(monster, sysarg, 3, 30, true) --跟随某个玩家
+					Actor.setEntityTelByOwnderAttr(monster, true)   --设置实体是否跟着归属者传送
+					Actor.setEntityLazyFollow(monster, true)        --设置实体是否惰性跟随
+					Actor.setDenyAttackedByActor(monster, true)     --设置实体是否不可被玩家攻击
+					Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟 
+
+					--护镖时间计算
+					--sVar.ActorDartAdvTime = System.getCurrMiniTime() --开始护镖时间
+					sVar.ActorDartAdvDelayTime = lastTime
+
+					local pack = DataPack.allocPacket(sysarg, 145, 3)
+					if (pack ~= nil) then
+						DataPack.writeInt64(pack, Actor.getHandle(monster))				--下属句柄
+						DataPack.writeString(pack, Actor.getName(monster))				-- 下属名称							
+						DataPack.writeInt(pack, idx)							-- 下属模型Id
+						DataPack.writeInt(pack, config.Dest.destsceneid)			--目标点场景ID
+						DataPack.writeString(pack, config.Dest.destnpcname)			--目标NPC名称
+						DataPack.writeInt(pack, sVar.ActorDartAdvDelayTime)  --活动时间（秒为单位）
+						DataPack.writeString(pack, DartAdvConfig.ActiveName)
+						DataPack.flush(pack)
+					end
+					
+					-- 保存开始护镖时间、怪物指针和接镖NPC、目标NPC名称和目标NPC所在场景Id 奖励倍率
+					local time = System.getCurrMiniTime()
+					sVar.ActorDartAdvMonster = Actor.getHandle(monster) --怪物句柄
+					
+					local dVar = Actor.getDyanmicVar(sysarg)
+					dVar.ActorDartAdvacceptNpc = Actor.getHandle(thisNPC)  -- 貌似直接保存指针保存不了，这里保存句柄
+					dVar.ActorDartAdvdestnpcname = config.Dest.destnpcname  --目标NPC名称
+					dVar.ActorDartAdvdestsceneid = config.Dest.destsceneid  --目标点场景ID
+					dVar.ActorDartAdvName = Actor.getName(monster)	--怪物名称
+
+					--SendActorDartAdvInfo(sysarg,Actor.getIntProperty(monster, PROP_ENTITY_MODELID))
+
+					--发送客户端打开更换镖车界面
+					SendToClentActorChangeSlaveAdv(sysarg, idx,1)
+					
+					--发送给客户端活动剩余时间
+					--SendActorDartAdvLeftTimeAndAward(sysarg, idx)
+
+					-- 处理护镖超时
+					Actor.unregScriptCallback(sysarg, "OnActorDartAdvExpired")
+					Actor.regScriptCallback(sysarg, thisNPC, sVar.ActorDartAdvDelayTime*1000, 10000, 1, "OnActorDartAdvExpired")
+					
+					if config.AddBuff then
+						Actor.addBuff(sysarg,config.AddBuff[1].buffType,config.AddBuff[1].buffGroup,config.AddBuff[1].value,config.AddBuff[1].times,config.AddBuff[1].interval,config.AddBuff[1].buffName)
+					end
+				end
+			end
+		end
+	end
+end
+
+--高级运镖上线处理
+EventCallDispatcher.LoginDartAdvTipByNotFollow = function(sysarg, arg)	
+	--跨服限制
+	if OnCsActorLoginLmt() == true then return end
+	
+	local config = DartAdvConfig
+	local sVar = Actor.getStaticVar(sysarg)	
+	
+	if (sVar.ActorDartAdvStatus ~= nil) and sVar.ActorDartAdvMonster ~=nil and sVar.ActorDartAdvMonster > 0 and sVar.ActorDartAdvType ~= nil then
+		if  sVar.ActorDartAdvStatus == 1 then
+			local monster = Actor.getEntity(sVar.ActorDartAdvMonster)
+			local idx = sVar.ActorDartAdvType
+			local monsterInfo = config.DartHorse[idx]   
+			local nTime = System.getCurrMiniTime()
+			local lastTime = sVar.ActorDartAdvTime + config.DartSetup.actionTime - nTime
+			if lastTime <= 0 or not monster or not monsterInfo then 
+				ResetActorDartAdvInfo(sysarg,true)
+				return 
+			end
+			
+			if monsterInfo ~= nil then
+				--Actor.onTakeOffRide(sysarg)		--下坐骑
+
+				--Actor.setDartFlag(sysarg,true)
+				
+				if (monster ~= nil) then
+					Actor.setMonsterOwer(sysarg, monster)	--设置主人
+					--护镖时间计算
+					sVar.ActorDartAdvDelayTime = lastTime
+					
+					local pack = DataPack.allocPacket(sysarg, 145, 3)
+					if (pack ~= nil) then
+						DataPack.writeInt64(pack, Actor.getHandle(monster))				--下属句柄
+						DataPack.writeString(pack, Actor.getName(monster))				-- 下属名称							
+						DataPack.writeInt(pack, idx)							-- 下属模型Id
+						DataPack.writeInt(pack, config.Dest.destsceneid)			--目标点场景ID
+						DataPack.writeString(pack, config.Dest.destnpcname)			--目标NPC名称
+						DataPack.writeInt(pack, sVar.ActorDartAdvDelayTime)  --活动时间（秒为单位）
+						DataPack.writeString(pack, DartAdvConfig.ActiveName)
+						DataPack.flush(pack)
+					end
+					
+					-- 保存开始护镖时间、怪物指针和接镖NPC、目标NPC名称和目标NPC所在场景Id 奖励倍率
+					local dVar = Actor.getDyanmicVar(sysarg)
+					dVar.ActorDartAdvacceptNpc = Actor.getHandle(thisNPC)  -- 貌似直接保存指针保存不了，这里保存句柄
+					dVar.ActorDartAdvdestnpcname = config.Dest.destnpcname  --目标NPC名称
+					dVar.ActorDartAdvdestsceneid = config.Dest.destsceneid  --目标点场景ID
+					dVar.ActorDartAdvName = Actor.getName(monster)	--怪物名称
+
+					--SendActorDartAdvInfo(sysarg,Actor.getIntProperty(monster, PROP_ENTITY_ID))
+
+					--发送客户端打开更换镖车界面
+					SendToClentActorChangeSlaveAdv(sysarg, idx,1)
+					
+					--发送给客户端活动剩余时间
+					--SendActorDartAdvLeftTimeAndAward(sysarg, idx)
+
+					-- 处理护镖超时
+					Actor.unregScriptCallback(sysarg, "OnActorDartAdvExpired")
+					Actor.regScriptCallback(sysarg, thisNPC, sVar.ActorDartAdvDelayTime*1000, 10000, 1, "OnActorDartAdvExpired")
+					
+					if config.AddBuff then
+						Actor.addBuff(sysarg,config.AddBuff[1].buffType,config.AddBuff[1].buffGroup,config.AddBuff[1].value,config.AddBuff[1].times,config.AddBuff[1].interval,config.AddBuff[1].buffName)
+					end
+				end
+			end
+			
+		end
+	end
+end
+
+
+EventCallDispatcher.LogoutDartAdvHandler = function(sysarg, arg)
+	local sval = Actor.getStaticVar(sysarg)
+	local monsHandle = sval.ActorDartAdvMonster or 0
+	if monsHandle > 0 then
+		local pack = DataPack.allocPacket(sysarg, 139, 13)
+		DataPack.writeInt64(pack, sval.ActorDartAdvMonster)
+		DataPack.flush(pack)
+		Fuben.clearMonster(monsHandle, false)
+	end
+end
+
+EventCallDispatcher.OnDartAdvFollowedFailedHandler = function(sysarg, arg)	
+	local param_count = #arg
+	if (param_count > 0) then
+		--print(arg[1])
+	end
+	
+	if (arg[1] == nil) then 
+		--print("!!! get follower failed, param is nil")
+		return 
+	end
+	local svar = Actor.getStaticVar(sysarg)
+	if (svar.ActorDartAdvStatus ~= nil) then
+		local followerHdl = Actor.getHandle(arg[1])
+		if (svar.ActorDartAdvMonster == followerHdl) then  -- 是跟随怪			
+			local nHandle = Fuben.getSceneHandleById(Actor.getSceneId(sysarg),0)
+			local ActorDartAdvMon = Actor.getEntity(svar.ActorDartAdvMonster)
+			local selfPosX, selfPosY = Actor.getEntityPosition(sysarg, 0, 0)
+			Actor.enterScene(ActorDartAdvMon,Actor.getSceneId(sysarg),selfPosX,selfPosY,0,0)
+		end		
+	end
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, EventCallDispatcher.LoginDartAdvTipByNotFollow)
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogout, EventCallDispatcher.LogoutDartAdvHandler)
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeOnFollowedFailed, EventCallDispatcher.OnDartAdvFollowedFailedHandler)

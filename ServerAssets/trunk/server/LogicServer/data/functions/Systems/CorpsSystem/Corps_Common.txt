@@ -1,0 +1,185 @@
+﻿--lua script
+--#include "data\config\friend\WarTeamConfig.txt" once
+
+--战队通用处理
+
+--结交
+function OnMakeDefinite(sysarg)
+	local teamid = Actor.getTeamId(sysarg)
+	if teamid == 0 then			--没有队伍
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00028,ttFlyTip)
+		return
+	end
+	
+	if TeamFun.getTeamCaptain(teamid) ~= sysarg then		--必须是队长
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00029,ttFlyTip)
+		return
+	end
+
+	local actList = LuaHelp.getTeamMemberList(sysarg)
+	if actList == nil then
+		return
+	end
+	
+	local tCount = table.getn(actList)
+	if tCount < 2 then					--队伍人数至少是2人
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00030,ttFlyTip)
+		return
+	end
+	
+	local myCorpsId = Actor.getCorpsId(sysarg)
+	local memCount = 0				--战队人数
+	if myCorpsId > 0 then
+		memCount = System.getCorpsMemCount(myCorpsId)
+	end
+	
+	if memCount > WarTeamConfig.MaxNum then	--战队人数已满
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00038,ttFlyTip)
+		return
+	end
+
+	local nCount = 0				--没有战队的人数
+	for i = 1, #actList do
+		local pPlayer = actList[i]
+		if pPlayer ~= nil then
+			if Actor.checkActorLevel(pPlayer,WarTeamConfig.minLevel) == false then		--有队友等级不够
+				Actor.sendTipmsg(sysarg,string.format(Lang.GuildLang.f00031,WarTeamConfig.minLevel),ttFlyTip)
+				return
+			end
+
+			if not Actor.isInSameScreen(sysarg,pPlayer) then			--有成员不再附近
+				Actor.sendTipmsg(sysarg,Lang.GuildLang.f00032,ttFlyTip)
+				return
+			end
+
+			local tagetCorpsId = Actor.getCorpsId(pPlayer)
+			if tagetCorpsId > 0 and myCorpsId ~= tagetCorpsId then		--已有人存在战友关系
+				Actor.sendTipmsg(sysarg,Lang.GuildLang.f00037,ttFlyTip)
+				return
+			elseif tagetCorpsId == 0 then		--没有战队
+				nCount = nCount + 1
+			end
+		end
+	end
+	
+	if nCount == 0 then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00040,ttFlyTip)
+		return
+	end
+
+	if (memCount + nCount) > WarTeamConfig.MaxNum then		--新加的人数已超过了战队人数上限
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00039,ttFlyTip)
+		return
+	end
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if nCoin < WarTeamConfig.needCoin then		--金币不够
+		Actor.sendTipmsg(sysarg,string.format(Lang.GuildLang.f00033,WarTeamConfig.needCoin),ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,1,-WarTeamConfig.needCoin,823, Lang.LogTips.yb015)
+	
+	local nCorpsId = 0
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+
+	if myCorpsId <= 0 then
+		local strName = Lang.GuildLang.f00036
+		nCorpsId = System.onCreateCorpsGroup(nActorId,strName)
+	else
+		nCorpsId = myCorpsId
+	end
+	
+	local dvar = System.getStaticVar()
+	if dvar.CorpsBattleWinId == nil then
+		dvar.CorpsBattleWinId = 0
+	end
+	
+	local str = ""
+	for i = 1, #actList do
+		local player = actList[i]
+		if player ~= nil then
+			local tagetId = Actor.getCorpsId(player)
+			if tagetId <= 0 then
+				Actor.setActorCorpsInfo(player,nCorpsId)
+				if dvar.CorpsBattleWinId > 0 and nCorpsId == dvar.CorpsBattleWinId then
+					Actor.setTopTitle(player, corpsBattleConfig.corpsTitleId,true)
+				end
+			end
+			local sname = Actor.getName(player)
+			str = str.."<(n"..sname..")>"
+			if i < table.getn(actList) then
+				str = str.."、"
+			end
+		end
+	end
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.f00034,str),2)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.f00035,str),128)
+end	
+
+--发出招募
+function OnSendRecruit(sysarg)
+	local dvar = Actor.getDyanmicVar(sysarg)
+
+	if dvar.SendRecruitTime == nil then
+		dvar.SendRecruitTime = 0
+	end
+
+	local curTime = System.getCurrMiniTime()
+	if dvar.SendRecruitTime + WarTeamConfig.recruitNextTime > curTime then		--招募间隔没到
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00048,ttFlyTip)
+		return
+	end
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if nCoin < WarTeamConfig.recruitNeedCoin then		--金币不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00049,ttFlyTip)
+		return
+	end
+	
+	Actor.changeMoney(sysarg,1,-WarTeamConfig.recruitNeedCoin,823, Lang.LogTips.yb016)
+
+	dvar.SendRecruitTime = System.getCurrMiniTime()
+	local str1 = string.format(Lang.GuildLang.f00050,Actor.getName(sysarg))
+	System.broadcastTipmsgLimitLev(str1,128,WarTeamConfig.minlevel)
+end
+
+--修改称号
+function OnUpdateCorpsName(sysarg)
+	local nCorpsId = Actor.getCorpsId(sysarg)
+
+	if nCorpsId <= 0 then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00045,ttFlyTip)
+		return
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 31, 2)	--打开修改名称的界面
+	if (pack ~= nil) then
+		DataPack.flush(pack)
+	end
+end
+
+--割袍断义
+function OnDelCorpsRelation(sysarg)
+	local nCorpsId = Actor.getCorpsId(sysarg)
+	
+	if nCorpsId <= 0 then		--没有战队
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00043,ttFlyTip)
+		return
+	end
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if nCoin < WarTeamConfig.delRelationCoin then		--金币不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.f00044,ttFlyTip)
+		return
+	end
+	
+	Actor.changeMoney(sysarg,1,-WarTeamConfig.delRelationCoin,823, Lang.LogTips.yb016)
+	Actor.onQuitCorps(sysarg,corpsBattleConfig.corpsTitleId)
+
+	Actor.setTopTitle(sysarg, corpsBattleConfig.corpsTitleId,false)
+
+	Actor.sendTipmsg(sysarg,Lang.GuildLang.f00046,ttFlyTip)
+	Actor.closeNPCDialog(sysarg)
+end

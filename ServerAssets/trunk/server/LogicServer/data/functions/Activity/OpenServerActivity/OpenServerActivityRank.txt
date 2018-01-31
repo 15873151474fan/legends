@@ -1,0 +1,20 @@
+﻿--#include "OpenServerActivityPointer.txt" once
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function OpenServerActivity_Init(npcobj)
+  for i = 1, #OpenServerActivityRankConfig do
+      local config = OpenServerActivityRankConfig[i]
+  	  Rank.Init(config.RankName, config.RankFile, config.RankColumn, 0, 0)   
+  end
+end
+
+function OpenServerActivity_Fina(npcobj)
+  for i = 1, #OpenServerActivityRankConfig do
+      local config = OpenServerActivityRankConfig[i]
+  	  Rank.Fina(config.RankName, config.RankFile)
+  end
+end
+
+table.insert(InitFnTable,OpenServerActivity_Init)
+table.insert(FinaFnTable,OpenServerActivity_Fina)

@@ -1,0 +1,65 @@
+--圣诞元旦活动通用处理
+--#include  "data\config\christmas\christmasServer\charistmas3.txt" once
+
+--开始圣诞活动
+function StartCharistActivity()
+
+end
+
+--关闭圣诞活动
+function EndCharistActivity()
+
+end
+
+--清除每天圣诞老人的礼物
+function ClearCharistmasGift()
+	local sysVar = System.getStaticVar()
+	sysVar.TotalChristmasScore = nil
+	
+	local tagRank = Ranking.getRanking("CharistmasLast.txt")
+	if tagRank then
+		Ranking.clearRanking(tagRank)
+	end
+
+	local pRank = Ranking.getRanking("Charistmas2.txt")
+	if pRank and tagRank then
+		local nCount = Ranking.getRankItemCount(pRank)
+		--print("ClearCharistmasGift:"..nCount)
+		for i=0,nCount-1 do
+			local pItem = Ranking.getItemFromIndex(pRank,i)
+			if pItem then
+				local mItem = Ranking.addItem(tagRank,Ranking.getId(pItem),Ranking.getPoint(pItem))
+				if mItem then
+					Ranking.setSub(mItem,0,tostring(0))
+					Ranking.setSub(mItem,1,Ranking.getSub(pItem,1))
+				end
+			end
+		end
+
+		Ranking.clearRanking(pRank)
+	end
+end
+
+
+--清除迷路麋鹿
+function ClearChristmasThree(sysarg)
+	local dVar = Actor.getDyanmicVar(sysarg)
+	dVar.ChristmasHandle = dVar.ChristmasHandle or 0
+	if dVar.ChristmasHandle == nil or dVar.ChristmasHandle == 0  then return end
+
+	Fuben.clearMonster(dVar.ChristmasHandle) --清除迷路麋鹿
+	dVar.ChristmasHandle = nil
+	--Actor.sendTipmsg(sysarg, Lang.Activity.gq0029, ttFlyTip)
+end
+
+--创建迷路麋鹿
+function CreateMiluMonsters()
+	for i=1,table.getn(ChristmasThree.BossMonster) do
+		local hScene = Fuben.getSceneHandleById(ChristmasThree.BossMonster[i].nSceneId, 0)
+		Fuben.createMonsters(hScene,ChristmasThree.BossMonster[i].nMonsterID,ChristmasThree.BossMonster[i].posX1,ChristmasThree.BossMonster[i].posX2,
+			ChristmasThree.BossMonster[i].posY,ChristmasThree.BossMonster[i].nCount,ChristmasThree.BossMonster[i].nLiveTime)
+	end
+
+	System.broadcastTipmsg(Lang.Activity.cr0017, 2+128)
+end
+

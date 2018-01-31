@@ -1,0 +1,76 @@
+﻿--lua script
+--for item learn deputy make item skills
+
+--#include "data\config\item\NormalItemDatas.txt" once
+  --#include "data\functions\ActorDataFunc.txt" once
+
+--副职可制作物品数据结构 playerID = { {true, true, true, ... }, ... }
+--其索引是配合配置itemDeputyMake的item值
+
+--[[
+--学习副职物品制作技能
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表
+--]]
+
+function DeputySkillLearnItems(sysarg,itemidx,itemPtr,ItemTable)
+  --获得副职可制作物品数据
+  local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local deputyMakeAble = getActorData( sysarg, DEPUTYMAKEDATA )
+  --获得该物品可设置制作品的标签位数据
+  local flag = ItemTable.value
+  local deputy = ItemTable.deputy
+  --组合书
+  if ( table.getn( ItemTable.groupItems ) > 0 ) then
+	for i = 1, #ItemTable.groupItems do
+		if ( Actor.getItemCount( sysarg, ItemTable.groupItems[i] ) < 1 ) then
+			--print("Book Item Not That."..ItemTable.groupItems[i])
+			return false
+		end
+	end
+  end
+  --是否有副职技能
+  local tl = table.getn(deputyMakeAble)
+  local index = 0
+  local dmdata = {}
+  if ( tl <= 0 ) then
+	--print( "Not learn any deputy skill."..deputy )
+	return false
+  end
+  for x = 1, tl do
+	if (deputyMakeAble[x].skillID == deputy) then
+		index = x
+		dmdata = deputyMakeAble[x]
+	end
+  end
+  if ( dmdata == nil ) then
+	--print("---Deputy Skill Item Learn no Skill")
+	return
+  end
+  --设置副职可制作物品
+  for i = 1, flag do
+	if ( dmdata[i] == nil ) then dmdata[i] = false end
+  end
+  dmdata[flag] = true
+  deputyMakeAble[index] = dmdata
+  setActorData( sysarg, DEPUTYMAKEDATA, deputyMakeAble )
+
+  if (ItemTable.needDelete) then --需要删除
+	--Actor.removeItemByPtr(sysarg,itemPtr,1)      --删除一个物品
+	if ( table.getn( ItemTable.groupItems ) > 0 ) then
+		for i = 1, #ItemTable.groupItems do Actor.removeItem( sysarg, ItemTable.groupItems[i], 1 ) end
+	end
+  end
+end
+
+
+function DeputySkillLearnItemsInit(sysarg)
+  for i = 1,table.getn(DeputyLearnItems) do
+	local x = DeputyLearnItems[i]
+	GlobalItemFn[x.item_id] = { func = DeputySkillLearnItems, params = x }
+  end
+end
+
+table.insert(InitFnTable,DeputySkillLearnItemsInit)

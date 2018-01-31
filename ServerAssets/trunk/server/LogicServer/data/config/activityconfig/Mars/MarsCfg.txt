@@ -1,0 +1,220 @@
+﻿--[[File:MarsCfg.txt]]
+
+MarsCfg = {
+	FubenCD = 2 * 3600, -- 副本的时间，单位秒
+	BuyGameGirdLog = Lang.Activity.lfg0049; -- 购买烈火令的日志
+	OpenTime = {
+		{10,10,0,	11,10,0}, -- 时间段：开始时分秒，结束时分秒
+		{22,10,0,	23,10,0},
+		
+	};
+	FreeLHLs = 2; -- 每天免费领取多少个烈火令
+	
+	Level = {55, 0}; -- 领取等级限制, 等级，转数
+	GameGird = {
+		-- 10元宝       灵符数量          
+		{yb = 10,   nCount = 1},       
+		{yb = 100,  nCount = 10},       
+		{yb = 500,  nCount = 50},       
+		{yb = 1000, nCount = 100},
+	},
+	-- 进入装备战神闯关
+	EquipMars = {
+		--EnterEquipMarsTimes = 3, -- 每日可进入副本次数
+		--MinLevel = 55, -- 等级 , 在|Fube.txt里面配，等级 minLevel，转数circle，区分大小写
+		--Circle = 0, -- 转数
+		FubenId = 54, -- 副本id
+		GameGirdInterval = 60; -- 扣战神令时间间隔 ，单位： 秒
+		CreateMonstersInterval = 1*60; -- 刷怪时间间隔 ，单位： 秒
+		CreateBossInterval = 5*60; -- 刷Boss时间间隔 ，单位： 秒
+		SubGameGirdCount = 2; -- 每次扣取多少个战神令
+		AlertCout = 5; -- 提醒
+		SafeArea = {--Lang.SceneName.s00008, 
+		148, 180}; -- 安全区场景名称,x坐标,y坐标
+		Monsters =
+		{
+			{nMonsterID = 886, posX1 = 37, posX2 = 55,  posY1 = 49, posY2 = 31, nCount = 3, nLiveTime = 0, nFloor = 25},	-- 怪物1 ,少于 nFloor 个，就新生成 nCount 个
+			{nMonsterID = 887, posX1 = 37, posX2 = 55,  posY1 = 49, posY2 = 31, nCount = 3, nLiveTime = 0, nFloor = 25},	--
+			-- ......
+		},
+		
+		Boss = {
+			{nMonsterID = 888, pposX1 = 37, posX2 = 55,  posY1 = 49, posY2 = 31, nCount = 1, nLiveTime = 0, weight = 3}, -- weight 为概率权重，值越大随机抽到的几率就越大, weight = 0,不可能事件
+			{nMonsterID = 889, pposX1 = 37, posX2 = 55,  posY1 = 49, posY2 = 31, nCount = 1, nLiveTime = 0, weight = 4},
+			{nMonsterID = 890, pposX1 = 37, posX2 = 55,  posY1 = 49, posY2 = 31, nCount = 1, nLiveTime = 0, weight = 2},
+			{nMonsterID = 891, pposX1 = 37, posX2 = 55,  posY1 = 49, posY2 = 31, nCount = 1, nLiveTime = 0, weight = 1},
+		};
+		-- 
+		GameGird = {
+			-- 10元宝       灵符数量          
+			{yb = 20,   nCount = 2},       
+			{yb = 100,  nCount = 10},       
+			{yb = 500,  nCount = 50},       
+		};
+	},
+	-- 进入经验战神闯关
+	ExpMars = {
+		FubenId = 53, -- 副本id
+		-- 修改前：Y=（（当前层+1）*20+N*200）*（N*10-当前层）/2*系数M/10   (取整)
+		-- 修改后：Y=（（当前层+1）*10+N*100+20）*（N*10-当前层）/2*系数M/10   (取整)
+		-- X=（Y-拥有烈火令数量） *10
+		M = 1.3;
+		-- 进入需要消耗
+		EnterConsume = {				-- 显示菜单                   不足的提示
+			{type = 1, count = {2,20}, 	tips = Lang.Activity.lfg0018, lackTips = Lang.Activity.lfg0021}; 	-- 2战神令或20元宝
+			{type = 2, count = {60}, 	tips = Lang.Activity.lfg0019, lackTips = Lang.Activity.lfg0022};		-- 60礼券
+			{type = 3, count = {15000}, tips = Lang.Activity.lfg0020, lackTips = Lang.Activity.lfg0023};	-- 10000荣誉
+		};
+		-- 秒杀需要支付
+		Seckill = {
+			-- 数量由公式计算
+			{type = 1, ratio = {{0, 1, 1},{0, 10, 10}}, tips = Lang.Activity.lfg0024, lackTips = Lang.Activity.lfg0021};
+		}; --]]
+		-- 字符前往下一层
+		GotoNextGrade = {
+			-- 数量由公式计算, a*x^2 + b*x + c, x表示当前层数
+			{type = 1, ratio = {{0, 1, 2},{0, 10, 20}}, tips = Lang.Activity.lfg0025, lackTips = Lang.Activity.lfg0021}; 	-- 2战神令或20元宝
+			{type = 2, ratio = {0, 30, 60}, 			tips = Lang.Activity.lfg0026, lackTips = Lang.Activity.lfg0022};		-- 60礼券
+			{type = 3, ratio = {0, 7500, 15000}, 		tips = Lang.Activity.lfg0027, lackTips = Lang.Activity.lfg0023};	-- 10000荣誉			
+		};
+		-- 退出副本自动寻路到NPC
+		-- NPC“战神闯关指引大使”所在场景id和NPC名字
+		GuidNpc 		= {8, Lang.EntityName.n00253}; -- 请策划选好指引NPC后修改这里
+		ExpNpcNormal  	= {171, Lang.EntityName.n00250}; -- 普通
+		ExpNpcSpecial  	= {172, Lang.EntityName.n00251}; -- 特殊
+		
+		Monsters =
+		{
+			{nMonsterID = 859, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 859, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 859, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 859, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 859, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 860, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 860, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 860, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 860, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 860, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 861, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 861, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 861, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 861, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 861, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 862, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 862, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 862, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 862, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 862, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 863, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 863, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 863, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 863, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 863, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 864, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 864, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 864, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 864, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 864, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 865, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 865, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 865, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 865, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 865, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 866, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 866, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 866, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 866, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 866, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 867, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 867, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 867, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 867, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 867, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 868, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 868, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 868, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 868, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			{nMonsterID = 868, posX1 = 32, posX2 = 42,  posY1 = 40, posY2 = 32, nCount = 5, nLiveTime = 0,},
+			-- ......
+		},
+				
+		Awards ={
+			-- 第一层，每层1个
+			{type = 20, id = 3, count = 1500, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 2243, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 2978, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 3705, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 4425, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 5138, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 5843, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 6540, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 7230, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 7913, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 8588, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 9255, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 9915, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 10568, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 11213, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 11850, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 12480, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 13103, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 13718, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 14325, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 14925, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 15518, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 16103, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 16680, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 17250, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 17813, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 18368, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 18915, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 19455, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 19988, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 20513, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 21030, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 21540, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 22043, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 22538, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 23025, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 23505, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 23978, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 24443, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 24900, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 25350, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 25793, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 26228, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 26655, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 27075, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 27488, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 27893, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 28290, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 28680, quality = 0, strong = 0, bind = 0, param = 0},
+			{type = 20, id = 3, count = 29063, quality = 0, strong = 0, bind = 0, param = 0},
+
+
+
+		},
+		-- 特殊抽奖
+		SpecialAward = {
+			{type =0, id =682, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 12},
+			{type =0, id =628, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 15},
+			{type =0, id =1118, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 10},
+			{type =0, id =1120, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 5},
+			{type =0, id =1122, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 2},
+			{type =0, id =1119, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 3},
+			{type =0, id =1121, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 2},
+			{type =0, id =1123, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 1},
+		};
+		HundredAward = {
+			{type =0, id =1175, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 5},
+			{type =0, id =1175, count=2, quality = 0, strong = 0, bind = 0, param = 0, weight = 6},
+			{type =0, id =1175, count=3, quality = 0, strong = 0, bind = 0, param = 0, weight = 4},
+			{type =0, id =1559, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 1},
+			{type =0, id =1402, count=1, quality = 0, strong = 0, bind = 0, param = 0, weight = 5},
+			{type =0, id =1402, count=2, quality = 0, strong = 0, bind = 0, param = 0, weight = 6},
+			{type =0, id =1402, count=3, quality = 0, strong = 0, bind = 0, param = 0, weight = 4},
+		
+		};
+		
+	},
+}

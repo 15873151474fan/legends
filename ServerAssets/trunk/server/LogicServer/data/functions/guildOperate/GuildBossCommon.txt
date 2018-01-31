@@ -1,0 +1,207 @@
+--lua script
+--帮派boss通用处理
+
+--#include "data\language\LangCode.txt" once
+
+--#include "data\config\guild\GuildBossConfig.txt" once
+
+--发送斗魂基本信息
+function OnSendGuildBossToClient( sysarg)
+	local pack = DataPack.allocPacket(sysarg,10,69) --分配一个数据包
+	if (pack==nil) then return end
+	local nMyTimes = Actor.getChallengeTimes(sysarg)
+	local nAddTimes = Actor.getAddChallengeTimes(sysarg)
+	
+	local myLeftTimes = guildBossConfig.nTimes + nAddTimes - nMyTimes 
+	if myLeftTimes < 0 then
+		myLeftTimes = 0
+	end
+
+	DataPack.writeInt(pack,myLeftTimes)
+	
+	local nGuild = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID)
+	local nGuildTimes = System.getGuildChallengeTimes(nGuild)
+	local nLevel = System.getGuildBossLevel(nGuild)
+	if nLevel <= 0 then
+		nLevel = 1
+	end
+
+	if nLevel > table.getn(guildBossConfig.bossConfig) then
+		nLevel = 1
+	end
+	DataPack.writeInt(pack,guildBossConfig.bossConfig[nLevel].nGuildTimes - nGuildTimes)
+	
+	local curTime = System.getCurrMiniTime()
+	local nTime = System.getGuildNextChallengeTime(nGuild)
+	if curTime < nTime then
+		DataPack.writeInt(pack, nTime - curTime)
+	else
+		DataPack.writeInt(pack, 0)
+	end
+	
+	DataPack.writeInt(pack, nAddTimes)
+	
+	if System.geBossChanllengeHandle(nGuild) > 0 then
+		DataPack.writeByte(pack,1) 
+	else
+		DataPack.writeByte(pack,0) 
+	end
+
+	DataPack.flush(pack)	--向客户端发送
+end
+
+--开启挑战
+function GuildCreateBoss( sysarg, args )
+	local nType = args[2]		--1 个人   2 行会
+	local nindex = args[3]
+	local nStar = args[4]
+	
+	local nGuild = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID)
+	if nType ==  3 then  --进入
+		if System.geBossChanllengeHandle(nGuild) > 0 then
+			if Actor.checkActorLevel(sysarg,guildBossConfig.bossConfig[1].needLevel) ==false then
+				Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0044,ttFlyTip)
+				return
+			end
+
+			if Actor.getSceneId(sysarg) == guildBossConfig.nEnerSeneId and Actor.hasMapAreaAttri(sysarg,aaSaft) == true then 
+				Actor.enterFuBen(sysarg,System.geBossChanllengeHandle(nGuild),guildBossConfig.nSceneId,guildBossConfig.nPosX,guildBossConfig.nPosY)
+				--System.setBossChanllengeHandle(nGuild,0)
+			else
+				Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0045,ttFlyTip)
+				return 
+			end
+		end
+		return
+	end
+
+	local nLevel = nindex + nStar
+	if nLevel <= 0 or nLevel > table.getn(guildBossConfig.bossConfig) then
+		return
+	end
+	
+	if nLevel > System.getGuildbuildingLev(nGuild,4) then
+		Actor.sendTipmsg(sysarg,string.format(Lang.GuildLang.jz0039,nLevel),ttFlyTip)
+		return
+	end
+
+	if nType == 1 then		--个人
+		OnActorChanllengeOp(sysarg,nLevel)
+	elseif nType == 2 then		--行会
+		OnGuildChanllengeOp(sysarg,nLevel)
+	end
+end
+
+--增加个人挑战的次数
+function OnAddChanllengeTimes( sysarg, args )
+	local nTimes = args[2]
+
+	local nMyTimes = Actor.getChallengeTimes(sysarg)
+	local nAddTimes = Actor.getAddChallengeTimes(sysarg)
+	
+	if Actor.isVip(sysarg) == false then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0017,ttFlyTip)
+		return
+	end
+
+	if nAddTimes >= guildBossConfig.nAddTimes then		--今天添加的次数已达上限
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0016,ttFlyTip)
+		return
+	end
+
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	if nYb < guildBossConfig.nNeedYb[nAddTimes+1] then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0018,ttFlyTip)
+		return
+	end
+
+	if Actor.changeMoney(sysarg,3,-guildBossConfig.nNeedYb[nAddTimes+1],900,Lang.GuildLang.jz0019) == true then
+		Actor.setAddChallengeTimes(sysarg,nAddTimes+nTimes)
+		OnSendGuildBossToClient(sysarg)
+	end
+
+end
+
+--个人挑战
+function OnActorChanllengeOp(sysarg,nIndex)
+	local nMyTimes = Actor.getChallengeTimes(sysarg)
+	local nAddTimes = Actor.getAddChallengeTimes(sysarg)
+	
+	local myLeftTimes = guildBossConfig.nTimes + nAddTimes - nMyTimes 
+	if myLeftTimes <= 0 then		--个人挑战次数已用完
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0020,ttFlyTip)
+		return
+	end
+
+	local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	if Actor.checkActorLevel(sysarg,guildBossConfig.bossConfig[nIndex].needLevel) ==false then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0021,ttFlyTip)
+		return
+	end
+
+	local myGx = Actor.getGuildGx(sysarg)
+	if myGx < guildBossConfig.bossConfig[nIndex].needGx then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0022,ttFlyTip)
+		return
+	end
+
+	if Actor.getSceneId(sysarg) ~= guildBossConfig.nEnerSeneId or Actor.hasMapAreaAttri(sysarg,aaSaft) == false then 
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0045,ttFlyTip) 
+		return
+	end
+
+	local fhadle = Fuben.createFuBen(guildBossConfig.nFubenId)
+	if fhadle > 0 then
+		Actor.changeGuildGx(sysarg,-guildBossConfig.bossConfig[nIndex].needGx)
+		Actor.setChallengeTimes(sysarg,nMyTimes+1)
+
+		local hScene = Fuben.getSceneHandleById(guildBossConfig.nSceneId, fhadle)
+		Fuben.createMonster(hScene,guildBossConfig.bossConfig[nIndex].monsterId,guildBossConfig.nBossPosX,guildBossConfig.nBossPosY,guildBossConfig.bossConfig[nIndex].nLiveTime)
+
+		Actor.enterFuBen(sysarg,fhadle,guildBossConfig.nSceneId,guildBossConfig.nPosX,guildBossConfig.nPosY)
+	end
+end
+
+--行会挑战
+function OnGuildChanllengeOp(sysarg,nIndex)
+	local nPos = Actor.getGuildPos(sysarg)
+	if nPos ~= 2 and nPos ~= 3 then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0023,ttFlyTip)
+		return
+	end
+	
+	local nGuild = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID)
+	if System.geBossChanllengeHandle(nGuild) > 0 then
+		Actor.enterFuBen(sysarg,System.geBossChanllengeHandle(nGuild),guildBossConfig.nSceneId,guildBossConfig.nPosX,guildBossConfig.nPosY)
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0026,ttFlyTip)
+		return
+	end
+
+	local nTimes = System.getGuildChallengeTimes(nGuild)
+	if nTimes >= guildBossConfig.bossConfig[nIndex].nGuildTimes then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0024,ttFlyTip)
+		return
+	end
+
+	local nCoin = Actor.getGuildCoin(sysarg)
+	if nCoin < guildBossConfig.bossConfig[nIndex].guildNeedCoin then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.jz0025,ttFlyTip)
+		return
+	end
+
+	local fhadle = Fuben.createFuBen(guildBossConfig.nGuildFubenId)
+	if fhadle > 0 then
+		local hScene = Fuben.getSceneHandleById(guildBossConfig.nSceneId, fhadle)
+		Fuben.createMonster(hScene,guildBossConfig.bossConfig[nIndex].guildMonsterId,guildBossConfig.nBossPosX,guildBossConfig.nBossPosY,guildBossConfig.bossConfig[nIndex].nLiveTime)
+		
+		System.setGuildChallengeTimes(nGuild,nTimes+1)
+		System.setBossChanllengeHandle(nGuild,fhadle)
+		System.changeGuildCoin(nGuild,-guildBossConfig.bossConfig[nIndex].guildNeedCoin)
+
+		System.sendGuildMsg(nGuild,0,Lang.GuildLang.jz0048,ttScreenCenter+ttChatWindow)
+
+		--Actor.enterFuBen(sysarg,fhadle,guildBossConfig.nSceneId,guildBossConfig.nPosX,guildBossConfig.nPosY)
+		System.sendGuildChanllengeResult(nGuild,Actor.getIntProperty( sysarg, PROP_ENTITY_ID),1,1)
+	end
+
+end

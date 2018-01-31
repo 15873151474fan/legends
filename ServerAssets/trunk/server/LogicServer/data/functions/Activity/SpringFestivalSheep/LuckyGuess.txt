@@ -1,0 +1,634 @@
+
+--lua script 
+--#include "data\config\activityconfig\SpringFestivalSheep\SpringFestivalSheepAct.txt" once
+--#include "data\config\activityconfig\SpringFestivalSheep\LuckyGuessConfig.txt" once
+--#include "RankPointer.txt" once
+
+--加载幸运竞猜数据
+function LoadLuckyGuess()
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	local y, m, d = System.getDate()
+	tmpTable[3] = d - SpringFestivalSheepActCfg.actTime[3] + 1		--今日是第几天
+
+	local fileName = SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessFile
+
+	if not fileName then
+		return tmpTable
+	end
+
+	local nId = 1
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nId)
+
+	--加入排行榜
+	if pItem then
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存幸运竞猜数据
+function SaveLuckyGuess(tmpTable)
+	local fileName = SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessFile
+
+	if not fileName then
+		return
+	end
+
+	local nId = 1
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nId)
+
+	--加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {})-1 do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--加载幸运竞猜信息数据
+function LoadLuckyGuessInfo(sysarg)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	local fileName = SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessInfoFile
+
+	if not fileName then
+		return tmpTable
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if pItem then
+		tmpTable[1] = Actor.getName(sysarg)  --Ranking.getSub(pItem,0)
+		for i=1,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存幸运竞猜信息数据
+function SaveLuckyGuessInfo(sysarg, tmpTable)
+	local fileName = SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessInfoFile
+
+	if not fileName then
+		return
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {})-1 do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--请求幸运竞猜
+function GetLuckyGuessOp(sysarg,args)
+	local nType = args[2]
+	local nBuyId = args[3]
+	local nBuyCount = args[4]
+
+	local config = LuckyGuessConfig
+
+	if not config then return end
+
+	if System.isInDateRange(unpack(SpringFestivalSheepActCfg.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj201, ttFlyTip)
+		return
+	end
+
+	if nType == 0 then
+		OnGetLuckyGuessInfo(sysarg)
+	elseif nType == 1 then
+		OnBuyItem(sysarg, nBuyId, nBuyCount)
+	end
+end
+
+--请求幸运竞猜信息
+function OnGetLuckyGuessInfo(sysarg)
+	local config = LuckyGuessConfig
+
+	if not config then return end
+
+	local lotteryStatus = 1
+	if System.isInTimeRange(config.timeRangeUnPublish[1], config.timeRangeUnPublish[2], config.timeRangeUnPublish[3],
+				config.timeRangeUnPublish[4], config.timeRangeUnPublish[5], config.timeRangeUnPublish[6]) then
+		lotteryStatus = 0
+	end
+
+	local tmpTotalTable = LoadLuckyGuess()
+
+	local nSvrConsumeYB = tmpTotalTable[1]
+	local nSvrLuckyNumCount = tmpTotalTable[2]
+	local nDay = tmpTotalTable[3]
+
+	local y, m, d = System.getDate()
+	nDay = d - SpringFestivalSheepActCfg.actTime[3] + 1		--今日是第几天
+
+	local tmpTable = LoadLuckyGuessInfo(sysarg)
+	local nTodayConsumeYB = tmpTable[2]
+	local nLuckyNumCount = tmpTable[3]
+
+	if (nDay <= 0) or (nDay > config.activityDays) then
+		return
+	end
+
+	local maxStoreCount = table.getn(config.store or {})
+	local nIndex = math.floor(nDay % maxStoreCount)
+	if nIndex == 0 then
+		nIndex = maxStoreCount
+	end
+
+	local store = config.store[nIndex]
+	local nItemCount = table.getn(store or {})
+
+	local dayAwards = config.luckyAwards.dayAwards[nIndex]
+
+	local pack = DataPack.allocPacket(sysarg, 52, 46)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nItemCount)
+
+		for i=1,nItemCount do
+			DataPack.writeInt(pack, store[i].id)
+			DataPack.writeInt(pack, store[i].price)
+			DataPack.writeInt(pack, tmpTable[6+i])
+			DataPack.writeInt(pack, store[i].count)
+			DataPack.writeChar(pack, store[i].job)
+		end
+
+		DataPack.writeInt(pack, nTodayConsumeYB)
+		DataPack.writeInt(pack, dayAwards.awards[1].id)
+		DataPack.writeInt(pack, dayAwards.awards[1].strong)
+		DataPack.writeInt(pack, dayAwards.awards[1].quality)
+		DataPack.writeChar(pack, nLuckyNumCount)
+
+		for i=1,nLuckyNumCount do
+			DataPack.writeChar(pack, GetLuckyGuessNum(tmpTable, i))
+		end
+
+		DataPack.writeChar(pack, lotteryStatus)
+
+		if lotteryStatus == 1 then
+			DataPack.writeChar(pack, dayAwards.luckyNum)
+			
+			local fileName = SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessInfoFile
+
+			if fileName then
+				local ranking = Ranking.getRanking(fileName)
+				if not ranking then
+					ranking = Ranking.add(fileName, 1000, 1, 10)
+					if not ranking then
+						return tmpTable
+					end
+
+					if not Ranking.load(ranking, fileName) then
+						for i=0,15 do
+							Ranking.addColumn(ranking, string.format("value%d", i))
+						end
+					end
+				end
+
+				local nRankCount = Ranking.getRankItemCount(ranking)
+				local nNameCount = 0
+
+				for i=1,nRankCount do
+					local pItem = Ranking.getItemFromIndex(ranking, i - 1)
+
+					if pItem then
+						local nLotteryFlag = tonumber(Ranking.getSub(pItem,12)) or 0
+						if nLotteryFlag == 1 then							
+							nNameCount = nNameCount + 1
+						end
+					end
+				end
+
+				DataPack.writeChar(pack, nNameCount)
+
+				for i=1,nRankCount do
+					local pItem = Ranking.getItemFromIndex(ranking, i - 1)
+
+					if pItem then
+						local nLotteryFlag = tonumber(Ranking.getSub(pItem,12)) or 0
+						if nLotteryFlag == 1 then							
+							DataPack.writeString(pack, Ranking.getSub(pItem,0))
+						end
+					end
+				end
+			end
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--购买道具
+function OnBuyItem(sysarg, nBuyId, nBuyCount)
+	local config = LuckyGuessConfig
+
+	if not config then return end
+
+	if (Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj202, ttFlyTip)
+		return
+	end
+
+	if System.isInTimeRange(config.timeRange[1], config.timeRange[2], config.timeRange[3],
+				config.timeRange[4], config.timeRange[5], config.timeRange[6]) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj210, ttFlyTip)
+		return
+	end
+
+	local tmpTotalTable = LoadLuckyGuess()
+
+	local nSvrConsumeYB = tmpTotalTable[1]
+	local nSvrLuckyNumCount = tmpTotalTable[2]
+	local nDay = tmpTotalTable[3]
+
+	local y, m, d = System.getDate()
+	nDay = d - SpringFestivalSheepActCfg.actTime[3] + 1		--今日是第几天
+
+	local tmpTable = LoadLuckyGuessInfo(sysarg)
+	local nTodayConsumeYB = tmpTable[2]
+	local nLuckyNumCount = tmpTable[3]
+	local nLotteryFlag = tmpTable[13]
+
+	if (nDay <= 0) or (nDay > config.activityDays) then
+		return
+	end
+
+	local maxStoreCount = table.getn(config.store or {})
+	local nIndex = math.floor(nDay % maxStoreCount)
+	if nIndex == 0 then
+		nIndex = maxStoreCount
+	end
+
+	local store = config.store[nIndex]
+	local nItemCount = table.getn(store or {})
+
+	if (nBuyId <= 0) or (nBuyId > nItemCount) then
+		return
+	end
+
+	local itemTab = store[nBuyId]
+	local lastBuyTimes = itemTab.count - tmpTable[6+nBuyId]
+
+	if lastBuyTimes <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj211, ttFlyTip)
+		return
+	end
+
+	if nBuyCount > lastBuyTimes then
+		nBuyCount = lastBuyTimes
+	end
+
+	if (itemTab.job ~= -1) and (itemTab.job ~= Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj209, ttFlyTip)
+		return
+	end
+
+	local nTotalYb = nBuyCount * itemTab.price
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+
+	if nYb < nTotalYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj203, ttFlyTip)
+		return
+	end
+
+	local awards =
+	{
+		{type = itemTab.type, id = itemTab.id, count = nBuyCount, strong = 0, quality = 0, bind = itemTab.bind},
+	}
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,983,Lang.Activity.yncj204, -1)
+		end
+	else
+		return
+	end
+
+	Actor.changeMoney(sysarg,3,-nTotalYb,983,Lang.Activity.yncj204)
+
+	nSvrConsumeYB = nSvrConsumeYB + nTotalYb
+
+	nTodayConsumeYB = nTodayConsumeYB + nTotalYb
+
+	local luckyAwards = config.luckyAwards
+	local newLuckyNumCount = math.floor(nTodayConsumeYB / luckyAwards.needYB)
+
+	if newLuckyNumCount > luckyAwards.maxLuckyNumCount then
+		newLuckyNumCount = luckyAwards.maxLuckyNumCount
+	end
+
+	if nLuckyNumCount < newLuckyNumCount then
+		local needGenLuckyNumCount = newLuckyNumCount - nLuckyNumCount	--需再产生needGenLuckyNumCount个幸运数字
+
+		for i=1,needGenLuckyNumCount do
+			local canGenLuckyNum = 1
+			if nSvrLuckyNumCount >= luckyAwards.maxSvrLuckyNumCount then	--永远都不可能中奖了
+				canGenLuckyNum = 0
+			else	--有小得可怜的机会中奖
+				if nSvrConsumeYB < luckyAwards.dayAwards[nIndex].startYB + luckyAwards.dayAwards[nIndex].ybCircle * nSvrLuckyNumCount then	--不满足消费元宝
+					canGenLuckyNum = 0
+				end
+				if canGenLuckyNum == 1 then
+					if nLotteryFlag == 1 then	--幸运数字已经有了
+						canGenLuckyNum = 0
+					end
+				end
+				if canGenLuckyNum == 1 then
+					if luckyAwards.dayAwards[nIndex].rate <  math.random(0, 10000) then	--没抽中
+						canGenLuckyNum = 0
+					else
+						nLotteryFlag = 1
+						nLuckyNumCount = nLuckyNumCount + 1
+						SetLuckyGuessNum(tmpTable, nLuckyNumCount, luckyAwards.dayAwards[nIndex].luckyNum)
+						nSvrLuckyNumCount = nSvrLuckyNumCount + 1
+					end
+				end
+			end
+			if canGenLuckyNum == 0 then
+				for j=1,10000 do
+					local nFlag = 1
+					local newLuckyNum = math.random(1, luckyAwards.maxLuckyNum)
+					if newLuckyNum ~= luckyAwards.dayAwards[nIndex].luckyNum then	--不能随机到幸运数字
+						for k=1,nLuckyNumCount do
+							if newLuckyNum == GetLuckyGuessNum(tmpTable, k) then	--这个数字已经有了
+								nFlag = 0
+								break
+							end
+						end
+						if nFlag == 1 then	--没重复过
+							nLuckyNumCount = nLuckyNumCount + 1
+							SetLuckyGuessNum(tmpTable, nLuckyNumCount, newLuckyNum)
+							break
+						end
+					end
+				end
+			end
+		end
+	end
+
+	tmpTotalTable[1] = nSvrConsumeYB
+	tmpTotalTable[2] = nSvrLuckyNumCount
+
+	SaveLuckyGuess(tmpTotalTable)
+
+	tmpTable[1] = Actor.getName(sysarg)
+	tmpTable[2] = nTodayConsumeYB
+	tmpTable[3] = nLuckyNumCount
+	tmpTable[6+nBuyId] = tmpTable[6+nBuyId] + nBuyCount
+	tmpTable[13] = nLotteryFlag
+
+	SaveLuckyGuessInfo(sysarg, tmpTable)
+	
+	OnGetLuckyGuessInfo(sysarg)
+end
+
+--设置幸运数字
+function SetLuckyGuessNum(tmpTable, pos, num)
+	local mask = 0xFF
+	mask = System.bitOper(System.shiftInt(mask, math.floor((pos-1)%4)*8), 2, mask)
+
+	local tmpVal = tmpTable[4+math.floor((pos-1)/4)]
+
+	tmpVal = System.bitOper(tmpVal, 0, mask)
+
+	tmpVal = System.bitOper(tmpVal, 1, System.shiftInt(num, math.floor((pos-1)%4)*8))
+
+	tmpTable[4+math.floor((pos-1)/4)] = tmpVal
+
+	return tmpTable
+end
+
+--获取幸运数字
+function GetLuckyGuessNum(tmpTable, pos)
+	return System.bitOper(System.shiftInt(tmpTable[4+math.floor((pos-1)/4)], math.floor((pos-1)%4)*(-8)), 0, 0xFF)
+end
+
+--0点重置
+function ResetLuckyGuess()
+	local tmpTotalTable = LoadLuckyGuess()
+
+	local nSvrConsumeYB = tmpTotalTable[1]
+	local nSvrLuckyNumCount = tmpTotalTable[2]
+	local nDay = tmpTotalTable[3]
+
+	nSvrConsumeYB = 0
+	nSvrLuckyNumCount = 0
+	nDay = nDay + 1
+
+	tmpTotalTable[1] = nSvrConsumeYB
+	tmpTotalTable[2] = nSvrLuckyNumCount
+	tmpTotalTable[3] = nDay
+
+	SaveLuckyGuess(tmpTotalTable)
+
+	local fileName = SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessInfoFile
+
+	if not fileName then
+		return
+	end
+
+	local ranking = Ranking.getRanking(fileName)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+--幸运竞猜发奖
+function LuckyGuessGiveAwards()
+	local tmpTotalTable = LoadLuckyGuess()
+
+	local nDay = tmpTotalTable[3]
+
+	local y, m, d = System.getDate()
+	nDay = d - SpringFestivalSheepActCfg.actTime[3] + 1		--今日是第几天
+	
+	local config = LuckyGuessConfig
+
+	if not config then return end
+
+	if (nDay <= 0) or (nDay > config.activityDays) then
+		return
+	end
+
+	local maxStoreCount = table.getn(config.store or {})
+	local nIndex = math.floor(nDay % maxStoreCount)
+	if nIndex == 0 then
+		nIndex = maxStoreCount
+	end
+
+	local dayAwards = config.luckyAwards.dayAwards[nIndex]
+	local luckyNum = dayAwards.luckyNum
+	local itemId = dayAwards.awards[1].id
+	local itemName = Item.getItemName(itemId)
+
+	local fileName = SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessInfoFile
+
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+
+	local nRankCount = Ranking.getRankItemCount(ranking)
+	local nNameCount = 0
+
+	for i=1,nRankCount do
+		local pItem = Ranking.getItemFromIndex(ranking, i - 1)
+
+		if pItem then
+			local nLotteryFlag = tonumber(Ranking.getSub(pItem,12)) or 0
+			if nLotteryFlag == 1 then
+				nNameCount = nNameCount + 1
+			end
+		end
+	end
+
+	if nNameCount == 0 then
+		System.broadcastTipmsg(string.format(Lang.Activity.yncj206, luckyNum), ttScreenCenter+ttChatWindow)
+		return
+	end
+
+	for i=1,nRankCount do
+		local pItem = Ranking.getItemFromIndex(ranking, i - 1)
+
+		if pItem then
+			local nLotteryFlag = tonumber(Ranking.getSub(pItem,12)) or 0
+			if nLotteryFlag == 1 then
+				local actorId = Ranking.getId(pItem)
+				System.addOfflineMsg(actorId, 66, Lang.Activity.yncj207, 0, 1, 1, nDay)
+				local name = Ranking.getSub(pItem,0)
+				System.broadcastTipmsg(string.format(Lang.Activity.yncj205, name, luckyNum, itemName), ttScreenCenter+ttChatWindow)
+			end
+		end
+	end
+end
+
+--领取幸运大奖离线奖励
+function GetLuckyGuessAwards(sysarg, nDay)
+	local config = LuckyGuessConfig
+
+	if not config then return end
+
+	if (nDay <= 0) or (nDay > config.activityDays) then
+		return
+	end
+
+	local maxStoreCount = table.getn(config.store or {})
+	local nIndex = math.floor(nDay % maxStoreCount)
+	if nIndex == 0 then
+		nIndex = maxStoreCount
+	end
+
+	local awards = config.luckyAwards.dayAwards[nIndex].awards
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,983,Lang.Activity.yncj208, -1)
+		end
+	end
+
+end
+
+--清除数据
+function ClearLuckyGuess()
+	local ranking = Ranking.getRanking(SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+
+	ranking = Ranking.getRanking(SpringFestivalSheepRankPt.LuckyGuessPt.LuckyGuessInfoFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end

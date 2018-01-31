@@ -1,0 +1,73 @@
+--#include "PkCommon.txt" once --pk配置
+
+NOTDROPZH  = 67	--禁止掉落战魂地图属性
+DROPZHRATE = 68	--掉落战魂倍率地图属性
+
+--玩家掉落战魂计算
+function CalcOnKillDropZhanHun(sysarg)
+	if not PkConfig then return 0 end
+	local dropConfig = PkConfig.zhanHunDropParam
+	local svar = Actor.getStaticVar(sysarg)	
+	local data = svar.killerData	--被击杀信息
+	if not data then return 0 end
+	local killerLevel  = data[1] 	--击杀者等级
+	local killerCampId = data[2]	--击杀者阵营ID
+	local killerType   = data[6]	--击杀者类型
+	--print("data[1]:"..data[1])
+	--print("data[2]:"..data[2])
+	
+	--判断击杀者类型
+	if killerType ~= 0 then return 0 end
+	
+	if not killerLevel or killerLevel < dropConfig.killLevel then return 0 end
+	
+	--判断地图属性是否禁止掉落战魂
+	if (Actor.hasMapAreaAttri(sysarg, NOTDROPZH) == true) then return 0 end
+	
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if level < dropConfig.levelStart then return 0 end
+	
+	local zh = Actor.getIntProperty(sysarg, PROP_ACTOR_ZHANHUN)
+	if zh <= dropConfig.limitZhanHun then return 0 end 
+	
+	--掉落战魂值 = 战魂标准值 * 对象参数 * 对象杀戮值参数 * 等级差距参数
+	--掉落战魂标准值
+	local base = dropConfig.levelBase[level - dropConfig.levelStart + 1]
+	if not base or base == 0 then return 0 end
+	
+	--print("base:"..base)
+	--print(":"..)
+	--根据对方和我的阵营关系，获得对象参数
+	local otherParam = GetCampRelationParam(sysarg, killerCampId, dropConfig.otherParam)
+	if not otherParam or otherParam == 0 then return 0 end
+	--print("otherParam:"..otherParam)
+	--根据己方的杀戮值计算杀戮值参数
+	local pkValue = Actor.getIntProperty(sysarg, PROP_ACTOR_PK_VALUE)
+	local pkParam = GetOtherParam(dropConfig.otherPk, pkValue)
+	if not pkParam or pkParam == 0 then return 0 end
+	--print("pkParam:"..pkParam)
+	--根据等级差距获得参数
+	local levelParam = GetOtherParam(dropConfig.levelGap, killerLevel-level)
+	if not levelParam or levelParam == 0 then return 0 end
+	--print("levelParam:"..levelParam)
+	
+	--计算掉落战魂值 = 战魂标准值 * 对象参数 * 对象杀戮值参数 * 等级差距参数
+	local nZhanHun = base*otherParam*pkParam*levelParam
+	
+	local nRate = Actor.getMapAttriValue(sysarg, DROPZHRATE)
+	if nRate > 0 then
+		nZhanHun = math.floor(nZhanHun * (nRate/1000))
+	end
+	--print(nRate)
+	local nVal = zh - nZhanHun
+	if nVal < dropConfig.limitZhanHun then 
+		nZhanHun = zh - dropConfig.limitZhanHun 
+	end
+	--local dropValue = math.min(zh, nZhanHun)
+	local dropValue = math.floor(math.abs(nZhanHun))
+	
+	return dropValue
+	--print(dropValue)
+	--Actor.giveAward(sysarg, 10, 0,-dropValue, 0, 0, 1, 0,0,  "OnKillDropZhanHun")
+end
+

@@ -1,0 +1,87 @@
+﻿
+--#include "RankPointer.txt" once
+--#include "data\functions\Activity\Common\Scene.txt" once --活动通用 场景
+--#include "data\config\activityconfig\ProgrammerActivity\Config.txt" once	--
+--#include "data\config\activityconfig\Festival\AnniversaryActive.txt" once
+--#include "ProgrammerCommon.txt" once
+--#include "RankInit.txt" once	--排行榜初始化
+
+--程序大神活动开始
+function ProgrammerActivityStart()
+	if not AnniversaryActiveConfig then return end
+
+	local config = ProgrammerActivityConfig
+	if (not config) then return end
+	
+	if (not config.isUseActTime) or (config.isUseActTime == 1) then
+		if System.isInDateRange(unpack(AnniversaryActiveConfig.actTime)) ~= true then
+			return
+		end
+	else
+		if System.isOpenHorseActById(14) ~= true then
+			return
+		end
+	end
+
+	local pRank = Ranking.getRanking(ProgrammerRankPt.RankName)
+	if not pRank then return end
+	Ranking.clearRanking(pRank)
+	
+	--设定场景时间
+	local hScene = Fuben.getSceneHandleById(config.enterScene.sid, 0)
+	Fuben.setSceneTime(hScene, config.actTime)
+
+	local dval = System.getDyanmicVar()
+	dval.ProgrammerStart = 1
+	
+	local sval = System.getStaticVar()
+
+	local y = 0
+	local m = 0
+	local d = 0
+	y,m,d = System.getDate( y, m, d )
+	dval.ProgrammerDate = d
+
+	System.broadcastTipmsg(Lang.Activity.cx0002, ttScreenCenter+ttChatWindow)
+end
+
+--程序大神活动结束
+function ProgrammerActivityOver()
+	if not AnniversaryActiveConfig then return end
+
+	local config = ProgrammerActivityConfig
+	if (not config) then return end
+
+	if (not config.isUseActTime) or (config.isUseActTime == 1) then
+		if System.isInDateRange(unpack(AnniversaryActiveConfig.actTime)) ~= true then
+			return
+		end
+	else
+		if System.isOpenHorseActById(14) ~= true then
+			return
+		end
+	end
+
+	local dval = System.getDyanmicVar()
+	
+	dval.ProgrammerStart = nil
+
+	--保存排行
+	local ranking = Ranking.getRanking(ProgrammerRankPt.RankName)
+	if ranking then
+		local ret = Ranking.save(ranking, ProgrammerRankPt.RankFile, true)
+	end
+
+	System.broadcastTipmsg(Lang.Activity.cx0003, ttScreenCenter+ttChatWindow)
+
+	local playerList = LuaHelp.getSceneActorListById(config.enterScene.sid)  --获取某场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player then
+				--直接把玩家传出来
+				ExitProgrammerMap(player)
+			end
+		end
+	end
+end

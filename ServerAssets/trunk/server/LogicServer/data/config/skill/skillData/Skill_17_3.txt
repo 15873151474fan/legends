@@ -1,0 +1,242 @@
+﻿--救疗术3级
+{
+
+	actions=
+	{
+		{act=1,effect=24,},
+	},
+	
+	desc=Lang.Skill.s17L3Desc,--技能的描述
+	
+	iconID=17,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+	
+		
+		{	
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},						
+					},
+				   results=
+					{
+						{mj=2555,timeParam=1,type=20,delay=0,id=55,value=1,interval=1,vt=1},
+						
+					},
+				   specialEffects=
+					{
+						
+					},
+				},
+			},
+		},
+		{	
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=2,			
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+						{cond = 21,value =55},
+					},
+				   results=
+					{
+						{mj=2555,timeParam=1,type=13,delay=0,value=1000,mjParam1=50},
+						
+					},
+				   specialEffects=
+					{
+						
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=2,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =0},
+						{cond = 21,value =55},										
+					},
+					results=
+					{
+						{mj=0,timeParam=100,type=20,delay=0,vt=1, id=17,value=1},--增加技能标记							
+						{mj=2555,timeParam=8,timeRate=125,maxTime=100,timeAddType=2,type=1,delay=0,  buffType=1,id=37,rate=0,value=120,interval=1,vt=0,mjParam1=0,mjParam2=10,bMjType=2},
+					},
+
+					specialEffects=
+					{
+					{type=4,mj=0,id=72,keepTime=1000,delay=500,always=false},	
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=2,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =0},
+						{cond = 22,value =55},										
+					},
+					results=
+					{
+						{mj=0,timeParam=100,type=20,delay=0,vt=1, id=17,value=1},--增加技能标记							
+						{mj=0,timeParam=8,timeRate=125,timeAddType=2,maxTime=100,type=1,delay=0, buffType=1,id=37,rate=0,value=120,interval=1,vt=0},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=72,keepTime=1000,delay=500,always=false},	
+					},
+				},
+			},
+		},
+		{	
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 22,value =17}, --没有命中目标的时候，才需要播放特效
+						{cond = 21,value =55},
+						{cond = 3,value =1},						
+					},
+				   results=
+					{
+						
+						
+						{mj=2555,timeParam=8,timeRate=125,timeAddType=2,maxTime=100,type=1,delay=0,  buffType=1,id=37,rate=0,value=120,interval=1,vt=0,mjParam1=0,mjParam2=10,bMjType=2},
+					},
+				   specialEffects=
+					{
+					{type=4,mj=0,id=72,keepTime=1000,delay=500,always=false},	
+					},
+				},
+			},
+		},
+		{	
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 22,value =17}, 
+						{cond = 22,value =55},
+						{cond = 3,value =1},						
+					},
+				   results=
+					{
+						{mj=0,timeParam=8,timeRate=125,timeAddType=2,maxTime=100,type=1,delay=0, buffType=1,id=37,rate=0,value=120,interval=1,vt=0},
+					},
+				   specialEffects=
+					{
+					{type=4,mj=0,id=72,keepTime=1000,delay=500,always=false},	
+					},
+				},
+			},
+		},
+		{	
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+			acts=
+			{
+				{
+				   targetType=0	,
+					conds=
+					{
+						{cond = 3,value =1}, --施法者自己删除技能标记
+					},
+				   results=
+					{
+						{mj=0,timeParam=1,type=21,delay=0, id=17,vt=1}, --删除自己的技能标记
+						{mj=2555,timeParam=1,type=21,delay=0, id=55,vt=1},
+
+					},
+				   specialEffects=
+					{
+					
+					},
+				},
+			},
+		},
+		
+	},
+
+	trainConds=
+	{
+		{cond=1,value=40,consume=false},--表示等级要16级
+		{cond=21,value=1000,consume=false},--表示需要1000熟练度
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=1,consume=true},--消耗蓝224
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

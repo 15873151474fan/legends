@@ -1,0 +1,75 @@
+﻿--行会争夺战
+{
+	scenceid = 59,
+	scencename = Lang.SceneName.s00059,
+	mapfilename = "59HangHuiZhanChang",
+	minlevel = 40,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "fengmogu.mp3",
+	musicInterval=60,
+	musicInterval=30,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 152,
+	sceneHeight = 152,
+	sceneType=1,
+	
+	seckillId = 2,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+	
+	area =
+	{
+		{ name = Lang.SceneName.s00059, range = { 10,10,20,20,60,50}, center = { 37,117},attri = {{type=20,value = {}},{type=21,value = {}},{type=3,value = {}},{type=6,value = {}},{ type = 33,  value = {56,57,58} },{type = 34,  value = {392,394,316,822,386,2272,2273,2274}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },}},	--默认配置场景，禁止行会的召集，传送，行会回程卷
+		{ name = Lang.SceneName.s00059, range = { 36,100,24,114,42,131,54,119}, center = { 38,113},attri = {{type=46,value = {}},{type=1,value = {}},}},	--默认配置场景
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00081, posx = 50 , posy = 116,script = "data/script/Activity/Hhzdz/Hhgly.txt",modelid = 1,icon = 1,funcId = 0},
+	},
+
+  teleport =
+  {
+
+  },
+
+ landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=42,posy1=106,posx2=42,posy2=106,modelid=3,xinterval=1,yinterval=1},  --安全区的路灯
+		{posx1=43,posy1=107,posx2=43,posy2=107,modelid=3,xinterval=1,yinterval=1},
+		{posx1=44,posy1=108,posx2=44,posy2=108,modelid=3,xinterval=1,yinterval=1},
+		{posx1=45,posy1=109,posx2=45,posy2=109,modelid=3,xinterval=1,yinterval=1},
+		{posx1=46,posy1=110,posx2=46,posy2=110,modelid=3,xinterval=1,yinterval=1},
+		{posx1=47,posy1=111,posx2=47,posy2=111,modelid=3,xinterval=1,yinterval=1},
+		{posx1=48,posy1=112,posx2=48,posy2=112,modelid=3,xinterval=1,yinterval=1},
+
+		{posx1=46,posy1=107,posx2=46,posy2=107,modelid=18,xinterval=1,yinterval=1},
+		{posx1=50,posy1=103,posx2=50,posy2=103,modelid=18,xinterval=1,yinterval=1},
+		{posx1=54,posy1=99,posx2=54,posy2=99,modelid=18,xinterval=1,yinterval=1},
+		{posx1=58,posy1=95,posx2=58,posy2=95,modelid=18,xinterval=1,yinterval=1},
+		{posx1=62,posy1=91,posx2=62,posy2=91,modelid=18,xinterval=1,yinterval=1},
+		{posx1=66,posy1=87,posx2=66,posy2=87,modelid=18,xinterval=1,yinterval=1},
+		{posx1=70,posy1=83,posx2=70,posy2=83,modelid=18,xinterval=1,yinterval=1},
+		{posx1=74,posy1=79,posx2=74,posy2=79,modelid=18,xinterval=1,yinterval=1},
+		{posx1=78,posy1=75,posx2=78,posy2=75,modelid=18,xinterval=1,yinterval=1},
+		{posx1=82,posy1=71,posx2=82,posy2=71,modelid=18,xinterval=1,yinterval=1},
+		{posx1=86,posy1=67,posx2=86,posy2=67,modelid=18,xinterval=1,yinterval=1},
+		{posx1=90,posy1=63,posx2=90,posy2=63,modelid=18,xinterval=1,yinterval=1},
+	 
+ },
+
+},

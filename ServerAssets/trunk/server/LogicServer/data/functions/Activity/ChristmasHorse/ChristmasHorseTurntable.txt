@@ -1,0 +1,1431 @@
+--lua script
+--圣诞转盘 
+
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasHorseAct.txt" once 
+--#include "data\config\activityconfig\ChristmasHorse\TurntableFileConfig.txt" once
+--#include "data\functions\Activity\Common\Misc.txt" once 
+
+--[[
+	Lang.Rank.ChrHorseTurntableListFile = "ChrHorseTurntableList.txt",     
+	Lang.Rank.ChrHorseTurntableParamFile = "ChrHorseTurntableParam.txt", 
+	Lang.Rank.ChrHorseTurntableInfoFile = "ChrHorseTurntableInfo.txt",
+--]]
+
+chrPersonDrawLog = {}  
+chrAllDrawLog = {} 
+
+
+--根据序号获取配置，从1开始
+function GetChrTurntableConfig(idx)  
+	--[[
+	if idx > 0 and idx <= table.getn(TurntableFileConfig or {}) then
+		return TurntableFileConfig[idx]
+	end
+	--]]
+	
+	for k, config in ipairs(TurntableFileConfig or {}) do 
+		if config.turntableIdx == idx then
+			return config
+		end
+	end
+	return nil
+end
+		
+--请求转盘信息
+function ReqChrHorseTurntableInfo(sysarg, packet) 
+	local turntableIdx = DataPack.readByte(packet)
+	local config = GetChrTurntableConfig(turntableIdx)
+	if not config then
+		return 
+	end
+	
+	local openFlag = false
+	if config.isBackOpen and config.isBackOpen == 1 then --后台开启
+		if config.turntableIdx == System.getChrHorseTurntableIdx() then 
+			if System.getChrHorseTurntableFlag() == 1 then
+				openFlag = true
+			end
+		else
+			if config.turntableIdx == 3 then
+				if System.getSheepHundredActFlag(6) == true then
+					openFlag = true
+				end
+			end 
+		end
+	end 
+	if openFlag == false then --判断是否为默认开启
+		if config.actTime and System.isInDateRange(unpack(config.actTime)) == true then
+			openFlag = true
+		end
+	end
+	if openFlag == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0001, ttFlyTip)
+		return
+	end
+	
+	if Actor.checkActorLevel(sysarg, config.level, config.circle) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0014, ttFlyTip)
+		return 
+	end 
+	
+	InitChrHorseTurntable(config) 
+	
+	local infoRankPtr = Ranking.getRanking(config.infoFile)  
+	if not infoRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+	
+	if not infoItemPtr then
+		SendChrHorseTurntableInfo(sysarg, false, config)    
+	else
+		SendChrHorseTurntableInfo(sysarg, true,  config)   
+	end
+	
+	SendChrPersonDrawLog(sysarg, config, 1, nil)  
+	SendChrAllDrawLog(sysarg, config, 1, nil)
+	
+end 
+
+--请求转盘操作 1刷新，2抽奖1次，3抽奖励10次
+function ReqChrHorseTurntableOp(sysarg, packet) 
+	local turntableIdx = DataPack.readByte(packet)
+	local config = GetChrTurntableConfig(turntableIdx)
+	if not config then
+		return 
+	end
+	local listFile = config.listFile
+	local paramFile = config.paramFile
+	local infoFile = config.infoFile
+	
+	local openFlag = false
+	if config.isBackOpen and config.isBackOpen == 1 then --后台开启
+		if config.turntableIdx == System.getChrHorseTurntableIdx() then 
+			if System.getChrHorseTurntableFlag() == 1 then
+				openFlag = true
+			end
+		else
+			if config.turntableIdx == 3 then
+				if System.getSheepHundredActFlag(6) == true and System.isShowSheepHundredAct() ~= true then
+					openFlag = true
+				end
+			end 
+		end
+	end 
+	if openFlag == false then --判断是否为默认开启
+		if config.actTime and System.isInDateRange(unpack(config.actTime)) == true then
+			openFlag = true
+		end
+	end
+	if openFlag == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0001, ttFlyTip)
+		return
+	end
+	
+	--[[
+	if System.isInDateRange(unpack(config.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0001, ttFlyTip)
+		return 
+	end
+	--]]
+	
+	if Actor.checkActorLevel(sysarg, config.level, config.circle) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0014, ttFlyTip)
+		return 
+	end 
+	
+	local opType = DataPack.readByte(packet)
+	if opType ~= 1 and opType ~= 2 and opType ~= 3 then
+		return 
+	end
+	
+	if opType == 1 then
+		RefreshChrHorseTurntableInfo(sysarg, turntableIdx)
+	else
+		StartChrHorseTurntable(sysarg, opType, turntableIdx)
+	end
+end
+
+--刷新转盘信息
+function RefreshChrHorseTurntableInfo(sysarg, turntableIdx)
+	local config = GetChrTurntableConfig(turntableIdx)
+	if not config then
+		return 
+	end
+	local listFile = config.listFile
+	local paramFile = config.paramFile
+	local infoFile = config.infoFile
+	
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile) 
+	if not turntableInfoPtr then
+		return 
+	end
+	
+	if Actor.checkConsume(sysarg, 15, 0, config.refreshYb) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0002, ttFlyTip)  
+		return 
+	end
+		
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableItemPtr = AddPersonChrHorseTurntableInfo(sysarg, turntableIdx) --增加玩家转盘数据 
+	if not turntableItemPtr then
+		return 
+	end
+
+	if Actor.changeMoney(sysarg, 3, -config.refreshYb, 979, Lang.LogTips.msd0001) == true then
+		ProducePersonChrTurntableList(sysarg, config) 
+	end
+		
+	SendChrHorseTurntableInfo(sysarg, true, config)   	
+end
+
+--开始转盘
+function StartChrHorseTurntable(sysarg, opType, turntableIdx) 
+	local config = GetChrTurntableConfig(turntableIdx)
+	if not config then
+		return 
+	end
+	local listFile = config.listFile
+	local paramFile = config.paramFile
+	local infoFile = config.infoFile
+	
+	local consumeYb = 0
+	local needBagCount = 0
+	if opType == 2 then
+		consumeYb = config.drawYb
+		needBagCount = 1
+	elseif opType == 3 then
+		consumeYb = config.drawTenYb 
+		needBagCount = 10
+	end
+	
+	if Dmkj.getStoreRestCount(sysarg) < needBagCount then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.msd0004, needBagCount), ttFlyTip)
+		return 
+	end
+	
+	if Actor.changeMoney(sysarg, 3, -consumeYb, 979, Lang.LogTips.msd0002) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0003, ttFlyTip) 
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableItemPtr = AddPersonChrHorseTurntableInfo(sysarg, turntableIdx) --增加玩家转盘数据  
+	if not turntableItemPtr then
+		return 
+	end
+	
+	local awardTab = {}
+	local paramTab = nil
+	
+	local perDrawLogTab = {} --用来给前端发送的个人记录
+	local allDrawLogTab = {} --用来给前端发送的全服记录
+
+	local drawIdx = 0
+	if opType == 2 then
+		drawIdx = ProduceChrTurntableAward(awardTab, paramTab, actorId, config) 
+	elseif opType ==  3 then
+		for i = 1, 10 do
+			drawIdx = ProduceChrTurntableAward(awardTab, paramTab, actorId, config)
+		end
+	end
+	
+	if opType == 3 then
+		drawIdx = 0
+	end
+
+	
+	local itemLists = config.itemLists
+	local count = 0
+    if table.getn(awardTab)/2 > 0 then
+		count = table.getn(awardTab)/2
+	end
+	
+	local actorName = Actor.getName(sysarg) 
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx]
+			local itemIdx = awardTab[2*(j-1)+2] 
+			local itemConfig = storeConfig.itemList[itemIdx]
+			local poolAward = 0
+			local personAward = 0
+			local itemName = Item.getAwardDesc(itemConfig.type, itemConfig.id)
+			if itemConfig.isTopAward and itemConfig.isTopAward > 0 then  
+				poolAward, personAward = GetChrAwardPool(itemConfig, config.paramFile, config.turntableCount+1, 1, j, config)
+				--[[
+				local logTip = Lang.LogTips.msd0004
+				if itemConfig.isTopAward == 1 then
+					logTip = string.format(Lang.Activity.msd0008, itemIdx)
+				elseif itemConfig.isTopAward == 2 then
+					logTip = string.format(Lang.Activity.msd0009, itemIdx)
+				elseif itemConfig.isTopAward == 3 then
+					logTip = string.format(Lang.Activity.msd0010, itemIdx) 
+				end 
+				--]]
+				Actor.changeMoney(sysarg, 3, personAward, 979, itemName)
+			else
+				Dmkj.addItem(sysarg, itemConfig.id, itemConfig.count, itemConfig.quality, itemConfig.strong, itemConfig.bind, false, 0, 979, Lang.LogTips.msd0003)  	
+			end
+		
+			if itemConfig.isBrocast and itemConfig.isBrocast == true then  
+				
+				if config.isShowLog and config.isShowLog == 1 then
+					UpdateChrAllDrawLog(config, actorName, itemConfig.id)  --更新全服抽奖记录 
+					local tempLogTab = {}
+					table.insert(tempLogTab, actorName)
+					table.insert(tempLogTab, itemConfig.id)
+					table.insert(allDrawLogTab, tempLogTab)  
+				end
+				
+				if itemConfig.isTopAward and itemConfig.isTopAward > 0 then 
+					--[[
+					if itemConfig.isTopAward == 1 then
+						itemName = string.format(Lang.Activity.msd0008, itemIdx)
+					elseif itemConfig.isTopAward == 2 then
+						itemName = string.format(Lang.Activity.msd0009, itemIdx)
+					elseif itemConfig.isTopAward == 3 then
+						itemName = string.format(Lang.Activity.msd0010, itemIdx) 
+					end
+					--]]				
+					
+					local broadCastStr = Lang.Activity.msd0015
+					if config.isBroadCastTip and config.isBroadCastTip == 1 then
+						broadCastStr = config.poolAwardTip or " "
+					end
+					System.broadcastTipmsg(string.format(broadCastStr, actorName, itemName, personAward), ttScreenCenter+ttChatWindow)
+				else
+					local broadCastStr = Lang.Activity.msd0011 
+					if config.isBroadCastTip and config.isBroadCastTip == 1 then
+						broadCastStr = config.awardTip or " "
+					end
+					System.broadcastTipmsg(string.format(broadCastStr, actorName, itemName), ttScreenCenter+ttChatWindow)
+				
+				end 
+			end 
+			
+			if config.isShowLog and config.isShowLog == 1 then
+				UpdateChrPersonDrawLog(config, actorId, itemConfig.id) --个人抽奖记录 
+				table.insert(perDrawLogTab, itemConfig.id) 
+			end
+	
+		end
+	end
+	
+	UpdateChrTurntableInfoData(actorId, consumeYb, config)	--更新玩家消费的元宝   
+	UpdateChrTurntableData(config.paramFile, config.turntableCount+1, 0, consumeYb, 1) --更新全服消费元宝
+	
+	if config.isAwardPool and config.isAwardPool == 1 then   
+		UpdateChrTurntableData(config.paramFile, config.turntableCount+1, 1, needBagCount*(config.addPoolYb), 1) --更新奖金池元宝 
+	end
+	
+	SendChrHorseTurntableInfo(sysarg, true,  config)
+	SendChrTurntableAwardInfo(sysarg, drawIdx, awardTab, config) 
+	
+	if config.isShowLog and config.isShowLog == 1 then  
+		SendChrPersonDrawLog(sysarg, config, opType, perDrawLogTab)  
+		SendChrAllDrawLog(sysarg, config, opType, allDrawLogTab)  	 
+	end
+	
+end 
+
+--产生抽到的奖品，awardTab奖品列表，paramTab已经产生过的奖品列表，param参数, config 整个配置
+function ProduceChrTurntableAward(awardTab, paramTab, param, config) 	 
+	local drawIdx = 0
+	for  i=1,10000 do
+		drawIdx = GetCfgRandomInfo(config.itemLists, paramTab) 
+	    if CheckChrHorseDrawAward(drawIdx, param, config) == true then  
+			break  
+		else
+			drawIdx = 0
+		end
+	end
+
+	if drawIdx <= 0 then
+		drawIdx = table.getn(config.itemLists) 
+	end
+	
+	local itemLists = config.itemLists
+	if drawIdx > 0 and drawIdx <= table.getn(itemLists) then
+		local itemList = itemLists[drawIdx].itemList
+		local awardIdx = GetChrTurntableItemIdx(drawIdx, param, config)
+		if awardIdx > 0 and awardIdx <= table.getn(itemList) then
+			table.insert(awardTab, drawIdx)
+			table.insert(awardTab, awardIdx)
+		else
+			table.insert(awardTab, drawIdx)
+			table.insert(awardTab, table.getn(itemList))
+		end
+		
+		--table.insert(paramTab, drawIdx)
+	end
+	
+	return drawIdx
+end
+
+--检测物品是否可以抽到
+function CheckChrHorseDrawAward(drawIdx, param, config)
+	if drawIdx <= 0 or drawIdx > table.getn(config.itemLists) then
+		return false
+	end 
+	
+	local awardConfig = config.itemLists[drawIdx]
+	if not awardConfig then
+		return false
+	end
+	
+	local totalConsumeYb = 0 
+	local turntableParamPtr = Ranking.getRanking(config.paramFile) 
+	if turntableParamPtr then
+		local ybItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, config.turntableCount + 1) 
+		if ybItemPtr then
+			totalConsumeYb = tonumber(Ranking.getSub(ybItemPtr, 0)) or 0
+			local awardPoolYb = tonumber(Ranking.getSub(ybItemPtr, 1)) or 0
+			if awardConfig.isLimitAwad and awardConfig.isLimitAwad > 0 then --是奖金池礼包才需要判断  
+				if awardPoolYb < config.limitAwardPool then --检测奖金池是否低于最低值
+					return false 
+				end
+
+			end
+
+		end 
+
+		local paramItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, drawIdx)
+		if paramItemPtr then
+			--获取玩家消费的元宝 
+			if GetChrTurntableData(config.infoFile, param, config.turntableCount+1, 1) >= awardConfig.startYb then 
+				local needYb = tonumber(Ranking.getSub(paramItemPtr, 0)) or 0
+				if awardConfig.ybCircle and awardConfig.ybCircle > 0 then
+					if totalConsumeYb >= needYb then 
+						local tempYbCircle = 0
+						if awardConfig.isLimitAwad and awardConfig.isLimitAwad > 0 then --是奖金池礼包才需要判断 是否需要改变元宝间隔
+							local limitValue = 0
+							local limitIdx = GetCfgRandomInfo(config.limitValueTab, nil) 
+							--print("limitIdx ",limitIdx)
+							if limitIdx > 0 and limitIdx <= table.getn(config.limitValueTab) then
+								limitValue = config.limitValueTab[limitIdx].value or 0
+							end 
+							tempYbCircle = awardConfig.ybCircle + limitValue
+							--print("tempYbCircle ",tempYbCircle)  
+						else
+							tempYbCircle = awardConfig.ybCircle
+						end
+						Ranking.setSub(paramItemPtr, 0, needYb+tempYbCircle)
+					else
+						return false
+					end
+				end
+				return true 
+			end
+		end
+	end
+	
+	return false
+end
+
+--获取抽到的物品序号
+function GetChrTurntableItemIdx(drawIdx, actorId, config)  
+	local awardIdx = 0
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile)
+	if not turntableInfoPtr then
+		return awardIdx
+	end
+	
+	local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	if not turntableInfoItemPtr then
+		return awardIdx
+	end
+	awardIdx = tonumber(Ranking.getSub(turntableInfoItemPtr, drawIdx-1)) or 0
+	return awardIdx
+end
+
+--增加的玩家的转盘信息     
+function AddPersonChrHorseTurntableInfo(sysarg, turntableIdx)   
+	local config = GetChrTurntableConfig(turntableIdx)
+	if not config then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile) 
+	if not turntableInfoPtr then
+		return nil
+	end
+	
+	local turntableItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	if turntableItemPtr then
+		return turntableItemPtr
+	end
+		
+	turntableItemPtr = Ranking.addItem(turntableInfoPtr, actorId, 0, false)
+	if not turntableItemPtr then
+		return nil
+	end
+	
+	local turntableListPtr = Ranking.getRanking(config.listFile)
+	if turntableListPtr then
+		local itemCount = Ranking.getRankItemCount(turntableListPtr)
+		if itemCount < config.turntableCount then 
+			return nil
+		end
+		
+		itemCount = config.turntableCount
+		for j = 1, itemCount do 
+			local itemPtr = Ranking.getItemPtrByIndex(turntableListPtr, j-1)
+			if itemPtr then
+				local itemIndex = Ranking.getId(itemPtr) 
+				itemIndex = math.fmod(itemIndex, j*config.itemCount)
+				Ranking.setSub(turntableItemPtr, j-1, itemIndex) 
+			end
+		end
+	end
+	
+	if config.isSaveName and config.isSaveName == 1 then   
+		local actorName = Actor.getName(sysarg) 
+		Ranking.setSub(turntableItemPtr, config.turntableCount, actorName) 
+	end
+	
+	return turntableItemPtr 
+	
+end
+
+--获取奖金池获得的奖励，和玩家获得的奖励 ,idx从0开始, drawCount 抽奖次数
+function GetChrAwardPool(itemConfig, rankFile, id, idx, drawCount, config)  
+	local poolAward = 0
+	local personAward = 0
+	
+	local totalPoolAward = GetChrTurntableData(rankFile, id, idx, 1)
+	if itemConfig.awardRate then
+		poolAward = math.floor( (totalPoolAward+ drawCount*(config.addPoolYb)) * itemConfig.awardRate ) 
+	end
+			
+	if itemConfig.personTax then 
+		personAward = math.floor( poolAward*(1-itemConfig.personTax) )  
+	else
+		personAward = poolAward
+	end
+	
+	UpdateChrTurntableData(rankFile, id, idx, -poolAward, 1)
+	
+	return poolAward, personAward
+	
+end
+
+--设置转盘文件数据，valType为1数值，2字符串
+function UpdateChrTurntableData(rankFile, id, idx, val, valType)
+	local chrTurntablePtr = Ranking.getRanking(rankFile)
+	if chrTurntablePtr then
+		local chrTurntableItemPtr = Ranking.getItemPtrFromId(chrTurntablePtr, id)
+		if chrTurntableItemPtr then
+			if valType == 1 then
+				local curVal = tonumber(Ranking.getSub(chrTurntableItemPtr, idx)) or 0
+				Ranking.setSub(chrTurntableItemPtr, idx, curVal+val)
+			else
+				Ranking.setSub(chrTurntableItemPtr, idx, val)
+			end
+		end
+	end
+end 
+
+--获取转盘文件数据，valType为1数值，2字符串, idx从0开始
+function GetChrTurntableData(rankFile, id, idx, valType)
+	local result = nil
+	local chrTurntablePtr = Ranking.getRanking(rankFile)
+	if chrTurntablePtr then
+		local chrTurntableItemPtr = Ranking.getItemPtrFromId(chrTurntablePtr, id)
+		if chrTurntableItemPtr then
+			if valType == 1 then
+				result = tonumber(Ranking.getSub(chrTurntableItemPtr, idx)) or 0 
+			else
+				result = Ranking.getSub(chrTurntableItemPtr, idx) or ""
+			end
+		end
+	else
+		if valType == 1 then
+			result = 0 
+		else
+			result = ""
+		end
+	end
+	
+	return result 
+end
+
+--更新玩家消费的元宝，如果需要根据积分排名也更新积分
+function UpdateChrTurntableInfoData(actorId, addConsumYb, config) 
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile)
+	if turntableInfoPtr then
+		local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+		if turntableInfoItemPtr then
+			local curYb = tonumber(Ranking.getSub(turntableInfoItemPtr, config.turntableCount+1)) or 0
+			Ranking.setSub(turntableInfoItemPtr, config.turntableCount+1, curYb + addConsumYb)
+			
+			if config.isRankPoint and config.isRankPoint == 1 then
+				local curPoint = Ranking.getPoint(turntableInfoItemPtr) 
+				local result = curPoint + addConsumYb*config.ybToPoint
+				Ranking.setItem(turntableInfoPtr, actorId, curPoint + addConsumYb*config.ybToPoint)
+			end
+		end
+	end
+end
+
+--产生个人转盘信息
+function ProducePersonChrTurntableList(sysarg, config)     
+	if not config or not config.itemLists then 
+		return 
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile)
+	if not turntableInfoPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	if not turntableInfoItemPtr then
+		return 
+	end
+		
+	local itemProduceTab = {}  
+	local itemIndex = 0
+	for i = 1, config.turntableCount do  
+		itemIndex = ProduceChrHorseTurntableItem(itemProduceTab, false, 0, config.itemLists[i])   
+		if itemIndex > 0 then
+			Ranking.setSub(turntableInfoItemPtr, i-1, itemIndex)
+		end
+	end
+end
+
+--初始化转盘相关信息,
+function InitChrHorseTurntable(config)  
+
+	local turntableParamPtr = Ranking.getRanking(config.paramFile)  
+	if turntableParamPtr then
+		if Ranking.getRankItemCount(turntableParamPtr) > 0 then 
+			return 
+		end 
+		
+		local itemPtr = Ranking.getItemPtrFromId(turntableParamPtr, config.turntableCount+1)  
+		if not itemPtr then 
+			itemPtr = Ranking.addItemExt(turntableParamPtr, config.turntableCount+1, 0, false)  --这里用个很大的数表示id
+		end
+		
+		if itemPtr then
+			if config.isAwardPool and config.isAwardPool == 1 then --初始化奖金池奖励
+				Ranking.setSub(itemPtr, 1, config.awardPool)
+			end
+		end
+	
+		local itemLists = config.itemLists
+		if not itemLists or table.getn(itemLists) <= 0 then
+			return 
+		end
+		
+		InitChrHorseTurntableParamData(config)
+		
+	end
+	
+	local turntableListPtr = Ranking.getRanking(config.listFile) 
+	if turntableListPtr then
+		if Ranking.getRankItemCount(turntableListPtr) > 0 then  
+			return 
+		end
+
+		ProduceChrHorseTurntableList(config)     
+	end
+	
+	--chrPersonDrawLog = {} 
+	--chrAllDrawLog = {}
+
+end
+
+--初始化转盘参数
+function InitChrHorseTurntableParamData(config)
+	local turntableParamPtr = Ranking.getRanking(config.paramFile) 
+	if not turntableParamPtr then 
+		return 
+	end
+	
+	local itemLists = config.itemLists
+	if not itemLists then
+		return 
+	end
+	
+	for i = 1, table.getn(itemLists) do 
+		local itemPtr = Ranking.getItemPtrFromId(turntableParamPtr, i)
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(turntableParamPtr, i, 0, false)
+		end 
+		if itemPtr then
+			if itemLists[i] then
+				Ranking.setSub(itemPtr, 0, itemLists[i].startYb)
+			end
+		end 
+	end
+end
+
+--产生转盘物品列表
+function ProduceChrHorseTurntableList(config)
+	if not config or not config.itemLists then 
+		return 
+	end
+	
+	local turntableListPtr = Ranking.getRanking(config.listFile) 
+	if not turntableListPtr then
+		return 
+	end
+		
+	local itemProduceTab = {}   
+	local itemIndex = 0
+	for i = 1, config.turntableCount do  
+		itemIndex = ProduceChrHorseTurntableItem(itemProduceTab, true, 0, config.itemLists[i])   
+		if itemIndex > 0 then
+			ProduceChrHorseTurntableListItem(turntableListPtr, config.itemCount * i + itemIndex)
+		end 
+	end
+	
+
+end
+
+--产生转盘物品序号
+--isAllProduce (true产生全服的，false个人刷新产生)，param(全服的传0，个人的传玩家id), checkFlag为0不需要检测测剩余个数，为1检测A区，为2检测B区
+function ProduceChrHorseTurntableItem(itemProduceTab, isAllProduce, param, storeConfig)  
+	local itemList = storeConfig.itemList
+	local itemIndex = GetCfgRandomInfo(storeConfig.itemList, nil)	 
+	if itemIndex <= 0 then
+		itemIndex = table.getn(storeConfig.itemList)
+	end
+	
+	return itemIndex
+	
+end
+
+
+
+--产生转盘列表的商品信息
+function ProduceChrHorseTurntableListItem(turntableListPtr, itemIndex)
+	local itemPtr = Ranking.getItemPtrFromId(turntableListPtr, itemIndex)
+	if not itemPtr then
+		itemPtr = Ranking.addItemExt(turntableListPtr, itemIndex, 0, false)
+	end 
+end 
+
+--发送转盘的数据, hFlag为false表示没有玩家购买信息
+function SendChrHorseTurntableInfo(sysarg, hFlag, config)
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile)
+	if not turntableInfoPtr then
+		return 
+	end
+	
+	local turntableListPtr = Ranking.getRanking(config.listFile)
+	if not turntableListPtr then
+		return 
+	end
+	
+	if Ranking.getRankItemCount(turntableListPtr) < config.turntableCount then
+		return 
+	end
+	
+	local turntableInfoItemPtr	= nil
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	if hFlag == true then
+		turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+		if not turntableInfoItemPtr then
+			return 
+		end		
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 108) 
+	if not pack then
+		return 
+	end
+	
+	local todayTime = System.getToday()
+	local curTime = System.getCurrMiniTime()
+	curTime = curTime - todayTime
+	local temp = math.floor(curTime / (config.refreshInterval)) 
+	local remainFreshTime = (temp + 1) * config.refreshInterval - curTime
+	
+	--local remainTime = System.getDouDisMallRemainTime() 
+	--DataPack.writeUInt(pack, remainTime) 
+	DataPack.writeByte(pack, config.turntableIdx)
+	DataPack.writeUInt(pack, remainFreshTime) 
+	
+	local itemCount = config.turntableCount
+	DataPack.writeByte(pack, config.turntableCount)
+	
+	local itemLists = config.itemLists
+	if itemCount > 0 then
+		for i = 1, itemCount do 
+			local itemIndex = 0
+			if hFlag == true then
+				itemIndex = tonumber(Ranking.getSub(turntableInfoItemPtr, i-1)) or 0 
+			else
+				local turntableListItemPtr = Ranking.getItemPtrByIndex(turntableListPtr, i-1)
+				if turntableListItemPtr then
+					itemIndex = Ranking.getId(turntableListItemPtr) 
+					itemIndex = math.fmod(itemIndex, i*config.itemCount)
+				end
+			end
+
+			if i > table.getn(itemLists) then
+				return 
+			end
+
+			local storeConfig = itemLists[i]
+			if itemIndex <= 0 or itemIndex > table.getn(storeConfig.itemList) then
+				return 
+			end
+
+			local itemConfig = storeConfig.itemList[itemIndex]
+			if not itemConfig then
+				return 
+			end
+		
+			DataPack.writeInt(pack, itemConfig.id)
+			DataPack.writeByte(pack,  itemConfig.count)    
+		end
+	end
+	
+	local awardPool = 0
+	if config.isAwardPool and config.isAwardPool == 1 then
+		awardPool = GetChrTurntableData(config.paramFile, config.turntableCount+1, 1, 1) or 0
+	end
+	DataPack.writeUInt(pack, awardPool) 
+	
+	local remainTime = 0
+	if config.isBackOpen and config.isBackOpen == 1 then 
+		if config.turntableIdx == System.getChrHorseTurntableIdx() then 
+			if System.getChrHorseTurntableFlag() == 1 then
+				remainTime = System.getChrHorseTurntableRemainTime(config.turntableIdx)
+			end
+		else
+			if config.turntableIdx == 3 then
+				if System.getSheepHundredActFlag(6) == true then
+					remainTime = System.getSheepHundredActRemainTime()
+				end
+			end 
+		end
+	end 
+	DataPack.writeUInt(pack, remainTime) 
+	
+
+	DataPack.flush(pack)
+
+end
+
+--发送积分信息
+function SendTurntablePointInfo(sysarg)
+	local consumeIdTab, consumeNameTab = GetBeforeFiveRank()
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local myRank = 0
+	for i = 1, table.getn(consumeIdTab) do 
+		if actorId == consumeIdTab[i] then
+			myRank = i 
+			break
+		end
+	end
+	local myPoint = GetMyTurntablePoint(actorId, nType)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 82)
+	if pack == nil then
+		return 
+	end
+	
+	DataPack.writeInt(pack, myPoint)
+	DataPack.writeByte(pack, myRank)
+	DataPack.writeByte(pack, table.getn(consumeNameTab)/2 )
+	
+	for i = 1, table.getn(consumeNameTab)/2 do 
+		DataPack.writeString(pack, consumeNameTab[2*(i-1)+1]) 
+		DataPack.writeInt(pack, consumeNameTab[2*(i-1)+2])
+	end
+	
+	DataPack.flush(pack)
+	
+end
+
+--发送抽到的奖励信息
+function SendChrTurntableAwardInfo(sysarg, drawIdx, awardTab, config) 
+	local pack = DataPack.allocPacket(sysarg, 145, 109)
+	if not pack then
+		return 
+	end
+
+	DataPack.writeByte(pack, config.turntableIdx)
+	DataPack.writeByte(pack, drawIdx)
+	
+	local count = 0
+	if table.getn(awardTab)/2 > 0 then
+		count =  table.getn(awardTab)/2
+	end
+
+	DataPack.writeByte(pack, count)
+	local itemLists = config.itemLists
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx]
+			local itemIdx = awardTab[2*(j-1)+2]
+			local itemConfig = storeConfig.itemList[itemIdx]
+			DataPack.writeInt(pack, itemConfig.id)
+			DataPack.writeByte(pack, itemConfig.count)
+		end
+	end
+	
+	DataPack.flush(pack)
+
+end
+
+--获取前面5名
+function GetChrBeforeFiveRank(config)
+	local resultIdTab = {}
+	local resultNameTab = {}
+	
+	local rankPtr = Ranking.getRanking(config.infoFile)
+	local rankConsume = config.accConsume 
+	
+	if rankPtr then
+		local itemCount = Ranking.getRankItemCount(rankPtr)
+		if itemCount > config.accRank then
+			itemCount = config.accRank
+		end
+	
+		for i = 1, itemCount do 
+			local itemPtr = Ranking.getItemPtrByIndex(rankPtr, i-1)
+			if itemPtr then
+				local id = Ranking.getId(itemPtr)
+				local point = Ranking.getPoint(itemPtr)
+				local name = Ranking.getSub(itemPtr, config.turntableCount)
+				if point >= rankConsume then
+					table.insert(resultIdTab, id)
+					table.insert(resultNameTab, name)
+					table.insert(resultNameTab, point) 
+				end
+			end
+		end
+	end
+	
+	return resultIdTab, resultNameTab
+
+end
+
+--获取自己的积分
+function GetMyChrTurntablePoint(actorId, config) 
+	local myPoint = 0
+	local rankPtr = Ranking.getRanking(config.infoFile) 
+	
+	if rankPtr then
+		local itemPtr = Ranking.getItemPtrFromId(rankPtr, actorId)
+		if itemPtr then
+			myPoint = Ranking.getPoint(itemPtr)
+		end
+	end
+	
+	return myPoint
+end
+
+
+--获取转盘列表数据
+function GetChrTurntableList(config)  
+	local turntableList = {}  	
+	local turntableListPtr = Ranking.getRanking(config.listFile)
+	if not turntableListPtr then
+		return turntableList
+	end	
+	
+	for i = 1, config.turntableCount do 
+		local turntableListItemPtr = Ranking.getItemPtrByIndex(turntableListPtr, i-1)
+		if turntableListItemPtr then
+			local itemIdx = Ranking.getId(turntableListItemPtr)
+			itemIdx = math.fmod(itemIdx, i*config.itemCount)
+			table.insert(turntableList, itemIdx)
+				
+		end			
+	end
+
+	return turntableList
+
+end
+
+--系统刷新转盘物品
+function OnRefreshChrTurntable(strIdx)  
+	local turntableIdx = tonumber(strIdx)
+	local config = GetChrTurntableConfig(turntableIdx)
+	if not config then
+		return  
+	end
+	
+	if config.isBackOpen and config.isBackOpen == 1 then 
+		if config.turntableIdx == System.getChrHorseTurntableIdx() then 
+			if System.getChrHorseTurntableFlag() ~= 1 then
+				return 
+			end
+		else
+			if config.turntableIdx == 3 then
+				if System.getSheepHundredActFlag(6) ~= true then
+					return 
+				end
+			end 
+		end
+		
+	end 
+	
+	local turntableListPtr = Ranking.getRanking(config.listFile)
+	if not turntableListPtr then
+		return 
+	end
+	
+	Ranking.clearRanking(turntableListPtr) 
+	ProduceChrHorseTurntableList(config) 
+	
+	if Ranking.getRankItemCount(turntableListPtr) > 0 then
+		ResetChrTurntableInfo(false, turntableIdx) 
+	end
+
+end
+
+--重置, isReset=false(定时刷新), isReset=true(零点重置), turntableIdx转盘序号，从1开始
+function ResetChrTurntableInfo(isReset, turntableIdx) 
+
+	local config = GetChrTurntableConfig(turntableIdx)
+	if not config then
+		return 
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile)   
+	if not turntableInfoPtr then
+		return 
+	end 
+	
+	local turntableList = GetChrTurntableList(config) 
+	if table.getn(turntableList) <= 0 then
+		return 
+	end
+	
+	local rankCount = Ranking.getRankItemCount(turntableInfoPtr)  
+	for i = 1, rankCount do 
+		local turntableInfoItemPtr = Ranking.getItemPtrByIndex(turntableInfoPtr, i-1)
+		if turntableInfoItemPtr then 
+			for j = 1, config.turntableCount do 
+				if table.getn(turntableList) >= j then
+					Ranking.setSub(turntableInfoItemPtr, j-1, turntableList[j])
+				else
+					Ranking.setSub(turntableInfoItemPtr, j-1, 0)
+				end
+			end
+			
+			local actorId = Ranking.getId(turntableInfoItemPtr)
+			local actorPtr = System.getEntityPtrByActorID(actorId)
+			if actorPtr then
+				SendChrHorseTurntableInfo(actorPtr, true, config)   
+			end
+			
+		end
+		
+	end
+end
+
+--活动结束发排行奖励
+function OnGiveChrTurntableRankAward(config)
+	local resultIdTab = {}
+	local resultNameTab = {}
+	local resultIdTab, resultNameTab = GetBeforeFiveRank()  
+	
+	local title = config.accAwards.awardTips
+	
+	for i = 1, table.getn(resultIdTab) do 
+		local awardIdx, needBagCount = GetChrTurntableRankAwardIdx(i, false, config)
+		if awardIdx > 0 then
+			local str = string.format(title, i)
+			local actorId = resultIdTab[i]
+			System.addOfflineMsg(actorId, 67, str, 0, awardIdx, needBagCount)  
+			
+			local name = "-"
+			if table.getn(resultNameTab) >= 2*i then
+				name = resultNameTab[2*(i-1)+1]
+			end
+			System.sendCommonLog(973, actorId, name, i, 0, 0, Lang.LogTips.mgq105)
+		end
+	end
+	
+	ClearChrTurntableData(config.turntableIdx)  
+
+end 
+
+--领取奖励
+function OnGetChrTurntableRankAward(sysarg, args)
+	local nAwardIdx = args[2]
+	local nNeedBagCount = args[3]
+	
+	if Item.getBagEmptyGridCount(sysarg) < nNeedBagCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mgq0104, nNeedBagCount), ttFlyTip)
+		return
+	end
+	
+	local awards = ChristmasHorseTurntableCfg.accAwards
+	if nAwardIdx > 0 and nAwardIdx <= table.getn(awards or {}) then
+		local awardConfig = awards[nAwardIdx]
+		Actor.giveAward(sysarg, awardConfig.type, awardConfig.id, awardConfig.count, awardConfig.quality, awardConfig.strong, awardConfig.bind,0,973, Lang.LogTips.mgq104)
+	end
+
+end
+
+--获取奖励序号
+function GetChrTurntableRankAwardIdx(rankIdx, isReverser, config) 
+	local awardIdx = 0
+	local needBagCount = 0
+	local awards = config.accAwards
+	
+	if awards then
+		if isReverser and isReverser == true then
+			for k = table.getn(awards.awardIndexs), 1, -1 do
+				if rankIdx >= awards.awardIndexs[k].beginVal and rankIdx >= awards.awardIndexs[k].endVal then
+					awardIdx = k
+					break
+				end
+			end
+		else
+			for k, v in ipairs(awards.awardIndexs or {}) do
+				if rankIdx >= v.beginVal and  rankIdx <= v.endVal then
+					awardIdx = k
+					break
+				end
+			end
+		end
+	end
+	
+	local needBagCount = 0
+	if awardIdx > 0 and awardIdx <= table.getn(awards) then
+		needBagCount = awards[awardIdx].needBagCount
+	end
+	
+	return awardIdx, needBagCount
+	
+end
+
+--清除数据
+function ClearChrTurntableData(turntableIdx) 
+	local config = GetChrTurntableConfig(turntableIdx)
+	if not config then
+		return 
+	end
+	
+	local turntableListPtr = Ranking.getRanking( config.listFile )		
+	if turntableListPtr then
+		Ranking.clearRanking(turntableListPtr)
+	end
+	
+	local turntableParamPtr = Ranking.getRanking( config.paramFile )		
+	if turntableParamPtr then
+		Ranking.clearRanking(turntableParamPtr)
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking( config.infoFile )		
+	if turntableInfoPtr then
+		Ranking.clearRanking(turntableInfoPtr)
+	end
+	
+	ClearChrAllDrawLog(config) --清除全服抽奖记录
+	ClearChrPersonDrawLog(config) --清除个人抽奖记录
+
+end
+
+
+--下发全服抽奖的记录  table.insert(tempTab, actorName) 
+function SendChrAllDrawLog(sysarg, config, logType, allDrawLogTab)
+	local count = table.getn(chrAllDrawLog)   
+	if count <= 0 then
+		return
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 110) 
+	if not pack then
+		return 
+	end
+	
+	DataPack.writeByte(pack, config.turntableIdx)
+	DataPack.writeByte(pack, logType)
+	if logType == 1 then  --发全部
+		local perActTempTab = GetChrAllDrawLog(config)   
+		if table.getn(perActTempTab.logTab or {}) > 0 then
+			DataPack.writeByte(pack, table.getn(perActTempTab.logTab))
+			for i = 1, table.getn(perActTempTab.logTab) do
+				local tmpTab = perActTempTab.logTab[i]
+				DataPack.writeString(pack, (tmpTab[1] or ""))
+				DataPack.writeInt(pack, (tmpTab[2] or 0)) 
+			end
+		else
+			DataPack.writeByte(pack, 0)
+		end
+		DataPack.flush(pack)
+	else
+		local addCount = table.getn(allDrawLogTab) or 0  
+		DataPack.writeByte(pack, addCount)
+		if addCount > 0 then
+			for i = 1, addCount do  
+				local tmpTab = allDrawLogTab[i]
+				DataPack.writeString(pack, tmpTab[1] or " ")  
+				DataPack.writeInt(pack, tmpTab[2]) 
+			end
+		end
+		DataPack.flush(pack)		
+	end
+	 
+end
+ 
+--下发单个抽奖的记录
+function SendChrPersonDrawLog(sysarg, config, logType, perDrawLogTab)  
+	local count = table.getn(chrPersonDrawLog)  
+	if count <= 0 then 
+		return
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 111) 
+	if not pack then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	DataPack.writeByte(pack, config.turntableIdx)
+	DataPack.writeByte(pack, logType)
+	if logType == 1 then --发全部
+		local perActorTempTab = GetChrPersonDrawLog(config, actorId)
+		if table.getn(perActorTempTab.logTab or {}) > 0 then	
+			DataPack.writeByte(pack, table.getn(perActorTempTab.logTab))
+			for i = 1, table.getn(perActorTempTab.logTab) do
+				DataPack.writeInt(pack, (perActorTempTab.logTab[i] or 0)) 
+			end
+		else
+			DataPack.writeByte(pack, 0)   
+		end
+		DataPack.flush(pack)
+	else 
+		local addCount = table.getn(perDrawLogTab) or 0
+		DataPack.writeByte(pack, addCount)
+		if addCount > 0 then
+			for k, v in ipairs(perDrawLogTab) do 
+				DataPack.writeInt(pack, v)
+			end
+		end
+		DataPack.flush(pack)
+	end
+			
+end
+
+
+--chrAllDrawLog = { {idx = 1, logTab = {{name, itemid},}},  }
+--更新全服抽奖记录
+function UpdateChrAllDrawLog(config, actorName, itemId)  
+	local perActTempTab = {} --每个活动的全服抽奖记录
+	local isExit = false
+	for k, v in ipairs(chrAllDrawLog) do
+		if v.idx == config.turntableIdx then
+			perActTempTab = v
+			isExit = true
+			break
+		end
+	end
+	
+	if isExit == false then
+		perActTempTab.idx = config.turntableIdx
+		perActTempTab.logTab = {}
+		table.insert(chrAllDrawLog, perActTempTab) 	
+	end
+	
+	local tempTab = {}
+	table.insert(tempTab, actorName)
+	table.insert(tempTab, itemId)
+	table.insert(perActTempTab.logTab, tempTab)	
+	if table.getn(perActTempTab.logTab) > config.maxLogCount then
+		table.remove(perActTempTab.logTab, 1)
+	end
+end
+
+--清除全服抽奖记录 
+function ClearChrAllDrawLog(config)
+	for k, v in ipairs(chrAllDrawLog) do
+		if v.idx == config.turntableIdx then  
+			v.logTab = {}
+			break
+		end
+	end
+end
+
+
+--获取全服抽奖记录
+function GetChrAllDrawLog(config) 
+	local perActTempTab = {} --每个活动的全服抽奖记录 
+	local isExit = false
+	for k, v in ipairs(chrAllDrawLog) do
+		if v.idx == config.turntableIdx then
+			perActTempTab = v
+			isExit = true
+			break
+		end
+	end
+	
+	return perActTempTab
+end
+
+--chrPersonDrawLog = { {idx = 1, val = { {id = actorId, logTab = {itemid,}}, }}},   }
+--更新个人抽奖记录
+function UpdateChrPersonDrawLog(config, actorId, itemId)
+	local perActTempTab = {} --每个活动的抽奖记录
+	local perActorTempTab = {} --每个玩家的抽奖记录
+	local isExit = false
+
+	for k, v in ipairs(chrPersonDrawLog) do
+		if v.idx == config.turntableIdx then
+			perActTempTab = v
+			isExit = true
+			break
+		end
+	end
+	
+	if isExit == false then
+		perActTempTab.idx = config.turntableIdx
+		perActTempTab.val = {}
+		table.insert(chrPersonDrawLog, perActTempTab)
+	end
+	
+	local isActorExit = false 
+	for k, v in ipairs(perActTempTab.val) do
+		if v.id == actorId then
+			perActorTempTab = v
+			isActorExit = true 
+			break
+		end
+	end
+
+	if isActorExit == false then
+		perActorTempTab.id = actorId
+		perActorTempTab.logTab = {}
+		table.insert(perActTempTab.val, perActorTempTab)
+	end
+					
+	table.insert(perActorTempTab.logTab, itemId)
+	if table.getn(perActorTempTab.logTab) > config.maxLogCount then
+		table.remove(perActorTempTab.logTab, 1)  
+	end
+	
+end
+
+--清除个人记录
+function ClearChrPersonDrawLog(config)
+	for k, v in ipairs(chrPersonDrawLog) do
+		if v.idx == config.turntableIdx then
+			v.val = {}
+			break
+		end
+	end
+end
+
+--获取个人抽奖记录
+function GetChrPersonDrawLog(config, actorId) 
+	local perActTempTab = {} --每个活动的抽奖记录
+	local perActorTempTab = {} --每个玩家的抽奖记录
+	local isExit = false
+	for k, v in ipairs(chrPersonDrawLog) do
+		if v.idx == config.turntableIdx then
+			perActTempTab = v
+			isExit = true
+			break
+		end
+	end
+	
+	if isExit == true then
+		for k, v in pairs(perActTempTab.val) do
+			if v.id == actorId then
+				perActorTempTab = v  
+				break
+			end
+		end
+	end
+	
+	return perActorTempTab or {} 
+end
+
+
+function CallChrTurntableInit()
+	local config = GetChrTurntableConfig(1)
+	if not config then
+		return 
+	end
+	
+	InitChrHorseTurntable(config)  
+end
+
+function CallClearChrTurntable()
+	ClearChrTurntableData(2)
+end
+
+--后台开启调用用
+function OpenChrHorseTurntable(idx)
+	idx = tonumber(idx)
+	local config = GetChrTurntableConfig(idx)
+	if not config then
+		return 
+	end
+	
+	local playerList = LuaHelp.getAllActorList()
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				if idx == 1 then
+					SendChrHorseTurntableOpenFlag(player, 1)
+				end
+			end
+		end
+	end
+end
+--后台关闭调用
+function CloseChrHorseTurntable(idx)
+	idx = tonumber(idx)
+	local config = GetChrTurntableConfig(idx)
+	if not config then
+		return 
+	end
+	
+	local playerList = LuaHelp.getAllActorList()
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				if idx == 1 then
+					SendChrHorseTurntableOpenFlag(player, 0)
+				end
+			end
+		end
+	end
+	
+	ClearChrTurntableData(idx)
+	
+end
+
+--发送后台开启圣诞转盘活动图标的标记
+function SendChrHorseTurntableOpenFlag(sysarg, flag) 
+	local pack = DataPack.allocPacket(sysarg, 145, 118)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end
+
+--登陆处理,用于后台开启的
+function ChrHorseTurntableLoginHandle(sysarg)
+	for k, v in ipairs(TurntableFileConfig or {}) do 
+		if v.isBackOpen and v.isBackOpen == 1 then
+			if System.getChrHorseTurntableIdx() == v.turntableIdx then
+				if System.getChrHorseTurntableFlag() == 1 then
+					SendChrHorseTurntableOpenFlag(sysarg, 1)
+				end
+				break
+			end
+		end
+	end
+end

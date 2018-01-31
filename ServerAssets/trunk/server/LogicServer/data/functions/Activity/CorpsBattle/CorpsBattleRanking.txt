@@ -1,0 +1,32 @@
+--lua script
+--战队竞技 积分 排行处理
+
+--#include "data\config\activityconfig\corpsBattle\CorpsBattleRank.txt" once
+
+--积分排行榜初始化
+function CorpsBattleRankInit()
+	local RankNameList = Ranking.getRanking(CorpsBattleRank.CorpsScoreName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(CorpsBattleRank.CorpsScoreName,1000,1)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,CorpsBattleRank.CorpsScoreRanking)
+			
+			if isLoad == false then
+				Ranking.addColumn(RankNameList,Lang.Activity.c00021)
+				Ranking.addColumn(RankNameList,Lang.Activity.c00022)
+				Ranking.addColumn(RankNameList,Lang.Activity.c00023)
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function CorpsBattleRankFinality()
+	local ranking = Ranking.getRanking(CorpsBattleRank.CorpsScoreName)
+	if ranking then
+		Ranking.save(ranking,CorpsBattleRank.CorpsScoreRanking)
+	end
+end
+
+table.insert(InitFnTable,CorpsBattleRankInit)
+table.insert(FinaFnTable,CorpsBattleRankFinality)

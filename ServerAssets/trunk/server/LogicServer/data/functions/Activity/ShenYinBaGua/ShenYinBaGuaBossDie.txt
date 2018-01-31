@@ -1,0 +1,12 @@
+--#include "data\functions\Activity\ShenYinBaGua\ShenYinBaGua.txt" once
+--#include "data\config\activityconfig\ShenYinBaGua\ShenYinBaGuaConfig.txt" once 
+
+MonDieDispatcher.ShenYinBaGuaBossDie = function (monster,sysarg,monId)
+	OnShenYinBaGuaBossDie( monster,sysarg,monId )
+end
+
+
+--注册boss
+for idx, bossId in ipairs(ShenYinBaGuaConfig.bossid) do
+	--MonDieDispatcher.register(bossId, MonDieDispatcher.ShenYinBaGuaBossDie)
+end

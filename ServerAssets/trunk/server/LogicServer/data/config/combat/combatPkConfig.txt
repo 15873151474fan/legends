@@ -1,0 +1,57 @@
+--pk数据配置
+--[[
+	人物的
+	public var name:String;        //名字
+			public var body:int;           //外观
+			public var weapon:int;         //武器
+			public var maxHp:int;          //最大血量
+			
+			public var DressInlayEffType: int;	//衣服镶嵌效果类型     类型在EquipEffect中定义
+			public var WeaponInlayEffType: int;	//武器镶嵌效果类型
+			public var DressInlayEffId: int;    //衣服特效id
+			public var WeaponInlayEffId: int;   //武器特效id
+	动作的
+	/**
+			 * 这里限定都是一人一刀过,即当前数据指的是当前指定的角色的动作 
+			 */		
+			public var isMe:Boolean;       //是否自己
+			public var skillId:int;        //使用的技能,为0的时候用普通攻击动作
+			public var bodyEffect:int;     //对方人物的身上特效
+			public var hpValue:int;        //对方人物hp变化,正数为减血,负数为加血 0为miss
+]]
+
+CombatPkData =
+{
+	mannerRate = 3,			--气势系数
+	skillRate = 5,			--技能系数
+	battleRate = 0.28284,		--战力系数
+
+	randRate = 50,			--随机概率
+	baseRate = 75,			--基本概率
+
+	critRate = 5,			--暴击系数
+
+	constNum = 1.5,			--1.5次方
+
+	skills = 
+	{	--[[
+			enVocNone =0,    //无职业或者任何职业
+			enVocJianzong =1, // 废弃
+			enVocQizong =2 ,   //华山
+
+			enVocLinghua =3 , //废弃
+			enVocSiming =4, //水月
+			
+			enVocYijin =5, //废弃
+			enVocXisui =6,//废弃
+			
+			enVocJianshi=7 ,//御神
+			enVocRenzhe =8,//忍煞
+		]]
+
+		--一次对应职业的技能id 和对方身上的效果编号
+		[1] = {{2,35},{3,52},{4,35},{6,47},},
+		[2] = {{7,7},{9,66},{11,51},{16,73},},
+		[3] = {{19,59},{19,77},{20,29},{20,29},},
+	},
+}

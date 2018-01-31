@@ -1,0 +1,59 @@
+﻿{
+	id = 552,
+	name = Lang.Quest.q01099,
+	parentid = 551,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q01100,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00024,  
+    npc = Lang.EntityName.n00067,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00051, 
+	npc = Lang.EntityName.n00015,
+  },
+
+  target =
+  {
+       { type = 1, id = 707, count = 8,location={ sceneid=24,entityName=Lang.EntityName.m00158} },  --【巨龟肉】*10
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 347362,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 46791,  bind = true, job = 0, sex = -1, group=0 },
+ },
+  --任务条件表
+  conds =
+  {
+        { type = 0, id = 0,count = 30 }, 
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t01863,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t01865,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t01866,
+  }, 
+  
+  --用于完成任务后的从背包里删除任务物品
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {707, 8}, 
+},                             

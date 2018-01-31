@@ -1,0 +1,278 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\christmas\christmasServer\charistmas2.txt" once
+--#include "data\config\christmas\christmasServer\charistmas3.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--圣诞元旦活动庆典
+function ChristmasNewYearMan_main(sysarg)
+	local nYear,nMon,nDay = System.getDate(0,0,0)
+	local dlgStr = ""
+	--if nMon == 12 then
+	--	dlgStr = string.format("%s<#BL%s/@GetChristmasGift,1>", dlgStr, Lang.Activity.cr0032)
+	if System.isInDateRange(unpack(CharistmasMan.timeRang)) == true then
+		dlgStr = string.format("%s<#BL%s/@GetChristmasGift,2>", dlgStr, Lang.Activity.cr0033)
+	end
+	dlgStr = string.format("%s<#BL%s/@ChristmasMan_main>", dlgStr, Lang.Activity.cr0003)
+	dlgStr = string.format("%s<#BL%s/@HandUpChristmasThree>", dlgStr, Lang.Activity.cr0015)
+
+	dlgStr = string.format("%s<#BL%s/@ChristmasYearDes>", dlgStr, Lang.Activity.cr0025)
+	
+	dlgStr = dlgStr.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+
+	return dlgStr
+end
+
+--免费领取圣诞元旦礼盒
+function GetChristmasGift(sysarg,index)
+	-- local nIndex = tonumber(index)
+
+	-- local sysVar = Actor.getStaticVar(sysarg)
+	-- if sysVar.GetChristmasGiftTime == nil then
+	-- 	sysVar.GetChristmasGiftTime = 0
+	-- end
+	
+	-- if sysVar.GetChristmasGiftTime > System.getToday() then
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.cr0039, ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- if Actor.checkActorLevel(sysarg,CharistmasMan.minLev) == false then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cr0040,CharistmasMan.minLev), ttFlyTip)
+	-- 	return
+	-- end
+
+	-- if Awards.CheckBagGridCount(sysarg,CharistmasMan.GetAward) == true then
+	-- 	Awards.Give(sysarg,CharistmasMan.GetAward,942,Lang.Activity.cr0032,0)
+	-- 	sysVar.GetChristmasGiftTime = System.getCurrMiniTime() + 5
+	-- end
+
+end
+
+--活动描述
+function ChristmasYearDes(sysarg)
+	local dlgStr = Lang.Activity.cr0034
+
+	dlgStr = dlgStr.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+
+	return dlgStr
+end
+
+--圣诞老人的礼物
+function ChristmasMan_main(sysarg)
+	local str = ""
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return str
+	end
+	sysVar.TotalChristmasScore = sysVar.TotalChristmasScore or 0
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+
+	local nScore = 0
+	local pRank = Ranking.getRanking("Charistmas2.txt")
+	if pRank then
+		local pItem = Ranking.getItemPtrFromId( pRank, nActorId )
+		if pItem then
+			nScore = Ranking.getPoint(pItem)
+		end
+	end
+	
+	local nRanking = 0
+	local mRank = Ranking.getRanking("CharistmasLast.txt")
+	if mRank then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local mItem = Ranking.getItemPtrFromId( mRank, nActorId )
+		if mItem then
+			nRanking = Ranking.getIndexFromPtr(mItem) + 1
+		end
+	end
+
+	str = string.format(Lang.Activity.cr0004, sysVar.TotalChristmasScore,nScore,nRanking)
+	
+	if System.isInDateRange(unpack(CharistmasMan.timeRang)) == true then
+		str = string.format("%s<#BL%s/@UpChristmasGiftOp,1>", str, Lang.Activity.cr0005)  --<圣诞帽子>
+		str = string.format("%s<#BL%s/@UpChristmasGiftOp,2>", str, Lang.Activity.cr0006)  --<圣诞袜子>
+		str = string.format("%s<#BL%s/@UpChristmasGiftOp,3>", str, Lang.Activity.cr0007)  --<圣诞鞋子>
+		str = string.format("%s<#BL%s/@UpChristmasGiftOp,4>", str, Lang.Activity.cr0008)  --<圣诞糖果棒>
+	end
+
+	str = string.format("%s<#BL%s/@ShowGetLastChristmas>", str, Lang.Activity.cr0014)  --<领取奖励>
+
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+--提交迷路麋鹿
+function HandUpChristmasThree(sysarg)
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if dVar.ChristmasHandle == nil or dVar.ChristmasHandle == 0 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.cr0016, ttFlyTip)
+		return
+	end
+	
+	local nCount = {}
+	local nNeedBag = 0
+	for i=1,table.getn(ChristmasThree.groupAwards) do
+		local nMaxCount = 0
+		for j=1,table.getn(ChristmasThree.groupAwards[i]) do
+			nMaxCount = nMaxCount + ChristmasThree.groupAwards[i][j].nRate
+		end
+		local nRate = System.getRandomNumber(nMaxCount)
+		local CurRate = 0
+		for j=1,table.getn(ChristmasThree.groupAwards[i]) do
+			CurRate = CurRate + ChristmasThree.groupAwards[i][j].nRate
+			if nRate <= CurRate then
+				nCount[i] = j
+				if ChristmasThree.groupAwards[i][j].type == 0 then
+					nNeedBag = nNeedBag + Item.getAddItemNeedGridCount(sysarg,ChristmasThree.groupAwards[i][j].id,ChristmasThree.groupAwards[i][j].count)
+				end
+				break
+			end
+		end
+	end
+	
+	local myBag = Item.getBagEmptyGridCount(sysarg)
+	if myBag < nNeedBag then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cr0020, ttFlyTip)
+		return
+	end
+	
+	for i=1,table.getn(ChristmasThree.groupAwards) do
+		if nCount[i] ~= nil then
+			local nConfig = ChristmasThree.groupAwards[i][nCount[i]]
+			if nConfig then
+				Actor.giveAward(sysarg,nConfig.type,nConfig.id,nConfig.count,nConfig.quality,nConfig.strong,nConfig.bind,0,942,Lang.Activity.cr0015)
+			end
+		end
+	end
+
+	Fuben.clearMonster(dVar.ChristmasHandle) --清除迷路麋鹿
+	dVar.ChristmasHandle = nil
+end
+
+--提交礼物
+function UpChristmasGiftOp(sysarg,nIndex)
+	local index = tonumber(nIndex)
+	local nConfig = CharistmasMan.AllAwards[index]
+	if nConfig == nil then return end
+
+	local nCount = Actor.getItemCount(sysarg,nConfig.nItemId)
+	if nCount <= 0 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cr0009,Item.getItemName(nConfig.nItemId)), ttFlyTip)
+		return 
+	end
+	
+	local sysVar = System.getStaticVar()
+	sysVar.TotalChristmasScore = sysVar.TotalChristmasScore or 0
+	
+	if Actor.removeItem(sysarg,nConfig.nItemId,nCount) == nCount then
+		if Awards.CheckBagGridCount(sysarg,nConfig.awards) == true then
+			for i=1,table.getn(nConfig.awards) do
+				Actor.giveAward(sysarg,nConfig.awards[i].type,nConfig.awards[i].id,nConfig.awards[i].count * nCount,nConfig.awards[i].quality,
+					nConfig.awards[i].strong,nConfig.awards[i].bind,0,942,Lang.Activity.cr0013)
+			end
+			--Awards.Give(sysarg,nConfig.awards,942,Lang.Activity.cr0013,0)
+		end
+
+		local nAllScore = nCount * nConfig.awardScore
+		
+		local nMod1 = math.floor(sysVar.TotalChristmasScore / 1000)
+		sysVar.TotalChristmasScore = sysVar.TotalChristmasScore + nAllScore
+		local nMod2 = math.floor(sysVar.TotalChristmasScore / 1000)
+		if nMod2 > nMod1 then
+			for i=1,table.getn(CharistmasMan.BossMonster) do
+				local hScene = Fuben.getSceneHandleById(CharistmasMan.BossMonster[i].nSceneId, 0)
+				Fuben.createMonsters(hScene,CharistmasMan.BossMonster[i].nMonsterID,CharistmasMan.BossMonster[i].posX,CharistmasMan.BossMonster[i].posX,
+					CharistmasMan.BossMonster[i].posY,CharistmasMan.BossMonster[i].nCount,CharistmasMan.BossMonster[i].nLiveTime)
+			end
+
+			System.broadcastTipmsg(string.format(Lang.Activity.cr0030,sysVar.TotalChristmasScore), 2+128)
+		end
+
+		local pRank = Ranking.getRanking("Charistmas2.txt")
+		if pRank then
+			local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+			local pItem = Ranking.getItemPtrFromId( pRank, nActorId )
+			if pItem == nil then
+				pItem = Ranking.addItem(pRank,nActorId,nAllScore)
+			else
+				Ranking.updateItem(pRank,nActorId,nAllScore)
+			end
+
+			if pItem then
+				Ranking.setSub(pItem,1,Actor.getName(sysarg))
+			end
+		end
+
+		return ChristmasMan_main(sysarg)
+	end
+end
+
+function ShowGetLastChristmas(sysarg)
+	local str = Lang.Activity.cr0035
+	local pRank = Ranking.getRanking("CharistmasLast.txt")
+	if pRank then
+		local nCount = Ranking.getRankItemCount(pRank)
+		if nCount > 30 then
+			nCount = 30
+		end
+		for i=0,nCount-1 do
+			local pItem = Ranking.getItemFromIndex(pRank,i)
+			if pItem then
+				local str1 = string.format(Lang.Activity.cr0036,i+1,Ranking.getSub(pItem,1))
+				str = str..str1
+			end
+		end
+	end
+
+	str = str.."<#BL"..Lang.Activity.cr0014.."/@GetLastChristAward>"
+
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+
+end
+
+--领取昨天的奖励
+function GetLastChristAward(sysarg)
+	local nRanking = 0
+	local mRank = Ranking.getRanking("CharistmasLast.txt")
+	if mRank then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local mItem = Ranking.getItemPtrFromId( mRank, nActorId )
+		if mItem then
+			nRanking = Ranking.getIndexFromPtr(mItem) + 1
+			local nState = tonumber(Ranking.getSub(mItem,0))
+			if nState == 1 then		--已领取奖励
+				Actor.sendTipmsg(sysarg, Lang.Activity.cr0011, ttFlyTip)
+				return
+			end
+			
+			local nIndex = 0
+			for i=1,table.getn(CharistmasMan.rankAward) do
+				if nRanking >= CharistmasMan.rankAward[i].rank[1] and nRanking <= CharistmasMan.rankAward[i].rank[2] then
+					nIndex = i
+					break
+				end
+			end
+
+			if nIndex <= 0 then
+				Actor.sendTipmsg(sysarg, Lang.Activity.cr0010, ttFlyTip)
+				return
+			end
+
+			local nConfig = CharistmasMan.rankAward[nIndex]
+			if nConfig then
+				if Awards.CheckBagGridCount(sysarg,CharistmasMan.rankAward[nIndex].awards) == true then
+					Awards.Give(sysarg,CharistmasMan.rankAward[nIndex].awards,942,Lang.Activity.cr0012,0)
+					Ranking.setSub(mItem,0,"1")
+				end
+			end
+		else
+			Actor.sendTipmsg(sysarg, Lang.Activity.cr0010, ttFlyTip)
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.cr0010, ttFlyTip)
+	end
+end
+

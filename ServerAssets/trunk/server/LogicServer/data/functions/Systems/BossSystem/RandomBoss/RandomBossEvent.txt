@@ -1,0 +1,72 @@
+﻿--[[狩猎BOSS的事件]]
+
+--#include "data\config\BossSystem\RandomBossConfig.txt"  once
+
+--当狩猎BOSS死亡 
+function OnRandomBossDie( monster,sysarg,monId )
+  
+  local BossID = 0
+   
+  for i = 1 , #RandomBossConfig do
+    if RandomBossConfig[i].MonID == monId then
+       BossID = i
+    end 
+  end
+  
+  local val = GetRandomBossDyanmicVar(BossID)
+  val.Alive = 0
+  RandomBossImp.RegRandomBossAutoRun(BossID)
+  BossPrint(string.format("狩猎BOSS : %d MonID:%d , 死亡",BossID,monId))
+ 
+  
+  local Boss = RandomBossConfig[BossID]
+  if not Boss then return end
+  local sMsg = Boss.DieNoticeMsg  
+  if sMsg ~= nil then
+    sMsg = string.format(sMsg,Actor.getName(sysarg))
+  end
+  System.broadcastTipmsg(sMsg,ttScreenCenter + ttChatWindow) 
+  local rate = System.getRandomNumber(100)
+  if RandomBossConfig.DieMobMonRate == nil then
+    print(string.format("狩猎BOSS:%d ,没有配置 DieMobMonRate 死亡刷狩猎小怪的概率"),BossID)
+    return 
+  end 
+  
+  if RandomBossConfig.DieMobMonRate >= rate then
+  
+     local SID = Actor.getSceneId(monster) 
+     local X = Actor.getIntProperty( monster ,PROP_ENTITY_POSX)
+     local Y = Actor.getIntProperty( monster ,PROP_ENTITY_POSY) 
+     local Scene = Fuben.getSceneHandleById(SID,0)
+     
+     local nCount = 0
+     --数量 * 3是为了 防止有时候随机的坐标点可能刷不出来 
+     for i = 1 , (Boss.MonCount * 3) do 
+       X = X + math.random(-5,5)
+       Y = Y + math.random(-5,5)
+       local Monster = Fuben.createMonster(Scene,Boss.DieMobMonID, X, Y ,0)
+       
+       --如果怪物刷出成功 
+       if Monster then
+         --那么标记已经刷出的数量加1 
+         nCount = nCount + 1
+         if Boss.MonCount >= nCount then --如果已经刷出来了 那就break 
+           break
+         end
+         
+       end 
+     end
+  end
+  
+  
+end
+
+--当狩猎BOSS创建 
+function OnRandomBossCreate(Monster,MonID,BossID) 
+  local var = GetRandomBossDyanmicVar(BossID)
+  var.Alive = 1
+
+  var.X = Actor.getIntProperty(Monster, PROP_ENTITY_POSX)
+  var.Y = Actor.getIntProperty(Monster, PROP_ENTITY_POSY) 
+  var.SID = Actor.getSceneId(Monster) 
+end

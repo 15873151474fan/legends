@@ -1,0 +1,19 @@
+--lua script
+--测试空中飞行
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\vehicle\VehicleConfig.txt" once
+
+function OnTestFlyDialog(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.Gem.t00039.."/@TestFlyInSky>"		--领取税收
+
+	return str
+end
+
+--测试飞行
+function TestFlyInSky(sysarg)
+	Actor.onBoard(sysarg,1,1)
+end
+
+table.insert(MainFnTable, OnTestFlyDialog)

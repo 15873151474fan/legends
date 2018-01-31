@@ -1,0 +1,36 @@
+﻿--宝物命盘（相当于宝物套装）
+--#include "..\..\language\LangCode.txt"
+
+gemSuitConfig=
+{	
+	-- 配置命盘评分与属性的换算。这里配置每一分对应各个属性类型和属性值（采取浮点数）
+	-- 注意，这里只针对整数类型的属性
+	suitProp = {
+		{ prop = 21, val = 0.182 },
+		{ prop = 31, val = 0.182 },
+		{ prop = 23, val = 0.173 },
+		{ prop = 33, val = 0.173 },
+		{ prop = 17, val = 0.958 },
+		{ prop = 19, val = 0.958 },
+		{ prop = 39, val = 0.072 },
+		{ prop = 37, val = 0.072 },
+		{ prop = 35, val = 0.072 },
+
+	},
+	
+	-- 宝物命盘评分和必杀技等级关系配置表
+	-- scoreMax是此区间的最大值。
+	superSkill =  {
+		{ scoreMax=400, 	level=1, },
+		{ scoreMax=800, 	level=2, },
+		{ scoreMax=1200, 	level=3, },
+		{ scoreMax=1600, 	level=4, },
+		{ scoreMax=2000, 	level=5, },
+		{ scoreMax=2400, 	level=6, },
+		{ scoreMax=2800, 	level=7, },
+		{ scoreMax=3200, 	level=8, },
+		{ scoreMax=3600, 	level=9, },
+		{ scoreMax=20000, 	level=10, },
+	},	
+},
+

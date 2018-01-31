@@ -1,0 +1,201 @@
+﻿
+
+LocalDT.Challenge = {}
+
+LocalDT.Challenge.DAYTIME = 86400
+--11点前发的擂台公告
+function MidBeforeChallengeTipmsg()
+  --print("mid before challenge tipmsg!!")
+	System.broadcastTipmsg(Lang.ScriptTips.t00027,ttScreenCenter)
+end
+--11点前每隔三分钟播放擂台公告
+function MidBeforeChallengeTipmsgInOne()
+	System.broadcastTipmsg(Lang.ScriptTips.t00027,ttScreenCenter)
+end
+--11前每隔三分钟播放擂台公告
+function MidBeforeChallengeTipmsgInTwo()
+	System.broadcastTipmsg(Lang.ScriptTips.t00027,ttScreenCenter)
+end
+--11前每隔三分钟播放擂台公告
+function MidBeforeChallengeTipmsgInThree()
+	System.broadcastTipmsg(Lang.ScriptTips.t00027,ttScreenCenter)
+end
+--20点前发的擂台公告
+ function NigBeforeChallengeTipmsg()
+  --print("nig before challenge tipmsg!")
+ 	System.broadcastTipmsg(Lang.ScriptTips.t00028,ttScreenCenter)
+ end
+--20点前每隔三分钟播放擂台公告
+function NigBeforeChallengeTipmsgInOne()
+	System.broadcastTipmsg(Lang.ScriptTips.t00028,ttScreenCenter)
+end
+--20点前每隔三分钟播放擂台公告
+function NigBeforeChallengeTipmsgInTwo()
+	System.broadcastTipmsg(Lang.ScriptTips.t00028,ttScreenCenter)
+end
+--20点前每隔三分钟播放擂台公告
+function NigBeforeChallengeTipmsgInThree()
+	System.broadcastTipmsg(Lang.ScriptTips.t00028,ttScreenCenter)
+end
+ --14点前发的擂台公告
+ function MidCloseChallengeTipmsg()
+  --print("mid close challenge tipmsg!!")
+ 	System.broadcastTipmsg(Lang.ScriptTips.t00029,ttScreenCenter)
+ end
+ 
+function MidCloseChallengeTipmsgInOne()
+	System.broadcastTipmsg(Lang.ScriptTips.t00029,ttScreenCenter)
+end
+function MidCloseChallengeTipmsgInTwo()
+	System.broadcastTipmsg(Lang.ScriptTips.t00029,ttScreenCenter)
+end
+function MidCloseChallengeTipmsgInThree()
+	System.broadcastTipmsg(Lang.ScriptTips.t00029,ttScreenCenter)
+end
+ --23点前发的擂台公告
+function NigCloseChallengeTipmsg()
+  --print("nig close challenge tipmsg!!")
+ 	System.broadcastTipmsg(Lang.ScriptTips.t00030,ttScreenCenter)
+end
+function NigCloseChallengeTipmsgInOne()
+ 	System.broadcastTipmsg(Lang.ScriptTips.t00030,ttScreenCenter)
+end
+function NigCloseChallengeTipmsgInTwo()
+ 	System.broadcastTipmsg(Lang.ScriptTips.t00030,ttScreenCenter)
+end
+function NigCloseChallengeTipmsgInThree()
+ 	System.broadcastTipmsg(Lang.ScriptTips.t00030,ttScreenCenter)
+end
+ --14点准时检查是否还有擂台，清空等待中的擂台 
+ function MidChallengeTimeOutFunc()
+  --print("Mid Challenge time out")
+  local SFight = ChallengeFun.getFighting(ctSingle)
+  --print("sfight:"..SFight)
+  local TFight = ChallengeFun.getFighting(ctTeam)
+  --print("tfight:"..TFight)
+  if SFight == 0 then 
+    ChallengeFun.clearAllChallenge(ctSingle)
+  end
+  if TFight == 0 then 
+    ChallengeFun.clearAllChallenge(ctTeam)
+  end  
+ end
+ --14点准时检查是否还有擂台，清空等待中的擂台
+ function NigChallengeTimeOutFunc()
+  local SFight = ChallengeFun.getFighting(ctSingle)
+  local TFight = ChallengeFun.getFighting(ctTeam)
+  if SFight == 0 then
+    ChallengeFun.clearAllChallenge(ctSingle)
+  end
+  if TFight == 0 then
+    ChallengeFun.clearAllChallenge(ctTeam)
+  end
+ end
+--注册定时回调的函数 
+LocalDT.Challenge.ChallengeBroadTipmsg = function(npcobj)
+
+	LocalDT.Challenge.MidBefor = System.registerTimeCall(thisNPC,"MidBeforeChallengeTipmsg",Lang.ScriptTips.t00031,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.MidClose = System.registerTimeCall(thisNPC,"MidCloseChallengeTipmsg",Lang.ScriptTips.t00032,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.NigBefor = System.registerTimeCall(thisNPC,"NigBeforeChallengeTipmsg",Lang.ScriptTips.t00033,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.NigClose = System.registerTimeCall(thisNPC,"NigCloseChallengeTipmsg",Lang.ScriptTips.t00034,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.MidChallengeTimeOut = System.registerTimeCall(thisNPC,"MidChallengeTimeOutFunc",Lang.ScriptTips.t00046,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.NigChallengeTimeOut = System.registerTimeCall(thisNPC,"NigChallengeTimeOutFunc",Lang.ScriptTips.t00047,LocalDT.Challenge.DAYTIME,false)
+
+	LocalDT.Challenge.MidBeforOne = System.registerTimeCall(thisNPC,"MidBeforeChallengeTipmsgInOne",Lang.ScriptTips.t00051,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.MidBeforTwo = System.registerTimeCall(thisNPC,"MidBeforeChallengeTipmsgInTwo",Lang.ScriptTips.t00052,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.MidBeforThree = System.registerTimeCall(thisNPC,"MidBeforeChallengeTipmsgInThree",Lang.ScriptTips.t00053,LocalDT.Challenge.DAYTIME,false)
+
+	LocalDT.Challenge.MidCloseOne = System.registerTimeCall(thisNPC,"MidCloseChallengeTipmsgInOne",Lang.ScriptTips.t00054,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.MidCloseTwo = System.registerTimeCall(thisNPC,"MidCloseChallengeTipmsgInTwo",Lang.ScriptTips.t00055,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.MidCloseThree = System.registerTimeCall(thisNPC,"MidCloseChallengeTipmsgInThree",Lang.ScriptTips.t00056,LocalDT.Challenge.DAYTIME,false)
+
+	LocalDT.Challenge.NigBeforOne = System.registerTimeCall(thisNPC,"NigBeforeChallengeTipmsgInOne",Lang.ScriptTips.t00057,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.NigBeforTwo = System.registerTimeCall(thisNPC,"NigBeforeChallengeTipmsgInOne",Lang.ScriptTips.t00058,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.NigBeforThree = System.registerTimeCall(thisNPC,"NigBeforeChallengeTipmsgInOne",Lang.ScriptTips.t00059,LocalDT.Challenge.DAYTIME,false)
+
+	LocalDT.Challenge.NigCloseOne = System.registerTimeCall(thisNPC,"NigCloseChallengeTipmsgInOne",Lang.ScriptTips.t00060,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.NigCloseTwo = System.registerTimeCall(thisNPC,"NigCloseChallengeTipmsgInTwo",Lang.ScriptTips.t00061,LocalDT.Challenge.DAYTIME,false)
+	LocalDT.Challenge.NigCloseThree = System.registerTimeCall(thisNPC,"NigCloseChallengeTipmsgInThree",Lang.ScriptTips.t00062,LocalDT.Challenge.DAYTIME,false)
+	--print("register function!!!")
+end
+
+--移除定时回调的函数
+LocalDT.Challenge.unChallengeBroadTipmsg = function(npcobj)
+	if  LocalDT.Challenge.MidBefor then
+    System.unregisterTimeCall(LocalDT.Challenge.MidBefor)
+    LocalDT.Challenge.MidBefor = nil
+  end
+  if LocalDT.Challenge.MidClose then 
+  	System.unregisterTimeCall(LocalDT.Challenge.MidClose)
+  	LocalDT.Challenge.MidClose = nil 
+  end
+  
+  if LocalDT.Challenge.NigBefor then
+  	System.unregisterTimeCall(LocalDT.Challenge.NigBefor)
+  	LocalDT.Challenge.NigBefor = nil 
+  end
+  
+  if LocalDT.Challenge.NigClose then 
+ 		 System.unregisterTimeCall(LocalDT.Challenge.NigClose)
+ 		 LocalDT.Challenge.NigClose = nil 
+  end
+  if LocalDT.Challenge.MidChallengeTimeOut then 
+     System.unregisterTimeCall(LocalDT.Challenge.MidChallengeTimeOut)
+     LocalDT.Challenge.MidChallengeTimeOut = nil 
+  end
+  if LocalDT.Challenge.NigChallengeTimeOut then 
+    System.unregisterTimeCall(LocalDT.Challenge.NigChallengeTimeOut)
+    LocalDT.Challenge.NigChallengeTimeOut = nil 
+  end
+  if LocalDT.Challenge.MidBeforOne then 
+  	System.unregisterTimeCall(LocalDT.Challenge.MidBeforOne)
+  	LocalDT.Challenge.MidBeforOne = nil 
+  end
+  if LocalDT.Challenge.MidBeforTwo then 
+  	System.unregisterTimeCall(LocalDT.Challenge.MidBeforTwo)
+  	LocalDT.Challenge.MidBeforTwo = nil 
+  end
+  if LocalDT.Challenge.MidBeforThree then 
+  	System.unregisterTimeCall(LocalDT.Challenge.MidBeforThree)
+  	LocalDT.Challenge.MidBeforThree = nil 
+  end
+  if LocalDT.Challenge.MidCloseOne then 
+  	System.unregisterTimeCall(LocalDT.Challenge.MidCloseOne)
+  	LocalDT.Challenge.MidCloseOne = nil 
+  end
+  if LocalDT.Challenge.MidCloseTwo then 
+  	System.unregisterTimeCall(LocalDT.Challenge.MidCloseTwo)
+  	LocalDT.Challenge.MidCloseTwo = nil 
+  end
+  if LocalDT.Challenge.MidCloseThree then 
+  	System.unregisterTimeCall(LocalDT.Challenge.MidCloseThree)
+  	LocalDT.Challenge.MidCloseThree = nil 
+  end
+  if LocalDT.Challenge.NigBeforOne then 
+  	System.unregisterTimeCall(LocalDT.Challenge.NigBeforOne)
+  	LocalDT.Challenge.NigBeforOne = nil 
+  end
+  if LocalDT.Challenge.NigBeforTwo then 
+  	System.unregisterTimeCall(LocalDT.Challenge.NigBeforTwo)
+  	LocalDT.Challenge.NigBeforTwo = nil 
+  end
+  if LocalDT.Challenge.NigBeforThree then 
+  	System.unregisterTimeCall(LocalDT.Challenge.NigBeforThree)
+  	LocalDT.Challenge.NigBeforThree = nil 
+  end
+  if LocalDT.Challenge.NigCloseOne then 
+  	System.unregisterTimeCall(LocalDT.Challenge.NigCloseOne)
+  	LocalDT.Challenge.NigCloseOne = nil 
+  end
+  if LocalDT.Challenge.NigCloseTwo then 
+  	System.unregisterTimeCall(LocalDT.Challenge.NigCloseTwo)
+  	LocalDT.Challenge.NigCloseTwo = nil 
+  end
+  if LocalDT.Challenge.NigCloseThree then 
+  	System.unregisterTimeCall(LocalDT.Challenge.NigCloseThree)
+  	LocalDT.Challenge.NigCloseThree = nil 
+  end
+end
+  
+table.insert(InitFnTable,LocalDT.Challenge.ChallengeBroadTipmsg)
+table.insert(FinaFnTable,LocalDT.Challenge.unChallengeBroadTipmsg)

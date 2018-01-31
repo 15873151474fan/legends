@@ -1,0 +1,197 @@
+﻿--lua script
+--处理盗梦空间相关的操作
+
+--#include "data\config\diamond\DiamondConfig.txt" once --宝石常规配置
+--#include "data\config\item\itemEnhance\CommonConfig.txt" once --宝石通用配置
+--#include "data\functions\Activity\Common\Consumes.txt" once
+
+DiamondOpId = {
+	enUpgrade = 1,		--升级
+	enUpgradeDiamondSpirit = 2,	--升级精魂
+}
+
+DiamondOpFuncList = {}
+
+EventCallDispatcher.HandlerDiamondOp = function (sysarg, args)
+	if args[1] == nil then return end   --
+	local func = DiamondOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args) 
+	end
+end
+
+--升级宝石
+DiamondOpFuncList[DiamondOpId.enUpgrade] = function (sysarg,args)
+	local nOwnerType = args[2]	--所属实体类型
+	local nEquipPos = args[3]	--装备槽
+	local nSlotIdx = args[4]	--宝石槽
+	local wItemId = args[5]		--当前宝石ID
+	local nHeroPos = args[6]	--英雄pos
+	if wItemId <= 0 then
+		return
+	end
+
+	local diamondId = Actor.getDiamond(sysarg, nOwnerType, nEquipPos, nSlotIdx)
+
+	local config = DiamondConfig
+	
+	if not config then return end
+	
+	local level, type = GetDiamondLevelAndType(diamondId)
+
+	if level == 0 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000103, ttFlyTip)
+		return
+	elseif level >= table.getn(DiamondLevelConfig) then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000100, ttFlyTip)
+		return
+	end
+
+	if type == 0 or type > table.getn(DiamondLevelConfig[1]) then 
+		
+		return 
+	end
+	
+	local itemId = DiamondLevelConfig[level+1][type]
+
+	if not itemId then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000100, ttFlyTip)
+		return
+	end
+	
+	local consumes = config.upgradeConsumes
+	if not consumes or not consumes[level] then 
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000102, ttFlyTip)
+		return 
+	end
+	
+	local nNeedYb = consumes[level][1].count
+	for i=1,table.getn(consumes[level]) do
+		if consumes[level][i].id == wItemId then
+			nNeedYb = consumes[level][i].count
+			break
+		end
+	end
+
+	local tips = string.format(Lang.ScriptTips.dd000101, nNeedYb)
+	
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,tips,Lang.ScriptTips.mt00004.."/UpgradeDiamond, "..nOwnerType..","..nEquipPos..","..nSlotIdx..","..wItemId..","..type..","..nHeroPos,Lang.ScriptTips.mt00005.."/Cancel",nil)
+	
+	
+	
+end
+
+function UpgradeDiamond(sysarg, nOwnerType, nEquipPos, nSlotIdx, wItemId, type, nHeroPos)
+	local nOwnerType = tonumber(nOwnerType)
+	local nEquipPos = tonumber(nEquipPos)
+	local nSlotIdx = tonumber(nSlotIdx)
+	local wItemId = tonumber(wItemId)
+	local type = tonumber(type)
+	local nHeroPos = tonumber(nHeroPos)
+	if wItemId <= 0 then
+		return
+	end
+	
+	local diamondId = Actor.getDiamond(sysarg, nOwnerType, nEquipPos, nSlotIdx)
+	
+	
+	local nowLevel, type = GetDiamondLevelAndType(diamondId)
+	
+	if nowLevel == 0 or nowLevel >= table.getn(DiamondLevelConfig) then
+		
+		return
+	end
+	
+	if type == 0 or type > table.getn(DiamondLevelConfig[1]) then return end
+	
+	local itemId = DiamondLevelConfig[nowLevel+1][type]
+	
+	if not itemId then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000100, ttFlyTip)
+		return
+	end
+
+	local config = DiamondConfig
+	local consumes = config.upgradeConsumes
+	if not consumes or not consumes[nowLevel] then return end
+	
+	local nNeedYb = consumes[nowLevel][1].count
+	for i=1,table.getn(consumes[nowLevel]) do
+		if consumes[nowLevel][i].id == wItemId then
+			nNeedYb = consumes[nowLevel][i].count
+			break
+		end
+	end
+	
+	--[[
+	if Consumes.Check(sysarg, consumes[nowLevel]) ~= true then
+		return
+	end
+	]]
+	local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	if myYb < nNeedYb then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.sq0008,nNeedYb), ttFlyTip)
+		return
+	end
+	
+	if Actor.changeMoney(sysarg,3,-nNeedYb,174,string.format(Lang.LogTips.l00095, nEquipPos, nSlotIdx)) == false then
+		--if Consumes.Remove(sysarg, consumes[nowLevel], 174, string.format(Lang.LogTips.l00095, nEquipPos, nSlotIdx)) ~= true then
+		return
+	end
+	
+	Actor.setDiamond(sysarg, nOwnerType, nEquipPos, nSlotIdx, itemId, nHeroPos)
+end
+
+function Cancel()
+
+end
+
+--升级精魂
+DiamondOpFuncList[DiamondOpId.enUpgradeDiamondSpirit] = function (sysarg,args)
+	local nOwnerType = args[2]	--所属实体类型
+	local nEquipPos = args[3]	--装备槽
+	local nDiamondSpirit = args[4]	--精魂等级
+	local nHeroPos = args[5]	--英雄pos
+
+	local nNextDiamondSpirit = nDiamondSpirit + 1
+	
+	if (not DiamondConfig) or (not DiamondConfig.diamondSpirit) then
+		return
+	end
+
+	if (nNextDiamondSpirit <= 0) or (nNextDiamondSpirit > table.getn(DiamondConfig.diamondSpirit or {})) then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000104, ttFlyTip)
+		return
+	end
+
+	local config = DiamondConfig.diamondSpirit[nNextDiamondSpirit]
+
+	--材料是否足够
+	for i=1,table.getn(config.consumes or {}) do
+		if Actor.checkConsume(sysarg,config.consumes[i].type,config.consumes[i].id,config.consumes[i].count) == false then 
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000105, ttFlyTip)
+			if (config.consumes[i].type == 0) and (config.consumes[i].id > 0) then
+				Actor.openDialogs(sysarg,diBuyAnItem,config.consumes[i].id)
+			end
+			return
+		end
+	end
+
+	for i=1,table.getn(config.consumes or {}) do
+		if Actor.removeConsume(sysarg,config.consumes[i].type,config.consumes[i].id,config.consumes[i].count,-1,-1,-1,0,982,Lang.ScriptTips.dd000106) 
+			~= config.consumes[i].count then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000105, ttFlyTip)
+			return
+		end
+	end
+
+	nDiamondSpirit = nNextDiamondSpirit
+
+	Actor.sendTipmsg(sysarg, Lang.ScriptTips.dd000107, ttFlyTip)
+
+	Actor.upgradeDiamondSpiritSuc(sysarg, nOwnerType, nEquipPos, nDiamondSpirit, nHeroPos)
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeDiamondOp, EventCallDispatcher.HandlerDiamondOp)

@@ -1,0 +1,437 @@
+--lua script
+
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryHorseAct.txt" once
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryTurntableCfg.txt" once  
+--#include "data\functions\Activity\NationalDayHorse\SuperTurntable.txt" once
+
+--[[
+	AnniverTurntableParamFile = "AnniverTurntableParam.txt", 
+	AnniverTurntableInfoFile = "AnniverTurntableInfo.txt",
+--]]
+
+	
+--请求周年转盘信息
+function ReqAnniverTurntableInfo(sysarg, packet) 
+	if System.isInDateRange(unpack(AnniversaryHorActConfig.actTime)) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0207, ttFlyTip)
+		return 
+	end
+
+	if Actor.checkActorLevel(sysarg, AnniversaryTurntableCfg.level, AnniversaryTurntableCfg.circle) ~= true then
+		Actor.sendTipmsg( sysarg, Lang.Activity.mzn0212, ttFlyTip )  
+		return 
+	end
+	
+	InitAnniverTurntable()
+	local infoRankPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableInfoFile)  
+	if not infoRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+	
+	if not infoItemPtr then
+		SendAnniverTurntableInfo(sysarg, false)  
+	else
+		SendAnniverTurntableInfo(sysarg, true)  
+	end
+	
+end
+
+--请求周年转盘操作 
+function ReqAnniverTurntableOp(sysarg, packet)
+	if System.isInDateRange(unpack(AnniversaryHorActConfig.actTime)) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0207, ttFlyTip)
+		return 
+	end
+	
+	if Actor.checkActorLevel(sysarg, AnniversaryTurntableCfg.level, AnniversaryTurntableCfg.circle) ~= true then
+		Actor.sendTipmsg( sysarg, Lang.Activity.mzn0212, ttFlyTip )  
+		return 
+	end
+	
+	local opType = DataPack.readByte(packet)
+	if opType ~= 1 and opType ~= 2 and opType ~= 3 then
+		return 
+	end
+	
+	StartAnniverTurntable(sysarg, opType)
+	
+end
+
+--开始转盘
+function StartAnniverTurntable(sysarg, opType) 
+	local consumeYb = 0
+	if opType == 1 then
+		consumeYb = AnniversaryTurntableCfg.drawYb
+	elseif opType == 2 then
+		consumeYb = AnniversaryTurntableCfg.drawTenYb
+	elseif opType == 3 then
+		consumeYb = AnniversaryTurntableCfg.drawFiftyYb
+	end
+	
+	if Actor.changeMoney(sysarg, 3, -consumeYb, 197, Lang.LogTips.mzn201) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0201, ttFlyTip)
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableItemPtr = AddAnniverTurntableInfo(sysarg) --增加玩家转盘数据 
+	if not turntableItemPtr then
+		return 
+	end
+	
+	local awardTab = {}
+	local paramTab = {} 
+
+	local drawIdx = 0
+	if opType == 1 then
+		drawIdx = ProduceAnniverTurntableAward(awardTab, paramTab, actorId)
+	elseif opType == 2 then 
+		for i = 1, 10 do
+			drawIdx = ProduceAnniverTurntableAward(awardTab, paramTab, actorId)
+		end
+	elseif opType == 3 then 
+		for i = 1, 50 do
+			drawIdx = ProduceAnniverTurntableAward(awardTab, paramTab, actorId)
+		end
+	end
+	
+	if opType == 2 or opType == 3 then
+		drawIdx = 0
+	end
+	
+	local itemLists = AnniversaryTurntableCfg.itemLists
+	local count = 0
+    if table.getn(awardTab)/2 > 0 then
+		count = table.getn(awardTab)/2
+	end
+	
+	local actorName = Actor.getName(sysarg) 
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx]
+			local itemIdx = awardTab[2*(j-1)+2] 
+			local itemConfig = storeConfig.itemList[itemIdx]
+			Dmkj.addItem(sysarg, itemConfig.id, itemConfig.count, itemConfig.quality, itemConfig.strong, itemConfig.bind, false, 0, 197, Lang.LogTips.mzn202)  	
+			
+			local itemName = Item.getAwardDesc(itemConfig.type, itemConfig.id)
+			if itemConfig.isBrocast and itemConfig.isBrocast == true then
+				System.broadcastTipmsg(string.format(Lang.Activity.mzn0202, actorName, itemName), ttScreenCenter+ttChatWindow)
+			end
+			
+			if itemConfig.id == AnniversaryTurntableCfg.debrisId then --更新碎片数量
+				UpdateAnniverTurntableInfo(actorId, 1, itemConfig.count, false)
+			end
+			
+		end
+	end
+	
+	UpdateTurntableConsumYb(consumeYb) 
+	UpdateAnniverTurntableInfo(actorId, 0, consumeYb, false)
+	SendAnniverTurntableAwardInfo(sysarg, drawIdx, awardTab)
+	SendAnniverTurntableInfo(sysarg, true)  
+	SendAccCusnumeAward(sysarg) 
+end 
+
+--增加的玩家的转盘信息    
+function AddAnniverTurntableInfo(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableInfoFile)
+	if not turntableInfoPtr then
+		return nil
+	end
+	
+	local turntableItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	if turntableItemPtr then
+		return turntableItemPtr
+	end
+		
+	turntableItemPtr = Ranking.addItem(turntableInfoPtr, actorId, 0, false)
+	if not turntableItemPtr then
+		return nil
+	end
+	
+	return turntableItemPtr
+	
+end
+
+--产生抽到的奖品，awardTab奖品列表，paramTab已经产生过的奖品列表，param参数
+function ProduceAnniverTurntableAward(awardTab, paramTab, param)	
+	local drawIdx = 0
+	for  i=1,10000 do
+		drawIdx = GetTurntableRandomInfo(AnniversaryTurntableCfg.itemLists, paramTab) 
+	    if CheckAnniverDrawAward(drawIdx, param) == true then 
+			break 
+		end
+	end
+	
+	if drawIdx <= 0 then
+		drawIdx = table.getn(AnniversaryTurntableCfg.itemLists) 
+	end
+	
+	local itemProduceTab = {}  
+	local itemLists = AnniversaryTurntableCfg.itemLists
+	if drawIdx > 0 and drawIdx <= table.getn(itemLists) then
+		local itemList = itemLists[drawIdx].itemList
+		local awardIdx = ProduceTurntableItem(itemProduceTab, false, 0, itemLists[drawIdx])  
+
+		if awardIdx > 0 and awardIdx <= table.getn(itemList) then
+			table.insert(awardTab, drawIdx)
+			table.insert(awardTab, awardIdx)
+		else
+			table.insert(awardTab, drawIdx)
+			table.insert(awardTab, table.getn(itemList))
+		end
+	end
+	
+	return drawIdx
+end
+
+--检测物品是否可以抽到
+function CheckAnniverDrawAward(drawIdx, param)
+	if drawIdx <= 0 or drawIdx > table.getn(AnniversaryTurntableCfg.itemLists) then
+		return false
+	end 
+	
+	local awardConfig = AnniversaryTurntableCfg.itemLists[drawIdx]
+	if not awardConfig then 
+		return false
+	end
+	
+	local totalConsumeYb = 0
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableParamFile) 
+	if turntableParamPtr then
+		local ybItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, AnniversaryTurntableCfg.turntableCount + 1)
+		if ybItemPtr then
+			totalConsumeYb = tonumber(Ranking.getSub(ybItemPtr, 0)) or 0
+		end 
+		
+		local paramItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, drawIdx)
+		if paramItemPtr then
+			if GetAnniverTurntableConsumYb(param) >= awardConfig.startYb then
+				local needYb = tonumber(Ranking.getSub(paramItemPtr, 0)) or 0
+				if awardConfig.ybCircle and awardConfig.ybCircle > 0 then
+					if totalConsumeYb >= needYb then
+						Ranking.setSub(paramItemPtr, 0, needYb+awardConfig.ybCircle)
+					else
+						return false
+					end
+				end
+				return true 
+			end
+		end
+	end
+	
+	return false
+end
+
+
+--获取抽奖花费元宝
+function GetAnniverTurntableConsumYb(actorId)
+	local consumeYb = 0
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableInfoFile) 
+	if turntableInfoPtr then
+		local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+		if turntableInfoItemPtr then
+			consumeYb = tonumber(Ranking.getSub(turntableInfoItemPtr, 0)) or 0
+		end
+	end
+	
+	return consumeYb
+end
+
+--更新消耗的元宝
+function UpdateAnniverTurntableConsumYb(addConsumYb) 
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableParamFile)
+	if turntableParamPtr then
+		local turntableParamItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, AnniversaryTurntableCfg.turntableCount+1)
+		if turntableParamItemPtr then
+			local consumeYb = tonumber(Ranking.getSub(turntableParamItemPtr, 0)) or 0
+			Ranking.setSub(turntableParamItemPtr, 0, consumeYb+addConsumYb)
+		end
+	end
+end
+
+--更新个人数据 subIdx,0消费元宝，1碎片数, val增加的值
+function UpdateAnniverTurntableInfo(actorId, subIndex, addVal, isSet)
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableInfoFile)
+	if turntableInfoPtr then
+		local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+		if turntableInfoItemPtr then
+			if isSet == true then
+				Ranking.setSub(turntableInfoItemPtr, subIndex, addVal)	
+			else 
+				local curVal = tonumber(Ranking.getSub(turntableInfoItemPtr, subIndex)) or 0
+				Ranking.setSub(turntableInfoItemPtr, subIndex, curVal + addVal)	
+			end 
+		end
+	end
+end 
+
+--发送消费进度奖励
+function SendAccCusnumeAward(sysarg)
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local consuemeYb = GetAnniverTurntableInfo(actorId, 0)
+
+	local awardIdx, needBagCount = GetTurntableRankAwardIdx(consuemeYb, true, AnniversaryTurntableCfg)
+
+	if awardIdx > 0 then
+		local getAwardFlag = GetAnniverTurntableInfo(actorId, 2)
+		if awardIdx > getAwardFlag then
+			local str = string.format(Lang.Activity.mzn0203, awardIdx)
+			System.addOfflineMsg(actorId, 70, str, 0, 1, awardIdx, needBagCount)
+			local name = Actor.getName(sysarg)
+			System.sendCommonLog(197, actorId, name, i, 0, 0, Lang.LogTips.mzn210)
+		
+			UpdateAnniverTurntableInfo(actorId, 2, awardIdx, true)
+		end
+	end
+	
+end
+
+--获取个人数据 subIdx,0消费元宝，1碎片数,
+function GetAnniverTurntableInfo(actorId, subIndex)
+	local consumeYb = 0
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableInfoFile) 
+	if turntableInfoPtr then
+		local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+
+		if turntableInfoItemPtr then
+			consumeYb = tonumber(Ranking.getSub(turntableInfoItemPtr, subIndex)) or 0
+		end
+	end
+	
+	return consumeYb
+end
+
+--初始化转盘相关信息, 
+function InitAnniverTurntable() 
+	
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableParamFile) 
+	if turntableParamPtr then
+		if Ranking.getRankItemCount(turntableParamPtr) > 0 then 
+			return 
+		end 
+		
+		local itemPtr = Ranking.getItemPtrFromId(turntableParamPtr, AnniversaryTurntableCfg.turntableCount+1)  
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(turntableParamPtr, AnniversaryTurntableCfg.turntableCount+1, 0, false)  --这里用个很大的数表示id
+		end
+		
+		local itemLists = AnniversaryTurntableCfg.itemLists
+		if not itemLists or table.getn(itemLists) <= 0 then
+			return 
+		end
+		
+		InitAnniverParamData()
+		
+	end
+	
+end
+
+--初始化转盘参数
+function InitAnniverParamData()
+	local turntableParamPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableParamFile) 
+	if not turntableParamPtr then 
+		return 
+	end
+	
+	local itemLists = AnniversaryTurntableCfg.itemLists
+	if not itemLists then
+		return 
+	end
+	
+	for i = 1, table.getn(itemLists) do 
+		local itemPtr = Ranking.getItemPtrFromId(turntableParamPtr, i)
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(turntableParamPtr, i, 0, false)
+		end 
+		if itemPtr then
+			if itemLists[i] and itemLists[i].startYb then
+				Ranking.setSub(itemPtr, 0, itemLists[i].startYb)
+			end
+		end 
+	end
+end
+
+--发送转盘的数据, hFlag为false表示没有玩家购买信息
+function SendAnniverTurntableInfo(sysarg, hFlag)
+	local turntableInfoPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableInfoFile)
+	if not turntableInfoPtr then
+		return 
+	end
+	
+	local turntableInfoItemPtr	= nil
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	if hFlag == true then
+		turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 91) 
+	if not pack then
+		return 
+	end
+	
+	local consumeYb = 0
+	local curDebrisCount = Actor.getItemCount(sysarg, AnniversaryTurntableCfg.debrisId)
+	if turntableInfoItemPtr then
+		consumeYb = tonumber(Ranking.getSub(turntableInfoItemPtr, 0)) or 0 
+		--curDebrisCount = tonumber(Ranking.getSub(turntableInfoItemPtr, 1)) or 0 	
+	end
+
+	DataPack.writeUInt(pack, consumeYb)
+	DataPack.writeInt(pack,  curDebrisCount)
+
+	DataPack.flush(pack)
+
+end
+
+--发送抽到的奖励信息
+function SendAnniverTurntableAwardInfo(sysarg, drawIdx, awardTab) 
+
+	local pack = DataPack.allocPacket(sysarg, 145, 92)
+	if not pack then
+		return 
+	end
+
+	DataPack.writeByte(pack, drawIdx)
+	
+	local count = 0
+	if table.getn(awardTab)/2 > 0 then
+		count =  table.getn(awardTab)/2
+	end
+
+	DataPack.writeByte(pack, count)
+	
+	local itemLists = AnniversaryTurntableCfg.itemLists
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx]
+			local itemIdx = awardTab[2*(j-1)+2]
+			local itemConfig = storeConfig.itemList[itemIdx]
+			DataPack.writeInt(pack, itemConfig.id)
+			DataPack.writeByte(pack, itemConfig.count) 
+		end
+	end
+	
+	DataPack.flush(pack)
+
+end 
+
+--清除周年转盘数据
+function ClearAnniverTurntable()
+	local paramPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableParamFile) 
+	if paramPtr then
+		Ranking.clearRanking(paramPtr) 
+	end
+	
+	local infoPtr = Ranking.getRanking(Lang.Rank.AnniverTurntableInfoFile) 
+	if infoPtr then
+		Ranking.clearRanking(infoPtr) 
+	end
+end

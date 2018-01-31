@@ -1,0 +1,43 @@
+--lua script
+--#include "HiddenDragonCommon.txt" once
+--#include "data\config\boss\HongMengVigourConfig.txt" once
+
+--击杀区域二怪
+MonDieDispatcher.ZoneTwoMonDie = function(monster,sysarg,monId)
+	ZoneTwoMonDie(sysarg)
+end
+
+--击杀区域二怪
+MonDieDispatcher.ZoneThreeMonDie = function(monster,sysarg,monId)
+	ZoneThreeMonDie(sysarg)
+end
+
+--击杀终极BOSS
+MonDieDispatcher.BossMonDie = function(monster,sysarg,monId)
+	BossMonDie(sysarg)
+end
+
+--杀死鸿蒙元气怪
+MonDieDispatcher.HongMengVigourMonDie = function(monster,sysarg,monId)
+	HongMengVigourMonDie(sysarg, monId)
+end
+
+--注册区域二怪
+for k, monster in ipairs(HiddenDragonConfig.zoneTwoMonsters or {}) do
+	--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.ZoneTwoMonDie)
+end
+
+--注册区域三怪
+for k, monster in ipairs(HiddenDragonConfig.zoneThreeMonsters or {}) do
+	--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.ZoneThreeMonDie)
+end
+
+--注册终极BOSS
+for k, monster in ipairs(HiddenDragonConfig.bossMonsters or {}) do
+	--MonDieDispatcher.register(monster.nMonsterID, MonDieDispatcher.BossMonDie)
+end
+
+--注册鸿蒙元气怪
+for k, monster in pairs(HongMengVigourConfig or {}) do
+	--MonDieDispatcher.register(k, MonDieDispatcher.HongMengVigourMonDie)
+end

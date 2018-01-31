@@ -1,0 +1,96 @@
+﻿--魔幻星宫1层
+--金牛座
+{
+	scenceid = 40,
+	scencename = Lang.SceneName.s00040,
+	mapfilename = "40MoHuanXingGongYiCeng",
+	minlevel = 40,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "mohuangxingkong.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 104,
+	sceneHeight = 104,
+	sceneType=1,
+	
+	seckillId = 6,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+	area =
+	{
+		
+		{ name = Lang.SceneName.s00040, range = { 0,0,200,0,200,200,0,200}, center = { 52,75},
+			attri ={
+					{ type = 6,  value = {} },
+					{ type = 34,  value = {316,317,318,386,394,392,822,823,2272,2273,2274} },
+					{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },	--禁止行会的召集，传送
+					{ type = 18,  value = {} },
+					{ type = 19,  value = {} },
+					{ type = 1,  value = {} },
+					{ type = 2,  value = {3,95,0,10,360,2,1,1,0,10,360,-300,0,3,0,10,360,-480,0} },
+					{ type = 76,  value = {95,0,1,0,3,0} },
+					{ type = 80,  value = {} },
+				},
+		},
+		
+
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh40.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00060, posx = 53 , posy = 54,script = "data/script/Activity/Mohuanxinggong/Xgsz.txt",modelid = 1,icon = 1,funcId = 0},
+
+	},
+
+  teleport =
+  {
+
+  },
+--[[
+ landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=66,posy1=67,posx2=66,posy2=67,modelid=24,xinterval=1,yinterval=1},
+		{posx1=59,posy1=60,posx2=59,posy2=60,modelid=24,xinterval=1,yinterval=1},
+		{posx1=55,posy1=74,posx2=55,posy2=74,modelid=18,xinterval=1,yinterval=1},
+		{posx1=61,posy1=70,posx2=61,posy2=70,modelid=18,xinterval=1,yinterval=1},
+		{posx1=51,posy1=75,posx2=51,posy2=75,modelid=24,xinterval=1,yinterval=1},
+		{posx1=46,posy1=72,posx2=46,posy2=72,modelid=24,xinterval=1,yinterval=1},
+		{posx1=41,posy1=66,posx2=41,posy2=66,modelid=18,xinterval=1,yinterval=1},
+		{posx1=47,posy1=60,posx2=47,posy2=60,modelid=18,xinterval=1,yinterval=1},
+		{posx1=41,posy1=66,posx2=41,posy2=66,modelid=18,xinterval=1,yinterval=1},
+		{posx1=34,posy1=57,posx2=34,posy2=57,modelid=20,xinterval=1,yinterval=1},
+		{posx1=37,posy1=62,posx2=37,posy2=62,modelid=20,xinterval=1,yinterval=1},
+		{posx1=34,posy1=52,posx2=34,posy2=52,modelid=18,xinterval=1,yinterval=1},
+		{posx1=38,posy1=46,posx2=38,posy2=46,modelid=18,xinterval=1,yinterval=1},
+		{posx1=41,posy1=43,posx2=41,posy2=43,modelid=20,xinterval=1,yinterval=1},
+		{posx1=46,posy1=48,posx2=46,posy2=48,modelid=20,xinterval=1,yinterval=1},
+		{posx1=51,posy1=35,posx2=51,posy2=35,modelid=22,xinterval=1,yinterval=1},
+		{posx1=45,posy1=38,posx2=45,posy2=38,modelid=22,xinterval=1,yinterval=1},
+		{posx1=54,posy1=34,posx2=54,posy2=34,modelid=20,xinterval=1,yinterval=1},
+		{posx1=60,posy1=38,posx2=60,posy2=38,modelid=20,xinterval=1,yinterval=1},
+		{posx1=65,posy1=43,posx2=65,posy2=43,modelid=22,xinterval=1,yinterval=1},
+		{posx1=60,posy1=48,posx2=60,posy2=48,modelid=22,xinterval=1,yinterval=1},
+		{posx1=74,posy1=51,posx2=74,posy2=51,modelid=24,xinterval=1,yinterval=1},
+		{posx1=70,posy1=47,posx2=70,posy2=47,modelid=24,xinterval=1,yinterval=1},
+		{posx1=74,posy1=57,posx2=74,posy2=57,modelid=22,xinterval=1,yinterval=1},
+		{posx1=71,posy1=62,posx2=71,posy2=62,modelid=22,xinterval=1,yinterval=1},
+
+	 
+ },
+]]--
+},

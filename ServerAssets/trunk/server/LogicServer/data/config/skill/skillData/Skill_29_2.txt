@@ -1,0 +1,60 @@
+--野蛮冲撞2级定时执行
+{
+
+	actions=
+	{
+	},
+	
+	desc=“”,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 1,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

@@ -1,0 +1,270 @@
+--[[File: MultiPropDrop.txt]]
+--#include "data\functions\Activity\Common\Consumes.txt" once
+--#include "data\config\item\scriptItemConfig\MultiPropDrop.txt" once -- MultiPropDropItemConfig
+
+--[[
+--按照总概率Roll物品 
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表，如果单独调用的话，这里是需要背包格子的数量 
+--]]
+function MultiPropDropItemFunc(sysarg,itemidx,itemPtr,ItemTable, delType, index) 
+	--print("delType=" .. delType,"index=" .. index);	
+	local config =ItemTable;
+	if(config == nil) then 
+		System.trace("MultiPropDropItemFunc config is nill");
+		return false; 
+	end
+	if 0 == index then 
+		return false; -- 这里仅仅是不关闭面板
+	end -- 0的时候 不处理
+	
+	local starTime = config.UseTime.startTime;		
+	local endTime = config.UseTime.endTime;
+	--print("starTime="..starTime,"endTime="..endTime);
+	if starTime and endTime and (not System.isInDateRange(starTime.year,starTime.month,starTime.day,starTime.hour,starTime.min,starTime.sec,
+							endTime.year,endTime.month,endTime.day,endTime.hour,endTime.min,endTime.sec)) then
+		local tipMsg = Lang.ScriptTips.blesstree108;
+		Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip );					
+		return false;
+	end
+
+	if(itemidx == nil) then 
+		System.trace ("MultiPropDropItemFunc itemidx ==nil");
+		return false;
+	end	
+	
+	if not Actor.checkActorLevel(sysarg, config.MinLevel, config.Circle) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.blesstree105, config.MinLevel), ttFlyTip)
+		return false;
+	end
+	local it = config.items[index]; -- 子面板
+	--print ("ProbablityItemFunc"..itemidx)
+	--获取玩家目前有多少个空格子，如果格子不够，就返回 	
+	--玩家身上的背包格子 
+	local count = Item.getBagEmptyGridCount(sysarg)
+	local needGridCount= it.needMinBagGrid or 0   --需要背包格子的数量 
+	
+	if count < needGridCount then
+		local tipMsg = string.format(Lang.ScriptTips.x00074,needGridCount)
+		Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip );
+		return false
+	end
+	
+	--检测魔珠背包
+	local count = MagicItem.getMagicBagEmptyGridCount(sysarg)
+	local needGridCount= it.checkMagicBeadBag or 0   --需要背包格子的数量 
+	
+	if count < needGridCount then
+		local tipMsg = string.format(Lang.ScriptTips.magic020,needGridCount)
+		Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip );
+		return false
+	end
+
+	-- 获取玩家元宝数量
+	local nYb =  Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	local needYb = it.needYuanBao or 0;
+	if it.needYuanBao ~= nil and needYb > 0 then
+		if nYb < needYb then
+			Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00205,ttFlyTip )
+			return false
+		end
+	end
+	--判断物品需要消耗的数目
+	local nNeedItemCount = ItemTable.itemCount or 1;
+	if( Actor.getItemCount(sysarg,itemidx,-1,-1) < nNeedItemCount) then
+		local tipMsg = string.format(Lang.ScriptTips.x00140,nNeedItemCount)
+		Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip )
+		return false
+	end
+
+	local consumes = {}
+	
+	if config.consumes and table.getn(config.consumes) > 0 then
+		for k, v in ipairs(config.consumes) do
+			table.insert(consumes, v)
+		end
+	end
+	
+	local consume = {type = 0, id = itemidx, count = nNeedItemCount}
+	table.insert(consumes, consume)
+	
+	if Consumes.SuccessCheck(sysarg, consumes) ~= successCheckResult.ok then
+		return false
+	end	
+	
+	--需要roll一个物品
+	local dropName = "proability"..tostring(itemidx) .. index --按名字索引的
+	local drop = System.getObjectVar(dropName)
+	if (not drop) then
+		System.trace("getObjectVar is nil"..itemidx)
+		return
+	end
+
+	local items = drop:proabilityDrop(sysarg)
+	if ( items.itemCount > 0) then
+		for i = items.itemCount - 1, 0, -1 do
+			local result = Actor.canGiveAward(sysarg, 
+				items.itemList[i].btAwardType,
+				items.itemList[i].wItemId, 
+				items.itemList[i].btCount,
+				items.itemList[i].btQuality,
+				items.itemList[i].btStrong,
+				items.itemList[i].btBind,
+				true)
+			if not result then
+				return false
+			end
+		end
+	end
+	
+	if it.needYuanBao ~= nil and needYb > 0 then		
+		local itemName = Item.getItemName(config.item_id) or "no item name";
+		-- print("itemName = ",itemName);
+		--print("扣取元宝" .. needYb);
+		if not Actor.changeMoney(sysarg, 3, -needYb, 842, itemName) then -- print("扣取元宝" .. needYb .. "成功");
+			local msg = string.format(Lang.ScriptTips.x00207, needYb, itemName);
+			Actor.sendTipmsg( sysarg, msg, ttFlyTip );
+			return false;
+		end
+	end
+
+	--如果需要删除物品的话就删除
+	--if (config.needDelete and (Actor.removeItem(sysarg,itemidx,nNeedItemCount,-1,-1,-1,"Roll",2) ~=nNeedItemCount) ) then --删除物品失败 
+	local bBind = 1
+	local result = successCheckResult.otherLack
+	if (config.needDelete) then
+		result, bBind = Consumes.OnConsumes(sysarg, consumes, 0, 0, 2, "ProabilityItem Roll")
+		if result ~= successCheckResult.ok then
+			return false
+		end
+	end
+
+	--[[
+	这段代码是用来发公告的tips的，但是测试有问题，暂时留着 
+	Item.addItem(sysarg,itemPtr,"roll",1,items.itemList[i].btCount)
+		  if(items.itemList[i].btAuxParam ==1)  then
+			 local itemDes = Item.getItemLinkMsg(items.itemList[i].wItemId,itemPtr)
+			   local tipMsg = string.format(Lang.ScriptTips.x00085,Actor.getName(sysarg),Item.getItemName(itemidx),   itemDes )   --要全服广播
+			  System.broadcastTipmsg(tipMsg,ttScreenCenter )
+			end
+	--]]
+
+	--遍历掉落列表，并添加玩家的物品
+	
+	if ( items.itemCount > 0) then
+	  for i=0, items.itemCount -1 do
+		if config.infectBind == nil or config.infectBind ~= true then
+			bBind = items.itemList[i].btBind
+		end
+		
+		Actor.giveAward(sysarg,
+		items.itemList[i].btAwardType,
+		items.itemList[i].wItemId, 
+		items.itemList[i].btCount,
+		items.itemList[i].btQuality,
+		items.itemList[i].btStrong,
+		bBind,
+		items.itemList[i].nTime,
+		1,"roll")  
+		
+		if(items.itemList[i].btAuxParam ==1)  then  
+			local count = items.itemList[i].btCount
+			local name = Item.getAwardDesc(items.itemList[i].btAwardType,items.itemList[i].wItemId)
+			if(name ~= nil and name ~= "") then			
+				if(items.itemList[i].btAwardType == 20) then --按经验表里配置经验的
+					count = Actor.getActivityExp(sysarg,items.itemList[i].wItemId,items.itemList[i].btCount,items.itemList[i].btQuality)
+				end
+				local tipMsg = string.format(Lang.ScriptTips.x00085,Actor.getName(sysarg),Item.getItemName(itemidx),  name,count )   --要全服广播
+				System.broadcastTipmsg(tipMsg,ttScreenCenter )
+			end
+		end
+	  end
+	end
+
+	return true;
+end
+
+-- 爆竹技能
+function FestiveFirecrackersFunc(sysarg,itemidx,itemPtr,ItemTable, delType, index) 
+	local config = ItemTable;
+	--判断物品需要消耗的数目
+	local nNeedItemCount = ItemTable.itemCount or 1;
+	if( Actor.getItemCount(sysarg,itemidx,-1,-1) < nNeedItemCount) then
+		local tipMsg = string.format(Lang.ScriptTips.x00140,nNeedItemCount);
+		Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip );
+		return false;
+	end
+
+	local consumes = {};
+	
+	if config.consumes and table.getn(config.consumes) > 0 then
+		for k, v in ipairs(config.consumes) do
+			table.insert(consumes, v);
+		end
+	end
+	
+	local consume = {type = 0, id = itemidx, count = nNeedItemCount}
+	table.insert(consumes, consume)
+	
+	if Consumes.SuccessCheck(sysarg, consumes) ~= successCheckResult.ok then
+		return false;
+	end
+
+	--如果需要删除物品的话就删除
+	--if (config.needDelete and (Actor.removeItem(sysarg,itemidx,nNeedItemCount,-1,-1,-1,"Roll",2) ~=nNeedItemCount) ) then --删除物品失败 
+	local bBind = 1
+	local result = successCheckResult.otherLack
+	if (config.needDelete) then
+		result, bBind = Consumes.OnConsumes(sysarg, consumes, 0, 0, 2, "ProabilityItem Roll")
+		if result ~= successCheckResult.ok then
+			return false
+		end
+	end
+	
+	-- 使用技能
+	local skill = nil;
+	if itemidx == NianConfig.BigFestiveFirecrackers.item_id then
+		skill = NianConfig.BigFestiveFirecrackers;
+	elseif itemidx == NianConfig.SmallFestiveFirecrackers.item_id then
+		skill = NianConfig.SmallFestiveFirecrackers;
+	end
+	if skill then 
+		local x,y =	Actor.getEntityPosition(sysarg, 0, 0);
+		Actor.useSkill(sysarg,skill.skillId, x, y, false,skill.skillLevel);
+		return true;
+	end
+	--print("In function FestiveFirecrackersFunc:skill got nil");
+	return false;
+end
+
+function InitMultiPropDropItem()
+	-- print("注册事件函数",InitMultiPropDropItem);
+	-- 读取"data/config/item/scriptItemConfig/MultiPropDrop.txt"MultiPropDropItemConfig
+  for i = 1, #MultiPropDropItemConfig do
+    local x = MultiPropDropItemConfig[i]
+    -- print("注册事件函数",i);
+    GlobalItemFn[x.item_id] = { func = MultiPropDropItemFunc,params =x }
+    
+    --在初始化的时候全部装载进来 ,避免后期临时去加载
+	if x.items then
+		for index,v in pairs(x.items) do
+			local dropName = "proability"..tostring(x.item_id) .. index;
+			local boxdrop = System.getObjectVar(dropName)
+			if (not boxdrop) then
+				boxdrop = CBoxDropMgr:getSingleton():createBoxDrop(dropName)  -- 这里会返回一个宝箱掉落对象(CBoxDrop)
+			end
+			if(boxdrop) then
+				boxdrop:load(v.dropName);
+			end
+		end
+	end
+  end --]]
+	-- 大小爆竹的单独处理
+	GlobalItemFn[NianConfig.BigFestiveFirecrackers.item_id] = { func = FestiveFirecrackersFunc,params = NianConfig };
+	GlobalItemFn[NianConfig.SmallFestiveFirecrackers.item_id] = { func = FestiveFirecrackersFunc,params = NianConfig };
+end
+
+
+table.insert(InitFnTable,InitMultiPropDropItem);

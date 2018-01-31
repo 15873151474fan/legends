@@ -1,0 +1,127 @@
+﻿--lua script
+--武林争霸处理
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\WuLinZhengBa\WuLinZhengBa.txt" once
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+--#include "WuLinZhengBa_Common.txt" once
+
+function WuLinDialog_Main(sysarg)
+	local str = ""
+	str = string.format(Lang.Activity.a00064,GetWuLinMasterName())
+	
+	str = str.."\\<#BL"..Lang.Activity.a00057.."/@TakePartToJuniorWuLin>"		--参加武林争霸
+	--str = str.."\\<#BL"..Lang.Activity.w00105.."/@GetWulinMengzhuAward>"		--领取奖励
+	str = str.."\\<#BL"..Lang.Activity.a00059.."/@ActivityIntroduction>"		--活动详情
+
+	return str
+end
+
+--开始前5分钟预告
+function WuLinZhengBaNotice()
+	System.broadcastTipmsg(Lang.Activity.w00001,2+128)
+end
+
+--武林争霸开始
+function StartWuLinZhengBa()
+	OnActivityStart()
+	System.broadcastTipmsg(Lang.Activity.w00002,2+128)
+	GiveAwardsToActor()
+end
+
+--武林争霸开始10分钟
+function OnWuLinZhengBaTenMin()
+	local svar = System.getDyanmicVar(sysarg)
+
+	if svar.WuLinEnterFlag == nil then		--10分钟后不能再进入武林争霸的标志
+		svar.WuLinEnterFlag = 0
+	end
+
+	svar.WuLinEnterFlag = 1
+end
+
+--活动结束
+function EndWuLinZhengBa()
+	local svar = System.getDyanmicVar()
+	
+	if svar.WuLinZhengBaStartFlag ~= nil and svar.WuLinZhengBaStartFlag == 1 then
+		OnEndWuLinActivity()
+	end
+
+	svar.WuLinZhengBaStartFlag = nil
+	svar.WuLinEnterFlag = nil
+	svar.GiveAwardTimes = nil 
+
+	Actor.unregScriptCallback(thisNPC, "GetWuLinActorAwards")
+end
+
+--获得武林盟主的姓名
+function GetWuLinMasterName()
+	local ranking = Ranking.getRanking(WuLinZhengBaConfig.RankName)
+	if ranking then
+		local pItem = Ranking.getItemPtrByIndex(ranking,0)
+
+		if pItem then
+			local nName = Ranking.getSub(pItem,0)
+			return nName
+		end
+	end
+	return ""
+end
+
+--颁奖定时器
+function GiveAwardsToActor()
+	Actor.regScriptCallback(thisNPC, thisNPC, WuLinZhengBaConfig.LoopTime, WuLinZhengBaConfig.LoopTime, -1, "GetWuLinActorAwards")
+end
+
+--主题活动提前预告
+function BroadWulinTopicNotice()
+	System.broadcastTipmsg(Lang.Activity.t00009,2+128)
+end
+
+--23点后播报
+function FinishWulinTopicNotice()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[6].rankName)
+
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+
+		if pItem then
+			local strName = Ranking.getSub(pItem,0)
+
+			local str = string.format(Lang.Activity.t00010,strName,Item.getItemName(OpenServerConfig.activitys[6].awards[1].id))
+			System.broadcastTipmsg(str,2+128)
+		else
+			System.broadcastTipmsg(Lang.Activity.t00011,2+128)
+		end
+	end
+end
+
+--播放庆典烟花
+function BroadAwardEffct()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[6].rankName)
+
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+
+		if pItem then
+			System.broadcastTipmsg(Lang.Activity.t00068,2)
+			local playerList = LuaHelp.getAllActorList()		
+			if playerList ~= nil then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then
+						Actor.playScrEffectCode(player,OpenServerConfig.activitys[6].effectId,OpenServerConfig.activitys[6].lastTime)
+					end
+				end
+			end
+		end
+	end
+end
+
+--提前预告
+function PreWulinTopicNotice()
+	System.broadcastTipmsg(Lang.Activity.t00052,2+128)
+end
+
+table.insert(MainFnTable, WuLinDialog_Main)

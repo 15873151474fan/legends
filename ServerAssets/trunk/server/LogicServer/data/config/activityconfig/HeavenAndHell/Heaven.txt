@@ -1,0 +1,27 @@
+﻿
+--九天冰宫
+HeavenConfig = 
+{
+	level =1,
+	circle =0,
+	
+	teleportRange = 10,
+	
+	--楼层配置
+	Floors =
+	{
+		{sid = 71, x = 150, y = 145, bp = 1, item = {id = 916, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 
+		{sid = 72, x = 124, y = 132, bp = 1},		--二层
+		--{sid = 73, x = 46, y = 179, bp = 4000},		--三层
+		
+	},
+	
+	returnArea = {sid = 4, x = 99, y = 167},	--返回区域
+	
+	
+	--每个单位1小时，作用次数为2次，用钱购买时间就相当于购买作用次数，interval是单位时间，不用变。
+	--buffType：87挂机地图 利用groupId区分各个挂机地图 (0温泉 1雷泽 2九天冰宫 3深渊烈域)
+	--必须到C++里进行处理
+	buff = {buffType = 87, groupId = 2, value = 0, times = 1, interval = 7200, buffName = Lang.Activity.t00216, timeOverlay = true},	--控制进入BUFF
+	BuyBuffGold = 500,--增加一次作用时间的元宝 
+}

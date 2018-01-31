@@ -1,0 +1,127 @@
+﻿--真相露出（指引玩家去完成副本黯凰山）
+{
+  maxLevel = 70,
+  guidePlace = 1,
+  triggerList =
+  {
+		{ type = 1, valueList = {137,}},      --正在做这个任务
+  },
+
+
+  --引导的步骤
+  steps =
+	{
+    --第1步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 4,  helpId = 51, dataList = {1,} },		--任务追踪面板没有选中第一项
+				{ type = 5,  helpId = 0, dataList = {137,} },		--存在任务
+      },
+
+      action = { type = 2, helpId = 51, data = 1, pointerValue = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项
+    },
+
+    --第2步 指任务连接（黯凰山）
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 5,  helpId = 0, dataList = {137,} },		--存在任务
+				{ type = 7,  helpId = 0, dataList = {137,} },		--任务未完成
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 137, data = Lang.GuideLang.name38, pointerValue = 1, desc = Lang.GuideLang.desc2 ,offX=-40,offY=0 },
+    },
+
+    --第3步 指向npc对话框列表功能选项3
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },     --npc对话框可见
+				{ type = 7,  helpId = 0, dataList = {137,} },   --任务进行中
+				{ type = 19, helpId = 0, dataList = {Lang.GuideLang.name32,} },     --指定NPC
+				{ type = 9, helpId = 42, dataList = {3,"@OnEnterFubenFunc,3"} },     --指定list功能数据
+      },
+
+      --指向npc对话框功能选择的第三项
+      action = { type = 8, helpId = 42, data = 3, pointerValue = 1, desc = Lang.GuideLang.desc16 },
+    },
+    
+    --第4步 指向NPC对话框副列表第一项
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },     --npc对话框可见
+				{ type = 7,  helpId = 0, dataList = {137,} },   --任务进行中
+				{ type = 19, helpId = 0, dataList = {Lang.GuideLang.name32,} },     --指定NPC
+				{ type = 9, helpId = 42, dataList = {1,"@readyEnterFB,3"} },       --指定list功能数据
+      },
+      
+      --指向NPC对话框副列表第一项
+      action = { type = 8, helpId = 42, data = 1, pointerValue = 1, desc = Lang.GuideLang.desc16 },
+	},
+
+    --第4步 指向任务的速传按钮
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第1项
+				{ type = 2,  helpId = 40, dataList = {0,} },		--npc对话框不可见
+				{ type = 8,  helpId = 0, dataList = {137,} },		--存在任务
+				{ type = 16,  helpId = 0, dataList = {20,} },		--不在炎龙地
+				{ type = 15,  helpId = 0, dataList = {2,} },        --在万安城 
+      },
+
+      --指向速传按钮
+      action = { type = 12, helpId = 137, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc14 },
+    },
+
+    --第5步 指任务连接（NPC，交任务）
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 5,  helpId = 0, dataList = {137,} },		--存在任务
+				{ type = 8,  helpId = 0, dataList = {137,} },		--任务完成
+				{ type = 15,  helpId = 0, dataList = {20,} },		--在炎龙地 
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 137, data = Lang.GuideLang.name33, pointerValue = 1, desc = Lang.GuideLang.desc2 ,offX=-20,offY=0 },
+    },
+
+    --第5步 指向npc对话框 完成任务按钮
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },	  --npc对话框可见
+				{ type = 5,  helpId = 0, dataList = {137,} },			--存在任务
+				{ type = 19, helpId = 40, dataList = {Lang.GuideLang.name33,} },     --指定NPC
+				{ type = 8,  helpId = 0, dataList = {137,} },			--任务完成
+      },
+
+      --指向NPC对话框的完成按钮
+      action = { type = 1, helpId = 41, data = 0, rot = 180, pointerValue = 1, desc = Lang.GuideLang.desc3 },
+    },
+
+    --第6步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 6,  helpId = 0, dataList = {137,} },			--不存在任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

@@ -1,0 +1,217 @@
+﻿--使用道具刷怪
+UseItemCreateMonster =
+{
+-----------------------------------------------
+  --五毒蛊 
+	{
+		item_id = 2976,  --使用物品ID 
+		delayTime = 0, --延迟时间（秒） 
+		delayTips = Lang.Activity.dwj019,  --延迟界面显示 
+		needDelete = true,   --是否删除使用物品 
+		usePerDay = 3,		--每日可用次数(不限制则注释)
+		useArea = {sid = 21, x1 = 73, x2 = 125, y1 = 50, y2 = 95,},  --使用区域 {sid场景ID, x1 x左坐标, x2 x右坐标, y1 y上坐标, y2 y下坐标} 
+		wrongUseAreaTips = Lang.Activity.dwj023, --错误使用位置 提示 
+		sucessTips = Lang.Activity.dwj021,  --成功使用 提示 
+		tipsType = 3,  --公告类型 1副本公告 2场景公告 3世界公告 4个人公告
+		createMon = 
+		{	--创建怪物 {mid怪物ID, sid怪物出现场景ID,x1 x左坐标, x2 x右坐标, y1 y上坐标, y1 y下坐标, count数量, liveTime生存期 ,range>0则会在玩家随机范围range的坐标刷怪 不填则固定坐标 } 
+			--[[
+			monsters =	--一下全部同时刷出
+			{
+				{sid = 8, mid = 1, x1 = 171, x2 = 180, y1 = 180, y2 = 202, count = 2, liveTime = 20,},
+			},
+			--]]
+
+			randMonsters = --每组随机找一个刷
+			{
+				{
+					{sid = 21, mid = 1442, x1 = 27, x2 = 160, y1 = 17, y2 = 92, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 1444, x1 = 27, x2 = 160, y1 = 17, y2 = 92, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 1445, x1 = 27, x2 = 160, y1 = 17, y2 = 92, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 1446, x1 = 27, x2 = 160, y1 = 17, y2 = 92, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 1447, x1 = 27, x2 = 160, y1 = 17, y2 = 92, count = 1, liveTime = 1800, range = 1},
+				},
+			},
+		},
+		
+		callBackFunc = function(sysarg,ItemTable) --使用成功后调用的附加回调 
+			
+		end,   
+  },
+  --精英BOSS符 
+	{
+		item_id = 2117,  --使用物品ID 
+		delayTime = 0, --延迟时间（秒） 
+		delayTips = Lang.Activity.dwj019,  --延迟界面显示 
+		needDelete = true,   --是否删除使用物品 
+		usePerDay = 3,		--每日可用次数(不限制则注释)
+		useArea = {sid = 21, x1 = 73, x2 = 125, y1 = 50, y2 = 95,},  --使用区域 {sid场景ID, x1 x左坐标, x2 x右坐标, y1 y上坐标, y2 y下坐标} 
+		wrongUseAreaTips = Lang.Activity.dwj023, --错误使用位置 提示 
+		sucessTips = Lang.Activity.dwj024,  --成功使用 提示 
+		tipsType = 4,  --公告类型 1副本公告 2场景公告 3世界公告 4个人公告
+		createMon = 
+		{	--创建怪物 {mid怪物ID, sid怪物出现场景ID,x1 x左坐标, x2 x右坐标, y1 y上坐标, y1 y下坐标, count数量, liveTime生存期 ,range>0则会在玩家随机范围range的坐标刷怪 不填则固定坐标 } 
+			--[[
+			monsters =	--一下全部同时刷出
+			{
+				{sid = 8, mid = 1, x1 = 171, x2 = 180, y1 = 180, y2 = 202, count = 2, liveTime = 20,},
+			},
+			--]]
+
+			randMonsters = --每组随机找一个刷
+			{
+				{
+					{sid = 21, mid = 922, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 923, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 924, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 925, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 926, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 927, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 928, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 929, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+
+				},
+			},
+		},
+		
+		callBackFunc = function(sysarg,ItemTable) --使用成功后调用的附加回调 
+			
+		end,   
+  },
+   --高级BOSS符 
+	{
+		item_id = 2118,  --使用物品ID 
+		delayTime = 0, --延迟时间（秒） 
+		delayTips = Lang.Activity.dwj019,  --延迟界面显示 
+		needDelete = true,   --是否删除使用物品 
+		usePerDay = 1,		--每日可用次数(不限制则注释)
+		useArea = {sid = 21, x1 = 73, x2 = 125, y1 = 50, y2 = 95,},  --使用区域 {sid场景ID, x1 x左坐标, x2 x右坐标, y1 y上坐标, y2 y下坐标} 
+		wrongUseAreaTips = Lang.Activity.dwj023, --错误使用位置 提示 
+		sucessTips = Lang.Activity.dwj025,  --成功使用 提示 
+		tipsType = 3,  --公告类型 1副本公告 2场景公告 3世界公告 4个人公告
+		createMon = 
+		{	--创建怪物 {mid怪物ID, sid怪物出现场景ID,x1 x左坐标, x2 x右坐标, y1 y上坐标, y1 y下坐标, count数量, liveTime生存期 ,range>0则会在玩家随机范围range的坐标刷怪 不填则固定坐标 } 
+			--[[
+			monsters =	--一下全部同时刷出
+			{
+				{sid = 8, mid = 1, x1 = 171, x2 = 180, y1 = 180, y2 = 202, count = 2, liveTime = 20,},
+			},
+			--]]
+
+			randMonsters = --每组随机找一个刷
+			{
+				{
+					{sid = 21, mid = 930, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 931, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 932, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+					{sid = 21, mid = 933, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+				},
+			},
+		},
+		
+		callBackFunc = function(sysarg,ItemTable) --使用成功后调用的附加回调 
+			
+		end,   
+  },
+
+ --真龙珠
+	{
+		item_id = 2234,  --使用物品ID 
+		delayTime = 0, --延迟时间（秒） 
+		delayTips = Lang.Activity.dwj019,  --延迟界面显示 
+		needDelete = true,   --是否删除使用物品 
+		usePerDay = 1,		--每日可用次数(不限制则注释)
+		useArea = {sid = 80, x1 = 87, x2 = 105, y1 = 84, y2 = 99,},  --使用区域 {sid场景ID, x1 x左坐标, x2 x右坐标, y1 y上坐标, y2 y下坐标} 
+		wrongUseAreaTips = Lang.Activity.dwj049, --错误使用位置 提示 
+		sucessTips = Lang.Activity.dwj050,  --成功使用 提示 
+		tipsType = 4,  --公告类型 1副本公告 2场景公告 3世界公告 4个人公告
+		createMon = 
+		{	--创建怪物 {mid怪物ID, sid怪物出现场景ID,x1 x左坐标, x2 x右坐标, y1 y上坐标, y1 y下坐标, count数量, liveTime生存期 ,range>0则会在玩家随机范围range的坐标刷怪 不填则固定坐标 } 
+			--[[
+			monsters =	--一下全部同时刷出
+			{
+				{sid = 8, mid = 1, x1 = 171, x2 = 180, y1 = 180, y2 = 202, count = 2, liveTime = 20,},
+			},
+			--]]
+
+			randMonsters = --每组随机找一个刷
+			{
+				{
+					{sid = 80, mid = 1055, x1 = 87, x2 = 105, y1 = 84, y2 = 99, count = 1, liveTime = 1800, range = 1},
+					
+				},
+			},
+		},
+		
+		callBackFunc = function(sysarg,ItemTable) --使用成功后调用的附加回调 
+			
+		end,   
+  },
+--长生灵药 
+	{
+		item_id = 2525,  --使用物品ID 
+		delayTime = 0, --延迟时间（秒） 
+		delayTips = Lang.Activity.dwj019,  --延迟界面显示 
+		needDelete = true,   --是否删除使用物品 
+		usePerDay = 3,		--每日可用次数(不限制则注释)
+		useArea = {sid = 21, x1 = 73, x2 = 125, y1 = 50, y2 = 95,},  --使用区域 {sid场景ID, x1 x左坐标, x2 x右坐标, y1 y上坐标, y2 y下坐标} 
+		wrongUseAreaTips = Lang.Activity.dwj023, --错误使用位置 提示 
+		sucessTips = Lang.Activity.dwj093,  --成功使用 提示 
+		tipsType = 4,  --公告类型 1副本公告 2场景公告 3世界公告 4个人公告
+		createMon = 
+		{	--创建怪物 {mid怪物ID, sid怪物出现场景ID,x1 x左坐标, x2 x右坐标, y1 y上坐标, y1 y下坐标, count数量, liveTime生存期 ,range>0则会在玩家随机范围range的坐标刷怪 不填则固定坐标 } 
+			--[[
+			monsters =	--一下全部同时刷出
+			{
+				{sid = 8, mid = 1, x1 = 171, x2 = 180, y1 = 180, y2 = 202, count = 2, liveTime = 20,},
+			},
+			--]]
+
+			randMonsters = --每组随机找一个刷
+			{
+				{
+				    {sid = 21, mid = 1154, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+				},
+			},
+		},
+		
+		callBackFunc = function(sysarg,ItemTable) --使用成功后调用的附加回调 
+			
+		end,   
+  },
+  --魔王卡 
+	{
+		item_id = 2527,  --使用物品ID 
+		delayTime = 0, --延迟时间（秒） 
+		delayTips = Lang.Activity.dwj019,  --延迟界面显示 
+		needDelete = true,   --是否删除使用物品 
+		usePerDay = 3,		--每日可用次数(不限制则注释)
+		useArea = {sid = 21, x1 = 73, x2 = 125, y1 = 50, y2 = 95,},  --使用区域 {sid场景ID, x1 x左坐标, x2 x右坐标, y1 y上坐标, y2 y下坐标} 
+		wrongUseAreaTips = Lang.Activity.dwj023, --错误使用位置 提示 
+		sucessTips = Lang.Activity.dwj111,  --成功使用 提示 
+		tipsType = 3,  --公告类型 1副本公告 2场景公告 3世界公告 4个人公告
+		createMon = 
+		{	--创建怪物 {mid怪物ID, sid怪物出现场景ID,x1 x左坐标, x2 x右坐标, y1 y上坐标, y1 y下坐标, count数量, liveTime生存期 ,range>0则会在玩家随机范围range的坐标刷怪 不填则固定坐标 } 
+			--[[
+			monsters =	--一下全部同时刷出
+			{
+				{sid = 8, mid = 1, x1 = 171, x2 = 180, y1 = 180, y2 = 202, count = 2, liveTime = 20,},
+			},
+			--]]
+
+			randMonsters = --每组随机找一个刷
+			{
+				{
+				    {sid = 21, mid = 1180, x1 = 73, x2 = 125, y1 = 50, y2 = 95, count = 1, liveTime = 1800, range = 1},
+				},
+			},
+		},
+		
+		callBackFunc = function(sysarg,ItemTable) --使用成功后调用的附加回调 
+			
+		end,   
+  },
+ 
+  
+  ----------------------------------------------------------- 
+}

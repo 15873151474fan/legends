@@ -1,0 +1,9 @@
+
+MiscsImplement.removeScriptDelayMsg = function (sysarg,msgid, packet)
+	local postint = DataPack.readInt(packet)
+	if postint ~= nil then 
+	  Actor.removeEntityScriptDelayMsg(sysarg,postint)
+	end
+end
+
+MiscsImplement.registerMsgHandler(8, MiscsImplement.removeScriptDelayMsg)

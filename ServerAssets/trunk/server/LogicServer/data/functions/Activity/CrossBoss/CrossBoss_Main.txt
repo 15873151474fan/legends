@@ -1,0 +1,268 @@
+--跨服boss
+--lua script
+--#include "data\language\LangCode.txt" once			--语言包
+--#include "data\config\activityconfig\CrossGuildSbk\CrossBoss.txt" once		
+--#include "data\config\activityconfig\CrossGuildSbk\CrossCommon.txt" once		
+--#include "data\config\pk\PkConfig.txt" once
+--#include "data\config\activityconfig\CrossMatches\CrossMatchesConfig.txt" once
+
+
+--创建boss通用
+function CreateBossCommon(index)
+	local config = CrossBossConfig.BossConfig[index]
+	if config == nil then return end
+	
+	local hScene = Fuben.getSceneHandleById(config.sceneid, 0)
+	if index == 1 then
+		local pMonster = Fuben.createMonster(hScene, config.monsterid, config.pos_x, config.pos_y, config.liveTime)
+	end
+
+	System.addCrossBossData(CrossBossConfig.BossConfig[index].monsterid,nLev,"",0,0,1)
+end
+
+--boss死亡后的处理
+function OnAfterCrossBossDie(sysarg,monster,index)
+	if index > 0 and index <= table.getn(CrossBossConfig.BossConfig) then
+		local nLev,nExp = System.getMonsterGrowInfo(CrossBossConfig.BossConfig[index].monsterid,0,0)
+		local nNextBoss = 0
+		if index < table.getn(CrossBossConfig.BossConfig) then
+			nNextBoss = CrossBossConfig.BossConfig[index+1].monsterid
+		end
+		Actor.onSendKillBossToServer(sysarg,CrossBossConfig.BossConfig[index].monsterid,nLev,nNextBoss)
+		
+		System.broadcastTipmsg(string.format(Lang.Activity.ku0075,Actor.getName(monster),Actor.getName(sysarg)),2+128)
+		--Fuben.sendMsgToScene(Actor.getSceneHandle(sysarg),string.format(Lang.Activity.ku0075,Actor.getName(monster),Actor.getName(sysarg)),2+128)
+	end
+end
+
+--跨服boss战场开启
+function CanEnterCrossBoss()
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	local sVar = System.getStaticVar()
+	sVar.CanEnterCrossBossFlag = 1
+	System.broadcastTipmsg(Lang.Activity.ku0026,2+128)
+
+	local ranking = Ranking.getRanking(CrossCommonConig.BossRankName) 
+	if ranking then
+		Ranking.clearRanking(ranking)
+		for i=1,table.getn(CrossBossConfig.BossConfig) do
+			local nItem = Ranking.addItem(ranking,CrossBossConfig.BossConfig[i].monsterid,i)
+			if nItem then
+				for j=0,8 do
+					Ranking.setSub(nItem,j,tostring(0))
+				end
+				--local nLev,nExp = getMonsterGrowInfo(CrossBossConfig.BossConfig[i].monsterid,0,0)
+				if i == 1 then
+					Ranking.setSub(nItem,4,tostring(1))
+				end
+			end
+		end
+
+		Ranking.save(ranking,CrossCommonConig.BossRankFile)
+	end
+end
+
+--跨服boss战场关闭
+function CloseCrossBoss()
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	local sVar = System.getStaticVar()
+	sVar.CanEnterCrossBossFlag = nil
+end
+
+--请求进入跨服场景
+function OnEnterCrossSceneOp(sysarg, args)
+	local nType = args[2]
+	
+	--print("OnEnterCrossSceneOp:"..nType)
+	local nPkValue = Actor.getIntProperty(sysarg, PROP_ACTOR_PK_VALUE)
+	if nPkValue > PkConfig.redName then			--红名不能进入跨服
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0069, ttFlyTip)
+		return
+	end
+
+	if nType == 1 then		--跨服boss
+		OnEnterCrossBossScene(sysarg)
+	elseif nType == 2 then		--跨服天下第一
+		OnEnterCrossWorldNumOne(sysarg)
+	elseif nType == 3 then		--跨服沙巴克
+		OnEnterCrossWorldSbk(sysarg)
+	elseif nType == 5 then      --跨服联赛
+		OnEnterCrossMatches(sysarg)
+	end
+	
+end
+
+--跨服沙巴克
+function OnEnterCrossWorldSbk(sysarg)
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	local sVar = System.getStaticVar()
+	if sVar.CenEnterCrossFlag == nil or sVar.CenEnterCrossFlag == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0039, ttFlyTip)
+		return
+	end
+
+	--if Actor.checkActorLevel(sysarg, CrossBossConfig.minLeve, 0) ~= true then
+	--	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0025,CrossBossConfig.minLeve), ttFlyTip)
+	--	return
+	--end
+
+	local nBattle = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+	if nBattle < CrossCommonConig.minSbkBattle then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0018,CrossCommonConig.minSbkBattle), ttFlyTip)
+		return
+	end
+
+	Actor.reqTransmitToCommonServer(sysarg)	
+end
+
+--跨服天下第一
+function OnEnterCrossWorldNumOne(sysarg)
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	local sVar = System.getStaticVar()
+	if sVar.CanEnterCrossWorldOneFlag == nil or sVar.CanEnterCrossWorldOneFlag == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0021, ttFlyTip)
+		return
+	end
+	
+	local nBattle = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+	if nBattle < CrossCommonConig.minBattle then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0018,CrossCommonConig.minBattle), ttFlyTip)
+		return
+	end
+
+	Actor.reqTransmitToCommonServer(sysarg)	
+end
+
+--进入跨服boss活动
+function OnEnterCrossBossScene(sysarg)
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	local sVar = System.getStaticVar()
+	if sVar.CanEnterCrossBossFlag == nil or sVar.CanEnterCrossBossFlag == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0017, ttFlyTip)
+		return
+	end
+
+	if Actor.checkActorLevel(sysarg, CrossBossConfig.nLevel, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0025,CrossBossConfig.nLevel), ttFlyTip)
+		return
+	end
+
+	local nBattle = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+	if nBattle < CrossBossConfig.nBattle then		--战力不足3000
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0018,CrossBossConfig.nBattle), ttFlyTip)
+		return
+	end
+
+	Actor.reqTransmitToCommonServer(sysarg)
+end
+
+--开始跨服boss
+function StartCrossBoss()
+	--print("StartCrossBoss")
+	local sVar = System.getStaticVar()
+	sVar.StartCrossBossFlag = 1
+
+	System.initCrossBossData()		--初始化boss的数据
+
+	for i=1,table.getn(CrossBossConfig.BossConfig) do
+		local nLev,nExp = System.getMonsterGrowInfo(CrossBossConfig.BossConfig[i].monsterid,0,0)
+		local hScene = Fuben.getSceneHandleById(CrossBossConfig.BossConfig[i].sceneid, 0)
+		System.addCrossBossData(CrossBossConfig.BossConfig[i].monsterid,nLev,"",0,0,0)
+		Fuben.clearMonster(hScene,CrossBossConfig.BossConfig[i].monsterid)
+	end
+	
+	CreateBossCommon(1)	
+
+	System.broadcastTipmsg(Lang.Activity.ku0022,2+128)
+
+	local hScene = Fuben.getSceneHandleById(CrossBossConfig.BossConfig[1].sceneid, 0)
+	Fuben.setSceneTime(hScene,CrossBossConfig.BattleTimes)
+end
+
+--结束跨服boss战
+function EndCrossBoss()
+	local sVar = System.getStaticVar()
+	sVar.StartCrossBossFlag = nil
+	System.broadcastTipmsg(Lang.Activity.ku0023,2+128)
+
+	local nHandle = Fuben.getSceneHandleById(CrossCommonConig.sceneid,0)
+	
+	local playerList = LuaHelp.getSceneAliveActorListById(CrossCommonConig.sceneid)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				Actor.enterScene(player,CrossCommonConig.outSceneId,CrossCommonConig.outX,CrossCommonConig.outY)
+			end
+		end
+	end
+
+end
+
+--踢出玩家回原来的服
+function RebackRawServer()
+	local nHandle = Fuben.getSceneHandleById(CrossCommonConig.outSceneId,0)
+	
+	local playerList = LuaHelp.getAllActorList()		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				Actor.reqTransmitToRawServer(player)  
+			end
+		end
+	end
+end
+
+--请求进入跨服场景
+function OnSendCrossWorldState(sysarg, args)
+	local pack = DataPack.allocPacket(sysarg, 46, 5)
+	if pack ~= nil then
+		local sVar = System.getStaticVar()
+		if sVar.CanEnterCrossWorldOneFlag == nil or sVar.CanEnterCrossWorldOneFlag == 0 then
+			DataPack.writeChar(pack, 0)
+		else
+			DataPack.writeChar(pack, 1)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--进入跨服联赛活动
+function OnEnterCrossMatches(sysarg) 
+	if System.isCommonServer() == true then
+		return 
+	end
+	
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	if CheckCrossMatchesOpen() ~= true then
+		return
+	end
+
+	if CheckMatchesActivityTime(6) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0075, ttFlyTip)
+		return 
+	end
+	
+	Actor.enterFuBen(sysarg,0,CrossMatchesConfig.enterSeneId,CrossMatchesConfig.enterPosx,CrossMatchesConfig.enterPosY) 
+	Actor.reqTransmitToCommonServer(sysarg)
+end
+

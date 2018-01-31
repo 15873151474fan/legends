@@ -1,0 +1,68 @@
+﻿--高老庄
+{
+	scenceid = 72,
+	scencename = Lang.SceneName.s00072,
+	mapfilename = "72GaoJiaDian",
+	minlevel = 30,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0, 
+	music = "mohuangxingkong.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 276,
+	sceneHeight = 280,
+	sceneType=3,
+	seckillId = 14,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+	area =
+	{
+		{ name = Lang.SceneName.s00072, range = { 10,10,20,20,60,50}, center = { 103,96},attri = {{type=19,value = {}},{type=1,value = {}},{type=39,value = {}},{type=46,value = {196,210,212,232}},{type=87,value = {}},}},	--默认配置场景，
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh72.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00042, posx = 112, posy = 121,script= "data/script/GaoLaoZhuang/YaoDianZhangGui.txt",modelid=78,icon = 78,funcId=7,classId=0},
+		{name = Lang.EntityName.n00028, posx = 87, posy = 123,script= "data/script/GaoLaoZhuang/ZaHuoShang.txt",modelid=79,icon = 79,funcId=9,classId=0},
+    {name = Lang.EntityName.n00009, posx = 119, posy = 88,script= "data/script/GaoLaoZhuang/TieJiang.txt",modelid=72,icon = 72,funcId=5,classId=0},
+    {name = Lang.EntityName.n00013, posx = 114, posy = 135,script= "data/script/GaoLaoZhuang/CangKuGuanLiYuan.txt",modelid=95,icon = 95,funcId=2,classId=0},
+		{name = Lang.EntityName.n00011, posx = 87, posy = 68,script= "data/script/GaoLaoZhuang/ShouShiDianZhangGui.txt",modelid=88,icon = 88,funcId=4,classId=0},
+		{name = Lang.EntityName.n00010, posx = 103, posy = 76,script= "data/script/GaoLaoZhuang/FuZhuangDianZhangGui.txt",modelid=56,icon = 56,funcId=4,classId=0},
+		{name = Lang.EntityName.n00012, posx = 123, posy = 104,script= "data/script/GaoLaoZhuang/ShuDianLaoBan.txt",modelid=86,icon = 86,funcId=10,classId=0},
+		
+		{name = Lang.EntityName.n00224, posx = 160, posy = 27,script= "data/script/GaoLaoZhuang/NvLaoBan.txt",modelid=136,icon = 86,funcId=0,classId=4},
+		{name = Lang.EntityName.n00225, posx = 103, posy = 160,script= "data/script/GaoLaoZhuang/DaTangGuanBing.txt",modelid=90,icon = 86,funcId=0,classId=4},
+		{name = Lang.EntityName.n00226, posx = 123, posy = 170,script= "data/script/GaoLaoZhuang/MuYeCha.txt",modelid=137,icon = 86,funcId=0,classId=4},
+		{name = Lang.EntityName.n00227, posx = 174, posy = 164,script= "data/script/GaoLaoZhuang/MieMoShi.txt",modelid=135,icon = 86,funcId=0,classId=4},
+		{name = Lang.EntityName.n00228, posx = 189, posy = 148,script= "data/script/GaoLaoZhuang/TianShanLaoGuai.txt",modelid=109,icon = 86,funcId=0,classId=4},
+		{name = Lang.EntityName.n00229, posx = 213, posy = 174,script= "data/script/GaoLaoZhuang/JiMoLangJun.txt",modelid=92,icon = 86,funcId=0,classId=4}, 
+    {name = Lang.EntityName.n00197, posx = 120, posy = 197,script = "data/script/GaoLaoZhuang/TangXuanZang.txt",modelid = 48,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00223, posx = 96, posy = 207,script = "data/script/GaoLaoZhuang/ShuGuNiang.txt",modelid = 84,icon = 1,funcId = 0,classId=4},
+    {name = Lang.EntityName.n00230, posx = 217, posy = 106,script = "data/script/GaoLaoZhuang/PangShiFu.txt",modelid = 171,icon = 1,funcId = 0,classId=4}, 
+    {name = Lang.EntityName.n00072, posx = 142, posy = 205,script = "data/script/GaoLaoZhuang/ErDangJia.txt",modelid = 63,icon = 1,funcId = 0,classId=4},
+    {name = Lang.EntityName.n00083, posx = 120, posy = 219,script = "data/script/GaoLaoZhuang/ShiSiNiang.txt",modelid = 56,icon = 1,funcId = 0,classId=4},
+    {name = Lang.EntityName.n00074, posx = 154, posy = 174,script = "data/script/GaoLaoZhuang/PuTao.txt",modelid = 75,icon = 1,funcId = 0,classId=4},
+    {name = Lang.EntityName.n00248, posx = 203, posy = 194,script = "data/script/GaoLaoZhuang/DiTing.txt",modelid = 54,icon = 1,funcId = 0,classId=4},
+    {name = Lang.EntityName.n00249, posx = 179, posy = 190,script = "data/script/GaoLaoZhuang/NanHuaLaoXian.txt",modelid = 111,icon = 1,funcId = 0,classId=4},   
+ 	},  
+ 	
+  teleport =
+  {
+     --传送点配置 
+     { posx = 180, posy = 24,toSceneid = 71,toPosx = 142, toPosy = 177,modelid = 50000,name = Lang.SceneName.s00071 },  --高老庄→水村 
+     { posx = 246, posy = 92,toSceneid = 73,toPosx = 34, toPosy = 113,modelid = 50000,name = Lang.SceneName.s00073 },  --高老庄→五指山 
+  },
+
+},

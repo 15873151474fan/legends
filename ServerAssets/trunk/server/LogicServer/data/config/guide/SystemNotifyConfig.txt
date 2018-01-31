@@ -1,0 +1,685 @@
+﻿-- 系统预告配置
+--#include "..\..\language\LangCode.txt"
+
+ --因Int只能保存32位整形变量 因此现在ID为32个 ID不能重复使用，只能向后添加 删除系统 直接注释掉
+
+SystemNotifyConfig =
+{
+	--[[
+	--此配置为例子 ID从1开始
+	{
+		id = 0,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		notifyLevel = 5,  --预告开始等级
+		notifyOpenDay = 4,	--预告开始开服天数
+
+		openLevel = 11,  --系统开放的等级
+		openDay = 4,	--系统开放的开服天数
+
+		systemName = Lang.SystemNotify.system9Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system9Desc, --系统功能描述
+
+		icon = 29,  --开放系统对应图标
+		openWindow = 67,	--系统开启窗口id
+
+		guideDesc1 = "",
+		guideDesc2 = "",
+
+	},
+	--]]
+    
+	--[[
+	--成就系统领取属性勋章
+	{
+		id = 9,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 27,  --飞出预告按钮的图标类型
+		notifyLevel = 1,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 1,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system1Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system1Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 11,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc1,
+		guideDesc2 = Lang.SystemNotify.guideDesc2,
+	},]]
+	
+	--[[
+	--武灵系统开放
+	{
+		id = 1,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 23,  --飞出预告按钮的图标类型
+		notifyLevel = 28,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 60,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system2Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system2Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 11,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc3,
+		guideDesc2 = Lang.SystemNotify.guideDesc4,
+		isPlayEffect = false,
+	},]]
+	
+	--坐骑系统开放
+	{
+		id = 1,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 23,  --飞出预告按钮的图标类型
+		notifyLevel = 35,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 40,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system2Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system1Desc, --系统功能描述
+
+		openWindow = "164",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 11,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc1,
+		guideDesc2 = Lang.SystemNotify.guideDesc2,
+		isPlayEffect = true,
+	},
+	
+	--翅膀系统
+	{
+		id = 2,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 30,  --飞出预告按钮的图标类型
+		notifyLevel = 59,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 64,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system4Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system2Desc, --系统功能描述
+
+		openWindow = "165",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 10,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc3,
+		guideDesc2 = Lang.SystemNotify.guideDesc4,
+		isPlayEffect = true,
+	},
+	
+	--个人boss
+	{
+		id = 3,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 46,  --飞出预告按钮的图标类型
+		notifyLevel = 50,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 55,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system5Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system3Desc, --系统功能描述
+
+		openWindow = "166",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 6,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc5,
+		guideDesc2 = Lang.SystemNotify.guideDesc6,	
+	},	
+	
+	--灵炉星珠、护镜系统
+	{
+		id = 5,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 32,  --飞出预告按钮的图标类型
+		notifyLevel = 64,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 65,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system6Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system5Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc9,
+		guideDesc2 = Lang.SystemNotify.guideDesc10,
+		isPlayEffect = false,
+	},
+	
+	--九荒异宝系统
+	{
+		id = 6,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 32,  --飞出预告按钮的图标类型
+		notifyLevel = 65,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 66,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system6Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system6Desc, --系统功能描述
+
+		openWindow = "181,1",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc11,
+		guideDesc2 = Lang.SystemNotify.guideDesc12,
+		isPlayEffect = true,
+	},
+	
+	--转生系统
+	{
+		id = 7,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 32,  --飞出预告按钮的图标类型
+		notifyLevel = 65,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 70,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system6Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system7Desc, --系统功能描述
+
+		openWindow = "1,4",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc13,
+		guideDesc2 = Lang.SystemNotify.guideDesc14,
+		isPlayEffect = false,
+	},
+	
+	--官职系统
+	{
+		id = 8,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 32,  --飞出预告按钮的图标类型
+		notifyLevel = 45,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 50,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system5Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system4Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc5,
+		guideDesc2 = Lang.SystemNotify.guideDesc6,
+        isPlayEffect = true,		
+	},
+	
+	--[[
+	--魂玉系统
+	{
+		id = 4,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 29,  --飞出预告按钮的图标类型
+		notifyLevel = 50,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 55,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system3Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system4Desc, --系统功能描述
+
+		openWindow = "1,2",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 10,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc7,
+		guideDesc2 = Lang.SystemNotify.guideDesc8,
+	},]]
+	
+	
+	--[[
+	--血脉系统
+	{
+		id = 6,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 32,  --飞出预告按钮的图标类型
+		notifyLevel = 58,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 60,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system6Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system6Desc, --系统功能描述
+
+		openWindow = "1,2",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc11,
+		guideDesc2 = Lang.SystemNotify.guideDesc12,
+		isPlayEffect = true,
+	},]]
+	
+	--[[
+	--元魄系统
+	{
+		id = 7,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 54,  --飞出预告按钮的图标类型
+		notifyLevel = 63,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 65,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system7Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system7Desc, --系统功能描述
+
+		openWindow = "1,3",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc13,
+		guideDesc2 = Lang.SystemNotify.guideDesc14,
+		isPlayEffect = true,
+	},]]
+	
+    --[[	
+	--攻击模式开启
+	{
+		id = 1,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 27,  --飞出预告按钮的图标类型
+		notifyLevel = 20,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 30,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system1Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system1Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 11,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc1,
+		guideDesc2 = Lang.SystemNotify.guideDesc2,
+	},
+	--]]
+	
+    --[[
+	--师徒系统
+	{
+		id = 2,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 28,  --飞出预告按钮的图标类型
+		notifyLevel = 33,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 34,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system2Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system2Desc, --系统功能描述
+
+		openWindow = "24,2",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 10,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc3,
+		guideDesc2 = Lang.SystemNotify.guideDesc4,
+	},
+	--]]
+	
+    --[[
+	--伴侣系统
+	{
+		id = 3,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 29,  --飞出预告按钮的图标类型
+		notifyLevel = 35,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 36,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system3Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system3Desc, --系统功能描述
+
+		openWindow = "24,4",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 10,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc5,
+		guideDesc2 = Lang.SystemNotify.guideDesc6,
+	},
+    --]]
+	
+	--[[
+	--战队系统
+	{
+		id = 4,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 30,  --飞出预告按钮的图标类型
+		notifyLevel = 44,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 45,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system4Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system4Desc, --系统功能描述
+
+		openWindow = "24,3",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 10,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc7,
+		guideDesc2 = Lang.SystemNotify.guideDesc8,
+	},
+	--]]
+	
+	--[[
+	--必杀技系统
+	{
+		id = 5,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 31,  --飞出预告按钮的图标类型
+		notifyLevel = 42,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 43,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system5Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system5Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 6,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc9,
+		guideDesc2 = Lang.SystemNotify.guideDesc10,
+	},
+	--]]
+	
+    --[[
+	--坐骑系统
+	{
+		id = 6,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 32,  --飞出预告按钮的图标类型
+		notifyLevel = 31,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 32,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system6Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system6Desc, --系统功能描述
+
+		openWindow = "1,2",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc11,
+		guideDesc2 = Lang.SystemNotify.guideDesc12,
+	},
+	--]]
+	
+    --[[
+	--魂石系统
+	{
+		id = 7,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 33,  --飞出预告按钮的图标类型
+		notifyLevel = 37,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 42,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system7Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system7Desc, --系统功能描述
+
+		openWindow = "1,3",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc13,
+		guideDesc2 = Lang.SystemNotify.guideDesc14,
+	},
+	--]]
+
+    --[[	
+	--英雄系统
+	{
+		id = 8,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 34,  --飞出预告按钮的图标类型
+		notifyLevel = 46,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 3,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 30,  --系统开放的等级
+		openDay = 5,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system8Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system8Desc, --系统功能描述
+
+		openWindow = "1,4",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc15,
+		guideDesc2 = Lang.SystemNotify.guideDesc16,
+	},
+	--]]
+	
+	--[[
+	--装备合成
+	{
+		id = 9,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 27,  --飞出预告按钮的图标类型
+		notifyLevel = 44,  --预告开始等级
+		notifyCircle = 0,	--转生数
+		notifyOpenDay = 3,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 0,	--转生数
+		openLevel = 45,  --系统开放的等级
+		openDay = 3,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system9Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system9Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 11,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc17,
+		guideDesc2 = Lang.SystemNotify.guideDesc18,
+	},
+	--]]
+	
+	--[[
+	--八卦天赋
+	{
+		id = 13,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 55,  --飞出预告按钮的图标类型
+		notifyLevel = 47,  --预告开始等级
+		notifyCircle = 3,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 3,	--转生数
+		openLevel = 50,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system10Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system10Desc, --系统功能描述
+
+		openWindow = "2,4",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 12,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc19,
+		guideDesc2 = Lang.SystemNotify.guideDesc20,
+	},
+	--]]
+	--[[
+	{
+		id = 11,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 27,  --飞出预告按钮的图标类型
+		notifyLevel = 51,  --预告开始等级
+		notifyOpenDay = 6,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openLevel = 55,  --系统开放的等级
+		openDay = 10,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system11Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system11Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 11,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc21,
+		guideDesc2 = Lang.SystemNotify.guideDesc22,
+	},
+	{
+		id = 12,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 27,  --飞出预告按钮的图标类型
+		notifyLevel = 56,  --预告开始等级
+		notifyOpenDay = 11,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openLevel = 60,  --系统开放的等级
+		openDay = 20,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system12Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system12Desc, --系统功能描述
+
+		openWindow = "",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 11,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc23,
+		guideDesc2 = Lang.SystemNotify.guideDesc24,
+	},]]
+	
+	--[[
+	--灵兽系统
+	{
+		id = 16,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 59,  --飞出预告按钮的图标类型
+		notifyLevel = 47,  --预告开始等级
+		notifyCircle = 4,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 4,	--转生数
+		openLevel = 50,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system14Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system14Desc, --系统功能描述
+
+		openWindow = "1,6",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc25,
+		guideDesc2 = Lang.SystemNotify.guideDesc26,
+	},
+	--]]
+	
+	--[[
+	--神器系统
+	{
+		id = 14,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 27,  --飞出预告按钮的图标类型
+		notifyLevel = 47,  --预告开始等级
+		notifyCircle = 5,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 5,	--转生数
+		openLevel = 50,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system11Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system11Desc, --系统功能描述
+
+		openWindow = "1,5",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc21,
+		guideDesc2 = Lang.SystemNotify.guideDesc22,
+	},
+	--]]
+	
+	--[[
+	--符石系统
+	{
+		id = 15,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 56,  --飞出预告按钮的图标类型
+		notifyLevel = 47,  --预告开始等级
+		notifyCircle = 8,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 8,	--转生数
+		openLevel = 50,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system13Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system13Desc, --系统功能描述
+
+		openWindow = "1,6",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc23,
+		guideDesc2 = Lang.SystemNotify.guideDesc24,
+	},
+	--]]
+	
+	--[[
+	--神臂系统
+	{
+		id = 17,		--因Int只能保存32位整形变量 因此现在ID为32个 (也用于系统对应图片ID)
+		buttonId = 61,  --飞出预告按钮的图标类型
+		notifyLevel = 47,  --预告开始等级
+		notifyCircle = 10,	--转生数
+		notifyOpenDay = 0,	--预告开始开服天数 (0代表不限制开服天数)
+
+		openCircle = 10,	--转生数
+		openLevel = 50,  --系统开放的等级
+		openDay = 0,	--系统开放的开服天数	(0代表不限制开服天数)
+
+		systemName = Lang.SystemNotify.system15Title, --开放系统的名字，比如坐骑系统
+		desc = Lang.SystemNotify.system15Desc, --系统功能描述
+
+		openWindow = "1,5",	--系统开启窗口格式（"窗口ID, 标签ID" ， ID从1开始）
+		systemButton = 1,	--指引按钮的系统tabID
+
+		guideDesc1 = Lang.SystemNotify.guideDesc27,
+		guideDesc2 = Lang.SystemNotify.guideDesc28,
+	},
+	--]]
+
+	
+
+	
+}

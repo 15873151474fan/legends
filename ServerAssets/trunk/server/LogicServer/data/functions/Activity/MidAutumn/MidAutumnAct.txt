@@ -1,0 +1,62 @@
+
+--lua script 
+--#include "data\config\activityconfig\MidAutumn\MidAutumnAct.txt" once
+--#include "data\functions\Activity\MidAutumn\MidAutumnLogin.txt" once
+--#include "data\functions\Activity\MidAutumn\AutumnConsume.txt" once 
+
+--登陆处理
+function MidAutumnLoginHandle(sysarg)
+	if System.isInDateRange(unpack(MidAutumnActConfig.actTime)) == true then
+		SendMidAutumnOpenFlag(sysarg, 1)
+	else
+		local tempActTime = {}  
+		for k, v in ipairs(MidAutumnActConfig.actTime) do
+			table.insert(tempActTime, v)
+		end
+		tempActTime[9] = tempActTime[9] + 1
+		if System.isInDateRange(unpack(tempActTime)) ~= true then  
+			ClearMidAutumnData()  --清除掉上次活动的数据，先这样写
+		end
+	end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) == true then
+		SetMidAutumnTimeByLogin(sysarg)
+	end
+end
+
+--新的一天处理
+function MidAutumnNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(MidAutumnActConfig.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(MidAutumnActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendMidAutumnOpenFlag(sysarg, 1)
+		end
+	else
+		local activityTime = {}
+		for k, v in ipairs(MidAutumnActConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[3] = activityTime[9]
+		activityTime[9] = activityTime[9] + 1
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendMidAutumnOpenFlag(sysarg, 0)
+		end
+	end
+
+end
+
+function SendMidAutumnOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 69)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end

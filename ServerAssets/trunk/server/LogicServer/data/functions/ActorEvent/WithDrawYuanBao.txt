@@ -1,0 +1,57 @@
+﻿
+--#include "data\config\guide\paysales.txt" once --充值促销系统
+--#include "data\functions\Systems\PaySalesSystem\Common.txt" once
+
+--#include "data\functions\Systems\PaySalesSystem\SurpriseRet.txt" once --惊喜回馈
+
+--#include "data\functions\Activity\Festival\FestivalWithDrawYuanbao.txt" once  --新春反馈
+
+--#include "data\functions\Systems\Archive\AchieveWithDrawYuanBao.txt"	--每日提取元宝触发成就
+
+--#include "data\functions\Systems\CollectSystem\GradientGiftCommon.txt" once
+
+--#include "data\functions\Activity\MidAutumn\Recharge.txt" once --中秋充值返利活动
+
+--#include "data\functions\Activity\LuxuryRebate\LuxuryRebate.txt" once --豪华返利
+
+--#include "data\functions\Systems\NewVipSystem\NewVipUpGrade.txt" once --新Vip升级 
+
+----#include "data\functions\Systems\Miscs\EverDayDrawYuanBaoGift.txt" once --每日充值元宝 
+
+EventCallDispatcher.WithDrawYuanBaoHandler = function (sysarg, args)
+
+	local nYuanBao = args[1]	--提取元宝数目
+	
+	OnPaySalesWithDrawYuanBao(sysarg, nYuanBao)
+	
+	OnSurpriseRetWithDrawYuanBao(sysarg, nYuanBao)
+
+	OnFestivalWithDrawYuanbao(sysarg, nYuanBao)
+	
+	OnAchieveWithDrawYuanBao(sysarg, nYuanBao)	--触发每日提取元宝成就
+
+	OnGradientWithDrawYb(sysarg,nYuanBao)
+
+	OnRechargeYuanBao(sysarg, nYuanBao) --中秋活动保存当天充值的元宝
+	
+	OnLuxuryRebateToday(sysarg, nYuanBao) --豪华返利保存当天充值的元宝
+	
+	AddNewVipExp(sysarg, nYuanBao)--更新Vip等级 
+	
+	ClientQueryTodayDrawYuanBaoGiftCount(sysarg) --推送每日充值信息 
+	--print("SetStartActtPeriodValuenYuanBao"..nYuanBao)
+    local SysVar = System.getStaticVar()
+    if not SysVar.SartActCharge then
+       SysVar.SartActCharge = 0
+    end
+    if SysVar.SartActCharge == 0 then
+       System.runNpcFunction(System.getGlobalNpc(), "SetStartActPeriodValue", sysarg, 1, 1, 0, nYuanBao)
+    end
+end
+
+
+
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeWithDrawYuanBao, EventCallDispatcher.WithDrawYuanBaoHandler)

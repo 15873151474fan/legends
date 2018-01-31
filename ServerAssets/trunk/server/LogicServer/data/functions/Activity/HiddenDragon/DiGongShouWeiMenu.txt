@@ -1,0 +1,17 @@
+﻿
+--#include "HiddenDragonCommon.txt" once
+--#include "data\functions\Systems\FlowerSystem\RoseCommon.txt" once 
+
+function DiGongShouWeiMenu(sysarg)	
+	local str = ""
+	
+	str = str.."\\<#BL"..Lang.Activity.ylsz0001.."/@BriberyHiddenDragon>"	--<贿赂>
+	str = str.."\\<#BL"..Lang.Activity.ylsz0002.."/@RushHiddenDragon>"	--<硬闯>
+	str = str..Lang.Activity.a00004  --<购买药品>
+	str = str.."\\<#BL"..Lang.ScriptTips.c000020.."/@BuyRedRose>"		--<购买红玫瑰>
+	str = str.."\\<#BL"..Lang.Activity.ylsz0003.."/@AboutHiddenDragon>"	--<活动详情>
+
+	return str
+end
+
+table.insert(MainFnTable, DiGongShouWeiMenu)

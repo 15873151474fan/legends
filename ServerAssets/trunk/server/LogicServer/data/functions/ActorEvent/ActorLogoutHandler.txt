@@ -1,0 +1,351 @@
+﻿--lua script
+--本脚本片段实现了角色登出游戏的默认处理 
+
+--#include "data\functions\Activity\PKChallenge\PKChallengeCommon.txt" once  --处理pk挑战退出
+--#include "data\functions\Activity\CampBattle\CampBattleCommon.txt" once --处理阵营战退出
+--#include "data\functions\Activity\CrossBattlefield\CrossBattleField_Common.txt" once
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+--#include "data\functions\Activity\Festival\NationalDayCommon.txt" once
+--#include "data\functions\Activity\ProgrammerActivity\ProgrammerCommon.txt" once
+--#include "data\config\activityconfig\CrossMatches\CrossMatchesConfig.txt" once
+--#include "data\functions\Activity\CrossMatches\CrossMatchesCommon.txt" once
+--#include "data\functions\Activity\RushSkyMars\RushSkyCommon.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\ReversedLuck.txt" once
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once 
+--#include "data\functions\Activity\HundredServerHorse\LoginAward.txt" once
+--#include "data\functions\Activity\AsuraField\Asura_common.txt" once
+--#include "data\functions\Activity\ValentinesDay\ValentineGift.txt" once 
+--#include "data\functions\Activity\AnniversaryHorse\Celebration.txt" once --周年庆典
+--#include "data\functions\Activity\NanJiangGuDi\XunShouLeiTai.txt" once
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseLuckDraw.txt" once
+
+-------------------------------------------------------------------------------------------
+--释放回购物品
+EventCallDispatcher._LogoutReleaseRepurchase = function ( sysarg, args )
+  local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local rd = getActorData( sysarg, 133 )
+  if ( rd == nil or table.getn(rd) <= 0 ) then
+    return
+  end
+  table.foreachi( rd, function( i, v ) Item.releaseItemPtr( v.ptr ) end )
+end
+             
+-------------------------------------------------------------------------------------------
+EventCallDispatcher.defaultHandlerPlayerLogout = function (sysarg,arg)
+	--print("LogonOut:"..Actor.getName(sysarg))
+  local TeamId = Actor.getTeamId(sysarg)
+  if TeamId ~= 0 then
+	  if Fuben.getTeamFubenStatus(TeamId) == tsReady then
+	  	Actor.exitTeam(sysarg)
+	  end
+  end
+  --noviceLogoff(sysarg, arg)
+  SaveData(sysarg,Actor.getIntProperty(sysarg,PROP_ENTITY_ID))
+  --释放回购物品
+  --EventCallDispatcher._LogoutReleaseRepurchase(sysarg,arg)
+  
+	local dyvar = Actor.getDyanmicVar(sysarg)
+	local iFbId = dyvar and dyvar.releaseFbId or 0
+	local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	if iFbId > 0 then
+		RemFromList(iFbId, myId)
+		dyvar.releaseFbId = 0
+	end
+	if dyvar.escortMonsterHandle then
+		Fuben.clearMonster(dyvar.escortMonsterHandle)
+		dyvar.escortMonsterHandle = nil
+	end
+	--处理pk挑战数据
+	--if IsInPkChallengeScene(sysarg) then
+		--doClearPkData(sysarg)
+	--elseif IsInCampBattle(sysarg) then
+		--doExitCampBattle(sysarg)
+	--end
+
+	--天书任务下线保存值
+	local sVar = Actor.getStaticVar(sysarg)
+	local times, flushLv, surpItemId = Actor.getQuestBookInfo(sysarg, 0, 0)
+	sVar.CoinQuestTimes = times
+	sVar.BookFlushLevel = flushLv
+	sVar.BookSurpItemId = surpItemId
+	
+	if System.isCommonServer() == true then			--如果是公共服
+		OnCrossBattleloginOut(sysarg)
+		OnCrossMatchesLogout(sysarg)  --跨服联赛
+	end
+
+	--处理战神史册的问题
+	--local FbID = Actor.getFubenId(sysarg)
+	--local fbPtr = Actor.getFubenPrt(sysarg)
+
+	--local fbdata = FuBen[FbID]
+ 
+	--if fbdata then
+		--if fbdata.groupId == 14 then
+			--Actor.exitFuben(sysarg)
+			--DeductFubenTimes(sysarg, FbID) 
+		--end	
+	--end 
+
+	local hBeast = Actor.getSubordinateHandle(sysarg)
+	if hBeast and hBeast > 0 then
+		Actor.setSubordinateHandle(sysarg, 0) 
+		Fuben.clearMonster(hBeast)  --删除国庆灵兽
+	end
+	
+	SetLuckyBagTimeByLogout(sysarg) --设置福袋获取时间
+	SetReversedLuckTimeByLogout(sysarg) --设置获取倒福时间
+	SetLoginAwardTimeByLogout(sysarg) --设置获取登陆奖励时间
+	SetConsumeActivity(sysarg)  --设置国庆消费活动 
+	
+	LanterLogoutHandle(sysarg) --元宵活动
+	
+	ValentLogoutHandle(sysarg)  --七夕活动
+	
+	CelebrationLogoutHandle(sysarg)--两周年活动之周年庆典（马年圣诞礼物下线记录时间）
+
+	SetMidAutumnTimeByLogout(sysarg)	--设置中秋登录时间
+	
+	--如果在迷雾之城里面掉线，需要清除排行信息
+	--if IsInProgrammerMap(sysarg) then
+		--ExitProgrammerMap(sysarg)
+	--end
+
+	--如果在修罗门里面掉线，需要清除排行信息
+	--if IsInAsuraMap(sysarg) then
+		--ExitAsuraMap(sysarg)
+	--end
+	
+	if InRushSkyFb(sysarg, FbID) then
+		CheckIsMars(sysarg)
+	end
+	CheckSendAwardInfo(sysarg)
+	
+	--RecordVipLvlInfo(sysarg)
+	
+	--XunShouLeiTaiLogoutHandle(sysarg) --驯兽擂台下线掉线处理 
+	
+	--老虎机抽奖活动 
+	--LuckDrawLogoutHandle(sysarg)
+end 
+
+function SetLuckyBagTimeByLogout(sysarg)
+	if (not NationalDayActiveConfig.actTime) or (not NationalDayActiveConfig.luckyBag) or (not NationalDayActiveConfig.luckyBag.accOnlineTime) then
+		return 
+	end
+	
+	if System.isInDateRange(unpack(NationalDayActiveConfig.actTime)) ~= true then
+		return
+	end
+	
+	local actorVar = Actor.getStaticVar(sysarg)
+	if (not actorVar) or (not actorVar.getLBFlag) or (not actorVar.accLuckyBagTime) then
+		return
+	end
+	--print("SetLuckyBagTimeByLogout -> actorVar.getLBFlag ",actorVar.getLBFlag)
+	if actorVar.getLBFlag == 0 then
+		local lastTime = actorVar.lastLBLoginTime 
+		local currTime = System.getCurrMiniTime() 
+		local accTime = 0
+		if currTime > lastTime then
+			accTime = currTime - lastTime
+		end
+		actorVar.accLuckyBagTime = actorVar.accLuckyBagTime + accTime
+	else
+		actorVar.accLuckyBagTime = 0
+	end
+end    
+
+function SetConsumeActivity(sysarg)
+	if System.isInDateRange(unpack(NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime)) ~= true then
+		return 
+	end
+	canDrawLottery(sysarg)
+end   
+
+--更新联赛擂台人数 
+function OnCrossMatchesLogout(sysarg)
+	if System.isCommonServer() == false then		--是否在公共服 
+		return 
+	end
+	
+	local sceneId = Actor.getSceneId(sysarg)
+	if sceneId == CrossMatchesConfig.smSceneId then
+		UpdateSelectMatchesJoinNum(sysarg)
+	elseif sceneId == CrossMatchesConfig.cmSceneId then
+		UpdateCrossMatchesJoinNum(sysarg)
+	end 
+end	
+
+function UpdateSelectMatchesJoinNum(sysarg)
+	local fbPtr = Actor.getFubenPrt(sysarg) 
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	if not fbVar then
+		return
+	end	
+	
+	if fbVar.joinMatchesNum == nil then
+		return 
+	end
+	
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )  
+	if not memberRankingPtr then
+		return
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId)
+	if not memberItemPtr then
+		return
+	end
+	
+	local teamPos = tonumber(Ranking.getSub(memberItemPtr, 8))
+	if teamPos == 0 then
+		return 
+	end
+	
+	local state = tonumber(Ranking.getSub(memberItemPtr, 9))
+	if state == 0 then
+		return 
+	end
+	
+	Ranking.setSub(memberItemPtr, 10, 0) --设置是否pk 
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	if fbVar.joinMatchesNum[teamId] then 
+		fbVar.joinMatchesNum[teamId] = fbVar.joinMatchesNum[teamId] - 1
+		if fbVar.joinMatchesNum[teamId] <= 0 then
+			fbVar.joinMatchesNum[teamId] = 0
+			SelectMatchesEnd(fbPtr)
+		else
+			UpdateSelectMatchFormInfo(sysarg)
+		end
+		
+	end
+end
+	 
+	
+function UpdateCrossMatchesJoinNum(sysarg)
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )  
+	if not memberRankingPtr then
+		return
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId)
+	if not memberItemPtr then
+		return
+	end
+
+	local teamPos = tonumber(Ranking.getSub(memberItemPtr, 8))
+	if teamPos == 0 then
+		return 
+	end
+	
+	local state = tonumber(Ranking.getSub(memberItemPtr, 9))
+	if state == 0 then
+		return 
+	end
+	Ranking.setSub(memberItemPtr, 10, 0) --设置是否pk 
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+	if not selectMatchesRankingPtr then
+		return
+	end
+	
+	local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if selectMatchesItemPtr then 
+		local groupType = tonumber(Ranking.getSub(selectMatchesItemPtr, 11))
+		local matchesType = tonumber(Ranking.getSub(selectMatchesItemPtr, 12)) 
+		local groupNum = tonumber(Ranking.getSub(selectMatchesItemPtr, 4))  
+		
+		local curMatchType = GetCrossMatchType()
+		if matchesType ~= curMatchType then
+			return 
+		end
+		
+		local index = 0
+		for k, v in ipairs(CrossMatchesConfig.matchesTypeTab or {}) do  
+			if v == matchesType then
+				index = k
+				break
+			end
+		end
+		
+		local reportRankingPtr = nil 
+		if groupType == 1 then
+			reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+		elseif groupType == 2 then
+			reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+		end
+		if reportRankingPtr then
+			local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType + groupNum)
+			if reportItemPtr then
+				local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+				local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+				local curJoinNum = -1
+				if teamId == teamId1 then
+						curJoinNum = tonumber(Ranking.getSub(reportItemPtr, 8))
+						if curJoinNum-1 <= 0 then
+							Ranking.setSub(reportItemPtr, 8, 0)
+						else
+							Ranking.setSub(reportItemPtr, 8, curJoinNum-1)
+						end
+						curJoinNum = tonumber(Ranking.getSub(reportItemPtr, 8))
+				elseif teamId == teamId2 then
+						curJoinNum = tonumber(Ranking.getSub(reportItemPtr, 9))
+						if curJoinNum-1 <= 0 then
+							Ranking.setSub(reportItemPtr, 9, 0)
+						else
+							Ranking.setSub(reportItemPtr, 9, curJoinNum-1)
+						end
+						curJoinNum = tonumber(Ranking.getSub(reportItemPtr, 9))
+				end
+				
+				local matchesTimes = 1
+				local sysVar = System.getStaticVar()
+				if sysVar then
+					if sysVar.matchesTimes then
+						matchesTimes = sysVar.matchesTimes 
+					end
+				end
+				
+				UpdateCorssMatchFormInfo(reportItemPtr, 0)
+				
+				if curJoinNum == 0 then
+					CheckMatchesEnd(reportItemPtr, groupType, index, matchesTimes, false)
+				end
+				
+			end
+		end 
+	end
+end   
+
+--是否在天关副本
+function InRushSkyFb(sysarg, FbID)
+	if RushSkyMarsConfig.fubenId == FbID then
+		return true
+	else
+		return false
+	end
+end 
+
+--记录vip等级信息
+function RecordVipLvlInfo(sysarg)
+	if Actor.isVip(sysarg) == true then
+		local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+		local growValue = 0
+		local actorVar = Actor.getStaticVar(sysarg) 
+		if actorVar then
+			growValue = actorVar.vipGrowValue
+		end
+		
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local name = Actor.getName(sysarg)
+		--System.sendCommonLog(953, actorId, name, 0, vipLevel, growValue, " ",Lang.LogTips.l00209)
+	end
+	
+end
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogout, EventCallDispatcher.defaultHandlerPlayerLogout)

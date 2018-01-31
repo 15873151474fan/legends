@@ -1,0 +1,14 @@
+--lua script
+
+--#include "data\functions\Activity\CrossSendFlowers\CsSendFlowers.txt"
+
+EventCallDispatcher.OnCharmChange = function(sysarg, arg)
+	local changeVal = arg[1]
+	
+	CsSfChangeCharm(sysarg, changeVal) 
+
+end
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeCharmChange, EventCallDispatcher.OnCharmChange) 

@@ -1,0 +1,27 @@
+--lua script
+--用户使用真爱之心的个性处理
+--#include "data\functions\FuBenNpcFunc\FuQiQueQiao\FuQiCommon.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+
+function LoveHeartFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.getItemCount(sysarg, itemIdx) < 1 then return end	
+	if Actor.getSceneId(sysarg) ~= 202 then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.couple032), ttFlyTip)
+		return 
+	end
+	--使用对真爱之门造成伤害
+	if LoveHeartToDoor(sysarg) == true then
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use loveheart",5)
+	end
+end
+
+function UseLoveHeart_Init(sysarg)
+	--local LoveHeartTab  = FuQiConfig.LoveHeart
+	for k, v in ipairs(LoveHeartTab) do
+		--GlobalItemFn[v.nItemID] = { func = LoveHeartFunc, params = v }
+		GlobalItemFn[v.item_id] = { func = LoveHeartFunc, params = v }
+	end
+end
+
+table.insert( InitFnTable, UseLoveHeart_Init)
+

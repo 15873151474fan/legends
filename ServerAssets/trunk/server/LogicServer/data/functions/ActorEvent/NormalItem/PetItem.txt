@@ -1,0 +1,36 @@
+﻿--lua script
+
+function BuildPetFunc( sysarg, itemIdx,itemPtr, ItemConf )
+	local itemName = Item.getItemName(itemIdx)
+	if Actor.getItemCount(sysarg, itemIdx, -1, -1, -1) < ItemConf.count then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.meeting019, ItemConf.count, itemName), ttFlyTip)
+		return
+	end
+	
+	for k, id in ipairs(ItemConf.petId) do
+		local thisPetCount = Pet.getPetCountById(sysarg, id)
+		if thisPetCount > 0 then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.meeting010, itemName), ttFlyTip)
+			return false
+		end
+	end
+	local idx = math.random(1, #ItemConf.petId)
+	local petId = ItemConf.petId[idx]
+	local petAiId = ItemConf.aiId[idx]
+	local mId = ItemConf.movieId[idx]
+	if Actor.removeItem(sysarg,itemIdx,ItemConf.count,-1,-1,-1,"buildPet",5) == ItemConf.count then
+		Pet.addPet(sysarg, petId, ItemConf.petLevel, petAiId, ItemConf.liveTime)
+		local sceneName, x, y = Actor.getSceneName(sysarg, 0, 0)
+		local noticeStr = string.format(Lang.ScriptTips.meeting011, Actor.getName(sysarg), sceneName, x, y, itemName, Pet.getPetName(sysarg,petId))
+		System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+		Actor.triggerPictureGuide(sysarg, mId)
+	end
+end
+
+function BuildPetInit(sysarg)
+	for k, v in ipairs(ItemBuildPet) do
+		GlobalItemFn[v.item_id] = { func = BuildPetFunc, params = v }
+	end
+end
+
+table.insert(InitFnTable, BuildPetInit)

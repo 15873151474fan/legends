@@ -1,0 +1,51 @@
+﻿--土城（新）
+{
+	--场景1
+	scenceid = 111,						--这个id必须每次递增，比如第一个场景id是0，下一个一定是1，类推
+	scencename = Lang.SceneName.s00111,					--场景名称
+	mapfilename = "111HanTianChengWeiMei",								--场景对应的地图
+	minlevel = 1,						--限制等级
+	forbiddenitem = {1,2},		--限制物品
+	--forbiddenpet = {5,3},		--限制的坐骑（宠物）
+	forbiddenskill = {100,20},	--限制的技能
+	nopk = 0,								--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "shayuanchun.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 743,
+	worldmapPosy = 354,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 488,
+	sceneHeight = 408,
+	posx = 48,
+	posy = 90,
+	area =
+	{
+		{	name = Lang.SceneName.s00111, range = { 10,10,20,20,60,50}, center = { 170,192 },attri = {{type=18,value = {}},{ type=1, value={}},{type=19,value = {}},}},	--默认配置场景，世界安全区，可以穿怪,可以穿人
+		
+	},
+	refresh =
+	  {
+----#include "refresh1.txt"
+	  },
+	magicPassPoints={1,2,56,32}, --可以魔法穿透的障碍点的列表，比如小的石头，是可以魔法穿透的，这里
+
+	npc =
+	{
+		--边界村
+
+
+	} ,
+
+  teleport =
+  {
+     --posx和posy表示传送门出现的位置
+     --toSceneid表示要传送的目的场景id
+     --toPosx和toPosy分别要传送的目的坐标，此坐标必须是位于toSceneid场景里的
+     --script是传送点关联的脚本文件，
+     --modelid表示外观模型的id
+     --{ posx = 219, posy = 222,toSceneid = 2,toPosx = 141, toPosy = 418,modelid = 50000,name = Lang.SceneName.s00002 },  --边界村→王城
+  },
+
+},

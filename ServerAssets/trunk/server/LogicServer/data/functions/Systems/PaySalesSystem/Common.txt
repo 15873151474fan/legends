@@ -1,0 +1,156 @@
+
+
+--计算结束时间
+function CalcPaySalesOverTime(config, openDay, combineDay, todayTime)
+	--print("combineDay:"..combineDay)
+	if not config then return 0 end
+	local onedaySec = 86400
+	if config.openDay ~= nil and table.getn(config.openDay) >= 2 then	--开服时间判断
+		if openDay >= config.openDay[1] and openDay <= config.openDay[2] then
+			local overTime = (onedaySec + todayTime) + (onedaySec * (config.openDay[2] - openDay))
+			return overTime
+		end
+	elseif config.combineDay ~= nil and table.getn(config.combineDay) >= 2 then	--合服时间判断
+		if combineDay >= config.combineDay[1] and combineDay <= config.combineDay[2] then
+			local overTime = (onedaySec + todayTime) + (onedaySec * (config.combineDay[2] - combineDay))
+			--print("overTime:"..overTime)
+			return overTime
+		end
+	elseif config.openTime ~= nil and table.getn(config.openTime) >= 12 then	--常规时间判断
+		if System.isInDateRange(unpack(config.openTime)) == true then
+			local openTime = config.openTime
+			local overTime = System.encodeNumTime(openTime[7], openTime[8], openTime[9], openTime[10], openTime[11], openTime[12])
+			return overTime
+		end
+	end
+	
+	return 0
+end
+
+--下发充值促销数据
+function SendPaySalesData(sysarg, datas)
+	
+	local npack = DataPack.allocPacket(sysarg, 139, 59)
+	if not npack then return end
+	DataPack.writeByte(npack, table.getn(datas))
+	
+	for k, v in ipairs(datas) do
+
+		DataPack.writeByte(npack, v.id)
+		DataPack.writeUInt(npack, v.yb)
+		DataPack.writeUInt(npack, v.overTime)
+		
+	end
+	DataPack.flush(npack)
+	
+	
+end
+
+
+function OnPaySalesWithDrawYuanBao(sysarg, nYuanBao)
+	if not nYuanBao or nYuanBao <= 0 then return end
+	
+	local config = PaySales
+	if not config then return end
+	
+	
+	local openDay = System.getDaysSinceOpenServer()
+	local combineDay = System.getDaysSinceCombineServer()
+	local todayTime = System.getToday()
+	
+	local svar = Actor.getStaticVar(sysarg)
+	local paySales = svar.paySales
+	if not paySales then
+		svar.paySales = {}
+		paySales = svar.paySales
+	end
+	
+	local paySalesData = {}
+	
+	for k, v in ipairs(config) do
+		local endTime = CalcPaySalesOverTime(v, openDay, combineDay, todayTime)
+
+		if endTime > 0 then
+			if not paySales[v.id] then
+				paySales[v.id] = 0
+			end
+
+			if paySales[v.id] >= 0 then
+				paySales[v.id] = paySales[v.id] + nYuanBao
+				local data = {id = v.id, yb = paySales[v.id], overTime = endTime}
+				table.insert(paySalesData, data)
+			end
+		else
+			if paySales[v.id] then	--没用数据删掉
+				if tonumber(paySales[v.id]) < v.goalCount then
+
+					paySales[v.id] = nil
+				end
+			end
+		end
+			
+	end
+	
+	--svar.paySales = paySales
+	
+	SendPaySalesData(sysarg, paySalesData)
+end
+
+--角色登录处理
+function OnPaySalesActorLogin(sysarg)
+	local config = PaySales
+	if not config then return end
+	
+	local openDay = System.getDaysSinceOpenServer()
+	local combineDay = System.getDaysSinceCombineServer()
+	
+	local todayTime = System.getToday()
+	
+	local svar = Actor.getStaticVar(sysarg)
+	local paySales = svar.paySales
+	if not paySales then
+		svar.paySales = {}
+		paySales = svar.paySales
+	end
+	
+	local paySalesData = {}
+	
+	for k, v in ipairs(config) do
+		
+		local endTime = CalcPaySalesOverTime(v, openDay, combineDay, todayTime)
+		if (endTime > 0) then
+			local ybCount = paySales[v.id]
+			if not ybCount then
+				ybCount = 0
+			end
+			if ybCount >= 0 then
+				local data = {id = v.id, yb = ybCount, overTime = endTime}
+				table.insert(paySalesData, data)
+			end
+		else
+			if paySales[v.id] then	--没用数据删掉
+				if tonumber(paySales[v.id]) < v.goalCount then
+					paySales[v.id] = nil
+				else
+					local data = {id = v.id, yb = tonumber(paySales[v.id]), overTime = 0}
+					table.insert(paySalesData, data)
+				end
+			end
+		end
+			
+	end
+	
+	SendPaySalesData(sysarg, paySalesData)
+end
+
+function PaySalesStart()
+	local players = LuaHelp.getAllActorList()
+	if not players then return end
+	
+	for k, v in ipairs(players) do
+		OnPaySalesActorLogin(v)
+	end
+end
+
+
+

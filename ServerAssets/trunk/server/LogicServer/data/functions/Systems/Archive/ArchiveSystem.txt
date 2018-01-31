@@ -1,0 +1,104 @@
+--lua script
+local CHENGJIUREWARDINDEX = 30
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\item\ChengjiuReward.txt" once
+--#include "data\functions\NormalItem\ChengjiuKaijiang.txt" once
+--#include "data\functions\Systems\Miscs\UseRewardItemRecall.txt" once
+
+local ArchieveSystemImplement =
+{
+  --点击领取成就奖励，MSGID：1
+  getChangeJiuReward = function (sysarg)
+
+	  local arraynum = Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+1)
+	  local resultnum = Actor.getRTIntValue(sysarg,CHENGJIUREWARDINDEX+2)
+	  if(arraynum == 0) then
+
+	    return
+	  end
+	  if(resultnum == 0) then
+
+	    return
+	  end
+	  local c = ChengjiuReward[arraynum]
+	  local x = c[resultnum]
+    local itemcount = Item.getAddItemNeedGridCount(sysarg,x.itemid,x.count)
+
+	  if not Actor.canAddItem(sysarg,x.itemid,x.count) then
+	    if itemcount ~= nil then
+	    	local str = string.format(Lang.ScriptTips.f00016,itemcount)
+		  	Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+		  end
+	    local npack = DataPack.allocPacket(sysarg,140,2)  --申请一个数据包
+		  DataPack.writeByte(npack,0)
+		  DataPack.flush(npack)
+		  return
+	  else
+	    if Actor.canAddItem(sysarg,x.itemid,x.count) then
+        
+	      Actor.addItem(sysarg,x.itemid,x.quality,x.strong,x.count,x.bind,0," ",21)
+	 	  else
+	 	    local str = string.format(Lang.ScriptTips.f00016,x.count)
+	 	 	  Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+	 	  end
+	  end
+	  ---返回客户端领取奖励成功 
+	  local npack = DataPack.allocPacket(sysarg,140,2)  --申请一个数据包
+	  DataPack.writeByte(npack,1)
+	  DataPack.flush(npack)
+	  ---清空前一次的抽奖情况 
+	  Actor.setRTIntValue(sysarg,CHENGJIUREWARDINDEX+1,0)
+	  Actor.setRTIntValue(sysarg,CHENGJIUREWARDINDEX+2,0)
+	  --判断是否还有抽奖物品，如果有则从新请求打开抽奖界面 
+	  if(Actor.getItemCount(sysarg,1572) > 0) then
+	    ChengjiuKaijiang(sysarg)
+	  end
+	end,
+	
+	--点击开始后判断条件是否可开始 
+	deleteChangeJiuReward = function (sysarg)
+    local result =0
+		--
+    if(Item.getBagEmptyGridCount(sysarg) >= 1) then
+      if (Actor.getItemCount(sysarg,1572) >= 1) then
+      	Actor.removeItem(sysarg,1572,1,-1,-1,-1,"",5)      --删除一个成就礼盒
+      	result =1
+      else
+      	Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00030,ttDialog )
+      end
+    else
+
+      Actor.sendTipmsg( sysarg,Lang.ScriptTips.n00006,ttDialog )
+
+    end
+    local npack = DataPack.allocPacket(sysarg,140,3)  --申请一个数据包
+    DataPack.writeByte(npack,result)
+    DataPack.flush(npack)
+  end,
+}
+
+ArchieveSystemImplement.main = function (sysarg, systemid, msgid, packet)
+  local itemId = DataPack.readShort(packet)
+  if msgid == 1 then
+		--点击 领奖
+    if itemId == 1572 then
+      ArchieveSystemImplement.getChangeJiuReward(sysarg)
+    elseif itemId == 1615 then
+      GetRewardSystemImplement.getRewardItem(sysarg)
+    end
+  elseif msgid == 2 then
+		--点击 开始
+    if itemId == 1572 then
+      ArchieveSystemImplement.deleteChangeJiuReward(sysarg)
+    elseif itemId == 1615 then
+      GetRewardSystemImplement.deleteRewardItem(sysarg)
+    end
+	elseif msgid == 3 then
+		--Actor.sendTipmsg(sysarg,"msgid:3",ttTipmsgWindow)
+		--关闭抽奖界面，标识
+		Actor.setRTIntValue(sysarg,GETREWARDING,0)
+	end
+end
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.archiveSystem, ArchieveSystemImplement.main)

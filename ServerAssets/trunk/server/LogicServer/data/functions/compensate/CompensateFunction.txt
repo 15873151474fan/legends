@@ -1,0 +1,188 @@
+﻿--lua script
+--玩家打开补偿界面出来的脚本
+
+--#include "..\..\config\misc\Compensate.txt" once
+
+--设置玩家的补偿的id是否领取过 
+local function SetCompensateFlag(sysarg,id)
+   
+ --    if(id ==nil) then return false end
+ --    local pos = id % 64  
+ --    local longPos = (id -pos) / 64  
+ --    --print("longPos"..longPos)
+
+ --    local var = Actor.getStaticVar( sysarg )
+ --    local value =nil
+ --    if(longPos  ==0) then
+ --       value= var.compensate0
+ --    else 
+	-- if(longPos ==1) then
+ --       	  value= var.compensate1
+ --    	else 
+	--    if(longPos==2) then
+ --       	      value= var.compensate2
+ --    	  else
+ --             return false 
+ --           end
+ --       end
+ --    end
+ --    if(value ==nil) then
+ --      value = 2^pos
+ --    else
+ --      value = value + 2^pos 
+ --    end
+ --    --print("set value"..value)
+
+ --    if(longPos ==0) then
+ --       var.compensate0 =value
+ --       --print("var.compensate0 ="..var.compensate0 );
+  
+ --    else 
+	-- if(longPos==1) then
+ --       	  var.compensate1 =value
+ --    	else 
+	--    if(longPos==2) then
+ --       	      var.compensate2=  value
+ --    	  else
+ --             return false 
+ --           end
+ --       end
+ --    end
+
+ --   --print("value="..value)
+ --    return true
+
+end
+
+local function GetCompensateFlag (sysarg,id)
+  
+  -- if(id ==nil) then return true end --防止冒领，出现问题要倾向于已经领取
+  -- local pos = id % 64  --字节的位置
+  -- local longPos = (id -pos) / 64--子的位置
+
+  -- local var = Actor.getStaticVar( sysarg )
+  -- local value =nil
+  -- if(longPos ==0) then
+  --    value= var.compensate0
+  -- else 
+  --   if(longPos==1) then
+  --     value= var.compensate1
+  --   else 
+  --       if(longPos==2) then
+  --         value= var.compensate2
+  --       else
+  --         return true --数据出现了问题
+  --       end
+  --   end
+  -- end
+  
+  -- if(value == nil) then return false end
+  -- --print("getValue="..value)
+
+  -- --这里需要使用按位 
+  -- return  (value % (2^(pos+1)))   >= (2^ pos)
+
+end
+
+--获得玩家的补偿的数据 
+local function GetCompensateIdList( sysarg )
+  
+  local year=0
+  local month=0
+  local day=0
+  local hour=0
+  local minute =0
+  local second=0 
+  year,month,day= System.getDate(year,month,day)       --获取天 
+  hour,minute,second=System.getTime(hour,minute,second)   --获取时间
+  local compSateItems={}               --补偿物品的列表 
+  --这里暂时不处理跨年的情况 
+  for i=1, table.getn(CompensateConfig) do
+      local config =CompensateConfig[i]
+      local times = config.times
+      local isTimeValid = false
+      if( GetCompensateFlag(sysarg,config.id) ==false ) then
+      	for j=1,table.getn(times) do
+	    if( year == times[j].year  and  month == times[j].month and  day == times[j].day and hour >= times[j].startHour and hour <= times[j].endHour ) then
+	          isTimeValid =true
+	          break
+	      end
+      	end
+      	if(isTimeValid ==true) then
+	 -- print("add"..i)
+          table.insert( compSateItems,  i)
+      	end 
+      end
+  end
+  
+  return compSateItems
+
+end
+
+function GetCompensate(sysarg,args)
+
+  --print ("args"..args)
+  
+  local id= tonumber(args)
+  
+  --print(type(args))
+  --print(args)
+   
+  
+  if(id > table.getn(CompensateConfig) or id <=0) then print ("too big")  return end --失败
+  
+  local conpId= CompensateConfig[id].id
+  if(conpId==nil) then print("id is nil") return end
+
+  if(GetCompensateFlag(sysarg,conpId) ==true) then print ("has get") return end
+
+  
+  local bagGrid =Item.getBagEmptyGridCount(sysarg)      --玩家身上有多少个格子
+  local items = CompensateConfig[id].items
+  local needGrid =0
+  for i=1, table.getn(items) do
+      if(items[i].type==0) then
+        needGrid= needGrid + Item.getAddItemNeedGridCount(sysarg,items[i].id,items[i].count,items[i].quality,items[i].strong,items[i].bind)
+      end 
+  end
+  if(needGrid > bagGrid) then
+    local tipMsg = string.format(Lang.ScriptTips.x00074,needGrid)
+    Actor.sendTipmsg( sysarg,tipMsg,ttDialog )
+    return
+  end
+  --local conpId = CompensateConfig[id].id
+  --print("conpId"..conpId)
+  if(SetCompensateFlag(sysarg,conpId) )then 
+	  for i=1,table.getn(items)  do
+             --print("haha"..i.."items[i].type"..items[i].type)
+	     if(items[i].type ==0) then
+	        Actor.addItem(sysarg,items[i].id,items[i].quality,items[i].strong,items[i].count,items[i].bind, 0,"compensate",1)
+	     else
+	        Actor.giveAward(sysarg,items[i].type,0,items[i].count,0, 0, 1, 0,205,"compensate")
+	     end 
+	  end
+  else
+	print("set error")
+  end
+  Actor.closeNPCDialog(sysarg)
+ 
+end
+
+--获取补偿 
+function  GetCompensateDesc(sysarg, args)
+    local compList = GetCompensateIdList(sysarg) 
+    --print(table.getn(compList))
+    if(compList == nil or table.getn(compList) ==0) then return ""  end
+    local str =""
+    for i=1, table.getn(compList) do
+        local id = compList[i]
+        --print("index"..id)
+        if(id ~=nil and id >0) then
+
+            local config = CompensateConfig[id]
+            str = str.."<#BL"..config.name.."/@GetCompensate,"..id..">"
+        end
+    end
+    return str
+end
+table.insert(MainFnTable,GetCompensateDesc)

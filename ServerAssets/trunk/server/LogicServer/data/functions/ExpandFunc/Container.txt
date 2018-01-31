@@ -1,0 +1,57 @@
+--[[File:Container.txt]]
+-- Container 就是table,的常用操作,避免
+Container = {
+	-- 元素是否在容器里面  
+	IsIn = function(tb, e)
+		if (not tb) or (not e) then return false end;
+		for k, v in pairs(tb) do
+			if v == e then return true, k end;
+		end
+		return false;
+	end;
+	-- 元素是否在容器里面,由函数f判断 
+	FindIf = function(tb, f, ...)
+		if (not tb) or (not f) then return false end;
+		for k, v in pairs(tb) do
+			if f(v, ...) then return true, k end;
+		end
+		return false;
+	end;
+	-- 单纯的插入操作
+	Insert = function(tb, e)
+		return table.insert(tb, e);
+	end;
+	-- 单纯的删除操作
+	Remove = function(tb, e)
+		local b, k = Container.IsIn(tb, e);
+		if b then
+			return table.remove(tb, k);
+		end
+		return false;
+	end;
+	-- 删除第一个满足f函数的
+	RemoveIf = function(tb, f, ...)
+		local b, k = Container.FindIf(tb, f, ...);
+		if b then
+			return table.remove(tb, k);
+		end
+		return false;
+	end;
+	-- 由于#、table.getn()不靠谱，所以写这个函数
+	Count = function(tb)
+		local c = 0;
+		for _, _ in pairs(tb) do
+			c = c + 1;
+		end
+		return c;
+	end;
+	-- 元素的最大id
+	GetMaxId = function(tb)
+		local maxId = 0;
+		if not tb then return maxId end;
+		for _, v in pairs(tb)do
+			if v.id > maxId then maxId = v.id end;
+		end
+		return maxId;
+	end;
+}

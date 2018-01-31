@@ -1,0 +1,108 @@
+--副本相关的常量定义
+
+GuildBossConst =
+{
+	ENTERLIMTLEVEL = 30,	--进入限制等级
+	FubId = 24,		--副本的id
+	enterscreen= 159,	--进入场景名
+	MAPX = 22,		--进入场景坐标X
+	MAPY = 12,		--进入场景坐标Y
+	ACTTIME = 1800,		--显示场景的剩余时间 
+
+	needCoin = 100000,	--开启需要的帮派资金
+
+	maxTime = 0,				--每天能开启的最大次数
+	
+	bossNum = 2,		--帮派boss个数
+	levCount = 5,		--等级上限
+	monsters = 
+	{	
+		--类型1的斗魂：金甲机关
+		[1] = 
+		{	
+			--不同等级的配置
+			[1] = {nMonsterID = 544, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+			[2] = {nMonsterID = 545, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+			[3] = {nMonsterID = 546, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+			[4] = {nMonsterID = 547, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+			[5] = {nMonsterID = 548, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+		},
+
+		--类型2的斗魂：剑魂
+		[2] = 
+		{	
+			--不同等级的配置
+			[1] = {nMonsterID = 550, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+			[2] = {nMonsterID = 551, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+			[3] = {nMonsterID = 552, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+			[4] = {nMonsterID = 553, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+			[5] = {nMonsterID = 554, posX1 = 43, posX2 = 43,  posY = 8, nCount = 1, nLiveTime = 1800,},
+		},
+	},
+
+	AwardCont = 
+	{
+		-- 1 帮派繁荣 2 玥石  3帮派贡献
+		-- type 类型  id 物品名称 count 数量
+		[1] = 
+		{	
+			--不同等级的配置
+			[1] = {
+					{bType = 1, num = 5000,},
+					{bType = 2, num = 5,},
+					{bType = 3, num = 500,},
+				},
+			[2] = {
+					{bType = 1, num = 5946,},
+					{bType = 2, num = 10,},
+					{bType = 3, num = 750,},
+				},		
+			[3] = {
+					{bType = 1, num = 7071,},
+					{bType = 2, num = 25,},
+					{bType = 3, num = 1000,},
+				},
+			[4] = {
+					{bType = 1, num = 8409,},
+					{bType = 2, num = 45,},
+					{bType = 3, num = 1250,},
+				},
+			[5] = {
+					{bType = 1, num = 10000,},
+					{bType = 2, num = 70,},
+					{bType = 3, num = 1500,},
+				},
+		},
+
+		[2] = 
+		{	
+			--不同等级的配置
+			[1] = {
+					{bType = 1, num = 5000,},
+					{bType = 2, num = 10,},
+					{bType = 3, num = 1000,},
+				},
+			[2] = {
+					{bType = 1, num = 5946,},
+					{bType = 2, num = 20,},
+					{bType = 3, num = 1250,},
+				},		
+			[3] = {
+					{bType = 1, num = 7071,},
+					{bType = 2, num = 35,},
+					{bType = 3, num = 1500,},
+				},
+			[4] = {
+					{bType = 1, num = 8409,},
+					{bType = 2, num = 55,},
+					{bType = 3, num = 2000,},
+				},
+			[5] = {
+					{bType = 1, num = 10000,},
+					{bType = 2, num = 80,},
+					{bType = 3, num = 2500,},
+				},
+		},
+		
+	},
+}

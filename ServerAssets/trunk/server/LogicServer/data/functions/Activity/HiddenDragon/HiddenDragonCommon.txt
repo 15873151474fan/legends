@@ -1,0 +1,382 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\HiddenDragon\HiddenDragonConfig.txt" once	--
+--#include "data\config\boss\HongMengVigourConfig.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+
+--详情
+function AboutHiddenDragon(sysarg)
+	local str = ""
+	str = str..Lang.Activity.ylsz0004
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+--进入隐龙地宫初始化处理
+function OnEnterInitHiddenDragon(sysarg, fbHandle, fubenId)		
+	InitFence(sysarg)
+end
+
+--初始化栅栏
+function InitFence(sysarg)
+	local config = HiddenDragonConfig
+	if (not config) or (not config.fencePos) or (not config.fenceMonster) then
+		return 
+	end
+
+	local hScene = Actor.getSceneHandle(sysarg)
+
+	local fencePos = config.fencePos
+	local fenceMonster = config.fenceMonster
+
+	local nMonsterID = config.fenceMonster.nMonsterID
+	local nLiveTime = config.fenceMonster.nLiveTime
+	if (not nMonsterID) or (not nLiveTime) then
+		return 
+	end
+
+	local pFb = Actor.getFubenPrt(sysarg)
+	for i = 1,table.getn(fencePos) do
+		for j = 1,table.getn(fencePos[i]) do
+			local posX = fencePos[i][j].posX
+			local posY = fencePos[i][j].posY			
+			local nMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)
+			if nMonster then
+				Actor.setDyanmicValue(nMonster, i)
+			end
+		end
+	end
+	
+	local dVar = Actor.getDyanmicVar(sysarg)
+	dVar.BriberyRushFlag = 0
+	dVar.HiddenDragonBoss = 0	--0 区域三怪未全被消灭 1 区域三怪被全部消灭且未召唤BOSS 2 区域三已召唤过BOSS
+end
+
+--贿赂
+function BriberyHiddenDragon(sysarg)
+	local config = HiddenDragonConfig
+	if (not config) or (not config.fenceMonster) or (not config.fenceMonster.nMonsterID) or (not config.zoneThreeMonsters) then
+		return 
+	end
+
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if (not dVar.BriberyRushFlag) then
+		dVar.BriberyRushFlag = 0
+	end
+
+	if dVar.BriberyRushFlag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0007, ttFlyTip)
+		return
+	end
+
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	local briberyYb = config.briberyYb
+	if nYb < briberyYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0005, ttFlyTip)
+		return
+	end
+
+	local awards = config.briberyAwards
+	if awards and Awards.CheckBagGridCount(sysarg, awards) ~= true then		--背包够不够
+		return
+	end
+
+	if config.briberyAwardRate >= math.random(0, 10000) then
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if awards and Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,957,Lang.Activity.ylsz0015, -1, awards[i].expireTime)
+				end
+			end
+		else
+			return
+		end
+	end
+
+	Actor.changeMoney(sysarg,3,-briberyYb,957,Lang.Activity.ylsz0006)
+	dVar.BriberyRushFlag = 1
+
+	local fenceMonster = config.fenceMonster
+	local hScene = Actor.getSceneHandle(sysarg)
+
+	Fuben.sendMsgToScene(hScene, Lang.Activity.ylsz0008, 2+128)
+
+	--清除所有栅栏怪
+	local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)
+	if monsterList ~= nil then
+		for j = 1, #monsterList do
+			local monster = monsterList[j]
+			if monster then
+				local nMonsterId = Actor.getIntProperty(monster, PROP_ENTITY_ID)
+				if nMonsterId == fenceMonster.nMonsterID then
+					local monHandle = Actor.getHandle(monster)
+					Fuben.clearMonster(monHandle)
+				end
+			end
+		end
+	end
+
+	--区域三刷怪
+	for k, monster in ipairs(config.zoneThreeMonsters or {}) do
+		Fuben.createMonsters(hScene,
+				     monster.nMonsterID,
+				     monster.posX1,
+				     monster.posX2,
+				     monster.posY,
+				     monster.nCount,
+				     monster.nLiveTime)
+	end
+end
+
+--硬闯
+function RushHiddenDragon(sysarg)
+	local config = HiddenDragonConfig
+	if (not config) or (not config.zoneTwoMonsters) or (not config.fenceMonster) or (not config.fenceMonster.nMonsterID) then
+		return 
+	end
+	
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if (not dVar.BriberyRushFlag) then
+		dVar.BriberyRushFlag = 0
+	end
+	
+	if dVar.BriberyRushFlag == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0007, ttFlyTip)
+		return
+	end
+
+	dVar.BriberyRushFlag = 1
+
+	local fenceMonster = config.fenceMonster
+	local hScene = Actor.getSceneHandle(sysarg)
+
+	Fuben.sendMsgToScene(hScene, Lang.Activity.ylsz0009, 2+128)
+
+	--清除栅栏一怪
+	local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)		
+	if monsterList ~= nil then
+		for j = 1, #monsterList do
+			local monster = monsterList[j]
+			if monster then			
+				local nMonsterId = Actor.getIntProperty(monster, PROP_ENTITY_ID)
+				if nMonsterId == fenceMonster.nMonsterID then
+					local val = Actor.getDyanmicValue(monster)
+					if val == 1 then
+						local monHandle = Actor.getHandle(monster)
+						Fuben.clearMonster(monHandle)
+					end
+				end
+			end
+		end
+	end
+
+	--区域二刷怪
+	for k, monster in ipairs(config.zoneTwoMonsters or {}) do
+		Fuben.createMonsters(hScene,
+				     monster.nMonsterID,
+				     monster.posX1,
+				     monster.posX2,
+				     monster.posY,
+				     monster.nCount,
+				     monster.nLiveTime)
+	end
+end
+
+--区域二怪死亡
+function ZoneTwoMonDie(sysarg)
+	local config = HiddenDragonConfig
+	if (not config) or (not config.zoneTwoMonsters) or (not config.fenceMonster) or (not config.fenceMonster.nMonsterID) then
+		return 
+	end
+
+	local hScene = Actor.getSceneHandle(sysarg)
+	for k, monster in ipairs(config.zoneTwoMonsters or {}) do
+		if Fuben.isKillAllMonster(hScene, monster.nMonsterID) ~= true then
+			return
+		end
+	end
+
+	Fuben.sendMsgToScene(hScene, Lang.Activity.ylsz0010, 2+128)
+
+	local fenceMonster = config.fenceMonster
+	--清除所有栅栏怪
+	local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)
+	if monsterList ~= nil then
+		for j = 1, #monsterList do
+			local monster = monsterList[j]
+			if monster then
+				local nMonsterId = Actor.getIntProperty(monster, PROP_ENTITY_ID)
+				if nMonsterId == fenceMonster.nMonsterID then
+					local monHandle = Actor.getHandle(monster)
+					Fuben.clearMonster(monHandle)
+				end
+			end
+		end
+	end
+
+	--区域三刷怪
+	for k, monster in ipairs(config.zoneThreeMonsters or {}) do
+		Fuben.createMonsters(hScene,
+				     monster.nMonsterID,
+				     monster.posX1,
+				     monster.posX2,
+				     monster.posY,
+				     monster.nCount,
+				     monster.nLiveTime)
+	end
+end
+
+--区域三怪死亡
+function ZoneThreeMonDie(sysarg)
+	local config = HiddenDragonConfig
+	if (not config) or (not config.zoneThreeMonsters) then
+		return 
+	end
+
+	local hScene = Actor.getSceneHandle(sysarg)
+	for k, monster in ipairs(config.zoneThreeMonsters or {}) do
+		if Fuben.isKillAllMonster(hScene, monster.nMonsterID) ~= true then
+			return
+		end
+	end
+
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if (not dVar.HiddenDragonBoss) or (dVar.HiddenDragonBoss == 0) then
+		dVar.HiddenDragonBoss = 1
+		Fuben.sendMsgToScene(hScene, Lang.Activity.ylsz0012, 2+128)
+	end
+
+end
+
+--召唤终极BOSS
+function CreateHiddenGragonBoss(sysarg)
+	local config = HiddenDragonConfig
+	if (not config) or (not config.bossMonsters) then
+		return 
+	end
+	
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if not dVar.HiddenDragonBoss then
+		dVar.HiddenDragonBoss = 0
+	end
+
+	if dVar.HiddenDragonBoss == 2 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0013, ttFlyTip)
+		return
+	elseif dVar.HiddenDragonBoss == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0026, ttFlyTip)
+		return
+	end
+
+	dVar.HiddenDragonBoss = 2
+
+	local hScene = Actor.getSceneHandle(sysarg)
+
+	--刷终极BOSS
+	for k, monster in ipairs(config.bossMonsters or {}) do
+		Fuben.createMonsters(hScene,
+				     monster.nMonsterID,
+				     monster.posX1,
+				     monster.posX2,
+				     monster.posY,
+				     monster.nCount,
+				     monster.nLiveTime)
+	end
+	
+	Fuben.sendMsgToScene(hScene, Lang.Activity.ylsz0014, 2+128)
+end
+
+--终极BOSS死亡
+function BossMonDie(sysarg)
+	local config = HiddenDragonConfig
+	if (not config) or (not config.bossMonsters) or (not config.monsterBox) or (not config.monsterBox.boxPosRange) then
+		return 
+	end
+
+	local hScene = Actor.getSceneHandle(sysarg)
+	for k, monster in ipairs(config.bossMonsters or {}) do
+		if Fuben.isKillAllMonster(hScene, monster.nMonsterID) ~= true then
+			return
+		end
+	end
+
+	local monsterBox = config.monsterBox
+	--刷宝箱怪
+	for k, monster in ipairs(monsterBox.monsters or {}) do
+		local boxCount = math.random(monster.boxMinCount, monster.boxMaxCount)
+		local nMonsterID = monster.nMonsterID
+		local nLiveTime = monster.nLiveTime
+		
+		for i = 1, boxCount do
+			for j = 1, 10000 do
+				local posX = 0
+				local posY = 0
+				posX = monsterBox.boxPosRange[1].posX + 
+					System.getRandomNumber( math.abs(monsterBox.boxPosRange[1].posX - monsterBox.boxPosRange[2].posX))
+				posY = monsterBox.boxPosRange[1].posY + 
+					System.getRandomNumber( math.abs(monsterBox.boxPosRange[1].posY - monsterBox.boxPosRange[2].posY))
+				local pMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)	
+				if pMonster then
+					break
+				end
+			end
+		end
+	end
+end
+
+--购买隐龙密钥
+function BuyHiddenGragonKeyItem(sysarg)
+	local config = HiddenDragonConfig
+	if (not config) then
+		return 
+	end
+
+	local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	local buyKeyYb = config.buyKeyYb
+	if nYb < buyKeyYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0017, ttFlyTip)
+		return
+	end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	local awards = config.buyKeyAwards
+	if awards and Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,957,Lang.Activity.ylsz0015, -1, awards[i].expireTime)
+			end
+		end
+	else
+		return
+	end
+
+	Actor.changeMoney(sysarg,3,-buyKeyYb,957,Lang.Activity.ylsz0025)
+end
+
+--鸿蒙元气怪
+function HongMengVigourMonDie(sysarg, monId)
+	local config = HongMengVigourConfig
+	if (not config) or (not config[monId]) then
+		return 
+	end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	local awards = config[monId].awards
+	if awards and Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,957,Lang.Activity.ylsz0030, -1, awards[i].expireTime)
+			end
+		end
+	end
+end

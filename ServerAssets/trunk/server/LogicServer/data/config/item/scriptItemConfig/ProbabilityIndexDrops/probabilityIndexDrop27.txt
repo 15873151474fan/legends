@@ -1,0 +1,33 @@
+--[[
+--按照概率和掉落的配置,id表示物品的id
+--type表示通用奖励的类型
+--count表示物品的数量,
+--strong 强化等级,如果是小于0的表示0-n随机
+-- quality 品质如果是小于0的表示0-n随机 ,比如-3表示0到3之间随机
+-- strongMin 表示最小的强化等级, 如果配置了，那么随出了一个物品的强化低于这个值将设置为这个值，这个不配置就是0
+-- qualityMin:表示最小的品质等级
+--propability概率，概率的数字越大的话掉的物品的概率越高
+--bind绑定的标记
+--group是分组的id，类似怪物的爆率的配置
+--sex表示玩家的性别，男的是0，女的是1，如果男女通用就是-1
+--job表示玩家的职业,2华山 4水月 7御神 8忍者 0表示没有职业限制
+--]]
+
+drops=
+{
+	{ type =2, id = 0, count = 119011, propability=1,group=0},
+  { id=680,count=0,mincount=1,maxcount=2,strong =0,quality =0,propability=3,bind=1,group=0},--光灵碎片(神奇的碎片\\用于合成勋章,鉴定图鉴,清洗砂.\\<(c0xFFFFFF00)提示:消灭怪物攻城的怪物可获得该碎片>) x 0
+  { id=681,count=0,mincount=1,maxcount=1,strong =0,quality =0,propability=15,bind=1,group=0},--暗灵碎片(神奇的碎片\\用于合成勋章,鉴定图鉴,清洗砂.\\<(c0xFFFFFF00)提示:消灭怪物攻城的怪物可获得该碎片>) x 0
+  { id=276,count=0,mincount=1,maxcount=2,strong =0,quality =0,propability=15,bind=1,group=0},--强化保护符(<(c0xFF00FFFF)强化辅助材料>\\配合装备强化材料可使成功率变成<(c0xFF00FFFF)100%>的神奇保护符\\按<(c0xFF00FFFF)V>打开锻造面板可进行<(c0xFF00FFFF)装备强化>操作\\<(c0xFF00FF00)提示:可以在商城购买获得>) x 0
+  { id=277,count=0,mincount=1,maxcount=4,strong =0,quality =0,propability=4,bind=1,group=0},--鉴定图鉴(<(c0xFF00FFFF)装备鉴定材料>\\用于将<(c0xFF00FFFF)20级>或以上装备鉴定出<(c0xFF00FFFF)强大属性>的神秘图鉴\\按<(c0xFF00FFFF)V>打开锻造面板后可进行<(c0xFF00FFFF)装备鉴定>操作\\<(c0xFF00FF00)提示:消灭野外怪物或完成日常任务有几率获得>) x 0
+  { id=278,count=0,mincount=1,maxcount=2,strong =0,quality =0,propability=15,bind=1,group=0},--清洗砂(<(c0xFF00FFFF)装备鉴定材料>\\用于清洗装备上的所有鉴定属性的迷之砂\\按<(c0xFF00FFFF)V>打开锻造面板后可进行<(c0xFF00FFFF)装备鉴定>操作\\<(c0xFF00FF00)提示:可以通过消灭BOSS或者在商城购买获得>) x 0
+  { id=745,count=0,mincount=1,maxcount=3,strong =0,quality =0,propability=28,bind=1,group=0},--一级物攻魂石(镶嵌到装备之魂,可增加<(c0xFF00FFFF)物理攻击>\\需佩戴<(c0xFF00FFFF)35级>或以上装备激活效果\\某些特殊装备可以激活任意等级的魂石\\魂石系统将于开服<(c0xFF00FFFF)第八天>开启,敬请期待！) x 0
+  { id=755,count=0,mincount=1,maxcount=3,strong =0,quality =0,propability=28,bind=1,group=0},--一级魔攻魂石(镶嵌到装备之魂,可增加<(c0xFF00FFFF)魔法攻击>\\需佩戴<(c0xFF00FFFF)35级>或以上装备激活效果\\某些特殊装备可以激活任意等级的魂石\\魂石系统将于开服<(c0xFF00FFFF)第八天>开启,敬请期待！) x 0
+  { id=765,count=0,mincount=1,maxcount=3,strong =0,quality =0,propability=28,bind=1,group=0},--一级道攻魂石(镶嵌到装备之魂,可增加<(c0xFF00FFFF)道术攻击>\\需佩戴<(c0xFF00FFFF)35级>或以上装备激活效果\\某些特殊装备可以激活任意等级的魂石\\魂石系统将于开服<(c0xFF00FFFF)第八天>开启,敬请期待！) x 0
+  { id=775,count=0,mincount=1,maxcount=3,strong =0,quality =0,propability=28,bind=1,group=0},--一级物防魂石(镶嵌到装备之魂,可增加<(c0xFF00FFFF)物理防御>\\需佩戴<(c0xFF00FFFF)35级>或以上装备激活效果\\某些特殊装备可以激活任意等级的魂石\\魂石系统将于开服<(c0xFF00FFFF)第八天>开启,敬请期待！) x 0
+  { id=785,count=0,mincount=1,maxcount=3,strong =0,quality =0,propability=28,bind=1,group=0},--一级魔防魂石(镶嵌到装备之魂,可增加<(c0xFF00FFFF)魔法防御>\\需佩戴<(c0xFF00FFFF)35级>或以上装备激活效果\\某些特殊装备可以激活任意等级的魂石\\魂石系统将于开服<(c0xFF00FFFF)第八天>开启,敬请期待！) x 0
+  { id=795,count=0,mincount=1,maxcount=3,strong =0,quality =0,propability=28,bind=1,group=0},--一级生命魂石(镶嵌到装备之魂,可增加<(c0xFF00FFFF)生命上限>\\需佩戴<(c0xFF00FFFF)35级>或以上装备激活效果\\某些特殊装备可以激活任意等级的魂石\\魂石系统将于开服<(c0xFF00FFFF)第八天>开启,敬请期待！) x 0
+  { id=805,count=0,mincount=1,maxcount=3,strong =0,quality =0,propability=28,bind=1,group=0},--一级魔法魂石(镶嵌到装备之魂,可增加<(c0xFF00FFFF)魔法上限>\\需佩戴<(c0xFF00FFFF)35级>或以上装备激活效果\\某些特殊装备可以激活任意等级的魂石\\魂石系统将于开服<(c0xFF00FFFF)第八天>开启,敬请期待！) x 0
+
+
+}

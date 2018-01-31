@@ -1,0 +1,350 @@
+--冥狱 2级
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s231L2Desc,--技能的描述
+	
+	iconID=293,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=3286,timeParam=1000,type=20,delay=0,id=86,value=1,vt=1},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=224,keepTime=800,delay=300,always=false},
+					},
+				},
+			},
+		},
+		--有秘籍
+		{
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 21,value =86},
+						{cond = 13,value =1},
+						{cond = 17,value =1,param=36},
+						{cond = 17,value =23,param=34},
+						{cond = 17,value =27,param=35},
+					},
+					results=
+					{
+						{mj=3286,timeParam=1,type=33,delay=350,value=0,rate=25000,mjParam2=50},
+						{mj=3286,timeParam=26,type=32,timeRate=2500,timeAddType=2,maxTime=600,delay=400, buffType=1,id=36,rate=-725,rateType=2,value=-200,interval=1,colorPriority =4,color =65280},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=280,keepTime=500,delay=100,always=false},
+					},
+				},
+
+			},
+		},
+
+		{
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 21,value =86},
+						{cond = 13,value =1},
+						{cond = 16,value =1,param=36},
+					},
+					results=
+					{
+						{mj=3286,timeParam=1,type=33,delay=350,value=0,rate=30000,mjParam2=50},
+						
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=280,keepTime=500,delay=100,always=false},
+					},
+				},
+
+			},
+		},
+		{
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 21,value =86},
+						{cond = 13,value =1},
+						{cond = 16,value =23,param=34},
+					},
+					results=
+					{
+						{mj=3286,timeParam=1,type=33,delay=350,value=0,rate=30000,mjParam2=50},
+						
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=280,keepTime=500,delay=100,always=false},
+					},
+				},
+
+			},
+		},
+		{
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 21,value =86},
+						{cond = 13,value =1},
+						{cond = 16,value =27,param=35},
+					},
+					results=
+					{
+						{mj=3286,timeParam=1,type=33,delay=350,value=0,rate=30000,mjParam2=50},
+						
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=280,keepTime=500,delay=100,always=false},
+					},
+				},
+
+			},
+		},
+		--没秘籍
+		{
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 22,value =86},
+						{cond = 13,value =1},
+						{cond = 17,value =1,param=36},
+						{cond = 17,value =23,param=34},
+						{cond = 17,value =27,param=35},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=33,delay=350,value=0,rate=25000},
+						{mj=0,timeParam=26,type=32,timeRate=2500,timeAddType=2,maxTime=60,delay=400, buffType=1,id=36,rate=-725,rateType=2,value=-200,interval=1,colorPriority =4,color =65280},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=280,keepTime=500,delay=100,always=false},
+					},
+				},
+
+			},
+		},
+
+		{
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 22,value =86},
+						{cond = 13,value =1},
+						{cond = 16,value =1,param=36},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=33,delay=350,value=0,rate=30000},
+						
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=280,keepTime=500,delay=100,always=false},
+					},
+				},
+
+			},
+		},
+		{
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 22,value =86},
+						{cond = 13,value =1},
+						{cond = 16,value =23,param=34},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=33,delay=350,value=0,rate=30000},
+						
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=280,keepTime=500,delay=100,always=false},
+					},
+				},
+
+			},
+		},
+		{
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 22,value =86},
+						{cond = 13,value =1},
+						{cond = 16,value =27,param=35},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=33,delay=350,value=0,rate=30000},
+						
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=280,keepTime=500,delay=100,always=false},
+					},
+				},
+
+			},
+		},
+		--删除标记
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=3286,timeParam=1000,type=21,delay=0,id=86,value=86,vt=1},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=224,keepTime=800,delay=300,always=false},
+					},
+				},
+			},
+		},
+			
+		
+	},
+
+	trainConds=
+	{
+		
+		{cond=39,value=16,consume=false},
+		{cond=3,value=3131,consume=true,exceptVip=false},--表示书本
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=192,consume=true},--消耗蓝10
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=15000,
+
+},

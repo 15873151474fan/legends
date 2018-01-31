@@ -1,0 +1,69 @@
+--#include "data\config\activityconfig\OldDemon\OldDemon.txt" once
+
+function OpenRefreshOldDemon(sysarg)
+	local bossConfig = OldDemon.boss
+	if not bossConfig then return end
+	local nTeamId = Actor.getTeamId(sysarg)
+	local pLeader = TeamFun.getTeamCaptain(nTeamId)
+	
+	if pLeader ~= sysarg then
+		Actor.sendTipmsg(sysarg, Lang.Activity.od0002, ttFlyTip)
+		return
+	end
+	
+	local pFuben = Actor.getFubenPrt(sysarg)
+	if not pFuben then return end
+	local nFubenId = Actor.getFubenId(sysarg)
+	if nFubenId <= 0 then return end
+	
+	local dfvar = Fuben.getDyanmicVar(pFuben)
+	
+	if dfvar.hasOldDemon then
+		Actor.sendTipmsg(sysarg, Lang.Activity.od0003, ttFlyTip)
+		return
+	end
+	
+	if not dfvar.refreshCount then
+		dfvar.refreshCount = 0
+	end
+	
+	local index = tonumber(dfvar.oldDemon)
+	
+	if not index then 
+		index = 1
+	end
+	
+	local boss = bossConfig[index]
+	if not boss then return end
+	
+	local teamList = LuaHelp.getTeamMemberList(sysarg)
+	
+	for k, v in ipairs(teamList) do
+		local pMemFuben = Actor.getFubenPrt(v)
+		if pMemFuben == pFuben then 
+			local pack = DataPack.allocPacket(v,145,14)      
+			if pack == nil then return end
+			DataPack.writeByte(pack, table.getn(boss.sBoss))
+			--print(table.getn(boss.sBoss))
+			for k, v in ipairs(boss.sBoss) do
+				--print(v.iconId)
+				DataPack.writeWord(pack, v.iconId)
+				DataPack.writeByte(pack, v.show)
+			end
+			local operate = 0
+			if v == pLeader then operate = 1 end
+			DataPack.writeByte(pack, operate)
+			local freeTimes = OldDemon.freeCount - dfvar.refreshCount
+			if freeTimes < 0 then freeTimes = 0 end
+			DataPack.writeByte(pack, freeTimes)
+			DataPack.writeWord(pack, OldDemon.coinItem.id)
+			DataPack.writeByte(pack, OldDemon.coinItem.count)
+			--print("COUNG:"..OldDemon.coinItem.count)
+			DataPack.writeWord(pack, OldDemon.coinItem.yb)
+			DataPack.flush(pack)
+		end
+	end
+	
+	Actor.closeNPCDialog(sysarg)
+	--RefreshOldDemon(sysarg)
+end

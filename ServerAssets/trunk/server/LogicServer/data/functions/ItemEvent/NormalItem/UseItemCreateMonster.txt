@@ -1,0 +1,47 @@
+
+--#include "data\config\item\ItemCreateMonster.txt" once
+--#include "data\functions\ActorEvent\ScriptDelayCallBackItem\ItemCreateMonster.txt" once
+local DELAYTYPE = 8
+
+--使用道具刷怪函数
+function UseItemCreateMonster_Func(sysarg,itemidx,itemPtr,ItemTable)
+	if ItemTable == nil then return end
+	if ItemTable.item_id == itemidx then
+		local userSid = Actor.getSceneId(sysarg)
+		local userX, userY = Actor.getEntityPosition(sysarg, 0, 0)
+		if (not (userX >= ItemTable.useArea.x1 and userX <= ItemTable.useArea.x2))
+		or (not (userY >= ItemTable.useArea.y1 and userY <= ItemTable.useArea.y2))
+		or (not (userSid == ItemTable.useArea.sid)) then
+			Actor.sendTipmsg(sysarg,ItemTable.wrongUseAreaTips,ttDialog)
+			return
+		end
+		local index, itemTB = nil, nil
+		table.foreachi( UseItemCreateMonster, function( i, v ) if (v.item_id == itemidx) then index,itemTB = i, v end end )
+		if (not index) or (itemTB ~= ItemTable) then return end
+		if ItemTable.delayTime <= 0 then
+			ItemCreateMonster(sysarg,{DELAYTYPE, index})
+		else
+			local result = false
+			local postint,result = Actor.postEntityScriptDelayMsg(sysarg,ItemTable.delayTime,result,DELAYTYPE,index)
+			if not result then return end 
+			local npack = DataPack.allocPacket(sysarg,139,4)
+			if npack == nil then return end
+			DataPack.writeInt(npack,postint)
+			DataPack.writeInt(npack,ItemTable.delayTime)
+			DataPack.writeByte(npack,1)
+			DataPack.writeByte(npack,1)
+			DataPack.writeString(npack,ItemTable.delayTips)
+			DataPack.flush(npack)
+		end
+	end
+end
+
+
+function UseItemCreateMonster_Init(sysarg)
+	for i = 1,table.getn(UseItemCreateMonster) do
+		local x = UseItemCreateMonster[i]
+		GlobalItemFn[x.item_id] = { func = UseItemCreateMonster_Func, params = x }
+	end
+end
+
+table.insert(InitFnTable,UseItemCreateMonster_Init)

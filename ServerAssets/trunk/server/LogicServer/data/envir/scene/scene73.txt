@@ -1,0 +1,54 @@
+﻿--魔域之巅三层
+{
+	scenceid = 73,
+	scencename = Lang.SceneName.s00098,
+	mapfilename = "58Moyuzhidiansanceng",
+	minlevel = 51,
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "moyuzhidian.mp3",
+	musicInterval = 60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 164,
+	sceneHeight = 170,
+	posx = 17,
+	posy = 85,
+	sceneType = 0,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00098, range = {1,1,162,2,162,167,1,167}, center = { 133,137},
+			attri = {
+					{ type = 20, value = {} },
+					{ type = 19, value = {} },
+					{ type = 23, value = {1,2,3,4} },
+					{ type = 30, value = {1,2,3,4} },
+					{ type = 34, value = {619,620,912} },
+					{ type = 6, value = {} },
+					{ type = 104, value = {} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh73.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		--{ name = Lang.EntityName.n00064, posx = 75, posy = 23, script = "data/NPC/activity/moyuzhidian/moyujieyinren3.txt", modelid = 266,icon = 12,funcId = 0, classId = 0 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 136, posy = 140, toSceneid = 72, toPosx = 40, toPosy =  54, modelid = 50000, name = Lang.SceneName.s00097, dist = 1, mapHide = false },  --魔域之巅三层→勇闯监狱
+
+	},
+},

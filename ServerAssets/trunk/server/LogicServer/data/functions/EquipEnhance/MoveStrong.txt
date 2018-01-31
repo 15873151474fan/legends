@@ -1,0 +1,94 @@
+﻿--强化转移
+
+
+--玩家, args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function OnMoveStrong( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]				--转移装备指针
+	local destPtr = args[3]				--目标装备指针
+	local opType = args[ptrCount+2]		--操作类型
+	local isRepCost = args[ptrCount+3]	--是否元宝替代
+	
+	if not srcPtr or not destPtr then return false end
+	
+	local srcVocation = Item.getItemProperty(sysarg, srcPtr, Item.ipItemNeedVocation, 0)
+	local destVocation = Item.getItemProperty(sysarg, destPtr, Item.ipItemNeedVocation, 0)
+	if srcVocation ~= destVocation then return end
+	
+	local srcType = Item.getItemProperty(sysarg, srcPtr, Item.ipItemType, 0)
+	local destType = Item.getItemProperty(sysarg, destPtr, Item.ipItemType, 0)
+	if srcType ~= destType then return end
+	
+	if srcType < Item.itWeapon or srcType > Item.itMeterial then return end
+	if destType < Item.itWeapon or destType > Item.itMeterial then return end
+	
+	local srcStrong = Item.getItemProperty(sysarg, srcPtr, Item.ipItemStrong, 0)
+	local destStrong = Item.getItemProperty(sysarg, destPtr, Item.ipItemStrong, 0)
+	
+	local config = MoveStrong
+	if srcStrong < config.minStrong or srcStrong <= destStrong then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mep003, ttFlyTip)
+		return
+	end
+	
+	
+	local moveConsume = config.moveConsumes[srcStrong-config.minStrong+1]
+	if not moveConsume then return end
+	local consumes = moveConsume.consumes
+	
+	local resultCheck = SuccessCheck(sysarg, opType, consumes, isRepCost, 0, true)
+	
+	if (resultCheck ~= successCheckResult.ok) then return false end
+	
+	local logstr = string.format(Lang.LogTips.l00181, srcStrong)
+	local result, isBind = EnhanceConsumes(sysarg, opType, consumes, isRepCost, 0, 921, logstr, true)
+	if (result ~= successCheckResult.ok) then return false end
+	
+	local srcSharp = Item.getItemProperty(sysarg, srcPtr, Item.ipItemSharp, 0)
+	
+	--结果处理
+	if IsOpenSmithExt(sysarg, srcPtr, Item.ipItemForgeProperty4Value) then 
+		Item.setItemProperty(sysarg, srcPtr, Item.ipItemForgeProperty4Value, 0) --强化等级改变，鉴定属性的数量可能会变化
+	end
+	Item.setItemProperty(sysarg, srcPtr, Item.ipItemStrong, 0)
+	Item.setItemProperty(sysarg, srcPtr, Item.ipItemSharp, 0)
+	
+	Item.setItemProperty(sysarg, destPtr, Item.ipItemStrong, srcStrong)
+	Item.setItemProperty(sysarg, destPtr, Item.ipItemSharp, srcSharp)
+	
+	if srcStrong >= config.noticeStrong then
+		local itemId =  Item.getItemProperty(sysarg, destPtr, Item.ipItemID ,0)
+		local itemName = Item.getItemLinkMsg(itemId, destPtr)
+		local noticeStr = string.format(Lang.ScriptTips.mep002, Actor.getName(sysarg), itemName, srcStrong)
+		System.broadcastTipmsg(noticeStr, ttScreenCenter+ttChatWindow)
+	end
+	
+	--返回客户端处理结果
+	Item.sendItemProcessResult(sysarg, destPtr, opType, false)
+	return true
+	
+end
+
+--获取消耗,args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function GetMoveStrongConsumes(sysarg, args)	
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]				--转移装备指针
+	--local destPtr = args[3]				--目标装备指针
+	local opType = args[ptrCount+2]		--操作类型
+	
+	if not srcPtr then return false end
+	
+	local config = MoveStrong
+	
+	local srcStrong = Item.getItemProperty(sysarg, srcPtr, Item.ipItemStrong, 0)
+	if srcStrong < config.minStrong then
+		return
+	end
+	
+	local moveConsume = config.moveConsumes[srcStrong-config.minStrong+1]
+	
+	if not moveConsume then return end
+	
+	local consumes = moveConsume.consumes
+	SendConsumesToClient(sysarg, opType, consumes)
+end

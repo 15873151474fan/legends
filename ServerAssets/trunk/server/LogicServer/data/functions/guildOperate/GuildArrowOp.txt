@@ -1,0 +1,224 @@
+--¼ýËþ´¦Àí
+--lua script
+--#include "data\language\LangCode.txt" once   --ÓïÑÔ°ü
+--#include "data\config\guild\GuildSiegeConfig.txt" once 
+
+function SbkWarArrowNpc_Main(sysarg)
+	local str = ""
+	
+	if System.getDaysSinceOpenServer() < GuildSiegeConfig.openDay then
+		return str
+	end
+
+	str = str.."\\<#BL"..Lang.GuildLang.arr0001.."/@OnRepArrowOP>"	--ÐÞ¸´¼ýËþ
+	str = str.."\\<#BL"..Lang.GuildLang.arr0029.."/@OnRepArrowDes>"	--¼ýËþËµÃ÷
+	return str
+end	
+
+--ÐÞ¸´¼ýËþ
+function OnRepArrowOP(sysarg)
+	local str = ""
+	local bExits = System.exitsArrowId(1)
+	if bExits then
+		str = str.."\\<#BL"..Lang.GuildLang.arr0002..Lang.GuildLang.arr0019.."/@OnRepirChoice,1>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	else
+		str = str.."\\<#BL"..Lang.GuildLang.arr0002..Lang.GuildLang.arr0020.."/@OnRepirChoice,1>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	end
+	
+	bExits = System.exitsArrowId(2)
+	if bExits then
+		str = str.."\\<#BL"..Lang.GuildLang.arr0003..Lang.GuildLang.arr0019.."/@OnRepirChoice,2>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	else
+		str = str.."\\<#BL"..Lang.GuildLang.arr0003..Lang.GuildLang.arr0020.."/@OnRepirChoice,2>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	end
+
+	bExits = System.exitsArrowId(3)
+	if bExits then
+		str = str.."\\<#BL"..Lang.GuildLang.arr0004..Lang.GuildLang.arr0019.."/@OnRepirChoice,3>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	else
+		str = str.."\\<#BL"..Lang.GuildLang.arr0004..Lang.GuildLang.arr0020.."/@OnRepirChoice,3>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	end
+
+
+	bExits = System.exitsArrowId(4)
+	if bExits then
+		str = str.."\\<#BL"..Lang.GuildLang.arr0005..Lang.GuildLang.arr0019.."/@OnRepirChoice,4>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	else
+		str = str.."\\<#BL"..Lang.GuildLang.arr0005..Lang.GuildLang.arr0020.."/@OnRepirChoice,4>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	end
+
+	bExits = System.exitsArrowId(5)
+	if bExits then
+		str = str.."\\<#BL"..Lang.GuildLang.arr0006..Lang.GuildLang.arr0019.."/@OnRepirChoice,5>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	else
+		str = str.."\\<#BL"..Lang.GuildLang.arr0006..Lang.GuildLang.arr0020.."/@OnRepirChoice,5>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	end
+
+
+	bExits = System.exitsArrowId(6)
+	if bExits then
+		str = str.."\\<#BL"..Lang.GuildLang.arr0007..Lang.GuildLang.arr0019.."/@OnRepirChoice,6>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	else
+		str = str.."\\<#BL"..Lang.GuildLang.arr0007..Lang.GuildLang.arr0020.."/@OnRepirChoice,6>"	--ÐÞ¸´³õ¼¶¼ýËþ
+	end
+
+	return str
+end
+
+--ÐÞ¸´¼ýËþÐèÒªµÄ·½Ê½
+function OnRepirChoice(sysarg,index)
+	local str = ""
+	local nIndex = tonumber(index)
+	str = str.."\\<#BL"..Lang.GuildLang.arr0016.."/@OnRepirArrow,"..nIndex..",1>"
+	str = str.."\\<#BL"..Lang.GuildLang.arr0017.."/@OnRepirArrow,"..nIndex..",2>"
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--ÐÞ¸´¼ýËþ²Ù×÷
+function OnRepirArrow(sysarg,index,nType)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074 ,ttFlyTip)
+		return 
+	end
+
+	local sbkGuildId = System.getSbkGuildId()
+	if sbkGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074 ,ttFlyTip)
+		return 
+	end
+	
+	if nGuildId ~= sbkGuildId then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074 ,ttFlyTip)
+		return 
+	end
+
+	local gVar = System.getDyanmicVar()
+	if gVar.StartSbkWarFlag == nil or gVar.StartSbkWarFlag == 0 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0021 ,ttFlyTip)
+		return 
+	end
+
+	local nIndex = tonumber(index)
+	local type = tonumber(nType)
+	if nIndex > 0 and nIndex <= table.getn(GuildSiegeConfig.ArrowConfig) then
+		local bExits = System.exitsArrowId(nIndex)
+		if bExits then
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0008,ttFlyTip )
+			return
+		end
+		
+		if type == 1 then
+			local gCoin = Actor.getGuildCoin(sysarg)
+				
+			if gCoin < GuildSiegeConfig.ArrowConfig[nIndex].ArrowCoin then
+				local str3 = string.format(Lang.GuildLang.arr0009, GuildSiegeConfig.ArrowConfig[nIndex].ArrowCoin)
+				Actor.sendTipmsg( sysarg, str3 ,ttFlyTip)
+				return
+			end
+		else
+			local myb = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO )
+			if myb < GuildSiegeConfig.ArrowConfig[nIndex].NeedYb then
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0015,ttFlyTip )
+				return
+			end
+		end
+
+		local nid = System.getArrowId(nIndex)
+		if nid>0 then
+			local nMp = System.getArrowMp(nid-1)
+			if nMp <= 0 then
+				RepSbkArrow(sysarg,nIndex,type)
+			end
+		else
+			RepSbkArrow(sysarg,nIndex,type)
+		end
+	end
+end
+
+--ÕÙ»½É³°Í¿Ë¼ýËþ
+function RepSbkArrow(sysarg,nIndex,nType)
+	if nIndex > 0 and nIndex <= table.getn(GuildSiegeConfig.ArrowConfig) then
+		local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.ArrowConfig[nIndex].Sceneid, 0)
+		local nMonster = Fuben.createMonster(hScene, GuildSiegeConfig.ArrowConfig[nIndex].nMonsterID, GuildSiegeConfig.ArrowConfig[nIndex].posX1, GuildSiegeConfig.ArrowConfig[nIndex].posY, GuildSiegeConfig.ArrowConfig[nIndex].nLiveTime)
+		
+		if (nMonster ~= nil) then
+			System.broadcastTipmsg(string.format(Lang.GuildLang.arr0024,Actor.getName(nMonster)),2+128)
+
+			Actor.setNpcGuildId(nMonster,System.getSbkGuildId())
+			local nHandle = Actor.getHandle(nMonster)
+			local nMp = Actor.getIntProperty( nMonster, PROP_CREATURE_MAXHP )
+			System.setSbkArrowState(nMonster,nIndex,nMp)
+			Actor.setMonsterCanMove(nMonster,true)
+			
+			if nType == 1 then
+				Actor.changeGuildCoin(sysarg,-GuildSiegeConfig.ArrowConfig[nIndex].ArrowCoin)
+			elseif nType == 2 then
+				Actor.changeMoney(sysarg,3,-GuildSiegeConfig.ArrowConfig[nIndex].NeedYb,930,Lang.GuildLang.arr0001)
+			end
+			
+			local nGuildId = System.getSbkGuildId()
+
+			local nCurIndex = System.getArrowDelBufIndex()
+			if nCurIndex > 0 then
+				if GuildSiegeConfig.arrowDelBuff[nCurIndex].nMonsterID == GuildSiegeConfig.ArrowConfig[nIndex].nMonsterID then
+					local playerList = LuaHelp.getSceneAliveActorListById(GuildSiegeConfig.ArrowConfig[1].Sceneid)		--»ñÈ¡Ä³³¡¾°Íæ¼Ò¶ÔÏóÁÐ±í
+					if playerList ~= nil then
+						for j = 1, #playerList do
+							local player = playerList[j]
+							if player then
+								local mGuildId = Actor.getIntProperty(player,PROP_ACTOR_GUILD_ID)
+								if mGuildId == nGuildId then
+									local nConfig = GuildSiegeConfig.ArrowConfig[nCurIndex]
+									if Actor.hasBuff(player,nConfig.buffType,nConfig.buffGroup) then
+										Actor.delBuff(player,nConfig.buffType,nConfig.buffGroup)
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+
+			local nIndex = 0
+			for i=1,table.getn(GuildSiegeConfig.arrowDelBuff) do
+				if Fuben.getLiveMonsterCount(hScene,GuildSiegeConfig.arrowDelBuff[i].nMonsterID) == 0 then
+					nIndex = i
+				end
+			end
+			
+			System.setArrowDelBuffIndex(nIndex)
+			
+			local nOldGuildId = System.getOldSbkGuildId()
+
+			if nIndex > 0 then
+				local playerList = LuaHelp.getSceneAliveActorListById(GuildSiegeConfig.ArrowConfig[1].Sceneid)		--»ñÈ¡Ä³³¡¾°Íæ¼Ò¶ÔÏóÁÐ±í
+				if playerList ~= nil then
+					for j = 1, #playerList do
+						local player = playerList[j]
+						if player then
+							local mGuildId = Actor.getIntProperty(player,PROP_ACTOR_GUILD_ID)
+							if mGuildId == nGuildId and nOldGuildId > 0 and nOldGuildId==nGuildId then
+								local nConfig = GuildSiegeConfig.ArrowConfig[nIndex]
+								Actor.addBuff(player,nConfig.buffType,nConfig.buffGroup, nConfig.value, nConfig.times, nConfig.interval, nConfig.buffName, nConfig.timeOverlay)
+							end
+						end
+					end
+				end
+			end
+
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0010,ttFlyTip )
+		end
+	end
+end
+
+--¼ýËþËµÃ÷
+function OnRepArrowDes(sysarg)
+	local str = Lang.GuildLang.arr0030
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"	--¼ýËþËµÃ÷
+	return str
+end
+
+table.insert(MainFnTable, SbkWarArrowNpc_Main)

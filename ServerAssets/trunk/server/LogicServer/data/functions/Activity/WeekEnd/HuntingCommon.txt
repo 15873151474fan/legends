@@ -1,0 +1,212 @@
+
+
+--#include "data\config\activityconfig\WeekEnd\Hunting.txt" once
+
+function GetNextSceneName(sysarg)
+	local sceneId = Actor.getSceneId(sysarg)
+	local cfgInfo = GetNextInfoBySId(sceneId)
+	if cfgInfo then
+		return Fuben.getSceneNameById(cfgInfo.sceneId)
+	end
+	return nil
+end
+
+function GetNextInfoBySId(nSceneId)
+	for k, info in ipairs(HuntingConfig.SceneIds) do
+		if nSceneId == info.sceneId then
+			return HuntingConfig.SceneIds[k+1]
+		end
+	end
+	return nil
+end
+
+function SetHuntingActFlag( flag )
+	local sysDvar = System.getDyanmicVar()
+	sysDvar.HuntingActFlag = flag
+end
+
+--活动是否开启
+function IsHuntingAct()
+	local sysDvar = System.getDyanmicVar()
+	local dt = sysDvar.HuntingActFlag
+	if dt then
+		local nNowDt = System.getCurrMiniTime()
+		return dt > nNowDt
+	end
+	return false
+end
+
+function CommonFloorMain(sysarg)
+	local nextSceneName = GetNextSceneName(sysarg)
+	if nextSceneName then
+		return string.format(Lang.ScriptTips.week04, nextSceneName)
+	end
+	return ""
+end
+
+function GetMyHuntPoint(sysarg)
+	local dVar = Actor.getDyanmicVar(sysarg)
+	return dVar.HuntingPoint or 0
+end
+
+function SetMyHuntPoint(sysarg, addPoint, isAdd)
+	if IsHuntingAct() then
+		local newPoint = addPoint
+		local dVar = Actor.getDyanmicVar(sysarg)
+		local sceneId = Actor.getSceneId(sysarg)
+		local cfg = GetNextInfoBySId(sceneId)
+		if cfg then
+			if isAdd then
+				newPoint = GetMyHuntPoint(sysarg) + addPoint
+				if newPoint >= cfg.passPoint then
+					newPoint = cfg.passPoint
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.week16, ttFlyTip)
+				end
+				dVar.HuntingPoint = newPoint
+			else
+				dVar.HuntingPoint = addPoint
+			end
+		else
+			--最顶层
+			local ranking = Ranking.getRanking( Lang.Rank.huntingRank )
+			if ranking then
+				local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+				local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+				if pItem then
+					if isAdd then
+						Ranking.updateItem(ranking, nActorId, addPoint)
+						newPoint = Ranking.getPoint( pItem)
+					else
+						if addPoint > 0 then
+							Ranking.setItem(ranking, nActorId, addPoint)
+						else
+							--Ranking.removeId(ranking, nActorId)
+							Ranking.setItem(ranking, nActorId, 0)
+						end
+						
+					end
+				else
+					local nItem = Ranking.addItem(ranking,nActorId, addPoint)
+					if nItem then
+						local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+						Ranking.setSub(nItem, 0, Actor.getName(sysarg))
+						Ranking.setSub(nItem, 1, tostring(nLevel))
+						Ranking.setSub(nItem, 2, "0")
+					end
+				end
+				--SaveHuntRanking()
+			end
+		end
+		if isAdd then
+			Actor.changeActivityProgress(sysarg, newPoint)
+		end
+	end
+end
+
+
+function HuntMonsterDie(monster, sysarg, monId)
+	SetMyHuntPoint(sysarg, HuntingConfig.KillMonsPoint, true)	
+end
+
+function HuntBossDie(monster, sysarg, monId)
+	SetMyHuntPoint(sysarg, HuntingConfig.KillBossPoint, true)	
+end
+
+function EnterHuntNextScene(sysarg)
+	if not IsHuntingAct() then
+		Actor.sendTipmsg(sysarg, Lang.Activity.week10, ttFlyTip)
+		return
+	end
+	
+	local sceneId = Actor.getSceneId(sysarg)
+	local cfgInfo = GetNextInfoBySId(sceneId)
+	if cfgInfo then
+		if GetMyHuntPoint(sysarg) < cfgInfo.passPoint then
+			local noticeStr = string.format(Lang.ScriptTips.week08, Fuben.getSceneNameById(cfgInfo.sceneId), cfgInfo.passPoint)
+			Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+			return
+		end
+		SetMyHuntPoint(sysarg, cfgInfo.initPoint)
+		local x = math.random(cfgInfo.x1, cfgInfo.x2)
+		local y = math.random(cfgInfo.y1, cfgInfo.y2)
+		System.telportScene(sysarg, cfgInfo.sceneId, x, y)
+		Actor.initActivityWind(sysarg, Lang.Activity.week01, GetLeftTime(), cfgInfo.tips, Lang.Activity.week02, cfgInfo.initPoint)
+	end
+end
+
+function GetLeftTime()
+	local sysDvar = System.getDyanmicVar()
+	local dt = sysDvar.HuntingActFlag
+	if dt then
+		local nNowDt = System.getCurrMiniTime()
+		local leftSec = dt - nNowDt
+		if leftSec > 0 then
+			return leftSec
+		end
+	end
+	return 0
+end
+
+function IsInHuntScene(sysarg)
+	local nSceneId = Actor.getSceneId(sysarg)
+	for k, info in ipairs(HuntingConfig.SceneIds) do
+		if nSceneId == info.sceneId then
+			return true
+		end
+	end
+	return false
+end
+
+function OnKilledInHunting(sysarg, killerPtr )
+	if IsInHuntScene(killerPtr) then
+		SetMyHuntPoint(killerPtr, HuntingConfig.KillPlyPoint, true)
+	end
+end
+
+function ExitHuntingScene(sysarg)
+	local tab = HuntingConfig.ExitPos
+	local x = math.random(tab.x1, tab.x2)
+	local y = math.random(tab.y1, tab.y2)
+	System.telportScene(sysarg, tab.sceneId, x, y)
+end
+
+function SendToFirstScene(sysarg)
+	if IsInHuntScene(sysarg) then
+		local cfgInfo = HuntingConfig.SceneIds[1]
+		if cfgInfo then
+			local origPoint = 0
+			local ranking = Ranking.getRanking( Lang.Rank.huntingRank )
+			if ranking then
+				local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+				local pItem = Ranking.getItemPtrFromId(ranking, myId)
+				if pItem then
+					origPoint = Ranking.getPoint(pItem)
+				end
+				--Ranking.removeId(ranking, myId)
+				Ranking.setItem(ranking, myId, 0)
+			end
+			local x = math.random(cfgInfo.x1, cfgInfo.x2)
+			local y = math.random(cfgInfo.y1, cfgInfo.y2)
+			System.telportScene(sysarg, cfgInfo.sceneId, x, y)
+			Actor.changeActivityProgress(sysarg, origPoint)
+			SetMyHuntPoint(sysarg, origPoint)
+			return true
+		end
+	end
+	return false
+end
+
+function ClearHuntingInfo()
+	local ranking = Ranking.getRanking( Lang.Rank.huntingRank )
+	if ranking then
+		Ranking.clearRanking(ranking)
+		--Ranking.save(ranking, Lang.Rank.huntingRank)
+	end
+end
+
+function SaveHuntRanking()
+	local ranking = Ranking.getRanking( Lang.Rank.huntingRank )
+	if ranking then
+		Ranking.save(ranking, Lang.Rank.huntingRank)
+	end
+end

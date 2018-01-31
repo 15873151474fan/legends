@@ -1,0 +1,88 @@
+﻿--宝物档次相关的配置。宝物默认是1档。
+--宝物档次决定了宝物的等级上限、外观、移动速度、飞行类型以及灵性上限
+--档次提升有概率，有消耗（宝物进阶符）
+--档次提升失败，品质会随机变化，并且会积攒祝福值
+--1档
+{
+		name=Lang.Gem.n1,
+flyType=1,-- 飞行类型。1是半空，2是全空
+moveSpeed=-10,--速度提升。例如movespeed=-100表示提升玩家走一个格子增加消耗的毫秒数
+modelId=0,-- 宝物外观
+levelUpLmt=20,-- 等级上限
+scAttackLmt=240,-- 攻击灵性上限
+scDefenceLmt=170,-- 防御灵性上限
+scAgilityLmt=240,-- 敏捷灵性上限
+scHPLmt=170,-- 霸体灵性上限
+reqRefineItemCnt=3,--当前档次灵性炼化消耗炼化石数量（灵性炼化）
+consumeEndure=2,-- 每XXs消耗的灵力值
+},
+--2档
+{
+		name=Lang.Gem.n2,
+flyType=1,-- 飞行类型。1是半空，2是全空
+moveSpeed=-20,--速度提升。例如movespeed=-100表示提升玩家走一个格子增加消耗的毫秒数
+modelId=1,-- 宝物外观
+levelUpLmt=25,-- 等级上限
+scAttackLmt=300,-- 攻击灵性上限
+scDefenceLmt=210,-- 防御灵性上限
+scAgilityLmt=300,-- 敏捷灵性上限
+scHPLmt=210,-- 霸体灵性上限
+reqRefineItemCnt=3,--当前档次灵性炼化消耗炼化石数量（灵性炼化）
+consumeEndure=2,-- 每XXs消耗的灵力值
+},
+--3档
+{
+		name=Lang.Gem.n3,
+flyType=1,-- 飞行类型。1是半空，2是全空
+moveSpeed=-30,--速度提升。例如movespeed=-100表示提升玩家走一个格子增加消耗的毫秒数
+modelId=2,-- 宝物外观
+levelUpLmt=30,-- 等级上限
+scAttackLmt=390,-- 攻击灵性上限
+scDefenceLmt=270,-- 防御灵性上限
+scAgilityLmt=390,-- 敏捷灵性上限
+scHPLmt=270,-- 霸体灵性上限
+reqRefineItemCnt=3,--当前档次灵性炼化消耗炼化石数量（灵性炼化）
+consumeEndure=3,-- 每XXs消耗的灵力值
+},
+--4档
+{
+		name=Lang.Gem.n4,
+flyType=2,-- 飞行类型。1是半空，2是全空
+moveSpeed=-70,--速度提升。例如movespeed=-100表示提升玩家走一个格子增加消耗的毫秒数
+modelId=3,-- 宝物外观
+levelUpLmt=35,-- 等级上限
+scAttackLmt=520,-- 攻击灵性上限
+scDefenceLmt=360,-- 防御灵性上限
+scAgilityLmt=520,-- 敏捷灵性上限
+scHPLmt=360,-- 霸体灵性上限
+reqRefineItemCnt=3,--当前档次灵性炼化消耗炼化石数量（灵性炼化）
+consumeEndure=4,-- 每XXs消耗的灵力值
+},
+--5档
+{
+		name=Lang.Gem.n5,
+flyType=2,-- 飞行类型。1是半空，2是全空
+moveSpeed=-25,--速度提升。例如movespeed=-100表示提升玩家走一个格子增加消耗的毫秒数
+modelId=4,-- 宝物外观
+levelUpLmt=40,-- 等级上限
+scAttackLmt=670,-- 攻击灵性上限
+scDefenceLmt=470,-- 防御灵性上限
+scAgilityLmt=670,-- 敏捷灵性上限
+scHPLmt=470,-- 霸体灵性上限
+reqRefineItemCnt=3,--当前档次灵性炼化消耗炼化石数量（灵性炼化）
+consumeEndure=5,-- 每XXs消耗的灵力值
+},
+--6档
+{
+		name=Lang.Gem.n6,
+flyType=2,-- 飞行类型。1是半空，2是全空
+moveSpeed=-70,--速度提升。例如movespeed=-100表示提升玩家走一个格子增加消耗的毫秒数
+modelId=5,-- 宝物外观
+levelUpLmt=45,-- 等级上限
+scAttackLmt=1000,-- 攻击灵性上限
+scDefenceLmt=700,-- 防御灵性上限
+scAgilityLmt=1000,-- 敏捷灵性上限
+scHPLmt=700,-- 霸体灵性上限
+reqRefineItemCnt=3,--当前档次灵性炼化消耗炼化石数量（灵性炼化）
+consumeEndure=6,-- 每XXs消耗的灵力值
+},

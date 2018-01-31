@@ -1,0 +1,128 @@
+--买武器引导 追踪面板及NPC对话框引导
+{
+  --触发条件
+  triggerList =
+	{
+		{ type = 1, valueList = {1480,}},      --有这个任务
+	},
+  
+
+  --引导的步骤 
+  steps = 
+	{
+
+    --第1步 指向导航标签
+		{
+      condList = 
+			{
+				{ type = 1,  helpId = 50, dataList = {0,} },       --任务追踪面板可见
+				{ type = 15,  helpId = 51, dataList = {1,} },      --任务追踪面板没有选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+      },
+
+      action = { type = 2, helpId = 51, data = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项
+    },
+
+    --第2步 指任务连接
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },     --任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },     --任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+      },
+      
+      --指向任务寻路连接
+      action = { type = 5, helpId = 1480, data = Lang.GuideLang.name40, desc = Lang.GuideLang.desc2 },
+    },
+    
+    --第3步 指向npc对话框列表第一项
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },     --npc对话框可见
+				{ type = 2,  helpId = 90, dataList = {0,} },     --npc商店不可见
+      },
+      
+      --指向npc对话框功能选择的第一项
+      action = { type = 13, helpId = 42, data = 1, desc = Lang.GuideLang.desc27 },
+    },
+    
+    --第4步 指向列表第一项
+    {
+      condList = 
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+				{ type = 1,  helpId = 90, dataList = {0,} },     --npc商店可见
+				{ type = 15,  helpId = 91, dataList = {1,} },    --npc商店面板没有选中第一项
+      },
+      
+      --指向npc对话框功能选择的第一项
+      action = { type = 2, helpId = 91, data = 1, desc = Lang.GuideLang.desc27 },
+    },
+    
+    --第5步 指向商品列表的物品
+    {
+      condList = 
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+				{ type = 1,  helpId = 90, dataList = {0,} },     --npc商店可见
+				{ type = 3,  helpId = 91, dataList = {1,} },     --npc商店面板选中第一项
+				{ type = 2,  helpId = 100, dataList = {0,} },     --购买窗口不可见
+				{ type = 10,  helpId = 22, dataList = {1228,} },    --没有这个物品
+      },
+
+      action = { type = 12, helpId = 92, data = 1228, desc = Lang.GuideLang.desc28 },
+    },
+
+    --第6步 指向购买弹出框的确定
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 90, dataList = {0,} },     --npc商店可见
+				{ type = 1,  helpId = 100, dataList = {0,} },     --购买窗口可见
+				{ type = 10,  helpId = 22, dataList = {1228,} },    --没有这个物品
+      },
+
+      action = { type = 1, helpId = 101, data = 0, desc = Lang.GuideLang.desc29 },
+    },
+
+     --第7步 关闭商店
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 90, dataList = {0,} },     --npc商店可见
+				{ type = 6,  helpId = 22, dataList = {1228,} },  --有这个物品
+      },
+
+      action = { type = 4, helpId = 90, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+
+     --第8步 指向任务导航的宋白衣
+    {
+      condList = 
+      {
+				{ type = 3,  helpId = 51, dataList = {1,} },     --任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },     --npc对话框不可见
+				{ type = 30,  helpId = 40, dataList = {1480,} },     --任务完成
+				{ type = 16,  helpId = 40, dataList = {1480,} },     --存在任务
+      },
+      
+      --指向追踪面板的人物链接
+      action = { type = 5, helpId = 1480, data = Lang.GuideLang.name41, desc = Lang.GuideLang.desc2 },
+    },
+
+    --第9步 结束
+    {
+      condList = 
+      {
+				{ type = 17,  helpId = 40, dataList = {1480,} },     --不存在任务
+      },
+      
+      --无内容
+      action = { type = 0, helpId = 0, data = 3, desc = Lang.GuideLang.desc20 },
+    },
+
+
+	}
+}

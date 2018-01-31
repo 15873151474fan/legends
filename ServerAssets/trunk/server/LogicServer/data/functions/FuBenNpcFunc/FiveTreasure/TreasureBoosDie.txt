@@ -1,0 +1,41 @@
+﻿--lua script
+--#include "TreasureCommon.txt" once
+
+--打boss死亡
+MonDieDispatcher.Mon1063Die = function(monster,sysarg,monId)
+	FiveBigBossTreasure(sysarg,1)
+end
+
+MonDieDispatcher.Mon1064Die = function(monster,sysarg,monId)
+	FiveBigBossTreasure(sysarg,2)
+end
+
+MonDieDispatcher.Mon1065Die = function(monster,sysarg,monId)
+	FiveBigBossTreasure(sysarg,4)
+end
+
+MonDieDispatcher.Mon1066Die = function(monster,sysarg,monId)
+	FiveBigBossTreasure(sysarg,5)
+end
+
+MonDieDispatcher.Mon1067Die = function(monster,sysarg,monId)
+	FiveBigBossTreasure(sysarg,3)
+end
+
+--打小怪boss死亡
+MonDieDispatcher.Mon1068Die = function(monster,sysarg,monId)
+	local nPosX, nPosY = Actor.getEntityPosition(monster, 0, 0)
+	SmallBossTreasure(sysarg,monster,monId)
+end
+
+MonDieDispatcher.register(245, MonDieDispatcher.Mon1063Die )
+MonDieDispatcher.register(246, MonDieDispatcher.Mon1064Die )
+MonDieDispatcher.register(247, MonDieDispatcher.Mon1065Die )
+MonDieDispatcher.register(248, MonDieDispatcher.Mon1066Die )
+MonDieDispatcher.register(249, MonDieDispatcher.Mon1067Die )
+
+MonDieDispatcher.register(240, MonDieDispatcher.Mon1068Die )
+MonDieDispatcher.register(241, MonDieDispatcher.Mon1068Die )
+MonDieDispatcher.register(242, MonDieDispatcher.Mon1068Die )
+MonDieDispatcher.register(243, MonDieDispatcher.Mon1068Die )
+MonDieDispatcher.register(244, MonDieDispatcher.Mon1068Die )

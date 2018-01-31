@@ -1,0 +1,30 @@
+--lua script
+--#include "data\functions\Activity\SheepLaborDay\SheepLaborDayTree.txt" once
+
+function SheepLaborDayMain(sysarg)
+	local str = Lang.Activity.ywy0301
+
+	str = str .. "\\" .. "\\".. Lang.Activity.ywy0308
+	local num = ReadLaborDay(1)
+	str =  str .. num.."\\" --全服培养值
+	
+	local str1 = Lang.Activity.ywy0310
+	str =  str .. str1	
+	local num1 = ReadLaborDayPlayerVal(sysarg,1)
+	str =  str .. num1 --个人贡献值
+
+	str = str.."\\<#BL"..Lang.Activity.ywy0304.."/@NPCLaborDayNpcDeal,".. 1 .. ">" --浇水
+	str = str.."\\<#BL"..Lang.Activity.ywy0305.."/@NPCLaborDayNpcDeal,".. 2 .. ">" --施肥
+	str = str.."\\<#BL"..Lang.Activity.ywy0306.."/@NPCLaborDayNpcDeal,".. 3 .. ">" --摇晃
+	str = str.."\\<#BL"..Lang.Activity.ywy0307.."/@exit>" --离开
+	
+	return str
+end
+
+
+function NPCLaborDayNpcDeal(sysarg, index)
+	index = tonumber(index)
+	LaborTreeNpcDeal(sysarg, index) --1浇水-2施肥-3摇晃
+end
+
+table.insert(MainFnTable, SheepLaborDayMain)

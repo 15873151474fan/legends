@@ -1,0 +1,382 @@
+﻿--lua script
+ 
+--#include "..\EquipEnhance\EnhanceFunctioins.txt" once --装备操作通用
+ 
+--#include "..\EquipEnhance\CQEquipEnhance.txt" once 	--装备升级 强化 鉴定 清洗	
+----#include "..\EquipEnhance\WingComposite.txt" once 	--翅膀合成
+----#include "..\EquipEnhance\CircleForge.txt" once 		--转生装备锻造
+----#include "..\EquipEnhance\EquipBreak.txt" once 		--装备分解
+--#include "..\EquipEnhance\ItemComposite.txt" once 	--道具合成
+--#include "..\EquipEnhance\DiamondComposite.txt" once 	--宝石合成
+----#include "..\EquipEnhance\MoveInitAttr.txt" once		--极品属性
+--#include "..\EquipEnhance\DiamondChg.txt" once 		--宝石转换
+----#include "..\EquipEnhance\WeaponExtendChg.txt" once 	--幻武转移
+----#include "..\EquipEnhance\MagicItemComposite.txt" once 	--法宝合成
+----#include "..\EquipEnhance\MagicItemChg.txt" once 		--法宝幻化
+----#include "..\EquipEnhance\FootPrintChg.txt" once 		--足迹继承
+--#include "..\EquipEnhance\MoveStrong.txt" once 		--强化转移
+----#include "..\EquipEnhance\MoveAuthenticate.txt" once 	--鉴定转移
+----#include "..\EquipEnhance\FootPrintUpgradeQuality.txt" once 	--足迹提品
+
+----#include "data\config\Rune\MeltingProps.txt" once 	--熔炼
+----#include "data\config\Rune\Melting.txt" once 	--熔炼
+--#include "..\EquipEnhance\WuLingSmelt.txt" once 	--武灵灵石熔炼
+--#include "..\EquipEnhance\ZyItemShenZhu.txt" once --卓越属性神铸 
+
+
+--操作处理函数表
+EnhanceTable = {
+	EquipUpGrade,		--1 装备升级
+	EquipStrong,		--2 装备强化
+	EquipAuthenticate,	--3 装备鉴定
+	EquipWashAuth,		--4 鉴定清洗
+	nil,	--5 翅膀合成
+	nil,		--6 转生装备锻造 
+	nil,		--7 装备分解
+	OnItemComposite,	--8 道具合成
+	OnDiamondComposite,	--9 宝石合成
+	OnDiamondChg,		--10 宝石转换
+	nil,		--11 极品属性转移
+	nil,	--12 清洗极品属性
+	nil,	--13 武器扩展 幻武转移
+	nil,	--14 法宝合成
+	nil,			--15 法宝幻化
+	CircleEquipUpgrade,	--16,转生后装备升级
+	nil,	--17,幻武启灵
+	nil,	--18 翅膀羽化
+	nil,	--19 足迹升阶
+	nil,		--20 足迹继承
+	OnMoveStrong,		--21 强化转移
+	nil,	--22 鉴定转移
+	nil, --23 足迹提品
+	nil,		--24 玉玺升阶
+	nil,    --25 足迹强化
+	SpecialRingComposite,--26 特戒融合
+	nil,		    --27 玉玺强化
+	OnWuLingSmelt,  --武灵灵石熔炼  28
+	ReadItemZYShenZhu,--进行神铸 29 
+	ClientApplySz, ----客户端对神铸属性的确认
+    ClientCancelSz, --取消神铸 31 
+     
+	
+}
+
+--获取消耗函数表
+ConsumTable = {
+	EquipGradeConsume,			--1 装备升级
+	EquipStrongConsume,			--2 装备强化
+	EquipAuthenticateConsume,	--3 装备鉴定
+	nil,						--4 鉴定清洗
+	nil,	--5 翅膀合成
+	nil,		--6 转生装备锻造
+	nil,		--7 装备分解
+	GetItemCompositeConsumes,	--8 道具合成
+	GetDiamondCompositeConsumes,--9 宝石合成
+	GetConsumptionDiamondChg,	--10 宝石转换
+	nil,		--11 极品属性转移
+	nil,						--12 清洗极品属性
+	nil,	--13 武器扩展 幻武转移
+	nil,	--14 法宝合成
+	nil,		--15 法宝幻化
+	CircleEquipUpgradeConsumes,	--16,转生后装备升级
+	nil,	--17,幻武启灵
+	nil,		--18 翅膀羽化
+	nil,	--19 足迹升阶
+	nil,	--20 足迹继承
+	GetMoveStrongConsumes,		--21 强化转移
+	nil,--22 鉴定转移
+	nil, 						--23 足迹提品
+	nil,		    --24 玉玺升阶
+	nil,     --25 足迹强化
+	nil,--26 特戒融合暂时不用
+	nil,     		--27 玉玺强化
+	GetOnWuLingSmeltConsumes, --28武灵灵石熔炼
+    ClientGetZyItemAttrConsumes, --获取神铸消耗 29
+    nil, --30 应用神铸属性
+    nil, --31 不应用神铸属性 31 
+}
+
+--AssistItemTable = {
+	--{func = getPrayerSticksOdds}, --1 获取强化幸运符的提升比例
+--}
+
+--玩家开始处理装备,  args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+EventCallDispatcher.handlerEquipEnhance = function( sysarg, args )
+    if not args then
+      return false
+    end
+    
+	local ptrCount = args[1]
+	local enhanceType = args[ptrCount + 2]
+	--print("handlerEquipEnhance:"..ptrCount)
+    --print("enhanceType:"..enhanceType)
+	--if enhanceType == 1 then
+       --enhanceType = 16
+    --end
+    if Actor.isDealing(sysarg) then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00073, ttFlyTip)
+		return
+    end 
+     
+	--enhanceType = 28
+    if EnhanceTable[enhanceType] then
+    --print("enhanceType:"..enhanceType)
+      if Actor.hasState(sysarg, esStateStall) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.stall001, ttScreenCenter)
+			return
+      end
+       --print("enhanceType:"..enhanceType)
+  	  local result = EnhanceTable[enhanceType]( sysarg, args )
+  	  
+      if result then
+		--Actor.triggerQuestEvent(sysarg, 37, enhanceType, 1)  --引擎里面会调用 这里屏蔽掉 
+      end
+	  return result
+    end
+    
+    
+end
+
+
+--获取装备处理的消耗, args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+EventCallDispatcher.handlerGetEnhanceConsumption = function ( sysarg, args )
+	if( args == nil ) then
+		return false
+	end
+	local ptrCount = args[1]
+	local enhanceConsumType = args[ptrCount + 2]
+	--print("handlerGetEnhanceConsumption:"..enhanceConsumType)
+	--if enhanceConsumType == 1 then
+       --enhanceConsumType = 16
+    --end 
+	if ConsumTable[enhanceConsumType] then
+		ConsumTable[enhanceConsumType]( sysarg, args )
+	end
+end
+
+
+--[[获取物品处理的配置[获取的ID]
+EventCallDispatcher.handlerGetAssistItemConfig = function ( sysarg, args )
+	if( args == nil ) then
+		return false
+	end
+	local assistType = args[1]
+	AssistItemTable[assistType].func( sysarg, args )
+end
+
+--熔炼, args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+EventCallDispatcher.handlerUpMeltingValue = function ( sysarg, args )
+	if( args == nil ) then
+		return false
+	end
+
+	local nConsumeType = args[1]
+	local nGuidCount = args[2]
+
+	local config = MeltingPropsConfig
+	local meltintConfig = MeltingConfig
+	if (not config) or (not config.props) or (not meltintConfig) then
+		return false
+	end
+
+	local nMeltingLevel = Actor.getMeltingLevel(sysarg)
+	if nMeltingLevel >= meltintConfig.meltingMaxLevel then
+		Actor.sendTipmsg(sysarg, Lang.Activity.rl0001, ttFlyTip)
+		return
+	end
+	local nMeltingValue = Actor.getMeltingValue(sysarg, -1)
+	local nNextMeltingLevel = nMeltingLevel
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local name = Actor.getName(sysarg)
+
+	local upProps = {}
+
+	if nConsumeType == 0 then	--装备
+		local nValue = 0
+
+		if nGuidCount > 12 then	--脚本参数不得超过12个，因此超过12个表示背包所有道具
+			local itemList = Item.getItemPtrList(sysarg)  --获取背包道具指针列表
+			if itemList ~= nil then
+				for i = 1, #itemList do
+					local itemPtr = itemList[i]
+					if itemPtr then
+						local nItemId = Item.getItemProperty(sysarg, itemPtr, Item.ipItemID, 0)
+						local nItemCount = Item.getItemProperty(sysarg, itemPtr, Item.ipItemCount, 0)
+						
+						for j, prop in ipairs(config.props or {}) do
+							if (nItemId == prop.id) then
+								if (Actor.removeItemByPtr(sysarg, itemPtr, nItemCount, true, Lang.Activity.rl0002, 971) >= nItemCount) then
+									nValue = nValue + prop.count*nItemCount
+									break
+								end
+							end
+						end
+					end
+				end
+			end
+		else
+			for i=1, nGuidCount do
+				local itemPtr = args[i+2]
+				local nItemId = Item.getItemProperty(sysarg, itemPtr, Item.ipItemID, 0)
+				local nItemCount = Item.getItemProperty(sysarg, itemPtr, Item.ipItemCount, 0)
+
+				for j, prop in ipairs(config.props or {}) do
+					if (nItemId == prop.id) then
+						if (Actor.removeItemByPtr(sysarg, itemPtr, nItemCount, true, Lang.Activity.rl0002, 971) >= nItemCount) then
+							nValue = nValue + prop.count*nItemCount
+							break
+						end
+					end
+				end
+			end
+		end
+
+		if nValue == 0 then return end
+
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.rl0005, nValue), ttFlyTip)
+
+		local nNewMeltingValue = nMeltingValue + nValue
+
+		for i = 1, 1000 do
+			local nNextMeltingValue = Actor.getMeltingValue(sysarg, nNextMeltingLevel)
+
+			if nNewMeltingValue < nNextMeltingValue then
+				Actor.setMeltingValue(sysarg, nNewMeltingValue)
+				break
+			end
+
+			--随机一个属性
+			local tmpProp = GetRandomMeltingInfo(sysarg, meltintConfig.meltingprop, nMeltingLevel)
+			local nPropLevel = Actor.getMeltingPropLevel(sysarg, tmpProp.id)
+			Actor.setMeltingPropLevel(sysarg, tmpProp.id, nPropLevel+1)
+
+			local propValue = tmpProp.prop[1].base + tmpProp.prop[1].grop * (nPropLevel)
+			local propNextValue = tmpProp.prop[1].base + tmpProp.prop[1].grop * (nPropLevel + 1)
+			if nPropLevel+1 >= tmpProp.prop[1].maxLevel then
+				propNextValue = 0
+			end
+			local tmpUpProp = {tmpProp.id, propValue, propNextValue}
+			table.insert(upProps, tmpUpProp)
+			
+			System.sendCommonLog(971, actorId, name, tmpProp.id, nPropLevel+1, 0, Lang.LogTips.rl0001)
+
+			nNewMeltingValue = nNewMeltingValue - nNextMeltingValue
+			nNextMeltingLevel = nNextMeltingLevel + 1
+			Actor.setMeltingLevel(sysarg, nNextMeltingLevel)
+			if nNextMeltingLevel >= meltintConfig.meltingMaxLevel then
+				Actor.setMeltingValue(sysarg, nNextMeltingValue)
+				break
+			end
+		end
+	elseif nConsumeType == 1 then	--元宝
+		local nNextMeltingValue = Actor.getMeltingValue(sysarg, nNextMeltingLevel)
+		local nNeedMeltingValue = 0
+		if nNextMeltingValue > nMeltingValue then
+			nNeedMeltingValue = nNextMeltingValue - nMeltingValue
+		end
+
+		local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+		for k, consume in ipairs(meltintConfig.consumes or {}) do
+			if consume.type == 15 then
+				if consume.count*nNeedMeltingValue > nGold then
+					Actor.sendTipmsg(sysarg, Lang.Activity.rl0003, ttFlyTip)
+					return
+				end
+			end
+		end
+
+		for k, consume in ipairs(meltintConfig.consumes or {}) do
+			if consume.type == 15 then
+				Actor.changeMoney(sysarg,3,-consume.count*nNeedMeltingValue,971,Lang.Activity.rl0004)
+			end
+		end
+
+		--随机一个属性
+		local tmpProp = GetRandomMeltingInfo(sysarg, meltintConfig.meltingprop, nMeltingLevel)
+		if not tmpProp then return end
+		local nPropLevel = Actor.getMeltingPropLevel(sysarg, tmpProp.id)
+
+		local propValue = tmpProp.prop[1].base + tmpProp.prop[1].grop * (nPropLevel)
+		local propNextValue = tmpProp.prop[1].base + tmpProp.prop[1].grop * (nPropLevel + 1)
+		if nPropLevel+1 >= tmpProp.prop[1].maxLevel then
+			propNextValue = 0
+		end
+		local tmpUpProp = {tmpProp.id, propValue, propNextValue}
+		table.insert(upProps, tmpUpProp)
+
+		System.sendCommonLog(971, actorId, name, tmpProp.id, nPropLevel+1, 0, Lang.LogTips.rl0001)
+
+		Actor.setMeltingValue(sysarg, 0)
+		Actor.setMeltingPropLevel(sysarg, tmpProp.id, nPropLevel+1)
+		Actor.setMeltingLevel(sysarg, nNextMeltingLevel+1)
+	end
+
+	SendUpMeltingValue(sysarg, upProps)
+end
+
+--根据概率获取值
+function GetRandomMeltingInfo(sysarg, infoTable, nLevel)
+	local maxVal = 0
+	for k, v in ipairs(infoTable or {}) do
+		local nPropLevel = Actor.getMeltingPropLevel(sysarg, k)
+
+		if nPropLevel < v.prop[1].maxLevel then
+			for i, w in ipairs(v.rateRange or {}) do
+				if (nLevel >= w.levelRange[1]) and (nLevel <= w.levelRange[2]) then
+					maxVal = maxVal + w.rate
+					break
+				end
+			end
+		end
+	end
+	local result = nil
+
+	if maxVal == 0 then return result end
+	local randVal = math.random(1, maxVal)
+	local tmpValue = 0
+	for k, v in ipairs(infoTable or {}) do
+		local nPropLevel = Actor.getMeltingPropLevel(sysarg, k)
+		if nPropLevel < v.prop[1].maxLevel then
+			for i, w in ipairs(v.rateRange or {}) do
+				if (nLevel >= w.levelRange[1]) and (nLevel <= w.levelRange[2]) then
+					tmpValue = tmpValue + w.rate
+					break
+				end
+			end
+			if tmpValue >= randVal then
+				result = v
+				break
+			end
+		end
+	end
+	return result
+end
+
+--下发熔炼结果
+function SendUpMeltingValue(sysarg, upProps)
+	local nMeltingValue = Actor.getMeltingValue(sysarg, -1)
+	local nMeltingLevel = Actor.getMeltingLevel(sysarg)
+	local nNextMeltingValue = Actor.getMeltingValue(sysarg, nMeltingLevel)
+	local nUpPropsCount = table.getn(upProps or {})
+
+	local pack = DataPack.allocPacket(sysarg, 55, 12)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nMeltingValue)
+		DataPack.writeInt(pack, nNextMeltingValue)
+		DataPack.writeInt(pack, nMeltingLevel)
+		DataPack.writeChar(pack, nUpPropsCount)
+		for k,prop in ipairs(upProps or {}) do
+			DataPack.writeInt(pack, prop[1])
+			DataPack.writeInt(pack, prop[2])
+			DataPack.writeInt(pack, prop[3])
+		end
+		DataPack.flush(pack)
+	end
+end]]
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeItemProcess, EventCallDispatcher.handlerEquipEnhance)    
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeGetItemProcessConsume, EventCallDispatcher.handlerGetEnhanceConsumption)
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeGetItemProcessConfig, EventCallDispatcher.handlerGetAssistItemConfig)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeGetCanUpGrdConfig, EventCallDispatcher.handlerGetUpgradeConfig)
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUpMeltingValue, EventCallDispatcher.handlerUpMeltingValue)

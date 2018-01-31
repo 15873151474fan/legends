@@ -1,0 +1,101 @@
+--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+--[[当前脚本内的全局变量]]--
+thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+--[[如果此NPC包含标准任务，请将下面一行的最前面的'-'去掉！]]
+--#include "data\language\LangCode.txt"          -- 语言表 
+--#include "data\functions\NormalFuncForQuest.txt" once   -- 普通任务通用脚本函数  once
+--#include "data\functions\Tasks\FestivalTasks\NationalDay\AboutNational.txt" once --金钱雨活动说明
+  --#include "data\functions\Tasks\FestivalTasks\RoseRain\AboutRoseRain.txt" once --玫瑰雨活动说明
+
+--[[此NPC中标准任务发行表]]
+PromMs =
+{
+  --键入mp+分号，根据模板生成发行任务脚本模板
+--#include "data\config\quest\quests\task1957.txt" once
+}
+
+--[[此NPC中标准任务受理表]]
+CompMs =
+{
+  --键入mc+分号，根据模板生成受理任务脚本模板
+--#include "data\config\quest\quests\task1955.txt" once
+}
+
+--[[此NPC中标准任务过程表]]
+PassMs =
+{
+  --键入ma+分号，根据模板生成过程任务脚本模板
+}
+
+--[[此处为NPC对白]]
+NpcDialogue = {  --如果NPC随机对白数多与三个或少于三个，可适当增加或减少此表内的子表 
+   { say = Lang.normaltalk.n01081 }, --在"="后填写NPC对白内容(内容在语言表内)
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+
+
+	local qc = 0
+	local state = 0
+	local qid = 0	
+	local mission,qc,qid,state = Actor.formatQuestState( sysarg,qc,qid,state )        --通过引擎格式化任务状态
+	local str = ""
+	
+	if mission then     --如果有任务状态描述		
+		str = mission
+	end
+
+	--local str,f = commonQuestNpcMain(sysarg)
+	--if(f) then
+	
+	str =  str..NpcDialogue[1].say  
+	
+	for i = 1, table.getn(MainFnTable) do
+		str = str .. MainFnTable[i](sysarg)
+	end
+	
+	return str
+	
+	--[[
+	else
+		return NpcDialogue[1].say
+	end
+	--]]
+end
+
+function sendToClientOpenDialog(sysarg)
+	--发送数据包给客户端，请求弹出传送列表框 
+	local sceneid = Actor.getSceneId(sysarg)
+	--print("sceneid:"..sceneid)
+	local npack = DataPack.allocPacket(sysarg,139,8)
+	if npack == nil then return end
+	DataPack.writeInt(npack,sceneid)
+	DataPack.flush(npack)
+	
+	Actor.closeNPCDialog(sysarg)
+end
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  --SPID = TSystem.getGlobalVariant( "spid" )  
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

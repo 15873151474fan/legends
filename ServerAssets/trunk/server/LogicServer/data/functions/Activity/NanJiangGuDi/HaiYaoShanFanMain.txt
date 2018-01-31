@@ -1,0 +1,45 @@
+
+--lua script
+
+--#include "data\functions\Activity\NanJiangGuDi\NanJiangGuDi.txt" once  
+
+function HaiYaoShanFan_Main(sysarg)
+	local str = "\\<#BL"..Lang.Activity.njgd014.."/@OpenHaiYaoShanFan>" --打开对话窗口
+	str = str.."\\<#BL"..Lang.Activity.njgd006.."/@Quit>" --离开    
+	return str
+end
+
+function OpenHaiYaoShanFan(sysarg) 
+	return HaiYanShanFanDialog(sysarg) 
+end
+
+
+
+function HaiYaoShanFanInit() 
+	local rankPtr = Ranking.getRanking( Lang.Rank.NanJiangGuDiFile ) 
+	if rankPtr == nil then
+		rankPtr = Ranking.add(Lang.Rank.NanJiangGuDiFile, 2000)
+		if rankPtr then
+			local ret = Ranking.load(rankPtr, Lang.Rank.NanJiangGuDiFile)
+			if not ret then
+				for i=1, 5 do
+					Ranking.addColumn(rankPtr, "value"..i-1)
+				end
+			end
+		end
+	end	
+	
+end
+
+function HaiYaoShanFanSave()
+	local rankPtr = Ranking.getRanking( Lang.Rank.NanJiangGuDiFile )		
+	if rankPtr then
+		Ranking.save(rankPtr, Lang.Rank.NanJiangGuDiFile, true)
+	end
+	
+end
+
+
+table.insert(MainFnTable, HaiYaoShanFan_Main)
+table.insert(InitFnTable, HaiYaoShanFanInit)
+table.insert(FinaFnTable, HaiYaoShanFanSave)

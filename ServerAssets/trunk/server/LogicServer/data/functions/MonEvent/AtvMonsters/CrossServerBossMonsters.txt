@@ -1,0 +1,113 @@
+﻿--lua script
+--跨服BOSS
+
+--#include "data\functions\Tasks\CrossServerTasks\CrossServerBoss\CommonFunc.txt" once 	--通用函数
+
+
+MonDieDispatcher.CrossServerBossDie = function (monster,sysarg,monId)
+	local config = CrossServerBossConfig
+	if not config then return end
+	local MonsterConfig = config.MobMonster
+	if not MonsterConfig then return end
+	--活动状态判断
+	local dval = System.getDyanmicVar()
+	if dval.CrossServerBossActive ~= 1 then return end
+	--击杀场景判断
+	local sceneId = Actor.getSceneId(sysarg)
+	if sceneId ~= config.MapId then return end
+	local MonsteridIndex = 0
+	local MonsterName = ""
+	table.foreachi( MonsterConfig, function( i, v )  if (v.mId == monId) then  MonsteridIndex,MonsterName= i,v.mName end end )
+	if MonsteridIndex <= 0 then return end
+	local hScene = Fuben.getSceneHandleById(config.MapId,0)  --获得场景句柄 普通场景0
+	
+	--[[
+	--如果是护卫全死，刷出BOSS
+	if MonsterConfig[MonsteridIndex].isBoss == 0 then
+		--记录死亡护卫个数
+		local count = dval.CrossServerBossDefendDie
+		if not count or count >= config.DefendCount then
+			dval.CrossServerBossDefendDie = 0
+			count = dval.CrossServerBossDefendDie
+		end
+		dval.CrossServerBossDefendDie = count + 1
+		if dval.CrossServerBossDefendDie >= config.DefendCount then
+			local bossName = ""
+			for i=1, table.getn(MonsterConfig) do
+				local mon = MonsterConfig[i]
+				if mon.isBoss == 1 then
+					Fuben.createMonster(hScene, mon.mId, mon.posX, mon.posY, mon.liveTime)
+					bossName = bossName..string.format("【%s】", mon.mName)
+					SetCrossServerBossList(mon.mName,mon.mId,3,"-","-")
+				end
+			end
+			local tips = string.format(Lang.TaskTalk.kf0020, bossName)
+			Fuben.sendMsgToScene(hScene,tips,ttScreenCenter+ttTipmsgWindow)
+		end
+		
+	end
+	--]]
+	
+	local name = Actor.getName(sysarg)
+	local serverId = Actor.getActorRawServerId(sysarg)
+	SetCrossServerBossList(MonsterName,monId,1,serverId,name)
+	--死亡奖励
+	CrossServerBossDieAward(monster,sysarg,monId,MonsteridIndex,MonsterConfig[MonsteridIndex].isBoss)	
+	--公告
+	local tips = string.format(Lang.TaskTalk.kf0021,MonsterName,serverId,name)
+	if MonsterConfig[MonsteridIndex].isBoss == 0 then
+		tips = string.format(Lang.TaskTalk.kf0022,MonsterName,serverId,name)
+	end
+	System.broadcastTipmsg(tips,ttScreenCenter)
+	
+end
+
+function CrossServerBossDieAward(monster,sysarg,monId,MonsteridIndex,isBoss)
+	local config = CrossServerBossConfig
+	if not config then return end
+	local MonsterConfig = config.MobMonster
+	if not MonsterConfig then return end
+	local monConfig = MonsterConfig[MonsteridIndex]
+	--给范围内玩家奖励
+	local scenePtr = Actor.getScenePtr(monster)                     --获取角色所在的场景的指针
+	local x, y = Actor.getEntityPosition(monster, 0, 0)
+	local xR = monConfig.awardXr
+	local yR = monConfig.awardYr
+	local award = nil
+	for i=1, table.getn(CrossServerMonDieAward) do
+		if CrossServerMonDieAward[i].isBoss == isBoss then
+			award = CrossServerMonDieAward[i]
+		end
+	end
+	if not award then return end
+	local playerList = LuaHelp.getNearEntityListFromRange(scenePtr,x,y,xR,yR,0)   --获取周围的实体的指针列表
+	if not playerList then return end
+	for i=1,table.getn(playerList) do
+		local player = playerList[i]
+		if player ~= nil then
+			local level = Actor.getIntProperty(player, PROP_CREATURE_LEVEL )
+			if level >= config.LimitLevel then
+				--增加奖励
+				if award.LimitLevel ~= nil then
+					if rewardLimitLevelCheck(player, award.LimitLevel) == true then
+						doTaskNoLevelOtherReward(player, award.noLevelReward.other,Lang.LogTips.l00064)
+						doTaskLevelAward(player, award.LevelReward, award.LimitLevel[1], Lang.LogTips.l00065)
+					end
+				end
+			end
+		end
+	end
+
+end
+
+function RegisterCrossServerBossDie()
+	local config = CrossServerBossConfig
+	if not config then return end
+	local monsters = config.MobMonster
+	if not monsters then return end
+	for i=1,#monsters do
+		--MonDieDispatcher.register(monsters[i].mId,MonDieDispatcher.CrossServerBossDie)
+	end
+end
+
+RegisterCrossServerBossDie()

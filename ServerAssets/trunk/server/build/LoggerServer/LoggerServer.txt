@@ -1,0 +1,30 @@
+﻿LoggerServer = 
+{
+	--数据库连接相关
+	SQL = 
+		{ 
+			Host = "127.0.0.1", 	
+			Port = 3306, 
+			DBName = "cq_log", 
+			DBUser = "root", 
+			DBPass = "TVzsLNtq4xb4Al0dDjNigA==",
+                        --DBPass = "123456",
+			utf8=1,
+		
+		},
+	--服务器参数配置
+	Server = 
+		{ 
+			BindAddress = "0.0.0.0", 
+			Port = 34000 ,
+			ServiceName="LoggerServer",
+		},
+	
+	--发送聊天消息给工具
+	ChatLog = 
+		{ 
+			ServiceName="LogServer",
+			BindAddress = "0.0.0.0", 
+			Port = 35000 ,
+		},
+}

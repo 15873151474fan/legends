@@ -1,0 +1,242 @@
+--夫妻鹊桥个性化菜单
+
+--#include "data\language\LangCode.txt" once
+--#include "data\envir\FuBen.txt" once
+--#include "data\config\activityconfig\FuQiQueQiaoConfig\FuQiQueQiaoConfig.txt"
+
+
+--夫妻副本特殊菜单
+function ShowFuQiMenu( sysarg,fbid,count,allCount,RecruitTmrStr,massStr,buyFbTmsStr)
+	local optStr =""
+--获取组队副本ID和次数
+	local fbid = 0
+	if FuQiConfig.nFubeId then
+		fbid = FuQiConfig.nFubeId
+		local fbdata = FuBen[fbid]
+		local groupid = fbdata.groupId
+		if groupid then 
+			local allCount = GetFubenAllTimes(sysarg, fbid)
+			local count = allCount - GetEnterFubenTimes( sysarg, fbid)
+			optStr = string.format("%s<#BL%s(%d/%d)/@EnterNormalFuQiFuben,%d>",optStr,Lang.ScriptTips.couple001,
+				count,allCount,fbid)
+		end
+	end
+
+--获取情侣组队副本ID和次数
+ 	local loverfbid = 0
+	if FuQiConfig.nLoveFubenId then
+		loverfbid = FuQiConfig.nLoveFubenId
+		local lovefbdata = FuBen[loverfbid]
+		local lovergroupid = lovefbdata.groupId
+		if lovergroupid then
+			local loverallCount = GetFubenAllTimes(sysarg, loverfbid)
+			local lovercount = allCount - GetEnterFubenTimes( sysarg, loverfbid)
+			optStr = string.format("%s<#BL%s(%d/%d)/@EnterLoversFuQiFuben,%d>",optStr,Lang.ScriptTips.couple002,
+				lovercount,loverallCount,loverfbid)
+		end
+	end
+	optStr = string.format("%s%s%s%s",optStr,RecruitTmrStr,massStr,buyFbTmsStr)
+	return optStr
+end
+
+
+--进入普通组队模式副本组队
+function EnterNormalFuQiFuben(sysarg,FbID)
+	FbID = tonumber(FbID)
+	local fubenCfg = FuBen[FbID]
+	if not fubenCfg then
+		return
+	end
+	local teamId = Actor.getTeamId( sysarg )
+	if teamId == 0 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.couple003, ttFlyTip)
+		return
+	end
+	--是否队长
+	local captainPtr = TeamFun.getTeamCaptain( teamId )
+	if captainPtr ~= sysarg then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben003, ttFlyTip)
+		return
+	end
+		
+	local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+	if TeamMemb == nil then 
+		return
+	end
+	local captainPtr = TeamFun.getTeamCaptain( Actor.getTeamId(sysarg))
+ 	local capSceneName, capX, capY = Actor.getSceneName( sysarg, 0, 0 )
+	--逐个判定组队的队员
+	for k, memPtr in ipairs(TeamMemb) do
+		if not Actor.checkActorLevel(memPtr, fubenCfg.minLevel, fubenCfg.circle) then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.tf00068, Actor.getName(memPtr)),ttFlyTip)
+			return false
+		end 		
+		if not checkEnterFbTimes(memPtr, FbID) then
+			if memPtr == sysarg then
+				NoticeNoTimeToFb(sysarg, FbID)
+			else
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.tf00069, Actor.getName(memPtr)), ttFlyTip)
+			end				
+			return false
+		end
+		if not CanEnterFuben(memPtr, captainPtr) then
+			return
+		end
+		if not CheckExtraConsume(memPtr, FbID, captainPtr) then
+			return
+		end
+		if memPtr ~= captainPtr then
+			local memSceneName, memX, memY = Actor.getSceneName( memPtr, 0, 0 )
+			if capSceneName ~= memSceneName or (math.abs(capX - memX) > 10 and math.abs(capY - memY) > 10) then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben004, Actor.getName(memPtr)), ttFlyTip)
+				return false
+			end
+		end
+	end
+	if table.getn(TeamMemb) < fubenCfg.minPlayCount then		--判断队伍的人数是否满足条件
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00001, ttFlyTip)
+		return false
+	end
+	if table.getn(TeamMemb) > fubenCfg.maxPlayCount then 		
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00002,ttFlyTip)   --队伍人数超过最多人数，不能进入副本
+		return false
+	end
+	--传送至副本内
+	Flag ={0,0}
+	local RandNum =System.getRandomNumber(table.getn(FuQiConfig.couplePos))+1
+	Flag[1] = RandNum
+	Flag[2] = 3 - RandNum
+	Hfuben = Fuben.createFuBen(FbID)
+	for k, memPtr in ipairs(TeamMemb) do		--如果满足条件将队伍的成员逐个传送到副本场景
+		local posX = 0
+		local posY = 0
+	    posX = FuQiConfig.couplePos[Flag[k]].posX
+		posY = FuQiConfig.couplePos[Flag[k]].posY
+		Actor.setDyanmicValue(memPtr,Flag[k])
+
+		Actor.enterFuBen(memPtr,Hfuben,-1,posX,posY)
+		Actor.clearKillMonsterCount(memPtr)
+		Actor.closeDialogs(TeamMemb[i],diFubenTeam)	
+		Actor.triggerQuestEvent(TeamMemb[i], 39, FbID, 1)
+		--GetQuestStrByFubenId(TeamMemb[i], FbID)
+		--扣除进入副本次数
+		DeductFubenTimes(memPtr, FbID) 
+		SetEnterFuben(memPtr)
+	end
+	if OnEnterCopyMap[FbID] then
+		OnEnterCopyMap[FbID].OnEnterFubenFunc(sysarg,Hfuben, FbID)
+	end
+
+	
+end
+
+
+--进入夫妻模式
+function EnterLoversFuQiFuben(sysarg,FbID)
+	FbID = tonumber(FbID)
+	local fubenCfg = FuBen[FbID]
+	if not fubenCfg then
+		return
+	end
+	local loverId = Actor.getSocialRelationId(sysarg,6)	
+	if loverId == 0  then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.couple013,ttFlyTip)
+		return 
+	end
+	local loverName = Actor.getSocialActorName(sysarg,loverId)
+	local lovemember = System.getEntityPtrByActorID(loverId)
+	if not lovemember then
+		Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.couple019,loverName),ttFlyTip)
+		return 		
+	end
+		
+	local capSceneName, capX, capY = Actor.getSceneName( sysarg, 0, 0 )
+	
+	--判定情侣二人的条件是否达到
+	if not Actor.checkActorLevel(sysarg, fubenCfg.minLevel, fubenCfg.circle) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.tf00068, Actor.getName(sysarg)),ttFlyTip)
+		return false
+	end
+	if not Actor.checkActorLevel(lovemember, fubenCfg.minLevel, fubenCfg.circle) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.tf00068, Actor.getName(lovemember)),ttFlyTip)
+		return false
+	end
+	if not checkEnterFbTimes(sysarg, FbID) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben033),ttFlyTip)
+		OpenGuideUi(sysarg)
+		return false
+	end
+	if not checkEnterFbTimes(lovemember, FbID) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.couple034, Actor.getName(lovemember)),ttFlyTip)
+		OpenGuideUi(sysarg)
+		return false
+	end
+	if not CanEnterFuben(lovemember, sysarg) then
+		return
+	end
+	local memSceneName, memX, memY = Actor.getSceneName( lovemember, 0, 0 )
+	if capSceneName ~= memSceneName or (math.abs(capX - memX) > 10 and math.abs(capY - memY) > 10) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben004, Actor.getName(lovemember)), ttFlyTip)
+		return false
+	end
+--传送到副本内
+	Flag ={0,0}
+	Hfuben = Fuben.createFuBen(FbID)
+	local RandNum = 0
+	RandNum =System.getRandomNumber(table.getn(FuQiConfig.couplePos))+1
+	Flag[RandNum] = 1
+	Flag[3-RandNum] =2
+	Actor.setDyanmicValue(sysarg,Flag[1])
+	Actor.setDyanmicValue(lovemember,Flag[2])
+	sysPosX = FuQiConfig.couplePos[Flag[1]].posX
+	sysPosY = FuQiConfig.couplePos[Flag[1]].posY
+	memPosX	= FuQiConfig.couplePos[Flag[2]].posX
+	mmePosY = FuQiConfig.couplePos[Flag[2]].posY
+
+	--Actor.enterFuBen(sysarg ,Hfuben, -1, sysPosX, sysPosY)
+	--Actor.enterFuBen(lovemember, Hfuben, -1, memPosX, mmePosY)
+	
+	Actor.enterFuBen(sysarg ,Hfuben, FuQiConfig.nSceenId, sysPosX, sysPosY)
+	Actor.enterFuBen(lovemember, Hfuben, FuQiConfig.nSceenId, memPosX, mmePosY)
+	Actor.clearKillMonsterCount(sysarg)
+	Actor.clearKillMonsterCount(lovemember)	
+	Actor.closeDialogs(sysarg,diFubenTeam)	
+	Actor.triggerQuestEvent(sysarg, 39, FbID, 1)
+	GetQuestStrByFubenId(sysarg, FbID)
+
+	Actor.closeDialogs(lovemember,diFubenTeam)	
+	Actor.triggerQuestEvent(lovemember, 39, FbID, 1)
+	GetQuestStrByFubenId(lovemember, FbID)
+	--扣除进入副本次数
+	DeductFubenTimes(sysarg, FbID) 
+	SetEnterFuben(sysarg)
+	DeductFubenTimes(lovemember, FbID) 
+	SetEnterFuben(lovemember)
+	if OnEnterCopyMap[FbID] then
+		OnEnterCopyMap[FbID].OnEnterFubenFunc(sysarg,Hfuben, FbID)
+	end
+
+end
+
+function IsInFuQiMap(sysarg)
+	if not FuQiConfig then return false end
+	local nSceneId = Actor.getSceneId(sysarg)
+	if FuQiConfig.nSceenId == nSceneId then
+		return true
+	end
+	return false
+end
+
+function ExitFuQiFuben(sysarg)
+	local FbID = Actor.getFubenId(sysarg)
+	if FbID == 0 then
+		if (not FuQiConfig) or (not FuQiConfig.ExitPos)  then return end
+		ExitPosCfg =  FuQiConfig.ExitPos
+		local exitnSceneId = ExitPosCfg.nSceneId
+		local exitposX = ExitPosCfg.posX
+		local exitposY = ExitPosCfg.posY 
+		Actor.enterScene(sysarg,exitnSceneId,exitposX,exitposY)
+		return
+	end
+	onExitFubenFunc(sysarg)
+end

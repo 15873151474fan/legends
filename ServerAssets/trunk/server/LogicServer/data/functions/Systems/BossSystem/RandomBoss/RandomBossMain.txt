@@ -1,0 +1,243 @@
+﻿--[[狩猎BOSS 系统处理函数 李昀 2015-9-16]]   
+local RandomBossImp = {}
+local RandomBossMobAutoRun = {}
+
+--#include "data\config\BossSystem\RandomBossConfig.txt" once
+--#include "data\functions\Systems\BossSystem\RandomBoss\RandomBossEvent.txt" once
+--#include "data\functions\Systems\BossSystem\RandomBoss\RandomBossCC.txt" once
+
+--狩猎BOSS自动执行KEY
+function RandomBossMobKey(BossID)
+  local Key = "MobRandomBoss"
+  if BossID == -1 then
+    return Key
+  end
+  return Key.."#"..BossID
+end
+
+
+--获取狩猎BOSS的运行期变量
+function GetRandomBossDyanmicVar(BossID)
+
+  local var = System.getDyanmicVar()
+
+  --检查确定非空
+  if var.RandomBossInfo == nil then
+    var.RandomBossInfo = {}
+  end
+
+  --确定要返回总表还是分表
+  if BossID ~= nil then
+    local sType = type(BossID)
+    if sType == "number" then
+     -- print("GetRandomBossDyanmicVar is Number")
+      if var.RandomBossInfo[BossID] == nil then
+        var.RandomBossInfo[BossID] = {}
+      end
+      return var.RandomBossInfo[BossID]
+    else
+      BossPrint("GetRandomBossDyanmicVar Error.Boss want Number : but is ".. sType)
+      return nil
+    end
+  else
+    return var.RandomBossInfo
+  end
+  
+end 
+
+--获取下一次狩猎BOSS的刷新
+function RandomBossImp.GetNextMobRandomBossMin(BossID)
+
+  local Boss = RandomBossConfig[BossID] 
+  if Boss == nil then
+    print(string.format("GetNextMobRandomBossMin(%d) Get a nil Boss Pointer",BossID))
+    return -1 
+  end
+
+  --是不是已经统计过了 总权重 
+  if Boss.TotalRefreshTime == nil then
+    local n = 0
+    for i = 1 , #Boss.RefreshTime do
+      n = n + Boss.RefreshTime[i].Rate 
+    end 
+    Boss.TotalRefreshTime = n
+    BossPrint(string.format("GetNextMobRandomBossMin权重总和 : %d BossID : %d",n,BossID))    
+  end
+  
+  local R = System.getRandomNumber(Boss.TotalRefreshTime) + 1
+  --print(string.format("狩猎刷出随机数 R : %d , BOSSID : %d",R,BossID )) 
+  
+  --决定使用哪个刷新配置 
+  local Index = -1 
+  local n = 0
+  for i = 1 , #Boss.RefreshTime do  
+    n = n + Boss.RefreshTime[i].Rate
+    --print(n)
+    if R <= n then
+      Index = i
+      break
+    end 
+  end 
+  
+  if Index == -1 then
+    print(string.format("GetNextMobRandomBossSec(%d) 错误的获取随机权重",BossID))
+    Boss.TotalRefreshTime = nil
+    return -1
+  end
+  
+  return Boss.RefreshTime[Index].RefreshMin 
+
+end
+
+--获取刷新到哪个场景 
+function RandomBossImp.GetRandomScene(BossID)
+
+  local Boss = RandomBossConfig[BossID]
+  if Boss == nil then
+    print(string.format("GetRandomScene(%d) Get a nil Boss Pointer",BossID))
+    return nil
+  end
+  
+  --是不是已经统计过了 总权重
+  if Boss.TotalSceneRate == nil then
+    local n = 0
+    for i = 1 , #Boss.MobOnScene do
+      n = n + Boss.MobOnScene[i].Rate
+    end
+    Boss.TotalSceneRate = n
+    BossPrint(string.format("统计狩猎BOSS 场景权重总和 : %d BossID : %d",n,BossID))
+  end
+  
+  local R = System.getRandomNumber(Boss.TotalSceneRate) + 1
+
+  --决定使用哪个刷新配置
+  local Index = -1
+  local n = 0
+  for i = 1 , #Boss.MobOnScene do 
+    n = n + Boss.MobOnScene[i].Rate
+    if R <= n then
+      Index = i
+      break
+    end
+  end
+  
+  if Index == -1 then
+    print(string.format("GetRandomScene(%d) 错误的获取随机权重",BossID))
+    Boss.TotalRefreshTime = nil
+    return nil
+  end
+  
+  return Boss.MobOnScene[Index].Set 
+  
+end
+
+--刷出狩猎BOSS 
+function RandomBossImp.MobRandomBoss(BossID)
+   if true then return end
+   BossPrint("刷出 狩猎BOSS:"..BossID)
+    --卸载刷出狩猎自动执行
+   UnRegisterRandomBossCall(BossID) 
+   
+   --获取刷出的场景 
+   local Set = RandomBossImp.GetRandomScene(BossID)
+   local Boss = RandomBossConfig[BossID]
+   
+   local Sucess = false
+   if Set ~= nil then
+     local Scene = Fuben.getSceneHandleById(Set.SceneID,0)
+     local X = Set.X + math.random(-Set.Range,Set.Range)
+     local Y = Set.Y + math.random(-Set.Range,Set.Range)
+     local Monster = Fuben.createMonster(Scene,Boss.MonID, X, Y ,0)
+     if Monster == nil then
+       --print(string.format("狩猎Boss : %d 请检查坐标配置",BossID))
+     else
+        Sucess = true
+        Actor.setRandomBossFlag(Monster,true)
+        OnRandomBossCreate(Monster,Boss.MonID,BossID)
+        BossPrint(string.format("狩猎BOSS: %d 刷出成功!",BossID))
+     end
+   else
+     Sucess = false  
+   end
+   
+   --不成功给出提示 立即注册下一个自动执行 
+   if Sucess == false then
+     print(string.format("狩猎Boss : %d 请检查坐标配置 , 将重新注册下次刷新函数",BossID)) 
+     RandomBossImp.RegRandomBossAutoRun(BossID) 
+     return     
+   end
+   
+  
+ 
+
+end 
+
+--注册刷出狩猎自动执行BOSS 
+function RandomBossImp.RegRandomBossAutoRun(BossID) 
+  local Now = System.getCurrMiniTime()
+  local NextRunTime = RandomBossImp.GetNextMobRandomBossMin(BossID) * 60 + Now
+  
+  UnRegisterRandomBossCall(BossID)
+    
+  if NextRunTime > Now then
+    local sNexRunTime = System.decodeTime(NextRunTime)
+    BossPrint(string.format("狩猎BOSS : %d 下次刷新时间: %s",BossID,sNexRunTime))
+    BossImp.RegisterAutoRun(RandomBossMobKey(BossID),RandomBossImp.MobRandomBoss,NextRunTime,BossID) 
+  end 
+
+end
+
+--狩猎Boss的下次刷新时间 
+function RandomBossImp.GetNextMobTime(BossID)
+  return BossImp.GetNextRunTime(RandomBossMobKey(BossID))
+end 
+
+--卸载狩猎BOSS自动执行函数 
+function UnRegisterRandomBossCall(BossID)
+  --卸载刷出狩猎自动执行
+  BossImp.UnRegisterAutoRun(RandomBossMobKey(BossID))
+end
+
+
+------------------初始化与反初始化---------------------
+function RandomBossImp.Init(npcobj)
+  local sName = Actor.getName( npcobj )
+  BossPrint("RandomBossImp.Init NPC:"..sName)
+  --检测当前是启动还是重载脚本 
+  local var = System.getDyanmicVar()
+  
+  local IsBoot = false
+  if var.IsRandomBossStarted == nil then
+    var.IsRandomBossStarted = 1
+    IsBoot = true
+  end
+  
+  --是启动的话 检测要不要立即刷新出游荡BOSS 
+  if IsBoot == true then
+    for i = 1,#RandomBossConfig do
+      if RandomBossConfig[i].MobOnStart == true then
+        --刷新出怪物并且设置死亡回调     
+        RandomBossImp.MobRandomBoss(i)  
+      else
+        --计算下次刷新的时间 注册 自动刷新函数 
+        RandomBossImp.RegRandomBossAutoRun(i)
+      end    
+    end
+  
+  end
+   
+
+
+end
+
+
+function RandomBossImp.UnInit(npcobj)
+
+
+end 
+
+--因为这些脚本可能会挂在怪物脚本上 可能怪物脚本并不包含初始化 
+--if InitFnTable ~= nil then   
+  table.insert(InitFnTable, RandomBossImp.Init)
+  table.insert(FinaFnTable, RandomBossImp.UnInit)
+--end

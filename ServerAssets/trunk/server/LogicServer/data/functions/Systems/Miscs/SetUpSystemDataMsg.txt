@@ -1,0 +1,16 @@
+﻿
+MiscsImplement.setUpSystemDataMsgFunc = function (sysarg,msgid, packet)
+   if packet == nil then return end
+   local sysData = DataPack.readInt(packet)
+   if sysData == nil then return end
+   local var = Actor.getStaticVar( sysarg )
+   local SystemInstall = var.SystemInstall
+   if SystemInstall == nil then 
+     var.SystemInstall = {}
+     SystemInstall = var.SystemInstall 
+   end
+   SystemInstall[1] = sysData 
+end
+
+
+MiscsImplement.registerMsgHandler(10, MiscsImplement.setUpSystemDataMsgFunc)

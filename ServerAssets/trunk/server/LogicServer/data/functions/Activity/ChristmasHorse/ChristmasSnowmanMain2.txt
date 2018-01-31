@@ -1,0 +1,12 @@
+--lua script
+--#include "data\functions\Activity\ChristmasHorse\SnowmanMain.txt" once -- 圣诞节全民堆雪
+
+function ChristmasSnowmanMain(sysarg)
+	local str = Lang.Activity.msd0106
+	str = str .."\\<#BL"..Lang.Activity.msd0102.."/@XamsProgress,".. 2 ..">" --查看当前雪人进度
+	str = str.."\\<#BL"..Lang.Activity.msd0103.."/@XamsGiveBall,".. 2 ..">" --提交雪球
+	str = str.."\\<#BL"..Lang.Activity.msd0104.."/@exit>" --离开
+	
+	return str
+end
+table.insert(MainFnTable, ChristmasSnowmanMain)

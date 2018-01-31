@@ -1,0 +1,298 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include  "data\config\activityconfig\Festival\NationalDayActive.txt" 
+--#include "data\functions\Activity\Festival\NationalDayCommon.txt" once
+
+function NationalDay_main(sysarg) 
+	local str = ""	
+	str = Lang.Activity.gq0002
+	--str = string.format("%s<#BL%s/@BuyTrainProp>", str, Lang.Activity.gq0007)
+	str = string.format("%s<#BL%s/@SubmitSpiritBeast>", str, Lang.Activity.gq0008)
+	str = string.format("%s<#BL%s/@GetLuckyBag>", str, Lang.Activity.gq0014)
+	
+	str = string.format("%s<#BL%s/@ExchangeLuckyBagEx>", str, Lang.Activity.gq0021)
+	str = string.format("%s<#BL%s/@GetNationalGiftBox>", str, Lang.Activity.gq0023)
+	
+	str = string.format("%s<#BL%s/@OpenConsumeActivity>", str, Lang.Activity.gq0025)
+	str = string.format("%s<#BL%s/@ActivityInfo>", str, Lang.Activity.gq0003)
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+
+--购买训兽道具
+function BuyTrainProp(sysarg)
+	local propTab = NationalDayActiveConfig.spiritBeastXianRui.trainProp
+	
+	local needGrids = 0
+	for k, propInfo in ipairs(propTab or {}) do
+		needGrids = needGrids + Item.getAddItemNeedGridCount( sysarg, propInfo.id, propInfo.count, propInfo.quality, propInfo.strong, propInfo.bind)
+	end
+	
+	local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+	if needGrids > bagEmptyGrids then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gq0009,  needGrids-bagEmptyGrids), ttFlyTip)
+		return
+	end
+	
+	local needMoney = 0
+	for k, propInfo in ipairs(propTab or {}) do
+		needMoney = needMoney + propInfo.consumeGold 
+	end
+	
+	if needMoney <= 0 then
+		return
+	end
+	
+	if Actor.checkConsume(sysarg, 15, 0, needMoney) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gq0010, ttFlyTip)
+		return 
+	else
+		Actor.removeConsume(sysarg, 15, 0, needMoney, 0, 0, 0, 0, 952, Lang.LogTips.l00196)
+		for k, PropInfo in ipairs(propTab or {}) do
+			Actor.giveAward(sysarg, PropInfo.type, PropInfo.id, PropInfo.count, PropInfo.quality, PropInfo.strong, PropInfo.bind, 0, 952, Lang.LogTips.l00197)
+		end
+	end
+	
+end
+
+--提交灵兽
+function SubmitSpiritBeast(sysarg) 
+	local hBeast = Actor.getSubordinateHandle(sysarg)
+	if (not hBeast) or (hBeast <= 0) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gq0011, ttFlyTip)
+		return
+	end
+	
+	local beastPtr = Actor.getEntity(hBeast)
+	local beastSceName,beastX,beastY = Actor.getSceneName(beastPtr, 0, 0)
+	local actorSceName, acotrX, actorY = Actor.getSceneName(sysarg, 0, 0)
+	
+	if actorSceName ~= beastSceName or (math.abs(acotrX - beastX) > 5 and math.abs(actorY - beastY) > 5) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gq0012, ttFlyTip)
+		return 
+	end		
+	
+	local awardTabs = NationalDayActiveConfig.spiritBeastXianRui.spiritBeastAward
+	if not awardTabs then
+		return
+	end
+	
+	local awardTab = GetRandomInfo(awardTabs, 1, awardTabs.totalRate)
+	if not awardTab then
+		return
+	end
+	
+	local needGrids = 0
+	for k, awardInfo in ipairs(awardTab or {}) do
+		needGrids = needGrids + Item.getAddItemNeedGridCount( sysarg, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind)
+	end
+		
+	local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+	if needGrids > bagEmptyGrids then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gq0009,  needGrids-bagEmptyGrids), ttFlyTip)
+		return
+	end
+		
+	Actor.setSubordinateHandle(sysarg, 0)
+	Fuben.clearMonster(hBeast) --清除灵兽
+		
+	for k, awardInfo in ipairs(awardTab or {}) do
+		Actor.giveAward(sysarg, awardInfo.type, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind, 0, 952, Lang.LogTips.l00198)
+		if awardInfo.isRarity and awardInfo.isRarity == true then
+			local actorName = Actor.getName(sysarg)
+			local itemName = Item.getAwardDesc(awardInfo.type, awardInfo.id)
+			System.broadcastTipmsg(string.format(Lang.Activity.gq0030, actorName, itemName), ttScreenCenter)
+		end
+	end	
+	
+end
+
+--[[
+--根据概率获取值
+function GetRandomInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i].value
+			break
+		end
+	end
+	return result
+end
+--]]
+
+--领取福袋
+function GetLuckyBag(sysarg)
+	
+	-- if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.actTime) then
+	-- 	return
+	-- end
+	
+	-- if System.isInDateRange(unpack(NationalDayActiveConfig.actTime)) ~= true then
+	-- 	return
+	-- end
+	
+	-- local actorVar = Actor.getStaticVar(sysarg)
+	-- if not actorVar then
+	-- 	return
+	-- end
+	
+	-- --print("activity actorVar.getLBFlag", actorVar.getLBFlag)
+	-- if (not actorVar.getLBFlag) or (actorVar.getLBFlag ~= 1) then
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.gq0018, ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- local propInfo =  NationalDayActiveConfig.luckyBag.luckyBagInfo
+	-- if not propInfo then
+	-- 	return 
+	-- end
+	
+	-- local needGrids = Item.getAddItemNeedGridCount( sysarg, propInfo.id, propInfo.count, propInfo.quality, propInfo.strong, propInfo.bind)
+	
+	-- local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+	-- if needGrids > bagEmptyGrids then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gq0009, needGrids-bagEmptyGrids), ttFlyTip)
+	-- 	return
+	-- end
+	-- actorVar.getLBFlag = 2  --已领取
+	-- Actor.giveAward(sysarg, propInfo.type, propInfo.id, propInfo.count, 
+	-- 	propInfo.quality, propInfo.strong, propInfo.bind, 0, 952, Lang.LogTips.l00199)
+		
+end
+
+--兑换福袋
+function ExchangeLuckyBagEx(sysarg)
+	local strInfo = Lang.Activity.gq0022
+	local str = ""
+	if NationalDayActiveConfig and NationalDayActiveConfig.luckyBag and NationalDayActiveConfig.luckyBag.exchangeTab then
+		for k, exchangeInfo in ipairs(NationalDayActiveConfig.luckyBag.exchangeTab or {}) do
+			--print("exchangeInfo.bagCount",exchangeInfo.bagCount)
+			local strTemp = string.format(Lang.Activity.gq0015, exchangeInfo.bagCount)
+			str = string.format("%s<#BL%s/@ExchangeLuckyBag,%d>", str, strTemp, exchangeInfo.bagCount)
+		end
+	end
+	
+	str = string.format("%s%s", str, Lang.Activity.gq0006)
+	
+	str = strInfo .. str
+	return str
+end
+
+function ExchangeLuckyBag(sysarg, param)
+	local bagCount = tonumber(param)
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.luckyBag) then
+		return
+	end
+	
+	local luckyBag = NationalDayActiveConfig.luckyBag
+
+	if System.isInDateRange(unpack(luckyBag.exchangeTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gq0017, ttFlyTip)
+		return
+	end
+	
+	local luckyBagInfo = luckyBag.luckyBagInfo
+	if not luckyBagInfo then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gq0016, ttFlyTip)
+		return 
+	end
+
+	if Actor.checkConsume(sysarg, luckyBagInfo.type, luckyBagInfo.id, bagCount, luckyBagInfo.quality, luckyBagInfo.strong, luckyBagInfo.bind) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gq0016, ttFlyTip)
+		return
+	end
+
+	local needGrids = 0
+	for k, exangeInfo in ipairs(luckyBag.exchangeTab or {}) do
+		if exangeInfo.bagCount == bagCount then
+			for index, awardInfo in ipairs(exangeInfo.awards or {}) do
+				if awardInfo.type == 0 and  awardInfo.id > 0 then
+					needGrids = needGrids + Item.getAddItemNeedGridCount( sysarg, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind)
+				end
+			end
+			break
+		end
+	end
+	
+	local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+	if needGrids > bagEmptyGrids then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gq0009, needGrids-bagEmptyGrids), ttFlyTip)
+		return
+	end
+
+	local result = Actor.removeConsume(sysarg, luckyBagInfo.type, luckyBagInfo.id, bagCount, luckyBagInfo.quality, luckyBagInfo.strong, luckyBagInfo.bind, 0, 952, Lang.LogTips.l00200)
+	if result > 0 then
+		for k, exangeInfo in ipairs(luckyBag.exchangeTab or {}) do
+			if exangeInfo.bagCount == bagCount then
+				for index, awardInfo in ipairs(exangeInfo.awards or {}) do
+					Actor.giveAward(sysarg, awardInfo.type, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind, 0, 952, Lang.LogTips.l00200)
+				end
+				break
+			end
+		end
+	end
+end
+
+--领取国庆礼盒
+function GetNationalGiftBox(sysarg)
+	-- if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.actTime) then
+	-- 	return
+	-- end
+	
+	-- if System.isInDateRange(unpack(NationalDayActiveConfig.actTime)) ~= true then
+	-- 	return
+	-- end
+	
+	-- local actorVar = Actor.getStaticVar(sysarg)
+	-- if not actorVar then
+	-- 	return
+	-- end
+	
+	-- if (not actorVar.getGBoxFlag) or (actorVar.getGBoxFlag ~= 0) then  
+	-- 	Actor.sendTipmsg(sysarg, Lang.Activity.gq0024, ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- local needGrids = 0
+	-- if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.giftBox) then
+	-- 	return
+	-- end
+	
+	-- for k, giftBoxInfo in ipairs(NationalDayActiveConfig.giftBox or {}) do
+	-- 	if giftBoxInfo.type == 0 and  giftBoxInfo.id > 0 then
+	-- 		needGrids = needGrids + Item.getAddItemNeedGridCount(sysarg, giftBoxInfo.id, giftBoxInfo.count, giftBoxInfo.quality, giftBoxInfo.strong, giftBoxInfo.bind)
+	-- 	end
+	-- end
+	
+	-- local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+	-- if needGrids > bagEmptyGrids then
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gq0009, needGrids-bagEmptyGrids), ttFlyTip)
+	-- 	return
+	-- end
+	
+	-- actorVar.getGBoxFlag = 1
+	-- for index, awardInfo in ipairs(NationalDayActiveConfig.giftBox or {}) do
+	-- 	Actor.giveAward(sysarg, awardInfo.type, awardInfo.id, awardInfo.count, awardInfo.quality, awardInfo.strong, awardInfo.bind, 0, 952, Lang.LogTips.l00203)
+	-- end
+	
+end 
+
+function ActivityInfo(sysarg)
+	local str = Lang.Activity.gq0005
+	str = string.format("%s%s", str, Lang.Activity.gq0006)
+	return str 
+end
+
+ 
+
+
+
+
+
+
+

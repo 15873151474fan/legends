@@ -1,0 +1,69 @@
+﻿    --机器人的配置文件
+RobotConfig=
+{   
+	procName = "DragonRobot",
+    loginAccountLimit = 100,      --登陆的账户的最大值，<=0表示不限制，否则表示所有accounts里的玩家都登陆
+    groupLoginInterval = 10,	-- 每组登录间隔时间，秒为单位。间隔太短容易导致多线程连接造成重复地址绑定的问题
+    --session服务器的网关的地址列表
+	--port最小端口号,maxPort最大端口号，会随机连接一个端口
+    gates=
+    {     
+
+		{ip= "101.198.162.49", port=18100, maxPort = 18105},
+                --{ip= "192.168.10.228", port=13000, maxPort = 13000},
+       
+       
+        
+    },
+
+    --serverIndex = 61,  --模拟登陆的服务器的id，3服就填3
+    serverIndex = 1,  --模拟登陆的服务器的id，3服就填3
+
+
+    --玩家的模拟的账户的列表，因为测试的账户的角色都是非常有规律的，比如wuyitest1 -wuyitest100，而且密码是一样的
+    --同时为了支持单个账户测试的情况，
+    --	name 表示账户的前缀/完整的账户 
+    --  pass 表示
+    --  accountStartId 账户开始的ID，如果是-1表示不使用前缀表示法，使用完整账户表示法，比如helloworld
+    --  accountEndId   账户结束的ID, 如果是-1表示不使用前缀表示法
+	--  doWord = 1 职能：1挂机，2做任务
+    accounts=
+    {
+	{name="wanRot",pass="123456",accountStartId =1,accountEndId =100, doWord = 2}, --账号1-500
+	--{name="wanRot",pass="123456",accountStartId =501,accountEndId =1000,doWord = 2},
+	--{name="wanRot",pass="123456",accountStartId =1001,accountEndId =1500, doWord = 2}, 
+	--{name="wanRot",pass="123456",accountStartId =1501,accountEndId =2000,doWord = 2}, 
+	--{name="wanRot",pass="123456",accountStartId =2001,accountEndId =2500, doWord = 2}, 
+
+	--{name="wanRot",pass="123456",accountStartId =2501,accountEndId =3000, doWord = 2}, --账号501-1000
+	--{name="wanRot",pass="123456",accountStartId =601,accountEndId =700,doWord = 2}, 
+	--{name="wanRot",pass="123456",accountStartId =701,accountEndId =800,doWord = 2},
+	--{name="wanRot",pass="123456",accountStartId =801,accountEndId =900, doWord = 2}, 
+	--{name="wanRot",pass="123456",accountStartId =901,accountEndId =1000,doWord = 2}, 
+
+	--{name="wanRot",pass="123456",accountStartId =1001,accountEndId =1100, doWord = 2},--账号1001-1500 
+	--{name="wanRot",pass="123456",accountStartId =1101,accountEndId =1200,doWord = 2},
+	--{name="wanRot",pass="123456",accountStartId =1201,accountEndId =1300, doWord = 2}, 
+	--{name="wanRot",pass="123456",accountStartId =1301,accountEndId =1400,doWord = 2}, 
+	--{name="wanRot",pass="123456",accountStartId =1401,accountEndId =1500, doWord = 2}, 
+
+
+	--{name="wanRot",pass="123456",accountStartId =1501,accountEndId =1600, doWord = 2},--账号1501-2000 
+	--{name="wanRot",pass="123456",accountStartId =1601,accountEndId =1700,doWord = 2}, 
+	--{name="wanRot",pass="123456",accountStartId =1701,accountEndId =1800,doWord = 2},
+	--{name="wanRot",pass="123456",accountStartId =1801,accountEndId =1900, doWord = 2}, 
+	--{name="wanRot",pass="123456",accountStartId =1901,accountEndId =2000,doWord = 2}, 
+     
+    },
+
+   --进入游戏后的地图分布。模拟玩家登陆后，自动选择一个地方传送过去，然后在此地图内部走动
+   mappoints = {
+   		{ sid=1, sname="东疆村", level =30,		x=86, 	y=96,},
+                { sid=2, sname="万安城", level =60,		x=191, 	y=206,},
+                { sid=4, sname="都郡城", level =80,		x=97, 	y=167,},
+                { sid=5, sname="玛沙克皇宫", level =80,		x=31, 	y=27,},
+   		
+		
+   },
+   
+}

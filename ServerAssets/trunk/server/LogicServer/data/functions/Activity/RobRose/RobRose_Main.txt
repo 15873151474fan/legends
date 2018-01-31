@@ -1,0 +1,91 @@
+
+
+--#include "RobRoseCommon.txt" once
+
+
+function RobRose_Main(sysarg)
+	local dlgStr = ""
+	if Actor.getSceneId(sysarg) ~= RobRoseConfig.SceneId then
+		dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.rs0001.."/@EnterRobRose>"
+	else
+		dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.rs0002.."/@LeaveActDlg>"
+	end	
+	return dlgStr
+end
+
+
+function EnterRobRose(sysarg)
+	if Actor.checkActorLevel(sysarg, RobRoseConfig.MinPlayerLevel, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.pk00004, RobRoseConfig.MinPlayerLevel), ttScreenCenter)
+		return
+	end	
+	if not IsActivityTime() then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.pk00005, ttScreenCenter)
+		return	
+	end
+	local x = math.random(RobRoseConfig.ScenePos[1], RobRoseConfig.ScenePos[2])
+	local y = math.random(RobRoseConfig.ScenePos[3], RobRoseConfig.ScenePos[4])
+	System.telportScene(sysarg,	RobRoseConfig.SceneId, x, y)
+	Actor.showExitActivityButton(sysarg, true)
+
+	local nHandle = Fuben.getSceneHandleById(RobRoseConfig.SceneId, 0)
+	local nTime = Fuben.getSceneTime(nHandle)
+	Actor.initActivityWind(sysarg,Lang.Activity.rs0006,nTime,Lang.Activity.rs0007)
+end
+
+function LeaveActDlg( sysarg )
+	Actor.closeNPCDialog( sysarg )
+	OnLeaveScene(sysarg)
+end
+
+
+--活动处理
+
+function ReadNotice()
+	System.broadcastTipmsg(Lang.Activity.rs0003, ttScreenCenter+ttChatWindow)
+end
+
+
+function StartRobRose()	
+	SetActivityFlag(true)
+	System.broadcastTipmsg(Lang.Activity.rs0004, ttScreenCenter+ttChatWindow)
+	Actor.regScriptCallback(thisNPC, thisNPC, 0, RobRoseConfig.EverySecFlush*1000, RobRoseConfig.FlushMonsCount, "FlushRoseMonster")
+
+	local hScene = Fuben.getSceneHandleById(RobRoseConfig.SceneId, 0)
+	Fuben.setSceneTime(hScene,RobRoseConfig.ActivityTime)
+end
+
+function FlushRoseMonster()
+	local hScene = Fuben.getSceneHandleById(RobRoseConfig.SceneId, 0)
+	if hScene and IsActivityTime() then
+		local result = false
+		local monCount = Fuben.getLiveMonsterCount(hScene, RobRoseConfig.RoseMonId)
+		if monCount > 0 then
+			result = true
+		else
+			Fuben.createMonster(hScene, RobRoseConfig.RoseMonId, RobRoseConfig.BossPos[1],RobRoseConfig.BossPos[2], RobRoseConfig.LiveTime)
+		end
+		SetFlushMonsterFlag(result)
+	end
+end
+
+function OnLeaveScene( sysarg )
+	local x = math.random(RobRoseConfig.ExitScenePos[1], RobRoseConfig.ExitScenePos[2])
+	local y = math.random(RobRoseConfig.ExitScenePos[3], RobRoseConfig.ExitScenePos[4])
+	System.telportScene(sysarg, RobRoseConfig.ExitSceneId, x,y)
+end
+
+function OverRobRose()
+	SetActivityFlag(nil)
+	local hScene = Fuben.getSceneHandleById(RobRoseConfig.SceneId, 0)
+	if hScene then
+		Fuben.clearMonster(hScene, RobRoseConfig.RoseMonId)
+	end	
+	local playerList = LuaHelp.getSceneActorListById(RobRoseConfig.SceneId)
+	for k, ply in ipairs(playerList or {}) do
+		OnLeaveScene(ply)
+	end
+	System.broadcastTipmsg(Lang.Activity.rs0005, ttScreenCenter+ttChatWindow)
+end
+
+table.insert(MainFnTable, RobRose_Main)

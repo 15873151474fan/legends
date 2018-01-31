@@ -1,0 +1,191 @@
+--沙城战连斩处理
+
+--lua script
+
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\SbkKillRank\SbkKillRank.txt" once
+
+--沙城战时被杀
+function OnKillBYActorInSbkOp(sysarg,killerPtr)
+	if System.isCommonServer() == true then			--如果是公共服
+		--OnKillByCrossSbkOp(sysarg,killerPtr)
+		return
+	end
+
+	local gVar = System.getDyanmicVar()
+	if gVar.StartSbkWarFlag == nil then
+		return
+	end
+
+	if gVar.StartSbkWarFlag == 0 then
+		return
+	end
+	
+	local myGuildId = Actor.getIntProperty(sysarg, PROP_ACTOR_GUILD_ID)
+	local tagGuildId = Actor.getIntProperty(killerPtr, PROP_ACTOR_GUILD_ID)
+	if myGuildId <= 0 or  tagGuildId <= 0 then
+		return
+	end
+	
+	if myGuildId == tagGuildId then return end		--相同行会的不计数
+
+	if System.getSbkOwnGuildid() ~= myGuildId and System.getSbkOwnGuildid() ~= tagGuildId then
+		if Actor.isBmSbkGuildMember(sysarg) == false or Actor.isBmSbkGuildMember(killerPtr) == false then		--不是参加跨服沙城战的成员
+			return
+		end
+	end
+	
+	local nLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if Actor.checkActorLevel(sysarg,SbkKillRankConfig.killLev) == false then
+		return
+	end
+
+	local nCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	
+	if nCircle <= 0 then
+		local nTagCircle = Actor.getIntProperty(killerPtr, PROP_ACTOR_CIRCLE)
+		if nTagCircle > 0 then
+			return
+		end
+
+		local nTagLevle = Actor.getIntProperty(killerPtr, PROP_CREATURE_LEVEL)
+		local levRang = nTagLevle - nLevel
+		if levRang > SbkKillRankConfig.levRang or levRang < -SbkKillRankConfig.levRang then
+			return
+		end
+	end
+
+	local RankNameList = Ranking.getRanking(SbkKillRankConfig.SbkLianXuKillNum)
+	if RankNameList then	
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+		if pItem then
+			--Ranking.setSub(pItem,1,"0")
+		end
+		
+		Actor.setConKillNum(sysarg,0)
+
+		local nTagActorId = Actor.getIntProperty(killerPtr, PROP_ENTITY_ID)
+		local mItem = Ranking.getItemPtrFromId(RankNameList,nTagActorId)
+		if mItem == nil then
+			mItem = Ranking.addItem(RankNameList,nTagActorId,0)
+		end
+		if mItem then
+			Ranking.updateItem(RankNameList,nTagActorId,1)
+			local nConKillNum = tonumber(Ranking.getSub(mItem,1))		--连斩
+			if nConKillNum == nil then
+				nConKillNum = 0
+			end
+			--nConKillNum = nConKillNum + 1
+			
+			local nCount = Actor.getConKillNum(killerPtr) + 1
+			Actor.setConKillNum(killerPtr,nCount)
+			
+			if nCount > nConKillNum then
+				Ranking.setSub(mItem,1,tostring(nCount))
+			end
+			Ranking.setSub(mItem,0,Actor.getName(killerPtr))
+			local nJob = Actor.getIntProperty(killerPtr, PROP_ACTOR_VOCATION)
+			Ranking.setSub(mItem,2,tostring(nJob))
+			Ranking.setSub(mItem,3,tostring(0))
+
+			--local nKillNum = Ranking.getPoint(mItem)
+			if nCount > nConKillNum then
+				for i=1,table.getn(SbkKillRankConfig.killTips) do
+					if nCount == SbkKillRankConfig.killTips[i].killCount then
+						System.broadcastTipmsg(string.format(SbkKillRankConfig.killTips[i].strTips,Actor.getName(killerPtr),nCount),2+128)
+						break
+					end
+				end
+
+				if nCount > SbkKillRankConfig.killTips[table.getn(SbkKillRankConfig.killTips)].killCount then
+					System.broadcastTipmsg(string.format(SbkKillRankConfig.killTips[table.getn(SbkKillRankConfig.killTips)].strTips,Actor.getName(killerPtr),nCount),2+128)
+				end
+			end
+		end
+	end
+end
+
+--跨服沙城战被杀
+function OnKillByCrossSbkOp(sysarg,killerPtr)
+	local sVar = System.getStaticVar()
+	if sVar.CrossSbkStartFlag == nil then
+		return
+	end
+
+	if sVar.CrossSbkStartFlag == 0 then
+		return
+	end
+
+	if Actor.isBmSbkGuildMember(sysarg) == false or Actor.isBmSbkGuildMember(killerPtr) == false then		--不是参加跨服沙城战的成员
+		return
+	end
+	local nLevle = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if nLevle < SbkKillRankConfig.killLev then
+		return
+	end
+
+	local nCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	if nCircle < 0 then
+		local nTagCircle = Actor.getIntProperty(killerPtr, PROP_ACTOR_CIRCLE)
+		if nTagCircle > 0 then
+			return
+		end
+
+		local nTagLevle = Actor.getIntProperty(killerPtr, PROP_CREATURE_LEVEL)
+		local levRang = nTagLevle - nLevel
+		if levRang > SbkKillRankConfig.levRang or levRang < -SbkKillRankConfig.levRang then
+			return
+		end
+	end
+
+	local RankNameList = Ranking.getRanking(SbkKillRankConfig.SbkLianXuKillNum)
+	if RankNameList == nil then	
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+		if pItem then
+			Ranking.setSub(pItem,1,"0")
+		end
+		
+		local nTagActorId = Actor.getIntProperty(killerPtr, PROP_ENTITY_ID)
+		local mItem = Ranking.getItemPtrFromId(RankNameList,nTagActorId)
+		if mItem == nil then
+			mItem = Ranking.addItem(RankNameList,nTagActorId,1)
+		end
+		if mItem then
+			Ranking.updateItem(mItem,nTagActorId,1)
+			local nConKillNum = tonumber(Ranking.getSub(mItem,1))		--连斩
+			if nConKillNum == nil then
+				nConKillNum = 0
+			end
+			nConKillNum = nConKillNum + 1
+
+			Ranking.setSub(mItem,1,tostring(nConKillNum))
+			Ranking.setSub(mItem,0,Actor.getName(killerPtr))
+			local nJob = Actor.getIntProperty(killerPtr, PROP_ACTOR_VOCATION)
+			Ranking.setSub(mItem,2,tostring(nJob))
+			Ranking.setSub(mItem,3,tostring(0))
+
+			for i=1,table.getn(SbkKillRankConfig.killTips) do
+				if nConKillNum == SbkKillRankConfig.killTips[i].killCount then
+					System.broadcastTipmsg(SbkKillRankConfig.killTips[i].strTips,2+128)
+					break
+				end
+			end
+
+			if nConKillNum > SbkKillRankConfig.killTips[table.getn(SbkKillRankConfig.killTips)].killCount then
+				System.broadcastTipmsg(SbkKillRankConfig.killTips[i].strTips,2+128)
+			end
+		end
+	end
+
+end
+
+--清除沙城连斩排行榜
+function ClearSbkContinuousRank()
+	local RankNameList = Ranking.getRanking(SbkKillRankConfig.SbkLianXuKillNum)
+	if RankNameList == nil then	
+		Ranking.clearRanking(RankNameList)
+	end	
+end
+

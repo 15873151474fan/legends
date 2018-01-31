@@ -1,0 +1,190 @@
+﻿--lua script
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\GuildBattle\GuildBattleConfig.txt" once
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+--#include "GuildBattleCommon.txt" once
+--#include "data\functions\Activity\Toxic\ToxicMain.txt"
+--#include "data\functions\Activity\OpenServerActivity\OpenServerCommon.txt" once --开服活动 
+--#include "data\functions\Activity\GuildSos\GuildSos_Main.txt" once--劫狱副本
+
+
+
+
+--龙潭影副本 
+
+function GuildBattle_Main(sysarg)
+	local str = ""
+	--str = str.."\\<#BL"..Lang.Activity.w00027.."/@EnterGuildBattle>"
+	--str = str.."\\<#BL"..Lang.Activity.w00036.."/@viewAct>"
+
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+	local sname = Fuben.getFubenName(fhadle)
+   	--print("GuildBattle_MainnGuildId:"..nGuildId)
+	local nTimes = 0
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+		if pItem then
+			nTimes = tonumber(Ranking.getSub(pItem,1))
+		end
+	end
+
+	if nTimes == nil then
+		nTimes = 0
+	end
+	if System.getToxicFreshTimes(nGuildId) <= 0 or sname == "" then	--还没开启
+		str = str.."\\<#BL"..string.format(Lang.Activity.w00093, nTimes, ToxicConfig.maxTimes).."/@OpenToxicActivity>"
+	else
+		str = str.."\\<#BL"..Lang.Activity.w00094.."/@EnterToxicFuben>"
+	end
+	local fhadle = Actor.getGuildSosFuBenHandle(sysarg) 
+	local sname = Fuben.getFubenName(fhadle)
+	--print("GuildBattle_Main:"..System.getSosFubenFreshTimes( nGuildId))
+	
+	--if System.getSosFubenFreshTimes( nGuildId) <= 0  then	--还没开启 
+		--str = str.."\\<#BL"..Lang.Activity.w00154.."/@OpenSosFuben>"
+	--else
+		--str = str.."\\<#BL"..Lang.Activity.w00155.."/@EnterSosFuben>"
+	--end
+	--str = str.."\\<#BL"..Lang.Activity.w00115.."/@GetGuildBattleAward>"			--领取获胜奖励
+	
+	--str = str.."\\<#BL"..Lang.Activity.w00118.."/@NormalNpcFubenFunc>" 
+	return str
+end
+
+--主题活动提前一天预告
+function PreGuildWarNotice()
+	System.broadcastTipmsg(Lang.Activity.t00047,2+128)
+end
+
+--预告
+function GuildBattleNotice()
+	System.broadcastTipmsg(Lang.Activity.w00028,2+128)
+end
+
+function viewAct( sysarg )
+	local str = Lang.Activity.w00071
+	str = str.."\\<#BL"..Lang.Activity.w00027.."/@EnterGuildBattle>" .. Lang.Activity.t00046
+	return str
+end
+
+
+--开始行会争夺战
+function StartGuildBattle()
+	local svar = System.getDyanmicVar()
+	--开始的标志
+	svar.StartGuildBattleFlag = 1
+	
+	local sWinvar = System.getStaticVar()
+	sWinvar.WinGuildBattleGuildId = nil
+
+	local hScene = Fuben.getSceneHandleById(GuildBattleConfig.nSceenId, 0)
+	Fuben.clearMonster(hScene,GuildBattleConfig.Monsters[1].nMonsterID)
+	local nMonster = Fuben.createOneMonsters(hScene, GuildBattleConfig.Monsters[1].nMonsterID, GuildBattleConfig.Monsters[1].posX1, GuildBattleConfig.Monsters[1].posX2, GuildBattleConfig.Monsters[1].posY, GuildBattleConfig.Monsters[1].nCount, GuildBattleConfig.Monsters[1].nLiveTime)
+	Actor.setMonsterCanMove(nMonster,true)
+	Actor.setMonsterName(nMonster,GuildBattleConfig.Monsters[1].name)
+	
+	svar.StartGuildBattleMonster = Actor.getHandle(nMonster)
+	
+	Fuben.setSceneTime(hScene,GuildBattleConfig.activityTime)
+
+	Actor.regScriptCallback(thisNPC, thisNPC, GuildBattleConfig.LoopTime, GuildBattleConfig.LoopTime, -1, "GiveGuildBattleExp")
+
+	System.broadcastTipmsg(Lang.Activity.w00029,2+128)
+end
+
+--结束
+function EndGuildBattle()
+	local svar = System.getDyanmicVar()
+
+	if svar.StartGuildBattleFlag == nil then
+		svar.StartGuildBattleFlag = 0
+	end
+	
+	if svar.StartGuildBattleMonster == nil then
+		svar.StartGuildBattleMonster = 0
+	end
+
+	local nManster = Actor.getEntity(svar.StartGuildBattleMonster)
+	Actor.unregScriptCallback(thisNPC,"GiveGuildBattleExp")
+
+	if svar.StartGuildBattleFlag == 1 then
+		local nGuildId = Actor.getNpcGuildId(nManster)
+		
+		if nGuildId > 0 then
+			WinGuildBattle()
+		else
+			OnGuildBattleOver()
+		end
+	end
+end
+
+--主题活动行会争夺战预告
+function BroadGuildBattleTopicMsg()
+	System.broadcastTipmsg(Lang.Activity.w00089,2+128)
+end
+
+--23点 播报本日获得争夺战的行会首领获得奖励
+function GuildBattleTopicNotice()
+	local nGuildId = System.getTopicGuildBattleGuildId()
+	
+	if nGuildId > 0 then
+		--[[local ranking = Ranking.getRanking(OpenServerConfig.activitys[3].rankName)
+				
+		if ranking then
+			local bItem = Ranking.getItemFromIndex(ranking,0)
+
+			if bItem then
+				local sname = Ranking.getSub(bItem,3)
+				local gName = System.getGuildName(nGuildId)
+				if sname ~= nil then
+					local str1 = string.format(Lang.Activity.w00090,gName,sname)
+					System.broadcastTipmsg(str1,2+128)
+
+					local str = string.format(Lang.Activity.w00091,sname,Item.getItemName(OpenServerConfig.activitys[3].awards[1].id))
+					System.broadcastTipmsg(str,2+128)
+				end
+			end
+		end]]--原来的先屏蔽
+		local str1 = string.format(Lang.Activity.w00090,gName,sname)
+		System.broadcastTipmsg(str1,2+128)
+        local str = string.format(Lang.Activity.w00091,sname,Item.getItemName(OpenServerConfig.activitys[3].awards[1].id))
+		System.broadcastTipmsg(str,2+128)  
+        local Staus = GetActivityPeriodValue(sysarg, 7, 1)
+        --print("ClientOpenInit4:"..Staus)
+        if Staus == 0 then
+           SetActivityPeriodValue(sysarg, 7, 1, 1)
+        end
+	else
+		System.broadcastTipmsg(Lang.Activity.w00092,2+128)
+	end
+end
+
+
+--庆典加经验buff
+function AfterActivityAddBuff()
+	local nGuildId = System.getTopicGuildBattleGuildId()
+	
+	if nGuildId > 0 then
+		local awardConfig = OpenServerConfig.activitys[3].AddBuff[1]
+		local playerList = LuaHelp.getAllActorList()	
+
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					Actor.addBuff(player,awardConfig.buffType,awardConfig.buffGroup,awardConfig.value,awardConfig.times,awardConfig.interval,awardConfig.buffName)
+				end
+			end
+		end
+
+		System.broadcastTipmsg(Lang.Activity.t00053,2+128)
+	end
+end
+
+table.insert(MainFnTable, GuildBattle_Main)
+
+NPCFubenTable = {59} 
+--#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once           --用于处理副本的通用函数

@@ -1,0 +1,62 @@
+
+--技能0的1级
+{
+	--技能的三个动作的播放顺序
+	--act动作编号effect施法特效编号
+	actions=
+	{
+		{act=1,effect=0,}
+
+	},
+
+	desc=Lang.Skill.s209L1Desc,--技能的描述
+
+	iconID=1,--图标的ID
+
+	--作用范围表
+	actRange=
+	{
+
+		{
+
+			xStart=-0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,
+			rangeCenter=1,
+			--这个是在一定条件下产生的结果
+			acts=
+			{
+				{
+
+					targetType=0,--没有目标筛选也可以施放，如果有always 特效，这里要配置1，比如冰咆哮，不管鼠标的位置是否有目标，均要释放一团火
+					conds=
+					{
+						{cond = 51,value = 1500},
+					},
+
+					--针对目标的实际作用,
+					results=
+					{
+						--{mj=0,timeParam=1,type=29,value=4,delay=100,},
+						{mj=0,timeParam=1,type=17,delay=0,id =  1500,value=1,interval=0,buffType=1},
+					},
+					specialEffects=
+					{
+						--{type=4,mj=0,id=217,keepTime=800,delay=0,always=false},
+						--{type=6,mj=0,id=350,keepTime=2000,delay=800,always=false},
+					},
+				},
+			},
+		},
+	},
+	 	spellConds=
+	{
+		{cond=13,value=20,consume=false},
+	},
+
+	singTime=0,
+	cooldownTime=30000,
+
+},

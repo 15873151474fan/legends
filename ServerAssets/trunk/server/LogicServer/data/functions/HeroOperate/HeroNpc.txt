@@ -1,0 +1,243 @@
+﻿
+--#include "data\functions\GlobalDefine.txt" once
+--#include "data\functions\Activity\Common\Consumes.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "data\config\hero\HeroConfig.txt" once
+--#include "data\config\GlobalConfig.txt" once
+
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+function HeroSystemOpen(flag)
+	local isOpen = true
+	local flag = tonumber(flag)
+	if flag == 0 then
+		isOpen = false
+	end
+
+	System.setOpenHero(isOpen)
+	
+	if isOpen ~= true then
+		return 
+	end
+	
+	local config = HeroConfig
+	if not config then return end
+	
+	local npcPos = config.npcPos
+	local players = LuaHelp.getAllActorList()
+	if players then
+		for k, v in ipairs(players) do
+			if v then 
+				if Actor.checkActorLevel(v, config.level, 0) == true then
+					--Actor.sendMoveToMsg(v, npcPos.sceneName, npcPos.x, npcPos.y, string.format(Lang.ScriptTips.c000105, npcPos.sceneName, npcPos.npcName), Lang.ScriptTips.c000106)
+					HeroOpenTips(v)
+					Actor.sendTipmsg(v, string.format(Lang.ScriptTips.c000107, npcPos.npcName, npcPos.sceneName, npcPos.npcName), ttChatWindow)
+				end
+			end
+		end
+	end
+	
+end
+
+--英雄开启提示
+function HeroOpenTips(sysarg)
+	local npack = DataPack.allocPacket(sysarg, 44, 22)
+	if not npack then return end
+	DataPack.flush(npack)
+end
+
+function GetHero_Main(sysarg)
+	local config = HeroConfig
+	if not config then return "" end
+	
+	if System.hasHeroSystemOpen() ~= true then
+		return ""
+	end
+	
+	local str = ""
+	str = str.."\\<#BL"..Lang.ScriptTips.c000108.."/@GetHero>"  --<领取英雄>
+	str = str..Lang.Talk.t02497
+	str = str.."\\<#BL"..Lang.ScriptTips.c000118.."/@ChgHeroSkillBook>"  --<英雄技能书兑换>
+	str = str.."\\<#BL"..Lang.ScriptTips.c000116.."/@AboutHero>"  --<英雄说明>
+	return str
+end
+
+function GetHero(sysarg)
+	local str = Lang.ScriptTips.c000113
+	local config = HeroConfig
+	if not config then return "" end
+	for k, v in ipairs(config.addHero) do
+		str = str.."<"..string.format(Lang.ScriptTips.c000114,Sex_cn[v.sex],Job_cn[v.vocation]).."/@OnGetHero,"..k..">"  --<领取英雄>
+		if k % 3 == 0 then 
+			str = str.."\\\\  "
+		else
+			str = str.."   "
+		end
+	end
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+
+function OnGetHero(sysarg, idx)
+	local config = HeroConfig
+	local idx = tonumber(idx)
+	local hero = config.addHero[idx]
+	if not hero then return "" end
+	
+	if not config then return "" end
+	local nOpenDay = System.getDaysSinceOpenServer()
+	if System.hasHeroSystemOpen() ~= true then
+		local nDay = GlobalConfig.nHeroOpenDay - nOpenDay
+		if nDay > 0 then
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000109, nDay), ttFlyTip)
+		end
+		return
+	end
+	
+	if Actor.checkActorLevel(sysarg, config.level, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000110, config.level), ttFlyTip)
+		return
+	end
+	
+	if Hero.canAddHero(sysarg) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000111), ttFlyTip)
+		return
+	end
+	
+	if hero.giftItemId and Item.getBagEmptyGridCount(sysarg) <= 0 then
+		local noticeStr = string.format(Lang.ScriptTips.x00074, 1)
+        Actor.sendTipmsg( sysarg, noticeStr, ttFlyTip )
+		return
+	end
+	local consumes = {hero.consume}
+	if hero.consume then
+		if Consumes.Check(sysarg, consumes, Lang.ScriptTips.c000115) ~= true then
+			return 
+		end
+		
+		if Consumes.Remove(sysarg, consumes, 101, Lang.LogTips.l00096) ~= true then
+			return 
+		end
+	end
+	
+	local heroId = Hero.addHero(sysarg, hero.vocation, hero.sex, hero.circle, hero.level)
+	
+	if heroId > 0 then
+		Hero.setHeroBattle(sysarg, heroId)
+	end
+	if hero.giftItemId then
+		Actor.addItem(sysarg, hero.giftItemId, 0, 0, 1, 0, 0, Lang.LogTips.yb042, 683)
+	end
+	
+	Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000112, ttFlyTip)
+	
+	return 
+end
+
+function ChgHeroSkillBook(sysarg)
+	local str = Lang.ScriptTips.c000119
+	
+	str = str.."\\<#BL"..Lang.ScriptTips.c000120.."/@OnChgHeroSkillBook,1>"  --<兑换战士英雄技能书>
+	str = str.."\\<#BL"..Lang.ScriptTips.c000121.."/@OnChgHeroSkillBook,2>"  --<兑换法师英雄技能书>
+	str = str.."\\<#BL"..Lang.ScriptTips.c000122.."/@OnChgHeroSkillBook,3>"  --<兑换道士英雄技能书>
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+function OnChgHeroSkillBook(sysarg, idx)
+	if Actor.checkActorLevel(sysarg, HeroConfig.level, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000110, HeroConfig.level), ttFlyTip)
+		return
+	end
+	
+	local table_talks = 
+	{
+		Lang.ScriptTips.c000123, 
+		Lang.ScriptTips.c000124,
+		Lang.ScriptTips.c000125,
+	}
+	
+	local idx = tonumber(idx)
+	local str = table_talks[idx]
+	
+	local config = HeroConfig.chgSkillBook[idx]
+	if not config then return end
+	
+	for k, v in ipairs(config) do
+		local itemName = Item.getItemName(v.destId)
+		str = str.."\\<#BL"..string.format(Lang.ScriptTips.c000129d, itemName).."/@OnChgBook,"..idx..","..k..">"  --<兑换技能书>
+	end
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@ChgHeroSkillBook>"  --<返回>
+	return str
+end
+
+function OnChgBook(sysarg, idx1, idx2)
+	local idx1, idx2 = tonumber(idx1), tonumber(idx2)
+	
+	local config = HeroConfig.chgSkillBook[idx1][idx2]
+	
+	local srcId = 0
+	for m, n in ipairs(config.srcId) do
+		if Actor.getItemCount(sysarg, n) > 0 then
+			srcId = n
+			break
+		end
+	end
+	
+	local table_tips1 = 
+	{
+		Lang.ScriptTips.c000126,
+		Lang.ScriptTips.c000127,
+		Lang.ScriptTips.c000128,
+	}
+	
+	local table_tips2 = 
+	{
+		Lang.ScriptTips.c000129,
+		Lang.ScriptTips.c000129a,
+		Lang.ScriptTips.c000129b,
+	}
+	
+	if srcId <= 0 then
+		local tips = table_tips1[idx1]
+		if idx2 == 3 then
+			tips = table_tips2[idx1]
+		end
+		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+		return
+	end
+	
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if hasCount < 1 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+	
+	local consumes = {{type = 0, id = srcId, count = 1}}
+	
+	local result, bBind = Consumes.OnConsumes(sysarg, consumes, 0, 0, 2, Lang.LogTips.l00102)
+	
+	if result ~= successCheckResult.ok then
+		return 
+	end
+	
+	local awards = {{type = 0, id = config.destId, count = 1, bind = bBind}}
+	
+	if Awards.Give(sysarg, awards, 1, Lang.LogTips.l00102) ~= true then
+		System.trace("chg here skill err , actorid="..Actor.getIntProperty(sysarg, PROP_ENTITY_ID))
+		return
+	end
+	local srcName = Item.getItemName(srcId)
+	local destName = Item.getItemName(config.destId)
+	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000129c, srcName, destName), ttFlyTip)
+end
+
+function AboutHero(sysarg)
+	local str = Lang.ScriptTips.c000117
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	
+	return str
+end
+
+table.insert(MainFnTable, GetHero_Main)

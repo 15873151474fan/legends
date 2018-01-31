@@ -1,0 +1,23 @@
+--使用世界杯球迷卡
+--#include "data\functions\Activity\WorldCup\WorldCup.txt" once
+
+function WorldCupItemFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	
+	if Actor.removeConsume(sysarg, 0, itemConfig.itemId, 1, -1, -1, -1, 0, 965, Lang.LogTips.wc0003) <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.wc0021, ttFlyTip)
+		return  
+	end
+	
+	ChangeBodyExt(sysarg, itemConfig)
+	
+end
+
+function WorldCupItemInit(sysarg)
+	for k, v in ipairs(WorldCupConfig.worldCupFanConfig.fanList or {}) do
+		GlobalItemFn[v.itemId] = { func = WorldCupItemFunc, params = v } 
+	end
+
+end
+
+
+table.insert( InitFnTable, WorldCupItemInit)

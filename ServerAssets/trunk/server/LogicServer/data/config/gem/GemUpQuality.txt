@@ -1,0 +1,330 @@
+﻿--宝物品质精粹配置
+--#include "..\..\language\LangCode.txt"
+gemUpQualityConfig=
+{
+consumeItemId=1920,-- 品质精粹消耗物品id
+luckyItemId=1947,-- 品质精粹幸运符物品id
+luckyItemUpSuccRate=5,-- 每个幸运符可以提高品质精粹成功概率百分点
+canuseMaxLuckyItemCount=3,-- 每次能使用的最多幸运符数量
+gemQualityConfig=
+{
+-- 1档各个品质精粹配置
+{
+-- 1品
+{
+name=Lang.Misc.m000350,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=2500,-- 升级到下一阶消耗金钱数量
+propAdd=200,-- 属性加成
+baseSuccRate=60,-- 品质精粹基础成功率
+displayRate=70,
+},
+-- 2品
+{
+name=Lang.Misc.m000351,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3000,-- 升级到下一阶消耗金钱数量
+propAdd=800,-- 属性加成
+baseSuccRate=30,-- 品质精粹基础成功率
+displayRate=40,
+},
+-- 3品
+{
+name=Lang.Misc.m000352,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3500,-- 升级到下一阶消耗金钱数量
+propAdd=1500,-- 属性加成
+baseSuccRate=9,-- 品质精粹基础成功率
+displayRate=14,
+},
+-- 4品
+{
+name=Lang.Misc.m000353,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=4000,-- 升级到下一阶消耗金钱数量
+propAdd=2300,-- 属性加成
+baseSuccRate=7,-- 品质精粹基础成功率
+displayRate=10,
+},
+-- 5品
+{
+name=Lang.Misc.m000354,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=0,-- 升级到下一阶消耗金钱数量
+propAdd=3500,-- 属性加成
+baseSuccRate=0,-- 品质精粹基础成功率
+displayRate=0,
+},
+},
+-- 2档各个品质精粹配置
+{
+-- 1品
+{
+name=Lang.Misc.m000350,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=2500,-- 升级到下一阶消耗金钱数量
+propAdd=200,-- 属性加成
+baseSuccRate=60,-- 品质精粹基础成功率
+displayRate=70,
+},
+-- 2品
+{
+name=Lang.Misc.m000351,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3000,-- 升级到下一阶消耗金钱数量
+propAdd=800,-- 属性加成
+baseSuccRate=30,-- 品质精粹基础成功率
+displayRate=40,
+},
+-- 3品
+{
+name=Lang.Misc.m000352,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3500,-- 升级到下一阶消耗金钱数量
+propAdd=1500,-- 属性加成
+baseSuccRate=9,-- 品质精粹基础成功率
+displayRate=14,
+},
+-- 4品
+{
+name=Lang.Misc.m000353,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=4000,-- 升级到下一阶消耗金钱数量
+propAdd=2300,-- 属性加成
+baseSuccRate=7,-- 品质精粹基础成功率
+displayRate=10,
+},
+-- 5品
+{
+name=Lang.Misc.m000354,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=0,-- 升级到下一阶消耗金钱数量
+propAdd=3500,-- 属性加成
+baseSuccRate=0,-- 品质精粹基础成功率
+displayRate=0,
+},
+},
+-- 3档各个品质精粹配置
+{
+-- 1品
+{
+name=Lang.Misc.m000350,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=2500,-- 升级到下一阶消耗金钱数量
+propAdd=200,-- 属性加成
+baseSuccRate=60,-- 品质精粹基础成功率
+displayRate=70,
+},
+-- 2品
+{
+name=Lang.Misc.m000351,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3000,-- 升级到下一阶消耗金钱数量
+propAdd=800,-- 属性加成
+baseSuccRate=30,-- 品质精粹基础成功率
+displayRate=40,
+},
+-- 3品
+{
+name=Lang.Misc.m000352,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3500,-- 升级到下一阶消耗金钱数量
+propAdd=1500,-- 属性加成
+baseSuccRate=9,-- 品质精粹基础成功率
+displayRate=14,
+},
+-- 4品
+{
+name=Lang.Misc.m000353,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=4000,-- 升级到下一阶消耗金钱数量
+propAdd=2300,-- 属性加成
+baseSuccRate=7,-- 品质精粹基础成功率
+displayRate=10,
+},
+-- 5品
+{
+name=Lang.Misc.m000354,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=0,-- 升级到下一阶消耗金钱数量
+propAdd=3500,-- 属性加成
+baseSuccRate=0,-- 品质精粹基础成功率
+displayRate=0,
+},
+},
+-- 4档各个品质精粹配置
+{
+-- 1品
+{
+name=Lang.Misc.m000350,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=2500,-- 升级到下一阶消耗金钱数量
+propAdd=200,-- 属性加成
+baseSuccRate=60,-- 品质精粹基础成功率
+displayRate=70,
+},
+-- 2品
+{
+name=Lang.Misc.m000351,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3000,-- 升级到下一阶消耗金钱数量
+propAdd=800,-- 属性加成
+baseSuccRate=30,-- 品质精粹基础成功率
+displayRate=40,
+},
+-- 3品
+{
+name=Lang.Misc.m000352,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3500,-- 升级到下一阶消耗金钱数量
+propAdd=1500,-- 属性加成
+baseSuccRate=9,-- 品质精粹基础成功率
+displayRate=14,
+},
+-- 4品
+{
+name=Lang.Misc.m000353,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=4000,-- 升级到下一阶消耗金钱数量
+propAdd=2300,-- 属性加成
+baseSuccRate=7,-- 品质精粹基础成功率
+displayRate=10,
+},
+-- 5品
+{
+name=Lang.Misc.m000354,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=0,-- 升级到下一阶消耗金钱数量
+propAdd=3500,-- 属性加成
+baseSuccRate=0,-- 品质精粹基础成功率
+displayRate=0,
+},
+},
+-- 5档各个品质精粹配置
+{
+-- 1品
+{
+name=Lang.Misc.m000350,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=2500,-- 升级到下一阶消耗金钱数量
+propAdd=200,-- 属性加成
+baseSuccRate=60,-- 品质精粹基础成功率
+displayRate=70,
+},
+-- 2品
+{
+name=Lang.Misc.m000351,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3000,-- 升级到下一阶消耗金钱数量
+propAdd=800,-- 属性加成
+baseSuccRate=30,-- 品质精粹基础成功率
+displayRate=40,
+},
+-- 3品
+{
+name=Lang.Misc.m000352,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3500,-- 升级到下一阶消耗金钱数量
+propAdd=1500,-- 属性加成
+baseSuccRate=9,-- 品质精粹基础成功率
+displayRate=14,
+},
+-- 4品
+{
+name=Lang.Misc.m000353,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=4000,-- 升级到下一阶消耗金钱数量
+propAdd=2300,-- 属性加成
+baseSuccRate=7,-- 品质精粹基础成功率
+displayRate=10,
+},
+-- 5品
+{
+name=Lang.Misc.m000354,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=0,-- 升级到下一阶消耗金钱数量
+propAdd=3500,-- 属性加成
+baseSuccRate=0,-- 品质精粹基础成功率
+displayRate=0,
+},
+},
+-- 6档各个品质精粹配置
+{
+-- 1品
+{
+name=Lang.Misc.m000350,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=2500,-- 升级到下一阶消耗金钱数量
+propAdd=200,-- 属性加成
+baseSuccRate=60,-- 品质精粹基础成功率
+displayRate=70,
+},
+-- 2品
+{
+name=Lang.Misc.m000351,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3000,-- 升级到下一阶消耗金钱数量
+propAdd=800,-- 属性加成
+baseSuccRate=30,-- 品质精粹基础成功率
+displayRate=40,
+},
+-- 3品
+{
+name=Lang.Misc.m000352,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=3500,-- 升级到下一阶消耗金钱数量
+propAdd=1500,-- 属性加成
+baseSuccRate=9,-- 品质精粹基础成功率
+displayRate=14,
+},
+-- 4品
+{
+name=Lang.Misc.m000353,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=1,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=4000,-- 升级到下一阶消耗金钱数量
+propAdd=2300,-- 属性加成
+baseSuccRate=7,-- 品质精粹基础成功率
+displayRate=10,
+},
+-- 5品
+{
+name=Lang.Misc.m000354,-- 品质名称
+consumeItemCount=3,-- 精粹到下一品所需消耗的'品质精粹符'数量
+reqMoneyType=0,-- 升级到下一阶消耗金钱类型
+reqMoneyCount=0,-- 升级到下一阶消耗金钱数量
+propAdd=3500,-- 属性加成
+baseSuccRate=0,-- 品质精粹基础成功率
+displayRate=0,
+},
+},
+},
+},

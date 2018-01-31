@@ -1,0 +1,95 @@
+﻿
+--#include "data\config\guide\SignInAndSalary.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "data\config\NewVip\NewVipConfig.txt" once --新Vip配置
+
+local salaryTimes = 5
+MiscsImplement.GetSalaryData = function( sysarg, msgid, packet )
+	local svar = Actor.getStaticVar(sysarg)
+	local salaryTime = svar.SalaryTime
+	if not salaryTime then salaryTime = 0 end
+	local salary,nowSalary,lastSalary = Actor.getSalary(sysarg, 0, 0)
+	--print(salaryTime,nowSalary*salaryTimes,lastSalary*salaryTimes)
+	local npack = DataPack.allocPacket(sysarg, 139, 65)
+	if npack then 
+		DataPack.writeUInt(npack, salaryTime)
+		DataPack.writeUInt(npack, math.floor(nowSalary*salaryTimes/60))
+		DataPack.writeUInt(npack, math.floor(lastSalary*salaryTimes/60))
+		DataPack.flush(npack)
+	end
+	
+	local npack = DataPack.allocPacket(sysarg, 26, 49)
+	if npack then
+		DataPack.writeByte(npack, CalcHasSignInFixTimes(sysarg))
+		DataPack.flush(npack)
+	end
+	
+	return true
+end
+
+function CalcHasSignInFixTimes(sysarg)
+	local config = SignInAndSalary 
+	local svar = Actor.getStaticVar(sysarg)
+	if not svar.fixSignInTimes then
+		svar.fixSignInTimes = 0
+	end
+	local allFixTimes = config.fixSignInTimes or 0
+	--print("CalcHasSignInFixTimes1")
+	--根据vip等级增加补签次数
+	if Actor.isVip(sysarg) then	
+	    --print("CalcHasSignInFixTimes2")
+		local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+		if vipLevel > 0 then
+			if vipLevel > table.getn(NewVipConfig.VipInclude or {}) then
+				vipLevel = table.getn(NewVipConfig.VipInclude or {})
+			end
+			local levelConfig = NewVipConfig.VipInclude[vipLevel]
+			if levelConfig.reSigninTimes then
+				allFixTimes = allFixTimes + levelConfig.reSigninTimes
+			end 
+		end
+	end
+	--print("CalcHasSignInFixTimes3"..allFixTimes)
+	
+	
+	
+	local hasFixTimes = allFixTimes - tonumber(svar.fixSignInTimes)
+	if hasFixTimes < 0 then hasFixTimes = 0 end
+	
+	return hasFixTimes
+end
+
+MiscsImplement.GetSalaryAward = function( sysarg, msgid, packet )
+	local config = SignInAndSalary
+	local salary,nowSalary,lastSalary = Actor.getSalary(sysarg, 0, 0)
+	
+	if lastSalary <= 0 then 
+		return 
+	end
+	
+	local hours = math.floor((lastSalary * salaryTimes)/60)
+	
+	--print("hours:"..hours)
+	
+	local awards = {}
+	for k, v in ipairs(config.awards) do
+		local award = {type=v.type, id=v.id, count=v.count*hours}
+		table.insert(awards, award)
+	end
+	
+	if Awards.CheckBagGridCount(sysarg, awards) == false then return end
+	
+	Actor.setSalary(sysarg, nowSalary, 0)
+	
+	Awards.Give(sysarg, awards, 846, string.format(Lang.LogTips.l00125, hours))
+	
+	local npack = DataPack.allocPacket(sysarg, 139, 66)
+	if not npack then return false end
+	DataPack.flush(npack)
+	return true
+end
+
+
+
+MiscsImplement.registerMsgHandler(72, MiscsImplement.GetSalaryData)
+MiscsImplement.registerMsgHandler(73, MiscsImplement.GetSalaryAward)

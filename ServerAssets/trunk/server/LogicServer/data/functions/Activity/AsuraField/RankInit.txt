@@ -1,0 +1,18 @@
+﻿--#include "RankPointer.txt" once
+
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function AsuraRanking_Init(npcobj)
+	local config = AsuraRankPt
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function AsuraRanking_Fina(npcobj)
+	local config = AsuraRankPt
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+end
+
+table.insert(InitFnTable,AsuraRanking_Init)
+table.insert(FinaFnTable,AsuraRanking_Fina)

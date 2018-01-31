@@ -1,0 +1,74 @@
+
+--#include "data\config\camp\CampTitle.txt" once
+
+
+function getCampTitleName( titleId )
+	for k, v in ipairs(CampTitle.titles) do
+		if titleId == v.id then
+			return v.title
+		end
+	end
+	return ""
+end
+
+function CanCampCall( titleId )
+	for _, id in ipairs(CanCallCampTitles) do
+		if titleId == id then
+			return true
+		end
+	end
+	return false
+end
+
+function CallCampPlayer( sysarg, arg )
+	local itemId = arg[2]
+	if Actor.getItemCount(sysarg, itemId) < 1 then
+		return
+	end
+	local campTitleId = Actor.getCampTitle(sysarg)
+	if not CanCampCall(campTitleId) then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.tf00055, ttDialog)
+		return 
+	end
+	local myCampId = Actor.getCampId( sysarg )
+	local allActor = LuaHelp.getAllActorList()
+	if allActor then		
+		local count = 0
+		local myPosX, myPosY = 0,0
+		local sceneId = Actor.getSceneId(sysarg)
+		local sceneName, myPosX, myPosY = Actor.getSceneName( sysarg, myPosX, myPosY)
+		local myName = Actor.getName(sysarg)
+		local notice = string.format(Lang.ScriptTips.tf00052, getCampTitleName(campTitleId), myName, sceneName)
+		local ensureBtn = Lang.ScriptTips.tf00053 .. string.format("/ensureCampCall,%d,%d,%d", sceneId, myPosX, myPosY )
+		local cancelBtn = Lang.ScriptTips.tf00054 .. "/cancelCampCall"
+		for i = 1, table.getn(allActor) do
+			local actorPtr = allActor[i]
+			if actorPtr and actorPtr ~= sysarg and Actor.getCampId(actorPtr) == myCampId and Actor.getIntProperty(actorPtr,PROP_CREATURE_LEVEL) >= CallLevel then
+				local actorSceneId = Actor.getSceneId(actorPtr)
+				if actorSceneId ~= sceneId then
+					Actor.messageBox(actorPtr, 0, 0, notice, ensureBtn, cancelBtn, NULL, 0, 1, Lang.ScriptTips.tf00053, 17)
+					count = count + 1
+				end
+			end
+		end
+		Actor.removeItem(sysarg,itemId, 1,-1,-1,-1, Lang.LogTips.z00003, 5)    --删除一个物品
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.tf00051, count), ttScreenCenter)
+	end
+end
+
+function ensureCampCall( sysarg, sceneId, toX, toY )
+	if Actor.getFubenId(sysarg) > 0 then
+		return
+	end
+	sceneId = tonumber(sceneId)
+	toX = tonumber(toX)
+	toY = tonumber(toY)
+	Actor.enterScene(sysarg,  sceneId, toX, toY )
+end
+
+
+function cancelCampCall( sysarg )
+
+end
+
+table.insert(LocalDT.ScriptDelayConfig[12], CallCampPlayer)

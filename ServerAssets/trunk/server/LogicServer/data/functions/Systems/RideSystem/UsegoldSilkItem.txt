@@ -1,0 +1,77 @@
+﻿--lua script
+--双击使用坐骑金蚕王
+
+--#include "data\config\ride\GoldSilkItem.txt" once 
+--#include "data\config\ride\RideGameConfig.txt" once
+
+--[[
+--添加buff的物品
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+function UseGoldSilkItem(sysarg,itemidx,itemPtr,ItemTable)
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+
+	local nRideLevel = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)
+	local nMaxLevel = table.getn(RideGameConfig.rideRankConfig) * 10
+	local nOldOrder = Actor.getRideOrder(sysarg)
+	if nRideLevel >= nMaxLevel then
+		Actor.sendTipmsg( sysarg,Lang.Gem.t00048,ttFlyTip )
+		return
+	end
+	
+	local nAwakeLevel = RideGameConfig.awakeLevel
+	if nRideLevel >= nAwakeLevel then
+		Actor.sendTipmsg( sysarg,Lang.Gem.t00056,ttFlyTip )
+		return
+	end
+
+	local nRoder = Actor.getRideOrder(sysarg)
+	local nStar = Actor.getRideStarIndex(sysarg)
+	local OldnStar = nStar
+	
+	--坐骑的阶星没有达到
+	if nRoder < ItemTable.needOrder or (nRoder == ItemTable.needOrder and nStar < ItemTable.needStar) then
+		Actor.sendTipmsg(sysarg,Lang.Gem.t00047,ttFlyTip)
+		return
+	end
+
+	local nResult = nRideLevel + ItemTable.upLevel
+	if nResult > nMaxLevel then
+		nResult = nMaxLevel
+	end
+	if nResult ~= nMaxLevel and nResult > nAwakeLevel then
+		nResult = nAwakeLevel
+	end 
+
+	if ItemTable.needConsume == true then
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true,Lang.ScriptTips.t00049,5)
+	end
+
+	Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL,nResult)
+	local nRoder = Actor.getRideOrder(sysarg)
+	local nStar = Actor.getRideStarIndex(sysarg)
+	local nNewOrder = Actor.getRideOrder(sysarg)
+	if (nNewOrder > nOldOrder) or ( nStar > OldnStar) then
+		local rideName = System.getRideNameByLevel(Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL))
+		if rideName then
+			local str2 = string.format(Lang.GuildLang.m00165,Actor.getName(sysarg), nNewOrder,nStar,rideName)
+			System.broadcastTipmsg(str2,2+128)
+		end
+	end
+	Actor.triggerAchieveEvent( sysarg,87,nRoder,nStar,0,0)--成就
+end
+
+function UseGoldSilkItemInit(sysarg)
+  for i = 1,table.getn(GoldItemConfig) do
+	local x = GoldItemConfig[i]
+	GlobalItemFn[x.item_id] = { func = UseGoldSilkItem, params = x }
+  end
+end
+
+table.insert(InitFnTable,UseGoldSilkItemInit)

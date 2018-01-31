@@ -1,0 +1,240 @@
+--符石配置
+--#include "..\..\language\LangCode.txt" once
+
+RuneConfig =
+{
+	openCircle = 8,					--开放转数
+	openLev = 50,					--开放等级
+	
+	maxHole = 9,					--孔的最大个数
+	
+	--每个空对应的开放条件
+	holeData = 
+	{
+		--第一个孔
+		{
+			needCircle = 8,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 0,			--需要vip等级
+			tips = Lang.Activity.fs0001,				--没有就配置空
+		},
+
+		--第二个孔
+		{
+			needCircle = 8,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 0,			--需要vip等级
+			tips = Lang.Activity.fs0001,
+		},
+
+		{
+			needCircle = 8,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 0,			--需要vip等级
+			tips = Lang.Activity.fs0001,
+		},
+
+		{
+			needCircle = 10,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 0,			--需要vip等级
+			tips = Lang.Activity.fs0002,
+		},
+
+		{
+			needCircle = 12,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 0,			--需要vip等级
+			tips = Lang.Activity.fs0002,
+		},
+		
+		--6
+		{
+			needCircle = 14,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 0,			--需要vip等级
+			tips = Lang.Activity.fs0002,
+		},
+
+		{
+			needCircle = 8,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 8,			--需要vip等级
+			tips = Lang.Activity.fs0003,
+		},
+
+		{
+			needCircle = 8,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 9,			--需要vip等级
+			tips = Lang.Activity.fs0004,
+		},
+		
+		--9
+		{
+			needCircle = 8,			--这个孔开放的转数
+			needLevel = 50,			--这个孔开放的等级
+			needVipLev = 10,			--需要vip等级
+			tips = Lang.Activity.fs0005,
+		},
+	},
+
+	--组合的属性
+	combineDrops = 
+	{
+		--颜色 对应物品的颜色值配置
+		{
+			--颜色组合
+			colorCom = {0,0,0},
+
+			--增加的属性	组合属性=（param1*平均等级的平方+param2*平均等级+param3）*属性 参数都是小数，组合属性算出来的值向下取整
+			addDrops = 
+			{
+				{ type = 6, value = 0.01, param1 = 0, param2 = 0.12, param3 = 0.8,},
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {0,4,5},
+			addDrops = 
+			{
+				{ type = 35, value = 0.01, param1 = 0, param2 = 0.102, param3 = 0.68, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {0,2,5},
+			addDrops = 
+			{
+				{ type = 41, value = 0.01, param1 = 0, param2 = 0.3, param3 = 2, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {0,1,5},
+			addDrops = 
+			{
+				{ type = 35, value = 0.01, param1 = 0, param2 = 0.102, param3 = 0.68, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {0,2,4},
+			addDrops = 
+			{
+				{ type = 41, value = 0.01, param1 = 0, param2 = 0.3, param3 = 2, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {0,1,4},
+			addDrops = 
+			{
+				{ type = 138, value = 1, param1 = 0, param2 = 6, param3 = 40, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {0,1,2},
+			addDrops = 
+			{
+				{ type = 41, value = 0.01, param1 = 0, param2 = 0.3, param3 = 2, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {5,5,5},
+			addDrops = 
+			{
+				{ type = 136, value = 1, param1 = 0, param2 = 6, param3 = 40, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {2,4,5},
+			addDrops = 
+			{
+				{ type = 33, value = 0.01, param1 = 0, param2 = 0.12, param3 = 0.8, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {1,4,5},
+			addDrops = 
+			{
+				{ type = 138, value = 1, param1 = 0, param2 = 6, param3 = 40, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {1,2,5},
+			addDrops = 
+			{
+				{ type = 33, value = 0.01, param1 = 0, param2 = 0.12, param3 = 0.8, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {4,4,4},
+			addDrops = 
+			{
+				{ type = 6, value = 0.01, param1 = 0, param2 = 0.12, param3 = 0.8,},
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {1,2,4},
+			addDrops = 
+			{
+				{ type = 8, value = 0.01, param1 = 0, param2 = 0.102, param3 = 0.68, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {2,2,2},
+			addDrops = 
+			{
+				{ type = 41, value = 0.01, param1 = 0, param2 = 0.3, param3 = 2, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			
+			},
+		},
+
+		{
+			--颜色组合
+			colorCom = {1,1,1},
+			addDrops = 
+			{
+				{ type = 39, value = 0.01, param1 = 0, param2 = 0.3, param3 = 2, },
+				{ type = 146, value = 1, param1 = 7, param2 = 115, param3 = -81, },
+			},
+		},
+	
+	},
+
+}

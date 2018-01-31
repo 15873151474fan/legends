@@ -1,0 +1,192 @@
+--沃玛教王（BOOS1）
+{
+
+	actions=
+	{
+		{act=0,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+	--作用范围表
+	actRange=
+	{
+	    --秒狗
+	  {
+			xStart=-10,--相对于中心点x左边的相对坐标
+		   xEnd=10,--相对于中心点x右边的相对坐标
+		   yStart=-10,--相对于中心点y上边的相对坐标
+		   yEnd=10,--相对于中心点y下边的相对坐标
+		   
+		  rangeType=3,    
+		  rangeCenter=1,
+		  
+
+		  acts=
+		   {
+			{
+
+			 conds=
+			 {
+
+				--{cond = 1,value =1},
+			  {cond = 57,value =4},
+			  --{cond = 24,value =3000},
+			  --{cond = 16,value =139,param = 78},
+			  --{cond = 22,value =73},
+			  --{cond = 57,value =14},
+			 },
+			 results=
+			 {
+				{mj=0,timeParam=1,delay=0,type=3,rate=0,value=60000},
+				--{mj=0,timeParam=1,type=1,delay=0,buffType=79,id=43,rate=0,value=100,interval=5,vt=0},
+				--{mj=0,timeParam=60000,type=20,id=73,value=1,vt=1,},
+				
+			 },
+			 specialEffects=
+			 {
+			  
+			  --{type=6,mj=0,id=149,keepTime=5000,delay=100,always=false},
+			 },
+			},
+		},
+	  },
+
+	--隔一定时间释放技能，造成目标无法使用药物；（15秒CD，持续15秒）
+		{
+
+			xStart=-5,--相对于中心点x左边的相对坐标
+		   xEnd=5,--相对于中心点x右边的相对坐标
+		   yStart=-5,--相对于中心点y上边的相对坐标
+		   yEnd=5,--相对于中心点y下边的相对坐标
+		   
+		  rangeType=3,    
+		  rangeCenter=0,
+		  
+
+		  acts=
+		   {
+			{
+
+			 conds=
+			 {
+
+				--{cond = 1,value =1},
+			  {cond = 6,value =1},
+			  {cond = 22,value =69},
+			  --{cond = 16,value =139,param = 78},
+			  --{cond = 22,value =70},
+			  --{cond = 57,value =14},
+			 },
+			 results=
+			 {
+			  {mj=0,timeParam=1,type=1,delay=0,buffType=139,id=42,rate=0,value=10000,interval=15,vt=0},
+			  {mj=0,timeParam=15000,type=20,id=69,value=1,vt=1,},
+			 },
+			 specialEffects=
+			 {
+			  
+			  --{type=6,mj=0,id=149,keepTime=5000,delay=100,always=false},
+			 },
+			},
+		},
+	  },		
+
+	  --隔一定时间释放技能，使给一定范围内的玩家造成2倍伤害
+		{
+
+			xStart=-15,--相对于中心点x左边的相对坐标
+		   xEnd=15,--相对于中心点x右边的相对坐标
+		   yStart=-15,--相对于中心点y上边的相对坐标
+		   yEnd=15,--相对于中心点y下边的相对坐标
+		   
+		  rangeType=3,    
+		  rangeCenter=2,
+		  
+
+		  acts=
+		   {
+			{
+
+			 conds=
+			 {
+
+				--{cond = 1,value =1},
+			  {cond = 6,value =1},
+			  {cond = 22,value =70},
+			  --{cond = 16,value =139,param = 78},
+			  --{cond = 22,value =70},
+			  --{cond = 57,value =14},
+			 },
+			 results=
+			 {
+			  {mj=0,timeParam=1,delay=0,type=3,rate=20000,value=0},
+			  {mj=0,timeParam=10000,type=20,id=70,value=1,vt=1,},
+			 },
+			 specialEffects=
+			 {
+			  --{type=3,mj=0,id=158,keepTime=800,delay=100,always=false},
+			  {type=4,mj=0,id=161,keepTime=500,delay=100,always=false},
+			 },
+			},
+		},
+	  },
+
+	 --单体攻击
+	  {
+			xStart=0,--相对于中心点x左边的相对坐标
+		   xEnd=0,--相对于中心点x右边的相对坐标
+		   yStart=-0,--相对于中心点y上边的相对坐标
+		   yEnd=0,--相对于中心点y下边的相对坐标
+		   
+		  rangeType=0,    
+		  rangeCenter=0,
+		  
+
+		  acts=
+		   {
+			{
+
+			 conds=
+			 {
+
+				--{cond = 1,value =1},
+			  {cond = 6,value =1},
+			  --{cond = 24,value =3000},
+			  --{cond = 16,value =139,param = 78},
+			  --{cond = 22,value =73},
+			  --{cond = 57,value =14},
+			 },
+			 results=
+			 {
+				{mj=0,timeParam=1,delay=0,type=3,rate=10000,value=0},
+				--{mj=0,timeParam=1,type=1,delay=0,buffType=79,id=43,rate=0,value=100,interval=5,vt=0},
+				--{mj=0,timeParam=60000,type=20,id=73,value=1,vt=1,},
+				
+			 },
+			 specialEffects=
+			 {
+			  {type=5,mj=0,id=61,keepTime=500,delay=100,always=false},
+			  --{type=6,mj=0,id=149,keepTime=5000,delay=100,always=false},
+			 },
+			},
+		},
+	  },	  
+	},
+
+		trainConds=
+		{
+
+		},
+		
+		spellConds=
+	{
+		{cond=13,value=15,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=500,
+	--攻击速度
+
+},

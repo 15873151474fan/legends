@@ -1,0 +1,505 @@
+﻿--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\WuLinZhengBa\WuLinZhengBa.txt" once
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--武林争霸处理通用函数
+
+--参加初级武林争霸赛
+function TakePartToJuniorWuLin(sysarg)
+	local str = ""
+
+	local svar = System.getDyanmicVar()
+	if svar.WuLinZhengBaStartFlag == nil then		--开始武林争霸的标志
+		svar.WuLinZhengBaStartFlag = 0
+	end
+
+	if svar.WuLinZhengBaStartFlag == 0 then			--不再活动时间内
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00004, ttFlyTip)
+		--str = Lang.Activity.w00004
+		return
+	end
+	
+	if Actor.checkActorLevel(sysarg, WuLinZhengBaConfig.minLevel, 0) ~= true then
+		--str = Lang.Activity.w00003
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00003, ttFlyTip)
+		return
+	end
+
+	if svar.WuLinEnterFlag == 1 then			--活动开始已过10分钟不能再进入
+		str = Lang.Activity.w00005
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00005, ttFlyTip)
+		return
+	end
+	
+	local nPosX = System.getRandomNumber(WuLinZhengBaConfig.wMapX[2]-WuLinZhengBaConfig.wMapX[1])
+	nPosX = WuLinZhengBaConfig.wMapX[1] + nPosX
+
+	local nPosY = System.getRandomNumber(WuLinZhengBaConfig.wMapY[2]-WuLinZhengBaConfig.wMapY[1])
+	nPosY = WuLinZhengBaConfig.wMapY[1] + nPosY
+
+	local nHandle = Fuben.getSceneHandleById(WuLinZhengBaConfig.lowSceenId,0)
+	Actor.enterFuBen(sysarg,nHandle,WuLinZhengBaConfig.lowSceenId,nPosX,nPosY)
+
+	local nHandle = Fuben.getSceneHandleById(WuLinZhengBaConfig.lowSceenId, 0)
+	local nTime = Fuben.getSceneTime(nHandle)
+	Actor.initActivityWind(sysarg,Lang.Activity.a00081,nTime,Lang.Activity.a00082)
+
+	--return str
+end
+
+--参加高级武林争霸赛
+function TakePartToHighWuLin(sysarg)
+	local str = ""
+
+	if Actor.checkActorLevel(sysarg, WuLinZhengBaConfig.minLevel, 0) ~= true  then
+		str = Lang.Activity.w00003
+		return str
+	end
+
+	local svar = System.getDyanmicVar()
+	if svar.WuLinZhengBaStartFlag == nil then		--开始武林争霸的标志
+		svar.WuLinZhengBaStartFlag = 0
+	end
+
+	if svar.WuLinZhengBaStartFlag == 0 then			--不再活动时间内
+		str = Lang.Activity.w00004
+		return str
+	end
+	
+	if svar.WuLinEnterFlag == nil then
+		svar.WuLinEnterFlag = 0
+	end
+
+	if svar.WuLinEnterFlag == 1 then			--活动开始已过10分钟不能再进入
+		str = Lang.Activity.w00005
+		return str
+	end
+
+	--local nHandle = Fuben.getSceneHandleById(WuLinZhengBaConfig.highSceenId,0)
+	--Actor.enterFuBen(sysarg,nHandle,WuLinZhengBaConfig.highSceenId,WuLinZhengBaConfig.wMapX,WuLinZhengBaConfig.wMapY)
+
+	return str
+end
+
+--活动介绍
+function ActivityIntroduction(sysarg)
+	local str = Lang.Activity.a00060
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+--购买药品
+function OnBuyDrug(sysarg)
+	local str = ""
+
+	return str
+end
+
+--成为武林盟主
+function OnBeTheChief(sysarg)
+	local str = ""
+
+	local svar = System.getDyanmicVar()
+	if svar.WuLinZhengBaStartFlag == nil then		--开始武林争霸的标志
+		svar.WuLinZhengBaStartFlag = 0
+	end
+
+	if svar.WuLinZhengBaStartFlag == 0 then			--不在活动时间内
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00004, ttFlyTip)
+		return
+	end
+	
+	if svar.WuLinEnterFlag == nil then
+		svar.WuLinEnterFlag = 0
+	end
+
+	if svar.WuLinEnterFlag == 0 then			--活动开始已过10分钟才能申请
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00008, ttFlyTip)
+		return
+	end
+
+	local playerList = LuaHelp.getSceneAliveActorListById(WuLinZhengBaConfig.lowSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		if table.getn(playerList) == 1 then
+			local player = playerList[1]
+			if player then
+				local nActorId = Actor.getIntProperty(player,PROP_ENTITY_ID)
+				local nName = Actor.getName(player)
+				
+				local nPrimId = System.getPrimaryWuLinId()
+
+				if nPrimId == nActorId then
+					Actor.sendTipmsg(sysarg, Lang.Activity.w00025, ttFlyTip)
+					return
+				end
+				Actor.setSocialMask(player,smIsWulinMaster,true)
+				OnBeWuLinChief(player,1,nActorId,nName)
+				Actor.giveAward(player,WuLinZhengBaConfig.awardsYuanbao.type,WuLinZhengBaConfig.awardsYuanbao.id,WuLinZhengBaConfig.awardsYuanbao.count,WuLinZhengBaConfig.awardsYuanbao.quality,WuLinZhengBaConfig.awardsYuanbao.strong,WuLinZhengBaConfig.awardsYuanbao.bind,0,822,Lang.Activity.a00081)
+				
+				local nPosX = System.getRandomNumber(WuLinZhengBaConfig.outMapX[2]-WuLinZhengBaConfig.outMapX[1])
+				nPosX = nPosX + WuLinZhengBaConfig.outMapX[1]
+
+				local nPosY = System.getRandomNumber(WuLinZhengBaConfig.outMapY[2]-WuLinZhengBaConfig.outMapY[1])
+				nPosY = nPosY + WuLinZhengBaConfig.outMapY[1]
+
+				Actor.enterScene(player,WuLinZhengBaConfig.outSceenId,nPosX,nPosY)
+
+				local svar = System.getDyanmicVar()
+				svar.WuLinZhengBaStartFlag = nil
+			end
+
+		elseif table.getn(playerList) > 1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.w00024, ttFlyTip)
+			return
+		end
+	end
+end
+
+--活动结束的一些处理
+function OnEndWuLinActivity()
+	local nPrimId = System.getPrimaryWuLinId()
+	
+	local nHandle = Fuben.getSceneHandleById(WuLinZhengBaConfig.outSceenId,0)
+	
+	local bFlag = false
+
+	local playerList = LuaHelp.getSceneAliveActorListById(WuLinZhengBaConfig.lowSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		local nCount = 0
+		if #playerList >= WuLinZhengBaConfig.awardsYuanbao.count then
+			nCount = 1
+		elseif #playerList > 0 then
+			nCount = math.ceil(WuLinZhengBaConfig.awardsYuanbao.count / #playerList)
+		end
+
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				if nPrimId <= 0 and table.getn(playerList) == 1 then
+					local nActorId = Actor.getIntProperty(player,PROP_ENTITY_ID)
+					local nName = Actor.getName(player)
+					
+					OnBeWuLinChief(player,1,nActorId,nName)
+					Actor.setSocialMask(player,smIsWulinMaster,true)
+				end
+
+				local nPosX = System.getRandomNumber(WuLinZhengBaConfig.outMapX[2]-WuLinZhengBaConfig.outMapX[1])
+				nPosX = nPosX + WuLinZhengBaConfig.outMapX[1]
+
+				local nPosY = System.getRandomNumber(WuLinZhengBaConfig.outMapY[2]-WuLinZhengBaConfig.outMapY[1])
+				nPosY = nPosY + WuLinZhengBaConfig.outMapY[1]
+				
+				if nCount > 0 and j <= WuLinZhengBaConfig.awardsYuanbao.count then
+					Actor.giveAward(player,WuLinZhengBaConfig.awardsYuanbao.type,WuLinZhengBaConfig.awardsYuanbao.id,nCount,WuLinZhengBaConfig.awardsYuanbao.quality,WuLinZhengBaConfig.awardsYuanbao.strong,WuLinZhengBaConfig.awardsYuanbao.bind,0,822,Lang.Activity.a00081)
+				end
+
+				Actor.enterScene(player,WuLinZhengBaConfig.outSceenId,nPosX,nPosY)
+                Actor.closeActivityWind( player) 
+				bFlag = true
+			end
+		end
+	end
+
+	if bFlag == true then
+		local ranking = Ranking.getRanking(WuLinZhengBaConfig.RankName)
+		if ranking then
+			Ranking.save(ranking,WuLinZhengBaConfig.RankTxt)
+		end
+	end
+
+	System.broadcastTipmsg(Lang.Activity.w00012,2 + 128)
+end
+
+--定时给奖励
+function GetWuLinActorAwards()
+	local svar = System.getDyanmicVar()
+	if not svar.WuLinZhengBaStartFlag then -- 活动未开始 or 有人点击NPC成为霸主
+		return
+	end
+
+	if svar.GiveAwardTimes == nil then
+		svar.GiveAwardTimes = 1
+	end
+	
+	--双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(10) == 1 then
+		doubleAwardActRate = 1
+	end
+	local playerList = LuaHelp.getSceneActorListById(WuLinZhengBaConfig.lowSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		local nCount = #playerList
+		local nIndex = 0
+		for i=1,table.getn(WuLinZhengBaConfig.Awards) do
+			if nCount >= WuLinZhengBaConfig.Awards[i].rangNum[1] and nCount < WuLinZhengBaConfig.Awards[i].rangNum[2] then
+				nIndex = i
+				break
+			end
+		end
+		
+		if nIndex <= 0 then
+			return
+		end
+		
+		local nConfig = WuLinZhengBaConfig.Awards[nIndex]
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				if Awards.CheckBagGridCount(player,nConfig.loopAwards) then
+					for k=1,table.getn(nConfig.loopAwards) do
+						local nAwardCount = nConfig.loopAwards[k].count
+						if nConfig.loopAwards[k].avgeFlag == 1 then
+							nAwardCount = math.floor(nConfig.loopAwards[k].count / nCount)
+						end
+						Actor.giveAward(player,nConfig.loopAwards[k].type,nConfig.loopAwards[k].id,nAwardCount*(1+doubleAwardActRate),nConfig.loopAwards[k].quality,nConfig.loopAwards[k].strong,nConfig.loopAwards[k].bind,0,822,Lang.Activity.a00081)
+					end
+				end
+			end
+		end
+
+		System.broadcastTipmsg(string.format(Lang.Activity.a00213,nCount),2 + 128)
+	end
+
+	svar.GiveAwardTimes = svar.GiveAwardTimes + 1
+end
+
+--成为武林盟主 nIndex 1表示初级 2 表示高级
+function OnBeWuLinChief(sysarg,nIndex,nActorId,nName)
+	local ranking = Ranking.getRanking(WuLinZhengBaConfig.RankName)
+	if ranking then
+		local pItem = Ranking.getItemPtrByIndex(ranking,0)
+
+		if pItem then
+			Ranking.setItem(ranking,nActorId,nActorId)
+			Ranking.setSub(pItem,0,nName)
+			Ranking.setSub(pItem,1,tostring(0))
+		else
+			local nItem = Ranking.addItem(ranking,nActorId,nActorId)
+
+			if nItem then
+				Ranking.setSub(nItem,0,nName)
+				Ranking.setSub(nItem,1,tostring(0))
+			end
+		end
+
+		Ranking.save(ranking,WuLinZhengBaConfig.RankTxt)
+	end
+
+	if nIndex == 1 then
+		System.setPrimaryWuLinId(nActorId)
+		local str1 = string.format(Lang.Activity.w00006,nName,nName)
+		System.broadcastTipmsg(str1,128)
+		local str2 = string.format(Lang.Activity.w00109,nName)
+		System.broadcastTipmsg(str2,2)
+		Actor.GiveTitle(sysarg,WuLinZhengBaConfig.titleId)
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00108, ttFlyTip)
+
+		--FinishTopicActivity(nActorId,nName)
+
+		OnWuLinMasterAddBuff(sysarg,true)
+	end
+end
+
+--第六天主题活动结束处理
+function FinishTopicActivity(nActorId,nName)
+	local nDays = System.getDaysSinceOpenServer()
+
+	if nDays >= 6 and System.getActivityFinishDays(6) == 0 then
+		local ranking = Ranking.getRanking(OpenServerConfig.activitys[6].rankName)
+
+		if ranking then
+			local pItem = Ranking.getItemFromIndex(ranking,0)
+
+			if pItem then
+				Ranking.updateItem(ranking,nActorId,1)
+				Ranking.setSub(pItem,0,nName)
+			else
+				local nItem = Ranking.addItem(ranking,nActorId,0)
+
+				if nItem then
+					Ranking.setSub(nItem,0,nName)
+				end
+			end
+		end
+	end
+end
+
+--离开活动
+function OnLeftActivity(sysarg)
+	local str = ""
+	
+	str = Lang.Activity.w00009
+
+	str = str.."\\<#BL"..Lang.Activity.w00010.."/@OnClickOk>"
+	str = str.."\\<#BL"..Lang.Activity.w00011.."/@OnClickCancle>"
+
+	return str
+end
+
+--确定
+function OnClickOk(sysarg)
+	local nPosX = System.getRandomNumber(WuLinZhengBaConfig.outMapX[2]-WuLinZhengBaConfig.outMapX[1])
+	nPosX = nPosX + WuLinZhengBaConfig.outMapX[1]
+
+	local nPosY = System.getRandomNumber(WuLinZhengBaConfig.outMapY[2]-WuLinZhengBaConfig.outMapY[1])
+	nPosY = nPosY + WuLinZhengBaConfig.outMapY[1]
+
+	Actor.enterScene(sysarg,WuLinZhengBaConfig.outSceenId,nPosX,nPosY)
+	Actor.closeActivityWind(sysarg)
+end
+
+--取消
+function OnClickCancle(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+--活动开始
+function OnActivityStart()
+	local ranking = Ranking.getRanking(WuLinZhengBaConfig.RankName)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+
+	local nActorId = System.getPrimaryWuLinId()
+
+	local pPlayer = System.getEntityPtrByActorID(nActorId)
+	if pPlayer then
+		Actor.setSocialMask(pPlayer,smIsWulinMaster,false)
+		Actor.GiveupTitle(pPlayer,WuLinZhengBaConfig.titleId)
+		OnWuLinMasterAddBuff(pPlayer,false)
+		Actor.updateRingValid(pPlayer,7)	--更新盟主戒指
+		Actor.updateRingValid(pPlayer,8)
+	end
+
+	System.setPrimaryWuLinId(0)
+	System.setHighWuLinId(0)
+
+	local svar = System.getDyanmicVar()
+	if svar.WuLinZhengBaStartFlag == nil then		--开始武林争霸的标志
+		svar.WuLinZhengBaStartFlag = 0
+	end
+
+	svar.WuLinZhengBaStartFlag = 1
+	svar.WuLinEnterFlag = 0 --10分钟后不能再进入武林争霸的标志
+
+	local hScene = Fuben.getSceneHandleById(WuLinZhengBaConfig.lowSceenId, 0)
+	Fuben.setSceneTime(hScene,WuLinZhengBaConfig.lastTime)
+end
+
+--玩家登陆的处理
+function OnWuLinMasterOp(sysarg)
+	local ranking = Ranking.getRanking(WuLinZhengBaConfig.RankName)
+	if ranking then
+		local myActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking,myActorId)
+
+		if pItem then
+			Actor.setSocialMask(sysarg,smIsWulinMaster,true)
+			OnWuLinMasterAddBuff(sysarg,true)
+			Actor.GiveTitle(sysarg,WuLinZhengBaConfig.titleId)
+		else
+			Actor.GiveupTitle(sysarg,WuLinZhengBaConfig.titleId)
+			Actor.setSocialMask(sysarg,smIsWulinMaster,false)
+			Actor.delBuff(sysarg,WuLinZhengBaConfig.AddBuff[1].buffType,WuLinZhengBaConfig.AddBuff[1].buffGroup)
+			Actor.updateRingValid(sysarg,7)	--更新盟主戒指
+			Actor.updateRingValid(sysarg,8)
+		end
+	end
+end
+
+--武林盟主属性加成
+function OnWuLinMasterAddBuff(sysarg,bFlag)
+	local nRate = 0
+	local fValue = 0
+	
+	--[[
+		if bFlag == true then
+			nRate = WuLinZhengBaConfig.fRate 
+			fValue = WuLinZhengBaConfig.nRate.fValue
+		else
+			nRate = -WuLinZhengBaConfig.fRate 
+			fValue = -WuLinZhengBaConfig.nRate.fValue
+		end
+	]]
+
+	--for i=1,table.getn(WuLinZhengBaConfig.MasterBuff) do
+		--Actor.addAttrToWuLinMaster(sysarg,WuLinZhengBaConfig.MasterBuff[i].type,nRate,false)
+	--end
+	if bFlag == true then
+		Actor.addBuff(sysarg,WuLinZhengBaConfig.AddBuff[1].buffType,WuLinZhengBaConfig.AddBuff[1].buffGroup,WuLinZhengBaConfig.AddBuff[1].value,WuLinZhengBaConfig.AddBuff[1].times,WuLinZhengBaConfig.AddBuff[1].interval,WuLinZhengBaConfig.AddBuff[1].buffName)
+	else
+		Actor.delBuff(sysarg,WuLinZhengBaConfig.AddBuff[1].buffType,WuLinZhengBaConfig.AddBuff[1].buffGroup)
+	end
+	--Actor.addAttrToWuLinMaster(sysarg,WuLinZhengBaConfig.nRate.type,fValue,true)
+end
+
+--领取奖励
+function GetWulinMengzhuAward(sysarg)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local nName = Actor.getName(sysarg)
+					
+	local nPrimId = System.getPrimaryWuLinId()
+
+	if nActorId == nPrimId then
+		local ranking = Ranking.getRanking(WuLinZhengBaConfig.RankName)		--通过排行名称获取排行对象
+		if ranking ~= nil then							--没有排行对象则创建并加载数据
+			local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+			if pItem then
+				local nState = tonumber(Ranking.getSub(pItem,1))
+
+				if nState == nil then
+					nState = 0
+				end
+
+				if nState == 0 then
+					if Awards.CheckBagGridCount(sysarg,WuLinZhengBaConfig.awardsMaster) then
+						--local nRate = GetCombineActivityRate()
+						--Awards.Give(sysarg,WuLinZhengBaConfig.awardsMaster,822,"WulinMaster")
+						local nJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+						for i=1,table.getn(WuLinZhengBaConfig.awardsMaster) do
+							local awardTab = WuLinZhengBaConfig.awardsMaster[i]
+							if awardTab.job == nJob then
+							   Actor.giveAward(sysarg, awardTab.type,awardTab.id,awardTab.count,awardTab.quality,awardTab.strong,awardTab.bind,0,0,Lang.Activity.a00081)
+				            end
+						end
+
+						Ranking.setSub(pItem,1,tostring(1))
+						Ranking.save(ranking,WuLinZhengBaConfig.RankTxt)
+					end
+				else
+					Actor.sendTipmsg(sysarg, Lang.Activity.w00107, ttFlyTip)
+				end
+			end
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00106, ttFlyTip)
+	end
+end
+
+--武林争霸初始化
+function WuLinZhengBaRankInit()
+	local RankNameList = Ranking.getRanking(WuLinZhengBaConfig.RankName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(WuLinZhengBaConfig.RankName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,WuLinZhengBaConfig.RankTxt)
+			
+			if isLoad == false then
+				for i=1, table.getn(WuLinZhengBaConfig.RankColumn) do
+					Ranking.addColumn(RankNameList,WuLinZhengBaConfig.RankColumn[i].columnName) --添加一个标题列  
+				end
+			else
+				local pItem = Ranking.getItemPtrByIndex(RankNameList,0)
+
+				if pItem then
+					local nActorId = Ranking.getId(pItem)
+					System.setPrimaryWuLinId(nActorId)
+				end
+			end
+		end
+	end
+end
+
+table.insert(InitFnTable,WuLinZhengBaRankInit)

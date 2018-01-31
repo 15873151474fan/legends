@@ -1,0 +1,369 @@
+--lua script
+--TasksReward configs
+--活动奖励通用函数 
+--#include "data\functions\Tasks\AthleticsPoint\AddPoint.txt" once 
+
+--[[
+    函数名称：rewardLimitLevelCheck
+    函数描述：等级检测
+    参数 sysarg 的描述：玩家对象
+    参数 levelConfig 的描述：需检测的等级表
+    Return返回：true 等级足够 ，false 在等级范围 
+]]
+function rewardLimitLevelCheck(sysarg,levelConfig)
+  if levelConfig == nil then return false end
+  local levelLimit = levelConfig
+  local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  if level >= levelLimit[1] and level <= levelLimit[2] then
+    return true
+  end
+  return false 
+end
+
+--[[
+    函数名称：rewardNeedSpaceCheck
+    函数描述：背包空间检测 
+    参数 sysarg 的描述：玩家对象 
+    参数 rewardConfig 的描述：需检测的奖励表
+    Return返回：true 空间足够 ，false 空间不足 needspace 所需空间  
+]]
+function rewardNeedSpaceCheck(sysarg,rewardConfig)
+  if rewardConfig == nil then return false end
+  local needspace = 0
+	for i,c in ipairs(rewardConfig) do 
+    if ( c.type == 0 ) then
+      needspace = needspace + Item.getAddItemNeedGridCount( sysarg, c.itemid, c.count )
+    end
+  end
+  if ( needspace <= Item.getBagEmptyGridCount( sysarg ) ) then
+	----print("---Reward config bag space lack."..needspace)
+    return true, needspace
+  end
+  return false, needspace
+end
+
+--[[
+    函数名称：doTaskNoLevelItemRewardConfig
+    函数描述：非等级限制物质奖励 
+    参数 sysarg 的描述：玩家对象
+    参数 rewardConfig 的描述：需检测的奖励表
+    参数 logStr 的描述：日志
+    return返回：奖励物品的数量 
+]]
+function doTaskNoLevelItemReward(sysarg,rewardConfig,logStr)
+	if rewardConfig == nil or #rewardConfig <= 0 then return 0 end
+	local addCount = 0
+	for i = 1, #rewardConfig do
+		local c = rewardConfig[i]	
+		if ( c.type == 0 ) then
+			addCount = addCount + Actor.addItem(sysarg,c.itemid,c.quality,c.strong, c.count,c.bind, 0, logStr,-1)
+			--local itemname = Item.getItemName(c.itemid)
+			--local allmsg = string.format(Lang.ScriptTips.q00037,itemname,c.amount)
+			--Actor.sendTipmsg(sysarg,allmsg,ttScreenCenter)  
+		end
+	end
+	return addCount
+end
+
+--[[
+    函数名称：doTaskNoLevelOtherReward
+    函数描述：非等级限制物质奖励
+    参数 sysarg 的描述：玩家对象
+    参数 rewardConfig 的描述：需检测的奖励表
+    参数 logStr 的描述：日志
+    return返回：是否奖励成功 
+]]
+function doTaskNoLevelOtherReward(sysarg,rewardConfig,logStr)
+	if rewardConfig == nil or #rewardConfig <= 0 then return false end
+	for i = 1, #rewardConfig do
+		local c = rewardConfig[i]
+		if ( c.type > 0 ) then
+			Actor.giveAward(sysarg, c.type, 0,c.value, 0,0,1,c.auxParam, 0,logStr )
+			--local moneystr = MONEYTYPE[c.type]
+			--local allmsg = string.format(moneystr,c.amount)
+			--Actor.sendTipmsg(sysarg,allmsg,ttScreenCenter)
+		elseif (c.type == -1) then
+			AddAthleticsPointByPtr(sysarg, c.value)	--增加竞技积分
+		end
+	end
+	return true
+end
+
+--[[
+    函数名称：doTaskLevelReward
+    函数描述：等级限制物质奖励
+    参数 sysarg 的描述：玩家对象
+    参数 rewardConfig 的描述：需检测的奖励表
+    参数 logStr 的描述：日志
+    return返回：是否奖励成功 true 成功 false奖励不存在 
+]]
+function doTaskLevelReward(sysarg,rewardConfig,logStr)
+	if rewardConfig == nil or #rewardConfig <= 0 then return false end
+	for i = 1, #rewardConfig do
+		local c = rewardConfig[i]
+		if ( c.type > 0 ) then     
+			local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+			local value = c.value
+			--print(value)
+			if value ~= nil then
+				if value[level] ~= nil then 
+					Actor.giveAward(sysarg, c.type,0, value[level], 0,0,1,0, 0, logStr )
+					--local moneystr = MONEYTYPE[c.type]
+					--local allmsg = string.format(moneystr,c.amount)
+					--Actor.sendTipmsg(sysarg,allmsg,ttScreenCenter)
+				end
+			end
+		end
+	end
+	return true
+end
+
+--[[
+    函数名称：doTaskLevelReward
+    函数描述：等级限制物质奖励
+    参数 sysarg 的描述：玩家对象
+    参数 awardConfig 的描述：需检测的奖励表
+	参数 initLevel 的描述：奖励起始等级
+    参数 logStr 的描述：日志
+    return返回：是否奖励成功 true 成功 false奖励不存在 
+]]
+function doTaskLevelAward(sysarg,awardConfig,initLevel,logStr)
+	if awardConfig == nil or #awardConfig <= 0 then return false end
+	for i = 1, #awardConfig do
+		local c = awardConfig[i]   
+		local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+		local value = c.value
+		--print(value)
+		if value ~= nil then
+			local index = level-initLevel+1
+			if value[index] ~= nil then
+				if (c.type >= 0) then
+					Actor.giveAward(sysarg, c.type, 0,value[index], 0,0,1,0, 0, logStr )
+					--local moneystr = MONEYTYPE[c.type]
+					--local allmsg = string.format(moneystr,c.amount)
+					--Actor.sendTipmsg(sysarg,allmsg,ttScreenCenter)
+				elseif (c.type == -1) then
+					AddAthleticsPointByPtr(sysarg, value[index])	--增加竞技积分
+				end
+			end
+		end
+	end
+	return true
+end
+
+--给予排行榜奖励
+--nRank:排名
+--tbAward:奖励表
+--base:奖励基数 （用于非道具奖励）
+--RankItem: 排行榜记录	如果不需记录则置nil
+--nSubID:	排行榜列ID
+--sLog:记录日志的字符串
+--nLogId:记录日志的id
+function GiveRankingAward(sysarg,tbAward,nRank,base, RankItem, nSubID,sLog,nLogId)
+	if (not tbAward) or (not nRank) then return false end
+	--判断名次是否越界
+	if (nRank > tbAward[table.getn(tbAward)].rankRange[2]) then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00006, ttDialog)
+		return false
+	end
+	for i=1, table.getn(tbAward) do
+		if (nRank >= tbAward[i].rankRange[1]) and (nRank <= tbAward[i].rankRange[2]) then
+			--判断背包空余
+			local mustBag = tbAward[i].mustBag
+			if mustBag and mustBag > 0 then
+				if Item.getBagEmptyGridCount(sysarg) < mustBag then
+					Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00007, mustBag), ttDialog)
+					return false
+				end
+			end
+			--排行榜记录
+			if RankItem then
+				Ranking.setSub(RankItem, nSubID, "1")
+			end
+			--物品奖励
+			local items = tbAward[i].itemAwards
+			if items and items ~= false and table.getn(items) > 0  then
+				for j=1, table.getn(items) do
+					local item = items[j]
+					Actor.addItem(sysarg,item.id,item.quality,item.strong,item.count,item.bind,0,sLog,nLogId)
+				end
+			end
+			--其他非物品
+			local others = tbAward[i].otherAwards
+			if others and others ~= false and table.getn(others) > 0  then
+				local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+				for j=1, table.getn(others) do
+					local other = others[j]
+					if level >= other.levelRange[1] and level <= other.levelRange[2] then 
+						local index = math.floor(level-other.levelRange[1])+1
+						if index > 0 then
+							local value = math.floor(other.value[index]*base)
+							if value then
+								Actor.giveAward(sysarg, other.type, 0,value,0,0,1,0, nLogId,sLog)
+							end
+						end
+					end
+				end
+			end
+			
+			return true
+		end
+	end
+	return false
+end
+
+
+
+--[[
+  //奖励类型
+	enum tagAwardType
+	{
+		--qatEquipment=0,             //物品或者装备
+		qatXiuwei = 1,	            //修为
+		qatExp = 2,                	//角色经验值
+		qatGuildContribution = 3,	//帮派贡献值
+		qatZYContribution = 4,		//阵营贡献
+		qatBindMoney = 5,           //绑定银两
+		qatMoney = 6,	            //银两
+		qatLiJin = 7,	            //绑定元宝
+		qatTitle = 8,	            //称谓
+		qatSkill = 9,	            //技能
+		qatZhanhun = 10,	        //战魂
+		qatAchievePoint =11,        //成就点
+		qatRenown=12,                //声望
+		--qatCustomize = 127,		    //自定义奖励
+	};
+----------------------------------------------------- 
+  
+TasksReward =
+{
+  LimitLevel = {20,60},
+  noLevelReward =     --非等级奖励  --非物品或者装备时 只有 type 奖励类型 count值  生效
+  {
+    item =    --物品
+    {
+      --{type = 0, itemid = , count = , quality=0, strong=0, bind = , },  物品道具奖励
+      --..
+    },
+    other =  --非物品
+    {
+      --{type = 1, value = , auxParam = 0, },        --auxParam:辅助参数，比如学习技能的话就是技能的等级
+      --...
+    }
+  },
+  LevelReward =    --等级奖励
+  {
+    {
+      type = 2,        --奖励类型 0与127 暂不用
+      value =          --奖励的值  每个下标对应等级 所得的值
+      {
+        [20]=80603,
+      }
+    }
+    --...
+  },
+    ]]
+		
+--排行榜奖励配置表		
+--[[
+local tbAward = 
+{
+	--名称组 必须由低向高递增
+	{
+		rankRange = {1, 1},	--名次范围  1<=rankRange<=1
+		
+		mustBag = 1,	--需求背包空间
+		itemAwards = 	--物品奖励
+		{
+			--{id = 2019, count = 1, quality = 0, strong = 0, bind = 1, },
+		},
+		otherAwards = --非物品奖励
+		{
+			
+		},
+	},
+	
+	{
+		rankRange = {2, 2},
+		
+		mustBag = 1,	--需求背包空间
+		itemAwards = 
+		{
+			{id = 2019, count = 1, quality = 0, strong = 0, bind = 1, },
+		},
+		otherAwards = 
+		{
+		
+		},
+	},
+	
+	{
+		rankRange = {3, 3},
+		itemAwards = 
+		{
+			{id = 2019, count = 1, quality = 0, strong = 0, bind = 1, },
+		},
+		otherAwards = 
+		{
+		
+		},
+	},
+	
+	{
+		rankRange = {4, 4},
+		
+		mustBag = 1,	--需求背包空间
+		itemAwards = 
+		{
+			{id = 2019, count = 1, quality = 0, strong = 0, bind = 1, },
+		},
+		otherAwards = 
+		{
+			
+		},
+	},
+	
+	{
+		rankRange = {5, 10},
+		itemAwards = 
+		{
+			{id = 2019, count = 1, quality = 0, strong = 0, bind = 1, },
+		},
+		otherAwards = 
+		{
+			
+		},
+	},
+	
+	{
+		rankRange = {11, 100},
+		
+		mustBag = 1,	--需求背包空间
+		itemAwards = 
+		{
+			--{id = 2019, count = 1, quality = 0, strong = 0, bind = 1, },
+		},
+		otherAwards = 
+		{
+			{
+				type = 2,
+				levelRange = {10, 60},
+				value = 
+				{
+					10,
+					11,
+				},
+			},
+			{
+				type = 4,
+				levelRange = {10, 60},
+				value = 
+				{
+					10,
+					11,
+				},
+			},
+		},
+	},
+}
+--]]

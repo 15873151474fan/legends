@@ -1,0 +1,178 @@
+--lua script
+--勇士角斗场
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\Arena\warriorArena.txt" once
+--#include "Arena_common.txt" once
+
+--老兵对话
+function OldArmsDialog_Main(sysarg)
+	local str = ""
+	
+	str = Lang.Activity.a00007
+
+	str = str.."\\<#BL"..Lang.Activity.a00001.."/@EnterAremaSceen>"
+	str = str.."\\<#BL"..Lang.Activity.a00002.."/@GetAremaAward>"
+	str = str.."\\<#BL"..Lang.Activity.w00019.."/@GetArenaScoreRank>"
+	
+	return str
+end
+
+--勇士角斗场开始预告
+function ArenaStartNotice()
+	System.broadcastTipmsg(Lang.Activity.a00006,2+128)
+end
+
+--开始勇士角斗场
+function OnArenaStart()
+	local svar = System.getDyanmicVar()
+	if svar.ArenaStartFlag == nil then		--开始角斗场活动的标志
+		svar.ArenaStartFlag = 0
+	end
+	
+	svar.ArenaStartFlag = 1
+	System.broadcastTipmsg(Lang.Activity.a00009,2+128)
+
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	
+	local hScene = Fuben.getSceneHandleById(warriorArenaConfig.nSceenId, 0)
+	Fuben.setSceneTime(hScene,warriorArenaConfig.activityTime)
+
+	--GiveExpToActor()
+	Actor.regScriptCallback(thisNPC, thisNPC, warriorArenaConfig.RandScoreConfig.Start*60*1000, (warriorArenaConfig.RandScoreConfig.Period-1)*60*1000, -1, "RandScoreSystemTip");
+	Actor.regScriptCallback(thisNPC, thisNPC, warriorArenaConfig.RandScoreConfig.Start*60*1000, warriorArenaConfig.RandScoreConfig.Period*60*1000, -1, "RandScore");
+end
+
+--结束角斗场
+function OnArenaEnd()
+	Actor.unregScriptCallback(thisNPC, "GetArenaActorExp")
+	Actor.unregScriptCallback(thisNPC, "RandScoreSystemTip");
+	Actor.unregScriptCallback(thisNPC, "RandScore");
+	
+	local svar = System.getDyanmicVar()
+	svar.ArenaStartFlag = nil
+	svar.ArenaBossIndex = nil
+	
+	if svar.ArenaBossHandle and svar.ArenaBossHandle > 0 then
+		Fuben.clearMonster(svar.ArenaBossHandle, false)
+	end
+	svar.ArenaBossHandle = nil
+	svar.CallArenaBossFlag = nil
+
+	local playerList = LuaHelp.getSceneActorListById(warriorArenaConfig.nSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.closeActivityWind(player)
+
+				local avar = Actor.getDyanmicVar(player)
+				avar.InArenaSceen = nil
+				DelSuicideBomber(player); -- 清除自爆炸弹
+				local nPosX = System.getRandomNumber(warriorArenaConfig.ePosX[2]-warriorArenaConfig.ePosX[1])
+				nPosX = nPosX + warriorArenaConfig.ePosX[1]
+
+				local nPosY = System.getRandomNumber(warriorArenaConfig.ePosY[2]-warriorArenaConfig.ePosY[1])
+				nPosY = nPosY + warriorArenaConfig.ePosY[1]
+				
+				Actor.enterScene(player,warriorArenaConfig.exitSceenId,nPosX,nPosY)
+			end
+		end
+	end
+
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+	if ranking then
+		Ranking.save(ranking,ArenaRanking.ArenaScoreRanking)
+	end
+
+	System.broadcastTipmsg(Lang.Activity.a00011,2)
+end
+
+--召唤boss
+function CallArenaBoss()
+	NextCallArenaBoss()
+end
+
+--没隔5秒给玩家经验
+function GiveExpToActor()
+	--GetArenaActorExp()
+	Actor.regScriptCallback(thisNPC, thisNPC, warriorArenaConfig.loopTime, warriorArenaConfig.loopTime, -1, "GetArenaActorExp")
+end
+
+--积分排行榜初始化
+function ScoreRankInit()
+	local RankNameList = Ranking.getRanking(ArenaRanking.ArenaScoreName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(ArenaRanking.ArenaScoreName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,ArenaRanking.ArenaScoreRanking)
+			
+			if isLoad == false then
+				Ranking.addColumn(RankNameList,Lang.Activity.a00017)
+				Ranking.addColumn(RankNameList,Lang.Activity.w00022)
+			end
+		end
+	end
+end
+
+--保存积分排行榜
+function ScoreRankFinality()
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+	if ranking then
+		Ranking.save(ranking,ArenaRanking.ArenaScoreRanking)
+	end
+end
+
+--获得排名前几的玩家
+function GetArenaScoreRank(sysarg)
+	local str = ""
+	
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+	
+	local nRank = 0
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+
+		if nItem then
+			str = string.format(Lang.Activity.w00020,Ranking.getPoint(nItem))
+		else
+			str = string.format(Lang.Activity.w00020,0)
+		end
+
+		for i=0,9 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+			local str1 = ""
+			if pItem then
+				str1 = string.format(Lang.Activity.w00021,i+1,Ranking.getSub(pItem,1),Ranking.getPoint(pItem))
+			end
+			str = str..str1
+		end		
+	else
+		str = string.format(Lang.Activity.w00020,0)
+	end
+
+	return str
+end
+
+--保存世界文明度文件
+function SaveCultureToFile()
+	local ranking = Ranking.getRanking("WorldCulture")
+	if ranking then
+		local nItem = Ranking.getItemFromIndex(ranking,0)
+		if nItem then
+			--local strTemp = tonumber(Ranking.getSub(nItem,0))
+			--Ranking.setSub(nItem,0,tostring(strTemp))
+		end
+		--Ranking.save(ranking,"WorldCulture.txt")
+	end
+end
+
+table.insert(InitFnTable,ScoreRankInit)
+table.insert(MainFnTable, OldArmsDialog_Main)
+table.insert(FinaFnTable,ScoreRankFinality)
+
+

@@ -1,0 +1,81 @@
+﻿
+--#include "data\config\activityconfig\IceWorld\config.txt" once
+
+--#include "data\functions\Activity\Common\Consumes.txt" once --活动通用 消耗
+
+
+function IceWorldMain(sysarg)
+	local nFid = Actor.getFubenId(sysarg)
+	if nFid <= 0 then return "" end
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.iw0001.."/@AddDice>"  --<额外召唤1个骰子>
+	str = str.."\\<#BL"..Lang.Activity.iw0002.."/@AboutIceWorld>"  --<查看攻略>
+	return str
+end
+
+function AddDice(sysarg)
+	local config = IceWorldConfig
+	if not config then return end
+
+	local nFid = Actor.getFubenId(sysarg)
+	if nFid <= 0 then return end
+	
+	local hFuben = Actor.getFubenHandle(sysarg)
+	
+	local hScene = Actor.getSceneHandle(sysarg)
+	
+	local pFuben = Actor.getFubenPrt(sysarg)
+	local fdvar = Fuben.getDyanmicVar(pFuben)
+	
+	local buyDiceFlag = fdvar.buyDiceFlag
+	
+	if not buyDiceFlag then
+		Actor.sendTipmsg(sysarg, Lang.Activity.iw0003, ttFlyTip)
+		return 
+	end
+	
+	if buyDiceFlag == 10000 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.iw0004, ttFlyTip)
+		return 
+	end
+	
+	--print("buyDiceFlag:"..buyDiceFlag)
+	
+	local buyDiceFlag = tonumber(buyDiceFlag) + 1
+	
+	
+	local maxCall = table.getn(config.dice.call)
+	if buyDiceFlag > maxCall then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.iw0005, maxCall), ttFlyTip)
+		return 
+	end
+	
+	local consume = config.dice.call[buyDiceFlag] or config.dice.call[maxCall]
+	
+	local result = Consumes.SuccessCheck(sysarg, {consume}, 0, 0)
+	
+	if (result ~= successCheckResult.ok) then return end
+	
+	local result, isBind = Consumes.OnConsumes(sysarg, {consume}, 0, 0, 926, Lang.LogTips.l00187)
+	if (result ~= successCheckResult.ok) then return end
+	
+	fdvar.buyDiceFlag = buyDiceFlag
+	
+	local mCount = table.getn(config.dice.mid)
+	local rand = math.random(mCount)
+	local pos = consume.pos
+	if Fuben.createMonster(hScene, config.dice.mid[rand], pos.x, pos.y, config.dice.liveTime) then
+		Fuben.sendMsgToFb(hFuben, string.format(Lang.Activity.iw0006, Actor.getName(sysarg), rand), ttScreenCenter)
+	end
+end
+
+
+function AboutIceWorld(sysarg)
+	local str = Lang.Activity.iw0007
+
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<查看攻略>
+	return str
+end
+
+
+table.insert(MainFnTable, IceWorldMain)

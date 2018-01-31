@@ -1,0 +1,70 @@
+﻿--#include "data\config\activityconfig\WaKuang\WaKuangConfig.txt" once 
+ 
+ --进入挖矿地图
+ function WaKuangMap_Main(sysarg)
+   local Str = ""
+   -- Str = Str.."\\<#BL".."进入矿场".."/@EnterKuangChang>"  --<进入矿场地图>
+   return Str
+ end 
+
+--进入挖矿地图 
+ function EnterKuangChang(sysarg)
+   -- local Svar = Actor.getStaticVar(sysarg)
+   -- if not Svar.UseIntoWaKuangTime then
+   --    Svar.UseIntoWaKuangTime = 0
+   -- end
+   -- Svar.IntoWaKuangTime =  System.getCurrMiniTime()
+   -- local UseIntoWaKuangTime = Svar.UseIntoWaKuangTime
+   -- if UseIntoWaKuangTime >= WaKuangConfig.EveryDayTime then
+   --    Actor.sendTipmsg(sysarg, Lang.Activity.WaKuang001, 130)
+   --    return
+   -- end
+   -- local Tb = WaKuangConfig.SrcnScene
+   -- Actor.enterScene( sysarg , Tb.nSceneId, unpack(Tb.range)) 
+   -- local NpcPtr = System.getGlobalNpc()
+   -- Actor.unregScriptCallback(sysarg, "OnTaketoWaKuang")
+   -- Actor.regScriptCallback(sysarg, NpcPtr, (WaKuangConfig.EveryDayTime - UseIntoWaKuangTime)* 1000, 0, 1, "OnTaketoWaKuang")
+   -- local leftTime = WaKuangConfig.EveryDayTime - UseIntoWaKuangTime
+   -- --print("EnterKuangChang:"..leftTime)
+   -- Actor.initActivityWind(sysarg, Lang.Activity.WaKuang002, leftTime, Lang.Activity.WaKuang003)    
+ end 
+ 
+ --跨天处理
+ function ResetWaKuangData(sysarg)
+   -- local Svar = Actor.getStaticVar(sysarg)
+   -- Svar.UseIntoWaKuangTime = 0
+   -- Svar.IntoWaKuangTime =  System.getCurrMiniTime()
+   -- --print("ResetWaKuangData")
+   -- if Actor.getSceneId( sysarg) == WaKuangConfig.SrcnScene.nSceneId then 
+   --    local NpcPtr = System.getGlobalNpc()
+   --    Actor.unregScriptCallback(sysarg, "OnTaketoWaKuang")
+   --    Actor.regScriptCallback(sysarg, NpcPtr, WaKuangConfig.EveryDayTime* 1000, 0, 1, "OnTaketoWaKuang")
+   --    -- Actor.initActivityWind(sysarg, Lang.Activity.WaKuang002, WaKuangConfig.EveryDayTime, Lang.Activity.WaKuang003)
+   -- end
+ end 
+ 
+ --把玩家剔除挖矿地图 
+ function OnTaketoWaKuang(sysarg)
+   -- if Actor.getSceneId( sysarg) == WaKuangConfig.SrcnScene.nSceneId then 
+   --    local Tb = WaKuangConfig.TarScene
+   --    Actor.enterScene( sysarg , Tb.nSceneId, Tb.X, Tb.y)
+   --    Actor.closeActivityWind(sysarg)
+   -- end
+ end
+ 
+ --[[玩家主动出去挖矿地图
+OnPreExitSceneOpFuncList[WaKuangConfig.SrcnScene.nSceneId] = function(sysarg, args)
+   --print("OnPreExitSceneOpFuncListmmf")
+   local NpcPtr = System.getGlobalNpc()
+   Actor.unregScriptCallback(NpcPtr, "OnTaketoWaKuang")
+   local Svar = Actor.getStaticVar(sysarg)
+   if Svar.UseIntoWaKuangTime then
+      Svar.UseIntoWaKuangTime = 0
+   end
+   if not Svar.IntoWaKuangTime then
+      Svar.IntoWaKuangTime = 0
+   end
+   Svar.UseIntoWaKuangTime = Svar.UseIntoWaKuangTime + System.getCurrMiniTime() - Svar.IntoWaKuangTime --加十秒钟是想减少误差  
+ end]] 
+ 
+ --table.insert(MainFnTable,WaKuangMap_Main)

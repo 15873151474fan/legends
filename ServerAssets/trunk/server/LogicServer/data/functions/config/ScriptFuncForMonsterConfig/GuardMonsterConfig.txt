@@ -1,0 +1,31 @@
+﻿--lua script
+--护镖镖车（怪物）配置表
+-- 表项字段描述
+-- id: 镖车怪物ID
+-- x:  镖车目标点X坐标
+-- y:  镖车目标点Y坐标
+
+GuardMonsterConfig= {
+	-- 1~3暂无使用
+	-- id 表示镖车的ID，x、y为目标npc 所在坐标，awardcoin为奖励的银两数量，destsceneid为目标场景，destnpcname为目标NPC名称
+	[1]  = { id = 330, x =  72, y = 13, awardcoin =  2000, destsceneid = 41, destnpcname = Lang.EntityName.n00076 },
+	[2]  = { id = 331, x =  85, y = 28, awardcoin =  3000, destsceneid =  8, destnpcname = Lang.EntityName.n01000 },
+	[3]  = { id = 331, x =  67, y = 36, awardcoin =  4000, destsceneid = 18, destnpcname = Lang.EntityName.n00018 },
+
+	-- 4~6、12为30~39级
+	[4]  = { id = 331, x =  70, y = 25, awardcoin =  4000, destsceneid = 20, destnpcname = Lang.EntityName.n00077 },
+	[5]  = { id = 330, x =  45, y = 34, awardcoin =  3000, destsceneid = 15, destnpcname = Lang.EntityName.n00034 },
+	[6]  = { id = 331, x =  13, y = 43, awardcoin =  3500, destsceneid = 12, destnpcname = Lang.EntityName.n00028 },
+
+	-- 7~10为40~60级
+	[7]  = { id = 331, x =  90, y = 12, awardcoin =  5000, destsceneid = 37, destnpcname = Lang.EntityName.n00086 },
+	[8]  = { id = 332, x =  84, y = 30, awardcoin = 12000, destsceneid = 10, destnpcname = Lang.EntityName.n00052 },
+	[9]  = { id = 332, x = 123, y = 26, awardcoin =  9000, destsceneid = 50, destnpcname = Lang.EntityName.n00145 },
+	[10] = { id = 332, x =  51, y = 34, awardcoin =  8000, destsceneid =  6, destnpcname = Lang.EntityName.n00053 },
+
+	[11] = { id = 332, x =  17, y = 29, awardcoin = 12000, destsceneid = 23, destnpcname = Lang.EntityName.n01023 },
+
+	[12] = { id = 331, x =  94, y = 35, awardcoin =  4500, destsceneid =  1, destnpcname = Lang.EntityName.n00012 },
+	[13] = { id = 330, x =  46, y = 45, awardcoin =  1000, destsceneid = 41, destnpcname = Lang.EntityName.n00519 },
+
+}

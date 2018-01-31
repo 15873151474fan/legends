@@ -1,0 +1,10 @@
+
+--#include "data\functions\Systems\PaySalesSystem\GroupOn.txt" once
+
+MiscsImplement.OnGroupOnBuyItem = function( sysarg, msgid, packet )
+	local id = DataPack.readByte(packet)
+	OnGroupOnBuyItem(sysarg, id)
+end
+
+
+MiscsImplement.registerMsgHandler(75, MiscsImplement.OnGroupOnBuyItem)

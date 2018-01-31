@@ -1,0 +1,100 @@
+﻿--[[File:Rose_Main.txt]]
+--#include "RoseRanking.txt" once
+
+function Rose_Main( sysarg )
+	--print("Rose_Main");
+	local dlgStr = string.format("\\<#BL%s/@getWeekRankAward>", Lang.ScriptTips.c000083)
+	--print("System.getDaysSinceCombineServer() = " .. System.getDaysSinceCombineServer())
+	--print("Actor.getFubenId(sysarg) = " .. Actor.getFubenId(sysarg));
+	if System.getDaysSinceCombineServer() > 0 and Actor.getFubenId(sysarg) == 0 then
+		dlgStr = string.format("%s\\<#BL%s/@BuyRedRose>",  dlgStr, Lang.ScriptTips.c000020)
+		--dlgStr = string.format("%s\\<#BL%s/@BuyBlueRose>", dlgStr, Lang.ScriptTips.c000021)
+		--dlgStr = string.format("%s\\<#BL%s/@PickRedRose>", dlgStr, Lang.ScriptTips.c000022)
+		--dlgStr = string.format("%s\\<#BL%s/@PickBLueRose>", dlgStr, Lang.ScriptTips.c000023)
+	end 
+	return dlgStr
+end
+
+function getWeekRankAward( sysarg )
+	local grilName = ""
+	local boyName = ""
+	local sysVar = System.getStaticVar()
+	if sysVar.RoseWeekRank then
+		grilName = sysVar.RoseWeekRank[1] or ""
+		boyName = sysVar.RoseWeekRank[2] or ""
+	end
+	local dlgStr = string.format(Lang.ScriptTips.c000084, grilName, boyName)
+	local myName = Actor.getName(sysarg)
+	if myName == grilName or myName == boyName then
+		dlgStr = string.format("%s\\<#BL%s/@doGetWeekRankAward>", dlgStr, Lang.ScriptTips.fuben019)
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+
+--检查背包格子数是否够
+function roseCheckBagGrids( sysarg, cfgTab )
+	local count = 0
+	for k, v in ipairs( cfgTab ) do
+		if v.type == 0 then
+			count = count + Item.getAddItemNeedGridCount( sysarg, v.id, v.count, v.quality, v.strong)
+		end
+	end
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count),ttFlyTip )
+		return false
+	end
+	return true
+end
+
+function doGetWeekRankAward(sysarg)
+	local sysVar = System.getStaticVar()
+	if sysVar.RoseWeekRank then
+		local myName = Actor.getName(sysarg)
+		for idx, info in ipairs(RoseRankConfig.RankData) do
+			local topName = sysVar.RoseWeekRank[idx]
+			if topName and topName == myName then
+				if sysVar.RoseWeekRankFlag[idx] then
+					Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000086, ttFlyTip)
+					return
+				end
+				local awardTab = info.weekAward or {}
+				if roseCheckBagGrids(sysarg, awardTab) then
+					sysVar.RoseWeekRankFlag[idx] = 1
+					for k, v in ipairs(awardTab) do
+						if v.type > 0 then
+							Actor.giveAward(sysarg, v.type, v.id, v.count, 0, 0, 0, 0, 14, "doGetWeekRankAward")
+						else
+							Actor.addItem(sysarg, v.id, v.quality,v.strong, v.count, v.bind, 0, "doGetWeekRankAward", 14) 	
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function PickRedRose(sysarg)
+	local allRedRose = GetAllRose(sysarg, RedRose)
+	local pickRedRose = GetPickRose(sysarg,RedRose)
+	local dlgStr = string.format(Lang.ScriptTips.c000026, allRedRose, pickRedRose,  allRedRose - pickRedRose)
+	for k, pickNum in ipairs(GiveRoseConfig.PickRose) do
+		dlgStr = string.format("%s\\<#BL%s/@PickBindRose,%d,%d>", dlgStr, string.format(Lang.ScriptTips.c000028, pickNum), RedRose, pickNum)
+	end
+	dlgStr = dlgStr .. Lang.ScriptTips.back001
+	return dlgStr
+end
+
+function PickBLueRose( sysarg )
+	local allBlueRose = GetAllRose(sysarg,BlueRose)
+	local allPickRose = GetPickRose(sysarg,BlueRose)
+	local dlgStr = string.format(Lang.ScriptTips.c000027, allBlueRose, allPickRose,  allBlueRose - allPickRose)
+	for k, pickNum in ipairs(GiveRoseConfig.PickRose) do
+		dlgStr = string.format("%s\\<#BL%s/@PickBindRose,%d,%d>", dlgStr, string.format(Lang.ScriptTips.c000029, pickNum), BlueRose, pickNum)
+	end	
+	dlgStr = dlgStr .. Lang.ScriptTips.back001
+	return dlgStr
+end
+
+table.insert(MainFnTable, Rose_Main)

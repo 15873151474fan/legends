@@ -1,0 +1,46 @@
+--双击使用获得天赋点
+--lua script
+
+--#include "data\config\Talent\AddTalentValue.txt" once 
+function OnUseTalentValueItem(sysarg,itemidx,itemPtr,ItemTable)
+	if System.isCommonServer() == true then return end
+
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+
+	local nItemIndex = 0
+	for i=1,table.getn(TalentValueItem) do
+		if TalentValueItem[i].item_id == itemidx then
+			nItemIndex = i
+			break
+		end
+	end
+	
+	if nItemIndex <= 0 then
+		return
+	end
+	
+	if Actor.checkActorLevel(sysarg,TalentValueItem[nItemIndex].needLev,TalentValueItem[nItemIndex].needCircle) == true then
+		if Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use talent item",5) == 1 then
+			Actor.changeTalentValue(sysarg,TalentValueItem[nItemIndex].addTrough)
+			Actor.sendTipmsg( sysarg,string.format(Lang.Activity.cw0004,TalentValueItem[nItemIndex].addTrough),ttTipmsgWindow )
+			Actor.triggerQuestEvent(sysarg,41,itemidx,1)
+		end
+	else
+		Actor.sendTipmsg( sysarg,string.format(Lang.Activity.cw0003,TalentValueItem[nItemIndex].needCircle,TalentValueItem[nItemIndex].needLev),ttFlyTip )
+	end
+
+end
+
+--初始化
+function UseTalentValueItemInit(sysarg)
+	for i = 1,table.getn(TalentValueItem) do
+		local x = TalentValueItem[i]
+		GlobalItemFn[x.item_id] = { func = OnUseTalentValueItem, params = x }
+	end
+end
+
+table.insert(InitFnTable,UseTalentValueItemInit)
+

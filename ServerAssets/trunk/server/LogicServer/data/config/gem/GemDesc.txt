@@ -1,0 +1,27 @@
+﻿--宝物描述说明
+--#include "..\..\language\LangCode.txt"
+
+--祝福值说明 
+wishDesc = Lang.Gem.wishDesc,
+--炼化说明 
+upAbilityDesc = Lang.Gem.upAbilityDesc,
+--精粹说明
+upQualityDesc = Lang.Gem.upQualityDesc,
+--经验转化说明
+convertExpDesc = Lang.Gem.convertExpDesc,
+--宝物开光说明
+smithDesc = Lang.Gem.smithDesc,
+--宝物合成说明
+mixDesc = Lang.Gem.mixDesc,
+--命盘说明
+chartDesc = Lang.Gem.chartDesc,
+--等级提升
+upLevelDesc = Lang.Gem.GemDesc,
+--宝物提升路线
+promoteDesc = Lang.Gem.promoteDesc,
+--如何进阶宝物
+howToUpGradeDesc = Lang.Gem.howToUpGradeDesc,
+--如何提升等级
+howToUpLevelDesc = Lang.Gem.howToUpLevelDesc,
+--如何精粹品质 
+howToUpQualityDesc = Lang.Gem.howToUpQualityDesc,

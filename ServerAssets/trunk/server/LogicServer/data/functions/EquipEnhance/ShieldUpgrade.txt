@@ -1,0 +1,185 @@
+
+--#include "data\config\item\itemEnhance\ShieldUpgrade.txt" once
+
+--护盾升级
+MiscsImplement.ShieldUpgrade = function (sysarg, msgid, packet)
+	--print("ShieldUpgrade")
+	local config = ShieldUpgrade
+	
+	if not config then return end
+	
+	if Actor.isDealing(sysarg) then
+		return
+	end
+	
+	local nItemCount = DataPack.readByte(packet)
+	
+	--print(nItemCount)
+	if nItemCount == 0 then
+		SendShieldResult(sysarg,1)
+		return
+	end
+	
+	
+	local pEquip = Item.getEquipByType(sysarg, Item.itShield)
+	if not pEquip then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.su00001, ttFlyTip)
+		SendShieldResult(sysarg,1)
+		return
+	end
+	
+	local nEquipId = Item.getItemProperty(sysarg, pEquip, Item.ipItemID, 0)
+	local nGroup, nLevel = GetShieldLevel(config, nEquipId)
+	
+	if nGroup == 0 or nLevel == 0 then return end
+	
+	local nMaxExp = config.levels.exps[nGroup][nLevel]
+	local nMaxLevel = table.getn(config.levels.items[nGroup])
+	if nLevel >= nMaxLevel or not nMaxExp or nMaxExp == 0 then 
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.su00002, ttFlyTip)
+		SendShieldResult(sysarg,1)
+		return
+	end
+	
+	local nPoints = 0
+	for i = 1, nItemCount do
+		local nGuid = DataPack.readUint64(packet)
+		local count = DataPack.readByte(packet)
+		--print(nGuid)
+		if count > 0 then
+			local pItem = Item.getBagItemPtrByGuid(sysarg, nGuid)
+			if pItem then
+				local nItemId = Item.getItemProperty(sysarg, pItem, Item.ipItemID, 0)
+				local nPoint = GetShieldPoint(config, nItemId)
+				if nPoint > 0 then
+					local nQuality = Item.getItemProperty(sysarg, pItem, Item.ipItemQuality, 0)
+					local itemCount = Item.getItemProperty(sysarg, pItem, Item.ipItemCount, 0)
+					if nQuality >= 0 then
+						--nPoint = nPoint * (nQuality * 2)
+						nPoint = nPoint * math.pow(2, nQuality) * count
+					end
+					if count > 0 and count == itemCount then
+						if Actor.removeItemByPtr(sysarg, pItem, count, true, Lang.LogTips.l00191, 935) > 0 then
+							nPoints = nPoints + nPoint
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	if nPoints > 0 then
+		local nNowExp = Item.getItemProperty(sysarg, pEquip, Item.ipItemHole1Item, 0)
+		if nLevel >= 14 or nNowExp >= 32767 then
+			local tempExp = Item.getItemProperty(sysarg, pEquip, Item.ipItemHole2Item, 0)
+			nNowExp = nNowExp + tempExp
+		end
+		
+		local nChgLevel = nLevel
+		local nChgExp = 0
+		nChgExp = nNowExp + nPoints
+		for i = nLevel, nMaxLevel do
+			if nChgExp >= nMaxExp then
+				nChgExp = nChgExp - nMaxExp
+				nChgLevel = nChgLevel + 1
+				if nChgLevel >= nMaxLevel then
+					nChgLevel = nMaxLevel
+					nChgExp = 0
+					break
+				end
+				nMaxExp = config.levels.exps[nGroup][nChgLevel]
+			else
+				break
+			end
+		end
+
+		if nChgLevel ~= nLevel then
+			--print("nChgLevel:"..nChgLevel)
+			local nQuality = Item.getItemProperty(sysarg, pEquip, Item.ipItemQuality, 0)
+			local nStrong = Item.getItemProperty(sysarg, pEquip, Item.ipItemStrong, 0)
+			local nBind = Item.getItemProperty(sysarg, pEquip, Item.ipItemBind, 0)
+			local nLeftTime = Item.getItemProperty(sysarg, pEquip, Item.ipItemExpiredTime, 0)
+			local initSmith = Item.getItemProperty(sysarg, pEquip, Item.ipItemSpecSmith, 0)
+			local nInsure = Item.getItemProperty( sysarg, pEquip, Item.ipItemHole3Item, 0 )	--投保次数
+			local nLuck = Item.getItemProperty(sysarg, pEquip, Item.ipItemLuck, 0)
+			local nDura = Item.getItemProperty(sysarg, pEquip, Item.ipItemDuraAndMax, 0)
+			
+			local nChgItem = config.levels.items[nGroup][nChgLevel]
+			--print(nChgItem)
+			if Item.removeEquip(sysarg, pEquip, Lang.LogTips.l00192, 935, false) > 0 then
+				local pNewEquip = Item.createItem(nChgItem, 1, nStrong, nQuality, nBind, nLeftTime)
+				--print(pNewEquip)
+				if pNewEquip then
+					Item.addItem(sysarg, pNewEquip, Lang.LogTips.l00192, 935)
+					if initSmith > 0 then
+						Item.setItemProperty(sysarg, pNewEquip, Item.ipItemSpecSmith, initSmith)
+					end
+					local nInsureCount = Item.getItemPropertyById(nChgItem, Item.ipItemInsure) --投保金额 >0可投保
+					if nInsureCount > 0 then
+						if Item.setItemProperty(sysarg, pNewEquip, Item.ipItemHole3Item, nInsure) then
+						end
+					end
+					
+					if nLuck > 0 then
+						Item.setItemProperty( sysarg, pNewEquip, Item.ipItemLuck, nLuck)
+					end
+					
+					Item.setItemProperty( sysarg, pNewEquip, Item.ipItemDuraAndMax, nDura)
+					
+					Item.equipItem(sysarg, pNewEquip, 0)
+					
+					pEquip = pNewEquip
+				end
+				
+			end
+		end
+		--print(nChgExp)
+		if pEquip then
+			if nChgExp > 32767 then 
+				Item.setItemProperty(sysarg, pEquip, Item.ipItemHole1Item, 32767)
+				Item.setItemProperty(sysarg, pEquip, Item.ipItemHole2Item, nChgExp - 32767)
+			else
+				Item.setItemProperty(sysarg, pEquip, Item.ipItemHole1Item, nChgExp)
+			end
+		end
+		
+		SendShieldResult(sysarg, 0)
+		return
+	end
+
+	SendShieldResult(sysarg, 1)
+end
+
+function GetShieldPoint(config, nItemId)
+	for k, v in ipairs(config.exps) do
+		for m, n in ipairs(v.items) do
+			if nItemId == n then 
+				return v.point
+			end
+		end
+	end
+	return -1
+end
+
+function GetShieldLevel(config, nItemId)
+	for k, v in ipairs(config.levels.items) do
+		for m, n in ipairs(v) do
+			if nItemId == n then 
+				return k, m
+			end
+		end
+	end
+	return 0, 0
+end
+
+function SendShieldResult(sysarg,result)
+	local npack = DataPack.allocPacket(sysarg, 139, 75)
+	--print(npack)
+	if not npack then return end
+	--print("result:"..result)
+	DataPack.writeByte(npack, result)
+	DataPack.flush(npack)
+	
+end
+
+MiscsImplement.registerMsgHandler(79, MiscsImplement.ShieldUpgrade)

@@ -1,0 +1,65 @@
+﻿{
+	id = 1888,
+	name = Lang.Quest.q03816,
+	parentid = 1451,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q03817,
+
+	prom =
+  {
+    type = 0,
+	scene = Lang.SceneName.s00036,
+	npc = Lang.EntityName.n00168,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00049,
+	npc = Lang.EntityName.n00143,
+  },
+
+  target =
+  {
+
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 46250,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 365,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 12, id = 0,count = 16 }, 
+    --{ type = 0, id = 214, count = 1, group = 0, strong= 0, quality= 2,  bind = true, job = 2, sex = -1},
+    --{ type = 0, id = 225, count = 1, group = 0, strong= 0, quality= 2,  bind = true, job = 4, sex = -1},
+    --{ type = 0, id = 182, count = 1, group = 0, strong= 0, quality= 2,  bind = true, job = 5, sex = -1},
+    --{ type = 0, id = 203, count = 1, group = 0, strong= 0, quality= 2,  bind = true, job = 7, sex = -1},
+    --{ type = 0, id = 192, count = 1, group = 0, strong= 0, quality= 2,  bind = true, job = 8, sex = -1},
+},
+  --任务条件表
+  conds =
+  {
+
+    { type = 0, id = 0,count = 40 },  --1级可接
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t05718,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t05719,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t05720,
+  }, 
+
+   PromCallBack =  "OnPromTelport",
+	PromCallBackArg = {Lang.SceneName.s00049,46,29}, 
+},

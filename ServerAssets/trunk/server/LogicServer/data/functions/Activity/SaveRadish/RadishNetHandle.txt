@@ -1,0 +1,149 @@
+﻿--lua script
+--#include "RadishCommon.txt" once
+
+function TipsTest( sysarg, str )
+	Actor.sendTipmsg(sysarg, str, ttFlyTip) 
+end
+
+function BuildTower( sysarg, packet )
+	local fubenId = Actor.getFubenId(sysarg)
+
+	-- 不是该副本不能创建
+	if fubenId ~= RadishConfig.fubenId then
+		return
+	end 
+
+	-- 守卫物品id
+	local monsterId = DataPack.readUInt(packet) 
+	local itemId = DataPack.readUInt(packet)
+	local posX = DataPack.readUInt(packet)
+	local posY = DataPack.readUInt(packet)
+	
+	local isSuess = createTowerHandle(sysarg, monsterId, itemId, posX, posY)
+end
+
+-- 建塔
+function createTowerHandle(sysarg, monsterId, itemId, posX, posY)
+	-- 检查是否有该物品
+	local IteamData = RadishConfig.ItemData[monsterId]
+	if not IteamData then
+		TipsTest( sysarg, "数据错误 monsterId " .. monsterId )
+		return
+	end
+
+	local towerItem = nil
+	for i,id in ipairs(IteamData) do
+		towerItem = Item.getBagItemPtrById(sysarg, id)
+		if towerItem then
+			break
+		end
+	end
+	
+	if not towerItem then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.tafang0001, Item.getItemName(itemId)), ttFlyTip) 
+		return 0
+	end
+
+	--获取玩家位置
+	local keyXY = getTowerXY(posX, posY)
+	local allTowerData = getActorTowerData(sysarg) -- 获取总的数据
+
+	if #allTowerData >= RadishConfig.towersMax then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.w00134, #allTowerData), ttFlyTip) 
+		return 0
+	end
+
+	local tower = getTower(allTowerData, keyXY, nil)
+	if tower and tower.iDeath == 0 then -- 该位置已经有守卫了
+		Actor.sendTipmsg(sysarg, Lang.LogTips.tafang0002, ttFlyTip) 
+		return 0
+	end
+
+	-- 生成守卫
+	local monsterPtr = Actor.createMonster(sysarg, monsterId, posX, posY, RadishConfig.towers[monsterId].nLiveTime, true)
+	local hMonster = Actor.getHandle(monsterPtr)
+
+	tower = setTowerData(tower, hMonster, monsterId, itemId, keyXY)
+	
+	allTowerData[#allTowerData+1] = tower
+
+	Item.removeItem(sysarg, towerItem, 1, Lang.LogTips.tafang0001, 61) --删除该物品
+	Actor.sendTipmsg(sysarg, Lang.Activity.w00135, ttFlyTip) -- 建塔成功 标题待定
+
+	local TafangData = GetTafangData( sysarg )
+	ChangeFubenProgress( sysarg, TafangData.appearTimes, RadishConfig.towersMax )
+	return 1
+end
+
+-- 塔升级
+function updateTowerHandle( sysarg, monsterId, hMonster, flag )
+	local allTowerData = getActorTowerData(sysarg)
+	local tower = getTower(allTowerData, nil, hMonster)
+
+	-- 升级错误
+	if not tower then 
+		TipsTest(sysarg, "升级错误,该位置没有塔数据or hMonster出错")
+		return 0
+	end
+
+  	local LvData = RadishConfig.towers[monsterId].nLvData
+
+  	-- 已经是最高级了
+  	if tower.lv >= #LvData then 
+  		Actor.sendTipmsg(sysarg, Lang.Activity.w00138, ttFlyTip)
+  		return 0
+  	end
+  	
+  	-- 是否含有该道具
+  	local towerItem = Item.getBagItemPtrById(sysarg, tower.itemId)
+	if towerItem == nil then 
+		TipsTest(sysarg, "背包没有道具:" .. tower.itemId)
+		return 0
+	end
+
+	tower.lv = tower.lv + 1
+	local monsterPtr = Actor.getEntity(hMonster)
+	Actor.setMonsterProperty(monsterPtr, PROP_CREATURE_LEVEL, tower.lv)
+	-- Actor.changeActivityProgress(sysarg, -2, actorVar.nSoul, -2, -2)
+	return 1
+end
+
+function UpdateTower(sysarg, packet)
+	local fubenId = Actor.getFubenId(sysarg)
+	if fubenId ~= RadishConfig.fubenId then return end
+
+	local monsterId = DataPack.readUInt(packet)
+	local hMonster = DataPack.readInt64(packet)
+	local flag = DataPack.readByte(packet)
+
+	local status = updateTowerHandle(sysarg, monsterId, hMonster, flag)	
+		
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 20)
+	DataPack.writeChar(pack, status)
+	DataPack.flush(pack) 
+end
+
+function RemoveTower(sysarg, packet)
+	local fubenId = Actor.getFubenId(sysarg)
+	if fubenId ~= RadishConfig.fubenId then
+		return
+	end
+	
+	local hMonster = DataPack.readInt64(packet)
+
+	local allTowerData = getActorTowerData(sysarg)
+	local tower = getTower(allTowerData, nil, hMonster)
+
+	if not tower then 
+		TipsTest(sysarg, "数据出错没有 hMonster")
+		return
+	end
+
+	Fuben.clearMonster(hMonster)
+	DelTower(allTowerData, tower)
+
+	local pack = DataPack.allocPacket(sysarg, 145, 21)
+	DataPack.writeChar(pack, 0)
+	DataPack.flush(pack)  
+end

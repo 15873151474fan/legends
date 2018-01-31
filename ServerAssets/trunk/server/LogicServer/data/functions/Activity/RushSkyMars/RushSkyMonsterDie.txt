@@ -1,0 +1,25 @@
+--lua script
+
+--#include "data\config\activityconfig\RushSkyMars\RushSkyMarsConfig.txt" once
+--#include "RushSkyCommon.txt" once
+
+--π÷ŒÔÀ¿Õˆ¥¶¿Ì
+function OnRushSkyMonsterDie(monster,sysarg,monId)
+	if CheckAllMonsterDie(sysarg) == true then
+		UpdateRushSkyRank(sysarg)
+	end
+end
+
+MonDieDispatcher.RushSkyMonsterDie = function (monster,sysarg,monId) 
+	OnRushSkyMonsterDie( monster,sysarg,monId )
+end
+
+for idx, passConfig in ipairs(RushSkyMarsConfig.passLists) do
+	local monstersTabConfig = passConfig.monsters
+	for index, monsterListInfo in ipairs(monstersTabConfig) do 
+		for i, monsterInfo in ipairs(monsterListInfo) do 
+			--MonDieDispatcher.register(monsterInfo.id, MonDieDispatcher.RushSkyMonsterDie)
+		end
+	end
+end
+

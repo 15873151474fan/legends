@@ -1,0 +1,47 @@
+SessionServer =
+{
+	--服务器名称
+	ServerName = "会话服务器",
+	SPID = "wyi",
+	spguid = 0,
+	fcmOpen=true,
+	checksign=0,
+	autoaccount=1,  --not create account
+	
+	--网关服务绑定地址和端口 --这个暂时不知道有啥用 李昀 
+	GateService = 
+	{ 
+		Address = "0.0.0.0", 
+		Port = 21000 
+	},
+
+	--会话服务绑定地址和端口 -- LogicServer 连接的地址
+	SessionService = 
+	{ 
+		Address = "0.0.0.0", 
+		Port = 31000 
+	},
+
+	--日志服务器地址和端口
+	LogServer = 
+	{
+		Host = "localhost", 
+		Port = 34000
+	},
+	
+	-- AMServer
+	AMServer = {
+		Host = "127.0.0.1", 
+		Port = 5660
+	},
+
+	--数据库连接配置
+	SQL = 
+	{ 
+		Host = "127.0.0.1", 	
+		Port = 3306, 
+		DBName = "cq_account", 
+		DBUser = "root", 
+		DBPass = "JKX4NYMiCCMGrNBd+r1Jpg==" 
+	} --123456abc
+}

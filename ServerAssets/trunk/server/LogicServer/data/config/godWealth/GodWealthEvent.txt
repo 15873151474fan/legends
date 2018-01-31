@@ -1,0 +1,188 @@
+--财神事件
+
+--财神馈赠 
+{
+	id = 1,									--事件id
+	icon = 1,								--事件的图标
+
+	name = Lang.Activity.cd0001,			--事件名称
+	des = Lang.Activity.cds0001,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--财神福袋
+{
+	id = 2,									--事件id
+	icon = 2,								--事件的图标
+
+	name = Lang.Activity.cd0002,			--事件名称
+	des = Lang.Activity.cds0002,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--天罡霸体
+{
+	id = 3,									--事件id
+	icon = 3,								--事件的图标
+
+	name = Lang.Activity.cd0003,			--事件名称
+	des = Lang.Activity.cds0003,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--财神到
+{
+	id = 4,									--事件id
+	icon = 4,								--事件的图标
+
+	name = Lang.Activity.cd0004,			--事件名称
+	des = Lang.Activity.cds0004,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--财神拦路
+{
+	id = 5,									--事件id
+	icon = 5,								--事件的图标
+
+	name = Lang.Activity.cd0005,			--事件名称
+	des = Lang.Activity.cds0005,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--筋斗云
+{
+	id = 6,									--事件id
+	icon = 6,								--事件的图标
+
+	name = Lang.Activity.cd0006,			--事件名称
+	des = Lang.Activity.cds0006,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--财神宝藏
+{
+	id = 7,									--事件id
+	icon = 7,								--事件的图标
+
+	name = Lang.Activity.cd0007,			--事件名称
+	des = Lang.Activity.cds0007,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--打道回府
+{
+	id = 8,									--事件id
+	icon = 8,								--事件的图标
+
+	name = Lang.Activity.cd0008,			--事件名称
+	des = Lang.Activity.cds0008,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--财神任务
+{
+	id = 9,									--事件id
+	icon = 9,								--事件的图标
+
+	name = Lang.Activity.cd0009,			--事件名称
+	des = Lang.Activity.cds0009,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--天降元宝
+{
+	id = 10,									--事件id
+	icon = 10,								--事件的图标
+
+	name = Lang.Activity.cd0010,			--事件名称
+	des = Lang.Activity.cds0010,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},
+
+--翻天覆地
+{
+	id = 11,									--事件id
+	icon = 11,								--事件的图标
+
+	name = Lang.Activity.cd0011,			--事件名称
+	des = Lang.Activity.cds0011,				--事件说明
+
+	eventObject = Lang.Activity.cs0002,		--事件目标
+
+	--事件奖励
+	awards = 
+	{
+		{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+	},
+},

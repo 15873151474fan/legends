@@ -1,0 +1,180 @@
+﻿--都郡城
+{
+	scenceid = 4,
+	scencename = Lang.SceneName.s00004,
+	mapfilename = "4Dujuncheng",
+	minlevel = 30,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "dujuncheng.mp3",
+	musicInterval = 5,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 488,
+	sceneHeight = 408,
+	posx = 30,
+	posy = 152,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00004, range = {10,10,20,20,30,25}, center = { 99,167},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+					{ type = 76, value = {51,70} },
+					{ type = 40, value = {} },
+					{ type = 36, value = {30} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {5,170,81,97,152,167,80,240}, center = { 95,167},
+             attri = {
+                     { type = 76, value = {63,39} },
+                     } 
+        },
+		{ name = Lang.SceneName.s00004, range = {4,8,240,8,240,400,4,400}, center = { 95,167},
+			attri = {
+					{ type = 87, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {84,154,106,154,106,176,84,176}, center = { 94,166},
+			attri = {
+					{ type = 1, value = {} },
+					{ type = 39, value = {} },
+					{ type = 46, value = {} },
+					{ type = 83, value = {} },
+					{ type = 60, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {69,163,79,163,79,173,69,173}, center = { 74,168},
+			attri = {
+					{ type = 20, value = {} },
+					{ type = 19, value = {} },
+					{ type = 40, value = {} },
+					{ type = 83, value = {} },
+					{ type = 44, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {331,93,405,166,328,235,256,166}, center = { 94,166},
+			attri = {
+					{ type = 29, value = {} },
+					{ type = 33, value = {56,57,58} },
+					{ type = 44, value = {} },
+					{ type = 79, value = {1} },
+					{ type = 20, value = {} },
+					{ type = 21, value = {} },
+					{ type = 6, value = {4} },
+					{ type = 23, value = {1,2,3,4} },
+					{ type = 30, value = {1,2,3,4} },
+					{ type = 34, value = {613,619,629,631} },
+					{ type = 40, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {307,142,311,138,314,140,309,145}, center = { 310,141},
+			attri = {
+					{ type = 82, value = {} },
+					{ type = 79, value = {1} },
+					{ type = 20, value = {} },
+					{ type = 23, value = {1,2,3,4} },
+					{ type = 30, value = {1,2,3,4} },
+					{ type = 21, value = {} },
+				},
+		},--玛沙克城区域 
+		{ name = Lang.SceneName.s00004, range = {51,153,61,144,66,147,56,157}, center = { 121,224},
+			attri = {
+					{ type = 80, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {67,132,80,120,84,123,70,136}, center = { 78,127},
+			attri = {
+					{ type = 80, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {104,145,110,150,107,155,101,149}, center = { 105,149},
+			attri = {
+					{ type = 80, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {158,124,188,136,165,160,146,136}, center = { 105,149},
+			attri = {
+					{ type = 80, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {83,125,79,130,85,136,89,131}, center = { 84,130},
+			attri = {
+					{ type = 80, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {69,163,79,163,79,173,69,173}, center = { 99,167},
+			attri = {
+					{ type = 104, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {100,233,145,234,141,276,104,273}, center = { 99,167},
+			attri = {
+					{ type = 104, value = {} },
+				},
+		},
+		{ name = Lang.SceneName.s00004, range = {79,171,88,171,88,183,79,183}, center = { 99,167},
+			attri = {
+					{ type = 104, value = {} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh4.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00030, posx = 119, posy = 164, script = "data/NPC/7Dujuncheng/wanshitong_1.txt", modelid = 264,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00010, posx = 85, posy = 129, script = "data/NPC/0Tongyong/fuzhuangdianzhangGui_2.txt", modelid = 94,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00009, posx = 105, posy = 151, script = "data/NPC/0Tongyong/tiejiang_1.txt", modelid = 340,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00011, posx = 75, posy = 132, script = "data/NPC/0Tongyong/shoushidianzhanggui_3.txt", modelid = 370,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00015, posx = 79, posy = 155, script = "data/NPC/0Tongyong/yaodianzhanggui_7.txt", modelid = 316,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00014, posx = 56, posy = 152, script = "data/NPC/0Tongyong/zahuoshang_6.txt", modelid = 219,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00012, posx = 162, posy = 134, script = "data/NPC/0Tongyong/shudianzhanggui_4.txt", modelid = 329,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00013, posx = 62, posy = 199, script = "data/NPC/0Tongyong/cangkuguanliyuan_5.txt", modelid = 120,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00084, title = Lang.NpcTitle.n00007, posx = 83, posy = 177, script = "data/NPC/7Dujuncheng/chengzhudiaoxiang.txt", modelid = 399,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00054, title = Lang.NpcTitle.n00008, posx = 107, posy = 168, script = "data/NPC/7Dujuncheng/baixiaosheng.txt", modelid = 291,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00050, title = Lang.NpcTitle.n00009, posx = 94, posy = 152, script = "data/NPC/7Dujuncheng/shenggongshouwei.txt", modelid = 386,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00056, posx = 95, posy = 163, script = "data/NPC/0Tongyong/chuansongshi_8.txt", modelid = 231,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00049, title = Lang.NpcTitle.n00010, posx = 100, posy = 152, script = "data/NPC/7Dujuncheng/saimachangzhiyinren.txt", modelid = 275,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00063, posx = 74, posy = 168, script = "data/NPC/7Dujuncheng/dujunshenghuo.txt", modelid = 397,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00065, title = Lang.NpcTitle.n00011, posx = 92, posy = 177, script = "data/NPC/7Dujuncheng/moyushizhe.txt", modelid = 266,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00071, posx = 398, posy = 237, script = "data/NPC/7Dujuncheng/Gongchengshizhe.txt", modelid = 233,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00078, title = Lang.NpcTitle.n00012, posx = 107, posy = 159, script = "data/NPC/7Dujuncheng/qingbaoyuan.txt", modelid = 387,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00097, title = Lang.NpcTitle.n00013, posx = 99, posy = 177, script = "data/NPC/7Dujuncheng/baozhenduo.txt", modelid = 291,icon = 12,funcId = 0, classId = 3 },
+		{ name = Lang.EntityName.n00098, title = Lang.NpcTitle.n00014, posx = 107, posy = 177, script = "data/NPC/7Dujuncheng/gongbaozang.txt", modelid = 370,icon = 12,funcId = 0, classId = 3 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 66, posy = 315, toSceneid = 2, toPosx = 329, toPosy =  364, modelid = 50000, name = Lang.SceneName.s00002, dist = 1, mapHide = false },  --都郡城→万安城
+		{ posx = 309, posy = 139, toSceneid = 5, toPosx = 31, toPosy =  29, modelid = 30000, name = Lang.SceneName.s50000, passid = 1, dist = 1, mapHide = true },  --都郡城→皇宫正门
+		{ posx = 282, posy = 149, toSceneid = 29, toPosx = 62, toPosy =  44, modelid = 50000, name = Lang.SceneName.s00029, dist = 1, mapHide = false },  --都郡城→密道
+		{ posx = 355, posy = 124, toSceneid = 29, toPosx = 65, toPosy =  165, modelid = 50000, name = Lang.SceneName.s00029, dist = 1, mapHide = false },  --都郡城→密道
+		{ posx = 430, posy = 71, toSceneid = 14, toPosx = 63, toPosy =  39, modelid = 50000, name = Lang.SceneName.s00014, dist = 1, mapHide = false },  --都郡城→黑石庙
+		{ posx = 425, posy = 340, toSceneid = 17, toPosx = 175, toPosy =  75, modelid = 50000, name = Lang.SceneName.s00017, dist = 1, mapHide = false },  --都郡城→伏魔寺庙
+		{ posx = 288, posy = 361, toSceneid = 20, toPosx = 165, toPosy =  47, modelid = 50000, name = Lang.SceneName.s00020, dist = 1, mapHide = false },  --都郡城→炎龙地
+		{ posx = 200, posy = 91, toSceneid = 24, toPosx = 213, toPosy =  258, modelid = 50000, name = Lang.SceneName.s00024, dist = 1, mapHide = false },  --都郡城→降魔峡谷
+		{ posx = 300, posy = 144, toSceneid = 5, toPosx = 26, toPosy =  36, modelid = 81000, name = Lang.SceneName.s50001, dist = 1, mapHide = true },  --都郡城→皇宫左城墙
+		{ posx = 304, posy = 144, toSceneid = 5, toPosx = 28, toPosy =  35, modelid = 81100, name = Lang.SceneName.s50002, dist = 1, mapHide = true },  --都郡城→皇宫中城墙
+		{ posx = 314, posy = 134, toSceneid = 5, toPosx = 36, toPosy =  27, modelid = 81200, name = Lang.SceneName.s50003, dist = 1, mapHide = true },  --都郡城→皇宫右城墙
+	},
+
+	landscape = 
+	{
+	--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{ posx1 = 84, posy1 = 154, posx2 = 106, posy2 = 176, modelid = 102, xinterval = 2, yinterval = 2 },
+
+	},
+},

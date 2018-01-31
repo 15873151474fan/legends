@@ -1,0 +1,261 @@
+﻿--九天冰宫 土城：冰宫使者
+--#include "data\config\activityconfig\HeavenAndHell\Heaven.txt" once	--
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+HeavenNotify = 
+{
+	Lang.Activity.t00213,
+	Lang.Activity.t00214,
+	Lang.Activity.t00215,
+	Lang.Activity.te0005,	
+}
+
+--[[
+SuitNotice =
+{
+	"\\<(c0xFF00FF00)需要神韵：天枢神韵、天璇神韵、天玑神韵、天权神韵、玉衡神韵、开阳神韵、摇光神韵>",
+	"\\<(c0xFF00FF00)需要神韵：闪灵神韵、血灵神韵、剑灵神韵、魔灵神韵、变灵神韵、动灵神韵>",
+	"\\<(c0xFF00FF00)需要神韵：东方持国天王神韵、南方增长天王神韵、西方广目天王神韵、北方多闻天王神韵>",
+	"\\<(c0xFF00FF00)需要玉玺：冰霜巫王玉玺、冰霜武后玉玺>",
+}
+--]]
+
+SuitNeed =
+{
+	Lang.Activity.t00225,
+	Lang.Activity.t00226,
+	Lang.Activity.t00227,
+	Lang.Activity.te0002,
+}
+
+
+
+--[[
+    函数名称：传送
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function Heaven_Main(sysarg)	
+	
+	
+	local config = HeavenConfig
+	if (not config) then return "" end
+	local str = ""
+	local floors = config.Floors
+	local findex = GetFloorIndex(sysarg, floors)
+	--print("Heaven_Main:"..findex)
+	if findex == 0 then
+		str = str.."\\<#BL"..Lang.Activity.t00200.."/@EnterHeaven, 1, 0>"  --<进入九天冰宫>
+		--str = str.."\\<#BL"..Lang.Activity.a00031.."/@AboutHeaven>"  --<详情>
+	--elseif (Actor.hasBuff(sysarg, config.buff.buffType, config.buff.groupId) == true) then
+	elseif findex == 1 then 
+		--if floors[findex-1] and findex ~=#HeavenConfig.Floors then
+			--local sName = Fuben.getSceneNameById(floors[findex-1].sid)
+			--str = str.."\\<#BL"..string.format(Lang.Activity.t00201, sName).."/@TelportHeaven, "..(findex-1)..">"  --<进入九天冰宫>
+		--end
+		if floors[findex+1] and findex ~= #HeavenConfig.Floors then
+			local sName = Fuben.getSceneNameById(floors[findex+1].sid)
+			str = str.."\\<#BL"..string.format(Lang.Activity.t00201, sName).."/@EnterHeaven, "..(findex+1)..","..findex..">"  --<进入九天冰宫>
+		end
+		str = str.."\\<#BL"..Lang.Activity.t00202.."/@AskExitHeavenMap>"  --<回到土城>
+	else
+		str = str.."\\<#BL"..Lang.Activity.t00202.."/@AskExitHeavenMap>"  --<回到土城>
+	end
+	
+	--str = str.."\\<#BL"..Lang.Activity.t00229a.."/@BuyBuffOnEnter>"  --<购买buff>
+	str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<离开>
+	return str
+end
+
+function BuyBuffOnEnter(sysarg)
+   local noticeStr = string.format(Lang.Activity.t00229d, HeavenConfig.BuyBuffGold)
+   local ensureStr = string.format("%s/BuyBuff", Lang.Activity.t00229e)
+   local canelFunc = string.format("%s/Cancel", Lang.Activity.t00229f)
+   Actor.messageBox(sysarg, Actor.getHandle(thisNPC),0, noticeStr, ensureStr, canelFunc,NULL)
+end
+
+function BuyBuff(sysarg)
+  if Actor.changeMoney(sysarg, mtYuanbao, -HeavenConfig.BuyBuffGold, 10002, Lang.Activity.t00216) ~= true then  
+     Actor.sendTipmsg(sysarg, Lang.Activity.t00229b, ttFlyTip)  
+ 	 return
+  end
+  local buff = HeavenConfig.buff
+  Actor.addBuff( sysarg, buff.buffType, buff.groupId, buff.value, buff.times, buff.interval, buff.buffName, buff.timeOverlay)
+  Actor.sendTipmsg(sysarg, Lang.Activity.t00229c, ttFlyTip)
+  local floors = HeavenConfig.Floors
+  local findex = GetFloorIndex(sysarg, floors)
+  --print("BuyBuff:"..findex)
+  if findex > 0 then
+	 local floor = floors[findex]
+	 local sceneName = Fuben.getSceneNameById(floor.sid)
+     local mapTime = Actor.getBuffRemainTime(sysarg, buff.buffType, buff.groupId) 
+     Actor.initActivityWind(sysarg, sceneName, mapTime, HeavenNotify[findex])
+  end
+  System.broadcastTipmsg(string.format(Lang.Activity.t00229h, Actor.getName(sysarg), HeavenConfig.BuyBuffGold), 130)
+end
+
+--获取当前楼层索引
+function GetFloorIndex(sysarg, floors)
+	local sid = Actor.getSceneId(sysarg)
+	for k, v in ipairs(floors) do
+		if sid == v.sid then
+			return k
+		end
+	end
+	return 0
+end
+
+
+--直接传送 不检测
+function TelportHeaven(sysarg, findex)
+	local findex = tonumber(findex)
+	local config = HeavenConfig
+	local floor = config.Floors[findex]
+	if not floor then return end
+	if Actor.enterScene(sysarg, floor.sid, floor.x, floor.y, 3, 3) == true then
+		local buff = config.buff
+		local sceneName = Fuben.getSceneNameById(floor.sid)
+		--local mapTime = Actor.getBuffRemainTime(sysarg, buff.buffType, buff.groupId)
+		--Actor.initActivityWind(sysarg, sceneName, mapTime, HeavenNotify[findex])--去除时间限制 
+	end
+end
+
+
+--进入九天冰宫
+function EnterHeaven(sysarg, findex, nowFloor)
+	local findex = tonumber(findex)
+	local nowFloor = tonumber(nowFloor)
+	local config = HeavenConfig
+	if not config then return end
+	
+	local floor = config.Floors[findex]
+	if not floor then return end
+	
+	local sceneName = Fuben.getSceneNameById(floor.sid)
+	
+	--判断等级
+	if findex==#HeavenConfig.Floors then
+		if Actor.checkActorLevel(sysarg,config.level,config.circle) == false then
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.te0003,sceneName,config.circle,config.level), ttFlyTip)
+			return
+		end
+	end
+	
+	
+	local bp = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+	if floor.bp and bp < floor.bp then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00204,sceneName,floor.bp), ttFlyTip)
+		return
+	end
+	--[[local svar = Actor.getStaticVar(sysarg)
+	local buff = config.buff
+	if svar.heavenFlag and Actor.hasBuff(sysarg, buff.buffType, buff.groupId) ~= true then
+		if findex ==#HeavenConfig.Floors then 
+			Actor.sendTipmsg(sysarg, Lang.Activity.te0009, ttFlyTip)
+			return 
+		else
+			Actor.sendTipmsg(sysarg, Lang.Activity.t00205, ttFlyTip)
+			return 
+		end
+	end]]
+	if findex == 2 or findex == 3 then
+	   local bVip = Actor.isVip(sysarg)
+	   if not bVip then
+          Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00229,Actor.getName(v)), ttFlyTip)
+          return
+       end
+    end
+	local masterScene, masterX, masterY = Actor.getSceneName(sysarg, 0, 0)
+	if floor.item then
+		local itemCount = Actor.getItemCount(sysarg, floor.item.id, 0, 0, -1)
+		if itemCount < floor.item.count then
+			local itemName = Item.getItemName(floor.item.id)
+			--Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00203,floor.item.count,itemName,sceneName), ttFlyTip)
+			local npcHandle = Actor.getHandle(thisNPC)
+			local sAskMsg = string.format(Lang.Activity.t00228, itemName, floor.item.count)
+			Actor.messageBox(sysarg,npcHandle,0,sAskMsg,Lang.ScriptTips.x00078.."/BuyMustItem,"..floor.item.id,Lang.ScriptTips.mt00005.."/Cancel",nil)
+			return
+		end
+	end
+	
+	--消耗
+	if floor.item and Actor.removeItem(sysarg, floor.item.id, floor.item.count) < floor.item.count then
+		return
+	end
+	EnterFloor(sysarg, floor, buff, sceneName, findex)
+	
+	local username = Actor.getName(sysarg)
+	local itemName = ""
+	if floor.item then
+		itemName = Item.getItemName(floor.item.id)
+	end
+	if nowFloor == 0  then
+       System.broadcastTipmsg(string.format(Lang.Activity.t00229g, username), 130)
+	end
+end
+
+function BuyMustItem(sysarg, itemId)
+	Actor.openDialogs(sysarg,diBuyAnItem,tostring(itemId))
+end
+
+function EnterFloor(sysarg, floor, buff, sceneName, findex)
+	if Actor.enterScene(sysarg, floor.sid, floor.x, floor.y, 3, 3) == true then
+		local svar = Actor.getStaticVar(sysarg)
+		local heavenFlag = svar.heavenFlag  
+		if not heavenFlag then
+			svar.heavenFlag = 1  
+			--Actor.addBuff( sysarg, buff.buffType, buff.groupId, buff.value, buff.times, buff.interval, buff.buffName, buff.timeOverlay)--去除时间限制 
+		end
+		--local mapTime = Actor.getBuffRemainTime(sysarg, buff.buffType, buff.groupId)
+		--Actor.initActivityWind(sysarg, sceneName, mapTime, HeavenNotify[findex])
+	end
+end
+
+
+
+--详情
+function AboutHeaven(sysarg)
+	local str = ""
+	str = str..Lang.Activity.t00210
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+
+--询问是否离开地图
+function AskExitHeavenMap(sysarg)
+	local sAskMsg
+	local config = HeavenConfig
+	if not config then
+		 sAskMsg = Lang.Activity.t00211
+	else 
+		local floors = config.Floors
+		local findex = GetFloorIndex(sysarg, floors)
+		if findex == 4 then
+			 sAskMsg = Lang.Activity.te0008
+		else
+			 sAskMsg = Lang.Activity.t00211
+		end
+	end
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ExitHeavenMap",Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+--离开场景
+function ExitHeavenMap(sysarg)
+	--直接把玩家传出来
+	--local Pos = LuaHelp.getReloadMapPos(sysarg) 
+	local retScene = HeavenConfig.returnArea
+	if Actor.enterScene(sysarg, retScene.sid, retScene.x, retScene.y, 2, 2) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+	Actor.closeNPCDialog(sysarg) 
+end
+
+function Cancel(sysarg)
+
+end
+
+
+
+table.insert(MainFnTable, Heaven_Main)

@@ -1,0 +1,240 @@
+--修罗场的配置
+
+AsuraFieldConfig = 
+{
+	minCircle = 5,		--进入的最低转数
+	minLevel = 50,		--进入的最低等级
+	nSceenId = 225,		--修罗场的场景id
+	nPosX = {65,97},		--场景内x的最大值
+	nPosY = {86,129},		--场景内y的最大值
+
+	exitSceenId = 8,	--退出角斗场的场景id
+	ePosX = {137,157},	--退出的场景坐标x范围
+	ePosY = {169,189},	--退出的场景坐标y范围
+
+	activityTime = 1 * 30 * 60,	--活动的时间 单位秒
+
+	--传送阵
+	transmitMonsters =
+	{
+		{nMonsterID = 1409, posX1 = 65, posX2 = 97,  posY1 = 86, posY2 = 129, nCount = 1, nLiveTime = 40,},	--生死门1
+		{nMonsterID = 1410, posX1 = 65, posX2 = 97,  posY1 = 86, posY2 = 129, nCount = 1, nLiveTime = 40,},	--生死门2
+		{nMonsterID = 1411, posX1 = 65, posX2 = 97,  posY1 = 86, posY2 = 129, nCount = 1, nLiveTime = 40,},	--生死门3
+		{nMonsterID = 1412, posX1 = 65, posX2 = 97,  posY1 = 86, posY2 = 129, nCount = 1, nLiveTime = 40,},	--生死门4
+		{nMonsterID = 1413, posX1 = 65, posX2 = 97,  posY1 = 86, posY2 = 129, nCount = 5, nLiveTime = 40,},	--修罗门
+		{nMonsterID = 1414, posX1 = 65, posX2 = 97,  posY1 = 86, posY2 = 129, nCount = 3, nLiveTime = 40,},	--炼狱门
+		{nMonsterID = 1415, posX1 = 65, posX2 = 97,  posY1 = 86, posY2 = 129, nCount = 3, nLiveTime = 40,},	--万鬼门
+		--{nMonsterID = 1419, posX1 = 86, posX2 = 92,  posY1 = 90, posY2 = 96, nCount = 1, nLiveTime = 40,},	--炼狱修罗
+	},
+
+	monsters =
+	{
+		--nScore为击杀单个怪物的积分
+		--nGetScoreFlag 0 由区域内所有玩家平分 1 由击杀玩家得到
+		--modelId 击杀怪物改变玩家模型
+		{nMonsterID = 1416, nScore = 1, nGetScoreFlag = 1,},
+		{nMonsterID = 1417, nScore = 5, nGetScoreFlag = 1, modelId = 114,},
+	},
+
+	--尸化 groupId = 227, 不能修改
+	buff = {buffType = 49, groupId = 87, value = -80, times = 1, interval = 30, buffName = Lang.Activity.xl0029, timeOverlay = false},
+	-- 炸弹爆炸技能       技能Id			等级
+	SuicideBomberSkill = {skillId = 53, skillLevel = 4},
+
+	killActorPoint = 20,		--击杀一个玩家获得玩家的N%积分
+
+	minPoint = 0,			--当玩家积分少于5时击杀不给积分
+	--刷传送阵
+	randTransmitConfig =
+	{
+		Start = 30,	--第 Start 秒开始
+		Period = 280,	--随机周期，单位：秒
+		nTime = 40,	--挑战时间(秒)
+	},
+	
+	--驱魔圣水
+	nItem = {id = 2961, nBind = 0, ncount = 1,needYb = 10,},
+
+	--区域范围
+	zoneRange =
+	{
+		--生死门1
+		{
+			zoneId = 1,
+			nPosX1 = 16,
+			nPosX2 = 46,
+			nPosY1 = 58,
+			nPosY2 = 95,
+
+			killerScore = 50,	--击杀获得积分
+			beKillScore = 20,	--被击杀获得积分
+		},
+		--生死门2
+		{
+			zoneId = 2,
+			nPosX1 = 92,
+			nPosX2 = 120,
+			nPosY1 = 154,
+			nPosY2 = 192,
+			
+			killerScore = 50,	--击杀获得积分
+			beKillScore = 20,	--被击杀获得积分
+		},
+		--修罗门
+		{
+			zoneId = 3,
+			nPosX1 = 116, 
+			nPosX2 = 150,
+			nPosY1 = 96,
+			nPosY2 = 146,
+			
+			--nScore为击杀单个怪物的积分
+			--nGetScoreFlag 0 由区域内所有玩家平分 1 由击杀玩家得到
+			monsters =
+			{
+				{nMonsterID = 1419, posX1 = 129, posX2 = 131,  posY1 = 120, posY2 = 122, nCount = 1, nLiveTime = 40, nScore = 400, nGetScoreFlag = 0,},
+			},
+		},
+		--炼狱门
+		{
+			zoneId = 4,
+			nPosX1 = 10,
+			nPosX2 = 38,
+			nPosY1 = 132,
+			nPosY2 = 171,
+
+			nGiveScoreTime = 5,	--定时发放积分奖励时间(秒)
+			giveScore =
+			{
+				--第 nGiveTimes 次，发放 nGiveScore 积分, 扣 
+				{nGiveTimes = 1, nGiveScore = 3,},
+				{nGiveTimes = 2, nGiveScore = 5,},
+				{nGiveTimes = 3, nGiveScore = 7,},
+				{nGiveTimes = 4, nGiveScore = 9,},
+				{nGiveTimes = 5, nGiveScore = 11,},
+				{nGiveTimes = 6, nGiveScore = 13,},
+				{nGiveTimes = 7, nGiveScore = 15,},
+				{nGiveTimes = 8, nGiveScore = 18,},
+			},
+			
+			--nScore为击杀单个怪物的积分
+			--nGetScoreFlag 0 由区域内所有玩家平分 1 由击杀玩家得到
+			monsters =
+			{
+				{nMonsterID = 1420, posX1 = 22, posX2 = 24,  posY1 = 151, posY2 = 153, nCount = 1, nLiveTime = 40, nScore = 0, nGetScoreFlag = 1,},
+			},
+
+			--采集怪buff
+
+			buff =
+			{
+				{buffType = 1, groupId = 228, value = 4200, times = 40, interval = 1, buffName = Lang.Activity.xl0024, timeOverlay = false},
+				{buffType = 2, groupId = 229, value = 0.03, times = 40, interval = 1, buffName = Lang.Activity.xl0024, timeOverlay = false},
+			}
+		},
+		--万鬼门
+		{
+			zoneId = 5,
+			nPosX1 = 66,
+			nPosX2 = 98,
+			nPosY1 = 9,
+			nPosY2 = 51,
+			
+			--nScore为击杀单个怪物的积分
+			--nGetScoreFlag 0 由区域内所有玩家平分 1 由击杀玩家得到
+			monsters =
+			{
+				{nMonsterID = 1418, nScore = 6, nGetScoreFlag = 1,},
+			},
+		},
+	},
+
+	showRank = 10,	--NPC显示排行数量
+
+	rankAward =		--排行榜奖励
+	{
+		{
+			rankInterval = {1,1},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2917, count = 8, quality = 0, strong = 0, bind = 1},		--解封石
+				{type = 0, id = 2937, count = 5, quality = 0, strong = 0, bind = 1},		--图鉴白金包
+				{type = 20, id = 3, count = 12000, quality = 0, strong = 0, bind = 0},		--经验
+			},
+		},
+		{
+			rankInterval = {2,2},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2917, count = 6, quality = 0, strong = 0, bind = 1},		--解封石
+				{type = 0, id = 2937, count = 4, quality = 0, strong = 0, bind = 1},		--图鉴白金包
+				{type = 20, id = 3, count = 10000, quality = 0, strong = 0, bind = 0},		--经验
+			},
+		},
+		{
+			rankInterval = {3,3},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2917, count = 4, quality = 0, strong = 0, bind = 1},		--解封石
+				{type = 0, id = 2937, count = 3, quality = 0, strong = 0, bind = 1},		--图鉴白金包
+				{type = 20, id = 3, count = 9000, quality = 0, strong = 0, bind = 0},		--经验
+			},
+		},
+		{
+			rankInterval = {4,7},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2917, count = 3, quality = 0, strong = 0, bind = 1},		--解封石
+				{type = 0, id = 2850, count = 3, quality = 0, strong = 0, bind = 1},		--图鉴金包
+				{type = 20, id = 3, count = 8000, quality = 0, strong = 0, bind = 0},		--经验
+			},
+		},
+		{
+			rankInterval = {8,10},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2917, count = 2, quality = 0, strong = 0, bind = 1},		--解封石
+				{type = 0, id = 2850, count = 2, quality = 0, strong = 0, bind = 1},		--图鉴金包
+				{type = 20, id = 3, count = 7500, quality = 0, strong = 0, bind = 0},		--经验
+			},
+		},
+		{
+			rankInterval = {11,20},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2849, count = 2, quality = 0, strong = 0, bind = 1},		--图鉴银包
+				{type = 20, id = 3, count = 7000, quality = 0, strong = 0, bind = 0},		--经验
+			},
+		},
+		{
+			rankInterval = {21,30},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2849, count = 2, quality = 0, strong = 0, bind = 1},		--图鉴银包
+				{type = 20, id = 3, count = 6500, quality = 0, strong = 0, bind = 0},		--经验
+			},
+		},
+		{
+			rankInterval = {31,50},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2848, count = 1, quality = 0, strong = 0, bind = 1},		--图鉴铜包
+				{type = 20, id = 3, count = 6000, quality = 0, strong = 0, bind = 0},		--经验
+			},
+		},
+	},
+
+	--1积分一个奖励
+	scoreAward =
+	{
+		{type = 20, id = 3, count = 25, quality = 0, strong = 0, bind = 0},		--经验
+	},
+}

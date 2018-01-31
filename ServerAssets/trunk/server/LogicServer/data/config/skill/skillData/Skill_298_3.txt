@@ -1,0 +1,62 @@
+﻿
+--塔防焰舞守卫
+{
+
+	actions=
+	{
+		{act=0,effect=0},
+	},
+
+	desc=Lang.Skill.s195L5Desc,
+
+	iconID=6,
+
+	actRange=
+	{
+		{
+			xStart=-5,
+			xEnd=5,
+			yStart=-5,
+			yEnd=5,
+
+			rangeType=3,
+			rangeCenter=0,
+			acts=
+			{
+				{
+					conds=
+					{
+						--{cond=3,value=1},
+                        {cond=36,value=2},
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=10000},
+						{mj=0,timeParam=1,type=3,delay=0,value=50,rate=0},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=13,keepTime=400,delay=300,always=false},
+					},
+				},
+
+			},
+		},
+	},
+
+	trainConds=
+	{
+	},
+
+	spellConds=
+	{
+		{cond=13,value=12,consume=false},
+	},
+
+	singTime=0,
+
+	cooldownTime=0,
+},

@@ -1,0 +1,142 @@
+﻿--lua script
+
+--type : 2 为增值卡的类型
+--#include "data\config\item\ZhanZheKaReward.txt" once
+--#include "data\functions\ItemEvent\NormalItem\NormalItemRewards.txt" once
+
+EventCallDispatcher.OnAsyncOpResultFunc = function(sysarg,arg)
+  --print("on result!!"..arg[1].." "..arg[2])
+ --  local type = arg[1]   --序列号类型  2为增值卡 
+ --  local result = arg[2]
+ --  --用于记录玩家使用增值卡的次数
+ --  local var = Actor.getStaticVar(sysarg)
+  
+ --  local ZengZhiKa = var.ZengZhiKa
+ --  if ZengZhiKa == nil then
+ --    var.ZengZhiKa = {}
+ --    ZengZhiKa = var.ZengZhiKa
+ --    for i = 1 ,#ZhanZheKaReward do       --初始化都为0
+ --      ZengZhiKa[i] = 0
+ --    end
+ --  end
+  
+ --  if type == 2 then   	
+ --      if result == 0 then 
+	--     --print("result can reward!!")
+	--     local bQuery = arg[3] -- 查询或者使用  1为查询  
+	--     local err = arg[4]     --错误信息号 
+	--     local number = arg[5] 
+	--     local mtype = arg[6]  --增值 类型 
+	--     local stype = arg[7]
+ --        if (bQuery == 1) then              --如果是查询，就先检查是否使用次数已超过，并判断背包是否已满
+ --      		--动态变量 用于判断输入窗口类型 用于限制每个按钮只能固定输入类型  0则为不受限制 
+	-- 		local sDvar = Actor.getDyanmicVar(sysarg)
+ --            if sDvar.getRewardCodeBag ~= 0 and sDvar.getRewardCodeBag ~= mtype then --增值类型
+	-- 			Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00081,ttDialog)
+	-- 			return
+ --            end 
+            
+	-- 		local config = ZhanZheKaReward[mtype]
+			
+ --            if not config then
+	-- 			return
+ --            end
+			
+	-- 		local bCanGetFlag = false
+	-- 		local nServerid = System.getServerId()
+	-- 		--判断服务器id
+ --            if config.serverId then
+ --                for i=1,table.getn(config.serverId) do
+ --                    if config.serverId[i] == nServerid then
+	-- 					bCanGetFlag = true
+	-- 					break
+ --                    end
+ --                end
+ --            else
+	-- 			bCanGetFlag = true
+ --            end
+			
+ --            if bCanGetFlag == false then
+	-- 			Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00057,ttDialog)
+	-- 			return
+ --            end
+
+	-- 		--判断使用次数    	
+ --            if ZengZhiKa[mtype] == nil then 
+ --  				ZengZhiKa[mtype] = 0
+ --            end
+            
+ --            if ZhanZheKaReward[mtype].value >= 0 and ZengZhiKa[mtype] >= ZhanZheKaReward[mtype].value then			  	
+	-- 			Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00063,ttDialog)
+	-- 			return 
+ --            end
+			
+	-- 		--奖励判断
+	-- 	    local checkResult,needspace = rewardConfigCheck(sysarg,config)   
+	-- 	    --print("arg[5]:"..arg[5].." "..checkResult.." "..needspace)
+ --            if ( checkResult ~= 0 ) then
+ --                if ( checkResult == 2 ) then 
+	-- 				local str = string.format(Lang.ScriptTips.f00016,needspace)
+	-- 				Actor.sendTipmsg( sysarg, str,ttDialog )
+ --                end
+	-- 			return
+ --            end  
+             
+	--   		Actor.userServicesAddCard(sysarg, number)
+	-- 		Actor.triggerAchieveEvent(sysarg,91,mtype)
+ --         else             --增值卡奖励，先判断背包是否已满	  		
+	--   		local config = ZhanZheKaReward[mtype]
+ --            if not config then
+	-- 			return
+ --            end
+
+	-- 		local bCanGetFlag = false
+	-- 		local nServerid = System.getServerId()
+	-- 		--判断服务器id
+ --            if config.serverId then
+ --                for i=1,table.getn(config.serverId) do
+ --                    if config.serverId[i] == nServerid then
+	-- 					bCanGetFlag = true
+	-- 					break
+ --                    end
+ --                end
+ --            else
+	-- 			bCanGetFlag = true
+ --            end
+			
+ --            if bCanGetFlag == false then
+	-- 			Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00057,ttDialog)
+	-- 			return
+ --            end
+
+	-- 	    local checkResult,needspace = rewardConfigCheck(sysarg,config)
+	-- 	    --print("arg[5]:"..arg[5].." "..checkResult.." "..needspace)
+ --            if ( checkResult ~= 0 ) then
+ --                    if ( checkResult == 2 ) then 
+	-- 					local str = string.format(Lang.ScriptTips.f00016,needspace)
+	-- 					Actor.sendTipmsg( sysarg, str,ttDialog )
+ --                    end
+	-- 				return
+ --            end	  		
+	--   		ZengZhiKa[mtype] = ZengZhiKa[mtype] + 1
+ --  			doRewardConfig(sysarg,config)
+	--     	Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00056,ttDialog)
+ --        end
+	--   elseif result == 1 then 
+	-- 	local err = arg[4]	    
+	-- 	if err == 1 then 
+	-- 		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00054,ttDialog) 
+	-- 	elseif err == 2 then 
+	-- 		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00055,ttDialog)
+	-- 	elseif err == 3 then
+	-- 		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00055,ttDialog) 
+	-- 	end
+	--   elseif result == 2 then 
+	-- 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00053,ttDialog)
+	--   elseif result == 3 then 
+	-- 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00057,ttDialog)
+	--   end
+	-- end
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeAsyncOpResult, EventCallDispatcher.OnAsyncOpResultFunc)

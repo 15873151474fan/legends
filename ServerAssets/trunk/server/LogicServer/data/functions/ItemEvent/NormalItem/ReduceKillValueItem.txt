@@ -1,0 +1,35 @@
+﻿--lua script
+--for item do rapid effect
+
+--#include "data\config\item\NormalItemDatas.txt" once
+
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+
+function ReduceKillValue(sysarg,itemdx,itemPtr,ItemTable)
+	   local PKvalue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+     if PKvalue == 0 then 
+							return
+     end
+     PKvalue = PKvalue - ItemTable.value
+     if PKvalue < 0 then 
+		      Actor.setUIntProperty(sysarg,PROP_ACTOR_PK_VALUE,0)
+     else 
+		      Actor.setUIntProperty(sysarg,PROP_ACTOR_PK_VALUE,PKvalue)
+		 end
+	  
+
+	   if ItemTable.needDelete then --需要删除
+		    Actor.removeItemByPtr(sysarg,itemPtr,1,true," ",5)      --删除一个物品
+	   end	
+end
+function ReduceKillValueItemInit(sysarg)
+  for i = 1,table.getn(ReduceKillValueItems) do
+	local x = ReduceKillValueItems[i]
+	GlobalItemFn[x.item_id] = { func = ReduceKillValue, params = x }
+  end
+end
+
+
+table.insert(InitFnTable,ReduceKillValueItemInit)

@@ -1,0 +1,50 @@
+﻿--#ifndef __ACTOR_EVENT_DISPATCHER_IMPLEMENT_
+--#define __ACTOR_EVENT_DISPATCHER_IMPLEMENT_
+
+--这个是事件函数列表，当角色升级、练技能等事件的时候，就会调用对应的函数，根据事件id（EventID）对应
+local EventCallDispatcher =
+{
+	-- [eventId] = {函数1,函数2, ... };
+}
+
+--注册一个事件回调函数
+EventCallDispatcher.registerEventCall = function (eventId, proc)  
+  eventId = tonumber(eventId)
+  local i                                   
+  local callTable = EventCallDispatcher[eventId]
+  
+  --如果为 nil 或者 类型不是 table 那么建立一个空表 
+  if not callTable or type(callTable) ~= "table" then      
+    EventCallDispatcher[eventId] = {}
+  else
+     --检查一下是否有这个函数 如果有的话 就加入表了 
+     for i = 1, #callTable do
+       if callTable[i] == proc then
+         return false
+       end
+     end
+  end
+ 
+  --这里不能用局部table插入，否则不会修改到EventCallDispatcher中
+  table.insert(EventCallDispatcher[eventId], proc)
+  return true
+end
+
+--移除一个已注册的事件回调函数
+EventCallDispatcher.unregisterEventCall = function (eventId, proc) 
+  eventId = tonumber(eventId)
+  local i
+  local callTable = EventCallDispatcher[eventId]
+  if callTable then
+      for i = 1, #callTable do
+        if callTable[i] == proc then
+	      --这里不能从局部table中删除，否则不会修改到EventCallDispatcher中
+	      table.remove(EventCallDispatcher[eventId], i)
+	      return true
+        end
+      end
+  end
+  return false
+end
+
+--#endif //end of __ACTOR_EVENT_DISPATCHER_IMPLEMENT_

@@ -1,0 +1,68 @@
+--新道具
+{
+
+	actions=
+	{
+		{act=0,effect=0,},
+	},
+	
+	desc=Lang.Skill.s212L5Desc,--技能的描述
+	
+	iconID=278,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+
+		
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+			
+			rangeType=0,
+			rangeCenter=0,
+			acts=
+			{
+				{
+				      					
+					conds=
+					{
+						{cond=13,value=1}, 
+						
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=4,delay=0,value=0,rate=19000},
+						{mj=0,timeParam=10,type=32,delay=0,buffType=1,id=219,rate=-500,rateType=2,interval=1,colorPriority =5,color =16711680},
+					},
+					specialEffects=
+					{	
+                                                {type=4,mj=0,id=239,keepTime=1000,delay=0,always=false},
+
+					},
+				},
+				
+			},	
+		},
+		
+	},
+
+		trainConds=
+	{
+		
+		{cond=39,value=11,consume=false},
+	{cond=3,value=2795,consume=true,exceptVip=false},--表示书本
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=624,consume=true},--消耗蓝10
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=10000,
+
+},

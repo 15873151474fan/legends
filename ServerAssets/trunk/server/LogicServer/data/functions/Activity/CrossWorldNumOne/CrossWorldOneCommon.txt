@@ -1,0 +1,149 @@
+--lua script
+--#include "data\language\LangCode.txt" once			--语言包
+--#include "data\config\misc\ReliveConfig.txt" once
+--#include "data\config\activityconfig\CrossGuildSbk\CrossWorldNumOne.txt" once	
+--#include "CrossWorldOneMain.txt" once
+
+--跨服天下第一战场入口开启
+function StartCrossWorldOne()
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+
+	local sVar = System.getStaticVar()
+	sVar.CanEnterCrossWorldOneFlag = 1
+	local RankNameList = Ranking.getRanking(CrossWorldOneConfig.WorldOneRankName)
+	if RankNameList then
+		Ranking.clearRanking(RankNameList)
+	end
+
+	System.initCrossWorldFirstData()
+
+	System.broadcastTipmsg(Lang.Activity.ku0041,2+128)
+end
+
+--入口关闭
+function EndCrossWorldOne()
+	local sVar = System.getStaticVar()
+	sVar.CanEnterCrossWorldOneFlag = nil
+end
+
+--在天下第一战场被杀
+function OnKillInCrossWorld(sysarg,killerPtr)
+	local nSceneId = Actor.getSceneId(killerPtr)
+	local nMySceneId = Actor.getSceneId(sysarg)
+
+	if nMySceneId ~= nSceneId then
+		return
+	end
+
+	local nIndex = 0
+	for i=1,table.getn(CrossWorldOneConfig.LTSceneConfig) do
+		if nSceneId == CrossWorldOneConfig.LTSceneConfig[i].nSceneId then
+			nIndex = i
+			break
+		end
+	end
+	
+	if nIndex > 0 then
+		local ranking = Ranking.getRanking(CrossWorldOneConfig.CrossWorldRankName)
+		if ranking then
+			local nActorId = Actor.getIntProperty(killerPtr,PROP_ENTITY_ID)
+			local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+			if pItem then
+				Ranking.updateItem(ranking,nActorId,1)
+				local nPoint = Ranking.getPoint(pItem)			--杀人数达到某个值
+
+				if nIndex < 3 then
+					local nScene = Actor.getSceneHandle(killerPtr)
+					for i=1,table.getn(CrossWorldOneConfig.killActorBroad) do		--击杀人数播报
+						if nPoint == CrossWorldOneConfig.killActorBroad[i] then
+							local strmsg = ""
+							if i == 1 then
+								strmsg = string.format(Lang.Activity.ku0070,Actor.getName(killerPtr),nPoint)
+							elseif i == 2 then
+								strmsg = string.format(Lang.Activity.ku0071,Actor.getName(killerPtr),nPoint)
+							elseif i == 3 then
+								strmsg = string.format(Lang.Activity.ku0072,Actor.getName(killerPtr),nPoint)
+							elseif i == 4 then
+								strmsg = string.format(Lang.Activity.ku0073,Actor.getName(killerPtr),nPoint)
+							elseif i == 5 then
+								strmsg = string.format(Lang.Activity.ku0074,Actor.getName(killerPtr),nPoint)
+							end
+							Fuben.sendMsgToScene(nScene,strmsg,2+128)
+							break
+						end
+					end
+				end
+
+				if nIndex > 1 then
+					local nConfig = CrossWorldOneConfig.LTSceneConfig[nIndex]
+					if nConfig then						
+						local sVar = System.getStaticVar()
+						if sVar.StartCrossWorldHalfHour == nil then
+							sVar.StartCrossWorldHalfHour = 0
+						end
+
+						if nPoint >= nConfig.nKillNum then
+							if sVar.StartCrossWorldHalfHour == 1 and nIndex == 2 then
+								Actor.changeActivityProgress(killerPtr,nPoint)
+							else
+								Actor.enterScene(killerPtr,CrossWorldOneConfig.LTSceneConfig[nIndex-1].nSceneId,unpack(CrossWorldOneConfig.LTSceneConfig[nIndex-1].enterRange))
+								Ranking.setItem(ranking,nActorId,0)
+								OnInitCrossWorldForm(killerPtr,nIndex-1)
+							end
+						else
+							Actor.changeActivityProgress(killerPtr,nPoint)
+						end
+					end
+				else
+					Actor.changeActivityProgress(killerPtr,nPoint)
+				end
+
+			end
+
+			local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+			local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+			if nItem then
+				Ranking.setItem(ranking,nActorId,0)
+			end
+		end
+	end
+end
+
+--在天下第一场景被杀
+function OnKilledInCrossWorld(sysarg)
+	if System.isCommonServer() == true then			--如果是公共服
+		local nSceneId = Actor.getSceneId(sysarg)
+		
+		for i=1,table.getn(CrossWorldOneConfig.LTSceneConfig) do
+			local nConfig = CrossWorldOneConfig.LTSceneConfig[i]
+			if nSceneId == nConfig.nSceneId then
+				local maxhp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXHP)
+				Actor.changeHp(sysarg,maxhp*ReliveConfig.placeRate)
+
+				local maxmp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXMP)
+				Actor.changeMp(sysarg,maxmp*ReliveConfig.placeRate)
+				local buff = ReliveConfig.protectBuff
+				if buff.type > 0 then
+					Actor.addBuff(sysarg,buff.type,1,1,1,buff.time,Lang.ScriptTips.b00009)
+				end
+				Actor.clearReliveTimeOut(sysarg)
+				Actor.onRelive(sysarg)
+				
+				if i < table.getn(CrossWorldOneConfig.LTSceneConfig) then
+					Actor.enterScene(sysarg,CrossWorldOneConfig.LTSceneConfig[i+1].nSceneId,unpack(CrossWorldOneConfig.LTSceneConfig[i+1].enterRange))
+					OnInitCrossWorldForm(sysarg,i+1)
+				else
+					Actor.enterScene(sysarg,CrossWorldOneConfig.LTSceneConfig[i].nSceneId,unpack(CrossWorldOneConfig.LTSceneConfig[i].enterRange))
+				end
+
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+

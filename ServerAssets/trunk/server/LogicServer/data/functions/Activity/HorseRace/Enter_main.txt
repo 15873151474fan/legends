@@ -1,0 +1,173 @@
+﻿--王城：伯乐
+--#include "data\config\activityconfig\HorseRace\Config.txt" once	--每个楼层配置
+--#include "data\config\activityconfig\HorseRace\TimeRide.txt" once
+
+--#include "AutoRun.txt" once --时间执行
+--#include "RankInit.txt" once	--排行榜初始化
+
+--[[
+    函数名称：传送
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function HorseRace_Main(sysarg)	
+	local config = HorseRaceConfig
+	if (not config) then return "" end
+	local str = Lang.Activity.t00140
+	str = str.."\\<#BL"..Lang.Activity.t00141.."/@EnterHorseRace>"  --<参加热血赛马>
+	str = str.."\\<#BL"..Lang.Activity.a00031.."/@AboutHorseRace>"  --<详情>
+	--if System.getDaysSinceCombineServer() > 0 then
+		--str = str.."\\<#BL"..Lang.Activity.tr0001.."/@BuyLimitRide>"  --每周限量抢购幸运坐骑
+	--end
+	str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<离开>
+	return str
+end
+
+--参加热血赛马
+function EnterHorseRace(sysarg)
+	local config = HorseRaceConfig
+	if not config then return end
+	
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	--if level < config.limitLevel then
+	if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00142,config.limitLevel), ttFlyTip)
+		return
+	end
+	
+	
+	local dval = System.getDyanmicVar()
+	
+	if dval.HorseRaceStart ~= 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00143, ttFlyTip)
+		return 
+	end
+	
+	local enter = config.readyScene
+
+	if not Actor.canTelport(sysarg, enter.sid) then
+		return
+	end
+	if Actor.enterScene(sysarg, enter.sid, unpack(enter.range)) == true then
+		--学技能
+		for k, v in ipairs(config.skill) do
+			if Actor.getSkillLevel(sysarg, v.id) <= 0 then
+				Actor.learnSkill(sysarg, v.id, v.level)
+			end
+		end
+		
+		--提示
+		local hScene = Fuben.getSceneHandleById(enter.sid, 0)
+		local leftTime = Fuben.getSceneTime(hScene)
+		if leftTime <= 0 then return end
+		local state = Lang.Activity.t00144
+		if config.actTime - leftTime > config.readyTime then
+			state = Lang.Activity.t00145
+		end
+		Actor.initActivityWind(sysarg, Lang.Activity.t00146, leftTime, string.format(Lang.Activity.t00147, state))
+		
+		-- 如果有隐身buff 则删除
+		Actor.delBuff(sysarg, config.rmBuff.buffType, config.rmBuff.groupID)
+	end
+end
+
+--详情
+function AboutHorseRace(sysarg)
+	local str = ""
+	str = str..Lang.Activity.t00148
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+--每周限量抢购幸运坐骑
+function BuyLimitRide(sysarg)
+	if System.getDaysSinceCombineServer() <= 0 then return end
+
+	local str = Lang.Activity.tr0012
+	
+	local ranking = Ranking.getRanking(LimitTimeRide.LimitTimeRideRank)
+
+	for i=1,table.getn(LimitTimeRide.LimitRideList) do
+		local nLeftTimes = LimitTimeRide.LimitRideList[i].maxTimes
+		if ranking then
+			local nItem = Ranking.getItemPtrFromId(ranking,LimitTimeRide.LimitRideList[i].nItemId.id)
+			if nItem then
+				nLeftTimes = nLeftTimes - Ranking.getPoint(nItem)
+			end
+		end
+		local str1 = string.format(LimitTimeRide.LimitRideList[i].ButtonLang,nLeftTimes)
+		str = string.format("%s\\<#BL%s/@BuyLuackyLimitRide,%d>", str,str1, i)
+	end
+
+	return str
+end
+
+--购买幸运坐骑
+function BuyLuackyLimitRide(sysarg,arg)
+	local nIndex = tonumber(arg)
+	
+	local nConfig = LimitTimeRide.LimitRideList[nIndex]
+	if nConfig == nil then return end
+	
+	local ranking = Ranking.getRanking(LimitTimeRide.LimitTimeRideRank)
+	local nLeftTimes = nConfig.maxTimes
+	local nItem = nil
+	if ranking then
+		nItem = Ranking.getItemPtrFromId(ranking,nConfig.nItemId.id)
+		if nItem then
+			nLeftTimes = nLeftTimes - Ranking.getPoint(nItem)
+		else
+			nItem = Ranking.addItem(ranking,nConfig.nItemId.id,0)
+		end
+	end
+	
+	if nLeftTimes <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tr0015, ttFlyTip)
+		return
+	end
+
+	local nBag = Item.getBagEmptyGridCount(sysarg)
+	if nBag < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tr0016, ttFlyTip)
+		return
+	end
+	
+	if nConfig.needSbkCity == true then
+		local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+		local nSbkGuildId = System.getSbkGuildId()
+		if nGuildId <= 0 or nGuildId ~= nSbkGuildId then
+			Actor.sendTipmsg(sysarg, Lang.Activity.tr0014, ttFlyTip)
+			return
+		end
+
+		local nPos = Actor.getGuildPos(sysarg)
+		if nPos ~= 3 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.tr0014, ttFlyTip)
+			return
+		end
+	end
+
+	local myYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	if myYb < nConfig.needYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tr0013, ttFlyTip)
+		return
+	end
+
+	local rideLev = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDE_LEVEL)
+	if rideLev < nConfig.needRideLev then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tr0017, ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,3,-nConfig.needYb,903,Lang.Activity.tr0001)
+	Actor.giveAward(sysarg,nConfig.nItemId.type,nConfig.nItemId.id,nConfig.nItemId.count,nConfig.nItemId.quality,nConfig.nItemId.strong,
+		nConfig.nItemId.bind,0,903,Lang.Activity.tr0001)
+
+	if nItem then
+		Ranking.updateItem(ranking,nConfig.nItemId.id,1)
+	end
+
+	return BuyLimitRide(sysarg)
+end
+
+table.insert(MainFnTable, HorseRace_Main)

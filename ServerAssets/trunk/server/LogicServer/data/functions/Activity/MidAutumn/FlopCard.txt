@@ -1,0 +1,539 @@
+
+--lua script
+--#include "data\config\activityconfig\MidAutumn\MidAutumnAct.txt" once 
+--#include "data\config\activityconfig\MidAutumn\FlopCardConfig.txt" once 
+
+--翻牌
+
+brocastLog = {}
+
+--请求翻牌的各个牌的信息
+function ReqFlopCardInfo(sysarg, packet)
+	if System.isInDateRange(unpack(MidAutumnActConfig.actTime)) ~= true then
+		return 
+	end
+	InitFlopCardParam()
+	SendFlopCardInfo(sysarg)
+	SendAllLogInfo(sysarg)
+	
+end
+
+--请求翻牌操作
+function ReqFlopCardOp(sysarg, packet)
+	if System.isInDateRange(unpack(FlopCardConfig.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzg0107, ttFlyTip)
+		return 
+	end
+	
+	local opType = DataPack.readByte(packet)
+	if opType == 1 then   --洗牌
+		UpsetCard(sysarg)
+	elseif opType == 2 then
+		RefreshCard(sysarg, packet)  --刷新牌
+	elseif opType == 3 then
+		FlopCardOp(sysarg, packet)  --翻牌
+	end
+
+end
+
+--洗牌
+function UpsetCard(sysarg)
+	local infoRankPtr = Ranking.getRanking(Lang.Rank.FlopCardInfoFile)  
+	if not infoRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+	if not infoItemPtr then
+		return 
+	end
+	
+	local status = tonumber(Ranking.getSub(infoItemPtr, FlopCardConfig.cardCount)) or 0
+	if status == 2 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzg0102, ttFlyTip)
+		return 
+	end
+	
+
+	--[[
+	local itemInfoTab = {}
+	for i = 1, FlopCardConfig.cardCount do 
+		local val = tonumber(Ranking.getSub(infoItemPtr, i-1)) or 0
+		table.insert(itemInfoTab, val)
+	end
+	
+	if table.getn(itemInfoTab) <= 0 then
+		return 
+	end
+	
+	for j = 1, FlopCardConfig.cardCount do 
+		local val = GetUpsetCard(itemInfoTab)
+		Ranking.setSub(infoItemPtr, j-1, val)
+	end
+	
+	--]]
+
+	Ranking.setSub(infoItemPtr, FlopCardConfig.cardCount, 2) --1产生牌，2洗牌
+	Ranking.setSub(infoItemPtr, FlopCardConfig.cardCount+2, 3) --1系统刷新，2花元宝刷新，3洗牌 
+	SendFlopCardInfo(sysarg)
+
+	
+end 
+
+--获取洗牌后的牌
+function GetUpsetCard(itemInfoTab)
+	local maxVal = table.getn(itemInfoTab)
+	local randval = math.random(maxVal)
+	local val = itemInfoTab[randval]
+	table.remove(itemInfoTab, randval)
+	return val
+end
+
+--刷新牌, opType为1产生新一轮的牌，opType为2话元宝刷新
+function RefreshCard(sysarg, packet)
+	local opType = DataPack.readByte(packet)
+	if opType == 1 then 
+		--[[
+		if ProduceFlopCardInfo(sysarg, opType) ~= nil then     --产生新一轮的牌 
+			SendFlopCardInfo(sysarg)
+		end
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzg0106, ttFlyTip)
+		--]]
+	elseif opType == 2 then
+		local consumeYb = FlopCardConfig.refreshYb or 0
+		if Actor.changeMoney(sysarg, 3, -consumeYb, 970, Lang.LogTips.mzg102) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzg0103, ttFlyTip)
+			return 
+		end
+		UpdateRefreshCardYb(sysarg, consumeYb)
+		ProduceFlopCardInfo(sysarg, opType)
+		SendFlopCardInfo(sysarg)
+	end
+	
+end
+
+--更新刷新刷新元宝数
+function UpdateRefreshCardYb(sysarg, consumeYb)
+	local infoRankPtr = Ranking.getRanking(Lang.Rank.FlopCardInfoFile)
+	if infoRankPtr then
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+		if infoItemPtr then
+			local curRefreshYb = tonumber(Ranking.getSub(infoItemPtr, FlopCardConfig.cardCount+1)) or 0
+			Ranking.setSub(infoItemPtr, FlopCardConfig.cardCount+1, curRefreshYb + consumeYb)
+		end 
+	end
+	
+	local paramRankPtr = Ranking.getRanking(Lang.Rank.FlopCardllParamFile) 
+	if paramRankPtr then
+		local paramItemPtr = Ranking.getItemPtrFromId(paramRankPtr, 1)
+		if paramItemPtr then
+			local curYb = tonumber(Ranking.getSub(paramItemPtr, 0)) or 0
+			Ranking.setSub(paramItemPtr, 0, curYb + consumeYb)
+		end 
+	end
+	
+end
+
+--翻牌
+function FlopCardOp(sysarg, packet)
+	local flopCardIdx = DataPack.readByte(packet)
+	local consumeYb = 0
+	if flopCardIdx == 0 then --翻全部牌
+		consumeYb = FlopCardConfig.flopAllYb
+	elseif flopCardIdx > 0 then --翻单个牌
+		consumeYb = FlopCardConfig.flopYb
+	else
+		return 
+	end
+	
+	local infoRankPtr = Ranking.getRanking(Lang.Rank.FlopCardInfoFile)
+	if not infoRankPtr then
+		return
+	end
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local actorName = Actor.getName(sysarg)
+	local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+	if not infoItemPtr then
+		return
+	end 
+	
+	local flopIdx = 0  --翻单个牌，翻到库序号
+	if flopCardIdx > 0 then --翻单个牌
+		local status = tonumber(Ranking.getSub(infoItemPtr, FlopCardConfig.cardCount)) or 1
+		if status ~= 2 then --没洗牌不能翻，单个牌翻了一次也不能再翻了
+			return 
+		end
+		flopIdx = GetFlopCardRandomInfo(3, FlopCardConfig.itemLists)
+	end
+	
+	if Actor.changeMoney(sysarg, 3, -consumeYb, 970, Lang.LogTips.mzg103) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzg0104, ttFlyTip)
+		return 
+	end
+	
+	
+	local awardList = {}
+	for i = 1, FlopCardConfig.cardCount do 
+		local val = tonumber(Ranking.getSub(infoItemPtr, i-1)) or 0
+		local idx = System.getIntWord(val, 1)
+		local itemIdx = System.getIntWord(val, 0)
+		
+		if idx > 0 and idx <= table.getn(FlopCardConfig.itemLists) then
+			if flopCardIdx == 0 or (flopCardIdx > 0 and flopIdx == idx) then
+				local itemList = FlopCardConfig.itemLists[idx].itemList
+				if itemIdx > 0 and itemIdx <= table.getn(itemList) then
+					local itemConfig = itemList[itemIdx]
+					Dmkj.addItem(sysarg, itemConfig.id, itemConfig.count, itemConfig.quality, itemConfig.strong, itemConfig.bind, false, 0, 970, Lang.LogTips.mzg104)  			
+					table.insert(awardList, itemConfig.id)
+					table.insert(awardList, itemConfig.count)
+					if itemConfig.isBrocast == true then
+						local tempTab = {}
+						table.insert(tempTab, actorName)
+						table.insert(tempTab, itemConfig.id)
+						table.insert(brocastLog, 1, tempTab)
+						
+						if table.getn(brocastLog) > FlopCardConfig.logCount then
+							table.remove(brocastLog)
+						end
+						
+						local itemName = Item.getAwardDesc(itemConfig.type, itemConfig.id)
+						System.broadcastTipmsg(string.format(Lang.Activity.mzg0105, actorName, itemName), ttScreenCenter+ttChatWindow)
+						SendOneLogInfo(sysarg, actorName, itemConfig.id)
+					end
+				end
+			end
+		end
+	end
+
+	SendFlopCardAward(sysarg, awardList) --发送奖励给前端
+	Ranking.getSub(infoItemPtr, FlopCardConfig.cardCount, 1) --清除牌的状态，防止玩家翻单个牌翻多次
+	Ranking.setSub(infoItemPtr, FlopCardConfig.cardCount+2, 1) --清除刷新标记
+
+	ProduceFlopCardInfo(sysarg, 1) --产生新一轮的牌,防止玩家连续翻全部牌翻到相同的牌 
+	
+	Actor.unregScriptCallback(sysarg, "ProduceNewFlopCard")
+	Actor.regScriptCallback(sysarg, nil,  1800, 0, 1, "ProduceNewFlopCard")
+end
+
+--产生新一轮的牌
+function ProduceNewFlopCard(sysarg)
+	if ProduceFlopCardInfo(sysarg, 1) ~= nil then     --产生新一轮的牌 ,如果翻了牌，或者花元宝刷新了，就不能在产生新的
+		SendFlopCardInfo(sysarg)
+	end
+	Actor.sendTipmsg(sysarg, Lang.Activity.mzg0106, ttFlyTip)
+end
+
+
+
+--产生翻牌数据, nType为1系统产生，2为刷新产生
+function ProduceFlopCardInfo(sysarg, nType)
+	local infoRankPtr = Ranking.getRanking(Lang.Rank.FlopCardInfoFile)
+	if not infoRankPtr then
+		return nil
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+	if not infoItemPtr then
+		infoItemPtr = Ranking.addItemExt(infoRankPtr, actorId, 0, false) 
+	end 
+	
+	if not infoItemPtr then
+		return nil
+	end
+	
+	local refreshFlag = tonumber(Ranking.getSub(infoItemPtr, FlopCardConfig.cardCount+2)) or 1 --花元宝刷新就不能再系统刷新了，除非翻了牌
+	if nType == 1 and (refreshFlag == 2 or refreshFlag == 3)  then --1系统刷新，2花元宝刷新，3洗牌 
+		return nil
+	end
+
+	local itemIndex = 0
+	for i = 1, table.getn(FlopCardConfig.itemLists) do  
+		itemIndex = PrcoduceOneCard(nType, i, actorId)
+		if itemIndex > 0 then
+			if infoItemPtr then
+				local val = 0
+				val = System.setIntWord(val, i, 1)
+				val = System.setIntWord(val, itemIndex, 0)
+				Ranking.setSub(infoItemPtr, i-1, val)
+			end
+		end
+	end
+	
+	Ranking.setSub(infoItemPtr, FlopCardConfig.cardCount, 1) --1产生牌，2洗牌
+	Ranking.setSub(infoItemPtr, FlopCardConfig.cardCount+2, nType) --设置刷新标记，1系统刷新，2花元宝刷
+	return infoItemPtr
+ 	
+	
+end 
+
+--产生一个牌的数据，nType为1系统产生，2为刷新产生; idx物品库索引
+function PrcoduceOneCard(nType, idx, actorId)
+	local itemIndex = 0
+	if idx <= 0 or idx > table.getn(FlopCardConfig.itemLists) then
+		return itemIndex
+	end
+	
+	local itemList = FlopCardConfig.itemLists[idx].itemList
+	local checkCount = 0
+	for i=1, 10000 do
+		itemIndex = GetFlopCardRandomInfo(nType, itemList)
+	    if CheckFlopCardRate(itemIndex, nType, itemList, idx, actorId) == true then
+			break
+		end
+		checkCount = checkCount + 1
+	end
+	
+	if itemIndex <= 0 or checkCount >= 10000 then
+		itemIndex = table.getn(itemList) 
+	end
+	
+	return itemIndex
+	
+end
+
+
+--获取随机物品序号，nType为1系统产生，2为刷新产生, 3为翻单个牌的翻到的物品库
+function GetFlopCardRandomInfo(nType, infoTable)
+	local maxVal = 0
+	local endIdx = 0
+	local beginIdx = 0
+
+	for i = 1, table.getn(infoTable) do  
+		local info = infoTable[i]
+		if nType == 1 then
+			if info.isInit == true then
+				if beginIdx == 0 then
+					beginIdx = i
+				end
+				
+				maxVal = maxVal + info.rate
+			end
+		elseif nType == 2 then
+			if info.isInit == false then
+				if beginIdx == 0 then
+					beginIdx = i
+				end
+				maxVal = maxVal + info.rate
+			end
+		elseif nType == 3 then
+			if beginIdx == 0 then
+				beginIdx = i
+			end
+			maxVal = maxVal + info.rate
+		end
+		
+		endIdx = endIdx + 1
+	end
+	
+	local randVal = System.getRandomNumber(maxVal)
+	local retVal = 0
+	local tmpValue = 0
+	for index = beginIdx, endIdx do
+		tmpValue = tmpValue + infoTable[index].rate
+		if tmpValue >= randVal then
+			retVal = index
+			break
+		end
+	end
+	return retVal
+
+end
+
+--检查该物品是否满足刷出条件
+function CheckFlopCardRate(itemIndex, nType, itemList, idx, param)
+	if itemIndex <= 0 then
+		return false
+	end
+	
+	local itemConfig = itemList[itemIndex]
+	if not itemConfig then
+		return false
+	end
+
+	if nType == 1 then 
+		if itemConfig.isInit and itemConfig.isInit == true then
+			return true
+		else
+			return false
+		end
+	else 
+		if itemConfig.isInit and itemConfig.isInit == true then
+			return false
+		end
+	end 
+	
+	local totalConsumeYb = 0
+	local paramRankPtr = Ranking.getRanking(Lang.Rank.FlopCardllParamFile) 
+	if paramRankPtr then
+		local ybItemPtr = Ranking.getItemPtrFromId(paramRankPtr, 1)
+		if ybItemPtr then
+			totalConsumeYb = tonumber(Ranking.getSub(ybItemPtr, 0)) or 0
+		end 
+		
+		local paramItemPtr = Ranking.getItemPtrFromId(paramRankPtr, idx * FlopCardConfig.storeCount + itemIndex)
+		if paramItemPtr then
+			if GetFlopCardConsumeYb(param) >= itemConfig.startYb then
+				local needYb = tonumber(Ranking.getSub(paramItemPtr, 0)) or 0
+				if itemConfig.ybCircle and itemConfig.ybCircle > 0 then
+					if totalConsumeYb >= needYb then
+						Ranking.setSub(paramItemPtr, 0, needYb+itemConfig.ybCircle)
+					else
+						return false
+					end
+				end
+				return true 
+			end
+		end
+	end
+	
+	return false
+	
+end
+
+
+--获取刷新花费元宝
+function GetFlopCardConsumeYb(actorId)
+	local consumeYb = 0
+	local infoRankPtr = Ranking.getRanking(Lang.Rank.FlopCardInfoFile) 
+	if infoRankPtr then
+		local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+		if infoItemPtr then
+			consumeYb = tonumber(Ranking.getSub(infoItemPtr, FlopCardConfig.cardCount+1)) or 0
+		end
+	end
+	
+	return consumeYb
+
+end
+
+
+--发送翻牌的各个牌的 数据
+function SendFlopCardInfo(sysarg)
+	local infoRankPtr = Ranking.getRanking(Lang.Rank.FlopCardInfoFile) 
+	if infoRankPtr then
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId)
+		if not infoItemPtr then
+			if System.isInDateRange(unpack(FlopCardConfig.actTime)) ~= true then
+				return 
+			end
+			infoItemPtr = ProduceFlopCardInfo(sysarg, 1)
+		end
+		if infoItemPtr then
+			local pack = DataPack.allocPacket(sysarg, 145, 74) 
+			if not pack then
+				return 
+			end
+
+			local status = tonumber(Ranking.getSub(infoItemPtr, FlopCardConfig.cardCount)) or 1  --status为1产生牌，为2洗牌
+			DataPack.writeByte(pack, status)
+			DataPack.writeByte(pack, FlopCardConfig.cardCount)
+			for i = 1, FlopCardConfig.cardCount do 
+				local val = tonumber(Ranking.getSub(infoItemPtr, i-1)) or 0
+				local idx = System.getIntWord(val, 1)
+				local itemIdx = System.getIntWord(val, 0)
+				local itemId = 0
+				local itemCount = 0
+				if idx > 0 and idx <= table.getn(FlopCardConfig.itemLists) then
+					local itemList = FlopCardConfig.itemLists[idx].itemList
+					if itemIdx > 0 and itemIdx <= table.getn(itemList) then
+						itemId = itemList[itemIdx].id
+						itemCount = itemList[itemIdx].count
+					end
+				end 
+				
+				DataPack.writeInt(pack, itemId)
+				DataPack.writeShort(pack,itemCount) 
+			end	
+			
+			DataPack.flush(pack)
+		end
+	end
+end
+
+--发送翻到的珍宝物品的记录
+function SendAllLogInfo(sysarg)
+	local logCount = table.getn(brocastLog)
+	if logCount > 0 then
+		local pack = DataPack.allocPacket(sysarg, 145, 75) 
+		if pack then
+			if logCount > FlopCardConfig.logCount then
+				logCount = FlopCardConfig.logCount
+			end
+			DataPack.writeInt(pack, logCount)
+			for i = 1, logCount do
+				local tmpTab = brocastLog[i]
+				DataPack.writeString(pack, (tmpTab[1] or ""))
+				DataPack.writeInt(pack, (tmpTab[2] or 0)) 
+			end
+			DataPack.flush(pack)
+		end
+	end
+end
+
+--下发单个翻到的珍宝物品的记录
+function SendOneLogInfo(sysarg, name, id)
+	local pack = DataPack.allocPacket(sysarg, 145, 76)
+	if pack then
+		DataPack.writeString(pack, name)
+		DataPack.writeInt(pack, id) 
+		DataPack.flush(pack)
+	end
+end
+
+--下发翻到的奖励
+function SendFlopCardAward(sysarg, itemList)
+	if table.getn(itemList) > 0 then
+		local pack = DataPack.allocPacket(sysarg, 145, 77)
+		if pack then
+			local len = math.floor(table.getn(itemList) / 2)
+			DataPack.writeByte(pack, len)
+			for i = 1, len do 
+				DataPack.writeInt(pack, itemList[2*(i-1)+1])
+				DataPack.writeShort(pack, itemList[2*(i-1)+2])
+			end
+			DataPack.flush(pack)
+		end
+	end
+end
+
+--初始化翻牌参数配置
+function InitFlopCardParam()
+	local paramRankPtr = Ranking.getRanking(Lang.Rank.FlopCardllParamFile) 
+	if not paramRankPtr then
+		return 
+	end
+	
+	if Ranking.getRankItemCount(paramRankPtr) > 0 then
+		return 
+	end 
+	
+	local itemPtr = Ranking.getItemPtrFromId(paramRankPtr, 1)
+	if not itemPtr then
+		itemPtr = Ranking.addItemExt(paramRankPtr, 1, 0, false)
+	end
+	
+	if table.getn(FlopCardConfig.itemLists) <= 0 then
+		return 
+	end
+	
+	for i = 1, table.getn(FlopCardConfig.itemLists) do
+		local itemList = FlopCardConfig.itemLists[i].itemList
+		for j = 1, table.getn(itemList) do 
+			local paramItemPtr = Ranking.getItemPtrFromId(paramRankPtr, itemList[j].idx + i*FlopCardConfig.storeCount)
+			if not paramItemPtr then
+				paramItemPtr = Ranking.addItemExt(paramRankPtr, itemList[j].idx + i*FlopCardConfig.storeCount, 0, false)
+			end
+			if paramItemPtr then
+				Ranking.setSub(paramItemPtr, 0, itemList[j].startYb)
+			end
+		end
+	
+	end
+	
+	brocastLog = {}
+
+end

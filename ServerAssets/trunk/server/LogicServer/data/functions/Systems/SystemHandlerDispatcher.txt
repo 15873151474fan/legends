@@ -1,0 +1,42 @@
+﻿--#ifndef _SYSTEM_HANDLER_DISPATCHER_INCLIDED_ 
+--#define _SYSTEM_HANDLER_DISPATCHER_INCLIDED_
+
+--#include "SystemHandlerDispatcherImplement.txt" 
+
+--#include "ShortCut\ShortcutSystem.txt" once                                          
+--#include "NPCTrade\NPCTradeSystem.txt" once
+--#include "NPCRepair\NpcRepairSystem.txt" once    
+ 
+--#include "TimeReward\TimeRewardSystem.txt" once
+--#include "Interactive\InteracteSystem.txt" once      
+--#include "Miscs\MiscSystems.txt" once   
+---#include "Archive\ArchiveSystem.txt" once
+--#include "Archive\LuckyRollAwardHandler.txt" once
+--#include "FightSystem\autoFightSystem.txt" once
+  --#include "ActorDataFunc.txt" once         
+  --#include "SpaceCopyFunc.txt" once
+  --#include "DeputyEventFunc.txt" once
+  --#include "ShortcutsEventFunc.txt" once
+	--#include "TimeReward\TimeMoneyRewardSystem.txt" once
+
+--#include "GemSystem\GemSystem.txt" once
+--#include "PaTaSystem\PaTaFuben.txt" once
+
+--#include "CrossServerSystem\SystemHandler.txt" once
+--#include "ActivitySystem\ActivityHandle.txt" once
+--#include "PasswordSystem\SystemMsgHandler.txt" once --封码系统
+--转生子系统 
+--#include "CircleSystem\CircleSystemHandle.txt" once
+ 
+--#include "BossSystem\BossSystemHandle.txt" --BOSS系统 
+--新Vip系统
+--#include "NewVipSystem\NewVipSystemHandle.txt" once 
+
+
+--[[
+    将默认的系统消息处理分派插入到通知表中 
+]]
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeOnClientData, SystemHandlerDispatcher.dispatcher)
+
+--#endif //end of _SYSTEM_HANDLER_DISPATCHER_INCLIDED_

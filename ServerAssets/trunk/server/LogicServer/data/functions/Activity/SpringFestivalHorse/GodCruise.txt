@@ -1,0 +1,94 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\Festival\SpringFestivalHorseActive.txt" once
+
+--使用喜庆鞭炮
+function OnUseFestiveSalute(sysarg)
+	if Awards.CheckBagNeedGridCount(sysarg, 1) ~= true then
+		return false
+	end
+
+	local config = SpringFestivalHorseActiveConfig
+	if not config then return false end
+
+	if System.isInDateRange(unpack(config.actTime)) ~= true then
+		return true
+	end
+	
+	local godCruise = config.godCruise
+	if not godCruise then return false end
+
+	--使用喜庆鞭炮时检查是否在天神附近
+	if CheckNearGod(sysarg) then
+		local FireAward = godCruise.FireAward
+		if not FireAward then return false end
+
+		local tmpInfo = GetRandomGodCruiseInfo(godCruise.FireAward, 1)
+		local awards = tmpInfo.awards
+		if not awards then return false end
+		
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+					
+					if (awards[i].isRarity) and (awards[i].isRarity == true) and (awards[i].type == 0) then
+						System.broadcastTipmsg(string.format(Lang.Activity.cj0030, Actor.getName(sysarg), Item.getItemName(awards[i].id)), ttScreenCenter+ttChatWindow)
+					end
+				end
+			end
+		else
+			return false
+		end
+	end
+
+	return true
+end
+
+--使用喜庆鞭炮时检查是否在天神附近
+function CheckNearGod(sysarg)
+	local godCruise = SpringFestivalHorseActiveConfig.godCruise
+	if not godCruise then return false end
+
+	local nHandle = Fuben.getSceneHandleById(godCruise.npcSceneId, 0)
+	local NpcPtr = Fuben.getMonsterPtrById(nHandle, godCruise.npcMonsterId)
+	if NpcPtr then
+		local myPosX, myPosY = Actor.getEntityPosition(sysarg, 0, 0)
+		local npcPosX, npcPosY = Actor.getEntityPosition(NpcPtr, 0, 0)
+		local mySceneId = Actor.getSceneId(sysarg)
+		local NpcSceneId = Actor.getSceneId(NpcPtr)
+		if NpcSceneId ~= mySceneId then
+			return false
+		end
+		if math.abs(myPosX - npcPosX) > godCruise.npcRadius or math.abs(myPosY - npcPosY) > godCruise.npcRadius then
+			return false
+		end
+		return true
+	end
+	return false
+end
+
+--根据概率获取值
+function GetRandomGodCruiseInfo(infoTable, minVal)
+	local maxVal = 0
+	for k, v in ipairs(infoTable or {}) do
+		maxVal = maxVal + v.rate
+	end
+
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for k, v in ipairs(infoTable or {}) do
+		tmpValue = tmpValue + v.rate
+		if tmpValue >= randVal then
+			result = v
+			break
+		end
+	end
+	return result
+end

@@ -1,0 +1,185 @@
+﻿--lua script
+-- 宝物档次进阶脚本处理逻辑
+--#include "GemCommon.txt" once
+
+
+-- 获取档次进阶失败新的品质[1-5]
+local function GetRandomQuality(curQuality)	
+	if (curQuality < 1) then
+		curQuality = 1
+	end	
+	return System.getRandomNumber(curQuality)+1	
+end
+
+-- 获取档次进阶失败随机下降等级(随机下降1-5级)
+local function GetRandomDownLevel()
+	--return System.getRandomNumber(5)+1
+	return 0
+end
+
+local function GetWishValAddSuccRate(gemItem)
+	local wishVal = GemItem.getGemItemWishVal(gemItem)
+	local addSuccRate = math.floor(wishVal / GemGlobalConfig.wishValUpRate)
+	if (addSuccRate < 0) then addSuccRate = 0 end
+	
+	return addSuccRate;	
+end
+
+local function sendGemUpGradeSuccTip(sysarg, gemItemPtr)
+	local gemGrade = GemItem.getGemItemGrade(gemItemPtr) 
+	local newQuality = GemItem.getGemItemQuality(gemItemPtr)
+	local gemId = GemItem.getGemItemId(gemItemPtr)
+	local gemCfg		= GemConfig[gemId+1]
+	local gradeCfg 	= GetGemGradeConfig(gemCfg, gemGrade)
+	local gemName 	= gradeCfg.name
+	local campName 	= Camp.getCampName(Actor.getCamp(sysarg))
+	local actorName = Actor.getName(sysarg)
+	local tipmsg = string.format(Lang.Gem.t00005, campName, actorName, gemName, gemGrade, getQualityDesc(gemGrade, newQuality))			
+  --Actor.sendTipmsg(sysarg, tipmsg, ttTipmsgWindow)
+	System.broadcastTipmsg(tipmsg,ttScreenCenter+ttChatWindow)
+end
+	
+local function sendGemUpgradeFailedTip(sysarg, gemItemPtr)	
+	local gemGrade = GemItem.getGemItemGrade(gemItemPtr)		
+	Actor.sendTipmsg(sysarg, Lang.Gem.t00006, ttTipmsgWindow)		
+end
+
+local function checkGemUpGradeItemConsume(sysarg, reqItemTbl)
+	for i=1, table.getn(reqItemTbl) do
+		local req_ItemId 	= reqItemTbl[i].item
+		local req_ItemCnt = reqItemTbl[i].count
+		if (req_ItemCnt > 0) then			
+			if (not CheckItemReq(sysarg, req_ItemId, req_ItemCnt)) then				
+				return false 
+			end	
+		end
+	end
+	return true
+end
+
+local function upGradeItemConsume(sysarg, reqItemTbl)
+	for i=1, table.getn(reqItemTbl) do
+		local req_ItemId = reqItemTbl[i].item
+		local req_ItemCnt = reqItemTbl[i].count
+		if (req_ItemCnt > 0) then
+			if (req_ItemCnt ~= Actor.removeItem(sysarg, req_ItemId, req_ItemCnt, -1, -1, -1, "gem upgrade", 69)) then
+				print("remove consume item failed")
+				return false
+			end 
+		end
+	end
+	return true
+end
+
+-- 宝物提升失败[品质随机变化，等级下降1-5级]
+local function onGemUpGradeFailed(sysarg, gemItemPtr)				
+	GemItem.onGemItemUpgradeFailed(gemItemPtr, GetRandomDownLevel())
+	sendGemUpgradeFailedTip(sysarg, gemItemPtr)
+end
+
+local function onGemUpGradeSucc(sysarg, gemItemPtr, bAssistItem)	
+	local oldQuality = GemItem.getGemItemQuality(gemItemPtr)
+	local newQuality = -1
+	if (not bAssistItem) then
+		newQuality = GetRandomQuality(oldQuality)
+	end
+	
+	if (newQuality < 0) then
+		newQuality = oldQuality
+	end
+	GemItem.onGemItemUpgradeSucc(gemItemPtr, newQuality)
+	sendGemUpGradeSuccTip(sysarg, gemItemPtr)
+end
+
+	
+local function GemUpGradeImpl(sysarg, gemSlotIdx, bAssistItem)
+	--print("----------GemUpGradeImpl----------slot=" .. gemSlotIdx .. " bassistItem=" .. tostring(bAssistItem))
+	local gemItemPtr = Actor.getGemItemBySlot(sysarg, gemSlotIdx)
+	if (not gemItemPtr) then	return	end
+	
+	--检测是否为限时宝物
+	if GemItem.isLimitTimeGem(gemItemPtr) then return end
+	
+	local gemId = GemItem.getGemItemId(gemItemPtr)
+	if (gemId < 0) then	return	end
+	
+	local gemGrade = GemItem.getGemItemGrade(gemItemPtr) 
+	local gemCfg = GetGemConfigById(gemId)
+	if (not gemCfg) then return end
+		
+	-- 判断当前档次是否是最高档
+	local gradeCount = table.getn(gemCfg.gemGradeConfig)
+	if (gemGrade + 1 > gradeCount) then
+		print("curr grade is topmost")
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00024, ttTipmsgWindow)
+		return
+	end
+	
+	local gemGradeCfg = GemGlobalConfig.GemUpGradeConfig.gradesUpgrade[gemGrade]
+	if (gemGradeCfg == nil) then 
+		print(string.format("can't find gem upgrade config[grade=%d]", gemGrade))
+		return	
+	end
+	
+	
+	
+	local reqMoneyType 	= gemGradeCfg.moneyType							-- 消耗金钱类型
+	local reqMoneyCount = gemGradeCfg.money									-- 消耗金钱数目
+	local reqItemTbl = gemGradeCfg.requestItems
+	if (not checkGemUpGradeItemConsume(sysarg, reqItemTbl)) then return end
+	
+	if (CheckMoneyReq(sysarg, reqMoneyType, reqMoneyCount) == false) then		
+		print(string.format("not enough money req[type=%d count=%d]", reqMoneyType, reqMoneyCount))
+		return
+	end
+	
+	-- 检测进阶保护符	
+	if (bAssistItem) then
+		if (not CheckItemReq(sysarg, GemGlobalConfig.upGradeProtectItemId, 1)) then return end
+	end	
+		
+	-- 消耗（进阶符、进阶保护符、金钱消耗）	
+	if (not upGradeItemConsume(sysarg, reqItemTbl)) then return end
+		
+	if (bAssistItem) then
+		if (Actor.removeItem(sysarg, GemGlobalConfig.upGradeProtectItemId, 1, -1, -1, -1, "gem upgrade", 69) ~= 1) then	
+			print("remove upgrade protected item failed")
+			return
+		end
+	end
+		
+	local bindFrist = false
+	if (reqMoneyType == 0) then
+		bindFrist = true
+	end	
+	if (false == Actor.consumeCoin(sysarg, reqMoneyCount, 145, "gem upgrade", true, bindFrist)) then
+		print("consume coin failed")
+		return
+	end
+	
+	-- 计算概率
+	local rate = gemGradeCfg.rate	+ GetWishValAddSuccRate(gemItemPtr)
+	local randNum = System.getRandomNumber(100)+1	
+	--print("rate=" .. rate .. " randNum=" .. randNum)
+	if (randNum <= rate) then
+		--print("succ upgrade")
+		-- 档次进阶成功后，提升档次，
+		--GemItem.onGemItemUpgradeSucc(gemItemPtr)		
+		onGemUpGradeSucc(sysarg, gemItemPtr, bAssistItem)
+	else		
+		onGemUpGradeFailed(sysarg, gemItemPtr)
+	end
+end
+
+
+GemSystemImpl.GemUpGradeHandler = function (sysarg, msgid, packet)	
+	local gemSlotIdx 				= DataPack.readInt(packet)		-- 宝物槽位号
+	local useAssistItem			= DataPack.readInt(packet)		-- 是否使用进阶保护符
+	local bAssistItem = false
+	if (useAssistItem ~= 0) then
+		bAssistItem = true;
+	end
+	GemUpGradeImpl(sysarg, gemSlotIdx, bAssistItem)	
+end
+
+GemSystemImpl.registerMsgHandler(2, GemSystemImpl.GemUpGradeHandler)

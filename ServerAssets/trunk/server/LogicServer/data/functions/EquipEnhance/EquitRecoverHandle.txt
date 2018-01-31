@@ -1,0 +1,104 @@
+﻿--#include "data\config\item\EquitRecover.txt" once
+
+function ClientReqRecover(sysarg, packet)--客户端请求回收装备
+   local JobType = DataPack.readByte(packet) 
+   local Circle = DataPack.readByte(packet)
+   local Level = DataPack.readByte(packet)
+   local IsDown = DataPack.readByte(packet)--是否对多少级一下的装备进行回收 
+   local bagCount = Item.getBagItemCount( sysarg )  --玩家背包装备数
+   --print("ClientQuestHuLongAwardJobType:"..JobType.."Circle:"..Circle.."Level:"..Level.."IsDown:"..IsDown.."bagCount:"..bagCount)
+   local itemPtrList = {}
+   for i = 1, bagCount do
+		local bagEquipPtr = Item.getBagItemBySortID( sysarg, i )
+		--print("ClientQuestHuLongAwardJobTypei:"..i)
+		if bagEquipPtr then
+		    --print("ClientQuestHuLongAwardJobType")
+			local itemType = Item.getItemProperty( sysarg, bagEquipPtr, Item.ipItemType, 0 )
+			if itemType >= Item.itWeapon and itemType < Item.itEquipMax and itemType ~= Item.itDecoration then--勋章不能回收 
+			   if IsCanRecover(sysarg, bagEquipPtr, Circle, Level, JobType, IsDown) then --判断是否能够回收
+			      --print("ClientQuestHuLongAwardJobType")
+			      table.insert(itemPtrList, bagEquipPtr)
+               end
+			end
+		end
+	end
+	local ExpCount = 0 
+	for i = 1, table.getn(itemPtrList) do
+        local nItemStrong = Item.getItemProperty( sysarg, itemPtrList[i], Item.ipItemStrong, 0)
+        local OtherExp = EquitRecoverConfig.StrongBase*(1+EquitRecoverConfig.StrongRate)^(nItemStrong-1) 
+        if Actor.removeItemByPtr(sysarg, itemPtrList[i], 1, true, "Recover Equit", 1002) == 0 then
+	       return
+        end
+        local nItemId = Item.getItemProperty( sysarg, itemPtrList[i], Item.ipItemID, 0 )
+        local Tb = EquitRecoverConfig.Award[nItemId]
+        for i = 1, table.getn(Tb) do
+            Actor.giveAward(sysarg, Tb[i].type, Tb[i].id, Tb[i].count+OtherExp, Tb[i].quality, Tb[i].strong, Tb[i].bind, 0, 1002, "Recover Equit"..nItemId , -1)
+            ExpCount = ExpCount + Tb[i].count + math.floor(OtherExp) 
+            --print("ExpCount:"..ExpCount)
+        end
+	end
+	if ExpCount > 0 then
+       Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf040a, table.getn(itemPtrList), ExpCount), ttFlyTip)
+       Actor.triggerQuestEvent(sysarg, 37, 7, 2)  --任务
+	end
+end
+
+--判断该装备是否可回收
+function IsCanRecover(sysarg, itemPtr, UpCircle, UpLevel, JobType, IsDown)
+  --print("ClientQuestHuLongAwardJobType")
+  --判断是否配置表中有该物品
+  local nItemId = Item.getItemProperty( sysarg, itemPtr, Item.ipItemID, 0 )
+  if not EquitRecoverConfig.Award[nItemId] then
+     return false
+  end
+  --print("ClientQuestHuLongAwardJobType")
+  if JobType ~= 0 then
+     local Level = Item.getItemProperty( sysarg, itemPtr, Item.ipItemActorLevel, 0 )
+     local ReLevel = Item.getItemProperty( sysarg, itemPtr, Item.ipItemActorReLevel, 0 )
+     if IsDown == 1 then  --判断是否达到等级要求
+        if (ReLevel > UpCircle) or (Level > UpLevel ) then
+           return false
+        end
+     else
+       if (UpCircle ~= ReLevel) or (UpLevel ~= Level) then
+          return false
+       end     
+     end
+     --判读是否达到职业需求 
+     local Vocation = Item.getItemProperty( sysarg, itemPtr, Item.ipItemNeedVocation, 0 )
+     if (Vocation ~= 0) and (Vocation ~= JobType) then
+        return false
+     end
+  end
+  
+  if Actor.hasQuest(sysarg, 22) then
+  
+  end
+  --print("ClientQuestHuLongAwardJobType")
+  if not EquitRecoverConfig.smithRecover then
+	  local tempVal = Item.getItemProperty( sysarg, itemPtr, Item.ipItemForgeProperty1Value, 0) --是否有鉴定属性 
+	  if tempVal > 0 then
+	     return false
+	  end 
+	  local tempVal = Item.getItemProperty( sysarg, itemPtr, Item.ipItemForgeProperty2Value, 0) --是否有鉴定属性
+	  if tempVal > 0 then
+	     return false
+	  end
+	  local tempVal = Item.getItemProperty( sysarg, itemPtr, Item.ipItemForgeProperty3Value, 0) --是否有鉴定属性
+	  if tempVal > 0 then
+	     return false
+	  end
+  end
+  if not EquitRecoverConfig.btLuckRecover then
+     local nLuck = Item.getItemProperty( sysarg, itemPtr, Item.ipItemLuck, 0 )--是否有幸运属性 
+     if nLuck > 0 then
+        return false
+     end
+  end
+  local nItemStrong = Item.getItemProperty( sysarg, itemPtr, Item.ipItemStrong, 0)--装备强化条件
+  if nItemStrong >= EquitRecoverConfig.StrongLevel then
+     --print("nItemStrong:"..nItemStrong)
+     return false
+  end  
+  return true
+end

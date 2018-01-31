@@ -1,0 +1,45 @@
+--lua script
+--#include "data\functions\Activity\ChristmasHorse\ChristmasSnowman.txt" once -- 圣诞节全民堆雪
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasSnowmanConfig.txt" once
+--查看进度
+function XamsProgress(sysarg, index)
+	local str = Lang.Activity.msd0105
+	local num = ReadXmasData(index, 1)
+	if num > ChristmasSnowmanConfig.snowman[4].num then
+		num = ChristmasSnowmanConfig.snowman[4].num
+	end
+	str =  str .. num.. "/".. ChristmasSnowmanConfig.snowman[4].num
+	str = str.."\\<#BL"..Lang.Activity.msd0114.."/@main>" --返回
+	return str
+	
+	
+	
+end
+
+--提交雪球
+function XamsGiveBall(sysarg, index)
+	local num = ReadXmasData(index, 1)
+	if num >= ChristmasSnowmanConfig.snowman[4].num then
+		Snowmandialog(sysarg, index)
+	else
+		ReqXmasGiveSnowball(sysarg, index, false)
+	end
+end
+
+--继续提交对话框
+function Snowmandialog( sysarg ,index)
+	local npcHandle = Actor.getNpc(sysarg)
+	Actor.messageBox(sysarg, npcHandle,0,Lang.Activity.msd0135,Lang.Activity.msd0136.."/SnowmanSubmit,".. index, Lang.Activity.msd0133.."/SnowmanCancel",NULL)
+end
+
+--确定继续提交
+function SnowmanSubmit(sysarg,index)
+	ReqXmasGiveSnowball(sysarg, index, true)
+end
+
+--取消提交
+function SnowmanCancel( sysarg )
+end
+
+
+

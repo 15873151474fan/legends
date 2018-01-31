@@ -1,0 +1,432 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\Arena\warriorArena.txt" once
+--#include "data\config\activityconfig\Arena\ArenaRank.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+
+--进入勇士角斗场
+function EnterAremaSceen(sysarg)
+	
+	local str = ""
+
+	local svar = System.getDyanmicVar()
+	if svar.ArenaStartFlag == nil or svar.ArenaStartFlag == 0 then
+		str = Lang.Activity.a00010
+		return str
+	end
+	
+	if System.isInTimeRange(unpack(warriorArenaConfig.actTime)) ~= true then
+		str = Lang.Activity.a00010
+		return str 
+	end
+
+	if Actor.checkActorLevel(sysarg, warriorArenaConfig.minLevel, 0) ~= true then
+		str = string.format(Lang.Activity.a00008,warriorArenaConfig.minLevel)
+		return str
+	end
+	
+	local nHandle = Fuben.getSceneHandleById(warriorArenaConfig.nSceenId,0)
+	
+	local nPosX = System.getRandomNumber(warriorArenaConfig.nPosX[2]-warriorArenaConfig.nPosX[1])
+	nPosX = nPosX + warriorArenaConfig.nPosX[1]
+
+	local nPosY = System.getRandomNumber(warriorArenaConfig.nPosY[2]-warriorArenaConfig.nPosY[1])
+	nPosY = nPosY + warriorArenaConfig.nPosY[1]
+	
+	local avar = Actor.getDyanmicVar(sysarg)
+	if avar.InArenaSceen == nil then		--玩家进入角斗场的标志
+		avar.InArenaSceen = 0
+	end
+
+	avar.InArenaSceen = 1
+	if Actor.enterFuBen(sysarg,nHandle,warriorArenaConfig.nSceenId,nPosX,nPosY) == false then return end
+
+	UpdateActivityForm(sysarg,1)
+end
+
+--领取角斗积分排名奖励
+function GetAremaAward(sysarg)
+	local svar = System.getDyanmicVar()
+	if svar.ArenaStartFlag == nil then
+		svar.ArenaStartFlag = 0
+	end
+	if svar.ArenaStartFlag == 1 then
+		local str1 = Lang.Activity.w00018
+		return str1
+	end
+
+	--双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(8) == 1 then
+		doubleAwardActRate = 1
+	end
+
+	local str = ""
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId( ranking, nActorId )
+
+		if item then
+
+			local nFlag = tonumber(Ranking.getSub(item,0))
+			
+			--已领取过奖励
+			if nFlag == 1 then
+				return Lang.Activity.a00016
+			end
+
+			local nRank = Ranking.getIndexFromPtr(item) + 1
+
+			for i=1,table.getn(warriorArenaConfig.actorRank) do
+				if nRank >= warriorArenaConfig.actorRank[i].rankInterval[1] and nRank <= warriorArenaConfig.actorRank[i].rankInterval[2] then
+					local nArenaConfig = warriorArenaConfig.actorRank
+					
+					for j=1,table.getn(nArenaConfig[i].awards) do
+						Actor.giveAward(sysarg,nArenaConfig[i].awards[j].type,nArenaConfig[i].awards[j].id,nArenaConfig[i].awards[j].count*(1+doubleAwardActRate),nArenaConfig[i].awards[j].quality,nArenaConfig[i].awards[j].strong,nArenaConfig[i].awards[j].bind,0,205,"ArenaAward")
+					end
+
+					Ranking.setSub(item,0,"1")
+					Actor.triggerAchieveEvent(sysarg,44,15,nRank)		--成就
+
+					return Lang.Activity.a00014
+				end
+			end
+		end
+	end
+
+	return Lang.Activity.a00015
+end
+
+-- 更新玩家积分
+function UpdateRank(sysarg,nScore)
+	local svar = System.getDyanmicVar()
+	if svar.ArenaStartFlag == nil or svar.ArenaStartFlag == 0 then
+		return
+	end
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId( ranking, nActorId )
+		local oldRank = Ranking.getItemIndexFromId( ranking, nActorId )
+
+		if item then
+			local nPoint = Ranking.getPoint(item)
+
+			Ranking.updateItem(ranking,nActorId,nScore)
+
+			Ranking.setSub(item,0,"0")
+			Ranking.setSub(item,1,Actor.getName(sysarg))
+		else
+			local pItem = Ranking.addItem(ranking,nActorId,nScore)
+
+			if pItem then
+				Ranking.setSub(pItem,0,"0")
+				Ranking.setSub(pItem,1,Actor.getName(sysarg))
+			end
+		end
+
+		local newRank = Ranking.getItemIndexFromId( ranking, nActorId )
+
+		if newRank < 3 then
+			SendActivityToAll()
+		else
+			UpdateActivityForm(sysarg,2)
+		end
+	end
+end
+
+--击杀怪物获得的积分 ntype 1 小怪 2 boss , 3 采集怪,这个编号顺序与warriorArenaConfig.Score中顺序要一致
+-- param1 1074要另外加buff
+function GetScoreByKillMonster(sysarg,nType, param1)
+	local svar = System.getDyanmicVar()
+	if svar.ArenaStartFlag == nil or svar.ArenaStartFlag == 0 then
+		return
+	end
+	
+	local nScore = warriorArenaConfig.Score[nType] or 0;
+	UpdateRank(sysarg,nScore);
+
+	if nType == 2 then
+		local svar = System.getDyanmicVar()
+		
+		svar.ArenaBossHandle = nil
+		if svar.CallArenaBossFlag ~= nil then
+			if svar.CallArenaBossFlag == 1 then
+				local nHandle = Fuben.getSceneHandleById(warriorArenaConfig.exitSceenId,0)
+				local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00014)
+				Actor.regScriptCallback(NpcPtr, NpcPtr, warriorArenaConfig.nTime, 0, 1, "NextCallArenaBoss")
+			end
+		end
+		
+		local myName = Actor.getName(sysarg)
+		if nScore > 0 then
+			local str1 = string.format(Lang.Activity.w00014,myName,nScore)
+			--System.broadcastTipmsg(str1,2)
+			local nScene = Fuben.getSceneHandleById(warriorArenaConfig.nSceenId, 0)
+			Fuben.sendMsgToScene(nScene,str1,2+128)
+		end
+	-- 采集怪	
+	elseif 3 == nType then
+		--如果param1 1074，增加2个buff
+		if param1 then
+			for _, aBuff in ipairs(warriorArenaConfig.OtherBuffs or {}) do
+				Actor.addBuff(sysarg, aBuff.buffType, aBuff.buffGroup, aBuff.value, aBuff.times, aBuff.interval,aBuff.buffName,aBuff.timeOverlay); -- 这个BUFF给玩家
+			end
+			return
+		end
+		local Buffs = warriorArenaConfig.BUFFs;
+		if Buffs then
+			local nLayer = #Buffs;
+			local nCurIdx = nil; -- 玩家当前BUFF的id
+			local nNextIdx = nil;
+			for k,v in pairs(Buffs) do 
+				if Actor.hasBuff(sysarg,v.buffType,v.buffGroup) then 
+					nCurIdx = k ;		-- 下一层BUFF的索引			
+				end 
+			end
+			if nCurIdx then
+				local dBuff = Buffs[nCurIdx]; -- 删除原来的
+				-- print("删除原来的"..nCurIdx);
+				Actor.delBuff(sysarg, dBuff.buffType, dBuff.buffGroup);
+				nNextIdx = nCurIdx + 1;
+			else
+				nNextIdx = 1 ;
+			end
+			if nNextIdx > nLayer then nNextIdx = nLayer end;
+			local aBuff = Buffs[nNextIdx]; -- 添加下一层
+			-- print("添加下一层"..nNextIdx);
+			Actor.addBuff(sysarg, aBuff.buffType, aBuff.buffGroup, aBuff.value, aBuff.times, aBuff.interval,aBuff.buffName,aBuff.timeOverlay); -- 这个BUFF给玩家			
+			-- 采集怪不能被必杀技杀死
+			-- 伤害值：固定值+百分比
+		end
+	end
+
+	if nScore > 0 then
+		local str2 = string.format(Lang.Activity.w00013,nScore)
+		Actor.sendTipmsg(sysarg,str2,1)
+	end
+end
+
+--BOSS在15分钟后才被打死，则1分钟后再刷出第二只BOSS
+function NextCallArenaBoss()
+	local svar = System.getDyanmicVar()
+
+	if svar.ArenaBossHandle == nil then
+		svar.ArenaBossHandle = 0
+	end
+	
+	--需要下次招的标志
+	if svar.CallArenaBossFlag == nil then
+		svar.CallArenaBossFlag = 1
+	end
+
+	if svar.ArenaBossHandle > 0 then		--boss还没死亡
+		svar.CallArenaBossFlag = 1
+		return
+	end
+
+	local nHandle = Fuben.getSceneHandleById(warriorArenaConfig.exitSceenId,0)
+	local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00014)
+	Actor.unregScriptCallback(NpcPtr, "NextCallArenaBoss")
+
+	if svar.ArenaBossIndex == nil then
+		svar.ArenaBossIndex = 1
+	end
+
+	if svar.ArenaBossIndex > 3 then
+		return
+	end
+
+	local hScene = Fuben.getSceneHandleById(warriorArenaConfig.nSceenId, 0)
+	local nMonster = Fuben.createOneMonsters(hScene, warriorArenaConfig.ArenaMonsters[svar.ArenaBossIndex].nMonsterID, warriorArenaConfig.ArenaMonsters[svar.ArenaBossIndex].posX1, warriorArenaConfig.ArenaMonsters[svar.ArenaBossIndex].posX2, warriorArenaConfig.ArenaMonsters[svar.ArenaBossIndex].posY, warriorArenaConfig.ArenaMonsters[svar.ArenaBossIndex].nCount, warriorArenaConfig.ArenaMonsters[svar.ArenaBossIndex].nLiveTime)
+
+	svar.ArenaBossHandle = Actor.getHandle(nMonster)
+
+	svar.CallArenaBossFlag = 0
+	svar.ArenaBossIndex = svar.ArenaBossIndex + 1
+end
+
+--被击杀扣除积分，击杀着增加积分
+function AwardScoreKillActor(sysarg,killer)
+
+	local svar = System.getDyanmicVar()
+	if svar.ArenaStartFlag == nil or svar.ArenaStartFlag == 0 then
+		return
+	end
+
+	local nSceendId = Actor.getSceneId(sysarg)
+
+	if nSceendId ~= warriorArenaConfig.nSceenId then return end
+	DelSuicideBomber(sysarg); -- 清除自爆炸弹
+	-- 自己被炸死那么不扣除任何分数
+	if(sysarg == killer) then return end;
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+
+	if ranking then
+		local nMyActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId( ranking, nMyActorId )
+		if item then
+			local mOldRank = Ranking.getItemIndexFromId(ranking,nMyActorId)
+			local myPoint = Ranking.getPoint(item)
+			
+			local myName = Actor.getName(sysarg)
+			local tagName = Actor.getName(killer)
+			if myPoint < warriorArenaConfig.minPoint then
+				if myName~=nil and tagName ~= nil then
+					local str = string.format(Lang.Activity.a00013,tagName,myName)
+					--System.broadcastTipmsg(str,2)
+					local nScene = Fuben.getSceneHandleById(warriorArenaConfig.nSceenId, 0)
+					Fuben.sendMsgToScene(nScene,str,2+128)
+				end
+				return 
+			end
+			
+			local nMyPoint = math.ceil(myPoint * warriorArenaConfig.killActorPoint / 100)
+			local nTargetPoint = math.ceil(myPoint * warriorArenaConfig.killActorPoint / 100)			
+
+			for _, aBuff in ipairs(warriorArenaConfig.OtherBuffs or {}) do
+				--如果killer有超级花丛的buff，得双倍积分
+				if Actor.hasBuff(killer, aBuff.buffType, aBuff.buffGroup) then
+					nTargetPoint = nTargetPoint * aBuff.value
+					break
+				end
+			end
+			
+			local nTagetActorId = Actor.getIntProperty(killer,PROP_ENTITY_ID)
+			local tOldRank = Ranking.getItemIndexFromId(ranking,nTagetActorId)
+			local pItem = Ranking.getItemPtrFromId(ranking, nTagetActorId)
+
+			if pItem then
+				Ranking.updateItem(ranking,nTagetActorId,nTargetPoint)
+				Ranking.setSub(pItem,0,"0")
+				Ranking.setSub(pItem,1,tagName)
+			else
+				local tagItem = Ranking.addItem(ranking,nTagetActorId,nTargetPoint)
+				if tagItem then
+					Ranking.setSub(tagItem,0,"0")
+					Ranking.setSub(tagItem,1,tagName)
+				end
+			end
+
+			Ranking.updateItem(ranking,nMyActorId,-nMyPoint)
+			
+			if myName~=nil and tagName ~= nil then
+				local hScene = Fuben.getSceneHandleById(warriorArenaConfig.nSceenId, 0)
+				local str1 = string.format(Lang.Activity.a00012,tagName,myName,nTargetPoint)
+				Fuben.sendMsgToScene(hScene,str1,2+128)
+			end
+			
+			if nTargetPoint > 0 then
+				local str2 = string.format(Lang.Activity.w00013,nTargetPoint)
+				Actor.sendTipmsg(killer,str2,1)
+			end
+
+			local mNewRank = Ranking.getItemIndexFromId(ranking,nMyActorId)
+			local tNewRank = Ranking.getItemIndexFromId(ranking,nTagetActorId)
+			if (mOldRank < 3 or mNewRank < 3) or (tOldRank < 3 or mNewRank < 3) then
+				SendActivityToAll()
+			else
+				UpdateActivityForm(sysarg,2)
+				UpdateActivityForm(killer,2)
+			end
+		end
+	end
+end
+
+--给玩家经验
+function GetArenaActorExp()
+	local playerList = LuaHelp.getSceneActorListById(warriorArenaConfig.nSceenId)		--获取某场景玩家对象列表
+	local nRate = GetCombineActivityRate()
+	
+	--双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(8) == 1 then
+		doubleAwardActRate = 1
+	end
+
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.giveAward(player,warriorArenaConfig.LoopExp.type,warriorArenaConfig.LoopExp.id,warriorArenaConfig.LoopExp.count * (nRate + doubleAwardActRate) ,warriorArenaConfig.LoopExp.quality,warriorArenaConfig.LoopExp.strong,warriorArenaConfig.LoopExp.bind,0,205,"ArenaAward")
+			end
+		end
+	end
+end
+
+--更新信息群发
+function SendActivityToAll()
+	local playerList = LuaHelp.getSceneActorListById(warriorArenaConfig.nSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				UpdateActivityForm(player,1)
+			end
+		end
+	end
+end
+
+--更新活动面板信息 1 表示进入 2 表示在场景内更新
+function UpdateActivityForm(sysarg,nType)
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+	
+	local nRank = 0
+	local nScore = {0,0,0}
+	local mPoint = 0
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		nRank = Ranking.getItemIndexFromId(ranking,nActorId) + 1
+		
+		local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+
+		if nItem then
+			mPoint = Ranking.getPoint(nItem)
+		end
+
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+			if pItem then
+				nScore[i+1] = Ranking.getPoint(pItem)
+			end
+		end
+	end
+
+	if nType == 1 then
+		local nHandle = Fuben.getSceneHandleById(warriorArenaConfig.nSceenId, 0)
+		local nTime = Fuben.getSceneTime(nHandle)
+		Actor.initActivityWind(sysarg,Lang.Activity.w00058,nTime,Lang.Activity.w00059,Lang.Activity.w00060,nScore[1],Lang.Activity.w00061,nScore[2],Lang.Activity.w00062,nScore[3],Lang.Activity.w00063,mPoint,Lang.Activity.w00064,nRank)
+	else
+		Actor.changeActivityProgress(sysarg,nScore[1],nScore[2],nScore[3],mPoint,nRank)
+	end
+end
+
+
+--  清除定时炸弹
+function DelSuicideBomber(sysarg)	
+	local buff = warriorArenaConfig.SuicideBomber;
+	Actor.delBuff(player, buff.buffType,buff.buffGroup);
+end
+
+-- 随机给予积分奖励
+
+function RandScoreSystemTip()
+	System.broadcastTipmsg(Lang.Activity.a00212,2+128); 
+end
+function RandScore()
+	local playerList = LuaHelp.getSceneActorListById(warriorArenaConfig.nSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		local num = warriorArenaConfig.RandScoreConfig.PlayerNum;
+		local score = warriorArenaConfig.RandScoreConfig.Score;
+		for j = 1, num do
+			local player = playerList[math.random(1, #playerList)];
+			if player then
+				UpdateRank(player,score);				
+				Actor.sendTipmsg(player, string.format(Lang.Activity.a00210,score), ttFlyTip);
+			end
+		end
+		local broStr = string.format(Lang.Activity.a00211,score, num)
+		System.broadcastTipmsg(broStr, ttScreenCenter+ttChatWindow)
+	end
+end

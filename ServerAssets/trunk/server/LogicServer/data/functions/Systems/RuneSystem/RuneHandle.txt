@@ -1,0 +1,156 @@
+--lua script
+--符石系统
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\Rune\RuneCombine.txt" once 
+--#include "data\config\Rune\RuneEngraved.txt" once 
+
+--[[
+	cOnRuneCombineOp = 1,			--符石合成
+	cRuneEngravedOp = 2,			--符石重刻
+	cStartRuneEngravedOp = 3,			//开始重刻
+]]
+
+RuneOpFuncList = {}
+
+EventCallDispatcher.HandlerArtifactOp = function (sysarg, args)
+ --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = RuneOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--符石合成
+RuneOpFuncList[1] = function (sysarg,args)
+	OnRuneCombine(sysarg,args)
+end
+
+--符石重刻
+RuneOpFuncList[2] = function (sysarg,args)
+	OnRuneEngraved(sysarg,args)
+end
+
+--开始重刻
+RuneOpFuncList[3] = function (sysarg,args)
+	OnStartRuneEngraved(sysarg,args)
+end
+
+function OnRuneCombine(sysarg,args)
+	local nCount = args[2]
+	local itemPtr = {}
+	for i=1,nCount do
+		itemPtr[i] = args[2+i]
+	end
+
+	local nLevel = Item.getRuneItemLevelById(itemPtr[1])
+	if nLevel < 0 or nLevel > table.getn(RuneCombineConfig) then
+		Actor.sendTipmsg( sysarg,Lang.Activity.fs0010,ttFlyTip )
+		return
+	end
+	for i=1,nCount do
+		if nLevel ~= Item.getRuneItemLevelById(itemPtr[i]) then
+			Actor.sendTipmsg( sysarg,Lang.Activity.fs0010,ttFlyTip )
+			return
+		end
+	end
+
+	local nConfig = RuneCombineConfig[nLevel]
+	if nConfig == nil then return end
+
+	if nCount < nConfig.CountRate[1][1] then
+		Actor.sendTipmsg( sysarg,string.format(Lang.Activity.fs0011,nConfig.CountRate[1][1]),ttFlyTip )
+		return
+	end
+	
+	local needRate = 0
+	for j=1,table.getn(nConfig.CountRate) do
+		if nCount >= nConfig.CountRate[j][1] then
+			needRate = nConfig.CountRate[j][2]
+		end
+	end
+	
+	for k=1,nCount do
+		if Actor.removeItem(sysarg, itemPtr[k], 1) ~= 1 then
+			for m=1,k-1 do
+				Actor.addItem(sysarg,itemPtr[m],0,0,1)
+			end
+			return
+		end
+	end
+
+	local nResult = 0
+	local nRate = System.getRandomNumber(100)
+	if nRate <=  needRate then
+		nResult = 1
+		Actor.addItem(sysarg,nConfig.ItemId,0,0,1,nConfig.nBind,0,Lang.Activity.fs0012,941)
+	end
+
+	local npack = DataPack.allocPacket(sysarg, 55, 6)
+	if not npack then return false end
+	DataPack.writeByte(npack, nResult)
+	DataPack.flush(npack)
+
+end
+
+--符石重刻
+function OnRuneEngraved(sysarg,args)
+	local nItemId = args[2]
+	local nLevel = args[3]
+	
+	if nLevel <= 0 then return end
+
+	local nConfig = RuneEngraved.Engeaved[nLevel]
+	if nConfig == nil then return end
+	
+	local npack = DataPack.allocPacket(sysarg, 55, 7)
+	if not npack then return false end
+	DataPack.writeInt(npack, nConfig.nItem)
+	DataPack.writeByte(npack, nConfig.nBind)
+	DataPack.writeInt(npack,table.getn(nConfig.consume))
+	for i=1,table.getn(nConfig.consume) do
+		DataPack.writeByte(npack, nConfig.consume[i].type)
+		DataPack.writeInt(npack, nConfig.consume[i].id)
+		DataPack.writeInt(npack, nConfig.consume[i].count)
+	end
+
+	DataPack.flush(npack)
+
+end
+
+--开始重刻
+function OnStartRuneEngraved(sysarg,args)
+	local nItemId = args[2]
+	local nLevel = args[3]
+	
+	if nLevel <= 0 then return end
+	local nConfig = RuneEngraved.Engeaved[nLevel]
+	if nConfig == nil then return end
+	
+	for i=1,table.getn(nConfig.consume) do
+		if Actor.checkConsume(sysarg,nConfig.consume[i].type,nConfig.consume[i].id,nConfig.consume[i].count) == false then
+			Actor.sendTipmsg( sysarg,Lang.Activity.cr0021,ttFlyTip )
+			local npack = DataPack.allocPacket(sysarg, 55, 8)
+			if not npack then return false end
+			DataPack.writeByte(npack, 0)
+			DataPack.flush(npack)
+			return
+		end
+	end
+
+	for i=1,table.getn(nConfig.consume) do
+		Actor.removeConsume(sysarg,nConfig.consume[i].type,nConfig.consume[i].id,nConfig.consume[i].count,-1,-1,-1,0,941,Lang.Activity.cr0021)
+	end
+
+	if Actor.removeConsume(sysarg,0,nItemId,1,-1,-1,-1,0,941,Lang.Activity.cr0021) == 1 then
+		Actor.addItem(sysarg,nConfig.nItem,0,0,1,nConfig.nBind,0,Lang.Activity.cr0021,941)
+	end
+
+	local npack = DataPack.allocPacket(sysarg, 55, 8)
+	if not npack then return false end
+	DataPack.writeByte(npack, 1)
+	DataPack.flush(npack)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeRuneOp, EventCallDispatcher.HandlerArtifactOp)

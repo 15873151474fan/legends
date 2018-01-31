@@ -1,0 +1,186 @@
+﻿
+--#include "data\config\activityconfig\IceWorld\config.txt" once
+
+function OnEnterIceWorldFuben(sysarg)
+	--print("OnEnterIceWorldFuben")
+	local config = IceWorldConfig
+	if not config then return end
+	local nTeamId = Actor.getTeamId(sysarg)
+	local pLeader = TeamFun.getTeamCaptain(nTeamId)
+	
+	if pLeader ~= sysarg then
+		return
+	end
+	
+	local hScene = Actor.getSceneHandle(sysarg)
+	local npcPtr = Fuben.getNpcPtrByName(hScene, config.npcName)
+	
+	--创个人妖出来
+	local angel = config.angel
+	Fuben.createMonster(hScene, angel.mid, angel.x, angel.y, angel.liveTime)
+	
+	--注册创骰子的
+	local globalNpc = System.getGlobalNpc()
+	if globalNpc and npcPtr then
+		--print("npcPtrFid:"..Actor.getFubenId(npcPtr))
+		Actor.unregScriptCallback(npcPtr, "CreateIceWorldDice")
+		Actor.regScriptCallback(npcPtr, npcPtr, config.diceInterval*1000, 100000, 1, "CreateIceWorldDice")
+		local hFuben = Actor.getFubenHandle(sysarg)
+		Fuben.sendMsgToFb(hFuben, Lang.Activity.iw0008, ttScreenCenter+ttChatWindow)
+	end
+end
+
+function CreateIceWorldDice(sysarg)
+	--print("CreateIceWorldDice")
+	
+	local config = IceWorldConfig
+	if not config then return end
+
+	local nFid = Actor.getFubenId(sysarg)
+	if nFid <= 0 then return end
+	
+	local hFuben = Actor.getFubenHandle(sysarg)
+	--print(Actor.getName(sysarg))
+	local hScene = Actor.getSceneHandle(sysarg)
+	
+	for k, v in ipairs(config.dice.mid) do
+		local rand = math.random(table.getn(config.dice.mid))
+		local pos = config.dice.pos[k]
+		Fuben.createMonster(hScene, config.dice.mid[rand], pos.x, pos.y, config.dice.liveTime)
+	end
+	
+	--购买骰子标示
+	local pFuben = Actor.getFubenPrt(sysarg)
+	local fdvar = Fuben.getDyanmicVar(pFuben)
+	fdvar.diceData = ""
+	fdvar.buyDiceFlag = 0
+
+	local npcPtr = Fuben.getNpcPtrByName(hScene, config.npcName)
+	--注册创怪的
+	local globalNpc = System.getGlobalNpc()
+	if globalNpc and npcPtr then
+		--print("npcPtrFid:"..Actor.getFubenId(npcPtr))
+		Actor.unregScriptCallback(npcPtr, "CreateIceWorldMonster")
+		Actor.regScriptCallback(npcPtr, npcPtr, config.mobInterval*1000, 100000, 1, "CreateIceWorldMonster")
+		
+			--注册买骰子的
+		Actor.unregScriptCallback(npcPtr, "DeleteBuyDiceFlag")
+		Actor.regScriptCallback(npcPtr, npcPtr, config.buyDiceInterval*1000, 100000, 1, "DeleteBuyDiceFlag")
+	end
+	
+	Fuben.broadcastFbActProgress(hFuben, 0, 0)
+	
+	Fuben.sendMsgToFb(hFuben, Lang.Activity.iw0009, ttScreenCenter+ttChatWindow)
+end
+
+function CreateIceWorldMonster(sysarg)
+	--print("CreateIceWorldMonster")
+	local config = IceWorldConfig
+	
+	local pFuben = Actor.getFubenPrt(sysarg)
+	local nFid = Actor.getFubenId(sysarg)
+	if not pFuben or nFid <= 0 then return end
+	local hFuben = Actor.getFubenHandle(sysarg)
+	
+	local hScene = Actor.getSceneHandle(sysarg)
+	
+	for k, v in ipairs(config.dice.mid) do
+		Fuben.clearMonster(hScene, v)	--删除其他的骰子怪
+	end
+	
+	
+	local index = 0
+	
+	local fdvar = Fuben.getDyanmicVar(pFuben)
+	local diceData = fdvar.diceData
+	local combine = ""
+	if diceData then
+		index, combine = ChkIceWorldDice(diceData)
+	end
+	
+	--print("combine:"..diceData)
+	
+	--print("dice index:"..index)
+	local mob = config.mob[index]
+	if not mob then
+		mob = config.mob[1]
+	end
+	
+	for k, v in ipairs(mob.monster) do
+		Fuben.createMonstersInRange(hScene, v.mid, v.x1, v.y1, v.x2, v.y2, v.count, v.liveTime)
+	end
+	
+	Fuben.broadcastFbActProgress(hFuben, tonumber(diceData), mob.rate)
+	
+	Fuben.sendMsgToFb(hFuben, string.format(Lang.Activity.iw0010,mob.tips, diceData ,mob.rate), ttScreenCenter+ttChatWindow)
+end
+
+function DeleteBuyDiceFlag(sysarg)
+	--print("DeleteBuyDiceFlag")
+	local pFuben = Actor.getFubenPrt(sysarg)
+	local nFid = Actor.getFubenId(sysarg)
+	if not pFuben or nFid <= 0 then return end
+	local hFuben = Actor.getFubenHandle(sysarg)
+	
+	local hScene = Actor.getSceneHandle(sysarg)
+	
+	local fdvar = Fuben.getDyanmicVar(pFuben)
+	fdvar.buyDiceFlag = 10000
+end
+
+function ChkIceWorldDice(diceData)
+	local mob = IceWorldConfig.mob
+	
+	--[[
+	local combine = ""
+	for k, v in ipairs(diceData) do
+		combine = combine..tostring(v)
+	end
+	
+	table.sort(diceData)
+	local sortCombine = ""
+	for k, v in ipairs(diceData) do
+		sortCombine = sortCombine..tostring(v)
+	end
+	
+	--print("sortCombine:"..sortCombine)
+	--]]
+	
+	local combine = {}
+	for i = 1, string.len(diceData) do
+		table.insert(combine, string.sub(diceData, i, i))
+	end
+	table.sort(combine)
+	local sortCombine = ""
+	for k, v in ipairs(combine) do
+		sortCombine = sortCombine..tostring(v)
+	end
+	
+	--print("sortCombine:"..sortCombine)
+	
+	--for k, v in ipairs(mob) do
+	for i = table.getn(mob), 1, -1 do
+		for m, n in ipairs(mob[i].combine) do
+			if tostring(sortCombine) == n then
+				return i
+			end
+			--[[
+			local comCount = table.getn(n)
+			if comCount == diceCount then
+				for x, y in ipairs(n) do
+					if b ~= diceData[x] then
+						break
+					end
+					
+					if x == comCount then
+						return i
+					end
+				end
+				
+			end
+			--]]
+		end
+	end
+	
+	return 1
+end

@@ -1,0 +1,65 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\VipBoss\Config.txt" once	--
+
+--更新活动面板信息 1 表示进入 2 表示在场景内更新
+function UpdateVipBossActivityForm(sysarg,nType)
+	local config = VipBossConfig
+	if (not config) then
+		return
+	end
+	
+	local ranking = Ranking.getRanking(VipBossRankPt.RankName)
+	
+	local nRank = 0
+	local nScore = {0,0,0}
+	local mPoint = 0
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		
+		local nItem = Ranking.getItemPtrFromId(ranking,nActorId)
+
+		if nItem then
+			mPoint = Ranking.getPoint(nItem)
+			--伤害大于0时，排名才不为0
+			if mPoint > 0 then
+				nRank = Ranking.getItemIndexFromId(ranking,nActorId) + 1
+			end
+		end
+
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+			if pItem then
+				nScore[i+1] = Ranking.getPoint(pItem)
+			end
+		end
+	end
+
+	if nType == 1 then
+		local nHandle = Fuben.getSceneHandleById(config.enterScene.sid, 0)
+		local nTime = Fuben.getSceneTime(nHandle)
+		Actor.initActivityWind(sysarg,Lang.Activity.vb0007,nTime,Lang.Activity.vb0008,Lang.Activity.vb0018,nScore[1],Lang.Activity.vb0019,nScore[2],Lang.Activity.vb0020,nScore[3],Lang.Activity.vb0021,mPoint,Lang.Activity.vb0022,nRank)
+	else
+		Actor.changeActivityProgress(sysarg,nScore[1],nScore[2],nScore[3],mPoint,nRank)
+	end
+end
+
+--是否在VIP专属BOSS地图
+function IsInVipBossMap(sysarg)
+	local nSceneId = Actor.getSceneId(sysarg)
+	if VipBossConfig.enterScene.sid == nSceneId then
+		return true
+	end
+	return false
+end	
+
+--离开场景
+function ExitVipBossMap(sysarg)
+	--直接把玩家传出来
+	
+	local retScene = VipBossConfig.returnArea
+	if Actor.enterScene(sysarg, retScene.sid, retScene.x, retScene.y) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+	Actor.closeNPCDialog(sysarg) 
+end

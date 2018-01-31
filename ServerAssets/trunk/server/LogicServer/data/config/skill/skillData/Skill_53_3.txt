@@ -1,0 +1,93 @@
+--炸弹自爆
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s14L1Desc,--技能的描述
+	
+	iconID=14,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+			
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+				      targetType=1,--目标的等级比自己低，就推开一个
+					
+					conds=
+					{
+						
+					},
+
+					results=
+					{
+						
+					},
+					specialEffects=
+					{	
+                                                {type=5,mj=0,id=2,keepTime=1000,delay=0,always=false},
+					},
+				},
+				
+			},	
+		},
+		{
+			xStart=-7,
+			xEnd=7,
+			yStart=-7,
+			yEnd=7,
+			
+			rangeType=3,
+			rangeCenter=1,
+			acts=
+			{
+				{
+				      					
+					conds=
+					{
+						{cond=13,value=1}, 
+						
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0,rate=10000,value=53,interval=100},
+						
+					},
+					specialEffects=
+					{	
+                                               
+					},
+				},
+				
+			},	
+		},
+	},
+
+	trainConds=
+	{
+		
+	},
+	
+	spellConds=
+	{
+		
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

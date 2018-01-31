@@ -1,0 +1,124 @@
+﻿--雷击术1级
+{
+
+	actions=
+	{
+		{act=1,effect=9,},
+	},
+	
+	desc=Lang.Skill.s9L1Desc,--技能的描述
+	
+	iconID=9,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=2,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+						
+					},
+					results=
+					{
+{mj=2551,type=66,mjParam1=0,mjParam2=80},
+						{mj=0,timeParam=1,type=4,delay=400, rate=9500,value=120,interval=220},
+					--	{mj=0,timeParam=30,type=20,delay=0,vt=1, id=9,value=1},--增加技能标记
+					},
+
+					specialEffects=
+					{
+				--	{type=4,mj=0,id=66,keepTime=400,delay=300,always=false},					
+					},
+				},
+			},
+		},
+		
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					targetType=1,
+					conds=
+					{
+				--		{cond = 22,value =9}, --没有命中目标的时候，才需要播放特效
+						
+					},
+					results=
+					{
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=350,keepTime=400,delay=500,always=false},				
+					},
+				},
+			},
+		},
+		
+		
+		
+	--[[	{	
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+			acts=
+			{
+				{
+				   targetType=0	,
+					conds=
+					{
+						{cond = 3,value =1}, --施法者自己删除技能标记
+					},
+				   results=
+					{
+						{mj=0,timeParam=1,type=21,delay=0, id=9,vt=1}, --删除自己的技能标记
+					},
+				   specialEffects=
+					{
+					
+					},
+				},
+			},
+		},]]
+	},
+
+	trainConds=
+	{
+		{cond=1,value=15,consume=false},--表示等级要7级
+		{cond=3,value=570,consume=true,exceptVip=true},--表示书本
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=2,consume=true},--消耗蓝40
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

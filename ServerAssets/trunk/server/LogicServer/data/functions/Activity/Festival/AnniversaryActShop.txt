@@ -1,0 +1,137 @@
+--lua script
+
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryActShopConfig.txt" once ----祈福树购买东西配置
+function AnniversaryActShop_main(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.zn0021.."/@AnniversaryBuy,".. 1 ..">"
+	str = str.."\\<#BL"..Lang.Activity.zn0022.."/@AnniversaryBuy,".. 2 ..">"
+	str = str.."\\<#BL"..Lang.Activity.zn0023.."/@AnniversaryBuy,".. 3 ..">"
+	str = str.."\\<#BL"..Lang.Activity.zn0024.."/@AnniversaryBuy,".. 4 ..">"
+	str = str.."\\<#BL"..Lang.Activity.zn0026.."/@AnniversaryBuy,".. 5 ..">" --无限购买
+	str = str.."\\<#BL"..Lang.Activity.zn0027.."/@AnniversaryBuy,".. 6 ..">" --免费领取
+	str = str..Lang.Activity.yx0026
+	return str
+
+end
+
+--购买
+function AnniversaryBuy(sysarg, index)
+	--判断等级
+	if Actor.checkActorLevel(sysarg, AnniversaryActShopConfig.limitLevel) == false then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.horse007, ttFlyTip)--等级不足
+		return
+	end
+
+	index = tonumber(index)
+	local times = ReadAnniversaryBuy(sysarg, index)
+	local limittime = AnniversaryActShopConfig.subMenu[index].times
+	if limittime ~= -1 then	
+		if times >= limittime then
+			if index == 6 then
+				Actor.sendTipmsg(sysarg, Lang.Activity.zn0030, ttFlyTip) -- index 6  领取
+				return
+			else
+				Actor.sendTipmsg(sysarg, Lang.Activity.zn0029, ttFlyTip) --1-4 购买
+				return
+			end
+		end
+	end
+	
+	--判断需要空格
+	local count = AnniversaryActShopConfig.subMenu[index].awards[1].count
+	local id = AnniversaryActShopConfig.subMenu[index].awards[1].id
+	local bind = AnniversaryActShopConfig.subMenu[index].awards[1].bind
+	local needGrid = Item.getAddItemNeedGridCount(sysarg, id, count)
+
+	--判断背包空格
+	local nGridCount= Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if nGridCount < needGrid then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0213, ttFlyTip)
+		return
+	end
+	--扣除材料
+	local consumetype = AnniversaryActShopConfig.subMenu[index].consumes[1].type
+	local consumenum = AnniversaryActShopConfig.subMenu[index].consumes[1].count
+	if consumetype == 15 then --元宝
+        if Actor.changeMoney(sysarg, mtYuanbao, -consumenum, 197, Lang.LogTips.mzn215) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0214, ttFlyTip)
+			return
+		end
+	elseif consumetype == 6 then --金币
+	   	if Actor.changeMoney(sysarg, mtCoin, -consumenum, 197, Lang.LogTips.mzn215) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0215, ttFlyTip)
+			return
+		end
+	elseif consumetype == 7 then --绑定元宝（礼券）
+		if Actor.changeMoney(sysarg, mtBindYuanbao, -consumenum, 197, Lang.LogTips.mzn215) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0216, ttFlyTip)
+			return
+		end
+    end
+
+	--发放物品
+	local newItem = Item.createItem(id, count, 0, 0, bind, 0)
+	if not newItem then
+		return false
+	end
+	Item.addItem(sysarg, newItem, Lang.LogTips.mzn215, 197, count)
+	SaveAnniversaryBuy(sysarg, index)
+
+	if index == 6 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0028, ttFlyTip) -- index 6  领取
+		return
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0025, ttFlyTip) --1-4 购买
+		return
+	end
+
+end
+
+--读取文件买的次数
+function ReadAnniversaryBuy(sysarg, index)
+	local ranking = Ranking.getRanking(Lang.Rank.AnniversaryBuyFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local result = Ranking.getSub(item, index)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		end
+	end
+	return 0
+end
+
+--保存文件买的次数
+function SaveAnniversaryBuy(sysarg, index) -- 第0位无用
+	local ranking = Ranking.getRanking(Lang.Rank.AnniversaryBuyFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local result = Ranking.getSub(item, index)
+			result = tonumber(result)
+			if result and result ~= 0 then
+				Ranking.setSub(item, index, result+1)
+			else
+				Ranking.setSub(item, index, 1)
+			end
+		else
+			item = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(item, index, 1)
+		end
+	end
+end
+
+--0点清零购买次数
+function ClearBuyTimes()
+	local ranking = Ranking.getRanking(Lang.Rank.AnniversaryBuyFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+
+

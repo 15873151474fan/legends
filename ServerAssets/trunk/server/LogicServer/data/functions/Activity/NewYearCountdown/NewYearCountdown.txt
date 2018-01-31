@@ -1,0 +1,93 @@
+﻿--[File:NewYearCountdown.txt]]
+
+--#include "data\config\activityconfig\NewYearCountdown\NewYearCountdownConfig.txt" once 
+--#include "data\functions\Activity\Common\Consumes.txt" once 
+
+-- 前十分
+function NewYearPre10()
+	System.broadcastTipmsg(Lang.Activity.nycd0001,ttScreenCenter + ttChatWindow);
+end
+
+-- 前5分
+function NewYearPre5()
+	System.broadcastTipmsg(Lang.Activity.nycd0002,ttScreenCenter + ttChatWindow);
+end
+
+-- 前一分
+function NewYearPre1()
+	System.broadcastTipmsg(Lang.Activity.nycd0003,ttScreenCenter + ttChatWindow);
+end
+
+-- 大年初一 00:00
+function NewYear()
+print("大年初一 00:00");
+	System.broadcastTipmsg(Lang.Activity.nycd0004,ttScreenCenter + ttChatWindow);	
+	
+	local allPlayers = {}; -- 用于一分钟后发公告
+	local config = NewYearCountdownConfig;
+	for _,sceneId in pairs(config.Scenes) do 
+		local playerList = LuaHelp.getSceneActorListById(sceneId);		--获取某场景玩家对象列表
+		if not playerList then return false; end
+		-- 所有玩家
+		print("新年所有玩家发奖励");
+		local tmpConfig = NewYearCountdownConfig.RedpacketEffects;
+		for _,player in pairs(playerList) do
+			if player and Actor.checkActorLevel(player, config.MinLevel, config.Circle)then
+				for _,award in pairs(config.awards) do
+					local count = award.mincount+System.getRandomNumber(award.maxcount - award.mincount);				
+					Actor.giveAward(player,award.type,award.id, count,award.quality,award.strong,award.bind,0,205,"NewYear");					
+				end	
+				-- 播放特效				
+				for i=1,table.getn(tmpConfig) do
+					--print("播放特效	");
+					Actor.playScrSceneEffectCode(player,tmpConfig[i].effectId,tmpConfig[i].liveTime,sceneId,tmpConfig[i].effectX,tmpConfig[i].effectY)
+				end
+			end
+		end
+	
+		-- 随机玩家
+		local PlayerNames = "";
+		local Players = {};
+		if config.PlayerNum >= #playerList  then 
+			Players = playerList 
+		else
+			local computeCount = 0;
+			while config.PlayerNum ~= #Players and computeCount < 100000  do
+				local player = playerList[math.random(1,#playerList)];
+				local bSuccessed = true;
+				if Actor.checkActorLevel(player, config.MinLevel, config.Circle) then  
+					for _,p in pairs(Players) do 
+						if p == player then bSuccessed = false; break; end
+					end 
+					if bSuccessed then table.insert(Players,player); computeCount = computeCount + 1; end
+				end
+			end 
+		end;--print("新年随机玩家发奖励");
+		-- if #Players > 0 then System.broadcastTipmsg(string.format(Lang.Activity.nycd0006,#Players),ttScreenCenter + ttChatWindow); end
+		for _,player in pairs(Players) do
+			if player and Actor.checkActorLevel(player, config.MinLevel, config.Circle) then
+				table.insert(allPlayers,string.format(Lang.Activity.nycd0005,Actor.getName(player)));
+				-- System.broadcastTipmsg(string.format(Lang.Activity.nycd0005,Actor.getName(player)),ttScreenCenter + ttChatWindow);
+				for _,award in pairs(config.randAwards) do
+					local count = award.mincount+System.getRandomNumber(award.maxcount - award.mincount);
+					Actor.giveAward(player,award.type,award.id, count, award.quality,award.strong,award.bind,0,205,"NewYear");					
+				end
+			end 
+		end
+	end
+	--local sysVar = System.getDyanmicVar();
+	--if sysVar then sysVar.NycdRandomPlayers = allPlayers end;
+	NycdRandomPlayers = allPlayers;
+end
+
+-- 大年初一 00:01
+function NewYearPost1()
+--print("NewYearPost1发公告");
+	local sysVar = System.getDyanmicVar();
+	--if sysVar and sysVar.NycdRandomPlayers then
+		--local NycdRandomPlayers = sysVar.NycdRandomPlayers;
+		for _,playerStr in pairs(NycdRandomPlayers) do
+			System.broadcastTipmsg(playerStr,ttScreenCenter + ttChatWindow);
+		end
+	--end
+end

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<SynUniHighlighter Version="2.0">
+	<SyntaxColoring>
+		<Info>
+			<General Name="5es1" Extensions="" Version="1" Revision="0" Sample="--lua script
+
+--ФцЦµІЦївµДФВЧвјЫёс
+IBSTORAGE_MONTH_PRICE = 10
+
+function main(sysarg)
+	local saymsg = &quot;&lt;#bґтїЄІЦїв/@openstorage&gt;\\&quot;
+		.. &quot;&lt;#bФцЦµІЦїв/@ibstroage&gt;&quot;
+	return saymsg
+end
+
+function openstorage(sysarg)
+	CloseNPCDialog( sysarg )
+	SendUserStorageItems( sysarg )
+end
+
+function oweIBStroage(sysarg, idx)
+	local time1 = GetUserIBStorageTime( sysarg, idx )
+	if time1 == 0 then
+		return &quot;ОґїЄЖфґЛІЦївЎЈ\\&lt;#bНЛіц/@exit&gt;&quot;
+	elseif time1 &gt; 0 then
+		return &quot;ІЦївОґЗ·їоЎЈ\\&lt;#bНЛіц/@exit&gt;&quot;     
+	else
+		return &quot;ІЦївДїЗ°З·їо&quot; .. math.ceil((-time1)/(60*60*24*30)) * IBSTORAGE_MONTH_PRICE ..&quot;\\&lt;#b№й»№З·їо/@revertIBStorage,&quot; .. idx .. &quot;&gt;&quot;
+	end
+end
+
+function checkIBStorageState(sysarg)
+	local str1 = &quot;&quot;
+	local i
+	
+	for i = 1, 4 do
+		if GetUserIBStorageTime( sysarg, i ) &lt; 0 then
+			str1 = str1 .. &quot;ФцЦµІЦїв&quot; .. i .. &quot;ТСµЅЖЪІўЗ·їо &lt;#bПкПёРЕПў/@oweIBStroage,1&gt;\\&quot;
+		end
+	end
+	return str1
+end
+
+function ibstroage(sysarg)
+	local saymsg = &quot;&quot;
+	local i
+	
+	saymsg = checkIBStorageState( sysarg )
+	if string.len(saymsg) == 0 then
+		for i = 1, 4 do
+			saymsg = saymsg .. &quot;&lt;#bЧвУГФцЦµІЦїв&quot; .. i .. &quot;/@hireIBStorage,&quot; .. i .. &quot;&gt;&quot;
+		end
+	end
+	
+	return saymsg
+end
+
+function  hireIBStorage(sysarg, idx)
+	return &quot;ЗлСЎФсЧвУГК±і¤Јє\\&quot;
+		.. &quot;&lt;#bЧвУГТ»ёцФВ/@hireIBStorageMonth,&quot; .. idx ..&quot;,&quot;.. 1 ..&quot;&gt;\\&quot;
+		.. &quot;&lt;#bЧвУГ¶юёцФВ/@hireIBStorageMonth,&quot; .. idx ..&quot;,&quot;.. 2 ..&quot;&gt;\\&quot;
+		.. &quot;&lt;#bЧвУГБщёцФВ/@hireIBStorageMonth,&quot; .. idx ..&quot;,&quot;.. 6 ..&quot;&gt;\\&quot;
+		.. &quot;&lt;#bЧвУГК®¶юёцФВ/@hireIBStorageMonth,&quot; .. idx ..&quot;,&quot;.. 12 ..&quot;&gt;\\&quot;
+end
+
+function hireIBStorageMonth(sysarg, idx, months)
+	local ngold = GetUserGameGold( sysarg )
+	local ncost = months * IBSTORAGE_MONTH_PRICE
+	local ntime
+	
+	if ngold &gt;= ncost then
+		SetUserGameGold( sysarg, ngold - ncost )
+		ntime = GetUserIBStorageTime( sysarg, idx )
+		ntime = ntime + months * 60 * 60 * 24 * 30
+		SetUserIBStorageTime( sysarg, idx, ntime )
+		return &quot;ЧвУГІЦївіЙ№¦ЎЈ\\&lt;#bєГµД/@exit&gt;&quot;
+	else
+		return &quot;Г»УРЧг№»µДЧКЅрАґЦ§ё¶ЧвЅрЎЈ\\&lt;#b№Ш±Х/@exit&gt;&quot;
+	end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+" History=""/>
+			<Author Name="miros" Mail="" Web="" Copyright="" Company="ПЙєЈНшВз" Remark=""/>
+		</Info>
+		<Schemes>
+			<Scheme Name="Default">
+				<Editor/>
+				<Styles/>
+			</Scheme>
+		</Schemes>
+		<Editor/>
+		<MainRules Name="SyntaxColoring" CaseSensitive="True" Style="">
+			<Attributes Foreground="clWindowText" Background="clWindow"/>
+			<Delimiters Value="!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^`{|}~"/>
+			<SubRules>
+				<Range Name="comment" CaseSensitive="True" Style="">
+					<Attributes Foreground="clGreen" Background="clWindow" ParentBackground="True"/>
+					<Delimiters Value="!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^`{|}~"/>
+					<OpenToken StartLine=""/>
+					<CloseToken StartLine=""/>
+					<Properties CloseOnEol="True"/>
+					<MultiTokens>
+						<Tokens Open="--"/>
+					</MultiTokens>
+					<SubRules>
+						<Range Name="block comment" Style="">
+							<Attributes Foreground="clGreen" Background="clWindow" ParentForeground="True" ParentBackground="True"/>
+							<Delimiters Value="!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^`{|}~"/>
+							<OpenToken StartLine=""/>
+							<CloseToken StartLine=""/>
+							<Properties/>
+							<MultiTokens>
+								<Tokens Open="[[" Close="]]"/>
+							</MultiTokens>
+							<SubRules/>
+						</Range>
+					</SubRules>
+				</Range>
+				<Range Name="string" Style="">
+					<Attributes Foreground="clBlack" Background="clYellow"/>
+					<Delimiters Value="!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^`{|}~"/>
+					<OpenToken StartLine=""/>
+					<CloseToken StartLine=""/>
+					<Properties CloseOnEol="True"/>
+					<MultiTokens>
+						<Tokens Open="&quot;" Close="&quot;"/>
+					</MultiTokens>
+					<SubRules>
+						<Range Name="fjimp" CaseSensitive="True" Style="">
+							<Attributes Foreground="clBlack" Background="clYellow" ParentBackground="True" Style="U"/>
+							<Delimiters Value="&quot;,&gt;"/>
+							<OpenToken StartLine=""/>
+							<CloseToken StartLine=""/>
+							<Properties CloseOnTerm="True" CloseOnEol="True" AllowPredClose="True"/>
+							<MultiTokens>
+								<Tokens Open="@" Close="&gt;"/>
+							</MultiTokens>
+							<SubRules/>
+						</Range>
+					</SubRules>
+				</Range>
+				<KeyList Name="keywords" Enabled="True" Style="" Words="and
+break
+do
+else
+elseif
+end
+false
+for
+function
+if
+in
+local
+nil
+not
+or
+repeat
+return
+then
+true
+until
+while
+pairs
+">
+					<Attributes Foreground="clRed" Background="clWindow" ParentBackground="True"/>
+				</KeyList>
+				<KeyList Name="operators" Enabled="True" Style="" Words="+
+-
+*
+/
+=
+..
+">
+					<Attributes Foreground="clMaroon" Background="clWindow" ParentBackground="True"/>
+				</KeyList>
+				<KeyList Name="2dkeywords" Enabled="True" Style="" Words="...
+castle
+finalization
+guild
+initialization
+mapzone
+memobj
+npcobj
+slave
+sysarg
+sysobj
+team
+country
+">
+					<Attributes Foreground="clRed" Background="clWindow" ParentBackground="True"/>
+				</KeyList>
+				<KeyList Name="libs" Enabled="True" Style="" Words="string
+io
+math
+os
+table
+debug
+">
+					<Attributes Foreground="clFuchsia" Background="clWindow" ParentBackground="True"/>
+				</KeyList>
+				<KeyList Name="blacks" Enabled="True" Style="" Words="#
+//
+;
+">
+					<Attributes Foreground="clBlack" Background="clRed"/>
+				</KeyList>
+				<KeyList Name="callbacks" Enabled="True" Style="" Words="OnAcceptMessions
+main
+CompleteMession
+OnCompleteMessions
+OnAbortMessions
+OnActorEvents
+SystemHandlerDispatcher
+">
+					<Attributes Foreground="clBlue" Background="clWindow" ParentBackground="True"/>
+				</KeyList>
+				<Set Name="digits" Enabled="True" Style="" Symbols=".0123456789" Quantity="0">
+					<Attributes Foreground="clBlue" Background="clWindow" ParentBackground="True"/>
+				</Set>
+			</SubRules>
+		</MainRules>
+	</SyntaxColoring>
+	<CodeFolding/>
+	<CustomData/>
+</SynUniHighlighter>

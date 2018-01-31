@@ -1,0 +1,22 @@
+--lua script
+
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+
+EventCallDispatcher.OnFubenMiniHandle = function (sysarg,arg)
+	--sysarg是副本指针,获取副本所有玩家的指针，
+	local fubenId = Fuben.getFubenId(sysarg)
+	if fubenId == 72 then --跨服海选赛副本
+		local actorList = LuaHelp.getFbActorList(sysarg)
+		for k, actorPtr in ipairs(actorList or {}) do
+			Actor.setCanNotAttackedFlag(actorPtr, 0)
+		end
+		local fHandle = Fuben.getFubenHandle(sysarg)
+		Fuben.sendMsgToFb( fHandle, Lang.Activity.kf0097, 2 + 128)
+		Fuben.sendMsgToFb( fHandle, Lang.Activity.kf0097, 2 + 128)
+	end
+	
+	
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeFbFirstMiniCheck, EventCallDispatcher.OnFubenMiniHandle)

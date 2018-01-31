@@ -1,0 +1,16 @@
+﻿drops=
+{
+	{ group = 0, type = 0, id = 1593, count = 1, bind = 0, sex = 0, },
+	{ group = 0, type = 0, id = 1594, count = 1, bind = 0, sex = 1, },
+	{ group = 0, type = 0, id = 1598, count = 1, bind = 0, sex = 0, },
+	{ group = 0, type = 0, id = 1599, count = 1, bind = 0, sex = 1, },
+	{ group = 0, type = 0, id = 754, count = 1, bind = 1, job = 1, },
+	{ group = 0, type = 0, id = 764, count = 1, bind = 1, job = 2, },
+	{ group = 0, type = 0, id = 774, count = 1, bind = 1, job = 3, },
+	{ group = 0, type = 0, id = 1402, count = 10, bind = 1, },
+	{ group = 0, type = 0, id = 1123, count = 1, bind = 1, },
+	{ group = 0, type = 0, id = 1172, count = 10, bind = 1, },
+	{ group = 0, type = 0, id = 357, count = 1, bind = 1, },
+	{ group = 0, type = 0, id = 1175, count = 10, bind = 1, },
+	{ group = 0, type = 0, id = 910, count = 20, bind = 1, },
+}

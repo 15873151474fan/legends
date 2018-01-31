@@ -1,0 +1,53 @@
+﻿--莽荒之境二层
+{
+	scenceid = 26,
+	scencename = Lang.SceneName.s00026,
+	mapfilename = "26Manghuangzhijingerceng",
+	minlevel = 50,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "manhuangzhijing.mp3",
+	musicInterval = 5,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 201,
+	sceneHeight = 217,
+	posx = 44,
+	posy = 60,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00026, range = {5,5,6,209,196,210,195,5,5,4}, center = { 94,197},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh26.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00363, posx = 52, posy = 158, script = "data/NPC/RenwuNPC/zuijianxian.txt", modelid = 343,icon = 0,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00008, posx = 87, posy = 106, script = "data/NPC/1Dongjiangcun/huangshensuan_4.txt", modelid = 379,icon = 0,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00029, posx = 126, posy = 71, script = "data/NPC/RenwuNPC/huangfuyu.txt", modelid = 308,icon = 0,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00370, posx = 151, posy = 124, script = "data/NPC/RenwuNPC/nandoulaoren.txt", modelid = 83,icon = 0,funcId = 0, classId = 4 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 93, posy = 200, toSceneid = 25, toPosx = 106, toPosy =  16, modelid = 50000, name = Lang.SceneName.s00025, dist = 1, mapHide = false },  --莽荒之境二层→莽荒之境
+
+	},
+},

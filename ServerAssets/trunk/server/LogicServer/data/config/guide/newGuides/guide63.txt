@@ -1,0 +1,91 @@
+﻿--指引佩戴勋章（指引玩家去接任务）
+{
+  maxLevel = 50,
+  triggerList =
+  {
+		{ type = 5, valueList = {44,}},      --等级等于这个级数 
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步  指向成就按钮
+    {
+      condList =
+      {
+                { type = 2, helpId = 166, dataList = {0,} },   --成就窗口不可见
+      },
+
+      --执行指向成就按钮
+      action = { type = 1, helpId = 155, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc82 },   --指向成就按钮
+    },
+    
+    --第2步指向一键领取按钮
+    {
+      condList =
+      {
+                { type = 1, helpId = 166, dataList = {0,} },  --成就窗口可见
+                { type = 38, helpId = 175, dataList = {0,} },  --一键领取按钮可点击
+                { type = 3, helpId = 209, dataList = {1,} },   --导航栏选中第一项
+                { type = 4, helpId = 209, dataList = {2,} },   --导航栏没选中第二项 
+      },
+
+      --执行指向一键领取按钮
+      action = { type = 1, helpId = 175, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc83 },  --指向一键领取按钮
+    },
+    
+    --第3步指向成就面板打开兑换勋章窗口
+    {
+      condList =
+      {
+                { type = 1, helpId = 166, dataList = {0,} },   --成就窗口可见
+                { type = 2, helpId = 167, dataList = {0,} },   --兑换勋章窗口不可见
+                { type = 37, helpId = 175, dataList = {0,} },  --一键领取按钮不可点击
+                { type = 3, helpId = 209, dataList = {1,} },   --导航栏选中第一项
+                { type = 4, helpId = 209, dataList = {2,} },   --导航栏没选中第二项 
+      },
+
+      --执行指向打开兑换窗口按钮
+      action = { type = 2, helpId = 209, data = 2, pointerValue = 1, desc = Lang.GuideLang.desc84 },   --指向兑换勋章按钮
+    },
+    
+    --第4步指向兑换勋章按钮
+    {
+      condList =
+      {
+                { type = 38, helpId = 210, dataList = {0,} },   --兑换按钮可点击
+                { type = 3, helpId = 209, dataList = {2,} },   --导航栏选中第二项
+                { type = 4, helpId = 209, dataList = {1,} },   --导航栏没选中第一项 
+      },
+
+      --执行指向兑换按钮
+      action = { type = 1, helpId = 210, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc85 },  --指向兑换按钮
+    },
+    
+    
+    
+    --第6步指向成就关闭按钮
+    {
+      condList =
+      {
+                { type = 21, helpId = 0, dataList = {474,} },  --身上装备上这个装备 
+                { type = 1, helpId = 166, dataList = {0,} }, --成就面板可见
+      },
+
+      --指向成就面板关闭按钮
+      action = { type =1, helpId = 186, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc9 },  --关闭成就面板
+    },
+
+    --第4步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

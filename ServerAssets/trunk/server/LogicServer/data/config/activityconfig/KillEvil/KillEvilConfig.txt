@@ -1,0 +1,46 @@
+
+
+KillEvilConfig = {
+	MaxEquipCount = 20,				--放入最大的装备数量
+	MinEquipLevel = 35,				--装备的最低等级	
+
+	EnterSceneMinLv = 35,			--进入场景最小等级	
+	SceneName = Lang.SceneName.s00054,	--活动场景名字
+	EnterScenePos = {35,52,38,58},	--进入活动场景坐标
+
+	ExitSceneName = Lang.SceneName.s00008,		--退出场景
+	ScenePos = {139,155,174,185},				--退出场景后的坐标
+	boss = {	--需要刷的怪配置
+		--min表示旧千位数值, max表示新的千位数值,刚好进位时
+		{min=5, max= 6, sceneId = 54, id = 160, count = 1, x = 45, y = 50, time = 0}, --积分达6000时，怪id，怪的数量，x坐标，y坐标,持续时间秒
+		{min=9, max= 10, sceneId = 54,id = 161, count = 1, x = 45, y = 50, time = 0},
+	},
+	MinBoss = {id = 162, count = 20, x1 = 42, x2 = 47, y = 50,time=0},		--怪id,怪数量，坐标x1，坐标x2，坐标y,持续时间
+
+	DivPoint = 1000,				--该分以前每整百公告一次
+	MaxPoint = 10000,				--最大分数清0
+	ItemId = 531,					--斑斓石物品id	
+	ItemGold = 3,					--如果用元宝代替，价格
+	ExpJade = {
+		[332] = {normalRateId = 31, doubleRateId = 32, dbStoneCount = 1, point = 0},
+		[333] = {normalRateId = 33, doubleRateId = 34, dbStoneCount = 2, point = 0},
+		[334] = {normalRateId = 35, doubleRateId = 36, dbStoneCount = 3, point = 0},
+		[1048] = {normalRateId = 33, doubleRateId = 34, dbStoneCount = 2, point = 0},
+		[1049] = {normalRateId = 35, doubleRateId = 36, dbStoneCount = 3, point = 0},
+		[1050] = {normalRateId = 37, doubleRateId = 38, dbStoneCount = 4, point = 0},
+	},
+	Reward = {
+		--装备等级区域最小值,装备等级区域最大值, 普通爆率id, 双倍爆率id,需要的ItemId数量，阵结值
+		{equipMinLv = 35, equipMaxLv = 39, normalRateId = 1, doubleRateId = 2, dbStoneCount = 1, point = 1},
+		{equipMinLv = 40, equipMaxLv = 40, normalRateId = 3, doubleRateId = 3, dbStoneCount = 2, point = 2},
+		{equipMinLv = 41, equipMaxLv = 44, normalRateId = 4, doubleRateId = 4, dbStoneCount = 2, point = 2},
+		{equipMinLv = 45, equipMaxLv = 45, normalRateId = 5, doubleRateId = 5, dbStoneCount = 3, point = 3},
+		{equipMinLv = 46, equipMaxLv = 49, normalRateId = 6, doubleRateId = 6, dbStoneCount = 3, point = 3},
+		{equipMinLv = 50, equipMaxLv = 50, normalRateId = 7, doubleRateId = 7, dbStoneCount = 4, point = 5},
+		{equipMinLv = 51, equipMaxLv = 54, normalRateId = 8, doubleRateId = 8, dbStoneCount = 4, point = 5},
+		{equipMinLv = 55, equipMaxLv = 55, normalRateId = 9, doubleRateId = 9, dbStoneCount = 5, point = 7},
+		{equipMinLv = 56, equipMaxLv = 59, normalRateId = 10, doubleRateId = 10, dbStoneCount = 5, point = 7},
+		{equipMinLv = 60, equipMaxLv = 120, normalRateId = 11, doubleRateId = 12, dbStoneCount = 5, point = 10},
+	},
+	NoDropItems = {546,547,548,549,550,551,552,553,554,555,556,557,558,561,567,568,569,570,571,667,573,574,575,576,577,578,579,580,581,325,728,692,693,694,695,696,697,698,699,700,701,982,983,984,1084,1085,1086,1087,1088,1089,1090,1091,1092,1093,1094,1095,1096,1097,1098,1099,1100,1101,1102,1103,1390,1391,1392,1393,1394,1395,1396,1397,1398,1399,1400,1401,644,1125,1593,1594,1704,1705,1724,1725,1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736,1737,1401},	--不能投放的物品id
+}

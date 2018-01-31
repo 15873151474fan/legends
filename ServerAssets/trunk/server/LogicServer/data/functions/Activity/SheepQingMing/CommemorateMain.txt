@@ -1,0 +1,40 @@
+--lua script
+--#include "data\functions\Activity\SheepQingMing\Commemorate.txt" once
+
+function CommemorateMain(sysarg)
+	local str = Lang.Activity.sqm0000
+	str = str .."\\<#BL"..Lang.Activity.sqm0001.."/@CommProgress>" --查看进度
+	str = str.."\\<#BL"..Lang.Activity.sqm0002.."/@CommGive>" --提交东西
+	str = str.."\\<#BL"..Lang.Activity.sqm0008.."/@CommBuy,".. 1 .. ">" --购买单个花圈
+	str = str.."\\<#BL"..Lang.Activity.sqm0003.."/@CommBuy,".. 2 .. ">" --购买多个花圈
+	str = str.."\\<#BL"..Lang.Activity.sqm0005.."/@CommBuy,".. 3 .. ">" --购买钥匙1
+	str = str.."\\<#BL"..Lang.Activity.sqm0025.."/@CommBuy,".. 4 .. ">" --购买钥匙2
+	str = str.."\\<#BL"..Lang.Activity.sqm0017.."/@GetCommAwards>" --免费领取清明礼包
+	str = str.."\\<#BL"..Lang.Activity.sqm0004.."/@exit>" --离开
+	
+	return str
+end
+
+function CommProgress(sysarg)
+	local str = Lang.Activity.sqm0006
+	local num = ReadCommemorateData(1)
+	str =  str .. num
+	str =  str .."\\"..Lang.Activity.sqm0007
+	str = str.."\\<#BL"..Lang.Activity.msd0114.."/@main>" --返回
+	return str
+
+end
+
+function CommGive(sysarg)
+	ReqCommemorateGive(sysarg)
+end
+
+function CommBuy(sysarg, index)
+	ReqCommemorateBuy(sysarg, index) --购买
+end
+
+function GetCommAwards(sysarg)
+	GetCommemorateAward(sysarg)
+end
+
+table.insert(MainFnTable, CommemorateMain)

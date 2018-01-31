@@ -1,0 +1,489 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\Festival\SpringFestivalHorseActive.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\RankPointer.txt" once
+--#include "data\config\activityconfig\SheepHundredActivity\GoldSilverTreeConfig.txt" once
+
+--加载金银福树数据
+function LoadGoldSilverTree(sysarg, nActivityId)
+	local tmpTable =
+	{
+		{level = 1, status = 0, matureTime = 0, wateringTimes = 0, awardId = 1,},
+		{level = 1, status = 0, matureTime = 0, wateringTimes = 0, awardId = 1,},
+		{level = 1, status = 0, matureTime = 0, wateringTimes = 0, awardId = 1,},
+		{level = 1, status = 0, matureTime = 0, wateringTimes = 0, awardId = 1,},
+		{level = 1, status = 0, matureTime = 0, wateringTimes = 0, awardId = 1,},
+	}
+
+	local config = GetGoldSilverTreeConfig(nActivityId)
+	if (not config) or (not config.goldSilverTree) then
+		return
+	end
+
+	if (IsInGoldSilverTreeDateRange(nActivityId) ~= true) then
+		return
+	end
+
+	if not SpringFestivalHorseRankPt then
+		return
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.GoldSilverTreeFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.GoldSilverTreeFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.GoldSilverTreeFile) then
+			for i=0,25 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		if pItem then
+			local currTime = System.getCurrMiniTime()
+			
+			for i=1, table.getn(tmpTable) do
+				local tmpInfo = GetRandomGoldSilverTreeInfo(config.goldSilverTree, 1)
+				local tmpAward = GetRandomGoldSilverTreeInfo(tmpInfo.pickAwards, 1)
+				tmpTable[i].level = tmpInfo.level
+				tmpTable[i].status = 0
+				tmpTable[i].matureTime = currTime + tmpInfo.growTime
+				tmpTable[i].wateringTimes = 0
+				tmpTable[i].awardId = tmpAward.id
+			end
+
+			for i=1, table.getn(tmpTable) do				
+				Ranking.setSub(pItem,((i-1)*5),tostring(tmpTable[i].level))
+				Ranking.setSub(pItem,((i-1)*5+1),tostring(tmpTable[i].status))
+				Ranking.setSub(pItem,((i-1)*5+2),tostring(tmpTable[i].matureTime))
+				Ranking.setSub(pItem,((i-1)*5+3),tostring(tmpTable[i].wateringTimes))
+				Ranking.setSub(pItem,((i-1)*5+4),tostring(tmpTable[i].awardId))
+			end
+		end
+	else
+		for i=1,5 do
+			tmpTable[i].level = tonumber(Ranking.getSub(pItem,((i-1)*5)))
+			tmpTable[i].status = tonumber(Ranking.getSub(pItem,((i-1)*5+1)))
+			tmpTable[i].matureTime = tonumber(Ranking.getSub(pItem,((i-1)*5+2)))
+			tmpTable[i].wateringTimes = tonumber(Ranking.getSub(pItem,((i-1)*5+3)))
+			tmpTable[i].awardId = tonumber(Ranking.getSub(pItem,((i-1)*5+4)))
+		end
+	end
+
+	return tmpTable
+end
+
+--保存金银福树数据
+function SaveGoldSilverTree(sysarg, tmpTable)
+	if not SpringFestivalHorseRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.GoldSilverTreeFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.GoldSilverTreeFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.GoldSilverTreeFile) then
+			for i=0,25 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		for i=1,5 do
+			Ranking.setSub(pItem,((i-1)*5),tostring(tmpTable[i].level))
+			Ranking.setSub(pItem,((i-1)*5+1),tostring(tmpTable[i].status))
+			Ranking.setSub(pItem,((i-1)*5+2),tostring(tmpTable[i].matureTime))
+			Ranking.setSub(pItem,((i-1)*5+3),tostring(tmpTable[i].wateringTimes))
+			Ranking.setSub(pItem,((i-1)*5+4),tostring(tmpTable[i].awardId))
+		end
+	end
+end
+
+--获取金银福树信息
+function OnGetGoldSilverTreeInfo(sysarg, args)
+	local nActivityId = args[2]
+
+	local config = GetGoldSilverTreeConfig(nActivityId)
+	if (not config) or (not config.goldSilverTree) then
+		return
+	end
+
+	if (IsInGoldSilverTreeDateRange(nActivityId) ~= true) then
+		return
+	end
+
+	local tmpTable = LoadGoldSilverTree(sysarg, nActivityId)
+	if not tmpTable then return end
+
+	tmpTable = CheckFruitStatus(sysarg, nActivityId, tmpTable)
+
+	SendGoldSilverTreeInfo(sysarg, nActivityId, tmpTable, config.goldSilverTree)
+	
+	SaveGoldSilverTree(sysarg, tmpTable)
+end
+
+--根据概率获取值
+function GetRandomGoldSilverTreeInfo(infoTable, minVal)
+	local maxVal = 0
+	for k, v in ipairs(infoTable or {}) do
+		maxVal = maxVal + v.rate
+	end
+
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for k, v in ipairs(infoTable or {}) do
+		tmpValue = tmpValue + v.rate
+		if tmpValue >= randVal then
+			result = v
+			break
+		end
+	end
+	return result
+end
+
+--下发金银福树信息
+function SendGoldSilverTreeInfo(sysarg, nActivityId, tmpTable, goldSilverTree)
+	local pack = DataPack.allocPacket(sysarg, 52, 22)
+	if (pack ~= nil) then
+		local currTime = System.getCurrMiniTime()
+		local fruitCount = table.getn(tmpTable)
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeChar(pack, fruitCount)
+
+		for i=1, fruitCount do
+			local leftTime = 0
+			if tmpTable[i].status == 0 then
+				leftTime = tmpTable[i].matureTime - currTime
+			end
+			DataPack.writeChar(pack, i)
+			DataPack.writeChar(pack, tmpTable[i].level)
+			DataPack.writeChar(pack, tmpTable[i].status)
+			DataPack.writeChar(pack, tmpTable[i].wateringTimes)
+			DataPack.writeInt(pack, leftTime)
+			DataPack.writeChar(pack, goldSilverTree[tmpTable[i].level].pickAwards[tmpTable[i].awardId].clientId)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--检查果实是否成熟
+function CheckFruitStatus(sysarg, nActivityId, tmpTable)
+	local config = GetGoldSilverTreeConfig(nActivityId)
+	if (not config) or (not config.goldSilverTree) then
+		return tmpTable
+	end
+	
+	if (IsInGoldSilverTreeDateRange(nActivityId) ~= true) then
+		return tmpTable
+	end
+
+	local currTime = System.getCurrMiniTime()
+	for i=1, table.getn(tmpTable) do
+		--果实成熟
+		if (tmpTable[i].status == 0) and (currTime >= tmpTable[i].matureTime) then
+			tmpTable[i].status = 1
+		end
+	end
+
+	return tmpTable
+end
+
+--操作金银福树
+function OnOperateGoldSilverTree(sysarg, args)
+	local nActivityId = args[2]
+	local nFruitId = args[3]
+	local nOperateId = args[4]
+	
+	local config = GetGoldSilverTreeConfig(nActivityId)
+	if (not config) or (not config.goldSilverTree) then
+		return
+	end
+	
+	if (IsInGoldSilverTreeDateRange(nActivityId) ~= true) then
+		return
+	end
+	
+	local tmpTable = LoadGoldSilverTree(sysarg, nActivityId)
+	if not tmpTable then return end
+
+	if (nFruitId <= 0) or (nFruitId > table.getn(tmpTable)) or
+	(nOperateId <= 0) or (nOperateId > 4) then
+		return
+	end
+
+	tmpTable = CheckFruitStatus(sysarg, nActivityId, tmpTable)
+
+	local tmpFruit = tmpTable[nFruitId]
+	if not tmpFruit then return end
+--[[
+	local goldSilverTree = config.goldSilverTree[tmpFruit.level]
+	if Actor.checkActorLevel(sysarg, goldSilverTree.limitLevel, goldSilverTree.limitCircle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.cj0043, goldSilverTree.limitCircle, goldSilverTree.limitLevel), ttFlyTip)
+		return
+	end
+]]
+	--浇水
+	if nOperateId == 1 then
+		tmpFruit = WateringFruit(sysarg, nActivityId, tmpFruit, nFruitId)
+	--施肥
+	elseif nOperateId == 2 then
+		tmpFruit = FertilazeFruit(sysarg, nActivityId, tmpFruit, nFruitId)
+	--升级
+	elseif nOperateId == 3 then
+		tmpFruit = UpgradeFruit(sysarg, nActivityId, tmpFruit, nFruitId)
+	--摘取
+	elseif nOperateId == 4 then
+		tmpFruit = PickFruit(sysarg, nActivityId, tmpFruit, nFruitId)
+	end
+
+	tmpTable[nFruitId] = tmpFruit
+	
+	SaveGoldSilverTree(sysarg, tmpTable)
+end
+
+--浇水
+function WateringFruit(sysarg, nActivityId, tmpFruit, nFruitId)
+	local config = GetGoldSilverTreeConfig(nActivityId)
+	if (not config) or (not config.goldSilverTree) then
+		return tmpFruit
+	end
+
+	if tmpFruit.status == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0011, ttFlyTip)
+		return tmpFruit
+	end
+
+	local goldSilverTree = config.goldSilverTree[tmpFruit.level]
+	if tmpFruit.wateringTimes >= goldSilverTree.maxWateringTimes then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0012, ttFlyTip)
+		return tmpFruit
+	end
+
+	local nCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+	--检查金币是否足够
+	if nCoin < goldSilverTree.waterConsume then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0013, ttFlyTip)
+		return tmpFruit
+	end
+	
+	--消耗
+	Actor.changeMoney(sysarg,1,-goldSilverTree.waterConsume,192,Lang.Activity.cj0014)
+
+	tmpFruit.matureTime = tmpFruit.matureTime - goldSilverTree.wateringMinusTime
+
+	local currTime = System.getCurrMiniTime()
+	if currTime >= tmpFruit.matureTime then
+		tmpFruit.status = 1
+	end
+	tmpFruit.wateringTimes = tmpFruit.wateringTimes + 1
+	SendRefreshGoldSilverTree(sysarg, nActivityId, tmpFruit, nFruitId, goldSilverTree.pickAwards[tmpFruit.awardId].clientId)
+
+	return tmpFruit
+end
+
+--施肥
+function FertilazeFruit(sysarg, nActivityId, tmpFruit, nFruitId)
+	local config = GetGoldSilverTreeConfig(nActivityId)
+	if (not config) or (not config.goldSilverTree) then
+		return tmpFruit
+	end
+
+	if tmpFruit.status == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0015, ttFlyTip)
+		return tmpFruit
+	end
+
+	local goldSilverTree = config.goldSilverTree[tmpFruit.level]
+
+	local currTime = System.getCurrMiniTime()
+
+	local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	local consumeGold = (math.floor((tmpFruit.matureTime - currTime) / 3600) + 1) * goldSilverTree.fertilazeConsume
+	--检查元宝是否足够
+	if nGold < consumeGold then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0016, ttFlyTip)
+		return tmpFruit
+	end
+	
+	--消耗
+	Actor.changeMoney(sysarg,3,-consumeGold,192,Lang.Activity.cj0017)
+
+	tmpFruit.status = 1
+
+	SendRefreshGoldSilverTree(sysarg, nActivityId, tmpFruit, nFruitId, goldSilverTree.pickAwards[tmpFruit.awardId].clientId)
+
+	return tmpFruit
+end
+
+--升级
+function UpgradeFruit(sysarg, nActivityId, tmpFruit, nFruitId)
+	local config = GetGoldSilverTreeConfig(nActivityId)
+	if (not config) or (not config.goldSilverTree) then
+		return tmpFruit
+	end
+
+	if tmpFruit.status == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0018, ttFlyTip)
+		return tmpFruit
+	end
+
+	if tmpFruit.level >= table.getn(config.goldSilverTree) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0022, ttFlyTip)
+		return tmpFruit
+	end
+
+	local goldSilverTree = config.goldSilverTree[tmpFruit.level]
+	
+	local currTime = System.getCurrMiniTime()
+
+	local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	local consumeGold = goldSilverTree.upgradeConsume
+	--检查元宝是否足够
+	if nGold < consumeGold then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0019, ttFlyTip)
+		return tmpFruit
+	end
+
+	--消耗
+	Actor.changeMoney(sysarg,3,-consumeGold,192,Lang.Activity.cj0020)
+
+	local tmpAward = GetRandomGoldSilverTreeInfo(config.goldSilverTree[tmpFruit.level+1].pickAwards, 1)
+	tmpFruit.level = tmpFruit.level + 1
+	tmpFruit.status = 0
+	tmpFruit.matureTime = currTime + config.goldSilverTree[tmpFruit.level].growTime
+	tmpFruit.awardId = tmpAward.id
+
+	SendRefreshGoldSilverTree(sysarg, nActivityId, tmpFruit, nFruitId, tmpAward.clientId)
+
+	return tmpFruit
+end
+
+--摘取
+function PickFruit(sysarg, nActivityId, tmpFruit, nFruitId)
+	local config = GetGoldSilverTreeConfig(nActivityId)
+	if (not config) or (not config.goldSilverTree) then
+		return tmpFruit
+	end
+
+	if tmpFruit.status == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0021, ttFlyTip)
+		return tmpFruit
+	end
+	
+	local goldSilverTree = config.goldSilverTree[tmpFruit.level]
+	if Actor.checkActorLevel(sysarg, goldSilverTree.limitLevel, goldSilverTree.limitCircle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.nh0009, goldSilverTree.limitLevel), ttFlyTip)
+		return tmpFruit
+	end
+
+	local pickAwards = goldSilverTree.pickAwards
+	if not pickAwards then return tmpFruit end
+	
+	local awards = pickAwards[tmpFruit.awardId].awards	
+	if not awards then return tmpFruit end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+
+				if (awards[i].isRarity) and (awards[i].isRarity == true) and (awards[i].type == 0) then
+					System.broadcastTipmsg(string.format(Lang.Activity.cj0040, Actor.getName(sysarg), Item.getItemName(awards[i].id)), ttScreenCenter+ttChatWindow)
+				end
+			end
+		end
+
+		local currTime = System.getCurrMiniTime()
+		local tmpInfo = GetRandomGoldSilverTreeInfo(config.goldSilverTree, 1)
+		local tmpAward = GetRandomGoldSilverTreeInfo(tmpInfo.pickAwards, 1)
+		tmpFruit.level = tmpInfo.level
+		tmpFruit.status = 0
+		tmpFruit.matureTime = currTime + tmpInfo.growTime
+		tmpFruit.wateringTimes = 0
+		tmpFruit.awardId = tmpAward.id
+
+		SendRefreshGoldSilverTree(sysarg, nActivityId, tmpFruit, nFruitId, tmpAward.clientId)
+	end
+
+	return tmpFruit
+end
+
+--下发刷新果实
+function SendRefreshGoldSilverTree(sysarg, nActivityId, tmpFruit, nFruitId, clientId)
+	local pack = DataPack.allocPacket(sysarg, 52, 23)
+	if (pack ~= nil) then
+		local currTime = System.getCurrMiniTime()
+		local leftTime = 0
+		if tmpFruit.status == 0 then
+			leftTime = tmpFruit.matureTime - currTime
+		end
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeChar(pack, nFruitId)
+		DataPack.writeChar(pack, tmpFruit.level)
+		DataPack.writeChar(pack, tmpFruit.status)
+		DataPack.writeChar(pack, tmpFruit.wateringTimes)
+		DataPack.writeInt(pack, leftTime)
+		DataPack.writeChar(pack, clientId)
+		DataPack.flush(pack)
+	end
+end
+
+--获取金银福树配置
+function GetGoldSilverTreeConfig(nActivityId)
+	if nActivityId == 1 then
+		return SpringFestivalHorseActiveConfig
+	elseif nActivityId == 2 then
+		return goldSilverTreeConfig
+	end
+
+	return nil
+end
+
+--是否在活动范围内
+function IsInGoldSilverTreeDateRange(nActivityId)
+	local config = GetGoldSilverTreeConfig(nActivityId)
+
+	if (not config) then
+		return false
+	end
+
+	if nActivityId == 1 then
+		return (System.isInDateRange(unpack(config.actTime)))
+	elseif nActivityId == 2 then
+		return ((System.getSheepHundredActFlag(5) == true) and (System.isShowSheepHundredAct(5) ~= true))
+	end
+
+	return false
+end
+
+--清除排行文件
+function ClearGoldSilverTree()
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.GoldSilverTreeFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end

@@ -1,0 +1,89 @@
+--第9阶
+{
+	id = 3246,					--心法图标ID
+
+	skillId = 263,			--技能ID
+	skillRate = 1800,		--技能触发概率，一点表示万分之一
+
+	allLevel = 2,			--共有1级
+	
+	--每级的具体数值
+	allLevelData = 
+	{
+		{
+			nlev = 1,			--第0级
+			needValue = 19232700,		--升级到本级需要的神力值
+			needGodArmJie = 12,		--需要神臂的阶
+
+			--需要身上穿戴装备才给属性
+			--[[
+			itWeapon = 1,				//武器
+			itDress = 2,				//衣服
+			itHelmet = 3,				//头盔
+			itNecklace = 4,				//项链
+			itDecoration =5,			//勋章
+			itBracelet  = 6,			//手镯
+			itRing = 7,				//戒指
+			itGirdle = 8,				//腰带
+			itShoes = 9,				//鞋子
+			itEquipDiamond=10,			//宝石
+			itMeterial =11,				//材料
+			itFashionDress=12,			//时装
+			itSwing=13,				//翅膀
+			itWeaponExtend=14,			//武器扩展 幻武
+			itFootPrint=15,				//足迹
+			itShield = 16,				//护盾
+			itSeal = 17,				//玉玺
+			]]
+			needEquips =
+			{
+				{itemType = 1, strong = 10, quality = 4},
+				{itemType = 2, strong = 10, quality = 4},
+				{itemType = 3, strong = 10, quality = 4},--以后心法描述镶嵌要往后1阶填，并且最后俩阶要填一样，还要把之前的最后1阶改成新的
+			},
+
+			--添加的属性
+			Props = 
+			{
+				{ type = 11, addmode=0, value = 3098, },
+				{ type = 15, addmode=0, value = 3098, },
+				{ type = 19, addmode=0, value = 3098, },
+				{ type = 23, addmode=0, value = 2455, },
+				{ type = 27, addmode=0, value = 2455, },
+				{ type = 21, addmode=0, value = 1811, },
+				{ type = 25, addmode=0, value = 1811, },
+				{ type = 31, addmode=0, value = 12, },
+                { type = 29, addmode=0, value = 12, }, 
+			},
+		},
+	},
+	--升阶
+	upgradeData =
+	{
+		{
+			addValue = 15,			--升阶未成功一次获得祝福值
+			maxBlessing = 2500,		--本阶最大的祝福值
+			upRate = 
+			{
+				--nvalue 祝福值在0到20之间 成功的概率是10% ，万分比
+				{nValue = {0,300},nRate = 0,},
+				{nValue = {300,500},nRate = 0,},
+                {nValue = {500,700},nRate = 0,},
+				{nValue = {700,900},nRate = 0,},
+				{nValue = {900,1100},nRate = 1,},
+				{nValue = {1100,1300},nRate = 5,},
+				{nValue = {1300,1500},nRate = 15,},
+				{nValue = {1500,1750},nRate = 46,},
+				{nValue = {1750,2000},nRate = 116,},
+				{nValue = {2000,2250},nRate = 248,},
+				{nValue = {2250,2500},nRate = 442,},
+			},
+
+			consume = 
+			{
+				{type = 0, id = 3233, count = 10,},
+				{type = 6, id = 0, count = 10000,},
+			},
+		},
+	},
+},

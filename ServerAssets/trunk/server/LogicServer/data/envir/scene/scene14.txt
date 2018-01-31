@@ -1,0 +1,55 @@
+﻿--黑石庙
+{
+	scenceid = 14,
+	scencename = Lang.SceneName.s00014,
+	mapfilename = "14Heishimiaoyiceng",
+	minlevel = 40,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "heishimiao.mp3",
+	musicInterval = 5,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 213,
+	sceneHeight = 238,
+	posx = 80,
+	posy = 213,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00014, range = {16,4,13,231,203,234,203,6}, center = { 60,28},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+					{ type = 36, value = {40} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh14.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00365, posx = 85, posy = 26, script = "data/NPC/RenwuNPC/feilang.txt", modelid = 302,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00366, posx = 104, posy = 69, script = "data/NPC/RenwuNPC/maoxiaoli.txt", modelid = 125,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00367, posx = 101, posy = 128, script = "data/NPC/RenwuNPC/ruzi.txt", modelid = 261,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00378, posx = 98, posy = 195, script = "data/NPC/RenwuNPC/yuxiuqi.txt", modelid = 272,icon = 12,funcId = 0, classId = 0 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 63, posy = 21, toSceneid = 4, toPosx = 427, toPosy =  74, modelid = 50000, name = Lang.SceneName.s00004, dist = 1, mapHide = false },  --黑石庙→都郡城
+		{ posx = 152, posy = 210, toSceneid = 15, toPosx = 58, toPosy =  38, modelid = 50000, name = Lang.SceneName.s00015, dist = 1, mapHide = false },  --黑石庙→黑石庙二层
+
+	},
+},

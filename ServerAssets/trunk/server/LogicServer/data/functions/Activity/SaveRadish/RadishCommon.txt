@@ -1,0 +1,132 @@
+-- 此文件为共享方法的文件
+--[[
+	fbVar 存了两种数据
+	1、玩家塔数据 2、杀怪的经验和数量数据
+	actorVar 存了 fbVar.TafangData 的部分下发数据
+	也有可能为空
+]]
+
+
+-- 获取所有塔数据
+function getActorTowerData ( sysarg )
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	if not fbVar.allTowerData then
+		fbVar.allTowerData = {}
+	end
+	return fbVar.allTowerData
+end
+
+-- 获取某个塔防
+function getTower( Data, keyXY, hMonster )
+	if keyXY then
+		for i=1,#Data do
+			if Data[i].Pos == keyXY then
+				return Data[i]
+			end
+		end
+	end
+
+	if hMonster then
+		for i=1,#Data do
+			if Data[i].hMonster == hMonster then
+				return Data[i]
+			end
+		end
+	end
+end
+
+function ClearActorTowerData ( sysarg )
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	fbVar.allTowerData = nil
+end
+
+function getTowerXY(x, y)
+	return x * 10000 + y
+end
+
+-- 设置塔防数据
+function setTowerData(tower, hMonster, towerId, itemId, Pos)
+	if tower == nil then
+		return {
+			hMonster = hMonster,
+			towerId = towerId,
+			itemId = itemId,
+			Pos = Pos,
+			iDeath = 0,
+			lv = 1,
+		}
+	end
+	tower.hMonster = hMonster
+	tower.iDeath = 0
+	return tower
+end
+
+-- 刷新经验
+function updateExp( sysarg, exp, isFight )
+  local pack = DataPack.allocPacket(sysarg, 145, 19)
+  DataPack.writeChar(pack, isFight) --0:1是否已开始刷怪
+  DataPack.writeUint64(pack, exp)
+  DataPack.flush(pack)
+end
+
+-- 删除该塔
+function DelTower(Data, tower)
+	local bFlag = false
+	for i=1,#Data do
+		if bFlag == false and Data[i] == tower then
+			Data[i] = nil
+
+			-- 保持连续，将最后一个与当前置换
+			if i ~= #Data then
+				Data[i] = Data[#Data]
+				Data[#Data] = nil
+			end
+			break
+		end
+	end
+
+end
+
+function initTafangData( sysarg )
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+
+	fbVar.TafangData = {
+		appearTimes = 0, --副本刷怪波次 初始化为 1
+		monsterCount = 0, -- 刷出总怪物的数量
+		passTimes = 0, -- 玩家通过的关数 默认1关
+		passExp = 0, -- 通关的波数经验
+		monsterExp = 0, -- 刷怪经验
+		killCount = 0, --杀怪数量
+	}
+
+	
+	return fbVar.TafangData
+end
+
+function GetTafangData( sysarg ) -- 有可能是玩家，也有可能是怪物
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	return fbVar.TafangData
+end
+
+function ChangeFubenProgress( sysarg, appearTimes, max )
+	local allTowerData = getActorTowerData ( sysarg )
+	Actor.changeActivityProgress(sysarg, appearTimes, (max - #allTowerData))
+end
+
+function GetActorTafangData( sysarg )
+	local actorVar = Actor.getStaticVar(sysarg)
+	if actorVar.tafang == nil then
+		actorVar.tafang = {
+			killCount = 0,
+			passTimes = 0,
+			passExp = 0,
+			monsterExp = 0,
+		}
+	end
+	
+	return actorVar.tafang
+end

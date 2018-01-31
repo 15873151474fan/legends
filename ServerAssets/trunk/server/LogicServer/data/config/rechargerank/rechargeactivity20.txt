@@ -1,0 +1,165 @@
+﻿{
+	--id为活动id，每个充值排行活动唯一
+	--rechargeRankTotalFile，活动期间总排行，每个充值排行活动唯一
+	--羊年五一充值
+	id = 20,
+	rechargeRankTotalFile = "RechargeRankTotal_20.txt",	--总充值排行
+
+	actTime = {2015, 4, 29, 0, 0, 0,  2015, 5, 3, 23, 59, 59},	--时间范围
+
+	onRankNeedYB = 100000,		--上榜需要100000元宝
+	isNewDayFresh = 1,		--是否重置每日充值 1 是 0 否
+	isNewDaySendOfflineMsg = 0,	--是否发送每日未领奖离线消息 1 是 0 否
+	--isUseActTime = 0,	--是否使用actTime配置项 1 是 0 否
+	isNeedShow = 0, 	--是否需要保留显示，1是 0否
+	--showRankCount = 10,	--显示排行条数
+	--isUseServYB = 1,	--是否需要全服充值
+	--isLastDaySendCommonAwards = 1,	--是否需要最后一天发未领奖奖励 1 是 0 否
+	--nAppearCount = 1,	--显示外观个数
+	--isOnRankShowPos = 1,	--是否上榜才显示排名 1 是 0 否
+	--isPerDayRechargeYb = 1, --显示个人当天充值元宝
+	--isGiveCommonAwardsOnce = 1,	--是否只发放一次commonAwards
+	--isUseServRechargeCount = 1,	--是否使用全服充值人数 1 是 0 否
+
+	--排行奖励
+	rankAwards =
+	{
+		--第一名
+		{
+			offlineMsg = Lang.Activity.ywy0001,		--离线消息
+			offlineNeedBagCount = 6,			--离线奖励需要背包空格数
+
+			awards =
+			{
+				{ type = 0, id = 3295, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 754 , count = 1 , strong = 0, quality = 0, bind = 1, job =  1, sex = -1},
+				{ type = 0, id = 764 , count = 1 , strong = 0, quality = 0, bind = 1, job =  2, sex = -1},
+				{ type = 0, id = 774 , count = 1 , strong = 0, quality = 0, bind = 1, job =  3, sex = -1},
+				{ type = 0, id = 2910, count = 8 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3450, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2916, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2136, count = 50, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--第二名
+		{
+			offlineMsg = Lang.Activity.ywy0002,		--离线消息
+			offlineNeedBagCount = 6,			--离线奖励需要背包空格数
+
+			awards =
+			{
+				{ type = 0, id = 3294, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 753 , count = 1 , strong = 0, quality = 0, bind = 1, job =  1, sex = -1},
+				{ type = 0, id = 763 , count = 1 , strong = 0, quality = 0, bind = 1, job =  2, sex = -1},
+				{ type = 0, id = 773 , count = 1 , strong = 0, quality = 0, bind = 1, job =  3, sex = -1},
+				{ type = 0, id = 2910, count = 5 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3450, count = 8 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2916, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2136, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--第三名
+		{
+			offlineMsg = Lang.Activity.ywy0003,		--离线消息
+			offlineNeedBagCount = 6,			--离线奖励需要背包空格数
+
+			awards =
+			{
+				{ type = 0, id = 3295, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 752 , count = 1 , strong = 0, quality = 0, bind = 1, job =  1, sex = -1},
+				{ type = 0, id = 762 , count = 1 , strong = 0, quality = 0, bind = 1, job =  2, sex = -1},
+				{ type = 0, id = 772 , count = 1 , strong = 0, quality = 0, bind = 1, job =  3, sex = -1},
+				{ type = 0, id = 2910, count = 5 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3450, count = 5 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2916, count = 20, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2136, count = 30, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+	},
+	
+	--奖励
+	commonAwards =
+	{
+		--168元宝
+		{
+			needYB = 1,
+			--needServYB = 50000,				--需全服充值
+			--needServRechargeCount = 20,			--需要全服充值人数
+			offlineMsg = Lang.Activity.ywy0004,		--离线消息
+			offlineNeedBagCount = 3,			--离线奖励需要背包空格数
+			--servBroadcast = Lang.Activity.mzq0213,		--全服广播消息
+			--rebateRate = 500,				--返利比例，一点表示万分之一
+			--rebateLimit = 10000,				--返利上限
+
+			awards =
+			{
+				{ type = 0, id = 3303, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3182, count = 5 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3185, count = 5 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--888元宝
+		{
+			needYB = 1,
+			--needServYB = 100000,				--需全服充值
+			offlineMsg = Lang.Activity.ywy0004,		--离线消息
+			--needServRechargeCount = 50,			--需要全服充值人数
+			offlineNeedBagCount = 4,			--离线奖励需要背包空格数
+			--servBroadcast = Lang.Activity.mzq0214,		--全服广播消息
+			--rebateRate = 800,				--返利比例，一点表示万分之一
+			--rebateLimit = 10000,				--返利上限
+
+			awards =
+			{
+				{ type = 0, id = 2910, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 780 , count = 1 , strong = 0, quality = 0, bind = 0, job = -1, sex = -1},
+				{ type = 0, id = 790 , count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3232, count = 5 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--1688元宝
+		{
+			needYB = 1,
+			--needServYB = 300000,				--需全服充值
+			--needServRechargeCount = 100,			--需要全服充值人数
+			offlineMsg = Lang.Activity.ywy0004,		--离线消息
+			offlineNeedBagCount = 5,			--离线奖励需要背包空格数
+			--servBroadcast = Lang.Activity.yncj102,		--全服广播消息
+			--rebateRate = 1000,				--返利比例，一点表示万分之一
+			--rebateLimit = 10000,				--返利上限
+
+			awards =
+			{
+				{ type = 0, id = 750 , count = 1 , strong = 0, quality = 0, bind = 1, job =  1, sex = -1},
+				{ type = 0, id = 760 , count = 1 , strong = 0, quality = 0, bind = 1, job =  2, sex = -1},
+				{ type = 0, id = 770 , count = 1 , strong = 0, quality = 0, bind = 1, job =  3, sex = -1},
+				{ type = 0, id = 800 , count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 810 , count = 1 , strong = 0, quality = 0, bind = 0, job = -1, sex = -1},
+				{ type = 0, id = 2982, count = 3 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2603, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--2888元宝
+		{
+			needYB = 1,
+			--needServYB = 300000,				--需全服充值
+			--needServRechargeCount = 100,			--需要全服充值人数
+			offlineMsg = Lang.Activity.ywy0004,		--离线消息
+			offlineNeedBagCount = 5,			--离线奖励需要背包空格数
+			--servBroadcast = Lang.Activity.yncj102,		--全服广播消息
+			--rebateRate = 1000,				--返利比例，一点表示万分之一
+			--rebateLimit = 10000,				--返利上限
+
+			awards =
+			{
+				{ type = 0, id = 751 , count = 1 , strong = 0, quality = 0, bind = 1, job =  1, sex = -1},
+				{ type = 0, id = 761 , count = 1 , strong = 0, quality = 0, bind = 1, job =  2, sex = -1},
+				{ type = 0, id = 771 , count = 1 , strong = 0, quality = 0, bind = 1, job =  3, sex = -1},
+				{ type = 0, id = 2662, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2673, count = 1 , strong = 0, quality = 0, bind = 0, job = -1, sex = -1},
+				{ type = 0, id = 2910, count = 2 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3232, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+	},
+},

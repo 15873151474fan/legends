@@ -1,0 +1,122 @@
+--#include "data\config\boss\HongMengVigourConfig.txt" once
+--#include "data\config\boss\HongMengRealm.txt" once
+
+function CollectHMVigourFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.isDealing(sysarg) == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0011, ttFlyTip)
+		return 
+	end
+
+	local canCollect = 0
+	local collectMonId = 0
+	local collectMonCount = 0
+	local itemTab = 0
+	for k, v in ipairs(CollectHMVigourTab or {}) do
+		if itemIdx == v.item_id then
+			itemTab = v
+			local monsterList = LuaHelp.getNearEntityList(sysarg, v.collectRange)	
+			if monsterList ~= nil then			
+				for monsterId, monTab in pairs(HongMengVigourConfig or {}) do
+					for j = 1, #monsterList do
+						local monster = monsterList[j]
+						if monster then
+							local nMonsterId = Actor.getIntProperty(monster, PROP_ENTITY_ID)
+							if nMonsterId == monsterId then
+								local monHandle = Actor.getHandle(monster)
+								Fuben.clearMonster(monHandle)
+								canCollect = 1
+								collectMonId = monsterId
+								collectMonCount = collectMonCount + 1
+							end
+							if (v.collectMonCount ~= -1) and (collectMonCount >= v.collectMonCount) then
+								break
+							end
+						end
+					end
+				end
+			end
+			break
+		end
+	end
+
+	if canCollect == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0031, ttFlyTip)
+		return
+	else
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use collecthmvigour",5)
+
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		local awards = HongMengVigourConfig[collectMonId].awards
+		if awards and Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					local count = awards[i].count * itemTab.collectRate * collectMonCount
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,count,awards[i].quality,awards[i].strong,awards[i].bind,0,957,Lang.Activity.ylsz0033, -1, awards[i].expireTime)
+				end
+			end
+			
+			--添加实体特效
+			if(itemConfig.entityEffects ~= nil) then
+				for i=1, table.getn(itemConfig.entityEffects)   do
+					local effect = itemConfig.entityEffects[i]
+					Actor.addEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime) --添加特效 
+				end
+			end
+			
+			--添加场景特效
+			if(itemConfig.sceneEffects ~= nil) then
+				for i=1, table.getn(itemConfig.sceneEffects)   do
+					local effect = itemConfig.sceneEffects[i]
+					Actor.addSceneEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime,effect.x,effect.y) --添加特效 
+				end
+			end
+			Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0034, ttFlyTip)
+		else
+			return
+		end
+	end
+end
+
+function CollectHMVigourInit(sysarg)
+	for k, v in ipairs(CollectHMVigourTab) do
+		GlobalItemFn[v.item_id] = { func = CollectHMVigourFunc, params = v }
+	end
+end
+
+--鸿蒙金蚕王
+function UpgradeHMRealmFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.isDealing(sysarg) == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0011, ttFlyTip)
+		return 
+	end
+
+	local nHMRealm = Actor.getIntProperty(sysarg, PROP_ACTOR_HONGMENG_REALM)
+
+	if nHMRealm >= table.getn(HongMengRealmConfig.HongMengRealmprop or {})-1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0039, ttFlyTip)
+		return
+	end
+
+	if Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use upgradehmrealm",5) >= 1 then
+		nHMRealm = nHMRealm + 1
+
+		Actor.setUIntProperty(sysarg, PROP_ACTOR_HONGMENG_REALM, nHMRealm)
+
+		Actor.refreshBeastSoulAttrs(sysarg)
+		
+		Actor.sendTipmsg(sysarg, Lang.Activity.ylsz0040, ttFlyTip)
+	end
+end
+
+--鸿蒙金蚕王
+function UpgradeHMRealmInit(sysarg)
+	for k, v in ipairs(UpgradeHMRealmTab) do
+		GlobalItemFn[v.item_id] = { func = UpgradeHMRealmFunc, params = v }
+	end
+end
+
+table.insert( InitFnTable, CollectHMVigourInit)
+table.insert( InitFnTable, UpgradeHMRealmInit)

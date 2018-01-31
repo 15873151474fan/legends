@@ -1,0 +1,199 @@
+﻿--幻灵盾1级
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s24L1Desc,--技能的描述
+	
+	iconID=24,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=2,			
+
+			acts=
+			{
+				{
+					targetType=1,
+					conds=
+					{
+
+						
+					},
+					results=
+					{
+					},
+
+					specialEffects=
+					{
+					--{type=3,mj=0,id=67,keepTime=60,delay=200,always=false},	
+					{type=4,mj=0,id=402,keepTime=380,delay=450,always=false},					
+					},
+				},
+			},
+		},
+	
+	
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=2554,timeParam=1000,type=20,delay=0,id=54,vt=1,value=1},
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=2,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =0},
+						{cond = 17,value =27,param=32},	
+						{cond = 21,value =54},
+					},
+					results=
+					{					
+						{mj=2554,timeParam=1,type=1,delay=500,  buffType=25,id=201,rate=20000,rateType=3,value=8,interval=60,intervalRate=10000,intervalAddType=2,maxDur=600,vt=0,effectType=6,mjParam1=20,mjParam2=20,bMjType=2},
+						{mj=2554,timeParam=1,type=1,delay=500,  buffType=27,id=32,rate=20000,rateType=3,value=8,interval=60,intervalRate=10000,intervalAddType=2,maxDur=600,vt=0,effectType=6,mjParam1=20,mjParam2=20,bMjType=2},
+					    {mj=2554,timeParam=1,type=1,delay=500,  buffType=23,id=33,rate=20000,rateType=3,value=8,interval=40,intervalRate=10000,intervalAddType=2,maxDur=600,vt=0,mjParam1=20,mjParam2=20,bMjType=2},
+						{mj=2554,timeParam=1,type=1,delay=500,  buffType=21,id=202,rate=20000,rateType=3,value=8,interval=40,intervalRate=10000,intervalAddType=2,maxDur=600,vt=0,mjParam1=20,mjParam2=20,bMjType=2},
+                    },
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=2,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=2,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =0},
+						{cond = 17,value =27,param=32},	
+						{cond = 22,value =54},
+					},
+					results=
+					{					
+						{mj=0,timeParam=1,type=1,delay=500,  buffType=27,id=32,rate=20000,rateType=3,value=8,interval=60,intervalRate=10000,intervalAddType=2,maxDur=600,vt=0,effectType=6},
+                        {mj=0,timeParam=1,type=1,delay=500,  buffType=23,id=33,rate=20000,rateType=3,value=8,interval=40,intervalRate=10000,intervalAddType=2,maxDur=600,vt=0},
+
+						
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+						
+
+					},
+					results=
+					{					
+						
+						
+						{mj=2554,timeParam=1,type=21,id=54,vt=1,value=1},
+						
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+
+
+		
+	},
+
+	trainConds=
+	{
+		{cond=1,value=25,consume=false},--表示等级要22级
+		{cond=3,value=585,consume=true,exceptVip=true},--表示书本
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=2,consume=true},--消耗蓝120
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

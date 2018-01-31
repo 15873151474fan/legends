@@ -1,0 +1,9 @@
+﻿drops=
+{
+	{ group = 1, propability = 1, type = 0, id = 227, strong = 0, quality = 0, count = 1, bind = 0, },
+	{ group = 1, propability = 1, type = 0, id = 228, strong = 0, quality = 0, count = 1, bind = 0, },
+	{ group = 1, propability = 1, type = 0, id = 238, strong = 0, quality = 0, count = 1, bind = 0, },
+	{ group = 1, propability = 1, type = 0, id = 239, strong = 0, quality = 0, count = 1, bind = 0, },
+	{ group = 1, propability = 1, type = 0, id = 249, strong = 0, quality = 0, count = 1, bind = 0, },
+	{ group = 1, propability = 1, type = 0, id = 250, strong = 0, quality = 0, count = 1, bind = 0, },
+}

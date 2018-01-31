@@ -1,0 +1,169 @@
+﻿-- 角色升级的一些处理
+--lua script
+
+--#include "data\config\item\SkillBookItemData.txt" once
+--#include "data\config\quest\MiscQuest.txt" once
+--#include "data\config\quest\EntrustReward.txt" once
+--#include "data\functions\Activity\OpenTenDaysActivity\LevelingMan.txt" once
+--#include "data\functions\Activity\NewActivity\NewActivityCommon.txt" once
+--#include "data\functions\Activity\OpenBattleFiled\OpenBattleCommon.txt" once
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once
+--#include "data\functions\Activity\DouDiscountMall\DouDiscountMall.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\AnniversaryAct.txt" once
+--#include "data\functions\Activity\OpenServerBless\OpenServerBless.txt" once --开服祈福活动
+--#include "data\NPC\Test\TestLevelGiveAward.txt" once
+--#include "data\config\quest\FreeAward.txt" once--领取系统的配置 
+
+--玩家升级的一个领取系统
+function GetAwardFuc(sysarg)
+  local Svar = Actor.getStaticVar( sysarg)
+  local circle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+  local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+  local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+  local mySex = Actor.getIntProperty( sysarg, PROP_ACTOR_SEX )
+  
+  local CurAllLevel = circle*1000 + level 
+  if Svar.GetFreeAwardLog == nil then  
+     Svar.GetFreeAwardLog = {}
+  end
+  for i = 1, table.getn(FreeAward) do
+      local Id = FreeAward[i].id + 1
+      if Svar.GetFreeAwardLog[Id] == nil then
+         Svar.GetFreeAwardLog[Id] = {}
+         Svar.GetFreeAwardLog[Id].Award = 0
+      end 
+      --print("GetAwardFuc".. Svar.GetFreeAwardLog[Id].Award)
+      if FreeAward[i].iconHideCondition[1].type == 0 and Svar.GetFreeAwardLog[Id].Award == 0 then
+         local NeedAllLevel = FreeAward[i].iconHideCondition[1].value[1]*1000 + FreeAward[i].iconHideCondition[1].value[2] 
+               --print("CurAllLevel:"..CurAllLevel.."NeedAllLevel:"..NeedAllLevel)
+         if CurAllLevel >= NeedAllLevel then
+           local Tb = FreeAward[i].award 
+           for i = 1, #Tb do
+               if (Tb[i].sex == -1 or Tb[i].sex == mySex) and (Tb[i].job == 0 or Tb[i].job == myJob) then
+                  Actor.giveAward(sysarg,Tb[i].type, Tb[i].id, Tb[i].count, Tb[i].quality, Tb[i].strong, Tb[i].bind,0,1018, "FreeAward", -1)
+               end
+           end
+           Svar.GetFreeAwardLog[Id].Award = 1
+         end 
+      end  
+  end
+end 
+
+--玩家升级的时候灌满他宝物的灵力
+function OnLevelUpFullGemValue(sysarg)
+	local equipedGemPtr = Actor.getCurrEquipedGem(sysarg)
+	if (equipedGemPtr == nil) then
+		--print("equipedGemPtr == nil")
+		return
+	end
+	--升级直接加到200
+	Actor.giveAward(sysarg,18,0,200,0,0,1,0,663,"levelup")
+end
+
+--#include "data\config\hero\HeroConfig.txt" once
+function HeroOpenTips(sysarg)
+	local config = HeroConfig
+	if not config then return end
+	local circle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if System.hasHeroSystemOpen() == true and Hero.getHeroCount(sysarg) == 0 and circle == 0 and level >= config.level then
+		local npcPos = config.npcPos
+		--Actor.sendMoveToMsg(sysarg, npcPos.sceneName, npcPos.x, npcPos.y, string.format(Lang.ScriptTips.c000105, npcPos.sceneName, npcPos.npcName), Lang.ScriptTips.c000106)
+		local npack = DataPack.allocPacket(sysarg, 44, 22)
+	if not npack then return end
+	DataPack.flush(npack)
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000107, npcPos.npcName, npcPos.sceneName, npcPos.npcName), ttChatWindow)
+	end
+end
+
+function NewPlayerProtectBuff(sysarg, nowLevel)
+	if (nowLevel == 35 and Actor.hasBuff(sysarg, 93, -1)) then
+		Actor.delBuff(sysarg, 93, -1)
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.pk00011, ttFlyTip)
+	end
+end
+
+
+
+EventCallDispatcher.ActorLevelUpHandler = function (sysarg, arg)
+	local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)	
+	local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+	local vipType = Actor.getVipType(sysarg)
+	TalkClientShowBlessUi(sysarg) --开启祈福面板
+	NewPlayerProtectBuff(sysarg, myLevel)
+	local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if myLevel == EntrustReward.BookQuestLevel then
+		local netPack = DataPack.allocPacket(sysarg,6, 16)  --申请一个数据包
+		if netPack then
+			DataPack.writeWord(netPack, EntrustReward.BookQuestId)
+			DataPack.flush(netPack)
+		end
+	end
+	--[[for k, v in ipairs(SkillBoolConfig) do
+	
+		if v.jop_id == myJob then
+			if vipType == 3 and v.vipActorLv and v.vipActorLv <= myLevel  then
+				local curLevel = Actor.getSkillLevel(sysarg, v.skill_id)
+				if curLevel == 0 then
+					Actor.startLearnSkill(sysarg, v.skill_id, v.vip_level)
+				elseif curLevel <= v.vip_level then
+					Actor.setSkillProperty(sysarg, v.skill_id, 1, v.vip_level)
+				end
+			end
+			
+			if v.freeLearnLv then
+				if Actor.getSkillLevel(sysarg, v.skill_id) > 0 then
+					Actor.setFullAnger(sysarg)
+				else
+					if v.freeLearnLv == myLevel then
+						Actor.startLearnSkill( sysarg, v.skill_id, v.skill_Level)
+					end
+				end
+			end
+		end
+	end
+	--SendCSExtInfoToClient(sysarg)
+	OnLevelUpFullGemValue(sysarg)
+	OnCheckDownloadLauncher(sysarg)
+	--HeroOpenTips(sysarg)
+	OnNewActivityLevelUp(sysarg)
+
+	OnOpenBattleFieldOp(sysarg)
+	
+	OnOpenDragonGod(sysarg)
+	
+	OnOpenDouDiscountMall(sysarg)
+	
+	OnOpenAnniversaryHorse(sysarg)
+	
+	UpLevelGiveTips(sysarg,myLevel)]]
+   
+   -- OnLevelUpGiveTestLevelAward(sysarg)
+   --print("ActorLevelUpHandler:")
+   GetAwardFuc(sysarg)--领取系统 
+end
+
+function OnCheckDownloadLauncher( sysarg )
+	local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	for k, lv in ipairs(DownloadLauncherInfo.NoticeLv) do
+		if lv == myLevel then
+			if not Actor.isFinishQuest(sysarg, DownloadLauncherInfo.questId) then
+				local netPack = DataPack.allocPacket(sysarg, 6, 14)
+				if netPack then
+					DataPack.flush(netPack)
+				end
+			end
+			break
+		end
+	end
+end
+
+function OnOpenDragonGod( sysarg )
+	OpenDragonGod(sysarg) 
+end
+
+function OnOpenAnniversaryHorse( sysarg )
+	AnniversaryHorLoginHandle(sysarg)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeLevel, EventCallDispatcher.ActorLevelUpHandler)

@@ -1,0 +1,306 @@
+----#include "data\functions\Activity\Common\Awards.txt" once	--奖励通用
+--#include "data\config\activityconfig\GodArm\GodArmItem.txt" once 
+
+--开始升阶
+function OnStartUpGodArm(sysarg,args)
+	local nLevel = args[2]
+
+	if System.isCommonServer() == true then return end
+
+	if nLevel >= table.getn(GodArmUpLevConfig.godArms) then		--已是最高阶
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0001, ttFlyTip)
+		return
+	end
+
+	if nLevel > 0 and nLevel < table.getn(GodArmUpLevConfig.godArms) then
+		--nLevel = nLevel + 1
+		local nConfig = GodArmUpLevConfig.godArms[nLevel]
+
+		if nConfig == nil then return end
+		
+		--材料是否足够
+		for i=1,table.getn(nConfig.consume) do
+			if Actor.checkConsume(sysarg,nConfig.consume[i].type,nConfig.consume[i].id,nConfig.consume[i].count) == false then 
+				Actor.sendTipmsg(sysarg, Lang.Activity.sb0002, ttFlyTip)
+				return
+			end
+		end
+
+		local nValue = Actor.getGodArmBlessValue(sysarg)		--祝福值
+
+		local nResult = 0
+		if nValue >= nConfig.maxBlessing then		--已到最大祝福值，肯定成功
+			nResult = 1
+		else	
+			local nRate = System.getRandomNumber(10000)
+			local nNeedRate = 10000
+			for i=1,table.getn(nConfig.upRate) do
+				if nValue >= nConfig.upRate[i].nValue[1] and nValue <= nConfig.upRate[i].nValue[2] then
+					nNeedRate = nConfig.upRate[i].nRate
+					break
+				end
+			end
+			
+			if nRate <= nNeedRate then
+				nResult = 1
+			else
+				nValue = nValue + nConfig.addValue
+			end
+		end
+		
+	
+		for i=1,table.getn(nConfig.consume) do
+			if Actor.removeConsume(sysarg,nConfig.consume[i].type,nConfig.consume[i].id,nConfig.consume[i].count,-1,-1,-1,0,939,Lang.Activity.sb0003) 
+				~= nConfig.consume[i].count then
+				Actor.sendTipmsg(sysarg, Lang.Activity.sb0002, ttFlyTip)
+				return
+			end
+		end
+
+		if nValue >= nConfig.maxBlessing then		--已到最大祝福值，肯定成功
+			nResult = 1
+		end
+
+		if nResult == 1 then
+			if nValue >= nConfig.maxBlessing then
+				nValue = nConfig.maxBlessing
+			end
+			
+		end
+		
+		Actor.setGodArmBlessValue(sysarg,nValue)
+
+		Actor.onUpGodArmSuc(sysarg,nResult)
+	end
+end
+
+--开始升级
+function OnUpGodArmLevel(sysarg,args)
+	if System.isCommonServer() == true then return end
+
+	if Actor.getGodArmItemId(sysarg) <= 0 then			--没有神器
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0004, ttFlyTip)
+		return
+	end
+
+	local config = GodArmUpLevConfig.GodArmJieItemConfig
+	if not config then return end
+
+	local nCanUseItem = 0
+
+	for i=1,table.getn(config) do
+		local nConfig = config[i]
+		if nConfig == nil then 
+			break
+		end
+
+		if Actor.canUseGodArmGodPower(sysarg) == 0 then 
+			break
+		end
+		
+		local nCount = Actor.getItemCount(sysarg,nConfig.item_id)
+
+		local nUseCount = Actor.addGodArmValueOneKey(sysarg,nConfig.nValue,nCount)
+		if nUseCount > 0 then
+			nCanUseItem = 1
+			Actor.removeItem(sysarg,nConfig.item_id,nUseCount,-1,-1,-1,"use GodPoweritem",5)
+		end
+	end
+
+	if nCanUseItem == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0007, ttFlyTip)
+		return
+	end
+
+	Actor.sendUpGodArmLevMsg(sysarg)
+end
+
+--激活神臂
+function OnActiveGodArm(sysarg, args)
+	if System.isCommonServer() == true then return end
+
+	local config = GodArmConfig.GodArmItemConfig
+	if not config then return end
+
+	local ItemTable = nil
+
+	for k,v in ipairs(config or {}) do
+		if(Actor.getItemCount(sysarg,v.item_id) > 0) then
+			ItemTable = v
+			break
+		end
+	end
+
+	if ItemTable == nil then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0008, ttFlyTip)
+		return
+	end
+
+	if Actor.getGodArmItemId(sysarg) > 0 then	--已有神臂
+		Actor.sendTipmsg( sysarg,Lang.Activity.sb0005,ttFlyTip )
+		return
+	end
+
+	--if Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use GodArmitem",5) == 1 then
+	if Actor.removeItem(sysarg, ItemTable.item_id, 1) >= 1 then
+		Actor.onTakeOnGodArm(sysarg,ItemTable.item_id,ItemTable.nLeftTime)		--装配
+	end
+end
+
+--心法升阶
+function OnStartUpGodArmSavvy(sysarg,args)
+	local nLevel = args[2]
+	
+	if System.isCommonServer() == true then return end
+
+	if nLevel >= GodArmConfig.maxLevel then		--已是最高阶
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0009, ttFlyTip)
+		return
+	end
+
+	if nLevel >= 0 and nLevel < GodArmConfig.maxLevel then
+		--nLevel = nLevel + 1
+		local nConfig = GodArmConfig.godArms[nLevel+1].Savvy[1].upgradeData[1]
+
+		if nConfig == nil then return end
+
+		--材料是否足够
+		for i=1,table.getn(nConfig.consume) do
+			if Actor.checkConsume(sysarg,nConfig.consume[i].type,nConfig.consume[i].id,nConfig.consume[i].count) == false then 
+				Actor.sendTipmsg(sysarg, Lang.Activity.sb0010, ttFlyTip)
+				return
+			end
+		end
+
+		local nValue = Actor.getSavvyBlessValue(sysarg)		--祝福值
+
+		local nResult = 0
+		if nValue >= nConfig.maxBlessing then		--已到最大祝福值，肯定成功
+			nResult = 1
+		else	
+			local nRate = System.getRandomNumber(10000)
+			local nNeedRate = 10000
+			for i=1,table.getn(nConfig.upRate) do
+				if nValue >= nConfig.upRate[i].nValue[1] and nValue <= nConfig.upRate[i].nValue[2] then
+					nNeedRate = nConfig.upRate[i].nRate
+					break
+				end
+			end
+			
+			if nRate <= nNeedRate then
+				nResult = 1
+			else
+				nValue = nValue + nConfig.addValue
+			end
+		end
+	
+	
+		for i=1,table.getn(nConfig.consume) do
+			if Actor.removeConsume(sysarg,nConfig.consume[i].type,nConfig.consume[i].id,nConfig.consume[i].count,-1,-1,-1,0,939,Lang.Activity.sb0011) 
+				~= nConfig.consume[i].count then
+				Actor.sendTipmsg(sysarg, Lang.Activity.sb0010, ttFlyTip)
+				return
+			end
+		end
+
+		if nValue >= nConfig.maxBlessing then		--已到最大祝福值，肯定成功
+			nResult = 1
+		end
+
+		if nResult == 1 then
+			if nValue >= nConfig.maxBlessing then
+				nValue = nConfig.maxBlessing
+			end
+			
+		end
+
+		Actor.setSavvyBlessValue(sysarg,nValue)
+
+		Actor.onUpSavvySuc(sysarg,nResult)
+	end
+end
+
+--心法升级
+function OnUpGodArmSavvyLevel(sysarg,args)
+	if System.isCommonServer() == true then return end
+
+	if Actor.getGodArmItemId(sysarg) <= 0 then			--没有神器
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0004, ttFlyTip)
+		return
+	end
+
+	local config = GodArmConfig.savvyItemConfig.upLevelItems
+	if not config then return end
+
+	local nCanUseItem = 0
+	local nUseCount = 0
+
+	for i=1,table.getn(config) do
+		local nConfig = config[i]
+		if nConfig == nil then 
+			break
+		end
+
+		if Actor.canUseSavvyGodPower(sysarg) == 0 then 
+			break
+		end
+
+		local nCount = Actor.getItemCount(sysarg,nConfig.item_id)
+
+		nUseCount = Actor.addSavvyValueOneKey(sysarg,nConfig.nValue,nCount)
+
+		if nUseCount > 0 then
+			nCanUseItem = 1
+			Actor.removeItem(sysarg,nConfig.item_id,nUseCount,-1,-1,-1,"use Savvyitem",5)
+		end
+	end
+
+	if (nCanUseItem == 0) and (nUseCount == 0) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0012, ttFlyTip)
+		return
+	elseif (nUseCount == -2) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0015, ttFlyTip)
+		return
+	end
+
+	Actor.sendUpSavvyLevMsg(sysarg)
+end
+
+--镶嵌心法
+function OnPutOnSavvy(sysarg,args)
+	local nSavvyStairs = args[2]
+	local nSavvyGrade = args[3]
+
+	if System.isCommonServer() == true then return end
+	
+	if Actor.getGodArmItemId(sysarg) <= 0 then			--没有神器
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0004, ttFlyTip)
+		return
+	end
+
+	local config = GodArmConfig.savvyItemConfig.putOnSavvyItems
+	if not config then return end
+
+	local ItemTable = nil
+
+	for k,v in ipairs(config or {}) do
+		if(Actor.getItemCount(sysarg,v.item_id) > 0) then
+			ItemTable = v
+			break
+		end
+	end
+
+	if ItemTable == nil then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0013, ttFlyTip)
+		return
+	end
+
+	if (nSavvyGrade <= 0) or (nSavvyGrade > nSavvyStairs) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sb0014, ttFlyTip)
+		return
+	end
+
+	if Actor.removeItem(sysarg, ItemTable.item_id, 1) >= 1 then
+		Actor.onPutOnSavvySuc(sysarg, nSavvyGrade, ItemTable.nLeftTime+System.getCurrMiniTime())		--装配
+	end
+end

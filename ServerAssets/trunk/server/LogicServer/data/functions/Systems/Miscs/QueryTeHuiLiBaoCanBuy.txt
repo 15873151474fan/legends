@@ -1,0 +1,62 @@
+﻿------------------------------消息处理部分---------------------------------
+--#include "data\functions\Common.txt" once
+
+function CanBuyTeHuiLiBao(sysarg,ShopItem)
+  local PRanking = Ranking.getRanking("TeHuiLibaoBuyRecord")
+
+  local CanGive = true
+
+  if not PRanking then
+    return false
+  else
+    local ReciveTable = {}
+    local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+    local pRankItem = Ranking.getItemPtrFromId(PRanking,nActorId)
+
+    if pRankItem == nil then
+      pRankItem = Ranking.addItem(PRanking,nActorId,0)
+    end
+
+    if pRankItem then
+      local Str = Ranking.getSub(pRankItem,0)
+
+      if Str and Str ~= "-" then
+        ReciveTable = SimpleTool.Split(Str,",")
+      end
+
+      for i = 1 , #ReciveTable do
+        if ReciveTable[i] == tostring(ShopItem) then
+          CanGive = false
+        end
+      end
+    else
+      return false
+    end
+
+    if CanGive == false then
+      return false
+    end
+
+  end
+  
+  return true
+
+end
+
+MiscsImplement.QueryTeHuiLiBaoCanBy = function(sysarg,msgid, packet)
+  local shopItem = DataPack.readInt(packet)
+  local bo = CanBuyTeHuiLiBao(sysarg,shopItem)
+  local npack = DataPack.allocPacket(sysarg, 139, 85)
+  --print(string.format("查询特惠礼包:%d",shopItem))
+	if not npack then return end
+	DataPack.writeInt(npack, shopItem)
+    if bo then
+      DataPack.writeByte( npack, 1)
+    else
+      DataPack.writeByte( npack, 0)
+    end
+	DataPack.flush(npack)
+
+end
+
+MiscsImplement.registerMsgHandler(85, MiscsImplement.QueryTeHuiLiBaoCanBy)

@@ -1,0 +1,73 @@
+﻿--勇闯牢狱
+{
+	scenceid = 49,
+	scencename = Lang.SceneName.s00072,
+	mapfilename = "43Zhuxianjianyu",
+	minlevel = 51,
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "jianyu.mp3",
+	musicInterval = 60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 90,
+	sceneHeight = 94,
+	posx = 17,
+	posy = 85,
+
+	--挂机的点 ,通常副本才配置 
+	autoFightPoints = 
+	{
+		{ x = 33 , y = 56 },
+		{ x = 38 , y = 50 },
+		{ x = 43 , y = 46 },
+		{ x = 41 , y = 30 },
+	},
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00072, range = {1,1,89,1,89,93,1,93}, center = { 32,62},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+					{ type = 23, value = {1,2,3,4} },
+					{ type = 34, value = {613,619,620,626,627,628,629,630,631,912,1192} },
+					{ type = 6, value = {2} },
+					{ type = 52, value = {} },
+					{ type = 53, value = {} },
+					{ type = 80, value = {} },
+					{ type = 87, value = {} },
+					{ type = 45, value = {} },
+					{ type = 104, value = {} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh49.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+	},
+
+	teleport = 
+	{
+		--传送点设置
+	},
+
+	landscape = 
+	{
+	--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{ posx1 = 37, posy1 = 50, posx2 = 37, posy2 = 50, modelid = 114, xinterval = 2, yinterval = 2 },
+		{ posx1 = 41, posy1 = 29, posx2 = 41, posy2 = 29, modelid = 113, xinterval = 2, yinterval = 2 },
+		{ posx1 = 47, posy1 = 42, posx2 = 47, posy2 = 42, modelid = 120, xinterval = 2, yinterval = 2 },
+		{ posx1 = 41, posy1 = 30, posx2 = 41, posy2 = 30, modelid = 125, xinterval = 2, yinterval = 2 },
+
+	},
+},

@@ -1,0 +1,55 @@
+﻿--雪域一层
+{
+	scenceid = 174,
+	scencename = Lang.SceneName.s00174,
+	mapfilename = "174XueYu",
+	minlevel = 70,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,  
+	music = "ZhongShiYinYue.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 260,
+	sceneHeight = 264,
+	posx = 168,
+	posy = 126,
+	area =
+	{
+		{ name = Lang.SceneName.s00174, range = { 10,10,20,20,30,25 }, center = { 128,115 }, attri = {{type=18,value = {}},{type=19,value = {}},{type=40,value = {}},{type=36,value = {70}},{type=100,value = {8,148,180}},}},	--默认配置场景，可以穿怪
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh175.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+                {name = Lang.EntityName.n00262, posx = 153 , posy = 98,script = "data/script/XueYuYiCeng/ZhenMoShouWei.txt",modelid = 52,icon = 1,funcId = 0},  
+                {name = Lang.EntityName.n00263, posx = 116 , posy = 151,script = "data/script/XueYuYiCeng/ZhenYaoShouWei.txt",modelid = 52,icon = 1,funcId = 0},
+                {name = Lang.EntityName.n00264, posx = 239 , posy = 173,script = "data/script/XueYuYiCeng/ZhenDiShouWei.txt",modelid = 52,icon = 1,funcId = 0},
+                {name = Lang.EntityName.n00265, posx = 170 , posy = 230,script = "data/script/XueYuYiCeng/ZhenTianShouWei.txt",modelid = 52,icon = 1,funcId = 0},
+                {name = Lang.EntityName.n00266, posx = 148 , posy = 95,script = "data/script/XueYuYiCeng/ZhenMoTa.txt",modelid = 174,icon = 1,funcId = 0},
+                {name = Lang.EntityName.n00267, posx = 110 , posy = 149,script = "data/script/XueYuYiCeng/ZhenYaoTa.txt",modelid = 174,icon = 1,funcId = 0},
+                {name = Lang.EntityName.n00268, posx = 235 , posy = 169,script = "data/script/XueYuYiCeng/ZhenDiTa.txt",modelid = 174,icon = 1,funcId = 0},
+                {name = Lang.EntityName.n00269, posx = 165 , posy = 227,script = "data/script/XueYuYiCeng/ZhenTianTa.txt",modelid = 174,icon = 1,funcId = 0}, 
+                {name = Lang.EntityName.n00270, posx = 152 , posy = 177,script = "data/script/XueYuYiCeng/XueYuChuanSongMen.txt",modelid = 173,icon = 1,funcId = 0,bHide=true,hideLocation =true,}, 
+	},
+
+  teleport =
+  {
+  --传送点设置
+     { posx = 205, posy = 234,toSceneid = 8,toPosx = 64, toPosy = 279,modelid = 50000,name = Lang.SceneName.s00008 },  --雪域→土城
+	 { posx = 38, posy = 101,toSceneid = 175,toPosx = 46, toPosy = 79,modelid = 50000,name = Lang.SceneName.s00175 },  --雪域→雪域二层
+  },
+
+},

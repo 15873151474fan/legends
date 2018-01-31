@@ -1,0 +1,59 @@
+﻿--[[ 个人OSS系统与客户端通信的单元文件 李昀]]    
+--#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once
+BossFubenTable = {7,8,9,10,11,12,13,}
+
+--处理个人BOSS的消息
+HumBossCCTable = {}
+--收到世界BOSS系统的消息处理
+function HumBossMainHandle(sysarg,packet)
+  local ID = DataPack.readByte(packet)
+  --print("HumBossMainHandle:"..ID)
+  local Handle = HumBossCCTable[ID]
+  if Handle ~= nil then
+     Handle(sysarg,packet)
+  end
+end
+
+
+	
+--查询某个BOSS的信息
+HumBossCCTable[1] = function(sysarg,packet)
+  local BossID = DataPack.readByte(packet)
+  --print("HumBossCCTable:"..BossID)
+  local BossFubenId = BossFubenTable[BossID]
+  if not BossFubenId then
+     return
+  end
+  --print("BossFubenId:"..BossFubenId)
+  local allCount = GetFubenAllTimes(sysarg, BossFubenId)
+  local count = allCount - GetEnterFubenTimes( sysarg, BossFubenId)
+  --print("HumBossCCTable:"..allCount.."allCount:"..count)
+  --BossPrint("客户端查询个人BOSS 信息 : ID"..BossID)
+  local pack = DataPack.allocPacket(sysarg, 153, 3)
+  DataPack.writeInt(pack, count)
+  DataPack.writeInt(pack, allCount)
+  DataPack.flush(pack)
+end
+
+--挑战BOSS
+HumBossCCTable[2] = function(sysarg,packet)
+  local BossID = DataPack.readByte(packet)
+  --print("HumBossCCTable:"..BossID)
+  local BossFubenId = BossFubenTable[BossID]
+  if not BossFubenId then
+     return
+  end
+  StartEnterFb(sysarg, BossFubenId )
+  local allCount = GetFubenAllTimes(sysarg, BossFubenId)
+  local count = allCount - GetEnterFubenTimes( sysarg, BossFubenId)
+  --print("HumBossCCTable:"..allCount.."allCount:"..count)
+  --BossPrint("客户端查询个人BOSS 信息 : ID"..BossID)
+  local pack = DataPack.allocPacket(sysarg, 153, 3)
+  DataPack.writeInt(pack, count)
+  DataPack.writeInt(pack, allCount)
+  DataPack.flush(pack)
+  --是否已经刷新 如果
+  --local BossID = DataPack.readByte(packet)
+  --BossPrint("客户端查询个人BOSS 信息 : ID"..BossID)
+
+end

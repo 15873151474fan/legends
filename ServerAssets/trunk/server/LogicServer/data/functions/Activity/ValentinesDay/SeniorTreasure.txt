@@ -1,0 +1,299 @@
+--lua script
+----高级宝箱
+
+--#include "data\config\activityconfig\ValentinesDay\SeniorTreasureConfig.txt" once
+
+--请求高级宝箱面板信息
+function ReqSeniorTreasure(sysarg)
+	local config = SeniorTreasureConfig
+	if not config then return end
+	local awardid = 0
+	local pack = DataPack.allocPacket(sysarg, 145, 60)
+	local myCount = Actor.getItemCount(sysarg, config.itemid, -1, -1) --3107 翎毛id
+	--读取文件检查是否有宝箱
+	local result = IsGetSeniorAward(sysarg, 1)
+	if result == "1" or result == "2" or result == "3" or result == "4" or result == "5" then 
+		 result = tonumber(result)
+		 awardid = result
+		 DataPack.writeInt(pack, result)
+	else	
+		if myCount >= 5 then
+			--翎毛大于5，保存1级宝箱
+			SaveSeniorLevel(sysarg, 1, "1" )
+			DataPack.writeInt(pack, 1)
+		else
+			DataPack.writeInt(pack, 0)
+		end
+	end
+	DataPack.writeInt(pack, config.itemid)
+	DataPack.writeInt(pack, myCount)
+	local times = math.modf(myCount / 5)
+	DataPack.writeInt(pack, times)
+	DataPack.flush(pack)
+
+	--判断坐骑
+	if awardid ~= 0 then
+		local gethorse = false
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local ranking = Ranking.getRanking(Lang.Rank.SheepValentFile)
+		if ranking then
+			local itemptr = Ranking.getItemPtrFromId(ranking, nActorId)
+			if itemptr then
+				local res = Ranking.getSub(itemptr, 2)
+				if res == "1" then
+					gethorse = true
+				end
+			end
+		end
+		--刷新坐骑状态
+		local pack = DataPack.allocPacket(sysarg, 145, 61)	--返回坐骑id或者0
+		local id = config.awardName[awardid].horseid or 0
+		if gethorse then
+			DataPack.writeInt(pack, id)
+		else
+			DataPack.writeInt(pack, 0)
+		end
+		DataPack.flush(pack)
+	else
+		local pack = DataPack.allocPacket(sysarg, 145, 61)	--返回0
+		DataPack.writeInt(pack, 0)
+		DataPack.flush(pack)
+	end
+
+end
+
+ --请求领奖
+function ReqSeniorTreasureAward(sysarg)
+	local config = SeniorTreasureConfig
+	if not config then return end
+	
+	--判断羽毛够不够5
+	local myCount = Actor.getItemCount(sysarg, config.itemid, -1, -1) --3107 翎毛id
+	if myCount < 5 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu048, ttFlyTip) --条件不足，领奖失败！
+		return
+	end
+	
+	--获取当前宝箱等级 
+	local result = IsGetSeniorAward(sysarg, 1)
+	if result == "1" or result == "2" or result == "3" or result == "4" or result == "5" then 
+		result = tonumber(result)
+		if AddSeniorAwards(sysarg, result) then
+			--领取成功，改变宝箱状态 0表示空
+			SaveSeniorLevel(sysarg, 1, "0")
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu031, ttFlyTip) --领取奖品成功！
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu043, ttFlyTip) --没有达到条件，不能领奖！
+	end
+	ReqSeniorTreasure(sysarg)
+end
+
+--请求刷新高级宝箱
+function ReqFlushSeniorTreasure(sysarg)
+	local config = SeniorTreasureConfig
+	if not config then return end
+	--判断羽毛够不够5
+	local myCount = Actor.getItemCount(sysarg, config.itemid, -1, -1) --3107 翎毛id
+	if myCount < 5 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu047, ttFlyTip) --条件不足，刷新失败！
+		return
+	end
+	--判断有没有宝箱
+	local result = IsGetSeniorAward(sysarg, 1)
+	if result ~= "1" and result ~= "2" and result ~= "3" and result ~= "4" and result ~= "5" then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu044, ttFlyTip) --没有宝箱，赶紧去收集翎毛领取一个吧！
+		return
+	end
+	
+	--判断当前宝箱等级
+	result = tonumber(result)
+	if result >=5 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu045, ttFlyTip) --你的宝箱已经最高级，不能再升级了！
+		return	
+	end
+	
+	--判断元宝够否
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+	if myGold <= config.needYb then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu039, ttFlyTip) --元宝不足
+		return
+	end
+	--扣钱
+	Actor.changeMoney(sysarg, mtYuanbao, -config.needYb, 193, Lang.LogTips.qx004)
+	
+	local update = false
+
+	local dVar = Actor.getDyanmicVar(sysarg)  --使用动态变量保存，dVar.runTime次数
+	if dVar.runTime == nil then
+		dVar.runTime = 1
+	else
+		dVar.runTime = dVar.runTime + 1
+	end
+	
+	if dVar.runTime <= config.awardName[result].minrate then
+		update = false --失败
+	elseif dVar.runTime >= config.awardName[result].maxrate then
+		dVar.runTime = 0
+		update = true --成功
+	else
+		if math.random(RandomBase) <= config.awardName[result].realrate then
+			dVar.runTime = 0
+			update = true --成功
+		else
+			update = false --失败 
+		end
+	end
+	
+	--判断是否得到坐骑
+	if update then
+		local pack = DataPack.allocPacket(sysarg, 145, 61)	--返回坐骑id或者0
+		if math.random(RandomBase) <= config.awardName[result].horseRate then
+			SaveSeniorLevel(sysarg, 2, "1")
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu046, ttFlyTip) --恭喜，得到坐骑
+			local id = config.awardName[result].horseid or 0
+			DataPack.writeInt(pack, id)
+		else
+			DataPack.writeInt(pack, 0)
+		end
+		DataPack.flush(pack)
+	end
+
+	
+	if update then
+		result = result + 1
+		--保存宝箱等级
+		SaveSeniorLevel(sysarg, 1, result)
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu041, ttFlyTip) --升级成功
+	else
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu042, ttFlyTip) --升级失败
+	end
+	ReqSeniorTreasure(sysarg)
+	return
+end
+
+--保存当前宝箱等级到文件
+function SaveSeniorLevel(sysarg, awardid, flag)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(Lang.Rank.SheepValentFile)
+	if ranking then
+		local itemptr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemptr then
+			Ranking.setSub(itemptr, awardid, flag)
+		else
+			local newptr = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(newptr, awardid, flag)
+		end
+	end
+end
+
+--获取当前宝箱等级分别为1-5等级
+function IsGetSeniorAward(sysarg, subid)
+	local ranking = Ranking.getRanking(Lang.Rank.SheepValentFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local itemptr = Ranking.getItemPtrFromId(ranking, nActorId) --通过id获取某一行
+		if not itemptr then 
+			Ranking.addItem(ranking, nActorId, 0)
+			return "0"
+		end
+		
+		local result = Ranking.getSub(itemptr, subid) --通过某一行指针获取下标对应值，从0开始
+		if result == "1" or result == "2" or result == "3" or result == "4" or result == "5" then 
+			return result
+		end
+	end
+	return "0"
+end
+
+
+
+
+-- 领取奖品放入背包
+function AddSeniorAwards(sysarg, awardid)
+	local config = SeniorTreasureConfig.awardName
+	if not config[awardid] then return false end
+	if not config[awardid].awards then return false end
+	local horseid = config[awardid].horseid
+	local gethorse = false
+	--判断坐骑
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(Lang.Rank.SheepValentFile)
+	if ranking then
+		local itemptr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemptr then
+			local res = Ranking.getSub(itemptr, 2)
+			if res == "1" then
+				gethorse = true
+			end
+		end
+	end	
+	
+	--判断背包够不够
+	local needbag = 0
+	--获取职业
+	local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+	for k,v in ipairs(config[awardid].awards) do
+		local itemid = v.id
+		local itemcount = v.count
+		local job = v.job
+		if job == myJob or job == 0 then
+			needbag = needbag + Item.getAddItemNeedGridCount(sysarg, itemid, itemcount)
+		end
+	end
+	local nGridCount= Item.getBagEmptyGridCount(sysarg) --获得有多少个格子
+	if gethorse then
+		needbag = needbag+1
+	end
+	if needbag > nGridCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+		return
+	end
+
+	--扣除羽毛
+	local remId = SeniorTreasureConfig.itemid
+	local remCount = Actor.removeItem(sysarg, remId, 5,-1,-1,-1,Lang.LogTips.qx002,193)
+	if remCount ~= 5 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu043, ttFlyTip) --没有达到条件，不能领奖
+		ReqSeniorTreasure(sysarg)
+		return
+	end
+
+	--放入背包
+	for k,v in ipairs(config[awardid].awards) do
+		local itemid = v.id
+		local itemcount = v.count
+		local job = v.job
+		local bind = v.bind
+		if job == myJob or job == 0 then
+			local newItem = Item.createItem(itemid, 1, 0, 0, bind, 0)
+			if not newItem then
+				return false
+			end
+
+			if (Item.addItem(sysarg, newItem, Lang.LogTips.qx001, 193, itemcount) ~= itemcount) then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpu040, ttFlyTip) --背包空格不足
+				return false
+			end
+		end
+	end
+	--获取坐骑
+	if gethorse then
+		local newItem = Item.createItem(horseid, 1, 0, 0, 1, 0)
+		if newItem then
+			Item.addItem(sysarg, newItem, Lang.LogTips.qx001, 193, itemcount)
+			SaveSeniorLevel(sysarg, 2, "0")
+		end	
+	end
+	
+	return true
+end
+
+--活动结束清数据
+function ClearSheepValentData()
+	local ranking = Ranking.getRanking(Lang.Rank.SheepValentFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+

@@ -1,0 +1,41 @@
+﻿--#include "..\..\language\LangCode.txt"
+
+--每周工资系统 签到
+SignInAndSalary =
+{
+	--每日签到
+	signIn = {172,173,174,175,176},	--签到触发成就ID
+	
+	fixSignInTimes = 1,	--补签次数 {普通玩家, Vip玩家在vip配置里面加}
+	
+	--发工资
+	desc = Lang.Misc.m000491,
+	awards =	--每小时初始奖励
+	{
+		{type=7,id=0,count=10},
+	},
+	salary = 
+	{
+	
+		{
+			begin = 1,	--开服天数区间开始
+			over = 21,	--开服天数区间结束 -1代表以后
+			rate = 4,	--奖励加成倍率(必须为整形)
+			desc = Lang.Misc.m000492,
+			
+		},
+		{
+			begin = 22,	--开服天数区间开始
+			over = 42,	--开服天数区间结束 -1代表以后
+			rate = 5,	--奖励加成倍率
+			desc = Lang.Misc.m000493,
+		},
+		{
+			begin = 43,	--开服天数区间开始
+			over = -1,	--开服天数区间结束 -1代表以后
+			rate = 6,	--奖励加成倍率
+			desc = Lang.Misc.m000494,
+		},
+	}
+	
+}

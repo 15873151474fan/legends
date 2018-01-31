@@ -1,0 +1,137 @@
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+
+--#include "KillEvilCommon.txt" once
+
+function KillEvil_Main( sysarg )
+	local stateStr = Lang.Activity.a00077
+	local calKill = GetKillEvilMonster()
+	if calKill then
+		stateStr = Lang.Activity.a00076
+	end
+	local curDt, myPoint = GetMyTodayPoint(sysarg)
+	local dlgStr = string.format(Lang.Activity.a00080, GetKillEvilPoint(), stateStr, myPoint)
+	dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.a00070.."/@@showItemRecoverWin>"
+	if calKill then
+		dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.a00071.."/@enterKillEvilAct>"
+	end	
+	dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.a00072.."/@viewActInfo>"
+	return dlgStr
+end
+
+
+--进入活动
+function enterKillEvilAct( sysarg )
+	local pointStr = string.format(Lang.Activity.a00074, GetKillEvilPoint())
+	local stateStr = Lang.Activity.a00077
+	if GetKillEvilMonster() then
+		stateStr = Lang.Activity.a00076
+	end
+	local monsterStateStr = string.format(Lang.Activity.a00075, stateStr)
+	return pointStr .. monsterStateStr .. "\\<#BL"..Lang.Activity.a00071.."/@doEnterKillEvilAct>" .. "\\<#BL"..Lang.Activity.a00101 .. "/@main>"
+end
+
+function doEnterKillEvilAct( sysarg )
+	doEnterKillEvilScene(sysarg)
+end
+
+--活动详情
+function viewActInfo( sysarg )
+	local dlgStr = string.format("%s\\<#BL%s/@main>", Lang.Activity.a00073, Lang.Activity.a00101)
+	return dlgStr
+end
+
+--主题活提前预告
+function ZmBroadTopicNotice()
+	System.broadcastTipmsg(Lang.Activity.t00015,2+128)
+end
+
+--19点后的提示
+function BroadZmLastTimeNotice()
+	BroadTopicEvilActor(1)
+end
+
+--全民播报
+function SevWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00032,2+128)
+end
+
+--22点后的提示
+function OnTopicZmNotice()
+	BroadTopicEvilActor(2)
+end
+
+--23点结算第七天主题活动
+function OnAccountZmTopic()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+
+		if pItem then
+			local nActorId = Ranking.getId(pItem)
+			System.giveTenDaysActivityAward(nActorId,6)
+
+			local str1 = string.format(Lang.Activity.t00019,Ranking.getSub(pItem,0),Item.getItemName(OpenServerConfig.activitys[7].awards[1].id))
+
+			System.broadcastTipmsg(str1,2+128)
+
+			System.broadcastTipmsg(Lang.Activity.t00020,2+128)
+		end
+
+		local nCount = Ranking.getRankItemCount(ranking)
+
+		for i=0,nCount-1 do
+			local mItem = Ranking.getItemFromIndex(ranking,i)
+
+			if mItem then
+				local actorId = Ranking.getId(mItem)
+				if Ranking.getPoint(mItem) >= OpenServerConfig.activitys[7].needValue then
+					System.sendOfflineAward(OpenServerConfig.activitys[7].openDays,OpenServerConfig.activitys[7].needValue,actorId)
+				end
+			end
+		end
+	end
+
+	--System.onAccountAllActivity(OpenServerConfig.activitys[7].openDays,OpenServerConfig.activitys[7].needValue)		--全民活动结算
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+end
+
+--结算后的播报
+function OnBroadAccountZm()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+
+		if pItem then
+			local str1 = string.format(Lang.Activity.t00019,Ranking.getSub(pItem,0),Item.getItemName(OpenServerConfig.activitys[7].awards[1].id))
+
+			System.broadcastTipmsg(str1,2+128)
+		end
+	end
+
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+end
+
+--刷boss
+function OnFreshZmBoss()
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+	
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+
+		if pItem then
+			local hScene = Fuben.getSceneHandleById(OpenServerConfig.activitys[7].monster[1].nSceenId, 0)
+			local monsterConfig = OpenServerConfig.activitys[7].monster[1]
+			local nMonster = Fuben.createOneMonsters(hScene, monsterConfig.nMonsterID, monsterConfig.posX1, monsterConfig.posX2, monsterConfig.posY, monsterConfig.nCount, monsterConfig.nLiveTime)
+		end
+	end
+end
+
+--提前预告
+function PreBroadZmNotice()
+	System.broadcastTipmsg(Lang.Activity.t00056,2+128)
+end
+
+table.insert(MainFnTable, KillEvil_Main)
+

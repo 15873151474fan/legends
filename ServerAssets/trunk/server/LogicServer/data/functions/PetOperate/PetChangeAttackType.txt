@@ -1,0 +1,21 @@
+﻿--lua script
+
+
+--改变攻击类型
+function PetChangeAttackType( sysarg, args )
+  local petId = args[2] --宠物的ID
+  if (not PetChageAttackTypeConsume ) then return end
+  local consumes = PetChageAttackTypeConsume.consume
+  local canConsume, tipMsg1 = checkConsumes(sysarg, consumes)
+  if canConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00141, tipMsg1,tipMsg1),ttDialog )
+    return   
+  end
+  local hasConsume, tipMsg2 = getConsumes(sysarg, consumes,17)
+  if hasConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00142, tipMsg2),ttDialog )
+    return
+  end 
+  Pet.changeAttackType(sysarg,petId)
+  
+end

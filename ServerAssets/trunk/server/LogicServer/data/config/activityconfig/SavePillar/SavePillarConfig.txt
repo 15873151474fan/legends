@@ -1,0 +1,96 @@
+--怪物攻城
+--#include "data\language\LangCode.txt" once   --语言包
+SavePillarConfig =
+{
+	nSceenId = 8,			--刷怪的场景id
+	perTime = 3 * 60,		--3分钟刷一次
+	nTotalTimes = 8,		--总共刷新的次数
+
+	--龙柱怪物
+	pillarMonster = {nMonsterID = 1438, posX1 = 340, posX2 = 344, posY = 248, nCount = 1, nLiveTime = 2000,},
+
+	monsters =
+	{
+		--第一波
+		{
+			{nMonsterID = 1422, posX1 = 367, posX2 = 369, posY = 286, nCount = 1, nLiveTime = 1200,},	--BOSS
+
+			{nMonsterID = 1430, posX1 = 363, posX2 = 367, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1430, posX1 = 369, posX2 = 375, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1430, posX1 = 365, posX2 = 372, posY = 288, nCount = 5, nLiveTime = 1200,},	--小怪
+		},
+		--第二波
+		{
+			{nMonsterID = 1423, posX1 = 367, posX2 = 369, posY = 286, nCount = 1, nLiveTime = 1200,},	--BOSS
+
+			{nMonsterID = 1431, posX1 = 363, posX2 = 367, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1431, posX1 = 369, posX2 = 375, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1431, posX1 = 365, posX2 = 372, posY = 288, nCount = 5, nLiveTime = 1200,},	--小怪
+		},
+		--第三波
+		{
+			{nMonsterID = 1424, posX1 = 367, posX2 = 369, posY = 286, nCount = 1, nLiveTime = 1200,},	--BOSS
+
+			{nMonsterID = 1432, posX1 = 363, posX2 = 367, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1432, posX1 = 369, posX2 = 375, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1432, posX1 = 365, posX2 = 372, posY = 288, nCount = 5, nLiveTime = 1200,},	--小怪
+		},
+		--第四波
+		{
+			{nMonsterID = 1425, posX1 = 367, posX2 = 369, posY = 286, nCount = 1, nLiveTime = 1200,},	--BOSS
+
+			{nMonsterID = 1433, posX1 = 363, posX2 = 367, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1433, posX1 = 369, posX2 = 375, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1433, posX1 = 365, posX2 = 372, posY = 288, nCount = 5, nLiveTime = 1200,},	--小怪
+		},
+		--第五波
+		{
+			{nMonsterID = 1426, posX1 = 367, posX2 = 369, posY = 286, nCount = 1, nLiveTime = 1200,},	--BOSS
+
+			{nMonsterID = 1434, posX1 = 363, posX2 = 367, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1434, posX1 = 369, posX2 = 375, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1434, posX1 = 365, posX2 = 372, posY = 288, nCount = 5, nLiveTime = 1200,},	--小怪
+		},
+		--第六波
+		{
+			{nMonsterID = 1427, posX1 = 367, posX2 = 369, posY = 286, nCount = 1, nLiveTime = 1200,},	--BOSS
+
+			{nMonsterID = 1435, posX1 = 363, posX2 = 367, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1435, posX1 = 369, posX2 = 375, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1435, posX1 = 365, posX2 = 372, posY = 288, nCount = 5, nLiveTime = 1200,},	--小怪
+		},
+		--第七波
+		{
+			{nMonsterID = 1428, posX1 = 367, posX2 = 369, posY = 286, nCount = 1, nLiveTime = 1200,},	--BOSS
+
+			{nMonsterID = 1436, posX1 = 363, posX2 = 367, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1436, posX1 = 369, posX2 = 375, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1436, posX1 = 365, posX2 = 372, posY = 288, nCount = 5, nLiveTime = 1200,},	--小怪
+		},
+		--第八波
+		{
+			{nMonsterID = 1429, posX1 = 367, posX2 = 369, posY = 286, nCount = 1, nLiveTime = 1200,},	--BOSS
+
+			{nMonsterID = 1437, posX1 = 363, posX2 = 367, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1437, posX1 = 369, posX2 = 375, posY = 286, nCount = 4, nLiveTime = 1200,},	--小怪
+			{nMonsterID = 1437, posX1 = 365, posX2 = 372, posY = 288, nCount = 5, nLiveTime = 1200,},	--小怪
+		},
+	},
+
+	--怪兽宝箱配置
+	monsterBox = 
+	{
+		--宝箱怪物配置，宝箱个数BoxCount,
+		monsters =
+		{				
+			{nMonsterID = 1439, boxCount = 20, nLiveTime = 1800,},	--宝箱怪物
+		},		
+		--刷出宝箱坐标范围
+		boxPosRange = 
+		{
+			{posX = 292 ,posY = 233,},
+			{posX = 379 ,posY = 281,},
+		},		
+	},
+	
+}

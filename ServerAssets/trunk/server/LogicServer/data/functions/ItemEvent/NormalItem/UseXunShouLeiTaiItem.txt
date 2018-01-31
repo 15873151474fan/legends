@@ -1,0 +1,23 @@
+
+--使用驯兽擂台免死金牌道具
+
+--#include "data\config\activityconfig\NanJiangGuDi\XunShouLeiTaiConfig.txt" once  
+--#include "data\functions\Activity\NanJiangGuDi\XunShouLeiTai.txt" once
+--[[
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+--使用免死金牌
+function UseXunShouGoldCardFunc(sysarg, itemidx)
+	UseGoldCard(sysarg, itemidx)
+end
+
+--注册免死金牌
+function XunShouGoldCardInit(sysarg)
+	GlobalItemFn[XunShouLeiTaiConfig.goldCardId] = { func = UseXunShouGoldCardFunc}
+end
+
+table.insert(InitFnTable, XunShouGoldCardInit)

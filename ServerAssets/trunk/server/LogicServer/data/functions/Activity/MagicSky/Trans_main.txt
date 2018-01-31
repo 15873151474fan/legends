@@ -1,0 +1,351 @@
+﻿--魔幻星宫：星宫使者
+
+--#include "Common.txt" once --通用
+--#include "RankPointer.txt" once	--排行榜指针
+--#include "data\functions\Activity\Common\Consumes.txt" once --活动通用 消耗
+--#include "data\functions\Activity\Common\Awards.txt" once --活动通用 奖励
+--#include "data\functions\Activity\Common\Scene.txt" once --活动通用 场景
+
+--[[
+    函数名称：传送
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function TransMs_Main(sysarg)	
+	if (not FloorConfig) then return "" end
+	if (not MsRankPt) then return "" end
+	local sceneId = Actor.getSceneId(sysarg)
+	local index = GetFloorConfigIndex(FloorConfig, sceneId)
+	if index == 0 then return "" end
+	local floor = FloorConfig[index]
+	
+	local str = ""
+	if floor.randConsumes and table.getn(floor.randConsumes) > 0 then
+		str = str.."\\<#BL"..Lang.Activity.a00035.."/@TransMs>"  --<随机传送>
+	end
+	if floor.upConsumes and table.getn(floor.upConsumes) > 0 then
+		str = str.."\\<#BL"..string.format(Lang.Activity.a00036, floor.upConsumes[1].count).."/@AskUpTrans,"..floor.upConsumes[1].count..">"  --<向上传送一层（需消耗XX元宝）>
+	end
+	if (floor.floorAward and table.getn(floor.floorAward) > 0) or (floor.rankAward and table.getn(floor.rankAward) > 0) then
+		str = str.."\\<#BL"..Lang.Activity.a00037.."/@GetFloorAward>"  --<领取本层奖励>
+	end
+	if (floor.oneCard and table.getn(floor.oneCard)) and (floor.allCard and table.getn(floor.allCard)) then
+		str = str.."\\<#BL"..Lang.Activity.a00038.."/@Exchange>"  --<兑换>
+	end
+	
+	str = str.."\\<#BL"..Lang.Activity.a00039.."/@AskExitMsMap>"  --<离开活动>
+	
+	return str
+end
+
+--随机传送
+function TransMs(sysarg)
+	if CheckActivityCondition(sysarg) ~= true then return end
+	
+	local sceneId = Actor.getSceneId(sysarg)
+	local index = GetFloorConfigIndex(FloorConfig, sceneId)
+	if index == 0 then return end
+	local config = FloorConfig[index]
+	--消耗检测
+	if Consumes.Check(sysarg, config.randConsumes) ~= true then return end
+	
+	local randNum = math.random(100)
+	
+	--随机判断
+	local fid = 0
+	for k,v in pairs(config.trans) do
+		if randNum >= v.rate[1] and randNum <= v.rate[2] then
+			fid = v.fid
+			break
+		end
+	end
+	
+	local lossTips = ""
+	if fid == 0 or fid <= index then 
+		lossTips = Lang.Activity.a00041
+		--Actor.sendTipmsg(sysarg, Lang.Activity.a00041, ttFlyTip)
+	end
+	
+	local newConsumes, result = TransMsReturn(sysarg, config.randConsumes, randNum, lossTips)
+	if result == false then
+		Actor.sendTipmsg(sysarg, lossTips, ttFlyTip)
+	end
+	
+	if table.getn(newConsumes) ~= table.getn(config.randConsumes) then
+		newConsumes = config.randConsumes
+	end
+	
+	--消耗
+	if Consumes.Remove(sysarg, newConsumes, 101, Lang.LogTips.ml00001) ~= true then return end
+	
+	if fid > 0 then
+		local enter = FloorConfig[fid]
+		if not enter then
+			System.trace(string.format("Can't find trans fid config! fid = %d", fid))
+			return 
+		end
+		local randCnt = math.random(1, #enter.range)
+		--print("randCnt:"..randCnt)
+		if Actor.enterScene(sysarg, enter.sid, unpack(enter.range[randCnt])) == true then
+			Actor.changeActivityProgress(sysarg, fid, -2)
+		end
+	end
+	Actor.closeNPCDialog(sysarg) 
+end
+
+--询问跳楼
+function AskUpTrans(sysarg, needYb)
+	local sAskMsg = string.format(Lang.Activity.a00056e, needYb)
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/UpTrans",Lang.ScriptTips.mt00005.."/Cancel",nil,0,0,nil,0,0,0,1)
+end
+
+--向上传送一层
+function UpTrans(sysarg)
+	if CheckActivityCondition(sysarg) ~= true then return end
+	
+	local sceneId = Actor.getSceneId(sysarg)
+	local index = GetFloorConfigIndex(FloorConfig, sceneId)
+	if index == 0 then return end
+	local config = FloorConfig[index]
+	
+	
+	local next = FloorConfig[index+1]
+	if not next then
+		System.trace("Can't find next floor config!")
+		return
+	end
+	
+	if Consumes.CheckAndRemove(sysarg, config.upConsumes, 701, Lang.LogTips.ml00002) ~= true then return end
+	--print("UpTrans")
+	local randCnt = math.random(1, #next.range)
+	--print("randCnt:"..randCnt)
+	if Actor.enterScene(sysarg, next.sid, unpack(next.range[randCnt])) == true then
+	--print("UpTrans")
+		local hScene = Fuben.getSceneHandleById(next.sid, 0)
+		local leftTime = Fuben.getSceneTime(hScene)
+		if leftTime <= 0 then return end
+		Actor.initActivityWind(sysarg, Lang.Activity.a00056a, leftTime, Lang.Activity.a00056b, Lang.Activity.a00056c, 1, Lang.Activity.a00056d, table.getn(FloorConfig))
+		--未知原因代码添加 
+        Actor.changeActivityProgress(sysarg, index+1, -2)
+	end
+	--print("UpTrans")
+	Actor.closeNPCDialog(sysarg) 
+end
+
+--领取本层奖励
+function GetFloorAward(sysarg)
+	if CheckActivityCondition(sysarg) ~= true then return end
+	local sceneId = Actor.getSceneId(sysarg)
+	local index = GetFloorConfigIndex(FloorConfig, sceneId)
+	if index == 0 then return end
+	local config = FloorConfig[index]
+	
+	if (not config.floorAward or table.getn(config.floorAward) == 0) and
+	(not config.rankAward or table.getn(config.rankAward) == 0)
+	then return end
+	
+	--双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(11) == 1 then
+		doubleAwardActRate = 1
+	end
+
+	if CheckGetAward(sysarg, index) ~= false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00042, ttFlyTip)
+		return
+	end
+	
+	--背包判断
+	local bHas1, needCount1 = true, 0
+	if config.floorAward and table.getn(config.floorAward) > 0 then
+		bHas1, needCount1 = Awards.CheckBagGridCount(sysarg, config.floorAward)
+	end
+	if config.rankAward and table.getn(config.rankAward) > 0 and bHas1 == true then
+		local bHas2, needCount2 = Awards.CheckBagGridCount(sysarg, config.rankAward[1].awards)
+		if bHas2 == true then
+			local needCount = needCount1 + needCount2
+			local hasCount = Item.getBagEmptyGridCount(sysarg)
+			if hasCount < needCount then 
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00043, needCount), ttFlyTip)
+				return
+			end
+		end
+	end
+	
+	local pRank = Ranking.getRanking(MsRankPt.RankName)
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	
+	--设置领取标志
+	Ranking.setSub(pItem, index, 1)
+	
+	--楼层奖励
+	if config.floorAward and table.getn(config.floorAward) > 0 then
+		for i=1,table.getn(config.floorAward) do
+			local quality = config.floorAward[i].quality;
+			local bind = config.floorAward[i].bind
+			local strong = config.floorAward[i].strong
+			if quality == nil then quality =0 end
+			if bind == nil then bind =0 end
+			if strong == nil then strong =0 end
+
+			Actor.giveAward(sysarg,config.floorAward[i].type,config.floorAward[i].id,config.floorAward[i].count*(1+doubleAwardActRate),quality,strong,bind,0,100,Lang.LogTips.ml00003)
+		end
+	end
+	
+	local dval = System.getDyanmicVar()
+	
+	if not dval.MagicSkyRank then
+		dval.MagicSkyRank = {}
+		for i=1, table.getn(FloorConfig) do
+			dval.MagicSkyRank[i] = 0
+		end
+	end
+	dval.MagicSkyRank[index] = dval.MagicSkyRank[index] + 1
+	
+	local nRank = tonumber(dval.MagicSkyRank[index])
+	
+	--排行榜奖励
+	if config.rankAward and table.getn(config.rankAward) > 0 then
+		for k, v in pairs(config.rankAward) do
+			if nRank >= v.rankInterval[1] and nRank <= v.rankInterval[2] then
+				for i=1,table.getn(v.awards) do
+					local quality = v.awards[i].quality;
+					local bind = v.awards[i].bind
+					local strong = v.awards[i].strong
+					if quality == nil then quality =0 end
+					if bind == nil then bind =0 end
+					if strong == nil then strong =0 end
+
+					Actor.giveAward(sysarg,v.awards[i].type,v.awards[i].id,v.awards[i].count*(1+doubleAwardActRate),quality,strong,bind,0,100,Lang.LogTips.ml00004)
+				end
+				break
+			end
+		end
+	end
+	if nRank >= 1 and nRank <= 3 then
+		System.broadcastTipmsg(string.format(Lang.Activity.a00044, Actor.getName(sysarg), index, nRank), ttScreenCenter+ttChatWindow)
+	end
+	
+	Actor.sendTipmsg(sysarg, Lang.Activity.a00045, ttFlyTip)
+	
+	return 
+end
+
+--兑换
+function Exchange(sysarg)
+	if CheckActivityCondition(sysarg) ~= true then return end
+	local str = Lang.Activity.a00046
+	str = str.."\\<#BL"..Lang.Activity.a00047.."/@OnExchange, 1>"  --<单张星座卡兑换>
+	str = str.."\\<#BL"..Lang.Activity.a00048.."/@OnExchange, 2>"  --<星宫卡兑换星宫礼包>
+	return str
+end
+
+--卡兑换 idx: 1单张星座卡兑换 2星宫卡兑换星宫礼包
+function OnExchange(sysarg, idx)
+	local idx = tonumber(idx)
+	local subId = 0
+	if CheckGetAward(sysarg, subId) ~= false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00049, ttFlyTip)
+		return
+	end
+	
+	local sceneId = Actor.getSceneId(sysarg)
+	local index = GetFloorConfigIndex(FloorConfig, sceneId)
+	if index == 0 then return end
+	local config = FloorConfig[index]
+	
+	local consumes = {}
+	local awards = {}
+	local logStr, errTips = "", ""
+	
+	--双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(11) == 1 then
+		doubleAwardActRate = 1
+	end
+
+	if idx == 1 then
+		awards = config.oneCard.awards
+		logStr = Lang.LogTips.ml00005
+		errTips = Lang.Activity.a00050
+		
+		for k, v in pairs(config.oneCard.consumes) do
+			local quality = v.quality or 0
+			local strong = v.strong or 0
+			local bind = v.bind or -1
+			local param = v.param or 0
+			local bCheck = Actor.checkConsume(sysarg, v.type, v.id, v.count, quality, strong, bind, param) 
+			if bCheck == true then
+				local consume = {type = v.type, id = v.id, count = v.count, quality = quality, strong = strong, bind = bind, param = param}
+				table.insert(consumes, consume)
+				break
+			end
+		end
+		if table.getn(consumes) == 0 then 
+			Actor.sendTipmsg(sysarg, errTips, ttFlyTip)
+			return
+		end
+	else
+		consumes = config.allCard.consumes
+		awards = config.allCard.awards
+		logStr = Lang.LogTips.ml00006
+		errTips = Lang.Activity.a00051
+	end
+	
+	if table.getn(consumes) == 0 or table.getn(awards) == 0 then return end
+	
+	if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+	
+	if Consumes.Check(sysarg, consumes, errTips) ~= true then return end
+	
+	local pRank = Ranking.getRanking(MsRankPt.RankName)
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	                                                                           
+	--设置领取标志
+	Ranking.setSub(pItem, subId, 1)
+
+	Consumes.Remove(sysarg, consumes, 101, logStr)
+
+	for i=1,table.getn(awards) do
+		local quality = awards[i].quality
+		local bind = awards[i].bind
+		local strong = awards[i].strong
+		if quality == nil then quality =0 end
+		if bind == nil then bind =0 end
+		if strong == nil then strong =0 end
+
+		Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count*(1+doubleAwardActRate),quality,strong,bind,0,100,logStr)
+	end
+    if idx == 2 then --全服播报
+	   System.broadcastTipmsg(string.format(Lang.Activity.a00051a, Actor.getName(sysarg)),128+ 2) 
+    end
+	return Lang.Activity.a00052
+end
+
+--询问是否离开地图
+function AskExitMsMap(sysarg)
+	local sAskMsg = Lang.Activity.a00040
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ExitMsMap",Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+--离开场景
+function ExitMsMap(sysarg)
+	--直接把玩家传出来
+	--local Pos = LuaHelp.getReloadMapPos(sysarg) 
+	local retScene = FloorConfig[1].retScene
+	if Actor.enterScene(sysarg, retScene.sid, unpack(retScene.range)) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+	Actor.closeNPCDialog(sysarg) 
+end
+
+function Cancel(sysarg)
+
+end
+
+
+table.insert(MainFnTable, TransMs_Main)

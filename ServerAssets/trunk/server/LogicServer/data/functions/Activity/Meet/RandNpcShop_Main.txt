@@ -1,0 +1,43 @@
+
+--#include "RandNpcShopCommon.txt" once
+
+function NpcShop_Main( sysarg )
+	local dlgStr = string.format("\\<#BL%s/@SendNpcShopItem>", Lang.ScriptTips.fuben032)
+	return dlgStr
+end
+
+function SendNpcShopItem( sysarg )
+	local sysDVar = System.getDyanmicVar()
+	if not sysDVar.RandNpcShopItems then
+		return
+	end
+	local nNowDt = System.getCurrMiniTime()
+	local remainSecs = sysDVar.RandNpcOverDt - nNowDt
+	if remainSecs <= 0 then
+		return
+	end
+	local netPack = DataPack.allocPacket(sysarg, 12, 13)  --申请一个数据包
+	if netPack then
+		DataPack.writeWord(netPack, remainSecs)
+		DataPack.writeByte(netPack, NpcShopItemCount)
+		for i = 1, NpcShopItemCount do
+			local idx = sysDVar.RandNpcShopItems[i] or 0
+			local v = RandNpcShopItem[idx]
+			if v then
+				DataPack.writeInt(netPack, v.id)
+				DataPack.writeByte(netPack, v.count)
+				DataPack.writeByte(netPack, v.moneyType)
+				DataPack.writeInt(netPack, v.moneyVal)
+			end
+		end
+		DataPack.flush(netPack)   --发送数据包
+	end
+end
+
+function NpcShop_Init( npcObj )
+	Actor.setEntityVisibleFlag( npcObj, false)
+end
+
+
+table.insert(MainFnTable, NpcShop_Main)
+table.insert(InitFnTable, NpcShop_Init)

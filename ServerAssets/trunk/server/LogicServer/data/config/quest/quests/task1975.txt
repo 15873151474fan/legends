@@ -1,0 +1,43 @@
+﻿--lua script
+{
+	id = 1975,
+	parentid = 0,type = 1,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = true,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	randomTarget = false,
+	name = Lang.Quest.q03804,
+	content = Lang.Quest.q04027,
+
+	prom = { type = 0, scene = Lang.SceneName.s00049, npc = Lang.EntityName.n00340 },
+	comp = { type = 0, scene = Lang.SceneName.s00049, npc = Lang.EntityName.n00340 },
+	target = {
+		{
+			type = 127, id = 31070, count = 1, rewardId = 0,useList = false, data = Lang.Talk.t10100,
+		},
+	},
+	conds = {
+		{ type = 2, id = 8, count = 1 },
+		{ type = 0, id = 0, count = 30 },
+	},
+	awards = {
+		{
+			{ type = 0, id = 277, count = 1, group = 0,strong = 2,quality = 3,job = 8,sex = -1,bind = true,},
+			{ type = 0, id = 284, count = 1, group = 0,strong = 0,quality = 3,job = 8,sex = -1,bind = true,},
+			{ type = 0, id = 283, count = 1, group = 0,strong = 0,quality = 3,job = 8,sex = -1,bind = true,},
+                        { type = 2, id = 0, count = 300000,  bind = true, job = 0, sex = -1, group=0 },
+		},
+	},
+	PromMsTalks = {
+		Lang.Talk.t05919,
+	},
+	CompMsTalks = {
+		Lang.Talk.t05701,
+	},
+	CompMsTip = {
+		Lang.Talk.t05702,
+	},
+	PassMsTip = {
+	},
+},

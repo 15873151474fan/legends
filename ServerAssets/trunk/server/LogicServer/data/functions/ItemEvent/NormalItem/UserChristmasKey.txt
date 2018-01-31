@@ -1,0 +1,24 @@
+
+--马年圣诞大盗活动使用钥匙开宝箱
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasTreasureConfig.txt" once
+--#include "data\functions\Activity\ChristmasHorse\ChristmasTreasure.txt" once
+--[[
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+--使用钥匙
+function UseChristmasKey(sysarg, itemidx)
+	Usekey(sysarg, itemidx)
+end
+
+--注册钥匙
+function ChristmasTreasure(sysarg)
+	for k,v in ipairs(ChristmasTreasureCfg.keyId) do
+		GlobalItemFn[v] = { func = UseChristmasKey}
+	end
+end
+
+table.insert(InitFnTable, ChristmasTreasure)

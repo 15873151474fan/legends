@@ -1,0 +1,630 @@
+﻿--[[
+  2016-6-12
+  彻底屏蔽对外黑市功能
+]]
+CommonFunction = {} 
+--获取当前日期是开服的第几天 
+function CommonFunction.GetServerOpenDay()
+    --取得开服日期
+  local OpenTime = System.getServerOpenTime()
+  --假设开服时间为当天的 00:00:00 那么如果并不是 则需要计算偏移值
+  local Y,M,D,OHour,OMin,OSec = System.decodeNumTime( OpenTime )
+  local OpenTimeOffset = (OSec - 0) + ((OMin - 0)*60) + ((OHour - 0) * 3600)
+  local NowTime = System.getCurrMiniTime()
+  --根据当前日期和开服日期进行对比获得天数偏移
+  local DiffTime = NowTime - OpenTime + OpenTimeOffset + (24 * 60 *60) --开服第一天从1开始所以这里加上一天的时间
+  local OpenDay,_ = math.modf(DiffTime / (24 * 60 *60))
+  if OpenDay <= 1 then OpenDay = 1 end
+  return OpenDay
+end
+
+
+--获取当前日期是开服日期的第几周
+function CommonFunction.GetServerOpenWeek()
+    --取得开服日期
+  local OpenTime = System.getServerOpenTime()
+  local OpenDay = CommonFunction.GetServerOpenDay()
+  BlackMarketPrint("当前开服天数是:"..OpenDay)
+    --根据开服时间获取开服的星期数
+  local OpenDayOfWeek = System.numTimeDayOfWeek(OpenTime)
+  BlackMarketPrint("开服时候的星期数为: "..OpenDayOfWeek)
+  --假设开服时间都为星期1 如果不是 则需要补全 成为整个周来计算 7的倍数
+  local OpenDay = OpenDay + (OpenDayOfWeek - 1)
+  --BlackMarketPrint("开服天数是"..OpenDay)
+  local OpenWeek,F = math.modf(OpenDay / 7)
+  --如果小数部分不为 0 则需要 + 1 否则就不需要 
+  if F > 0 then
+    OpenWeek = OpenWeek + 1
+  end
+   
+  --BlackMarketPrint("当前开服周数为"..OpenWeek .."小数结余为 : " .. F)
+  return OpenWeek
+end
+
+--#include "data\config\activity\BlackMarket\BlackMarket.txt"
+BlackMarketDebugInfo = false
+function BlackMarketPrint(s)
+  if BlackMarketDebugInfo == true then
+    print(s)
+  end
+end
+
+--玩家登陆检测黑市活动是否开 
+function OnLogin_BlackMarket(sysarg)
+  -- BlackMarketPrint("登录触发黑市系统啦")
+  -- local sval = Actor.getStaticVar(sysarg) 
+  -- if sval.BlackMarketFreeRefTime == nil then
+  --   sval.BlackMarketFreeRefTime = 0
+  -- end
+  
+  -- --如果黑市关闭 那么将自己的下次免费刷新时间置为 0
+  -- if IsBlackMarketOpen() then  
+  --   local netpack = DataPack.allocPacket( sysarg,145,129)
+  --   DataPack.writeByte( netpack,1)
+  --   DataPack.flush( netpack)
+    
+  --   if sval.BlackMarketFreeRefTime == 0 then
+  --     sval.BlackMarketFreeRefTime = System.getCurrMiniTime() + BlackMarketRefreshFreeSec    
+  --   end
+  
+  -- else
+  --   sval.BlackMarketFreeRefTime = 0      
+  -- end
+  
+
+end
+--===================================================================================
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+BlackMarketRefreshCountConfig =
+{
+	RankName = "BlackMarketRefreshRecord",
+	RankFile = "BlackMarketRefreshRecord.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+	  {"Record", 0},
+	},
+	ClinetShowCount = 0,
+	ClientShow = 0,
+}
+
+
+function BlackMarketInit(npcobj)
+    --print("BlackMarketInit")
+    local config = BlackMarketRefreshCountConfig
+   	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function BlackMarketFinal(npcobj)
+--print("BlackMarketFinal")
+	local config = BlackMarketRefreshCountConfig
+    Rank.Fina(config.RankName, config.RankFile)
+end
+
+-- table.insert(InitFnTable,BlackMarketInit)
+-- table.insert(FinaFnTable,BlackMarketFinal)
+
+--获取当前的刷新次数 
+function GetBlackMarketRefreshTime(sysarg) 
+  local nResult = 0 
+  local config = BlackMarketRefreshCountConfig
+  local PRanking = Ranking.getRanking(config.RankName)
+  --print("记录名字"..config.RankName)
+  if (PRanking ~= nil) then
+    local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+    local pRankItem = Ranking.getItemPtrFromId(PRanking,nActorId)
+    
+    if pRankItem == nil then
+      pRankItem = Ranking.addItem(PRanking,nActorId,0)
+    else
+      nResult = Ranking.getPoint(pRankItem)  
+    end  
+  end
+  return nResult
+  
+end
+
+function AddBlackMarketRefreshTime(sysarg,nTimes)
+
+  local config = BlackMarketRefreshCountConfig
+  local PRanking = Ranking.getRanking(config.RankName)
+  
+  if (PRanking ~= nil) then
+    local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+    local pRankItem = Ranking.getItemPtrFromId(PRanking,nActorId)
+    local nOld = 0
+    if (pRankItem ~= nil) then
+      nOld = Ranking.getPoint(pRankItem)
+      local nNew = nOld + nTimes
+      Ranking.updateItem(PRanking,nActorId,nTimes) 
+    else
+      pRankItem = Ranking.addItem(PRanking,nActorId,nTimes)   
+    end
+  end  
+
+end
+
+function AddBlackMarkReshTimes(sysarg)--增加黑市刷新时间
+  -- local dval = Actor.getStaticVar(sysarg)
+  -- dval.BlackMarketFreeRefTime = System.getCurrMiniTime() +  BlackMarketRefreshFreeSec 
+end 
+--===================================================================================
+
+function BlackMarketText(sysarg)
+  BlackMarketAutoRunTimer()
+end
+
+--全局定时器 
+function BlackMarketAutoRunTimer()        
+   BlackMarketPrint("[执行黑市自动运行啊]") 
+  local gVal = System.getStaticVar()
+  
+  --gVal.LastBlackMarketOpenWeek = 0
+  local ServerOpenWeek = CommonFunction.GetServerOpenWeek()   
+   
+ 
+  --开服第三天一定要开放黑市 
+  if gVal.LastBlackMarketOpenWeek == nil then  
+     gVal.LastBlackMarketOpenWeek = 0       
+  end 
+  
+     local ServerOpenDay = CommonFunction.GetServerOpenDay()
+     --如果是开服第一天 那么设置三天后开放黑市
+     if ServerOpenDay == 1 then
+       BlackMarketPrint("黑市开服第三天一定开")
+       local day = System.getDayOfWeek()
+       if day == 0 then
+         day = 7
+       end
+
+       --开服三天 
+       local day = day + 3
+       if day > 7 then
+         gVal.LastBlackMarketOpenWeek = ServerOpenWeek + 1
+       else
+         gVal.LastBlackMarketOpenWeek = ServerOpenWeek
+       end
+
+       local todaytime = System.getToday()
+       local NextOpenTime = todaytime + (2 * 24 * 3600)
+       gVal.NextBlackMarketOpenTime = NextOpenTime
+       gVal.CloseBlackMarketTime = NextOpenTime + 24 * 3600   --关闭黑市时间
+       gVal.BlackMarketBoardCastTime = NextOpenTime - (BlackMarketBoardCastMin * 60)
+
+       BlackMarketPrint("[黑市开服第一天开放时间]:"..System.decodeTime(NextOpenTime))
+
+     end
+  
+  BlackMarketPrint("上次黑市开放的周数 : ".. gVal.LastBlackMarketOpenWeek)
+  
+  if (gVal.LastBlackMarketOpenWeek < ServerOpenWeek) then
+    --获取当前时间是周几  如果是 周日的话 那就 +　24个小时本周就不开了 下周开
+    local Y = 0
+    local M = 0
+    local D = 0
+    Y,M,D = System.getDate(Y,M,D)
+    
+    local WeekDay = System.getDayOfWeek()
+    
+    if WeekDay == 0 then
+      WeekDay = 7
+    end
+   
+    local RandomDay = 7 - WeekDay
+   
+    local OpenWeekDay = 0
+    if RandomDay > 0 then
+       OpenWeekDay = System.getRandomNumber(RandomDay) + 1   --本周 
+       gVal.LastBlackMarketOpenWeek = ServerOpenWeek 
+    else
+       OpenWeekDay = System.getRandomNumber(7) + 1 --下周
+       gVal.LastBlackMarketOpenWeek = ServerOpenWeek + 1 
+    end 
+   
+    
+   local NextOpenTime = System.encodeNumTime(Y,M,D,0,0,0) + (OpenWeekDay * 24 * 3600)
+   
+   gVal.NextBlackMarketOpenTime = NextOpenTime 
+   gVal.CloseBlackMarketTime = NextOpenTime + 24 * 3600   --关闭黑市时间
+   gVal.BlackMarketBoardCastTime = NextOpenTime - (BlackMarketBoardCastMin * 60)  
+  
+   BlackMarketPrint("[黑市开放时间]:"..System.decodeTime(NextOpenTime))
+  end
+  
+  if gVal.CloseBlackMarketTime == nil then
+    gVal.LastBlackMarketOpenWeek = nil 
+    return
+  end
+  
+  local NowTime = System.getCurrMiniTime()
+  
+  if gVal.BlackMarketBoardCastTime == nil then
+    gVal.BlackMarketBoardCastTime = 0
+  end
+  --发送全局公告 
+  if NowTime > gVal.BlackMarketBoardCastTime and gVal.BlackMarketBoardCastTime ~= 0 then
+    -- System.broadcastTipmsg(Lang.ScriptTips.BlackMarketOpenTips,ttBroadcast + ttChatWindow)  
+    gVal.BlackMarketBoardCastTime = 0
+  end  
+  
+  if NowTime > gVal.CloseBlackMarketTime and gVal.CloseBlackMarketTime ~= 0 then 
+    CloseBlackMarket()    
+  end
+  
+  if (gVal.NextBlackMarketOpenTime > 0) and (NowTime > gVal.NextBlackMarketOpenTime) then
+    OpenBlackMarket()
+  end
+  
+  if (gVal.NextBlackMarketBoardCastTime ~= nil) and (gVal.NextBlackMarketBoardCastTime ~= 0) and (NowTime > gVal.NextBlackMarketBoardCastTime) then
+    if IsBlackMarketOpen() then
+      BlackMarketPrint("公告黑市全服")
+      --黑市正在开启 进行公告
+      -- System.broadcastTipmsg(Lang.ScriptTips.BlackMarketRunTips,ttBroadcast + ttChatWindow)
+      gVal.NextBlackMarketBoardCastTime = NowTime + (BlackMarketRunTimeInterval * 60 )
+    else
+      gVal.NextBlackMarketBoardCastTime = 0  
+    end
+  end
+  
+
+end 
+
+
+
+
+
+
+--开启黑市 
+function OpenBlackMarket(nMinute)
+  
+  local gVal = System.getStaticVar()
+  gVal.LastBlackMarketOpenWeek  =  CommonFunction.GetServerOpenWeek() --记录当前黑市开启的周数
+  if (nMinute == nil) then
+    nMinute = 24 * 60 --如果没有指定时间 那就一天  
+  end
+  
+  gVal.NextBlackMarketBoardCastTime = System.getCurrMiniTime() +  (BlackMarketRunTimeInterval * 60 )
+  
+  BlackMarketPrint("开启黑市 : " .. nMinute)
+  gVal.CloseBlackMarketTime = System.getCurrMiniTime() + (nMinute * 60)   --关闭黑市时间
+  BlackMarketPrint("[黑市结束时间]:"..System.decodeTime(gVal.CloseBlackMarketTime)) 
+  gVal.NextBlackMarketOpenTime = 0
+  local now = System.getCurrMiniTime() + BlackMarketRefreshFreeSec
+  
+  local List  = LuaHelp.getAllActorList() 
+  if List == nil then return end
+  
+  for k,v in pairs(List) do
+    local netpack = DataPack.allocPacket( v,145,129)
+    DataPack.writeByte( netpack,1)
+    DataPack.flush( netpack) 
+    
+    -- local sval = Actor.getStaticVar(v)
+    -- if sval.BlackMarketFreeRefTime == nil then
+    --   sval.BlackMarketFreeRefTime = now
+    -- end
+     
+  end  
+end
+ 
+--关闭黑市
+function CloseBlackMarket()
+  BlackMarketPrint("关闭黑市") 
+  local gVal = System.getStaticVar()
+  gVal.NextBlackMarketBoardCastTime  = 0
+  gVal.CloseBlackMarketTime = 0
+  gVal.NextBlackMarketOpenTime = 0
+  local List  = LuaHelp.getAllActorList()
+  if List ~= nil then
+  
+    for k,v in pairs(List) do
+      local netpack = DataPack.allocPacket( v,145,129)
+      DataPack.writeByte( netpack,0)
+      DataPack.flush( netpack)
+    end
+  end
+end
+
+--黑市是否开启 
+function IsBlackMarketOpen()
+  local nTime = System.getCurrMiniTime()
+  local gVal = System.getStaticVar()
+  local CloseBlackMarketTime = gVal.CloseBlackMarketTime 
+  if CloseBlackMarketTime == nil then
+    CloseBlackMarketTime = 0
+  end 
+  
+  local NextBlackMarketOpenTime = gVal.NextBlackMarketOpenTime 
+  if NextBlackMarketOpenTime == nil then 
+    NextBlackMarketOpenTime = 0
+  end
+  
+  
+  BlackMarketPrint( string.format("CloseBlackMarketTime : %d , NextBlackMarketOpenTime : %d ,nTime : %d ",CloseBlackMarketTime,NextBlackMarketOpenTime,nTime) )
+  if (CloseBlackMarketTime > nTime) and (NextBlackMarketOpenTime < nTime) then
+    BlackMarketPrint("[黑市是否开启:True]")
+    return true
+  else
+    BlackMarketPrint("[黑市是否开启:False]")
+    return false  
+  end  
+end
+
+--客户端请求黑市物品列表 
+function ClientWantBlackMarketItemList(sysarg,msgid, packet)
+  --  BlackMarketPrint("[请求黑市列表]")
+  -- local dval = Actor.getStaticVar(sysarg)
+  -- if dval.BlackMarketItem == nil then
+  --   RandomGetBlackMarketItem(sysarg)
+  -- end
+  -- local S = ""
+  -- local netpack = DataPack.allocPacket( sysarg,145,130)
+ 
+  -- BlackMarketPrint("黑市下次免费刷新时间 : "..System.decodeTime(dval.BlackMarketFreeRefTime))
+  -- local gval = System.getStaticVar()
+  -- local CloseBlackMarketTime = gval.CloseBlackMarketTime
+  -- if CloseBlackMarketTime == nil then
+  --   CloseBlackMarketTime = 0
+  -- end  
+  -- BlackMarketPrint("黑市的关闭时间 : "..CloseBlackMarketTime)
+  -- DataPack.writeUInt(netpack, CloseBlackMarketTime)
+  -- DataPack.writeUInt(netpack, dval.BlackMarketFreeRefTime ) 
+  -- BlackMarketPrint("黑市的下次刷新时间 : "..dval.BlackMarketFreeRefTime)
+  
+  -- --TODO : 最大次数和 今天已经刷新的次数 
+  -- local nTime = GetBlackMarketRefreshTime(sysarg) 
+  -- DataPack.writeInt(netpack , nTime)
+  -- DataPack.writeInt(netpack , BlackMarketMaxRefreshByManualRefresh) 
+  -- DataPack.writeInt( netpack ,BlackMarketRefresh)
+  -- DataPack.writeByte(netpack,6) 
+  -- BlackMarketPrint("已经刷新的次数 : "..nTime)
+  -- BlackMarketPrint("黑市刷新的最大次数 : "..BlackMarketMaxRefreshByManualRefresh)
+  -- for i = 1 , 6 do
+  --   DataPack.writeInt(netpack,dval.BlackMarketItem[i])
+  --   S = S ..dval.BlackMarketItem[i].."," 
+  -- end  
+  -- DataPack.flush(netpack)
+  -- BlackMarketPrint("[发送黑市商品列表] : " ..S) 
+  
+  -- ClientWantGetBlackMarketBuyLog(sysarg)
+  
+end
+
+function OnBuyBlackMarketItem(sysarg,shopid,itemid)
+  -- BlackMarketPrint("黑市购买完毕:OnBuyBlackMarketItem : "..shopid)
+  -- local timestr = System.decodeTime(System.getCurrMiniTime())
+  -- local sName = Actor.getName(sysarg)
+  -- local sItemName = Item.getItemName(itemid)
+  -- local sLog = string.format("%s,%d",sName,shopid)
+  -- BlackMarketPrint("黑市日志:" ..sLog)
+  -- local dval = Actor.getStaticVar(sysarg)
+  -- for i = 1,6 do
+  --   local id = dval.BlackMarketItem[i]
+  --   if id == nil then
+  --     break
+  --   end
+  
+  --   if (id == shopid) then
+  --     dval.BlackMarketItem[i] = -id
+  --   end
+  
+  -- end
+  
+  -- local sval = System.getDyanmicVar()
+  
+  -- if sval.BlackMarketBuyLog == nil then
+  --   sval.BlackMarketBuyLog = {}
+  -- end
+  
+
+  -- local Count = 0
+  -- for i = 1 , 20 do
+  --   local str = sval.BlackMarketBuyLog[i]
+  --   if str ~= nil then
+  --    Count = Count + 1
+  --   else
+  --     break
+  --   end
+  -- end
+  
+  -- for i = Count + 1 , 2 , -1 do
+  --   sval.BlackMarketBuyLog[i] = sval.BlackMarketBuyLog[i - 1]  
+  -- end
+  
+  -- sval.BlackMarketBuyLog[1] = sLog
+  
+  --   --下发新的列表给客户端
+  -- ClientWantBlackMarketItemList(sysarg,1 , 1)
+  
+end
+--获取黑市日志 
+function ClientWantGetBlackMarketBuyLog(sysarg)
+  local sval = System.getDyanmicVar()
+  if sval.BlackMarketBuyLog == nil then
+    sval.BlackMarketBuyLog = {}  
+  end
+  
+  local S = ""
+  for i = 1 , 20 do
+    local str = sval.BlackMarketBuyLog[i]
+    if str ~= nil then
+      S = S..str.."|"
+    else
+      break 
+    end 
+
+  end
+  
+  local netpack = DataPack.allocPacket( sysarg,145,132) 
+  DataPack.writeString(netpack,S)  
+  DataPack.flush(netpack) 
+  
+  BlackMarketPrint("发送黑市日志:"..S)
+  
+end
+
+--客户端刷新黑市列表 
+function ClientWantRefBlackMarketItemList(sysarg,msgid, packet)
+  -- BlackMarketPrint("请求刷新黑市奖励列表]")
+  -- local nTimes = GetBlackMarketRefreshTime(sysarg) 
+  -- if nTimes >= BlackMarketMaxRefreshByManualRefresh then return end
+  -- local dval = Actor.getStaticVar(sysarg)
+  -- dval.BlackMarketFreeRefTime = System.getCurrMiniTime() +  BlackMarketRefreshFreeSec
+  -- if System.getCurrMiniTime() < dval.BlackMarketFreeRefTime then
+  --    local myYb = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+  --    if myYb < BlackMarketRefresh then
+  --       Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.BlackMarketRNMoYBTips, BlackMarketRefresh), ttFlyTip)
+  --       return
+  --    end
+  --    if not Actor.changeMoney(sysarg, mtYuanbao, -BlackMarketRefresh, 1008, "BlackMarketResh") then return end
+  -- end
+  -- AddBlackMarkReshTimes(sysarg)
+  -- AddBlackMarketRefreshTime(sysarg,1)
+  -- RandomGetBlackMarketItem(sysarg)
+  -- ClientWantBlackMarketItemList(sysarg,1 , 1)
+
+end
+
+--随机获取黑市库内的物品 
+function GetLibItem(Type,Count,RefTimes,TargetTable)
+  local GoodsLib = nil
+  
+  if Type == 1 then
+    GoodsLib = BlackMarketGoldLib  
+  else
+    GoodsLib = BlackMarketGameGoldLib  
+  end 
+
+  ClearGlobalBlackMarketConfig(Type)--清除以前命中的相关记录 
+  local LibTotalRate = GetGlobalBlackMarketTotalRate(Type) --获取库的总权重 
+  BlackMarketPrint("LibTotalRate :"..LibTotalRate .. " ,Type:"..Type .."RefTimes : " ..RefTimes)
+  
+  --首先遍历是否有必中必定出现的物品 
+  local MustGetItemCount = 0
+  for i = 1,#GoodsLib do
+    if (GoodsLib[i].MustGetTimes > 0) and (math.mod(RefTimes,GoodsLib[i].MustGetTimes) == 0 ) then
+      table.insert( TargetTable, GoodsLib[i].goodid )
+      GoodsLib[i].Match = 1
+      LibTotalRate = LibTotalRate - GoodsLib[i].probability
+      MustGetItemCount = MustGetItemCount + 1
+      if MustGetItemCount >= Count then
+        break
+      end
+      
+    end
+  end
+  
+  BlackMarketPrint("必出 : MustGetItemCount = " .. MustGetItemCount)
+  --根据概率出现对应库的物品 
+  for i = 1 , Count - MustGetItemCount  do
+    local Rand = System.getRandomNumber(LibTotalRate) + 1
+    BlackMarketPrint("Rand = "..Rand .." LibTotalRate = ".. LibTotalRate )
+    
+     local Rate = 0
+     for k = 1, #GoodsLib do
+       
+       if GoodsLib[k].Match == nil then
+         Rate = Rate + GoodsLib[k].probability
+         if Rate >= Rand then
+           table.insert( TargetTable, GoodsLib[k].goodid )
+           GoodsLib[k].Match = 1
+           LibTotalRate = LibTotalRate - GoodsLib[k].probability
+           BlackMarketPrint("中了 Rate = "..Rate)
+           break
+         end
+       end
+     end
+  end
+  
+end
+
+
+--客户端获取黑市积分兑换列表
+--#include "data\config\activity\BlackMarket\BlackMarketPointStall.txt" once 
+function GetBlackMarketPointStallItem(sysarg)
+  local netpack = DataPack.allocPacket( sysarg,145,131)  
+  DataPack.writeByte( netpack,#BlackMarketPointStallLib)
+  for i = 1, #BlackMarketPointStallLib do
+    DataPack.writeInt(netpack,BlackMarketPointStallLib[i]) 
+  end
+  DataPack.flush(netpack)
+end
+
+
+
+function RandomGetBlackMarketItem(sysarg)
+  -- local sval = Actor.getStaticVar( sysarg )
+  -- if sval.BlackMarketItem == nil then
+  --   sval.BlackMarketItem = {}
+  -- end
+  
+  -- if sval.BlackMarketRefreshTimes == nil then
+  --   sval.BlackMarketRefreshTimes = 1 
+  -- end 
+  -- local RefreshTimes = sval.BlackMarketRefreshTimes --刷新次数  
+  
+  -- local ItemIndex = {}    
+  
+  -- GetLibItem(1,3,RefreshTimes,ItemIndex) --出金币物品 
+  -- GetLibItem(0,3,RefreshTimes,ItemIndex) --出元宝物品 
+  -- local s = ""
+ 
+  -- --记录到静态变量 
+  -- for i = 1 , #ItemIndex do
+  --   sval.BlackMarketItem[i] = ItemIndex[i]
+  --   s = s ..ItemIndex[i] ..","   
+  -- end
+  -- BlackMarketPrint("记录到静态变量:"..s)
+  
+  -- sval.BlackMarketRefreshTimes = RefreshTimes + 1 
+   
+end
+
+--获取全局的黑市配置变量 这里是为了优化性能 省的每次都需要计算一次全局权重 
+function GetGlobalBlackMarketTotalRate(Type)
+  if Type == 1 then
+    if GlobalBlackMarketGoldRate == nil then
+      GlobalBlackMarketGoldRate = 0
+      for i = 1, #BlackMarketGoldLib do
+        GlobalBlackMarketGoldRate = GlobalBlackMarketGoldRate + BlackMarketGoldLib[i].probability 
+      end
+    end  
+    
+    return GlobalBlackMarketGoldRate     
+  else
+    if GlobalBlackMarketGameGoldRate == nil then
+      GlobalBlackMarketGameGoldRate = 0
+      for i = 1, #BlackMarketGameGoldLib do
+        GlobalBlackMarketGameGoldRate = GlobalBlackMarketGameGoldRate + BlackMarketGameGoldLib[i].probability
+      end    
+    
+    end
+    return GlobalBlackMarketGameGoldRate
+  end
+end
+
+--清除命中记录 
+function ClearGlobalBlackMarketConfig(Type)
+  if Type == 1 then
+     for i = 1, #BlackMarketGoldLib do
+       BlackMarketGoldLib[i].Match = nil
+     end
+  else
+     for i = 1, #BlackMarketGameGoldLib do
+       BlackMarketGameGoldLib[i].Match = nil
+     end
+  end
+
+end
+
+BlackMarketAutoRunPtr = nil
+function BlackMarketInit(npcobj)
+  BlackMarketAutoRunPtr = System.registerTimeCall(npcobj,"BlackMarketAutoRunTimer","2016-2-1 15:00:00",60,false)
+end
+
+function BlackMarketFinal(npcobj)
+  System.unregisterTimeCall(BlackMarketAutoRunPtr)
+end
+
+
+-- table.insert(InitFnTable,BlackMarketInit)
+-- table.insert(FinaFnTable,BlackMarketFinal)

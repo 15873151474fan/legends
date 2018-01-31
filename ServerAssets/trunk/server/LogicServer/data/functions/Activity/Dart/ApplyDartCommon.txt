@@ -1,0 +1,565 @@
+﻿--#include "data\config\NewVip\NewVipConfig.txt" once --新Vip配置
+--lua script
+--活动：押镖活动通用处理
+
+-- @brief: 押镖活动时间到
+function OnActorDartExpired(sysarg)	
+	OnActorDartFailed(sysarg, EscortDartConfig.DartSetup.CampDartFailExpired)
+end
+
+--开始护送
+--[[
+    函数名称：StartGuildDart
+    函数描述：创建镖车
+    参数 sysarg 的描述：
+    参数 type 的描述：是否随机选择 1随机 0不随 不随机默认选1 
+ ]]
+
+function StartApplyActorDart(sysarg, type)
+	local dvar = Actor.getDyanmicVar(sysarg)
+	local sVar = Actor.getStaticVar(sysarg)
+	
+	if sVar.ActorDartType == nil or sVar.ActorDartType == 0 then
+		sVar.ActorDartType = 1
+	end
+
+	local idx = sVar.ActorDartType
+	if type == 1 then 	
+		-- 随机选一个镖车
+		local randCnt = System.getRandomNumber(1000)  -- 返回[0-100]的随机数
+		for i=1, table.getn(EscortDartConfig.DartHorse[idx].freshRate) do
+			if (randCnt < EscortDartConfig.DartHorse[idx].freshRate[i]) then
+				idx = i
+				break
+			end		
+		end
+	end
+
+	local monsterInfo = EscortDartConfig.DartHorse[idx]    --给予一档的镖车
+	sVar.ActorDartType = idx
+
+	if monsterInfo ~= nil then
+		local monster = sVar.ActorDartMonster or 0
+		if monster > 0 then
+		  --通知客户端清除怪物信息 
+			local pack = DataPack.allocPacket(sysarg, 139, 13)
+			DataPack.writeInt64(pack, monster)
+			DataPack.flush(pack)
+			Fuben.clearMonster(monster, false)
+		end
+
+		local bool = Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟
+
+		--发送客户端打开更换镖车界面
+		SendToClentActorChangeSlave(sysarg, idx,0)
+	end
+end
+
+function StartDartToDest(sysarg,packet)
+	local dvar = Actor.getDyanmicVar(sysarg)
+	local sVar = Actor.getStaticVar(sysarg)
+
+	local idx = sVar.ActorDartType
+	local monsterInfo = EscortDartConfig.DartHorse[idx]    --给予一档的镖车
+    --print("StartDartToDest1") 
+	if monsterInfo ~= nil then
+		local monster = sVar.ActorDartMonster or 0
+		if monster > 0 then
+		  --通知客户端清除怪物信息 
+			local pack = DataPack.allocPacket(sysarg, 139, 13)
+			DataPack.writeInt64(pack, monster)
+			DataPack.flush(pack)
+			Fuben.clearMonster(monster, false)
+		end
+
+		local bool = Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟
+		local x, y = Actor.getEntityPosition(sysarg, 0, 0)		--获取实体X Y坐标
+		monster = Actor.createMonster(sysarg, monsterInfo.id, x, y, 0)	
+
+		if (monster ~= nil) then
+			Actor.onTakeOffRide(sysarg)
+            --print("StartDartToDest2")
+			sVar.ActorDartStatus = EscortDartConfig.DartSetup.CampDartStatusAccept
+			sVar.ActorApplyTimes = sVar.ActorApplyTimes + 1
+			
+			Actor.triggerAchieveEvent(sysarg,44,14,sVar.ActorApplyTimes)		--护送美女的成就
+
+			Actor.followActor(monster, sysarg, 3, 30, true) --跟随某个玩家
+			Actor.setEntityTelByOwnderAttr(monster, true)   --设置实体是否跟着归属者传送
+			Actor.setEntityLazyFollow(monster, true)        --设置实体是否惰性跟随
+			Actor.setDenyAttackedByActor(monster, true)     --设置实体是否不可被玩家攻击
+			Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟 
+
+			--sVar.ActorApplyTimes = sVar.ActorApplyTimes + 1
+
+			--护镖时间计算
+			sVar.ActorDartTime = System.getCurrMiniTime() --开始护镖时间
+			sVar.ActorDartDelayTime = EscortDartConfig.DartSetup.actionTime
+
+			local pack = DataPack.allocPacket(sysarg, 145, 3)
+			if (pack ~= nil) then
+				DataPack.writeInt64(pack, Actor.getHandle(monster))				--下属句柄
+				DataPack.writeString(pack, Actor.getName(monster))				-- 下属名称							
+				--DataPack.writeInt(pack, Actor.getIntProperty(monster, PROP_ENTITY_MODELID))	-- 下属模型Id
+				DataPack.writeInt(pack, idx)
+				DataPack.writeInt(pack, EscortDartConfig.Dest.destsceneid)			--目标点场景ID
+				DataPack.writeString(pack, EscortDartConfig.Dest.destnpcname)			--目标NPC名称
+
+				DataPack.writeInt(pack, sVar.ActorDartDelayTime)  --活动时间（秒为单位）
+				DataPack.writeString(pack, EscortDartConfig.ActiveName)	--活动名称
+				DataPack.flush(pack)
+                --print("StartDartToDest3")
+			end
+
+			-- 保存开始护镖时间、怪物指针和接镖NPC、目标NPC名称和目标NPC所在场景Id 奖励倍率
+			local time = System.getCurrMiniTime()
+			sVar.ActorDartMonster = Actor.getHandle(monster) --怪物句柄
+
+			--dvar.ActorDartdestnpcname = EscortDartConfig.Dest.destnpcname  --目标NPC名称
+			--dvar.ActorDartdestsceneid = EscortDartConfig.Dest.destsceneid  --目标点场景ID
+			dvar.ActorDartName = Actor.getName(monster)	--怪物名称
+
+			-- 处理护镖超时
+			Actor.unregScriptCallback(sysarg, "OnActorDartExpired")
+			Actor.regScriptCallback(sysarg, thisNPC, sVar.ActorDartDelayTime*1000, 10000, 1, "OnActorDartExpired")
+		
+			local bVip = Actor.isVip(sysarg)
+					
+			local maxTimes = 0
+			if(bVip == true) then
+                local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+				maxTimes = NewVipConfig.VipInclude[VipLevel].VipOpenTimes
+			else
+				maxTimes = EscortDartConfig.OpenTimes
+			end
+
+			SendActorLeftDactTimes(sysarg,maxTimes-sVar.ActorApplyTimes)
+
+			Actor.setDartFlag(sysarg,true)
+			if EscortDartConfig.AddBuff then
+				Actor.addBuff(sysarg,EscortDartConfig.AddBuff[1].buffType,EscortDartConfig.AddBuff[1].buffGroup,EscortDartConfig.AddBuff[1].value,EscortDartConfig.AddBuff[1].times,EscortDartConfig.AddBuff[1].interval,EscortDartConfig.AddBuff[1].buffName)
+			end
+		end
+	end
+end
+
+--发送下属
+function SendActorDartInfo(sysarg,monsterId)
+	local dVar = Actor.getStaticVar(sysarg)
+	local svar = Actor.getDyanmicVar(sysarg)
+	local dest = EscortDartConfig.Dest  --目标 信息
+
+	if svar.ActorDartName == nil or dVar.ActorDartMonster == nil then
+		return
+	end
+
+	if dest ~= nil then
+	    		--Actor.regScriptCallback(monster, nil, 15000, 15000, -1, "OnCheckFollowDist")
+				-- 发消息通知客户端设置归属。消息内容：归属怪物句柄、是否有目标点、[目标场景id、目标npc名称]				
+		local pack = DataPack.allocPacket(sysarg, 139, 12)
+		if (pack ~= nil) then
+			DataPack.writeInt64(pack,dVar.ActorDartMonster)    --下属句柄
+			DataPack.writeString(pack,svar.ActorDartName)		-- 下属名称							
+			DataPack.writeInt(pack, monsterId)			-- 下属模型Id
+			DataPack.writeChar(pack, 1)                            --消息中是否有目标点信息 1表示后面紧跟着目标点信息 0表示后面无目标点信息
+			DataPack.writeInt(pack, dest.destsceneid)       --目标点场景ID
+			DataPack.writeString(pack, dest.destnpcname)    --目标NPC名称
+			DataPack.flush(pack)
+		end
+	end
+
+end
+
+--移除下属
+function DeleteActorDartInfo(sysarg)
+	local svar = Actor.getStaticVar(sysarg)
+
+	if svar.ActorDartMonster == nil then
+		return
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 139, 13)
+	if (pack ~= nil) then
+		DataPack.writeInt64(pack,svar.ActorDartMonster)    --下属句柄
+		DataPack.flush(pack)
+	end
+
+end
+
+--发送客户端打开更换镖车界面  nIndex 第几档
+function SendToClentActorChangeSlave(sysarg, nIndex,nType)
+	local var = Actor.getStaticVar(sysarg)
+				
+	if var.ActorApplyTimes == nil then
+		var.ActorApplyTimes = 0
+	end
+
+	--vip类型
+	local bVip = Actor.isVip(sysarg)
+					
+	local zNum = 0
+	local maxTimes = 0
+	if(bVip == true) then
+        local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+		zNum = NewVipConfig.VipInclude[VipLevel].FreshFreeVipTimes
+		maxTimes = NewVipConfig.VipInclude[VipLevel].VipOpenTimes 
+	else
+		zNum = EscortDartConfig.FreshFreeTimes
+		maxTimes = EscortDartConfig.OpenTimes
+	end
+
+	if var.FreshFreeTimes == nil then
+		var.FreshFreeTimes = 0
+	end
+
+	local pack = DataPack.allocPacket(sysarg,145,4) --分配一个数据包
+	if(pack~=nil) then
+		DataPack.writeByte(pack,0)
+		DataPack.writeByte(pack,nType) 
+		DataPack.writeInt(pack,nIndex)			
+		DataPack.writeString(pack,EscortDartConfig.DartHorse[nIndex].monName)
+		local leftTimes = var.FreshFreeTimes
+		if var.FreshFreeTimes > zNum then
+			leftTimes = zNum
+		end
+		DataPack.writeByte(pack,leftTimes)
+		DataPack.writeByte(pack,zNum) 
+
+		DataPack.writeByte(pack,maxTimes)  --运镖的总次数
+		DataPack.writeByte(pack,var.ActorApplyTimes)  --次数
+
+		local nCount = table.getn(EscortDartConfig.DartHorse[nIndex].Awards)
+		if var.ThisDartFreshAward == 1 then
+			nCount = nCount + table.getn(EscortDartConfig.DartHorse[nIndex].AwardsMore)
+		end
+
+		DataPack.writeInt(pack,nCount)
+        
+		for i = 1, table.getn(EscortDartConfig.DartHorse[nIndex].Awards) do
+			DataPack.writeInt(pack, EscortDartConfig.DartHorse[nIndex].Awards[i].type)
+			DataPack.writeInt(pack, EscortDartConfig.DartHorse[nIndex].Awards[i].id)
+
+			local nCount = EscortDartConfig.DartHorse[nIndex].Awards[i].count
+			if EscortDartConfig.DartHorse[nIndex].Awards[i].type == 20 then
+				nCount = Actor.getActivityExp(sysarg,EscortDartConfig.DartHorse[nIndex].Awards[i].id,EscortDartConfig.DartHorse[nIndex].Awards[i].count,EscortDartConfig.DartHorse[nIndex].Awards[i].quality)
+			end
+			DataPack.writeInt(pack, nCount)
+		end
+		
+		if var.ThisDartFreshAward == 1 then
+			for i = 1, table.getn(EscortDartConfig.DartHorse[nIndex].AwardsMore) do
+				DataPack.writeInt(pack, EscortDartConfig.DartHorse[nIndex].AwardsMore[i].type)
+				DataPack.writeInt(pack, EscortDartConfig.DartHorse[nIndex].AwardsMore[i].id)
+				local nCount = EscortDartConfig.DartHorse[nIndex].AwardsMore[i].count
+				if EscortDartConfig.DartHorse[nIndex].AwardsMore[i].type == 20 then
+					nCount = Actor.getActivityExp(sysarg,EscortDartConfig.DartHorse[nIndex].AwardsMore[i].id,EscortDartConfig.DartHorse[nIndex].AwardsMore[i].count,EscortDartConfig.DartHorse[nIndex].AwardsMore[i].quality)
+				end
+				DataPack.writeInt(pack, nCount)
+			end
+		end
+
+		DataPack.writeInt(pack,EscortDartConfig.Dest.destsceneid)
+		DataPack.writeString(pack,EscortDartConfig.Dest.destnpcname)
+
+		local nHour,nMinu,nSec = System.getTime(0,0,0)
+		local nAwardIndex = 0
+		local tmp = nHour * 60 + nMinu 
+		for i,v in ipairs(EscortDartConfig.AwardTime) do
+			if (v[1].hour * 60 + v[1].min) <= tmp and tmp <= (v[2].hour * 60 + v[2].min) then
+				nAwardIndex = 1
+				break
+			end
+		end
+
+		DataPack.writeByte(pack,nAwardIndex)
+		DataPack.flush(pack) --向客户端发送
+	end
+end
+
+--[[
+    SendActorActionLeftTimeAndAward
+    函数描述：发送给客户端活动剩余时间
+    参数 sysarg 的描述：
+    参数 awardcoin 的描述：奖励金钱
+]]
+function SendActorActionLeftTimeAndAward(sysarg, nIndex)
+	if EscortDartConfig.DartHorse[nIndex] == nil then return end
+
+	local svar = Actor.getStaticVar(sysarg)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 5)
+	if (pack ~= nil) then	
+		if  svar.ActorDartDelayTime == nil then
+			svar.ActorDartDelayTime = EscortDartConfig.DartSetup.actionTime
+		end
+		DataPack.writeInt(pack, svar.ActorDartDelayTime)  --活动时间（秒为单位）
+		DataPack.writeInt(pack,table.getn(EscortDartConfig.DartHorse[nIndex].Awards))
+
+		for i = 1, table.getn(EscortDartConfig.DartHorse[nIndex].Awards) do
+			DataPack.writeInt(pack, EscortDartConfig.DartHorse[nIndex].Awards[i].type)
+			local nCount = EscortDartConfig.DartHorse[nIndex].Awards[i].count
+			if EscortDartConfig.DartHorse[nIndex].Awards[i].type == 20 then
+				nCount = Actor.getActivityExp(sysarg,EscortDartConfig.DartHorse[nIndex].Awards[i].id,EscortDartConfig.DartHorse[nIndex].Awards[i].count,EscortDartConfig.DartHorse[nIndex].Awards[i].quality)
+			end
+  	        local nHour,nMinu,nSec = System.getTime(0,0,0)
+	        local nrate = 1
+	        if nHour == EscortDartConfig.AwardTime and nMinu >= EscortDartConfig.AwardTimeMut then
+	           nrate = EscortDartConfig.AwardsRate
+	        end
+	        --print("nrate"..nrate)
+	        nCount = nCount*nrate
+			DataPack.writeInt(pack, nCount)
+		end
+		DataPack.flush(pack)  		
+	end
+end
+
+-- @brief: 护送失败处理处理。怪物死亡、超时、距离太远等
+function OnActorDartFailed(sysarg, reason)
+	reason = reason or EscortDartConfig.DartSetup.CampDartFailUnknown
+
+	local svar = Actor.getDyanmicVar(sysarg)
+	-- 如果已经接镖，失败了需要删除镖车	
+	local bDelayRemove = false
+
+	DeleteActorDartInfo(sysarg)
+	ResetActorDartInfo(sysarg, bDelayRemove)
+
+	Actor.sendTipmsg(sysarg, Lang.Activity.t00075, ttScreenCenter)
+end
+
+-- @brief: 重置护送相关的数据
+function ResetActorDartInfo(sysarg, bDelayRemove)
+	if (bDelayRemove == nil) then bDelayRemove=false end
+
+	local svar = Actor.getDyanmicVar(sysarg)
+	local dVar = Actor.getStaticVar(sysarg)
+
+	if (dVar.ActorDartMonster ~= nil and dVar.ActorDartMonster ~= 0) then
+		if bDelayRemove == false then
+			Fuben.clearMonster(dVar.ActorDartMonster,bDelayRemove)
+		end
+		local pack = DataPack.allocPacket(sysarg, 139, 13)
+		DataPack.writeInt64(pack, dVar.ActorDartMonster)		
+		DataPack.flush(pack)		
+	end
+
+	Actor.unregScriptCallback(sysarg, "OnActorDartExpired")
+		
+	svar.ActorDartacceptNpc = 0
+	svar.ActorDartdestnpcname = ""
+	svar.ActorDartdestsceneid = -1
+	dVar.ThisDartFreshAward = 0
+	svar.ThisDartFreshTimes = 0
+
+	dVar.ActorDartDelayTime = 0
+	dVar.ActorDartMonster = 0	
+	dVar.ActorDartStatus = 0
+	dVar.ActorDartType = 0
+	dVar.ActorDartTime = 0
+
+	Actor.setDartFlag(sysarg,false)
+	SendClientDartFinish(sysarg)
+
+	if EscortDartConfig.AddBuff and Actor.hasBuff(sysarg,EscortDartConfig.AddBuff[1].buffType,EscortDartConfig.AddBuff[1].buffGroup) then
+		Actor.delBuff(sysarg,EscortDartConfig.AddBuff[1].buffType,EscortDartConfig.AddBuff[1].buffGroup)
+	end
+end
+
+--更新个人镖车
+function ActorChangeSlave(sysarg,packet)
+	local freshType = DataPack.readByte(packet)
+	local dartType = DataPack.readByte(packet)
+
+	local sVar = Actor.getStaticVar(sysarg)
+	local dVar = Actor.getDyanmicVar(sysarg)
+	--[[
+		if (sVar.ActorDartMonster == nil or sVar.ActorDartMonster == 0) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.t00080, ttFlyTip)
+			return
+		end
+
+		local ACtorDartMon = Actor.getEntity(sVar.ActorDartMonster)	
+		local monPosX, monPosY = Actor.getEntityPosition(ACtorDartMon, 0, 0)
+		local selfPosX, selfPosY = Actor.getEntityPosition(sysarg, 0, 0)
+		local succFollowDist = EscortDartConfig.DartSetup.succFollowDist
+		if (math.abs(monPosX-selfPosX) > succFollowDist or math.abs(monPosY-selfPosY) > succFollowDist) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.t00081, ttFlyTip)
+			return
+		end
+	]]
+	
+	local nResult = 1
+	if sVar.ActorDartType == nil then
+		sVar.ActorDartType = 1
+	end
+
+	if dartType <= sVar.ActorDartType and freshType == 2 then
+		return 
+	end
+	
+	if sVar.ActorDartType >= 5 then
+		return
+	end
+
+	if FreshDartConsume(sysarg) == true then
+		local idx = sVar.ActorDartType
+
+		-- 随机选一个镖车
+		local randCnt = System.getRandomNumber(1000)  -- 返回[0-100]的随机数	
+		--print("randCnt:"..randCnt)
+		for i=1, table.getn(EscortDartConfig.DartHorse[idx].freshRate) do
+			if (randCnt < EscortDartConfig.DartHorse[idx].freshRate[i]) then
+				idx = i
+				break
+			end		
+		end
+		--print("randCntidx:"..idx)
+		if freshType == 2 and idx > dartType then
+			idx = dartType
+		end
+		sVar.ActorDartType = idx
+		
+		local bVip = Actor.isVip(sysarg)		
+		local zNum = 0
+		if(bVip == true) then
+		    local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+			zNum = NewVipConfig.VipInclude[VipLevel].FreshFreeVipTimes
+		else
+			zNum = EscortDartConfig.FreshFreeTimes
+		end
+
+		if sVar.FreshFreeTimes == nil then
+			sVar.FreshFreeTimes = 0
+		end
+		sVar.FreshFreeTimes = sVar.FreshFreeTimes + 1
+
+		if sVar.FreshFreeTimes > zNum then		--最大免费刷新次数
+			sVar.FreshFreeTimes = zNum
+		end
+		
+		if dVar.ThisDartFreshTimes == nil then
+			dVar.ThisDartFreshTimes = 0
+		end
+		if sVar.ThisDartFreshAward == nil then
+			sVar.ThisDartFreshAward = 0
+		end
+
+		dVar.ThisDartFreshTimes = dVar.ThisDartFreshTimes + 1
+		
+		local userName = Actor.getName(sysarg)
+		if dVar.ThisDartFreshTimes >= EscortDartConfig.FreshTimes and sVar.ThisDartFreshAward == 0 then
+			local randNum = System.getRandomNumber(100)  -- 返回[0-100]的随机数
+			if randNum < EscortDartConfig.AwardRate then
+				dVar.ThisDartFreshTimes = 0
+				sVar.ThisDartFreshAward = 1
+				--System.broadcastTipmsg(string.format(Lang.Activity.t00085,userName,userName), 128)
+			end
+		end
+		
+		StartApplyActorDart(sysarg,0)
+        --print("StartApplyActorDartidx:"..idx)
+		if idx == 5 then
+			System.broadcastTipmsg(string.format(Lang.Activity.t00086,userName),128+ 2)
+			--System.broadcastTipmsg(string.format(Lang.Activity.t00087,userName,userName), 128)
+		end
+
+		if idx == dartType then
+			nResult = 2
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00083, ttFlyTip)
+		nResult = 3
+	end
+
+	if freshType == 1 and nResult == 3 then				--刷新一次
+		local pack = DataPack.allocPacket(sysarg, 145, 6)
+		if (pack ~= nil) then
+			DataPack.writeByte(pack, 0)
+			DataPack.writeByte(pack, nResult)
+
+			DataPack.flush(pack)  			
+		end
+	elseif freshType == 2 then			--自动刷新
+		local pack = DataPack.allocPacket(sysarg, 145, 6)
+		if (pack ~= nil) then
+			DataPack.writeByte(pack, 0)
+			DataPack.writeByte(pack, nResult)
+
+			DataPack.flush(pack)  		
+		end
+	end
+end
+
+--刷新镖车的消耗
+function FreshDartConsume(sysarg)
+	local var = Actor.getStaticVar(sysarg)
+
+	--vip类型
+	local bVip = Actor.isVip(sysarg)
+					
+	local zNum = 0
+	if(bVip == true) then
+        local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+		zNum = NewVipConfig.VipInclude[VipLevel].FreshFreeVipTimes
+	else
+		zNum = EscortDartConfig.FreshFreeTimes
+	end
+
+	if var.FreshFreeTimes == nil then
+		var.FreshFreeTimes = 0
+	end
+	
+	if var.FreshFreeTimes < zNum then		--免费次数足够
+		return true
+	end
+
+	if Actor.getItemCount(sysarg, EscortDartConfig.FreshNeedItem, -1, -1, -1) >= 1 then
+		if Actor.removeItem(sysarg, EscortDartConfig.FreshNeedItem, 1, -1, -1, -1, Lang.Activity.t00082, 2) >= 1 then
+			return true
+		end
+	end
+
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_BIND_YUANBAO) >= EscortDartConfig.FreshNeedCoupons then
+		if Actor.changeMoney(sysarg, 2, -EscortDartConfig.FreshNeedCoupons, 823,  Lang.Activity.t00082) == true then
+			return true
+		end
+	end
+
+	if Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO) >= EscortDartConfig.FreshNeedYb then
+		if Actor.changeMoney(sysarg, 3, -EscortDartConfig.FreshNeedYb, 823,  Lang.Activity.t00082) == true then
+			return true
+		end
+	end
+
+	return false
+end
+
+--继续护送
+function GoonApplyDart(sysarg)
+	local nHandle = Fuben.getSceneHandleById(EscortDartConfig.Src.sid,0)
+	Actor.enterFuBen(sysarg,nHandle,EscortDartConfig.Src.sid,EscortDartConfig.Src.x,EscortDartConfig.Src.y)
+end
+
+--取消
+function CancleApply(sysarg)
+	return
+end
+
+--通知客户端完成镖车运送
+function SendClientDartFinish(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 7)
+	DataPack.writeByte(pack, 1)		
+	DataPack.flush(pack)		
+end
+
+--通知客户端完成镖车运送
+function SendActorLeftDactTimes(sysarg,leftTimes)
+	if leftTimes < 0 then
+		leftTimes = 0
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 8)
+	DataPack.writeInt(pack, leftTimes)		
+	DataPack.flush(pack)		
+end

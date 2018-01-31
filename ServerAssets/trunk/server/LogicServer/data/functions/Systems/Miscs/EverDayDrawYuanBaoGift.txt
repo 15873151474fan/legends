@@ -1,0 +1,235 @@
+﻿--[[每日充值元宝数量 给予礼包功能实现 李昀 2015-11-6]]  
+--#include "data\functions\Common.txt" once
+--#include "data\config\misc\EveryDayDrawYBGift.txt" once
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+--充值多少元宝是achieveWithDrawYuanBao.txt 内进行对元宝充值进行了记录
+--"WithDrawYuanBaoPerDay" 是排行榜的名字根据这个就可以获得每日充值的 元宝数量 并且他是每天0都清除的  领取 的Rank 也是在 achieveWithDrawYuanBao 清除的 
+
+EveryDayDrawYuanBaoGiftRankingConfig =
+{
+	RankName = "EVDReciveRecord",
+	RankFile = "EDDrawYuanBaoGift.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+	  {"Record",0,},
+	},
+	ClinetShowCount = 0,
+	ClientShow = 0,
+}
+
+NeedPrintDrawYBMsg = true
+function EveryDayDrawYBPrint(sMsg)
+  if NeedPrintDrawYBMsg == true then
+    print("[每日充值]: "..sMsg)
+  
+  end
+
+end
+
+MiscsImplement.EveryDayDrawYuanBaoGiftMsg = function(sysarg,msgid, packet)
+  local id = DataPack.readByte(packet)
+  --print("每日充值:"..id)
+  if id == 1 then
+    ClientQueryTodayDrawYuanBaoGiftCount(sysarg)
+  elseif id == 2 then
+   local index = DataPack.readByte(packet)
+    ClientWantReciveEveryDayDrawYuanBaoAward(sysarg,index)  
+  end   
+end
+
+--获取今天充值了多少元宝 
+function GetTodayDrawYBCount_EveryDay(sysarg) 
+
+  local pRanking = Ranking.getRanking("WithDrawYuanBaoPerDay")  --获得成就排行榜记录的元宝数量
+  local TodayDrawYuanBao = 0
+  if pRanking then
+ 	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+    if pRankItem then
+      TodayDrawYuanBao = Ranking.getPoint(pRankItem)
+    end
+  end
+  
+  return TodayDrawYuanBao
+end
+
+
+--获取今天领取元宝提取礼包的领取记录
+function GetTodayDrawYBAwardReciveState_EveryDay(sysarg)
+  local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local pRanking = Ranking.getRanking(EveryDayDrawYuanBaoGiftRankingConfig.RankName)  --获得领取记录表
+  if pRanking == nil then
+    --print("getRaking nil :" .. EveryDayDrawYuanBaoGiftRankingConfig.RankName)
+  end
+  local pRankItem = Ranking.getItemPtrFromId(pRanking,nActorId)
+  local ReciveTable = {}
+  
+  if pRankItem == nil then
+    pRankItem = Ranking.addItem(pRanking,nActorId,0)
+    if pRankItem == nil then
+      --print("pRankItem Always == nil")
+    end
+  else
+    local Str = Ranking.getSub(pRankItem,0)
+    if Str and Str ~= "-" then
+      EveryDayDrawYBPrint("recode Str : "..Str)
+      ReciveTable = SimpleTool.Split(Str,",")
+    end
+
+  end
+  
+  return ReciveTable,pRankItem 
+  
+end  
+
+
+--客户端查询当前的状态
+function ClientQueryTodayDrawYuanBaoGiftCount(sysarg)
+  local pRanking = Ranking.getRanking("WithDrawYuanBaoPerDay")  --获得成就排行榜记录的元宝数量
+  --local pRanking = Ranking.getRanking(EveryDayDrawYuanBaoGiftRankingConfig.RankName)  --获得成就排行榜记录的元宝数量 
+  
+  local TodayDrawYuanBao = 0
+  local TodayReciveState = ""
+  if pRanking then
+ 	local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+    if pRankItem then
+      TodayDrawYuanBao = Ranking.getPoint(pRankItem) 
+    end
+  
+  else
+    --print(" 每日充值 GetRank nil ==  "..EveryDayDrawYuanBaoGiftRankingConfig.RankName)
+  end
+  
+  local RCTable = GetTodayDrawYBAwardReciveState_EveryDay(sysarg)
+  
+  local nCount = #RCTable 
+  for i = 1, nCount do
+    TodayReciveState = TodayReciveState..RCTable[i]
+    if nCount ~= i then
+      TodayReciveState = TodayReciveState..","
+    end
+  end
+  
+  local Data = DataPack.allocPacket(sysarg,139,81)
+   DataPack.writeByte( Data,1)
+  --自己今日的充值
+   DataPack.writeInt(Data,TodayDrawYuanBao)
+  --自己今日的领取记录
+   DataPack.writeString(Data,TodayReciveState)
+   DataPack.flush(Data)
+   EveryDayDrawYBPrint(string.format("Today YB : %d , Str is : %s",TodayDrawYuanBao,TodayReciveState))
+end
+
+
+--发送领取每日充值礼包的结果返回 
+function SendEveryDayDrawYBRet(sysarg,nRetCode)
+
+   local Data = DataPack.allocPacket(sysarg,139,81)
+   DataPack.writeByte( Data,2)
+   DataPack.writeByte(Data,nRetCode)
+   DataPack.flush(Data)
+   EveryDayDrawYBPrint(string.format("SendEveryDayDrawYBRet : "..nRetCode))
+end
+
+--客户端请求领取当前的元宝礼包奖励 
+function ClientWantReciveEveryDayDrawYuanBaoAward(sysarg,id)
+     if id == nil then
+       SendEveryDayDrawYBRet(sysarg,1) --表示非法  
+     end 
+     
+     if id < 1 or id > #EveryDayDrawYBGift then
+        SendEveryDayDrawYBRet(sysarg,1) --表示非法
+     end
+
+      
+     local DrawYBCount = GetTodayDrawYBCount_EveryDay(sysarg)
+     local NeedDrawYB = EveryDayDrawYBGift[id].NeedDrawYB
+     if DrawYBCount < NeedDrawYB then
+       SendEveryDayDrawYBRet(sysarg,2) --表示充值的元宝不够 
+       return
+     end
+        
+     local ReciveTable,pRankItem = GetTodayDrawYBAwardReciveState_EveryDay(sysarg)  
+
+     for i = 1 ,#ReciveTable do
+       if tonumber(ReciveTable[i]) == id then
+         SendEveryDayDrawYBRet(sysarg,3) --表示已经领取过了 
+         return
+       end 
+     end
+     
+
+       
+     local NeedBagSpace = EveryDayDrawYBGift[id].NeedBagSpace
+     local GridCount = Item.getBagEmptyGridCount(sysarg)
+     if NeedBagSpace > GridCount then
+        Actor.sendTipmsg(sysarg, string.format(Lang.Activity.a00043, (NeedBagSpace-GridCount)), ttFlyTip)
+        SendEveryDayDrawYBRet(sysarg,4) --表示背包空间不足 
+       return 
+     end
+       
+     table.insert(ReciveTable,tostring(id))
+     local Str = ""
+     local nCount = #ReciveTable 
+   
+     for i = 1 ,nCount do
+       Str = Str..ReciveTable[i]
+       if i ~= nCount then
+         Str = Str..","
+       end 
+     end
+   
+     EveryDayDrawYBPrint("设置每日充值奖励字符串："..Str)
+     Ranking.setSub(pRankItem,0,Str)
+   
+     local Awards = EveryDayDrawYBGift[id].Award
+     for i = 1, #Awards do
+       local a = Awards[i] 
+       Actor.giveAward(sysarg,a.type , a.id , a.count , a.quality , a.strong,
+       a.bind,0, 1001,"PerDayDrawYBGift") 
+             
+     end
+       
+     SendEveryDayDrawYBRet(sysarg,0) --表示成功了 
+
+end
+
+
+
+
+
+
+
+function EveryDayDrawYuanBaoGift_Init(npcobj)
+    local config = EveryDayDrawYuanBaoGiftRankingConfig
+    
+    --[[ 
+    local pRanking = Ranking.add(config.RankName,30,0)
+    if pRanking == nil then
+      print("每日充值Create Ranking == nil")  
+    else
+      Ranking.addColumn(pRanking,"Record",-1) 
+    end   
+    Ranking.load(pRanking,config.RankFile)  --]]
+   	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function EveryDayDrawYuanBaoGift_Final(npcobj)
+    EveryDayDrawYBPrint("Final : EveryDayDrawYuanBaoGift_Final")
+	local config = EveryDayDrawYuanBaoGiftRankingConfig	
+    --[[local pRanking = Ranking.getRanking(config.RankName) 
+    
+    if pRanking == nil then
+      print("每日充值Save Ranking == nil")
+    else
+      Ranking.save(pRanking,config.RankFile) 
+    end --]]
+    Rank.Fina(config.RankName, config.RankFile)
+end
+
+table.insert(InitFnTable,EveryDayDrawYuanBaoGift_Init)
+table.insert(FinaFnTable,EveryDayDrawYuanBaoGift_Final)
+
+------------------------------消息处理部分------------------------------------
+MiscsImplement.registerMsgHandler(84, MiscsImplement.EveryDayDrawYuanBaoGiftMsg)

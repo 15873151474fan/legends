@@ -1,0 +1,28 @@
+﻿--lua script
+--[[
+    学会技能就会完成的任务的定义 
+]]
+EventCallDispatcher._SkillQuestData = 
+{
+	[3] = { qid = 147, tid = 30002, },		--511是技能id，qid是任务id，tid是指在任务配置表中写的那个id,注：这每一条的意思是，学会了技能511，就可以完成任务777
+   [16] = { qid = 147, tid = 30002, },			--由于存在不同的职业学不同的技能然后完成同一个任务的情况，所以，这里会有8条(8个职业)相同任务的对应不同的技能
+   [45] = { qid = 147, tid = 30002, },
+   [30] = { qid = 147, tid = 30002, },
+   [59] = { qid = 147, tid = 30002, },
+   [70] = { qid = 147, tid = 30002, },
+   [83] = { qid = 147, tid = 30002, },
+   [96] = { qid = 147, tid = 30002, },
+  
+} 
+
+
+
+EventCallDispatcher.OnLearnSkill = function (sysarg,arg)
+	local qData = EventCallDispatcher._SkillQuestData[arg[1]]
+	if qData then
+		Actor.setQuestValue(sysarg, qData.qid, qData.tid, 1)
+	end
+	
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeLearnSkill, EventCallDispatcher.OnLearnSkill)

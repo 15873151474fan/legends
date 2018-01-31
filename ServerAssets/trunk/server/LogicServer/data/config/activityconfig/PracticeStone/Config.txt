@@ -1,0 +1,28 @@
+--练功石配置
+--#include "data\language\LangCode.txt"
+
+PracticeStoneConfig = 
+{
+	nMonsterID = 1232,
+
+	attackAward = 
+	{
+		--totalExp = (exp + damage * coefficient) * randomCoefficient / 100
+		coefficient = 0.0000,		--系数
+		randomCoefficient = {400, 600},	--随机系数
+		normal =			--普通时段
+		{
+			{type = 20, id = 5, count = 1, quality = 0, param = 3},
+		},
+		special = 			--加成时段
+		{
+			{type = 20, id = 5, count = 10, quality = 0, param = 3},
+		},
+	},
+
+	--大力丸的buff
+	AddExpBuff = 
+	{
+		{buffType = 144, value = 10, buffGroup = 81, times = 1, interval = 600, needDelete = true, timeOverlay = false, buffName = Lang.Activity.a00215},
+	},
+}

@@ -1,0 +1,229 @@
+﻿
+--#include "data\config\guide\GroupOn.txt" once --团购
+--#include "RankInit.txt" once
+
+--下发团购数据
+function SendGroupOnData(sysarg, libId, oneTimes, totalTimes, overTime)
+	local npack = DataPack.allocPacket(sysarg, 139, 70)
+	if not npack then return end
+	DataPack.writeByte(npack, libId)
+	DataPack.writeByte(npack, oneTimes)
+	DataPack.writeUInt(npack, totalTimes)
+	DataPack.writeUInt(npack, overTime)
+	
+	DataPack.flush(npack)
+end
+
+function SendGroupOnDataChg(sysarg, oneTimes, totalTimes)
+	local npack = DataPack.allocPacket(sysarg, 139, 71)
+	if not npack then return end
+	DataPack.writeByte(npack, oneTimes)
+	DataPack.writeUInt(npack, totalTimes)
+	
+	DataPack.flush(npack)
+end
+
+
+function OnGroupOnBuyItem(sysarg, id)
+	if not sysarg then return end
+	local config = GroupOn
+	if not config then return end
+	
+	local libId, startTime, overTime, times = System.getGroupOnData(0,0,0,0);
+	if id ~= libId or overTime == 0 then 
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.groupon001, ttFlyTip)
+		return 
+	end
+	
+	if startTime ~= 0 or overTime == 0 then return end
+	local libConfig = GetGroupOnConfig(config, libId)
+	if not libConfig then return end
+	
+	local ranking = Ranking.getRanking(GroupOnRankPt.RankName)
+	if not ranking then return end
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(ranking, userId)
+	local buyCount = 0;
+	if pItem then
+		buyCount = Ranking.getPoint(pItem)
+	end
+	
+	local hasCount = libConfig.limitTimes - buyCount
+	
+	if hasCount <= 0 then	--购买次数用完
+		return
+	end
+	
+	local awards = {}
+	table.insert(awards, libConfig.awardItem)
+	
+	if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+	
+	if Actor.getMoneyCount(sysarg, mtYuanbao) < libConfig.price then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.groupon002, ttFlyTip)
+		return
+	end
+	
+	if Actor.changeMoney(sysarg, mtYuanbao, -libConfig.price, 913, Lang.LogTips.l00166) ~= true then
+		return
+	end
+	
+	Awards.Give(sysarg, awards, 913, Lang.LogTips.l00166) 
+	
+	local desc = Item.getAwardDesc(libConfig.awardItem.type,libConfig.awardItem.id,true)
+	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.groupon003,desc), ttFlyTip)
+	
+	System.broadcastTipmsg(string.format(Lang.ScriptTips.groupon004, Actor.getName(sysarg), desc), ttScreenCenter+ttChatWindow)
+	
+	if pItem then
+		pItem = Ranking.updateItem(ranking, userId, 1)	--增加一次购买次数
+	else
+		pItem = Ranking.addItem(ranking, userId, 1)
+	end
+	
+	if not pItem then return end;
+	
+	hasCount = libConfig.limitTimes - Ranking.getPoint(pItem)
+	
+	if hasCount < 0 then hasCount = 0 end
+	
+	local totalTimes = times + 1
+	System.setGroupOnBuyCount(totalTimes)
+	
+	SendGroupOnDataChg(sysarg, hasCount, totalTimes)
+	
+	
+	local npack = DataPack.allocPacketEx()
+	if not npack then return end
+	DataPack.writeByte(npack, 139)
+	DataPack.writeByte(npack, 72)
+	
+	DataPack.writeUInt(npack, totalTimes)
+	
+	Actor.worldBroadCastMsg(npack)
+	
+	DataPack.freePacketEx(npack)
+	
+end
+
+--角色登录处理
+function OnGroupOnActorLogin(sysarg)
+
+	local config = GroupOn
+	if not config then return end
+	
+	local libId, startTime, overTime, times = System.getGroupOnData(0,0,0,0);
+	if startTime ~= 0 or overTime == 0 then return end
+	local libConfig = GetGroupOnConfig(config, libId)
+	if not libConfig then return end
+	
+	local ranking = Ranking.getRanking(GroupOnRankPt.RankName)
+	if not ranking then return end
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(ranking, userId)
+	local buyCount = 0;
+	if pItem then
+		buyCount = Ranking.getPoint(pItem)
+	end
+	
+	local hasCount = libConfig.limitTimes - buyCount
+	if hasCount < 0 then hasCount = 0 end
+
+	SendGroupOnData(sysarg, libId, hasCount, times, overTime)
+end
+
+function GrouponStart()
+
+	local ranking = Ranking.getRanking(GroupOnRankPt.RankName)
+	if not ranking then return end
+	
+	Ranking.clearRanking(ranking)
+	
+	local config = GroupOn
+	if not config then return end
+	
+	local libId, startTime, overTime, times = System.getGroupOnData(0,0,0,0);
+	local libConfig = GetGroupOnConfig(config, libId)
+	if not libConfig then return end
+	
+	local totalTimes = math.random(libConfig.initTimes[1], libConfig.initTimes[2])
+	System.setGroupOnBuyCount(totalTimes)	--初始总购买次数
+	
+	local players = LuaHelp.getAllActorList()
+	if not players then return end
+	
+	for k, v in ipairs(players) do
+		OnGroupOnActorLogin(v)
+	end
+end
+
+function GrouponOver()
+
+	local ranking = Ranking.getRanking(GroupOnRankPt.RankName)
+	if not ranking then return end
+	
+	local config = GroupOn
+	if not config then return end
+	local libId, startTime, overTime, times = System.getGroupOnData(0,0,0,0);
+	local libConfig = GetGroupOnConfig(config, libId)
+	if not libConfig then return end
+	
+	
+	local awardConfig = nil
+	for i = table.getn(libConfig.retAwards), 1, -1 do
+		if times >= libConfig.retAwards[i].times then
+			awardConfig = libConfig.retAwards[i].awards
+			break
+		end
+	end
+	
+	--结束返利
+	if awardConfig ~= nil then
+		local buyPlayers = LuaHelp.getRankingItemList(ranking, 100000)
+
+		for k, v in pairs(buyPlayers) do
+			if v then
+				local actorid = Ranking.getId(v)
+				for m, n in ipairs(awardConfig) do
+					local moneyType = Awards.IsMoneyType(n.type)
+					if moneyType > 0 then
+						System.addChangeMoneyMsgById(actorid, 0, Lang.ScriptTips.groupon005, "", moneyType, n.count, 913, Lang.LogTips.l00165,true)
+					elseif n.type == 0 then
+						System.addItemMsgById(actorid, 0, n.id, n.count, 1, Lang.ScriptTips.groupon005, Lang.ScriptTips.groupon006, 913, Lang.LogTips.l00165,true,38)
+					end
+				end
+			end
+		end
+	end
+	
+	Ranking.clearRanking(ranking)
+	
+	local npack = DataPack.allocPacketEx()
+	if not npack then return end
+	DataPack.writeByte(npack, 139)
+	DataPack.writeByte(npack, 70)
+	
+	DataPack.writeByte(npack, libId)
+	DataPack.writeByte(npack, 0)
+	DataPack.writeUInt(npack, 0)
+	DataPack.writeUInt(npack, 0)
+	
+	Actor.worldBroadCastMsg(npack)
+	
+	DataPack.freePacketEx(npack)
+	
+	System.broadcastTipmsg(Lang.ScriptTips.groupon007, ttScreenCenter+ttChatWindow)
+	
+end
+
+function GetGroupOnConfig(config, libId)
+	for k, v in ipairs(config) do
+		if v.id == libId then
+			return v
+		end
+	end
+	return nil
+end
+
+
+

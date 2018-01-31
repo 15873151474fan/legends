@@ -1,0 +1,111 @@
+﻿-- 阵营徽章兑换NPC脚本处理逻辑
+--#include "data\config\camp\CampJiangHuDiWei.txt" once
+
+local ModuleConstDefine = {
+	minExchangeBadgeLevelLmt = 20,	-- 能兑换江湖地位徽记的最低等级
+}
+
+
+-- 阵营徽章兑换处理
+function ExchangeBadgeMain(sysarg)
+	local str = ""
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if (level < ModuleConstDefine.minExchangeBadgeLevelLmt) then return "" end
+	return Lang.ScriptTips.c000080
+end
+
+-- 兑换徽记交互显示
+function ReqExchangeBadge(sysarg)
+  local str = ""
+  local camp = Actor.getCamp(sysarg)
+  if (camp == nil) then 
+  	return
+  end
+  
+  local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if (level < ModuleConstDefine.minExchangeBadgeLevelLmt) then
+		return Lang.ScriptTips.c000085
+	end
+	
+  local status = Camp.getJHDW(sysarg)
+  if (status <= 0 or status > 10) then
+  	return Lang.ScriptTips.c000084
+  end
+  
+  -- 获取玩家当前江湖地位名称
+  local strCurStatus =  CampJHDW[status+1].title
+  local bagdeId = CampJHDW[status+1].equipitem    
+  if (strCurStatus ~= nil) then  	
+  	local strBadgeName = Item.getItemName(bagdeId)    	
+  	str = string.format(Lang.ScriptTips.c000081, strCurStatus, strBadgeName)
+  end
+  return str .. Lang.ScriptTips.c000082  
+end
+
+-- 执行兑换处理
+function DoExchangeBadge(sysarg)
+	local status = Camp.getJHDW(sysarg)		-- 当前江湖地位
+	if (status <= 0 or status > 10) then
+		return Lang.ScriptTips.c000084		
+	end
+	
+	-- 获取当前江湖地位对应的徽记物品Id	
+	local newBadgeItemId = CampJHDW[status+1].equipitem  	
+	-- 查找玩家身上(背包和装备栏)现在的徽记
+	local itemInEquip = false
+	local badgeItem
+	badgeItem, itemInEquip = Item.getItemByType(sysarg, Item.itBadge, true, itemInEquip)
+	if (badgeItem == nil) then		
+	else
+		-- 当前玩家有徽记，检测徽记物品id是否一样
+		local curBadgeItemId = Item.getItemProperty(sysarg, badgeItem, Item.ipItemID, 0)
+		if (curBadgeItemId == newBadgeItemId) then
+			return Lang.ScriptTips.c000083	
+		end		
+	end
+	
+	-- 检测背包是否有一个空槽位
+	if (Item.getBagEmptyGridCount(sysarg) < 1) then
+		return Lang.ScriptTips.c00007		
+	end
+	
+	local oldItemStrong = 0
+	local gemProps = {
+		{ openFlagProp = Item.ipItemHole1IsOpen, gemIdProp = Item.ipItemHole1Item, openHole = false, gemId = -1,},
+		{ openFlagProp = Item.ipItemHole2IsOpen, gemIdProp = Item.ipItemHole2Item, openHole = false, gemId = -1,},
+		{ openFlagProp = Item.ipItemHole3IsOpen, gemIdProp = Item.ipItemHole3Item, openHole = false, gemId = -1,},
+	}
+	if (badgeItem ~= nil) then
+		oldItemStrong = Item.getItemProperty(sysarg, badgeItem, Item.ipItemStrong, 0)
+		for i=1, table.getn(gemProps) do
+			if (Item.getItemProperty(sysarg, badgeItem, gemProps[i].openFlagProp, 0) ~= 0) then
+				-- 如果原来的徽记对应槽位有宝石，就记录下来
+				gemProps[i].openHole = true
+				gemProps[i].gemId = Item.getItemProperty(sysarg, badgeItem, gemProps[i].gemIdProp, 0)
+			end
+		end
+	end
+	
+	-- 删除原来的徽记（可能在背包中，也可能在装备栏）
+	local count = Item.getItemProperty(sysarg, badgeItem, Item.ipItemCount, 0)
+	if (itemInEquip == false) then
+		Item.removeItem(sysarg, badgeItem, count, "exchange badge", 64)
+	else
+		Item.removeEquip(sysarg, badgeItem, "exchange badge", 64)
+	end
+	
+	-- 添加一个新的徽记
+	local newItem = Item.createItem(newBadgeItemId, 1, oldItemStrong, CampJHDW[status+1].itemquality, 1);
+	Item.addItem(sysarg, newItem, "exchange badge", 65)
+	for i=1, table.getn(gemProps) do
+		if (gemProps[i].openHole == true) then
+			Item.setItemProperty(sysarg, newItem, gemProps[i].openFlagProp, 1)			
+			if (gemProps[i].gemId > 0) then
+				Item.setItemProperty(sysarg, newItem, gemProps[i].gemIdProp, gemProps[i].gemId)
+			end
+		end
+	end	
+	Actor.closeNPCDialog(sysarg)
+end
+
+table.insert(MainFnTable, ExchangeBadgeMain)

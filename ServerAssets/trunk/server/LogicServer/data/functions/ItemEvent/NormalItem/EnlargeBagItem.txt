@@ -1,0 +1,29 @@
+--类似开箱子的道具，按怪物的掉落爆出物品
+
+--添加配置
+--#include "data/config/item/BagConfig.txt" once
+
+--[[
+--扩展背包的物品 
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表，如果单独调用的话，这里是需要背包格子的数量 
+--]]
+function EnlargeBagItemFunc(sysarg,itemidx,itemPtr,ItemTable)  
+  local grid =  ItemTable.gridCount           --不合法的配置 
+  if(grid==nil or grid <0) then return end
+  if( Actor.enlargeBag(sysarg,grid) ) then
+     Actor.removeItemByPtr(sysarg,itemPtr,1,true,"enlarge bag",5)      --删除一个物品
+  end
+end
+
+function EnargeItemsInit(sysarg)
+  for i = 1,table.getn(EnlargeBagItem) do
+    local x = EnlargeBagItem[i]
+    --如果只执行爆率的话，那么就注册调用函数 
+    GlobalItemFn[x.item_id] = { func = EnlargeBagItemFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable,EnargeItemsInit )

@@ -1,0 +1,63 @@
+﻿{
+	id = 739,
+	name = Lang.Quest.q01473,
+	parentid = 738,
+	type = 1,
+	level = 0,
+	cangiveup = true,
+	content = Lang.Quest.q01474,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00032,  
+    npc = Lang.EntityName.n00097,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00032,  
+	npc = Lang.EntityName.n00097,
+  },
+
+  target =
+  { 
+      { type = 1, id = 1460, count = 18,location={ sceneid=33,entityName=Lang.EntityName.m00112} },
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 243593,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 33475,  bind = true, job = 0, sex = -1, group=0 },
+ },
+  --任务条件表
+  conds =
+  {
+
+        { type = 0, id = 0,count = 29 },  --30级可接
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t02623,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t02624,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t02625,
+  }, 
+
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {1460, 18}, 
+  --放弃任务后删掉任务物品
+  	GiveUpCallBack = "OnGvupRemItem",
+	GiveUpCallBackArg = {1460},  
+},  
+           

@@ -1,0 +1,61 @@
+﻿
+--猛毒第1级
+{
+
+	actions=
+	{
+		{act=0,effect=26},
+	},
+
+	desc=Lang.Skill.s32L1Desc,
+
+	iconID=19,
+
+	actRange=
+	{
+		{
+			xStart=-1,
+			xEnd=1,
+			yStart=-1,
+			yEnd=1,
+
+			rangeType=2,
+			rangeCenter=0,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=13,value=1},
+						{cond=17,value=23,param=34},
+						{cond=17,value=27,param=35},
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=800,rate=10000},
+						{mj=0,timeParam=1,type=32,delay=800,id=34,buffType=23,rate=-3000,rateType=2,value=-50,interval=1,intervalRate=400,intervalAddType=2,colorPriority=5,color=16711680},
+						{mj=0,timeParam=1,type=32,delay=800,id=35,buffType=27,rate=-3000,rateType=2,value=-50,interval=1,intervalRate=400,intervalAddType=2,colorPriority=5,color=16711680},
+					},
+
+					specialEffects=
+					{
+						{type=6,mj=0,id=27,keepTime=400,delay=800,always=false},
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+	},
+
+	spellConds=
+	{
+	},
+
+	singTime=0,
+
+	cooldownTime=8000,
+},

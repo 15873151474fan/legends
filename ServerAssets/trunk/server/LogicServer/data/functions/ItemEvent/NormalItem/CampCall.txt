@@ -1,0 +1,59 @@
+--lua script
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\camp\CampTitle.txt" once
+
+local CallLevel = 30
+local DELAYTIME = 3000
+local CanCallCampTitles = {1,2,3,4,5,6,7}
+
+
+
+function CallCampPlayerInit( sysarg )
+	for i = 1,table.getn(CampCallItem) do
+		local x = CampCallItem[i]
+		GlobalItemFn[x.item_id] = { func = startDelayCampCall, params = x }
+	end
+end
+
+function CanCampCall( titleId )
+	for _, id in ipairs(CanCallCampTitles) do
+		if titleId == id then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+function startDelayCampCall(  sysarg, itemidx,itemPtr,ItemTable )
+	local campTitleId = Actor.getCampTitle(sysarg)
+	if not CanCampCall(campTitleId) then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.tf00055, ttDialog)
+		return 
+	end
+	if Actor.getFubenId(sysarg) > 0 then
+		return
+	end
+	
+	--[[
+	local result = false
+	local postint,result = Actor.postEntityScriptDelayMsg(sysarg, DELAYTIME, result, 12, ItemTable.item_id)
+    if not result then
+ 		return 
+	end
+	local npack = DataPack.allocPacket(sysarg,139,4)
+	if npack then
+		DataPack.writeInt(npack,postint)
+		DataPack.writeInt(npack,DELAYTIME)
+		DataPack.writeByte(npack,1)
+		DataPack.writeByte(npack,1)
+		DataPack.writeString(npack,Lang.ScriptTips.tf00056)
+		DataPack.flush(npack)
+	end
+	--]]
+	Actor.startSingWnd(sysarg,12,DELAYTIME,Lang.ScriptTips.tf00056,true,true,false,ItemTable.item_id)
+end
+
+table.insert(InitFnTable, CallCampPlayerInit)

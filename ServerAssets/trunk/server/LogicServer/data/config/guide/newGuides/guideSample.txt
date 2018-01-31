@@ -1,0 +1,392 @@
+﻿--指引编辑说明文件 李昀 11.18
+{
+  maxLevel = 45,  --指引发生的最高等级限制
+  guidePlace = 1,  --指引显示 1代表显示指引，默认不显示 
+  --触发条件列表
+  triggerList =
+  {
+        { type = 1, valueList = {1472,}},      --有这个任务
+        { type = 4, valueList = {733,}},       --有这个物品
+		--[[
+		static public const GTT_DOING_QUEST:int = 1;//正在做某个任务
+		static public const GTT_QUEST_DONE:int = 2;//任务已经完成
+		static public const GTT_AVAILABLE_QUEST:int = 3;//可以接受某个任务
+		static public const GTT_RECEIVE_ITEM:int = 4;//有这个物品
+		static public const GTT_LEVEL:int = 5;     //等级等于 {0,50}前面是转数 
+		static public const GTT_JOB:int = 6;      //是对应职业	
+		]]
+  } ,
+  
+
+  --引导的步骤 
+  steps = 
+  {
+
+    --第1步 指向导航标签
+    { 
+      --条件列表 只有满足条件才会执行 	
+      condList = 
+      {
+	 { type = 1,  helpId = 50, dataList = {0,} },       --任务追踪面板可见
+	 { type = 15,  helpId = 51, dataList = {1,} },      --任务追踪面板没有选中第一项
+	 --[[
+		//条件的类型定义
+		static public const GSCT_DEFAULT:int = 0;//直接执行引导
+		
+		static public const GSCT_UI_VISIBLE:int = 1;//组件可见
+		static public const GSCT_UI_INVISIBLE:int = 2;//组件不可见
+		
+		static public const GSCT_UI_NAVBAR_SELECTED:int = 3;//导航条选中项索引
+		static public const GSCT_UI_NAVBAR_NOT_SELECTED:int = 4;//导航条没选中指定索引
+		
+		static public const GSCT_QUEST_HAS_DOING:int = 5;    //存在任务(doing)
+		static public const GSCT_QUEST_NO_DOING:int = 6;     //不存在任务(doing)
+		
+		static public const GSCT_TASK_DOING:int = 7;      //任务进行中
+		static public const GSCT_TASK_DOWN:int = 8;   //任务完成
+		
+		static public const GSCT_GAME_COM_HAS_DATA:int = 9;   //指定的ui组件有数据
+		static public const GSCT_GAME_COM_NO_DATA:int = 10;   //指定的ui组件没有数据
+		
+		static public const GSCT_QUEST_HAS_AVAILABLE:int = 11;    //存在可接任务
+		static public const GSCT_QUEST_NO_AVAILABLE:int = 12;     //不存在可接任务
+		
+		static public const GSCT_BAG_HAS_ITEM:int = 13;    //背包存在物品
+		static public const GSCT_BAG_NO_ITEM:int = 14;     //背包不存在物品
+		
+		static public const GSCT_MAP_HERE:int = 15;      //在指定地图
+		static public const GSCT_MAP_NOTHERE:int = 16;   //不在指定地图
+		
+		static public const GSCT_STAND_ON_POINT:int = 17;    //在指定坐标
+		static public const GSCT_STAND_OFF_POINT:int = 18;     //不在指定坐标
+		
+		static public const GSCT_NPC_SELECTED:int = 19;      //选中指定npc
+		static public const GSCT_NPC_NOT_SELECTED:int = 20;   //没选中npc
+		
+		static public const GSCT_ACTOR_WEAR_EQUIP:int = 21;//身上存在指定装备
+		static public const GSCT_ACTOR_NOT_WEAR_EQUIP:int = 22;//身上不存在指定装备
+		
+		static public const GSCT_BELLE_REFRESH_NO:int = 23;//没刷新过美女
+		static public const GSCT_BELLE_REFRESH_HAD:int = 24;//刷新过美女
+		
+		static public const GSCT_VIP_YES:int = 25;//是VIP
+		static public const GSCT_VIP_NO:int = 26;//不是VIP
+		
+		static public const GSCT_VIP_GETAWARD_YES:int = 27;//领取了奖励
+		static public const GSCT_VIP_GETAWARD_NO:int = 28;//没领取奖励
+		
+		static public const GSCT_SLG_YES:int = 29;   //玩过战力竞技
+		static public const GSCT_SLG_NO:int = 30;    //没玩过
+		
+		static public const GSCT_RAIDS_YES:int = 31;  //玩过战神史册
+		static public const GSCT_RAIDS_NO:int = 32;  //没玩过战神史册
+		
+		static public const GSCT_MOUNT_HAS_TIME:int = 33;   //有时效坐骑
+		static public const GSCT_MOUNT_NO_TIME:int = 34;    //没有时效坐骑
+		
+		static public const GSCT_MOUNT_IS_SELECTED_GRID:int = 35;   //选中了时效坐骑的网格
+		static public const GSCT_MOUNT_NOT_SELECTED_GRID:int = 36;    //没选中时效坐骑的网格
+		
+		static public const GSCT_BTN_NO_CLICK:int = 37;//指定某按钮不能点击   StatusScaleSprite以及SimpleButton
+		static public const GSCT_BTN_CAN_CLICK:int = 38;//指定某按钮能点击  StatusScaleSprite以及SimpleButton
+		
+		static public const GSCT_SYSTEM_HINT_NO_DATA:int = 39;//指定系统提示中没有指定数据
+		static public const GSCT_SYSTEM_HINT_HAS_DATA:int = 40 //指定系统提示中有指定数据
+		
+		static public const GSCT_WIN_NOT_OPENED:int = 41;//指定某窗口之前没有打开过
+		static public const GSCT_WIN_OPENED:int = 42;//指定某窗口打开过
+		
+		static public const GSCT_COPY_PASS:int = 43;//副本完成了---
+		
+		
+		44 = 武灵领取
+        45 = 武灵激活
+        46 = 武灵是否激活
+        47 = 没有选中第一把武灵
+        48 = 武灵已觉醒
+        49 = 武灵没觉醒 
+		50 = 没有领取过武灵 
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		ui_help_ID:
+		
+		
+				//导航栏相关
+		static public const NAV_BUTTON_ROLE:int = 1;//角色按钮
+		static public const NAV_BUTTON_BAG:int = 2;//背包按钮(游戏导航按钮)
+		static public const NAV_BUTTON_HONOUR:int = 3;//荣誉
+		static public const NAV_BUTTON_AUTOFIGHT:int = 4;//挂机按钮
+		static public const NAV_BUTTON_COPY_OUT:int = 5;//退出副本
+		static public const NAV_BUTTON_XP:int = 6;  //XP技能按钮
+		static public const NAV_BUTTON_MINE:int = 7;  //自动挖矿按钮
+		static public const NAV_BUTTON_EQUIPBOOST:int = 8;  //锻造按钮
+		static public const NAV_BUTTON_VIP:int = 9;   //VIP
+		static public const NAV_BUTTON_FRIEND: int = 10;//社交
+		static public const NAV_BUTTON_PK_MODE_BTN: int = 11;//pk模式按钮
+		static public const NAV_BUTTON_SKILL:int=12;//技能
+		
+		//导航用到的特殊窗口从19开始倒数
+//		static public const GUIDE_WIN_PET:int = 19;   //宠物的特殊窗口
+//		static public const GUIDE_WIN_MOUNT:int = 18;   //宝物的特殊窗口
+		
+		//背包界面相关
+		static public const WIN_BAG:int = 20;//背包窗口
+		static public const WIN_BAG_GRID:int = 21;//背包窗口 物品网格
+		static public const WIN_BAG_NAV:int = 22;  //背包分页的导航
+		
+		//装备回收的面板
+		static public const WIN_ITEMRECOVER:int = 30;
+		static public const WIN_ITEMRECOVER_BAGGRID:int = 31;   //背包的网格
+		static public const WIN_ITEMRECOVER_COMMONBTN:int = 32;   //普通按钮
+		static public const WIN_ITEMRECOVER_GRID:int = 33;      //回收网格
+		
+		//NPC对话框
+		static public const WIN_NPC_TALK:int = 40;   //npc对话框
+		static public const WIN_NPC_BUTTON_TASK:int = 41;  //npc对话框的按钮
+		static public const WIN_NPC_LIST_FUNC_DOWN:int = 42; //npc对话框的功能列表   下面的
+		static public const WIN_NPC_LIST_FUNC_UP:int = 43; //npc对话框的功能列表  上面的 是富文本
+	
+		
+		//任务导航面板
+		static public const PANEL_QUEST:int = 50;     //任务导航
+		static public const PANEL_QUEST_NAV:int = 51; //任务导航的导航栏
+		
+		//荣誉窗口
+		static public const WIN_HONOUR:int = 60;  //窗口
+		static public const WIN_HONOUR_LEFT_TITLE:int = 61;   //当前荣誉那个标题titlelabel0
+		static public const WIN_HONOUR_BUFF:int = 62;     //荣誉的buff图标
+		
+		//护送美女
+		static public const WIN_ESCORTBELLE:int = 71;  //窗口
+		static public const WIN_ESCORTBELLE_FRESH_BTN:int = 72;  //刷新按钮
+		static public const WIN_ESCORTBELLE_PROTECTED_BTN:int = 73;  //护送按钮
+		
+		//VIP
+		static public const WIN_VIP:int = 80;   //窗口
+		static public const WIN_VIP_GET_BTN:int = 81;  //领取按钮
+		
+		//npc商店
+		static public const WIN_SHOP_NPC:int = 90;  //npc商店窗口
+		static public const WIN_SHOP_NPC_NAV:int = 91;  //npc商店窗口 导航
+		static public const WIN_SHOP_NPC_GRID:int = 92;  //npc商店窗口 网格
+		
+		//NPC购买窗口
+		static public const WIN_BUY_ITEM_BLUE:int = 100;
+		static public const WIN_BUY_ITEM_BLUE_SUREBTN:int = 101;   //确定按钮
+		
+		//扫荡窗口
+		static public const WIN_RAIDS:int = 110;   //窗口
+		static public const WIN_RAIDS_GRID:int = 111;  //网格
+		
+		//强化窗口
+		static public const WIN_BOOST:int = 120;  //强化窗口
+		static public const WIN_BOOST_NAV_FUNC:int = 121;  //强化窗口的功能的导航
+		static public const WIN_BOOST_NAV_ITEM:int = 122;  //物品栏的导航
+		static public const WIN_BOOST_EQUIP_GRID:int = 123; //装备网格
+		static public const WIN_BOOST_ITEM_GRID:int = 124; //物品网格
+		static public const WIN_BOOST_STRENGTHEN_BTN:int = 125;  //强化的按钮
+		static public const WIN_BOOST_STRENGTHEN_CELL:int = 126;  //强化的cell
+		static public const WIN_BOOST_AUT_BTN:int = 127;  //鉴定的按钮
+		static public const WIN_BOOST_AUT_CELL:int = 128;  //鉴定的cell
+		static public const WIN_BOOST_ROCK_MIX_BTN:int = 129;  //魂石合成按钮
+		static public const WIN_BOOST_ROCK_MIX_CELL:int = 1001;  //魂石合成的策cell   因为超过了,所以后面的都1001开始
+		
+		//战力竞技
+		static public const WIN_SLG:int = 130;   //窗口
+		static public const WIN_SLG_GRID:int = 131;  //网格
+		static public const WIN_SLG_CHALLENG_BTN:int = 132;  //挑战按钮
+		
+		//人物属性
+		static public const WIN_ROLE:int = 140;    //窗口
+		static public const WIN_ROLE_NAV:int = 141;//导航栏
+		static public const WIN_ROLE_MOUNT_YB_BTN:int = 142;  //坐骑元宝提升按钮
+		static public const WIN_ROLE_ROCK_BAG:int = 143;  //魂石页的背包网格
+		static public const WIN_ROLE_MOUNT_TIME_BTN1:int = 144;//坐骑幻化按钮1
+		static public const WIN_ROLE_MOUNT_TIME_BTN2:int = 145;//坐骑幻化按钮2
+		static public const WIN_ROLE_MOUNT_TIME_GRID:int = 146;//坐骑幻化的网格
+		static public const WIN_ROLE_MOUNT_RIDE_BTN:int = 147; //坐骑骑乘按钮
+		static public const WIN_ROLE_MOUNT_TIME_PANEL:int = 148;//时效坐骑面板
+		
+		//活动面板
+		static public const WIN_ACTIVE:int = 150;     //活动面板
+		
+		static public const WIN_MOUNT_WIN:int = 151;
+		//快捷键提示类型
+		static public const Key_Auto_Fight: int = 0;	//自动战斗快捷键提示
+		static public const Key_Team: int = 1;			//组队系统提示
+		static public const Key_Show_Hide: int = 2;		//隐藏显示玩家
+		static public const Key_Lock: int = 3;			//目标锁定
+		static public const Key_Config: int = 4;		//设置
+		static public const Key_Fight: int = 5;			//战士战斗提示
+		static public const Key_PickUp: int = 6;		//拾取
+		
+		
+		//新加 	-- 相关系统的打开按钮-窗口-操作按钮-关闭按钮
+		static public const OPEN_FEATURE_WIN_BTN:int = 149;//特色按钮
+		static public const OPEN_MOUNT_WIN_BTN:int = 150;//坐骑按钮
+		static public const OPEN_WING_WIN_BTN:int = 151;//翅膀按钮
+		static public const OPEN_XM_WIN_BTN:int = 152;//血脉按钮
+		static public const OPEN_YP_WIN_BTN:int = 153;//元魄按钮
+		static public const OPEN_BOSS_WIN_BTN:int = 154;//BOSS按钮
+		static public const OPEN_ACHIEVE_WIN_BTN:int = 155;//成就按钮
+		
+		static public const WIN_MOUNT_ID:int = 160;//坐骑窗口ID
+		static public const WIN_WING_ID:int = 161;//翅膀窗口ID
+		static public const WIN_XM_ID:int = 162;//血脉窗口ID
+		static public const WIN_YP_ID:int = 163;//元魄窗口ID
+		static public const WIN_BOSS_ID:int = 164;//BOSS窗口ID
+		static public const WIN_FEATIRE_ID:int = 165;//特色窗口ID
+		static public const WIN_ACHIEVE_ID:int = 166;//成就窗口ID
+		static public const WIN_BADGE_ID:int = 167;//勋章兑换窗口ID
+		
+		static public const UP_MOUNT_BTN:int = 170;//提升坐骑按钮ID
+		static public const UP_WING_BTN:int = 171;//提升翅膀按钮ID
+		static public const UP_XM_BTN:int = 172;//提升血脉按钮ID
+		static public const UP_YP_BTN:int = 173;////提升元魄按钮ID
+		static public const CHALLENGE_BOSS_BTN:int = 174;//挑战个人BOSS按钮ID
+		static public const ACHIEVE_TOGETHER_GET_BTN :int = 175;//成就一键领取按钮
+		static public const ACHIEVE_OPEN_BADGE_WIN_BTN:int = 176;//打开兑换勋章窗口按钮
+		static public const CONVERSION_BADGE_BNT:int = 177;//兑换按钮勋章
+		
+		static public const CLOSE_MOUNT_WIN_BTN:int = 180;//坐骑关闭窗口按钮ID
+		static public const CLOSE_WING_WIN_BTN:int = 181;//翅膀关闭窗口按钮ID
+		static public const CLOSE_XM_WIN_BTN:int = 182;//血脉关闭窗口按钮ID
+		static public const CLOSE_YP_WIN_BTN:int = 183;//元魄关闭窗口按钮ID
+		static public const CLOSE_BOSS_WIN_BTN:int = 184;//BOSS关闭窗口按钮ID
+		static public const CLOSE_EQUIPBOOST_WIN_BTN:int = 185;//锻造关闭窗口按钮ID
+		static public const CLOSE_ACHIEVE_WIN_BTN:int = 186;//成就关闭按钮
+		static public const CLOSE_ACHIEVE_CONVERSION_WIN_BTN:int = 187;//兑换关闭按钮
+		
+		static public const WIN_BOOST_UPGRADE_BTN:int = 190;//晋升装备按钮
+		static public const WIN_BOOST_UPGRADE_CELL:int = 191; //晋升物品
+		static public const WIN_BOOST_UPGRADE_MATERIAL_CELL1:int = 192;//晋升所需材料1
+		static public const WIN_BOOST_UPGRADE_MATERIAL_CELL2:int = 193;//晋升所需材料2
+		
+		static public const COPY_GET_AWARD:int = 194;//副本一倍领取按钮
+		static public const COPY_NEXT_PASS:int = 201;//爬塔下一关 或 领奖
+		
+		static public const OPEN_LANDING_RECHARGE_WIN_BTN:int = 195;//登录奖励图标按钮
+		static public const WIN_LANDING_RECHARGE_ID:int = 196;//登录奖励界面
+		static public const LANDING_RECHARGE_ITEM_BTN:int = 197;//第1天登录奖励
+		static public const GET_LANDING_RECHARGE_BTN:int = 198;//领取登录奖励
+		
+		static public const BUILD_TOWER_BTN:int = 199;//塔防建造按钮
+		static public const BUILD_TOWER_WIN_ID:int = 200;//塔防建造面板
+		
+		static public const OPEN_SERVICE_ACTIVE_BTN:int = 205;//开服活动按钮
+		static public const WIN_OPEN_SERVICE_ACTIVE:int = 202;//开服活动窗口
+		static public const GET_OPEN_SERVICE_ACTIVE_AWARD:int = 203;//领取开服活动奖励
+		static public const OPEN_SERVICE_ACTIVE_NAVBAR:int = 204;//开服活动tab
+		
+		static public const WIN_EQUIP_RECYCLE_ID:int = 206;//回收窗口
+		static public const ALL_EQUIP_RECYCLE_BTN:int = 207;//一键回收按钮
+		static public const CLOSE_EQUIP_RECYCLE_BTN:int = 208;//回收窗口关闭
+		
+		209 = 成就勋章面板 
+		210 = 成就兑换勋章按钮
+        211 = 列王幻境图标
+        212 = 列王幻境第一关挑战按钮
+        213 = 列王幻境关闭
+        214 = 上古武灵图标按钮
+        215 = 上古武灵导航栏
+        216 = 左侧晶石列表
+        217 = 上古武灵关闭
+        218 = 上古武灵1号孔
+        219 = 上古武灵2号孔
+        220 = 上古武灵3号孔
+        221 = 武灵觉醒按钮
+        222 = 武灵窗口 
+        223 = 领取武灵、激活武灵按钮
+        224 = 第一把武灵选项 
+	 ]]
+      },
+      
+      --执行指引箭头的配置 条件满足后会执行 这个指引动作	  
+      action = { type = 2, helpId = 51, data = 1, pointerValue = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项 
+	  --data 只有在 type = 2 , 3的时候有效 data = 2 为整数 type = 3 为字符串.helpId 为客户端的helpUI ID 是多少需要客户端给一份列表
+	  --pointerValue = 1,  显示desc文字，不配置就是不显示 
+      --[[ 
+	  	static public const GSAT_NORMAL_UI:int = 1;//普通组件，比如按钮
+		static public const GSAT_TAB_NAV_BAR:int = 2;//导航条组件，比如背包的分类导航
+		static public const GSAT_RICHFIELD_TEXT:int = 3;//富文本链接 通常任务的交接 就是这里
+	  ]]
+	  
+	 --[[action 类型
+     package common.Data.guide.std
+{
+	/**
+	 * 步骤未完成时执行的引导动作
+	 * @author WynnLam
+	 *
+	 */
+	public class GuideStepAction
+	{
+		/**
+		 * 动作类型
+		 */
+		static public const GSAT_NORMAL_UI:int = 1;//普通组件，比如按钮
+		static public const GSAT_TAB_NAV_BAR:int = 2;//导航条组件，比如背包的分类导航
+		static public const GSAT_RICHFIELD_TEXT:int = 3;//富文本链接
+		static public const GSAT_CLOSE_WIN:int = 4;//关闭窗口的关闭按钮
+		static public const GSAT_DOING_QUEST_TXT:int = 5;  //当前任务追踪页里的NPC名称或怪物名称
+		static public const GSAT_WIN_OPEN:int = 6;       //打开相关窗口
+		static public const GSAT_UI_DO_ACTION:int = 7;  //指定UI组件做某种动作
+		static public const GSAT_LIST:int = 8;       //列表
+		static public const GSAT_AVAILABLE_QUEST_TXT:int = 9;  //可接任务追踪页里的NPC名称或怪物名称
+		static public const GSAT_ITEM_GRID_CELL:int = 10;//用户物品网格单元格,背包，属性面板，强化都使用此类型
+		static public const GSAT_NPC_SHOP_GRID_CELL:int = 11;       //npc商店的网格
+		static public const GSAT_DOING_QUEST_FASTBTN:int = 12;    //当前任务的 速传按钮
+		static public const GSAT_RAIDS_GRID:int = 13;    //扫荡的网格
+		static public const GSAT_SLG_GRID:int = 14;    //战力竞技
+		static public const GSAT_KEY_SHOW:int = 15;    //显示一个快捷键引导
+		static public const GSAT_MOUNT_TIME_GRID:int = 16;//时效坐骑的网格
+
+		static public const GSAT_MOUNT_TIME_GRID:int = 17;//新加个系统提示（desc：文字，frame=0）
+		static public const GSAT_MOUNT_TIME_GRID:int = 18;//新加地图坐标
+
+        pointerValue = 1, (1，显示DESC文字，0，不显示)
+        rot = (0,180,90,-90)指向右、左、下、上
+        offX=1 (箭头横坐标偏离的值，单位为像素)
+        offY=1（箭头纵坐标偏离的值，单位为像素）
+
+
+		public var type:int;//
+		public var helpId:int;//
+		public var data:*;//
+		public var desc:String;//
+
+		public function GuideStepAction()
+		{
+		}
+	}
+}]] 
+    },
+
+ }
+},

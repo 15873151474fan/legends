@@ -1,0 +1,738 @@
+﻿--lua script
+
+--#include "data\language\LangCode.txt" once --语言包
+
+--#include "data\config\guild\GuildSiegeConfig.txt" once 
+--#include "data\config\guild\FreshSbkMonster.txt" once 
+--#include "data\config\activityconfig\SbkKillRank\SbkKillRank.txt" once
+--#include "data\config\guild\InSbkWardConfig.txt" once
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+--#include "data\functions\Activity\WuLinZhengBa\GmWulinMaster.txt" once
+--#include "data\functions\Activity\CrossServerSbk\CrossCommon.txt" once
+--#include "SbkKillRank.txt" once
+--#include "data\functions\Activity\OpenServerActivity\OpenServerActivityPointer.txt" once --开服活动 
+
+--行会一些定时执行的函数
+
+--沙巴克战预告
+function SbkGuildWarNotice()
+	local nDays = System.getDaysSinceOpenServer()		
+	if System.getDefendSbkGuildId() > 0 and System.getDayOfWeek() == 4 then return end
+
+	System.broadcastTipmsg(Lang.GuildLang.z00056,2+128)
+end
+
+--沙巴克开始
+function StartSbkGuildWar()
+	local RankNameList = Ranking.getRanking(SbkKillRankConfig.SbkLianXuKillNum)
+	if RankNameList then
+		Ranking.clearRanking(RankNameList)
+	end
+	local nDays = System.getDaysSinceOpenServer()		
+	if System.getDefendSbkGuildId() > 0 and System.getDayOfWeek() == 4 then return end
+	System.broadcastTipmsg(Lang.GuildLang.z00057,2+128)
+	
+	--屏蔽场景类的所有npc
+	Fuben.setSceneNpcCanNotSee(GuildSiegeConfig.SbkSceenId,true)
+	Fuben.setSceneNpcCanNotSee(GuildSiegeConfig.PalaceSceenId,true)
+	System.startSbkGuildWar() --开启行会战 
+
+	local playerList = LuaHelp.getSceneActorListById(GuildSiegeConfig.PalaceSceenId)		
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				Actor.updateActorName(player)
+			end
+		end
+	end
+
+	local memplayer = LuaHelp.getSceneActorListById(GuildSiegeConfig.SbkSceenId)		
+	if memplayer ~= nil then
+		for j = 1, #memplayer do
+			local player = memplayer[j]
+			if player then	
+				Actor.updateActorName(player)
+			end
+		end
+	end
+
+	local var = System.getStaticVar()
+	var.getSbkWealState = nil
+	var.GetSbkFashionFlag = nil
+	var.HaveGetSbkAwardFlag = nil
+	var.GetSecSbkGuildAward = nil
+
+	local gVar = System.getDyanmicVar()
+	gVar.StartSbkWarFlag = 1 --攻城战开启状态 
+	gVar.FreshSbkMonsterTimes = nil--怪物刷新波数 
+
+	Actor.regScriptCallback(thisNPC, thisNPC, GuildSiegeConfig.LoopTime, GuildSiegeConfig.LoopTime, -1, "GiveSbkGuildMemExp") --注册自动给奖励函数 
+
+	ClearSbkContinuousRank()--清除沙城连斩排行榜 
+	System.onBroadSbkSkillBotton(1)
+end
+
+--定时给玛沙克皇宫
+function GiveSbkGuildMemExp()
+	local gVar = System.getDyanmicVar()
+	if gVar.StartSbkWarFlag == nil then
+		gVar.StartSbkWarFlag = 0
+	end
+	
+	if gVar.StartSbkWarFlag == 0 then return end
+	local sbkGuildId = System.getOldSbkGuildId()
+	local playerList = LuaHelp.getSceneActorListById(GuildSiegeConfig.PalaceSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local nGuildId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				--print("GiveSbkGuildMemExp4")
+				if nGuildId > 0 and nGuildId ~= sbkGuildId and Actor.isSignUpSbkWar(player) == 1 then--昨天是否已报名且不是原占领行会成员 
+				--print("GiveSbkGuildMemExp5")
+					Actor.giveAward(player,GuildSiegeConfig.LoopExp.type,GuildSiegeConfig.LoopExp.id,GuildSiegeConfig.LoopExp.count,GuildSiegeConfig.LoopExp.quality,GuildSiegeConfig.LoopExp.strong,GuildSiegeConfig.LoopExp.bind,0,205,"sbkPalace award")
+				end
+			end
+		end
+	end
+end
+
+--沙巴克战结束预告
+function EndSbkGuildWarNotice()
+	local nDays = System.getDaysSinceOpenServer()		
+	if System.getDefendSbkGuildId() > 0 and System.getDayOfWeek() == 4 then return end
+
+	System.broadcastTipmsg(Lang.GuildLang.z00058,2+128)
+
+end
+
+--沙巴克战结束
+function EndSbkGuildWarOp()
+	local nDays = System.getDaysSinceOpenServer()		
+	if System.getDefendSbkGuildId() > 0 and System.getDayOfWeek() == 4 then 
+		System.onAutoSignUpSbkWar()
+		return 
+	end
+
+	System.endSbkGuildWar(SbkWarTime.sbkTime)
+	Fuben.setSceneNpcCanNotSee(GuildSiegeConfig.SbkSceenId,false)
+	Fuben.setSceneNpcCanNotSee(GuildSiegeConfig.PalaceSceenId,false)
+	--Fuben.setSceneNpcCanNotSee(GuildSiegeConfig.SecSbkSceneId,false)
+
+	local sbkGuildId = System.getSbkGuildId()
+
+	local playerList = LuaHelp.getSceneActorListById(GuildSiegeConfig.PalaceSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				local nGuildId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+
+				if sbkGuildId == 0 or sbkGuildId ~= nGuildId then
+					Actor.enterScene(player,GuildSiegeConfig.SbkSceenId,unpack(GuildSiegeConfig.exitPos))
+					Actor.updateActorName(player)
+				end
+			end
+		end
+	end
+
+	local playerList1 = LuaHelp.getSceneActorListById(GuildSiegeConfig.SbkSceenId)		--沙巴克区域的玩家
+	if playerList1 ~= nil then
+		for i = 1, #playerList1 do
+			local player1 = playerList1[i]
+			if player1 and  Actor.getSceneAreaFlag(player1) == 1 then	
+				local nGuildId = Actor.getIntProperty( player1, PROP_ACTOR_GUILD_ID )
+
+				if sbkGuildId == 0 or sbkGuildId ~= nGuildId then
+					Actor.enterScene(player1,GuildSiegeConfig.SbkSceenId,unpack(GuildSiegeConfig.exitPos))
+					Actor.updateActorName(player1)
+				end
+			end
+		end
+	end
+
+	Actor.unregScriptCallback(thisNPC, "GiveSbkGuildMemExp")
+	
+	--[[
+	local playerList2 = LuaHelp.getAllActorList()		--获取某场景玩家对象列表
+	if playerList2 ~= nil then
+		for j = 1, #playerList2 do
+			local player2 = playerList2[j]
+			if player2 then
+				local guildId = Actor.getIntProperty( player2, PROP_ACTOR_GUILD_ID )
+				if (guildId == nGuildId or Actor.isSignUpSbkWar(player2) == 1) and Actor.getIntProperty(player, PROP_CREATURE_LEVEL) >= GuildSiegeConfig.TrackMinLevel then
+					Actor.closeActivityWind(player)
+				end
+			end
+		end
+	end
+	]]
+
+	local gVar = System.getDyanmicVar()
+	gVar.StartSbkWarFlag = nil
+
+	if System.getSbkIsChangOwner() == 1 then	--易主刷宝箱
+		for i=1,table.getn(SbkGuildMonsterConfig.SbkBoxs) do
+			local hScene = Fuben.getSceneHandleById(SbkGuildMonsterConfig.SbkBoxs[i].nSceenId, 0)
+			Fuben.createMonsters(hScene, SbkGuildMonsterConfig.SbkBoxs[i].nMonsterID, SbkGuildMonsterConfig.SbkBoxs[i].posX1, SbkGuildMonsterConfig.SbkBoxs[i].posX2, SbkGuildMonsterConfig.SbkBoxs[i].posY, SbkGuildMonsterConfig.SbkBoxs[i].nCount, SbkGuildMonsterConfig.SbkBoxs[i].nLiveTime)
+		end
+	end
+	
+	local gId = System.getSbkOwnGuildid()--第三个开服活动
+    if gId > 0 then
+       local SystemSvar = System.getStaticVar()
+       if not SystemSvar.FisrtAward then 
+          SystemSvar.FisrtAward = 0
+       end
+       if SystemSvar.FisrtAward == 0 then 
+          local MasterId = Guild.getGuildLeaderId(gId)
+          SystemSvar.FisrtAward = 1
+          SbkAwardLog(MasterId, 8, 1)
+       end
+    end
+end
+
+--每天报名刷新
+function SbkGuildStateFresh()
+	System.onBroadSbkSkillBotton(0)
+	System.guildSignUpFlagFresh()
+end
+
+
+--沙巴克开始10分钟的处理
+function SkbStartTenMins()
+	local nDays = System.getDaysSinceOpenServer()		
+	if System.getDefendSbkGuildId() > 0 and System.getDayOfWeek() == 4 then return end
+
+	Fuben.detectOnlyOneGuild(GuildSiegeConfig.PalaceSceenId)
+end
+
+--初始化沙巴克城的状态 
+function OnInitSbkState()
+	for i=0,2 do
+		local nState = System.getSbkWallState(i+1)
+		--print("OnInitSbkState:"..nState)
+		--城墙是好的
+		if nState == 0 then
+			local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.wallMonsters[i+1].Sceneid, 0)
+			Fuben.clearMonster(hScene,GuildSiegeConfig.wallMonsters[i+1].nMonsterID)
+			local nMonster = Fuben.createOneMonsters(hScene, GuildSiegeConfig.wallMonsters[i+1].nMonsterID, GuildSiegeConfig.wallMonsters[i+1].posX1, GuildSiegeConfig.wallMonsters[i+1].posX2, GuildSiegeConfig.wallMonsters[i+1].posY, GuildSiegeConfig.wallMonsters[i+1].nCount, GuildSiegeConfig.wallMonsters[i+1].nLiveTime)
+			System.setWallTepotVisible(true,hScene,GuildSiegeConfig.teleport[i+1].posx,GuildSiegeConfig.teleport[i+1].posy)
+			Actor.setMonsterCanMove(nMonster,true)
+			local nMp = Actor.getIntProperty( nMonster, PROP_CREATURE_MAXHP )
+			System.setSbkWallInfo(nMonster,i+1,0,nMp)
+			Actor.setNpcGuildId(nMonster,System.getSbkGuildId())
+		else
+			local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.wallMonsters[i+1].Sceneid, 0)
+			System.setWallTepotVisible(false,hScene,GuildSiegeConfig.teleport[i+1].posx,GuildSiegeConfig.teleport[i+1].posy)
+		end
+	end
+
+	local nCount = System.getGuardCount()
+	
+	--召唤存在的守卫
+	for i=1,nCount do
+		local nid = System.getGuardId(i-1)
+
+		if nid>0 then
+			local nMp = System.getGuardMp(i-1)
+
+			if nMp > 0 then
+				CallSbkGuard(nid,nMp)
+			end
+		end
+	end
+
+	--[[
+	--召唤箭塔
+	local nArrowCount = System.getArrowCount()
+	if nArrowCount > 0 then
+		local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.ArrowConfig[1].Sceneid, 0)
+		Fuben.clearMonster(hScene,GuildSiegeConfig.ArrowConfig[1].nMonsterID)
+		for j=1,nArrowCount do
+			local nid = System.getArrowId(i)
+			if nid>0 then
+				local nMp = System.getArrowMp(i-1)
+
+				if nMp > 0 then
+					CallSbkArrow(nid,nMp)
+				end
+			end
+		end
+	else
+		local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.ArrowConfig[1].Sceneid, 0)
+		Fuben.clearMonster(hScene,GuildSiegeConfig.ArrowConfig[1].nMonsterID)
+		for i=1,table.getn(GuildSiegeConfig.ArrowConfig) do
+			CallSbkArrow(i,0)
+		end
+	end
+	--]]
+	--if System.isCommonServer() == true then
+		--InitCrossSbkWall()
+	--end
+end
+
+--召唤沙巴克守卫
+function CallSbkGuard(nIndex,nMp)
+	if nIndex > 0 and nIndex <= table.getn(GuildSiegeConfig.archerConfig) then
+		local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.archerConfig[nIndex].Sceneid, 0)
+		Fuben.clearMonster(hScene,GuildSiegeConfig.archerConfig[nIndex].nMonsterID)
+		local nMonster = Fuben.createOneMonsters(hScene, GuildSiegeConfig.archerConfig[nIndex].nMonsterID, GuildSiegeConfig.archerConfig[nIndex].posX1, GuildSiegeConfig.archerConfig[nIndex].posX2, GuildSiegeConfig.archerConfig[nIndex].posY, GuildSiegeConfig.archerConfig[nIndex].nCount, GuildSiegeConfig.archerConfig[nIndex].nLiveTime)
+
+		if (nMonster ~= nil) then
+			Actor.setNpcGuildId(nMonster,System.getSbkGuildId())
+			local nHandle = Actor.getHandle(nMonster)
+
+			System.setSbkGuardState(nMonster,nIndex,nMp)
+			Actor.setMonsterCanMove(nMonster,true)
+		end
+	end
+end
+
+--召唤沙巴克箭塔
+function CallSbkArrow(nIndex,nMp)
+	--[[if nIndex > 0 and nIndex <= table.getn(GuildSiegeConfig.ArrowConfig) then
+		local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.ArrowConfig[nIndex].Sceneid, 0)
+		local nMonster = Fuben.createMonster(hScene, GuildSiegeConfig.ArrowConfig[nIndex].nMonsterID, GuildSiegeConfig.ArrowConfig[nIndex].posX1, GuildSiegeConfig.ArrowConfig[nIndex].posY, GuildSiegeConfig.ArrowConfig[nIndex].nLiveTime)
+		
+		if (nMonster ~= nil) then
+			Actor.setNpcGuildId(nMonster,System.getSbkGuildId())
+			local nHandle = Actor.getHandle(nMonster)
+			if nMp <= 0 then
+				nMp = Actor.getIntProperty( nMonster, PROP_CREATURE_MAXHP )
+			end
+			System.setSbkArrowState(nMonster,nIndex,nMp)
+			Actor.setMonsterCanMove(nMonster,true)
+		end
+	end]]
+end
+
+--城墙怪物死亡
+function OnWallMonsterDie(nx,ny, MonId)
+		--print("OnWallMonsterDie:")
+	if System.isCommonServer() == false then		--如果不是公共服
+		local nCount = table.getn(GuildSiegeConfig.wallMonsters)
+		--print("OnWallMonsterDienx:"..nx)
+		--print("OnWallMonsterDieny:"..ny)
+		for i=1,nCount do
+			--if GuildSiegeConfig.wallMonsters[i].posX1 == nx and  GuildSiegeConfig.wallMonsters[i].posY == ny then
+			if GuildSiegeConfig.wallMonsters[i].nMonsterID == MonId then
+				local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.wallMonsters[i].Sceneid, 0)
+				System.setWallTepotVisible(false,hScene,GuildSiegeConfig.teleport[i].posx,GuildSiegeConfig.teleport[i].posy)
+				System.setSbkWallState(i,1)
+				return
+			end
+		end
+	else
+		OnCrossWallDie(nx,ny)
+	end
+end
+
+--沙巴克守卫死亡
+function OnSbkGuardDie(nx,ny,monId)
+	local nCount = table.getn(GuildSiegeConfig.archerConfig)
+	for i=1,nCount do
+	    if GuildSiegeConfig.archerConfig[i].nMonsterID == monId then 
+		--if GuildSiegeConfig.archerConfig[i].posX1 == nx and  GuildSiegeConfig.archerConfig[i].posY == ny then
+			System.delSbkGuard(i)
+		end
+	end
+end
+
+--提前主题活动第二天预告
+function PreDayNotice()
+	System.broadcastTipmsg(Lang.Activity.w00084,2+128)
+end
+
+--第二日主题活动预告
+function TopicActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.w00085,2+128)
+end
+
+--全民活动播报
+function SecWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00025,2+128)
+end
+
+--23点主题活动结算
+function EndSbkTopicActivity()
+	local nHoure,nMin,nSec = System.getTime(0,0,0)
+	if nMin == 0 then
+		BroadWinSbkEffect()
+		System.onAccountAllActivity(OpenServerConfig.activitys[3].openDays,OpenServerConfig.activitys[3].needValue)
+	end	
+
+	BroadSbkTopicMsg()
+	System.broadcastTipmsg(Lang.Activity.k00026,2+128)
+end
+
+--23点后没6分钟播放一次
+function BroadSbkTopicMsg()
+	local gId = System.getSbkOwnGuildid()
+	
+	if gId > 0 then
+		local ranking = Ranking.getRanking(OpenServerConfig.activitys[3].rankName)
+				
+		if ranking then
+			local bItem = Ranking.getItemFromIndex(ranking,0)
+			
+			if bItem then
+				local sname = Ranking.getSub(bItem,3)
+				local gName = System.getGuildName(gId)
+				if sname ~= nil then
+					local str1 = string.format(Lang.Activity.w00087,gName,sname)
+					System.broadcastTipmsg(str1,2+128)
+
+					local str = string.format(Lang.Activity.w00086,sname,Item.getItemName(OpenServerConfig.activitys[3].awards[1].id))
+					System.broadcastTipmsg(str,2+128)
+				end
+			end
+		end
+	else
+		System.broadcastTipmsg(Lang.Activity.w00088,2+128)
+	end
+end
+
+--播放庆典烟花
+function BroadWinSbkEffect()
+	--[[local gId = System.getSbkOwnGuildid()
+	
+	if gId > 0 then
+		System.broadcastTipmsg(Lang.Activity.t00068,2)
+		local playerList = LuaHelp.getAllActorList()		
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					Actor.playScrEffectCode(player,OpenServerConfig.activitys[3].effectId,OpenServerConfig.activitys[3].lastTime)
+				end
+			end
+		end
+	end]]
+end
+
+--沙巴克怪物进攻刷新
+function FreshSbkMonsterOnTime()
+	--[[local dVal = System.getDyanmicVar()
+	if dVal.FreshSbkMonsterTimes == nil then
+		dVal.FreshSbkMonsterTimes = 1
+	end
+
+	if dVal.FreshSbkMonsterTimes > table.getn(SbkGuildMonsterConfig.monsters) then
+		dVal.FreshSbkMonsterTimes = 1
+	end
+
+	if SbkGuildMonsterConfig.monsters[dVal.FreshSbkMonsterTimes] == nil then return end
+
+	local nGuildMonsterConfig = SbkGuildMonsterConfig.monsters[dVal.FreshSbkMonsterTimes]
+
+	for i=1,table.getn(nGuildMonsterConfig) do
+		local hScene = Fuben.getSceneHandleById(nGuildMonsterConfig[i].nSceenId, 0)
+		Fuben.createMonsters(hScene, nGuildMonsterConfig[i].nMonsterID, nGuildMonsterConfig[i].posX1, nGuildMonsterConfig[i].posX2, nGuildMonsterConfig[i].posY, nGuildMonsterConfig[i].nCount, nGuildMonsterConfig[i].nLiveTime)
+	end
+
+	dVal.FreshSbkMonsterTimes = dVal.FreshSbkMonsterTimes + 1
+	System.broadcastTipmsg(Lang.GuildLang.z00144,2+128)]]
+end
+
+--取消
+function CancleOpenSbkFuben(sysarg)
+	return nil
+end
+
+--行会资金不够的处理
+function OnOpenSbkFubenByYb(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local str = string.format( Lang.GuildLang.z00131,System.getGuildName(nGuildId))
+	local nCount = Actor.getItemCount(sysarg,SbkGuildMonsterConfig.nDrafts.itemId)
+	if nCount >= SbkGuildMonsterConfig.nDrafts.count then		--行会银票足够
+		Actor.removeItem(sysarg,SbkGuildMonsterConfig.nDrafts.itemId,SbkGuildMonsterConfig.nDrafts.count,0,0,0,Lang.GuildLang.z00126)
+		OnOpenSbkGuildFubenSuc(sysarg)
+		System.broadcastTipmsg(str,2+128)
+	else
+		local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+		if nCount == 1 and nYb >= SbkGuildMonsterConfig.halfOpenYb then				--只有一个行会银票
+			Actor.removeItem(sysarg,SbkGuildMonsterConfig.nDrafts.itemId,1,0,0,0,Lang.GuildLang.z00126)
+			Actor.changeMoney(sysarg,3,-SbkGuildMonsterConfig.halfOpenYb,823,Lang.GuildLang.z00126)
+			OnOpenSbkGuildFubenSuc(sysarg)
+			System.broadcastTipmsg(str,2+128)
+		else
+			if nYb >= SbkGuildMonsterConfig.openNeedYb then
+				Actor.changeMoney(sysarg,3,-SbkGuildMonsterConfig.openNeedYb,823,Lang.GuildLang.z00126)
+				OnOpenSbkGuildFubenSuc(sysarg)
+				System.broadcastTipmsg(str,2+128)
+			else
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.z00133,ttFlyTip )
+			end
+		end
+	end
+end
+
+--成功开启沙城荣誉神殿副本
+function OnOpenSbkGuildFubenSuc(sysarg)
+	--[[local sVar = System.getStaticVar()
+	local dVar = System.getDyanmicVar()
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+
+	if nGuildId <= 0 then return end
+
+	dVar.haveOpenSbkGuildFubenFlag = 1
+	if sVar.OpenSbkGuildFubenTimes == nil then
+		sVar.OpenSbkGuildFubenTimes = {}
+	end
+	if sVar.OpenSbkGuildFubenTimes[nGuildId] == nil then
+		sVar.OpenSbkGuildFubenTimes[nGuildId] = 0
+	end
+	sVar.OpenSbkGuildFubenTimes[nGuildId] = sVar.OpenSbkGuildFubenTimes[nGuildId] + 1
+
+	Actor.enterScene(sysarg, SbkGuildMonsterConfig.nSceenId, unpack(SbkGuildMonsterConfig.nSceenRange))
+
+	local nHandle = Fuben.getSceneHandleById(SbkGuildMonsterConfig.outSceenId,0)
+	local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00053)
+	
+	dVar.StartOpenSbkFubenTime = System.getCurrMiniTime()
+	Actor.initActivityWind(sysarg,Lang.GuildLang.z00138,SbkGuildMonsterConfig.sbkTimeUp,Lang.GuildLang.z00137)
+
+	Actor.regScriptCallback(NpcPtr, NpcPtr, SbkGuildMonsterConfig.fressBossTime, SbkGuildMonsterConfig.fressBossTime, 1, "OnFreshMonsterTenMin")
+
+	Actor.regScriptCallback(NpcPtr, NpcPtr, SbkGuildMonsterConfig.sbkTimeUp * 1000, SbkGuildMonsterConfig.sbkTimeUp *1000, 1, "OnSbkFubenTimeUp")
+
+	Actor.regScriptCallback(NpcPtr, NpcPtr, SbkGuildMonsterConfig.perTime, SbkGuildMonsterConfig.perTime, -1, "OnGiveMemExpOnTimeInSbk")
+
+	Actor.regScriptCallback(NpcPtr, NpcPtr, SbkGuildMonsterConfig.broadPerMin * 1000, SbkGuildMonsterConfig.broadPerMin * 1000, 5, "onBroadOpenFubenTips")
+ ]]
+end
+
+--播报沙巴克回收给所有人的播报
+function BroadSbkReturnToAll()
+	local nDays = System.getDaysSinceOpenServer()		
+	if System.getDefendSbkGuildId() > 0 then
+		System.broadcastTipmsg(Lang.GuildLang.z00139,2+128)
+	end
+end
+
+--初始化城主雕像名字
+function InitNpcStatueName()
+	local nScene = Fuben.getSceneHandleById(GuildSiegeConfig.SbkSceenId,0)
+	local pNpc = Fuben.getNpcPtrByName(nScene,Lang.EntityName.n00214)
+	if pNpc then
+		local pRanking = Ranking.getRanking("GuildCrossSbkOwn")
+		if pRanking then
+			local pItem = Ranking.getItemFromIndex(pRanking,0)
+			if pItem then
+				Actor.changeShowName(pNpc,20,Ranking.getSub(pItem,2))
+			end
+		end
+	end
+end
+
+--初始化跨服城主雕像名字
+function OnResetWorldFirstNpc()
+	local RankNameList = Ranking.getRanking(CrossWorldOneConfig.WorldOneRankName)
+	if RankNameList then
+		local nScene = Fuben.getSceneHandleById(GuildSiegeConfig.SbkSceenId,0)
+		local pNpc = Fuben.getNpcPtrByName(nScene,Lang.EntityName.n00213)
+		if pNpc then
+			local pItem = Ranking.getItemFromIndex(RankNameList,0)
+			if pItem then
+				Actor.changeShowName(pNpc,20,Ranking.getSub(pItem,0))
+			else
+				Actor.changeShowName(pNpc,20,Lang.EntityName.n00213)
+			end
+		end
+	end
+end
+
+--沙城泡点定时奖励
+function OnGiveSbkDuckWard()
+	--[[local nHour,nMin,nSec = System.getTime(0,0,0)
+	local nResult = false
+	for i=1,table.getn(GuildSiegeConfig.duckTime) do
+		if nHour >= GuildSiegeConfig.duckTime[i].nHourStart and nHour <= GuildSiegeConfig.duckTime[i].nHourEnd and 
+			nMin >= GuildSiegeConfig.duckTime[i].nMinStart and nMin <= GuildSiegeConfig.duckTime[i].nMinEnd then
+			nResult = true
+			break
+		end
+	end
+	
+	if nResult == false then
+		return
+	end
+	
+	local nSbkGuildId = System.getSbkGuildId()
+	local secSbkGuildId = System.getSecSbkCityGuildId()
+	local nConfig = GuildSiegeConfig.sbkDuckAward
+
+	local actList = LuaHelp.getSceneAreaActorListById(GuildSiegeConfig.SbkSceenId,98,1)
+	
+	local nFlag = -1
+
+	if actList ~= nil then
+		for i = 1, #actList do
+			local pActor = actList[i]
+			local mGuildId = Actor.getIntProperty( pActor, PROP_ACTOR_GUILD_ID )
+			if nFlag >=0 and nFlag~= mGuildId then
+				nConfig = GuildSiegeConfig.delDuckAward
+				break
+			end
+			nFlag = mGuildId
+		end
+	end
+
+	if actList ~= nil then
+		for i = 1, #actList do
+			local pActor = actList[i]
+			local nGuildId = Actor.getIntProperty( pActor, PROP_ACTOR_GUILD_ID )
+			if pActor and nGuildId > 0 and (nGuildId == nSbkGuildId or nGuildId == secSbkGuildId) then
+				for j=1,table.getn(nConfig) do
+					Actor.giveAward(pActor,nConfig[j].type,nConfig[j].id,nConfig[j].count,nConfig[j].quality,nConfig[j].strong,nConfig[j].bind,0,931)
+				end
+			end
+		end
+	end]]
+end
+
+--刷守护之柱
+function FreshTaxMonster()
+	--[[local nConfig = GuildSiegeConfig.taxMonster
+	for i=1,table.getn(nConfig) do
+		local hScene = Fuben.getSceneHandleById(nConfig[i].nSceenId, 0)
+		local pMonster = Fuben.createMonster(hScene, nConfig[i].nMonsterID, nConfig[i].posX,nConfig[i].posY, nConfig[i].nLiveTime)
+
+		if pMonster then
+			Actor.setNpcGuildId(pMonster,System.getSbkGuildId())
+		end
+	end
+
+	System.broadcastTipmsg(Lang.GuildLang.arr0026,2+128)]]
+end
+
+--守护之柱死亡处理
+function OnTaxMonsterDie(monster,sysarg)
+	--[[System.broadcastTipmsg(Lang.GuildLang.arr0025,2+128)
+
+	local RankNameList = Ranking.getRanking("SecSbkCityFile.txt")
+	if RankNameList then
+		local curNum = System.getCurWorldTaxing()		--当前世界收入
+
+		local nRate = System.getCultureRate(6)
+		local AwardNum = math.floor(GuildSiegeConfig.MaxTaxing *  GuildSiegeConfig.taxingRate * 10 / 100)
+		AwardNum = math.floor(AwardNum * nRate / 100 )
+		local maxTaxing = GuildSiegeConfig.MaxTaxing + AwardNum		--领取税收上限
+
+		local nValue = math.floor(GuildSiegeConfig.taxingRate * (curNum /100))
+
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+		if pItem then
+			local nGetNum = tonumber(Ranking.getSub(pItem,2)) or 0
+			nValue = nValue - nGetNum
+			local nTimes = tonumber(Ranking.getSub(pItem,0))
+			if nTimes == nil then
+				nTimes = 0
+			end
+			nTimes = nTimes + 1
+			Ranking.setSub(pItem,0,tostring(nTimes))
+
+			if nValue < 0 then
+				nValue = 0
+			end
+
+			local nCurTaxing = math.floor(nTimes * GuildSiegeConfig.TaxMonsterRate * nValue/ (100*GuildSiegeConfig.TaxMonsterTimes))
+			Ranking.setSub(pItem,1,tostring(nCurTaxing))
+
+			nGetNum = nGetNum + nCurTaxing
+			Ranking.setSub(pItem,2,tostring(nGetNum))
+		else
+			pItem = Ranking.addItem(Ranking,0,1)
+			if pItem then
+				Ranking.setSub(pItem,0,tostring(1))
+				local nCurTaxing = math.floor(nTimes * GuildSiegeConfig.TaxMonsterRate * nValue/ (100*GuildSiegeConfig.TaxMonsterTimes))
+				Ranking.setSub(pItem,1,tostring(nCurTaxing))
+				Ranking.setSub(pItem,2,tostring(nCurTaxing))
+			end
+		end
+	end]]
+end
+
+--清除守护之柱被杀次数
+function OnClearTaxMasterTimes()
+	--[[local RankNameList = Ranking.getRanking("SecSbkCityFile.txt")
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+		if pItem then
+			Ranking.setSub(pItem,0,tostring(0))
+			Ranking.setSub(pItem,1,tostring(0))
+			Ranking.setSub(pItem,2,tostring(0))
+		end
+	end]]
+end
+
+--箭塔死亡
+function OnArrowDieOP(monster,sysarg,nid)
+	--[[local nIndex = System.onArrowDie(monster)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.arr0022,Actor.getName(monster),Actor.getName(sysarg)),2+128)
+
+
+	if System.getDaysSinceOpenServer() <= GuildSiegeConfig.openDay then return end
+
+	local nGuildId = System.getSbkGuildId()
+	local nOldGuildId = System.getOldSbkGuildId()
+	--if nGuildId <= 0 then return end
+
+	local nCurIndex = System.getArrowDelBufIndex()
+	local nBuffIndex = 0
+
+	local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.ArrowConfig[1].Sceneid, 0)
+	for i=1,table.getn(GuildSiegeConfig.arrowDelBuff) do
+		if Fuben.getLiveMonsterCount(hScene,GuildSiegeConfig.arrowDelBuff[i].nMonsterID) == 0 then
+			nBuffIndex = i
+		end
+	end
+
+
+	if nBuffIndex <= System.getArrowDelBufIndex() then return end
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.arr0023,Actor.getName(monster)),2+128)
+
+	local playerList = LuaHelp.getSceneAliveActorListById(GuildSiegeConfig.PalaceSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local mGuildId = Actor.getIntProperty(player,PROP_ACTOR_GUILD_ID)
+				if nGuildId > 0 and mGuildId == nGuildId and nOldGuildId == nGuildId then
+					local nConfig = GuildSiegeConfig.arrowDelBuff[nBuffIndex]
+					if Actor.hasBuff(player,nConfig.buffType,nConfig.buffGroup) then
+						Actor.delBuff(player,nConfig.buffType,nConfig.buffGroup)
+					end
+					Actor.addBuff(player,nConfig.buffType,nConfig.buffGroup, nConfig.value, nConfig.times, nConfig.interval, nConfig.buffName, nConfig.timeOverlay)
+				end
+			end
+		end
+	end
+
+	System.setArrowDelBuffIndex(nBuffIndex)]]
+end
+
+--记录沙巴克奖励
+function SbkAwardLog(nActorId, nMainIndex, AssistIndex)
+  local RankNameList = Ranking.getRanking("StartAct5")
+  if RankNameList then
+     local pItem = Ranking.getItemPtrFromId(RankNameList,nActorId)
+     if pItem == nil then
+        pItem = Ranking.addItem(RankNameList,nActorId,AssistIndex)
+        for i = 1, #OpenServerActivityRankConfig[nMainIndex].RankColumn do
+	       Ranking.setSub(pItem, i-1, "0")
+        end
+  	    Ranking.setSub(pItem,0,Actor.getName(sysarg))
+     end
+	 if pItem then
+	    Ranking.setItem(RankNameList,nActorId,AssistIndex)
+	    Ranking.setSub(pItem,AssistIndex,tostring(1))		--0 没奖励  1 有奖励还没领取 2 已领取奖励
+     end
+     Ranking.save(RankNameList, "StartAct5.txt")
+  end
+end

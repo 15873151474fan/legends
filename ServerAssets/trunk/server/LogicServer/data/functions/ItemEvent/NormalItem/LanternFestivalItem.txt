@@ -1,0 +1,98 @@
+--#include "data\config\activityconfig\Festival\LanternFestival.txt" once
+
+function LanternGiftFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.isDealing(sysarg) == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0011, ttFlyTip)
+		return 
+	end
+	
+	local keyConfig = LanternFestivalConfig.lanternGift[2]
+
+	if Actor.checkConsume(sysarg, keyConfig.type, keyConfig.id, 1) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0001, ttFlyTip)
+		Actor.openDialogs(sysarg, 51, keyConfig.id)
+		return 
+	end
+
+	local needBagCount = 0
+	local giftTab = {}
+	for i = 1, table.getn(LanternFestivalConfig.lanternGiftAward) do 
+		local infoTable = LanternFestivalConfig.lanternGiftAward[i] 
+		local giftInfo = GetLanternRandomInfo(infoTable, 1, infoTable.totalRate) 
+		if giftInfo ~= nil then
+			table.insert(giftTab, giftInfo)
+		end
+		needBagCount = needBagCount + Item.getAddItemNeedGridCount(sysarg, giftInfo.id, giftInfo.count, 
+						giftInfo.quality, giftInfo.strong, giftInfo.bind)
+	end
+	
+	local emptyCount = Item.getBagEmptyGridCount(sysarg)
+	if needBagCount > emptyCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yx0002, ttFlyTip)
+		return 
+	end
+
+	if Actor.removeConsume(sysarg, 0, itemIdx, 1, -1, -1, -1, 0, 944, Lang.LogTips.yx0002) > 0 then
+		if Actor.removeConsume(sysarg, 0, keyConfig.id, 1, -1, -1, -1, 0, 944, Lang.LogTips.yx0001) > 0 then
+			for k, v in ipairs(giftTab) do 
+				Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 944, Lang.LogTips.yx0001) 
+			end  
+		end
+	end
+end
+
+
+
+--根据概率获取值
+function GetLanternRandomInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i].value
+			break
+		end
+	end
+	return result
+	
+end
+
+
+
+function LoverGiftFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	local emptyCount = Item.getBagEmptyGridCount(sysarg)
+	local needCount = table.getn(LanternFestivalConfig.loverGiftAward) 
+	if needCount > emptyCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yx0006,needCount), ttFlyTip)
+		return 
+	end
+	
+	if Actor.removeConsume(sysarg, 0, itemIdx, 1, 0, 0, 0, 0, 944, Lang.LogTips.yx0003) > 0 then
+		local awardList = LanternFestivalConfig.loverGiftAward
+		for k, v in ipairs(awardList) do 
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 944, Lang.LogTips.yx0003) 
+		end  
+	
+	end
+	
+	
+end
+
+
+function LanternGiftInit(sysarg)
+
+	local giftConfig = LanternFestivalConfig.lanternGift[1] 
+	GlobalItemFn[giftConfig.id] = { func = LanternGiftFunc, param = giftConfig }
+
+	--[[
+	local loverGift = LanternFestivalConfig.loverGift.gift
+	GlobalItemFn[loverGift.id] = { func = LoverGiftFunc, param = loverGift }
+	--]]
+
+	
+end
+
+
+table.insert( InitFnTable, LanternGiftInit)

@@ -1,0 +1,54 @@
+﻿--#ifndef _MONSTER_MOB_DISPATCHER_INCLUDED_
+--#define _MONSTER_MOB_DISPATCHER_INCLUDED_
+
+--怪物刷新的时候触发的脚本在这里派发
+--需要处理怪物刷新逻辑的将函数注册在这里
+local MonMobDispatcher = {}
+
+MonMobDispatcher.register = function (monId, proc)
+  if proc then
+     --print("MonMobDispatcher.register proc  with monId "..monId)
+  end
+  if not proc then
+    print("MonMobDispatcher.register proc is nil with monId "..monId)
+  end
+  monId = tonumber(monId)
+  local i
+  local callTable = MonMobDispatcher[monId]
+  if not callTable or type(callTable) ~= "table" then
+    MonMobDispatcher[monId] = {}
+	--注册怪物刷新的时候触发脚本
+	System.registerMonsterMob(monId,true)
+  else
+    for i = 1, #callTable do
+      if callTable[i] == proc then
+        return false
+      end
+    end
+  end
+  --这里不能用局部table插入，否则不会修改到MonDieDispatcher中
+  table.insert(MonMobDispatcher[monId], proc)
+  return true
+end
+
+MonMobDispatcher.unregister = function (monId, proc)  
+  monId = tonumber(monId)   
+  local i
+  local callTable = MonMobDispatcher[monId]
+  for i = 1, #callTable do
+    if callTable[i] == proc then
+      --这里不能从局部table中删除，否则不会修改到MonDieDispatcher中
+      table.remove(MonMobDispatcher[monId], i)
+      return true
+    end
+  end
+  return false
+end
+
+MonMobDispatcher.dispatch = function (monster, monId, sceneId, x,y) 
+	for k, v in ipairs(MonMobDispatcher[monId] or {}) do
+		v(monster, monId, sceneId, x, y)
+	end
+end
+
+--#endif //_MONSTER_DIE_DISPATCHER_INCLUDED_

@@ -1,0 +1,5849 @@
+﻿--按概率的总和的方式掉落物品
+--比如那种箱子的方式,策划从一堆物品里按配置的概率抽取n个出来,具体的抽取的方式见后面的配置
+ProabolityItemConfig = {
+{
+	item_id = 1,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	needMoney = {type = 3, count = 10},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops1.txt",
+	-- = 1，测试，,
+},
+{
+	item_id = 339,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops2.txt",
+	-- = 2，强效金创药包，双击打开可以获得6个<(c0xFF7CFC00)强效金创药>,
+},
+{
+	item_id = 340,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops3.txt",
+	-- = 3，超级金创药包，双击打开可以获得6个<(c0xFF7CFC00)超级金创药>,
+},
+{
+	item_id = 341,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops4.txt",
+	-- = 4，超级金创药大包，双击打开可以获得６个<(c0xFF7CFC00)超级金创药包>,
+},
+{
+	item_id = 346,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops5.txt",
+	-- = 5，强效魔法药包，双击打开可以获得6个<(c0xFF7CFC00)强效魔法药>,
+},
+{
+	item_id = 347,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops6.txt",
+	-- = 6，超级魔法药包，双击打开可以获得6个<(c0xFF7CFC00)超级魔法药>,
+},
+{
+	item_id = 348,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops7.txt",
+	-- = 7，超级魔法药大包，双击打开可以获得６个<(c0xFF7CFC00)超级魔法药包>,
+},
+{
+	item_id = 351,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops8.txt",
+	-- = 8，太阳水包，双击打开可以获得6个<(c0xFF7CFC00)强效太阳水>,
+},
+{
+	item_id = 352,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops9.txt",
+	-- = 9，强效太阳水包，双击打开可以获得6个<(c0xFF7CFC00)强效太阳水>,
+},
+{
+	item_id = 353,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops10.txt",
+	-- = 10，强效太阳水大包，双击打开可以获得６个<(c0xFF7CFC00)强效太阳水包>,
+},
+{
+	item_id = 1202,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops11.txt",
+	-- = 11，成就铭牌(大)，双击打开可以获得5000<(c0xFF7CFC00)成就点>,
+},
+{
+	item_id = 1201,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops12.txt",
+	-- = 12，成就铭牌（小），双击打开可以获得50<(c0xFF7CFC00)成就点>,
+},
+--[[
+{
+	item_id = 357,
+	itemCount = 1,
+	needMinBagGrid = 10,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops13.txt",
+	-- = 13，999朵红玫瑰，双击打开可以获得10支<(c0xFF7CFC00)99朵红玫瑰>,
+},]] 
+{
+	item_id = 1198,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops14.txt",
+	-- = 14，50级装备礼包，双击打开可以获得武器、衣服、头盔,鞋子，手镯，
+},
+{
+	item_id = 800,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops15.txt",
+	-- = 15，10级装备礼包，双击打开可以获得武器、衣服、头盔,鞋子，手镯， 
+},
+{
+	item_id = 801,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops16.txt",
+	-- = 16，20级装备礼包，双击打开可以获得武器、衣服、头盔,鞋子，手镯，
+},
+{
+	item_id = 802,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops17.txt",
+	-- = 17，30级装备礼包，双击可以打开获得武器、衣服、头盔,鞋子，手镯，
+},
+{
+	item_id = 803,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops18.txt",
+	-- = 18，40级装备礼包，双击可以打开获得武器、衣服、头盔,鞋子，手镯，
+},
+{
+	item_id = 390,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops19.txt",
+	-- = 19，回城卷包，双击打开可以获得5个<(c0xFF7CFC00)回城卷>,
+},
+{
+	item_id = 393,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops20.txt",
+	-- = 20，随机传送卷包，打开可以获得5个<(c0xFF7CFC00)随机传送卷>,
+},
+{
+	item_id = 781,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops21.txt",
+	-- = 21，一级随机魂玉包，0,
+},
+{
+	item_id = 782,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops22.txt",
+	-- = 22，二级随机魂玉包，0,
+},
+{
+	item_id = 783,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops23.txt",
+	-- = 23，三级随机魂玉包，0,
+},
+{
+	item_id = 784,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops24.txt",
+	-- = 24，四级随机魂玉包，0，
+},
+{
+	item_id = 790,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops25.txt",
+	-- = 25，五级随机魂玉包，0,
+},
+{
+	item_id = 791,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops26.txt",
+	-- = 26，六级随机魂玉包，0,
+},
+{
+	item_id = 694,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops27.txt",
+	--27，1阶充值豪礼
+},
+{
+	item_id = 792,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops28.txt",
+	--28，七级随机魂玉包
+},
+{
+	item_id = 793,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops29.txt",
+	--29，1级豪华魂玉箱
+},
+{
+	item_id = 794,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops30.txt",
+	--30,2级豪华魂玉箱
+},
+{
+	item_id = 795,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops31.txt",
+	--31,3级豪华魂玉箱
+},
+{
+	item_id = 796,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops32.txt",
+	--32,4级豪华魂玉箱
+},
+{
+	item_id = 797,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops33.txt",
+	--33,5级豪华魂玉箱
+},
+{
+	item_id = 798,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops34.txt",
+	--34,6级豪华魂玉箱
+},
+{
+	item_id = 799,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops35.txt",
+	--35,7级豪华魂玉箱
+},
+{
+	item_id = 496,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops36.txt",
+	--300000元宝
+},
+{
+	item_id = 625,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops37.txt",
+	-- = 37，大官印，0,
+},
+{
+	item_id = 515,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops38.txt",
+	-- = 38，星宫礼包，0,
+},
+{
+	item_id = 770,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops39.txt",
+	-- = 39，魔幻星宫第一名礼包，0,
+},
+{
+	item_id = 771,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops40.txt",
+	-- = 40，魔幻星宫第二名礼包，0,
+},
+{
+	item_id = 772,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops41.txt",
+	-- = 41，魔幻星宫第三名礼包，0,
+},
+{
+	item_id = 855,
+	itemCount = 1,
+	needMinBagGrid = 10,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops42.txt",
+	-- = 42，神装特惠礼包，
+},
+{
+	item_id = 856,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops43.txt",
+	-- = 43，坐骑特惠礼包，
+},
+{
+	item_id = 857,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops44.txt",
+	-- = 44，特戒超值礼包，
+},
+{
+	item_id = 858,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops45.txt",
+	-- = 45，灵宝超值礼包，
+},
+{
+	item_id = 859,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops46.txt",
+	-- = 46，至尊超值礼包，
+},
+{
+	item_id = 860,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops47.txt",
+	-- = 47，翅膀直升礼包，
+},
+{
+	item_id = 861,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops48.txt",
+	-- = 48，特惠礼包7，
+},
+{
+	item_id = 862,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops49.txt",
+	-- = 49，特惠礼包8
+},
+{
+	item_id = 842,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops50.txt",
+	-- = 50，超级马鞭,
+},
+{
+	item_id = 843,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops51.txt",
+	-- = 51，超级灵羽,
+},
+{
+	item_id = 844,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops52.txt",
+	-- = 52，超级元魄石,
+},
+{
+	item_id = 845,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops53.txt",
+	-- = 53，超级麒麟血石,
+},
+{
+	item_id = 774,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops54.txt",
+	-- = 54，1元宝票，双击打开获得1元宝。,
+},
+{
+	item_id = 412,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops55.txt",
+	-- = 55，5元宝票，双击打开获得5元宝。,
+},
+{
+	item_id = 775,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops56.txt",
+	-- = 56，10元宝票，双击打开获得10元宝。,
+},
+{
+	item_id = 414,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops57.txt",
+	-- = 57，50元宝票，双击打开获得50元宝。,
+},
+{
+	item_id = 776,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops58.txt",
+	-- = 58，100元宝票，双击打开获得100元宝。,
+},
+{
+	item_id = 4160,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops59.txt",
+	-- = 59，500元宝票，双击打开获得500元宝。,
+},
+{
+	item_id = 777,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops60.txt",
+	-- = 60，1000元宝票，双击打开获得1000元宝。,
+},
+{
+	item_id = 778,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops61.txt",
+	-- = 61，10000元宝票，双击打开获得10000元宝。,
+},
+{
+	item_id = 871 ,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops62.txt",
+	-- = 62，等级竞技礼包1,
+},
+{
+	item_id = 872,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops63.txt",
+	-- = 63，等级竞技礼包2,
+},
+{
+	item_id = 873,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops64.txt",
+	-- = 64，等级竞技礼包3,
+},
+{
+	item_id = 874,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops65.txt",
+	-- = 65，等级竞技礼包4,
+},
+{
+	item_id = 875,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops66.txt",
+	-- = 66，血脉竞技礼包1,
+},
+{
+	item_id = 876,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops67.txt",
+	-- = 67，血脉竞技礼包2,
+},
+{
+	item_id = 877,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops68.txt",
+	-- = 68，血脉竞技礼包3,
+},
+{
+	item_id = 878,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops69.txt",
+	-- = 69，血脉竞技礼包4,
+},
+{
+	item_id = 879,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops70.txt",
+	-- = 70，坐骑竞技礼包1,
+},
+{
+	item_id = 880,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops71.txt",
+	-- = 71，坐骑竞技礼包2,
+},
+{
+	item_id = 881,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops72.txt",
+	-- = 72，坐骑竞技礼包3,
+},
+{
+	item_id = 882,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops73.txt",
+	-- = 73，坐骑竞技礼包4,
+},
+{
+	item_id = 883,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops74.txt",
+	-- = 74，翅膀竞技礼包1,
+},
+{
+	item_id = 884,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops75.txt",
+	-- = 75，翅膀竞技礼包2,
+},
+{
+	item_id = 885,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops76.txt",
+	-- = 76，翅膀竞技礼包3,
+},
+{
+	item_id = 886,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops77.txt",
+	-- = 77，翅膀竞技礼包4,
+},
+{
+	item_id = 887,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops78.txt",
+	-- = 78，元魄竞技礼包1,
+},
+{
+	item_id = 888,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops79.txt",
+	-- = 79，元魄竞技礼包2,
+},
+{
+	item_id = 889,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops80.txt",
+	-- = 80，元魄竞技礼包3,
+},
+{
+	item_id = 890,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops81.txt",
+	-- = 81，元魄竞技礼包4,
+},
+{
+	item_id = 891,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops82.txt",
+	-- = 82，魂玉竞技礼包1,
+},
+{
+	item_id = 892,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops83.txt",
+	-- = 83，魂玉竞技礼包2,
+},
+{
+	item_id = 893,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops84.txt",
+	-- = 84，魂玉竞技礼包3,
+},
+{
+	item_id = 894,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops85.txt",
+	-- = 85，魂玉竞技礼包4,
+},
+{
+	item_id = 895,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops86.txt",
+	-- = 86，首沙竞技礼包,
+},
+{
+	item_id =854 ,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops87.txt",
+	-- = 87，绑定500元宝锭,
+},
+{
+	item_id = 863,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops88.txt",
+	-- = 88，活跃神秘大礼,
+},
+{
+	item_id = 864,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops89.txt",
+	-- = 89，玄阳套装礼包,
+},
+
+{
+	item_id = 865,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops90.txt",
+	-- = 90，琉璃套装礼包,
+},
+{
+	item_id = 866,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops91.txt",
+	-- = 91，两仪套装礼包,
+},
+{
+	item_id = 867,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops92.txt",
+	-- = 92，鎏金套装礼包,
+},
+{
+	item_id = 868,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops93.txt",
+	-- = 93，碧玺套装礼包,
+},
+{
+	item_id = 869,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops94.txt",
+	-- = 94，岚空套装礼包,
+},
+{
+	item_id = 902,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops95.txt",
+	-- = 95，5阶等级竞技礼包,
+},
+{
+	item_id = 903,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops96.txt",
+	-- = 96，5阶血脉竞技礼包,
+},
+{
+	item_id = 904,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops97.txt",
+	-- = 97，5阶坐骑竞技礼包,
+},
+{
+	item_id = 905,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops98.txt",
+	-- = 98，5阶翅膀竞技礼包,
+},
+{
+	item_id = 906,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops99.txt",
+	-- = 99，5阶元魄竞技礼包,
+},
+{
+	item_id = 907,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops100.txt",
+	-- = 100，5阶魂玉竞技礼包,
+},
+{
+	item_id = 910,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needMoney = {type = 3, count = 998},	
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops101.txt",
+	-- = 101，特惠强化箱,
+},
+{
+	item_id = 623,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	Limit = {Type = 2, Count = 10,},--使用限制的是Vip特权Type现在有限，用的是2到9. Count为普通玩家使用限制次数 
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops102.txt",
+	-- = 102，小金砖，双击使用获得100万绑金,
+},
+{
+	item_id = 624,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	Limit = {Type = 2, Count = 10,},--使用限制的是Vip特权Type现在有限，用的是2到9. Count为普通玩家使用限制次数
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops103.txt",
+	-- = 103，大金砖，双击使用获得300万绑金,
+},
+{
+	item_id = 896,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	Limit = {Type = 2, Count = 10,},--使用限制的是Vip特权Type现在有限，用的是2到9. Count为普通玩家使用限制次数
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops104.txt",
+	-- = 104，小金条，双击使用获得10万金币,
+},
+{
+	item_id = 897,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	Limit = {Type = 2, Count = 10,},--使用限制的是Vip特权Type现在有限，用的是2到9. Count为普通玩家使用限制次数
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops105.txt",
+	-- = 105，大金条,
+},
+{
+	item_id = 718,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops106.txt",
+	-- = 106，金蚕王,
+},
+{
+	item_id = 744,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops107.txt",
+	-- = 107，兽灵魂魄，,
+},
+{
+	item_id = 898,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops108.txt",
+	-- = 108，一捆金砖,
+},
+{
+	item_id = 899,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops109.txt",
+	-- = 109，小金箱
+},
+{
+	item_id = 911,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops110.txt",
+	-- = 110，装备强化礼包 
+},
+{
+	item_id = 11980,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops111.txt",
+	-- = 111， 50级装备礼包 
+},
+{
+	item_id = 7110,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops112.txt",
+	-- = 112， 每日充值礼包3
+},
+{
+	item_id = 7120,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops113.txt",
+	-- = 113， 每日充值礼包4
+},
+{
+	item_id = 743,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops114.txt",
+	-- = 114，破旧的箱子
+},
+
+{
+	item_id = 1207,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops115.txt",
+	-- = 115，极致荣耀礼包
+},
+{
+	item_id = 1208,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops116.txt",
+	-- = 116，超级荣誉礼包
+},
+{
+	item_id = 1209,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops117.txt",
+	-- = 117，高级荣华礼包
+},
+{
+	item_id = 1210,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops118.txt",
+	-- = 118，金玉满堂礼包 
+},
+--[[
+{
+	item_id = 8650,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops119.txt",
+	-- = 119，金刚强化石
+},
+{
+	item_id = 8700,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops120.txt",
+	-- = 120，金刚强化玉
+},
+--]]
+{
+	item_id = 914,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops121.txt",
+	-- = 121，特惠魂珠箱,
+},
+{
+	item_id = 915,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops122.txt",
+	-- = 122，转生灵石(小),
+},
+{
+	item_id = 918,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops123.txt",
+	-- = 123，暴击碎晶(小),
+},
+{
+	item_id = 919,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops124.txt",
+	-- = 124，暴击碎晶(中),
+},
+{
+	item_id = 920,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops125.txt",
+	-- = 125，暴击碎晶(大),
+},
+{
+	item_id = 921,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops126.txt",
+	-- = 126，抗暴碎晶(小),
+},
+{
+	item_id = 922,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops127.txt",
+	-- = 127，抗暴碎晶(中),
+},
+{
+	item_id = 923,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops128.txt",
+	-- = 128，抗暴碎晶(大),
+},
+{
+	item_id = 924,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops129.txt",
+	-- = 129，防御碎晶(小),
+},
+{
+	item_id = 925,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops130.txt",
+	-- = 130，防御碎晶(中),
+},
+{
+	item_id = 926,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops131.txt",
+	-- = 131，防御碎晶(大),
+},
+{
+	item_id = 927,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops132.txt",
+	-- = 132，生命碎晶(小),
+},
+{
+	item_id = 928,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops133.txt",
+	-- = 133，生命碎晶(中),
+},
+{
+	item_id = 929,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops134.txt",
+	-- = 134，生命碎晶(大),
+},
+{
+	item_id = 1157,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops135.txt",
+	-- = 135，普通迷幻魔森礼包,
+},
+{
+	item_id = 1158,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops136.txt",
+	-- = 136，普通诅咒丛林礼包,
+},
+{
+	item_id = 1159,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops137.txt",
+	-- = 137，普通海底深宫礼包,
+},
+{
+	item_id = 1160,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops138.txt",
+	-- = 138，普通神之遗迹礼包                      ,
+},
+{
+	item_id = 1161,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops139.txt",
+	-- = 139，普通陨落峡谷礼包,
+},
+{
+	item_id = 1162,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops140.txt",
+	-- = 140，普通雪岭祭台礼包 
+},
+{
+	item_id = 1163,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops141.txt",
+	-- = 141，精英迷幻魔森礼包 
+},
+{
+	item_id = 1164,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops142.txt",
+	-- 142，精英诅咒丛林礼包 
+},
+{
+	item_id = 1165,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops143.txt",
+	-- 143，精英海底深宫礼包 
+},
+{
+	item_id = 1166,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops144.txt",
+	-- 144，精英神之遗迹礼包 
+},
+{
+	item_id = 1167,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops145.txt",
+	-- 145，精英陨落峡谷礼包 
+},
+{
+	item_id = 1168,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops146.txt",
+	-- 146，精英雪岭祭台礼包 
+},
+{
+	item_id = 1151,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops147.txt",
+	-- 147,勇闯三关1 
+},
+{
+	item_id = 1152,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops148.txt",
+	-- 148,勇闯三关2 
+},
+{
+	item_id = 1153,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops149.txt",
+	-- 149,勇闯三关3 
+},
+{
+	item_id = 1154,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops150.txt",
+	-- 150，1级未激活的晶石
+},
+{
+	item_id = 1155,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops151.txt",
+	-- 151，2级未激活的晶石 
+},
+{
+	item_id = 1156,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops152.txt",
+	-- 152，3级未激活的晶石 
+},
+{
+	item_id = 1175,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops153.txt",
+	-- 153，特戒图纸包 
+},
+{
+	item_id = 1193,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops154.txt",
+	-- 官职道具(小）
+},
+{
+	item_id = 1199,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops155.txt",
+	-- 官职道具（中）
+},
+{
+	item_id = 1200,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops156.txt",
+	-- 官职道具（大）
+},
+--[[
+{
+	item_id = 9400,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops157.txt",
+	-- 940，45级欢乐RMB包
+},
+{
+	item_id = 9410,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops158.txt",
+	-- 941，50级欢乐RMB包
+},
+{
+	item_id = 9420,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops159.txt",
+	-- 942，55级欢乐RMB包
+},
+{
+	item_id = 943,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops160.txt",
+	-- 943，60级欢乐RMB包
+},
+--]]
+{
+	item_id = 3201,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops161.txt",
+	-- 
+},
+
+{
+	item_id = 3202,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops162.txt",
+	-- 
+},
+
+{
+	item_id = 1203,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops163.txt",
+	-- 青龙礼包
+},
+
+{
+	item_id = 1204,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops164.txt",
+	-- 白虎礼包
+},
+
+{
+	item_id = 1205,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops165.txt",
+	-- 玄武礼包
+},
+
+{
+	item_id = 1206,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops166.txt",
+	-- 朱雀礼包
+},
+
+{
+	item_id = 9440,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops167.txt",
+	-- 944，经验灵符
+},
+
+{
+	item_id = 618,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops168.txt",
+	-- 618，行会银票
+},
+
+{
+	item_id = 740,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops169.txt",
+	-- 740，铜块
+},
+
+{
+	item_id = 741,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops170.txt",
+	-- 741，银块
+},
+
+{
+	item_id = 742,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops171.txt",
+	-- 742，金块
+},
+
+{
+	item_id = 9290,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops172.txt",
+	-- 929，在线福利包
+},
+{
+	item_id = 9450,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops173.txt",
+	-- 945，1级灵珠盒
+},
+{
+	item_id = 9610,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops174.txt",
+	-- 961，药水大礼包
+},
+{
+	item_id = 707,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops175.txt",
+	-- 707，坐骑升级豪礼
+},
+{
+	item_id = 708,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops176.txt",
+	-- 708，翅膀升级豪礼
+},
+{
+	item_id = 709,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops177.txt",
+	-- 709，五级魂石大礼包
+},
+{
+	item_id = 808,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops178.txt",
+	-- 808，绑定100元宝锭
+},
+{
+	item_id = 809,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops179.txt",
+	-- 809，绑定1000元宝锭
+},
+{
+	item_id = 810,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops180.txt",
+	-- 810，绑定5000元宝锭
+},
+{
+	item_id = 811,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops181.txt",
+	-- 811，绑定10000元宝锭
+},
+{
+	item_id = 1194,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops182.txt",
+	--1194,10点活跃礼包 
+},
+{
+	item_id = 1195,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops183.txt",
+	-- 1195,30点活跃礼包
+},
+{
+	item_id = 1196,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops184.txt",
+	-- 1196,50点活跃礼包
+},
+{
+	item_id = 1197,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops185.txt",
+	-- 1197,100点活跃礼包
+},
+{
+	item_id = 1212,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops186.txt",
+	-- 1212,时空交错奖励礼包1
+},
+{
+	item_id = 1213,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops187.txt",
+	-- 1213,时空交错奖励礼包2
+},
+{
+	item_id = 1214,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops188.txt",
+	-- 1214,时空交错奖励礼包3
+},
+
+{
+	item_id = 1216,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops189.txt",
+	-- 1216,通宵挂机礼包
+},
+
+{
+	item_id = 917,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops190.txt",
+	-- 5000元宝
+},
+
+{
+	item_id = 7220,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops191.txt",
+	-- 1000000元宝
+},
+
+{
+	item_id = 995,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops192.txt",
+	-- 坐骑礼包
+},
+
+{
+	item_id = 996,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops193.txt",
+	-- 魂石礼包
+},
+
+{
+	item_id = 997,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops194.txt",
+	-- 英雄礼包
+},
+
+{
+	item_id = 7190,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops195.txt",
+	-- 坐骑金蚕王
+},
+
+{
+	item_id = 1002,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops196.txt",
+	-- 45级新手包
+},
+
+{
+	item_id = 1003,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops197.txt",
+	-- 50级新手包
+},
+{
+	item_id = 1008,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops198.txt",
+	-- 魂石代金券礼包
+},
+{
+	item_id = 1009,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops199.txt",
+	-- 媒体礼包
+
+},
+{
+	item_id = 1010,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops200.txt",
+	-- 媒体礼包（金）
+
+},
+{
+	item_id = 1011,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops201.txt",
+	-- 媒体礼包（木）
+
+},
+{
+	item_id = 1012,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops202.txt",
+	-- 媒体礼包（水）
+
+},
+{
+	item_id = 1013,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops203.txt",
+	-- 媒体礼包（火）
+
+},
+{
+	item_id = 1014,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops204.txt",
+	-- 媒体礼包（土）
+
+},
+--[[
+{
+	item_id = 1016,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = false,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops205.txt",
+	-- 天灾魔龙
+},
+--]]
+
+{
+	item_id = 1017,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops206.txt",
+	-- 917，英雄技能大礼包
+},
+
+
+{
+	item_id = 284,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops207.txt",
+	-- 升级继承符补偿
+},
+
+{
+	item_id = 1038,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops208.txt",
+	-- 265G特权礼包
+},
+{
+	item_id = 1039,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops209.txt",
+	-- 17173特权礼包
+},
+{
+	item_id = 1040,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops210.txt",
+	-- 360黄金特权礼包
+},
+{
+	item_id = 1041,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops211.txt",
+	-- 360钻石特权礼包
+},
+{
+	item_id = 1057,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops212.txt",
+	-- 大快马鞭
+},
+{
+	item_id = 1067,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops213.txt",
+	-- 10个英雄经验丹(大)
+},
+{
+	item_id = 1045,
+	itemCount = 25,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops214.txt",
+	-- 白色羽毛
+},
+
+{
+	item_id = 1020,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	infectBind = false,	--是否进行感染绑定
+	consumes =
+	{	--额外消耗 incEquip：是否消耗人物身上的 默认false
+		{type=0, id=265, count=1, incEquip=true},
+		--{type=0, id=1, count=1},
+	},
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops215.txt",
+	-- 白色翎羽
+},
+
+{
+	item_id = 1051,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops216.txt",
+	-- 金耀火凤召唤石碎片
+},
+
+{
+	item_id = 724,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops217.txt",
+	-- 724	五万经验灵丹
+},
+{
+	item_id = 725,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops218.txt",
+	-- 725	十万经验灵丹
+},
+{
+	item_id = 726,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops219.txt",
+	-- 726	百万经验灵丹
+},
+{
+	item_id = 727,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops220.txt",
+	-- 727	千万经验灵丹
+},
+{
+	item_id = 728,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops221.txt",
+	-- 728	一亿经验灵丹
+},
+
+{
+	item_id = 1076,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops222.txt",
+	-- 便携挂机包
+},
+{
+	item_id = 1077,
+	itemCount = 1,
+	needMinBagGrid = 10,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops223.txt",
+	-- 99黑铁包
+},
+{
+	item_id = 1078,
+	itemCount = 1,
+	needMinBagGrid = 10,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops224.txt",
+	-- 99绿宝石包
+},
+{
+	item_id = 1079,
+	itemCount = 1,
+	needMinBagGrid = 10,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops225.txt",
+	-- 99紫水晶包
+},
+{
+	item_id = 1080,
+	itemCount = 1,
+	needMinBagGrid = 10,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops226.txt",
+	-- 开天之翼礼盒
+},
+{
+	item_id = 1081,
+	itemCount = 1,
+	needMinBagGrid = 10,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops227.txt",
+	-- 影魅之翼礼盒
+},
+{
+	item_id = 1082,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops228.txt",
+	-- 装备礼包
+},
+{
+	item_id = 752,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops229.txt",
+	-- 转生灵石
+},
+
+{
+	item_id = 1176,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops230.txt",
+	-- 装备增强合服包
+},
+
+{
+	item_id = 1177,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops231.txt",
+	-- 魂石合服包
+},
+
+{
+	item_id = 1178,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops232.txt",
+	-- 装备升级合服包
+},
+{
+	item_id = 1173,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops233.txt",
+	-- 生日礼盒
+},
+{
+	item_id = 1174,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops234.txt",
+	-- 超级VIP礼包
+},
+
+{
+	item_id = 1104,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops235.txt",
+	-- 战士5级魂石套包
+},
+
+{
+	item_id = 1105,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops236.txt",
+	-- 法师5级魂石套包
+},
+
+{
+	item_id = 1106,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops237.txt",
+	-- 道士5级魂石套包
+},
+{
+	item_id = 1179,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops238.txt",
+	-- 合服充值包
+},
+{
+	item_id = 1180,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops239.txt",
+	-- 手机验证包
+},
+
+{
+	item_id = 1181,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops240.txt",
+	-- 超级仙女卡
+},
+
+
+{
+	item_id = 1182,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops241.txt",
+	-- 超级斗士卡
+},
+
+
+{
+
+	item_id = 1183,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops242.txt",
+	-- 超级请神卡
+},
+
+{
+	item_id = 695,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops243.txt",
+	-- 2阶充值豪礼
+},
+{
+	item_id = 696,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops244.txt",
+	-- 3阶充值豪礼
+},
+{
+	item_id = 697,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops245.txt",
+	-- 4阶充值豪礼
+},
+{
+	item_id = 698,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops246.txt",
+	-- 5阶充值豪礼
+},
+{
+	item_id = 699,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops247.txt",
+	-- 6阶充值豪礼
+},
+{
+	item_id = 700,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops248.txt",
+	-- 7阶充值豪礼
+},
+{
+	item_id = 701,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops249.txt",
+	-- 8阶充值豪礼
+},
+{
+	item_id = 702,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops250.txt",
+	-- 9阶充值豪礼
+},
+{
+	item_id = 703,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops251.txt",
+	-- 10阶充值豪礼
+},
+{
+	item_id = 11930,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops252.txt",
+	-- 12档充值福利包
+},
+
+{
+	item_id = 704,
+	itemCount = 1,
+	needMinBagGrid = 11,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops253.txt",
+	-- 60级套装礼包
+},
+{
+	item_id = 705,
+	itemCount = 1,
+	needMinBagGrid = 11,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops254.txt",
+	-- 一转50级套装礼包
+},
+{
+	item_id = 706,
+	itemCount = 1,
+	needMinBagGrid = 11,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops255.txt",
+	-- 二转50级套装礼包
+},
+
+{
+	-- 青铜积分礼包
+	item_id = 1436,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops256.txt",
+},
+{
+	-- 白银积分礼包
+	item_id = 1437,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops257.txt",
+},
+{
+	-- 黄金积分礼包
+	item_id = 1438,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops258.txt",
+},
+{
+	-- 超级福利大礼包
+	item_id = 1439,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops259.txt",
+},
+{
+	-- 末日礼包
+	item_id = 1440,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops260.txt",
+},
+{
+	-- 圣诞礼包
+	item_id = 1441,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops261.txt",
+},
+{
+	-- 元旦礼包
+	item_id = 1442,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops262.txt",
+},
+{
+	-- 充值优惠礼包
+	item_id = 1443,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops263.txt",
+},
+{
+	-- 老战友召唤复活包
+	item_id = 1444,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops264.txt",
+},
+
+{
+	-- 60级套装包
+	item_id = 1426,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops265.txt",
+},
+
+{
+	-- 圣诞充值礼包
+	item_id = 1432,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops266.txt",
+},
+
+
+{
+	-- 元旦充值礼包
+	item_id = 1433,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops267.txt",
+},
+
+{
+	-- 云鬃战马碎片
+	item_id = 1378,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops268.txt",
+},
+{
+	-- 紫电绝影碎片
+	item_id = 1379,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops269.txt",
+},
+{
+	-- 火曜铁骑碎片
+	item_id = 1380,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops270.txt",
+},
+{
+	-- 幽冥鬼骑碎片
+	item_id = 1381,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops271.txt",
+},
+{
+	-- 冰原战熊碎片
+	item_id = 1382,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops272.txt",
+},
+{
+	-- 圣魔麒麟碎片
+	item_id = 1383,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops273.txt",
+},
+{
+	-- 冬暮麋鹿碎片
+	item_id = 1386,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops274.txt",
+},
+{
+	-- 至尊金龙碎片
+	item_id = 1389,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops275.txt",
+},
+
+{
+	-- 强效英雄经验丹
+	item_id = 1408,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops276.txt",
+},
+{
+	-- 超级英雄经验丹
+	item_id = 1409,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops277.txt",
+},
+{
+	-- 999礼券
+	item_id = 1430,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops278.txt",
+},
+{
+	-- 99礼券
+	item_id = 1431,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops279.txt",
+},
+{
+	-- 55级套装武器礼包
+	item_id = 1470,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops280.txt",
+},
+{
+	-- 55级套装衣服礼包
+	item_id = 1471,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops281.txt",
+},
+{
+	-- 60级套装武器礼包
+	item_id = 1472,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops282.txt",
+},
+{
+	-- 60级套装衣服礼包
+	item_id = 1473,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops283.txt",
+},
+{
+	-- 9999礼券
+	item_id = 1429,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops284.txt",
+},
+{
+	-- 狩王大礼包
+	item_id = 1474,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops285.txt",
+},
+{
+	-- 猎人大礼包
+	item_id = 1475,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops286.txt",
+},
+{
+	-- 猎手大礼包
+	item_id = 1476,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops287.txt",
+},
+
+{
+	-- 新服经验大礼包
+	item_id = 1477,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needMoney = {type = 3, count = 68},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops288.txt",
+},
+{
+	-- 新服坐骑大礼包
+	item_id = 1478,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needMoney = {type = 3, count = 168},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops289.txt",
+},
+{
+	-- 新服增强大礼包
+	item_id = 1479,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needMoney = {type = 3, count = 688},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops290.txt",
+},
+{
+	-- 烈火战神礼包
+	item_id = 1480,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops291.txt",
+},
+{
+	-- 真烈火战神礼包
+	item_id = 1481,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops292.txt",
+},
+{
+	-- 恭喜发财大礼包
+	item_id = 1482,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops293.txt",
+},
+{
+	-- 五百万经验灵符
+	item_id = 1483,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops294.txt",
+},
+
+{
+	-- 高级技能残页
+	item_id = 1502,
+	itemCount = 20,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops295.txt",
+},
+
+{
+	-- 高富帅
+	item_id = 1493,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops296.txt",
+},
+{
+	-- 白富美
+	item_id = 1494,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops297.txt",
+},
+{
+	-- 永久高富帅
+	item_id = 1522,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops298.txt",
+},
+{
+	-- 永久白富美
+	item_id = 1523,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops299.txt",
+},
+
+
+
+{
+	-- 英雄战士男装礼包
+	item_id = 1516,
+	itemCount = 1,
+	needMinBagGrid = 12,
+	needMoney = {type = 3, count = 30},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops300.txt",
+},
+{
+	-- 英雄法师男装礼包
+
+	item_id = 1517,
+	itemCount = 1,
+	needMinBagGrid = 12,
+	needMoney = {type = 3, count = 30},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops302.txt",
+},
+{
+	-- 英雄道士男装礼包
+
+	item_id = 1518,
+	itemCount = 1,
+	needMinBagGrid = 12,
+	needMoney = {type = 3, count = 30},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops304.txt",
+},
+{
+	-- 英雄战士女装礼包
+
+	item_id = 1519,
+	itemCount = 1,
+	needMinBagGrid = 12,
+	needMoney = {type = 3, count = 30},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops301.txt",
+},
+{
+	-- 英雄法师女装礼包
+
+	item_id = 1520,
+	itemCount = 1,
+	needMinBagGrid = 12,
+	needMoney = {type = 3, count = 30},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops303.txt",
+},
+{
+	-- 英雄道士女装礼包
+
+	item_id = 1521,
+	itemCount = 1,
+	needMinBagGrid = 12,
+	needMoney = {type = 3, count = 30},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops305.txt",
+},
+
+{
+	item_id = 1468,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops306.txt",
+	-- 55级新手包
+},
+{
+	item_id = 1469,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops307.txt",
+	-- 60级新手包
+},
+
+{
+	item_id = 1537,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops308.txt",
+	-- 雄霸天下
+},
+
+{
+	item_id = 1538,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops309.txt",
+	-- PK之神
+},
+
+
+{
+	item_id = 1539,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops310.txt",
+	-- PK我最牛
+},
+
+{
+	item_id = 1540,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops311.txt",
+	-- 囧神
+},
+
+{
+	item_id = 1541,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops312.txt",
+	-- 万人迷
+},
+
+{
+	item_id = 1542,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops313.txt",
+	-- 爱你到永远
+},
+
+{
+	item_id = 1543,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops314.txt",
+	-- 老婆我爱你
+},
+
+{
+	item_id = 1544,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops315.txt",
+	-- 老公我爱你
+},
+
+{
+	item_id = 1545,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops316.txt",
+	-- 非PK勿扰
+},
+
+{
+	item_id = 1546,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops317.txt",
+	-- 人间凶器
+},
+
+{
+	item_id = 1553,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops326.txt",
+	-- 开门利是
+},
+
+{
+	item_id = 1556,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops327.txt",
+	-- 年糕开经验
+},
+
+{
+	item_id = 1555,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops328.txt",
+	-- 年兽角开经验
+},
+
+{
+	item_id = 1547,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops329.txt",
+	-- 8元宝
+},
+{
+	item_id = 1548,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops330.txt",
+	-- 88元宝
+},
+{
+	item_id = 1549,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops331.txt",
+	-- 888元宝
+},
+
+{
+	item_id = 1595,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops332.txt",
+	-- 洋葱头
+},
+
+{
+	item_id = 1585,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops333.txt",
+	-- 恭喜发财大礼包
+},
+{
+	item_id = 1586,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops334.txt",
+	-- 财运亨通大礼包
+},
+{
+	item_id = 1587,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops335.txt",
+	-- 财源滚滚大礼包
+},
+
+{
+	item_id = 1620,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops336.txt",
+	-- 20W充值礼包
+},
+{
+	item_id = 1621,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops337.txt",
+	-- 188元宝实惠回馈包
+},
+{
+	item_id = 1622,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops338.txt",
+	-- 188元宝惊喜回馈包
+},
+{
+	item_id = 1623,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops339.txt",
+	-- 188元宝欢乐回馈包
+},
+{
+	item_id = 1624,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops340.txt",
+	-- 288元宝惊喜回馈包
+},
+{
+	item_id = 1625,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops341.txt",
+	-- 爱意浓浓惊喜回馈礼包
+},
+{
+	item_id = 1600,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops342.txt",
+	-- 1阶7天回归礼包
+},
+{
+	item_id = 1601,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops343.txt",
+	-- 1阶14天回归礼包
+},
+{
+	item_id = 1602,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops344.txt",
+	-- 1阶30天回归礼包
+},
+{
+	item_id = 1603,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops345.txt",
+	-- 1阶60天回归礼包
+},
+{
+	item_id = 1604,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops346.txt",
+	-- 2阶7天回归礼包
+},
+{
+	item_id = 1605,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops347.txt",
+	-- 2阶14天回归礼包
+},
+{
+	item_id = 1606,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops348.txt",
+	-- 2阶30天回归礼包
+},
+{
+	item_id = 1607,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops349.txt",
+	-- 2阶60天回归礼包
+},
+{
+	item_id = 1608,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops350.txt",
+	-- 3阶7天回归礼包
+},
+{
+	item_id = 1609,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops351.txt",
+	-- 3阶14天回归礼包
+},
+{
+	item_id = 1610,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops352.txt",
+	-- 3阶30天回归礼包
+},
+{
+	item_id = 1611,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops353.txt",
+	-- 3阶60天回归礼包
+},
+{
+	item_id = 1612,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops354.txt",
+	-- 4阶7天回归礼包
+},
+{
+	item_id = 1613,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops355.txt",
+	-- 4阶14天回归礼包
+},
+{
+	item_id = 1614,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops356.txt",
+	-- 4阶30天回归礼包
+},
+{
+	item_id = 1615,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops357.txt",
+	-- 4阶60天回归礼包
+},
+{
+	item_id = 1616,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops358.txt",
+	-- 1阶邀请礼包
+},
+{
+	item_id = 1617,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops359.txt",
+	-- 2阶邀请礼包
+},
+{
+	item_id = 1618,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops360.txt",
+	-- 3阶邀请礼包
+},
+{
+	item_id = 1619,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops361.txt",
+	-- 4阶邀请礼包
+},
+
+{
+	item_id = 1711,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops362.txt",
+	-- 30天PK我最牛
+},
+
+{
+	item_id = 1706,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops363.txt",
+	-- 388元宝惊喜回馈包
+},
+{
+	item_id = 1707,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops364.txt",
+	-- 888元宝惊喜回馈包
+},
+{
+	item_id = 1708,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops365.txt",
+	-- 888元宝实惠回馈包
+},
+{
+	item_id = 1709,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops366.txt",
+	-- 1888元宝惊喜回馈包
+},
+{
+	item_id = 1710,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops367.txt",
+	-- 1888元宝惊喜回馈包
+},
+
+{
+	item_id = 1712,
+	itemCount = 7,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops368.txt",
+	-- 普通板凳
+},
+
+{
+	-- 70级套装包
+	item_id = 1721,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops369.txt",
+},
+{
+	-- 41号囧囧有神包
+	item_id = 1754,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops370.txt",
+},
+{
+	-- 名人礼包
+	item_id = 1758,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops371.txt",
+},
+{
+	-- 名人亲王
+	item_id = 1759,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops372.txt",
+},
+{
+	-- 名人公爵
+	item_id = 1760,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops373.txt",
+},
+{
+	-- 名人侯爵
+	item_id = 1761,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops374.txt",
+},
+{
+	-- 名人伯爵
+	item_id = 1762,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops375.txt",
+},
+{
+	-- 名人子爵
+	item_id = 1763,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops376.txt",
+},
+{
+	-- 名人男爵
+	item_id = 1764,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops377.txt",
+},
+{
+	-- 名人勋爵
+	item_id = 1765,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops378.txt",
+},
+{
+	-- 灵力丹(小)
+	item_id = 1755,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops379.txt",
+},
+{
+	-- 灵力丹(中)
+	item_id = 1756,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops380.txt",
+},
+{
+	-- 灵力丹(大)
+	item_id = 1757,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops381.txt",
+},
+
+{
+	-- 转生技能残页
+	item_id = 1744,
+	itemCount = 20,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops382.txt",
+},
+{
+	-- 法宝抢鲜礼包
+	item_id = 1857,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops383.txt",
+},
+{
+	-- 法宝尝鲜礼包
+	item_id = 1858,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops384.txt",
+},
+{
+	-- 法宝抢先礼包
+	item_id = 1859,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops385.txt",
+},
+
+{
+	-- 白银礼包
+	item_id = 1860,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops386.txt",
+},
+{
+	-- 纯金礼包
+	item_id = 1861,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops387.txt",
+},
+{
+	-- 翡翠礼包
+	item_id = 1862,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops388.txt",
+},
+{
+	-- 水晶礼包
+	item_id = 1863,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops389.txt",
+},
+{
+	-- 钻石礼包
+	item_id = 1864,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops390.txt",
+},
+
+{
+   -- 魔珠:战神守护
+   item_id = 1865,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops391.txt",
+},
+{
+   -- 魔珠:战神之佑
+   item_id = 1866,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops392.txt",
+},
+{
+   -- 魔珠:秘法守护
+   item_id = 1867,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops393.txt",
+},
+{
+   -- 魔珠:秘法之佑
+   item_id = 1868,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops394.txt",
+},
+{
+   -- 魔珠:道法守护
+   item_id = 1869,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops395.txt",
+},
+{
+   -- 魔珠:道法之佑
+   item_id = 1870,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops396.txt",
+},
+{
+   -- 魔珠:神圣守护
+   item_id = 1871,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops397.txt",
+},
+{
+   -- 魔珠:神圣之佑
+   item_id = 1872,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops398.txt",
+},
+{
+   -- 魔珠:神圣
+   item_id = 1873,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops399.txt",
+},
+{
+   -- 魔珠:岩甲
+   item_id = 1874,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops400.txt",
+},
+{
+   -- 魔珠:铁甲
+   item_id = 1875,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops401.txt",
+},
+{
+   -- 魔珠:断角
+   item_id = 1876,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops402.txt",
+},
+{
+   -- 魔珠:疾光
+   item_id = 1877,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops403.txt",
+},
+{
+   -- 魔珠:微尘珠
+   item_id = 1878,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops404.txt",
+},
+{
+   -- 魔珠:刀锋守护
+   item_id = 1879,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops405.txt",
+},
+{
+   -- 魔珠:刀锋之佑
+   item_id = 1880,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops406.txt",
+},
+{
+   -- 魔珠:紫电守护
+   item_id = 1881,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops407.txt",
+},
+{
+   -- 魔珠:紫电之佑
+   item_id = 1882,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops408.txt",
+},
+{
+   -- 魔珠:两仪守护
+   item_id = 1883,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops409.txt",
+},
+{
+   -- 魔珠:两仪之佑
+   item_id = 1884,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops410.txt",
+},
+{
+   -- 魔珠:神元守护
+   item_id = 1885,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops411.txt",
+},
+{
+   -- 魔珠:神元之佑
+   item_id = 1886,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops412.txt",
+},
+{
+   -- 魔珠:神元
+   item_id = 1887,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops413.txt",
+},
+{
+   -- 魔珠:太初
+   item_id = 1888,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops414.txt",
+},
+{
+   -- 魔珠:逆鳞
+   item_id = 1889,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops415.txt",
+},
+{
+   -- 魔珠:灵犀
+   item_id = 1890,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops416.txt",
+},
+{
+   -- 魔珠:雷鸣
+   item_id = 1891,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops417.txt",
+},
+{
+   -- 魔珠:翠茗珠
+   item_id = 1892,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops418.txt",
+},
+{
+   -- 魔珠:意念守护
+   item_id = 1893,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops419.txt",
+},
+{
+   -- 魔珠:意念之佑
+   item_id = 1894,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops420.txt",
+},
+{
+   -- 魔珠:虬龙守护
+   item_id = 1895,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops421.txt",
+},
+{
+   -- 魔珠:虬龙之佑
+   item_id = 1896,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops422.txt",
+},
+{
+   -- 魔珠:阴阳守护
+   item_id = 1897,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops423.txt",
+},
+{
+   -- 魔珠:阴阳之佑
+   item_id = 1898,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops424.txt",
+},
+{
+   -- 魔珠:圣元守护
+   item_id = 1899,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops425.txt",
+},
+{
+   -- 魔珠:圣元之佑
+   item_id = 1900,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops426.txt",
+},
+{
+   -- 魔珠:圣元
+   item_id = 1901,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops427.txt",
+},
+{
+   -- 魔珠:混元
+   item_id = 1902,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops428.txt",
+},
+{
+   -- 魔珠:荆棘
+   item_id = 1903,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops429.txt",
+},
+{
+   -- 魔珠:金刚
+   item_id = 1904,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops430.txt",
+},
+{
+   -- 魔珠:风暴
+   item_id = 1905,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops431.txt",
+},
+{
+   -- 魔珠:雪魄珠
+   item_id = 1906,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops432.txt",
+},
+{
+   -- 魔珠:暴力守护
+   item_id = 1907,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops433.txt",
+},
+{
+   -- 魔珠:暴力之佑
+   item_id = 1908,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops434.txt",
+},
+{
+   -- 魔珠:古雷守护
+   item_id = 1909,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops435.txt",
+},
+{
+   -- 魔珠:古雷之佑
+   item_id = 1910,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops436.txt",
+},
+{
+   -- 魔珠:六御守护
+   item_id = 1911,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops437.txt",
+},
+{
+   -- 魔珠:六御之佑
+   item_id = 1912,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops438.txt",
+},
+{
+   -- 魔珠:癸元守护
+   item_id = 1913,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops439.txt",
+},
+{
+   -- 魔珠:癸元之佑
+   item_id = 1914,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops440.txt",
+},
+{
+   -- 魔珠:癸元
+   item_id = 1915,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops441.txt",
+},
+{
+   -- 魔珠:灭世
+   item_id = 1916,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops442.txt",
+},
+{
+   -- 魔珠:灵盾
+   item_id = 1917,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops443.txt",
+},
+{
+   -- 魔珠:权杖
+   item_id = 1918,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops444.txt",
+},
+{
+   -- 魔珠:惊涛
+   item_id = 1919,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops445.txt",
+},
+{
+   -- 魔珠:曙光珠
+   item_id = 1920,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops446.txt",
+},
+{
+   -- 魔珠:圣战守护
+   item_id = 1921,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops447.txt",
+},
+{
+   -- 魔珠:圣战之佑
+   item_id = 1922,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops448.txt",
+},
+{
+   -- 魔珠:法神守护
+   item_id = 1923,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops449.txt",
+},
+{
+   -- 魔珠:法神之佑
+   item_id = 1924,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops450.txt",
+},
+{
+   -- 魔珠:道尊守护
+   item_id = 1925,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops451.txt",
+},
+{
+   -- 魔珠:道尊之佑
+   item_id = 1926,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops452.txt",
+},
+{
+   -- 魔珠:鸿元守护
+   item_id = 1927,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops453.txt",
+},
+{
+   -- 魔珠:鸿元之佑
+   item_id = 1928,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops454.txt",
+},
+{
+   -- 魔珠:鸿元
+   item_id = 1929,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops455.txt",
+},
+{
+   -- 魔珠:雷劫
+   item_id = 1930,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops456.txt",
+},
+{
+   -- 魔珠:罡体
+   item_id = 1931,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops457.txt",
+},
+{
+   -- 魔珠: 毁灭
+   item_id = 1932,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops458.txt",
+},
+{
+   -- 魔珠:晨曦
+   item_id = 1933,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops459.txt",
+},
+{
+   -- 魔珠:玄天珠
+   item_id = 1934,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   checkMagicBeadBag = 1,	--检测魔珠背包空间
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops460.txt",
+},
+
+{
+	-- 10礼券
+	item_id = 1949,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops461.txt",
+},
+{
+	-- 5礼券
+	item_id = 1950,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops462.txt",
+},
+{
+	-- 金钱果
+	item_id = 1956,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops463.txt",
+},
+{
+	-- 奇异果
+	item_id = 1957,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops464.txt",
+},
+{
+	-- 五一充值礼包
+	item_id = 1959,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops465.txt",
+},
+{
+	-- 法宝团购礼包
+	item_id = 1960,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops466.txt",
+},
+{
+	-- 战神结晶碎片
+	item_id = 1961,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops467.txt",
+},
+
+{
+	-- 催泪弹
+	item_id = 1962,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops468.txt",
+},
+{
+	-- 强力催泪弹
+	item_id = 1963,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops469.txt",
+},
+
+{
+	-- 五一特惠包
+	item_id = 1965,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops470.txt",
+},
+{
+	-- 五一惊喜包
+	item_id = 1966,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops471.txt",
+},
+{
+	-- 五一狂欢包
+	item_id = 1967,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops472.txt",
+},
+{
+	-- 植物种子包
+	item_id = 1964,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops473.txt",
+},
+
+{
+   -- 魔珠:不屈战意
+   item_id = 1935,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops474.txt",
+},
+{
+   -- 魔珠:擂鼓战歌
+   item_id = 1936,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops475.txt",
+},
+{
+   -- 魔珠:法破虚空
+   item_id = 1937,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops476.txt",
+},
+{
+   -- 魔珠:仓鬼之歌
+   item_id = 1938,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops477.txt",
+},
+{
+   -- 魔珠:灵魂恩典
+   item_id = 1939,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops478.txt",
+},
+{
+   -- 魔珠:灵魂之佑
+   item_id = 1940,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops479.txt",
+},
+{
+   -- 魔珠:落英缤纷
+   item_id = 1941,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops480.txt",
+},
+{
+   -- 魔珠:女神之泪
+   item_id = 1942,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops481.txt",
+},
+{
+   -- 魔珠:神曜
+   item_id = 1943,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops482.txt",
+},
+{
+   -- 魔珠:钟馗
+   item_id = 1944,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops483.txt",
+},
+{
+   -- 魔珠:天辰
+   item_id = 1945,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops484.txt",
+},
+{
+   -- 魔珠:悲歌
+   item_id = 1946,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops485.txt",
+},
+{
+   -- 魔珠:云蒙
+   item_id = 1947,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops486.txt",
+},
+{
+   -- 魔珠:定聆珠
+   item_id = 1948,
+   itemCount = 1,
+   needMinBagGrid = 0,
+   needDelete = true,
+   dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops487.txt",
+},
+
+{
+	-- 老服回馈狂欢包
+	item_id = 1968,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops488.txt",
+},
+
+{
+	-- 高级种子包
+	item_id = 1969,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops489.txt",
+},
+
+{
+	-- 狂欢礼包
+	item_id = 1971,
+	itemCount = 1,
+	needMinBagGrid = 13,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops490.txt",
+},
+{
+	-- 十亿经验灵符
+	item_id = 1970,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops491.txt",
+},
+{
+	-- 合服感恩包
+	item_id = 1974,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops492.txt",
+},
+{
+	-- 惊喜感恩礼包
+	item_id = 1988,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	needMoney = {type = 3, count = 199},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops493.txt",
+},
+{
+	-- 狂欢感恩礼包
+	item_id = 1989,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	needMoney = {type = 3, count = 688},			--使用需要消耗金钱数 type:金钱类型 1金币 2绑定元宝 3元宝 4商城积分 5荣誉 6战勋
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops494.txt",
+},
+{
+	-- 每日首充礼包
+	item_id = 1972,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops495.txt",
+},
+{
+	-- 十万回馈礼包
+	item_id = 1973,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops496.txt",
+},
+{
+	-- 鉴定团购包
+	item_id = 1975,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops497.txt",
+},
+{
+	-- 4阶法宝碎片
+	item_id = 1977,
+	itemCount = 3,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops498.txt",
+},
+{
+	-- 二次元碎片
+	item_id = 1978,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops499.txt",
+},
+{
+	-- 天籁余音
+	item_id = 1979,
+	itemCount = 7,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops500.txt",
+},
+{
+	-- 烈火令
+	item_id = 1976,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops501.txt",
+},
+{
+	-- 节日灵玉
+	item_id = 2102,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops502.txt",
+},
+{
+	item_id = 2110,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops503.txt",
+	-- 洋葱头
+},
+{
+	item_id = 2112,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops504.txt",
+	-- 六月充值礼包
+},
+{
+	item_id = 2109,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops505.txt",
+	-- 攻城兄弟包
+},
+{
+	item_id = 2114,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops506.txt",
+	-- 足迹惊喜回馈礼包
+},
+{
+	item_id = 2113,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops507.txt",
+	-- 每日千元礼包
+},
+{
+	item_id = 2108,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops512.txt",
+	-- 奇缘礼包
+},
+{
+	item_id = 2115,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops513.txt",
+	-- 杀戮之王
+},
+{
+	item_id = 2116,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops514.txt",
+	-- 端午狂欢包
+},
+
+{
+	item_id = 1686,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops515.txt",
+	-- 14阶充值礼包
+},
+{
+	item_id = 2122,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needMoney = {type = 2, count = 88},
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops516.txt",
+	-- 坐骑消费礼包
+},
+{
+	item_id = 2123,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needMoney = {type = 2, count = 138},
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops517.txt",
+	-- 魂石消费礼包
+},
+{
+	item_id = 2124,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needMoney = {type = 2, count = 288},
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops518.txt",
+	-- 足迹消费礼包
+},
+{
+	item_id = 2125,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needMoney = {type = 3, count = 38},
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops519.txt",
+	-- 足迹限时优惠礼包
+},
+{
+	item_id = 2127,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops520.txt",
+	-- 消费回馈礼包
+},
+{
+	item_id = 2128,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops521.txt",
+	-- 战力活跃礼包
+},
+{
+	item_id = 2129,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops522.txt",
+	-- 英雄大礼包
+},
+{
+	item_id = 2133,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops523.txt",
+	-- 七月充值礼包
+},
+{
+	item_id = 2223,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops524.txt",
+	-- 真快马鞭
+},
+{
+	item_id = 2224,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops525.txt",
+	-- 胜利旗帜礼包
+},
+{
+	item_id = 2225,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops526.txt",
+	-- 行会任务礼包
+},
+{
+	item_id = 2226,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops527.txt",
+	-- = 双击使用获得50万金币,
+},
+{
+	item_id = 2241,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops528.txt",
+	-- 八月充值礼包,
+},
+{
+	item_id = 2256,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops529.txt",
+	-- 七夕礼包,
+},
+{
+	item_id = 2227,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops530.txt",
+	-- 星宫卡盒,
+},
+{
+	item_id = 2229,
+	itemCount = 7,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops531.txt",
+	-- 龙珠,
+},
+{
+	item_id = 2257,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops532.txt",
+	-- 灵珠促销包,
+},
+{
+	item_id = 2230,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops533.txt",
+	-- 古老的装备宝箱,
+},
+{
+	item_id = 2231,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops534.txt",
+	-- 破旧的灵珠宝箱,
+},
+{
+	item_id = 2232,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops535.txt",
+	-- 神秘的特戒宝箱,
+},
+{
+	-- 次元解毒药
+	item_id = 2269,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops536.txt",
+},
+{
+	-- 无双爆炸丹
+	item_id = 2270,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops537.txt",
+},
+{
+	-- 幽冥防御丹
+	item_id = 2271,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops538.txt",
+},
+{
+	-- 500000金币
+	item_id = 2226,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops539.txt",
+},
+{
+	-- 1000000金币
+	item_id = 9280,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops540.txt",
+},
+{
+	-- 10000000金币
+	item_id = 9260,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops541.txt",
+},
+{
+	-- 九月充值礼包
+	item_id = 2302,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops542.txt",
+},
+{
+	-- 护盾抢鲜体验包
+	item_id = 2289,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops543.txt",
+},
+{
+	-- 45级装备促销包
+	item_id = 2303,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops544.txt",
+},
+{
+	item_id = 2276,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops545.txt",
+	-- 小转生灵魄
+},
+--[[
+{
+	-- 捣药杵
+	item_id = 2426,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops546.txt",
+},
+{
+	-- 白玉捣药杵
+	item_id = 2427,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops547.txt",
+},
+{
+	-- 神圣药水(VIP)
+	item_id = 2460,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops548.txt",
+},
+{
+	-- 特效防御丹
+	item_id = 2461,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops549.txt",
+},
+--]]
+{
+	-- 中秋充值礼包
+	item_id = 2424,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops550.txt",
+},
+{
+	-- 国庆充值礼包
+	item_id = 2425,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops551.txt",
+},
+{
+	--灵魂结晶
+	item_id = 2444,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops552.txt",
+},
+{
+	--100荣誉
+	item_id = 2445,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops553.txt",
+},
+{
+	--魔灵卡合成魔王卡
+	item_id = 2526,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops554.txt",
+},
+{
+	-- 真爱之心
+	item_id = 2277,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops555.txt",
+},
+{
+	-- 1转55级套装包
+	item_id = 2528,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops556.txt",
+},
+{
+	-- 2转55级套装包
+	item_id = 2529,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops557.txt",
+},
+{
+	-- 3转55级套装包
+	item_id = 2530,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops558.txt",
+},
+{
+	-- 4转55级套装包
+	item_id = 2531,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops559.txt",
+},
+{
+	-- 5转55级套装包
+	item_id = 2532,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops560.txt",
+},
+{
+	-- 1转60级套装包
+	item_id = 2533,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops561.txt",
+},
+{
+	-- 2转60级套装包
+	item_id = 2534,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops562.txt",
+},
+{
+	-- 3转60级套装包
+	item_id = 2535,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops563.txt",
+},
+{
+	-- 4转60级套装包
+	item_id = 2536,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops564.txt",
+},
+{
+	-- 5转60级套装包
+	item_id = 2537,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops565.txt",
+},
+{
+	-- 1转70级套装包
+	item_id = 2538,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops566.txt",
+},
+{
+	-- 2转70级套装包
+	item_id = 2539,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops567.txt",
+},
+{
+	-- 3转70级套装包
+	item_id = 2540,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops568.txt",
+},
+{
+	-- 4转70级套装包
+	item_id = 2541,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops569.txt",
+},
+{
+	-- 5转70级套装包
+	item_id = 2542,
+	itemCount = 1,
+	needMinBagGrid = 8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops570.txt",
+},
+{
+	--龙柱宝箱
+	item_id = 2434,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops579.txt",     --龙柱宝箱
+},
+{
+	--新英雄技能残页,
+	item_id = 2543,
+	itemCount = 20,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops580.txt",
+},
+{
+	--37wan千服碎片,
+	item_id = 2544,
+	itemCount = 37,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops581.txt",
+},
+{
+	--1000.ID.CARD,
+	item_id = 2446,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops582.txt",
+},
+{
+	--会员福利包,
+	item_id = 2561,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops583.txt",
+},
+{
+	--秘籍包,
+	item_id = 2575,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops584.txt",
+},
+{
+	--天赋秘籍惊喜回馈礼包,
+	item_id = 2576,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops585.txt",
+},
+{
+	--VIP会员惊喜回馈礼包,
+	item_id = 2577,
+	itemCount = 1,
+	needMinBagGrid = 2,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops586.txt",
+},
+{
+	--神都充值礼包,
+	item_id = 2578,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops587.txt",
+},
+{
+	--八卦镜碎片,
+	item_id = 2581,
+	itemCount = 8,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops588.txt",
+},
+{
+	--视野
+	item_id = 2616,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops589.txt",
+},
+--[[
+{
+	--庆典礼炮
+	item_id = 2593,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops590.txt",
+},]]
+{
+	--元始魔珠
+	item_id = 2628,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops595.txt",
+},
+{
+	--坐骑飞升丹
+	item_id = 2594,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops596.txt",
+},
+{
+	--至尊英雄经验丹
+	item_id = 2595,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops597.txt",
+},
+{
+	--至尊人物经验丹
+	item_id = 2596,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops598.txt",
+},
+{
+	--神器碎片
+	item_id = 2646,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops599.txt",
+},
+{
+	--五天秘籍大礼包
+	item_id = 2691,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops600.txt",
+},
+{
+	--12月充值礼包,
+	item_id = 2692,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops601.txt",
+},
+{
+	--小燃烧弹
+	item_id = 2779,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops602.txt",
+},
+{
+	--大燃烧弹
+	item_id = 2780,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops603.txt",
+},
+{
+	--天梯王者礼包
+	item_id = 2753,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops604.txt",
+},
+{
+	--天梯钻石礼包
+	item_id = 2754,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops605.txt",
+},
+{
+	--天梯黄金礼包
+	item_id = 2755,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops606.txt",
+},
+{
+	--天梯白银礼包
+	item_id = 2756,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops607.txt",
+},
+{
+	--天梯青铜礼包
+	item_id = 2757,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops608.txt",
+},
+{
+	--龙门冠军礼包
+	item_id = 2758,
+	itemCount = 1,
+	needMinBagGrid =  8,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops609.txt",
+},
+{
+	--龙门亚军礼包
+	item_id = 2759,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops610.txt",
+},
+{
+	--龙门四强礼包
+	item_id = 2760,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops611.txt",
+},
+{
+	--龙门八强礼包
+	item_id = 2761,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops612.txt",
+},
+{
+	--龙门勇士礼包
+	item_id = 2762,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops613.txt",
+},
+{
+	--虎门冠军礼包
+	item_id = 2763,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops614.txt",
+},
+{
+	--虎门亚军礼包
+	item_id = 2764,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops615.txt",
+},
+{
+	--虎门四强礼包
+	item_id = 2765,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops616.txt",
+},
+{
+	--虎门八强礼包
+	item_id = 2766,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops617.txt",
+},
+{
+	--虎门勇士礼包
+	item_id = 2767,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops618.txt",
+},
+{
+	--2013圣诞充值礼包
+	item_id = 2775,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops619.txt",
+},
+{
+	--2014元旦充值礼包
+	item_id = 2776,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops620.txt",
+},
+{
+	--寒冰碎片
+	item_id = 2811,
+	itemCount = 200,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops625.txt",
+},
+{
+	--火蝎灵魄
+	item_id = 2819,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops626.txt",
+},
+{
+	--感恩的心
+	item_id = 2820,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops627.txt",
+},
+{
+	--天覆阵基
+	item_id = 2823,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops628.txt",
+},
+{
+	--天覆阵
+	item_id = 2824,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops629.txt",
+},
+{
+	--守卫令
+	item_id = 2822,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops630.txt",
+},
+{
+	--寒冬礼包
+	item_id = 2869,
+	itemCount = 1,
+	needMinBagGrid = 7,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops631.txt",
+},
+{
+	--天关战神礼包
+	item_id = 2821,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops632.txt",
+},
+{
+	-- 天关战神
+	item_id = 2874,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops633.txt",
+
+},
+{
+	--喜庆鞭炮
+	item_id = 2875,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops634.txt",
+},
+{
+	--卡包（测试使用）
+	item_id = 2851,
+	itemCount = 1,
+	needMinBagGrid = 18,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops635.txt",
+},
+{
+	--小燃烧弹
+	item_id = 2840,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops636.txt",
+},
+{
+	--大燃烧弹
+	item_id = 2841,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops637.txt",
+},
+{
+	--马年开门利是
+	item_id = 2876,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops642.txt",
+},
+{
+	--美味年糕
+	item_id = 2835,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops643.txt",
+},
+{
+	--图鉴铜包
+	item_id = 2848,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops644.txt",
+},
+{
+	--图鉴银包
+	item_id = 2849,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops645.txt",
+},
+{
+	--图鉴金包
+	item_id = 2850,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops646.txt",
+},
+{
+	--新春礼包
+	item_id = 2870,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops647.txt",
+},
+{
+	--雨水礼包
+	item_id = 2871,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops648.txt",
+},
+{
+	--15阶礼包
+	item_id = 1687,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops649.txt",
+},
+{
+	--秘籍藏宝箱
+	item_id = 2866,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops650.txt",
+},
+{
+	--梯度礼包188
+	item_id = 2901,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops651.txt",
+},
+{
+	--梯度礼包388
+	item_id = 2902,
+	itemCount = 1,
+	needMinBagGrid = 3,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops652.txt",
+},
+{
+	--梯度礼包888
+	item_id = 2903,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops653.txt",
+},
+{
+	--梯度礼包1888
+	item_id = 2904,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops654.txt",
+},
+{
+	--梯度礼包2888
+	item_id = 2905,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops655.txt",
+},
+{
+	--梯度礼包5000
+	item_id = 2906,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops656.txt",
+},
+{
+	--鸿蒙紫莲
+	item_id = 2910,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops657.txt",
+},
+{
+	--图鉴白金包
+	item_id = 2937,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops658.txt",
+},
+
+{
+	item_id = 2951,
+	itemCount = 20,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops659.txt",
+	--卧龙密令碎片，双击使用，20个卧龙密令碎片合成1个卧龙密令,
+},
+
+{
+	item_id = 2952,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops660.txt",
+	--隐龙丹，解buff专用,
+},
+
+{
+	--沙城龙柱宝箱
+	item_id = 2966,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops665.txt",     --沙城龙柱宝箱
+},
+
+{
+	--图鉴钻石包
+	item_id = 2981,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops666.txt",
+},
+
+{
+	--世界杯8强礼包
+	item_id = 3016,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops671.txt",
+},
+{
+	--世界杯4强礼包
+	item_id = 3017,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops672.txt",
+},
+{
+	--世界杯冠军礼包
+	item_id = 3018,
+	itemCount = 1,
+	needMinBagGrid = 6,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops673.txt",
+},
+{
+	item_id = 3027,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops674.txt",
+	--新法宝碎片，双击使用，10个桑巴之星可合成4星法宝桑巴荣耀,
+},
+{
+	--图鉴翡翠包
+	item_id = 3028,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops675.txt",
+},
+{
+	--球迷变身包
+	item_id = 3029,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops676.txt",
+},
+{
+	--天威灵丹
+	item_id = 2986,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops677.txt",
+},
+{
+	item_id = 3038,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops678.txt",
+	--新法宝碎片，双击使用，10个真·桑巴之星可合成5星法宝桑巴荣耀,
+},
+{
+	--图鉴蓝石包
+	item_id = 3039,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops681.txt",
+},
+{
+	item_id = 3041,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops682.txt",
+	-- 共鸣结晶包
+},
+{
+	item_id = 3042,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops683.txt",
+	-- 灵力丹(中)包
+},
+{
+	--图鉴红石包
+	item_id = 3122,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops684.txt",
+},
+{
+	--绿茵巨星包
+	item_id = 3133,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops685.txt",
+},
+{
+	--黄金华戒包
+	item_id = 3140,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops686.txt",
+},
+{
+	--初级华戒包
+	item_id = 3141,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops687.txt",
+},
+{
+	--铜锣
+	item_id = 3138,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops688.txt",
+},
+{
+	--灯笼
+	item_id = 3139,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops689.txt",
+},
+{
+	--烈火大亨礼包
+	item_id = 3149,
+	itemCount = 1,
+	needMinBagGrid = 4,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops690.txt",
+},
+{
+	--超级转盘冠军礼包
+	item_id = 3150,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops691.txt",
+},
+{
+	--超级转盘亚军礼包
+	item_id = 3151,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops692.txt",
+},
+{
+	--超级转盘季军礼包
+	item_id = 3152,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops693.txt",
+},
+{
+	--超级转盘入围礼包
+	item_id = 3153,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops694.txt",
+},
+{
+	-- 万灵丹
+	item_id = 3144,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops699.txt",
+},
+{
+	-- 虚无祖焱
+	item_id = 3145,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops700.txt",
+},
+{
+	-- 周年碎片
+	item_id = 3224,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops701.txt",
+},
+{
+	--火龙华戒包
+	item_id = 3258,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops702.txt",
+},
+{
+	--帝皇金猊碎片
+	item_id = 3252,
+	itemCount = 25,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops703.txt",
+},
+{
+	--一阶青铜礼包
+	item_id = 3253,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops704.txt",
+},
+{
+	--二阶白银礼包
+	item_id = 3254,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops705.txt",
+},
+{
+	--三阶黄金礼包
+	item_id = 3255,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops706.txt",
+},{
+	--四阶白金礼包
+	item_id = 3256,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops707.txt",
+},
+{
+	--5阶钻石礼包
+	item_id = 3257,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops708.txt",
+},
+{
+	-- 光棍截
+	item_id = 3271,
+	itemCount = 11,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops713.txt",
+},
+{
+	--鸿蒙金鼎
+	item_id = 3289,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops714.txt",
+},
+{
+	-- 净化药水
+	item_id = 3296,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops715.txt",
+},
+{
+	-- 绝世套装包
+	item_id = 3299,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops720.txt",
+},
+{
+	-- 焚城套装包
+	item_id = 3300,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops721.txt",
+},
+{
+	-- 鬼王套装包
+	item_id = 3301,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops722.txt",
+},
+{
+	-- 6级魂石包
+	item_id = 3302,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops723.txt",
+},
+{
+	-- 5级魂石包
+	item_id = 3303,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops724.txt",
+},
+{
+	-- 4级魂石包
+	item_id = 3304,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops725.txt",
+},
+{
+	--驯兽擂台神级礼包
+	item_id = 3305,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops726.txt",
+},
+{
+	--驯兽擂台高级礼包
+	item_id = 3306,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops727.txt",
+},
+{
+	--驯兽擂台中级礼包
+	item_id = 3307,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops728.txt",
+},
+{
+	--驯兽擂台初级礼包
+	item_id = 3308,
+	itemCount = 1,
+	needMinBagGrid = 5,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops729.txt",
+},
+{
+	--图鉴黄石包
+	item_id = 3317,
+	itemCount = 1,
+	needMinBagGrid = 0,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops730.txt",
+},
+{
+	--图鉴雪晶包
+	item_id = 3326,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops731.txt",
+},
+{
+	-- 3级魂石包
+	item_id = 3342,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops732.txt",
+},
+{
+	-- 7级魂石包
+	item_id = 3343,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops733.txt",
+},
+{
+	-- 8级魂石包
+	item_id = 3344,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops734.txt",
+},
+{
+	-- 9级魂石包
+	item_id = 3345,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops735.txt",
+},
+{
+	-- 10级魂石包
+	item_id = 3346,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops736.txt",
+},
+{
+	-- 1阶雪人魔术棒
+	item_id = 3340,
+	itemCount = 50,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops737.txt",
+},
+{
+	-- 雪地流光【10天】
+	item_id = 3341,
+	itemCount = 50,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops738.txt",
+},
+{
+	--纸灯笼礼包
+	item_id = 3363,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops739.txt",
+},
+{
+	--木匣礼包
+	item_id = 3364,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops740.txt",
+},
+{
+	--宝匣礼包
+	item_id = 3365,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops741.txt",
+},{
+	--金匣礼包
+	item_id = 3366,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops742.txt",
+},
+{
+	--纱灯笼礼包
+	item_id = 3367,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops743.txt",
+},
+{
+	--宫灯笼礼包
+	item_id = 3368,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops744.txt",
+},
+{
+	--龙凤灯笼礼包
+	item_id = 3369,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops745.txt",
+},
+{
+	--翠竹
+	item_id = 3356,
+	itemCount = 50,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops746.txt",
+},
+{
+	--金缕玉衣碎片
+	item_id = 3355,
+	itemCount = 50,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops747.txt",
+},
+{
+	--图鉴压岁包
+	item_id = 3379,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops748.txt",
+},
+{
+	--绣花蓝
+	item_id = 3393,
+	itemCount = 50,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops749.txt",
+},
+{
+	--舞狮锣
+	item_id = 3394,
+	itemCount = 50,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops750.txt",
+},
+{
+	--除夕爆竹
+	item_id = 3386,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops546.txt",
+},
+{
+	--16阶充值礼包
+	item_id = 2119,
+	itemCount = 1,
+	needMinBagGrid = 9,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops751.txt",
+},
+{
+	--神石包
+	item_id = 3406,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops752.txt",
+},
+{
+	--财神红包
+	item_id = 3396,
+	itemCount = 1,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops753.txt",
+},
+{
+	--年兽之角
+	item_id = 3395,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops754.txt",
+},
+{
+	--南天紫曜
+	item_id = 3405,
+	itemCount = 50,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops755.txt",
+},
+{
+	--情花
+	item_id = 3422,
+	itemCount = 99,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops756.txt",
+},
+{
+	--黄菊花
+	item_id = 3464,
+	itemCount = 10,
+	needMinBagGrid = 1,
+	needDelete = true,
+	dropName = "data/config/item/scriptItemConfig/ProabilityDrops/probDrops757.txt",
+},
+}

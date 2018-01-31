@@ -1,0 +1,78 @@
+--种植玫瑰的指引
+{
+  maxLevel = 41,
+  --触发条件
+	triggerList =
+	{
+		{ type = 1, valueList = {165,}},      --有这个任务
+	} ,
+
+
+  --引导的步骤
+	steps =
+	{
+    --第1步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },			--任务追踪面板可见
+				{ type = 4,  helpId = 51, dataList = {1,} },      --任务追踪面板没有选中第1项
+				{ type = 5,  helpId = 0, dataList = {165,} },    --存在任务
+      },
+
+      action = { type = 2, helpId = 51, data = 2, desc = Lang.GuideLang.desc4 },  --指向任务追踪面板第1项
+    },
+
+    --第2步 指任务连接
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 5,  helpId = 0, dataList = {165,} },		--存在任务
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 165, data = Lang.GuideLang.name63, desc = Lang.GuideLang.desc2 },
+    },
+
+    --第3步 指向npc对话框列表功能选项
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },    --npc对话框可见
+				{ type = 19, helpId = 40, dataList = {Lang.GuideLang.name64,} },     --指定NPC
+				{ type = 7,  helpId = 0, dataList = {165,} },   --任务进行中
+      },
+
+      --指向npc对话框功能选择的第一项
+      action = { type = 8, helpId = 42, data = 1, desc = Lang.GuideLang.desc35 },
+    },
+
+    --第4步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 4,  helpId = 51, dataList = {1,} },		--任务追踪面板没有选中第一项
+				{ type = 5,  helpId = 0, dataList = {165,} },	--存在任务
+				{ type = 8,  helpId = 0, dataList = {165,} },   --完成任务
+      },
+
+      action = { type = 2, helpId = 51, data = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项
+    },
+
+    --第5步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 6,  helpId = 0, dataList = {165,} },			--不存在任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 165, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

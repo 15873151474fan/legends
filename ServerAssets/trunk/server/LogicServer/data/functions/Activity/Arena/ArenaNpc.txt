@@ -1,0 +1,73 @@
+--lua script
+--勇士角斗场
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "SuicideBomberCommon.txt" once
+--#include "data\config\activityconfig\Arena\ArenaRank.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+--#include "Arena_common.txt" once
+
+function ArenaDialog_Main(sysarg)
+	local str = ""
+	str = Lang.Activity.a00003
+
+	str = str..Lang.Activity.a00004;
+	local needCoin = warriorArenaConfig.BuySuicideBomberNeedCoin;
+	
+	str = string.format(str .. Lang.Activity.a00208,needCoin);--"购买自爆炸弹
+	str = str.."\\<#BL"..Lang.Activity.a00005.."/@LiftArana>"
+	
+	return str
+end
+
+--购买药品
+function BuyDrug(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+--离开活动地图
+function LiftArana(sysarg)
+
+	local str = ""
+
+	str = Lang.Activity.w00023
+	str = str.."\\<#BL"..Lang.Activity.w00010.."/@LeftOk>"
+	str = str.."\\<#BL"..Lang.Activity.w00011.."/@LeftCancle>"
+	
+	return str
+end
+
+--确定离开
+function LeftOk(sysarg)
+	local ranking = Ranking.getRanking(ArenaRanking.ArenaScoreName)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId( ranking, nActorId )
+		if item then
+			local myPoint = Ranking.getPoint(item)
+			if myPoint > 1 then
+				Ranking.updateItem(ranking,nActorId,1-myPoint)
+				SendActivityToAll()
+			end
+		end
+	end
+
+	Actor.closeActivityWind(sysarg) -- 关闭活动显示面板
+
+	local nPosX = System.getRandomNumber(warriorArenaConfig.ePosX[2]-warriorArenaConfig.ePosX[1])
+	nPosX = nPosX + warriorArenaConfig.ePosX[1]
+
+	local nPosY = System.getRandomNumber(warriorArenaConfig.ePosY[2]-warriorArenaConfig.ePosY[1])
+	nPosY = nPosY + warriorArenaConfig.ePosY[1]
+
+	local nHandle = Fuben.getSceneHandleById(warriorArenaConfig.exitSceenId,0)
+	Actor.enterFuBen(sysarg,nHandle,warriorArenaConfig.exitSceenId,nPosX,nPosY)
+end
+
+--取消
+function LeftCancle(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+
+table.insert(MainFnTable, ArenaDialog_Main)

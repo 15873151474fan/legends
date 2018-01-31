@@ -1,0 +1,78 @@
+﻿
+--太虚灵泉配置
+HotSpringConfig = 
+{
+	limitLevel = 30,	--限制等级
+	
+	actArea = {sid = 84, x = 271, y = 316},	--活动区域
+	returnArea = {sid = 8, x = 152, y = 182},	--返回区域
+	
+	timeAward = 
+	{
+		interval = 15,	--加经验间隔(秒)
+		kissAdd = 0.5,	--亲吻加成倍率
+		nomal =			--普通时段
+		{
+			{type = 20, id = 3, count = 4, quality = 0, param = 2},
+		},
+		spcial = 		--加成时段
+		{
+			{type = 20, id = 3, count = 20, quality = 0, param = 2},
+		},
+		cupidPercent = 1,	--“爱神的祝福”触发概率
+		cupidAdd = 10,		--“爱神的祝福”加成倍率
+	},
+	
+	flower = 
+	{
+		handupAwards =	--上交单个贝壳奖励
+		{
+			{type = 2, id = 0, count = 4000, quality = 0},
+		},
+	
+		pearl = {id = 904, count = 100},	--上交贝壳ID 触发count
+		effect = {nEffId = 1, nSec = 10},	--特效 nEffId：特效ID  nSec：特效持续时间(秒)
+		pearlTimes = {interval = 300, times = 8,},	--刷新间隔
+		pearlMon = 
+		{
+			{mid = 462, x1 = 15, y1 = 18, x2 = 75, y2 = 58, count = 40, liveTime = 240},
+			{mid = 1075, x1 = 33, y1 = 48, x2 = 74, y2 = 70, count = 1, liveTime = 240},
+		},	--采集怪
+		
+		awards =	--天女散花奖励
+		{
+			{type = 20, id = 2, count = 65, quality = 0},
+		},
+	},
+	
+	buyTimes = 
+	{
+		{
+			type = 15,	--消耗类型
+			consume = 
+			{
+				{1, 10},      --{购买小时，售价},
+				{3, 25},
+				{5, 45},
+				{8, 60},
+			}
+		},
+		{	
+			type = 7,	--消耗类型
+			consume = 
+			{
+				{1, 10},      --{购买小时，售价},
+				{3, 25},
+				{5, 45},
+				{8, 60},
+			}
+		},
+	},
+	
+	
+	
+	
+	--每个单位1小时，作用次数为2次，用钱购买时间就相当于购买作用次数，interval是单位时间，不用变。
+	buff = {buffType = 87, groupId = 0, value = 2, times = 1, interval = 3600, buffName = Lang.Activity.a00195, timeOverlay = true},	--免费泡澡BUFF
+}
+

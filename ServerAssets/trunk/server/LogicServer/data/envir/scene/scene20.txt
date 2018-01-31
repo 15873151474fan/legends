@@ -1,0 +1,56 @@
+﻿--炎龙地
+{
+	scenceid = 20,
+	scencename = Lang.SceneName.s00020,
+	mapfilename = "20Yanlongdiyiceng",
+	minlevel = 50,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "yanlongdi.mp3",
+	musicInterval = 5,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 272,
+	sceneHeight = 272,
+	posx = 44,
+	posy = 224,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00020, range = {0,3,3,265,268,267,267,4,2,2}, center = { 165,47},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+					{ type = 36, value = {50} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh20.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00036, posx = 226, posy = 77, script = "data/NPC/13yanlongdierceng/bixing_1.txt", modelid = 167,icon = 1,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00037, posx = 86, posy = 97, script = "data/NPC/13yanlongdierceng/muwei_2.txt", modelid = 296,icon = 1,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00363, posx = 160, posy = 198, script = "data/NPC/RenwuNPC/zuijianxian.txt", modelid = 343,icon = 1,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00381, posx = 202, posy = 168, script = "data/NPC/RenwuNPC/kongsong.txt", modelid = 277,icon = 1,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00382, posx = 47, posy = 156, script = "data/NPC/RenwuNPC/renyuyan.txt", modelid = 67,icon = 1,funcId = 0, classId = 4 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 162, posy = 44, toSceneid = 4, toPosx = 289, toPosy =  358, modelid = 50000, name = Lang.SceneName.s00004, dist = 1, mapHide = false },  --炎龙地→都郡城
+		{ posx = 82, posy = 205, toSceneid = 21, toPosx = 63, toPosy =  71, modelid = 50000, name = Lang.SceneName.s00021, dist = 1, mapHide = false },  --炎龙地→炎龙地二层
+
+	},
+},

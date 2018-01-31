@@ -1,0 +1,1585 @@
+--[[File:BlessTree.txt]]
+--#include "data/functions/GlobalMisc.txt" once     --全局的杂项函数 
+--#include "BlessTreeCommon.txt" once
+--#include "SpringFestivalActivities.txt" once -- 春节活动，svn://192.168.0.160/idgp/Dragon/X-新传奇项目系统文档/H-活动汇总/X.新春活动/新春活动.docx
+--#include "FestivalWithDrawYuanbao.txt" once
+--#include "FestivalFireCommon.txt" once
+--#include "NationalDayActivities.txt" once --国庆活动 
+--#include "AnniversaryActivities.txt" once --周年活动
+--#include "ChristNpc_Main.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\SpringFestivalHorseActivities.txt" once --马年春节活动
+--#include "LanternFestival.txt" once --元宵活动
+--#include "LaborDayActivities.txt" once --五一活动
+--#include "data\config\activityconfig\ChristmasHorse\TurntableFileConfig.txt" once --2014圣诞转盘配置
+--#include "data\config\activityconfig\ChristmasHorse\LuckDrawFileConfig.txt" once --2014圣诞老虎机配置 
+--#include "data\config\activityconfig\LuxuryRebate\LuxuryRebateConfig.txt" once --豪华返利
+--#include "data\config\activityconfig\ConsumeRankActivity\ConsumeRankFileConfig.txt" once --消费排名
+
+--#include "AnniversaryActShop.txt" once --2周年活动祈福树购物配置
+--#include "data\functions\Activity\AnniversaryHorse\BirthdayCake.txt" once --生日蛋糕
+
+function BlessTree_Main(sysarg)
+	local dlgStr = string.format(Lang.ScriptTips.blesstree01, GetCurBlessPoint(), GetCurTreeLevel(), GetKillMonsterExpRate())
+	dlgStr = string.format("%s<#BL%s/@exchangeWordAward><#BL%s/@getFireworksAward><#BL%s/@viewBlessInfo>", dlgStr, Lang.ScriptTips.blesstree02,Lang.ScriptTips.blesstree03,Lang.ScriptTips.blesstree04);
+	--生日蛋糕进度
+	if System.isInDateRange(unpack(AnniversaryHorActConfig.actTime)) == true then
+		dlgStr = string.format("%s%s", dlgStr, string.format("\n"..Lang.ScriptTips.blesstree22, GetChangeNum()))
+	end
+	
+	-- 新春活动
+	--dlgStr = string.format("%s<#BL%s/@GetFestiveFirecrackers><#BL%s/@GetMoneyPacket><#BL%s/@GetSpringFestivalGift>", dlgStr, Lang.ScriptTips.blesstree102,Lang.ScriptTips.blesstree103,Lang.ScriptTips.blesstree104);
+	-- 驱年兽
+	-- dlgStr = string.format("%s<#BL%s/@BaoZhuNianshoujiao>", dlgStr, Lang.Activity.bznsj001);
+	--dlgStr = string.format("%s<#BL%s/@NewYearBlessDialog>", dlgStr, Lang.ScriptTips.btr116)
+	
+	if System.isInDateRange(unpack(NationalDayActiveConfig.actTime)) == true then
+		dlgStr = string.format("%s<#BL%s/@NationalDay_main>", dlgStr, Lang.Activity.gq0001)
+	end
+	--周年活动
+	if System.isInDateRange(unpack(AnniversaryActiveConfig.actTime)) == true then
+		dlgStr = string.format("%s<#BL%s/@Anniversary_main>", dlgStr, Lang.Activity.zn0001)
+	end
+	
+	--提交圣诞礼物
+	if System.isInDateRange(unpack(CharistmasMan.awardTime)) == true then
+		dlgStr = string.format("%s<#BL%s/@ChristmasNewYearMan_main>", dlgStr, Lang.Activity.cr0031)
+	end
+	--春节活动
+	if System.isInDateRange(unpack(SpringFestivalHorseActiveConfig.actTime)) == true then
+		dlgStr = string.format("%s<#BL%s/@SpringFestivalHorse_main>", dlgStr, Lang.Activity.cj0001)
+	end
+	
+	--元宵活动
+	if System.isInDateRange(unpack(LanternFestivalConfig.actTime)) == true then
+		dlgStr = string.format("%s<#BL%s/@LanternFestival_main>", dlgStr, Lang.Activity.yx0051)
+	end
+	
+	--2周年活动祈福树购买物品
+	if System.isInDateRange(unpack(AnniversaryHorActConfig.actTime)) == true then
+		dlgStr = string.format("%s<#BL%s/@AnniversaryActShop_main>", dlgStr, Lang.Activity.zn0019)
+	end
+	
+	
+	--马年百服活动迷雾之城
+	if System.isOpenHorseActById(14) == true then
+		dlgStr = string.format("%s<#BL%s/@Programmer_main>", dlgStr, Lang.Activity.cx0001)
+	end
+	
+	--五一活动
+	if (System.isInDateRange(unpack(LaborDayHorseActiveConfig.actTime)) == true) and (LaborDayHorseActiveConfig.laborDayGift ~= nil) then
+		dlgStr = string.format("%s<#BL%s/@LaborDay_main>", dlgStr, Lang.Activity.wy0005)
+	end
+	
+	return dlgStr
+end
+
+-- 爆竹及年兽角
+function BaoZhuNianshoujiao(sysarg)
+	local dlgStr = Lang.ScriptTips.blesstree120; --print(dlgStr)
+	--local sysVar = System.getDyanmicVar();
+	--if sysVar.NianActivityStarted then
+		dlgStr = string.format("%s<#BL%s/@GouMaiBaozhu><#BL%s/@NianConvertAwardsMenu>",dlgStr,  Lang.ScriptTips.blesstree117,Lang.ScriptTips.blesstree111);
+	--end --]]
+	return dlgStr .. Lang.ScriptTips.back001;
+end
+-- 购买爆竹
+function GouMaiBaozhu(sysarg)
+	local dlgStr = "";
+	
+	dlgStr = string.format("%s<#BL%s/@BuyBigFestiveFirecrackers,%d><#BL%s/@BuyBigFestiveFirecrackers,%d>", dlgStr, 
+		string.format(Lang.ScriptTips.blesstree109,NianConfig.BigFestiveFirecrackers.Price),1,
+		string.format(Lang.ScriptTips.blesstree118,NianConfig.BigFestiveFirecrackers.Price*10),10);
+	dlgStr = string.format("%s<#BL%s/@BuySmallFestiveFirecrackers,%d><#BL%s/@BuySmallFestiveFirecrackers,%d>", dlgStr, 
+		string.format(Lang.ScriptTips.blesstree110,NianConfig.SmallFestiveFirecrackers.Price),1,
+		string.format(Lang.ScriptTips.blesstree119,NianConfig.SmallFestiveFirecrackers.Price*10),10);
+		
+	return dlgStr .. Lang.ScriptTips.back001;
+end
+
+--兑换烟花
+function exchangeWordAward(sysarg)
+	local dlgStr = Lang.ScriptTips.blesstree09
+	dlgStr = string.format("%s<#BL%s/@SingleWordExchange><#BL%s/@LHZSExchange><#BL%s/@RealLHZSExChg><#BL%s/@ThrivingExChg>",dlgStr, Lang.ScriptTips.blesstree05, Lang.ScriptTips.blesstree06, Lang.ScriptTips.blesstree07, Lang.ScriptTips.blesstree08)
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function SingleWordExchange(sysarg)
+	local dlgStr = ""
+	for i = 1, 9 do
+		local wordCfg = FireworkConfig.ExchangeWord[i]
+		if wordCfg then
+			dlgStr = string.format("%s<#BL%s%s/@GetSingleWordAward,%d>", dlgStr, wordCfg.noItemNotice,Lang.ScriptTips.blesstree101,i)
+		end
+	end
+	return dlgStr ..  Lang.ScriptTips.back001
+end
+
+function GetSingleWordAward(sysarg, idx)
+	idx = tonumber(idx)
+	ExchangeWords(sysarg, idx, false)
+end
+
+--烈火战神礼包
+function LHZSExchange(sysarg)
+	local dlgStr = string.format("%s<#BL%s/@ExchangeLHZSGift><#BL%s/@ExchangeLHZSAdvGift>", Lang.ScriptTips.blesstree31,Lang.ScriptTips.blesstree32,Lang.ScriptTips.blesstree33)
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function ExchangeLHZSGift(sysarg)
+	ExchangeWords(sysarg, 10,false)
+end
+
+function ExchangeLHZSAdvGift(sysarg)
+	ExchangeWords(sysarg, 10, true)
+end
+
+
+--真烈火战神礼包
+function RealLHZSExChg(sysarg)
+	local dlgStr = string.format("%s<#BL%s/@ExchangeRealLHZSGift><#BL%s/@ExchangeRealLHZSAdvGift>", Lang.ScriptTips.blesstree41,Lang.ScriptTips.blesstree42,Lang.ScriptTips.blesstree43)
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function ExchangeRealLHZSGift(sysarg)
+	ExchangeWords(sysarg, 11,false)
+end
+
+function ExchangeRealLHZSAdvGift(sysarg)
+	ExchangeWords(sysarg, 13, true)
+end
+
+--恭喜发财
+function ThrivingExChg(sysarg)
+	local dlgStr = string.format("%s<#BL%s/@ExchangeTriving><#BL%s/@ExchangeAdvTriving>", Lang.ScriptTips.blesstree51, Lang.ScriptTips.blesstree52, Lang.ScriptTips.blesstree53)
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function ExchangeTriving(sysarg)
+	ExchangeWords(sysarg, 12, false)
+end
+
+function ExchangeAdvTriving(sysarg)
+	ExchangeWords(sysarg, 12, true)
+end
+
+function getFireworksAward(sysarg)
+	local dlgStr = Lang.ScriptTips.blesstree62
+	dlgStr = string.format("%s<#BL%s/@viewYestodayRankAward>", dlgStr, Lang.ScriptTips.blesstree61)
+	local ranking = Ranking.getRanking( Lang.Rank.wishValue )
+	if ranking then
+		for i = 1, FireworkConfig.MaxRankCount do
+			local pItem = Ranking.getItemFromIndex(ranking, i-1)
+			if pItem then
+				dlgStr = dlgStr ..  string.format(Lang.ScriptTips.blesstree63, i, Ranking.getSub(pItem,0),Ranking.getPoint(pItem))
+			end
+		end
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function viewYestodayRankAward(sysarg)
+	local dlgStr = Lang.ScriptTips.blesstree11
+	local ranking = Ranking.getRanking( Lang.Rank.yestodayWishValue )
+	local isMyRank = false
+	local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	if ranking then
+		for i = 1, FireworkConfig.MaxRankCount do
+			local pItem = Ranking.getItemFromIndex(ranking, i-1)
+			if pItem then
+				if Ranking.getId(pItem) == myId then
+					isMyRank = true
+				end
+				dlgStr = dlgStr ..  string.format(Lang.ScriptTips.blesstree63, i, Ranking.getSub(pItem,0),Ranking.getPoint(pItem))
+			end
+		end
+	end
+	if isMyRank then
+		dlgStr = string.format("%s<#BL%s/@GetYestodayRankAward>", dlgStr, Lang.ScriptTips.blesstree10) 
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function GetYestodayRankAward(sysarg)
+	local ranking = Ranking.getRanking( Lang.Rank.yestodayWishValue )
+	if ranking then
+		local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId(ranking, myId)
+		if pItem then
+			local myPoint = Ranking.getPoint(pItem)
+			if myPoint < FireworkConfig.MinPointAward then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.blesstree13,FireworkConfig.MinPointAward), ttFlyTip)
+				return
+			end
+			if Ranking.getSub(pItem, 1) ~= "0" then
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.blesstree15, ttFlyTip)
+				return
+			end
+			local myIndex = Ranking.getIndexFromPtr(pItem)
+			if myIndex >= 0 and myIndex < FireworkConfig.MaxRankCount then
+				myIndex = myIndex + 1
+				local awardTab = FireworkConfig.YestodayRankAward[myIndex]
+				if not awardTab then
+					for k, v in ipairs(FireworkConfig.AfterFourRanking) do
+						if myIndex >= v.min and myIndex <= v.max then
+							awardTab = v.awards
+							break
+						end
+					end
+				end
+				if not awardTab then
+					return
+				end
+				if not CheckBlessTreeGrid(sysarg, awardTab)  then
+					return
+				end
+				Ranking.setSub(pItem, 1, "1")
+				for k, v in ipairs(awardTab) do
+					Actor.giveAward(sysarg, v.type,v.id,v.count,0,0,0,0,840, Lang.LogTips.yb038)
+				end
+			else
+				Actor.sendTipmsg(sysarg, Lang.ScriptTips.blesstree14, ttFlyTip)
+			end
+		end
+	end
+end
+
+function viewBlessInfo(sysarg)
+	return Lang.ScriptTips.blesstree71 .. Lang.ScriptTips.back001
+end
+
+function InitWishRanking()
+	local ranking = Ranking.getRanking( Lang.Rank.wishValue )
+	if not ranking then
+		ranking = Ranking.add( Lang.Rank.wishValue, FireworkConfig.MaxRankCount )
+		if ranking then			
+			if not Ranking.load(ranking, Lang.Rank.wishValue) then
+				Ranking.addColumn(ranking, "name")
+				Ranking.addColumn(ranking, "award")
+			end
+			Ranking.addRef( ranking )
+		end
+		Ranking.save(ranking, Lang.Rank.wishValue)
+	end
+	local yesRanking = Ranking.getRanking( Lang.Rank.yestodayWishValue )
+	if not yesRanking then
+		yesRanking = Ranking.add(Lang.Rank.yestodayWishValue, FireworkConfig.MaxRankCount)
+		if yesRanking then
+			if not Ranking.load(yesRanking, Lang.Rank.yestodayWishValue) then
+				Ranking.addColumn(yesRanking, "name")
+				Ranking.addColumn(yesRanking, "award")
+			end
+			Ranking.addRef( yesRanking )
+		end
+		--Ranking.save(yesRanking, Lang.Rank.yestodayWishValue)
+	end
+
+	--春节鞭炮
+	local fireRanking = Ranking.getRanking( Lang.Rank.sFireRankName )
+	if not fireRanking then
+		fireRanking = Ranking.add( Lang.Rank.sFireRankName, FestivalWishes.RankTop )
+		if fireRanking then
+			if not Ranking.load(fireRanking, Lang.Rank.sFireRankName) then
+				Ranking.addColumn(fireRanking, "name")
+			end
+			Ranking.addRef( fireRanking )
+		end
+	end
+
+	local yestodayFireRanking = Ranking.getRanking(Lang.Rank.yestodayFireRank)
+	if not yestodayFireRanking then
+		yestodayFireRanking = Ranking.add(Lang.Rank.yestodayFireRank, FestivalWishes.RankTop)
+		if yestodayFireRanking then
+			if not Ranking.load(yestodayFireRanking, Lang.Rank.yestodayFireRank) then
+				Ranking.addColumn(yestodayFireRanking, "name")
+				Ranking.addColumn(yestodayFireRanking, "award")
+			end
+			Ranking.addRef(yestodayFireRanking)
+		end
+	end
+
+	local drawRanking = Ranking.getRanking(Lang.Rank.FestivalDrawYBRank)
+	if not drawRanking then
+		drawRanking = Ranking.add(Lang.Rank.FestivalDrawYBRank, 1000)
+		if drawRanking and not Ranking.load(drawRanking, Lang.Rank.FestivalDrawYBRank) then
+			Ranking.addColumn(drawRanking, "name")
+		end
+	end
+end
+
+function RankingEnd()
+	local wishRanking = Ranking.getRanking( Lang.Rank.wishValue )
+	if wishRanking then
+		Ranking.save(wishRanking, Lang.Rank.wishValue)
+	end
+
+	local yesRanking = Ranking.getRanking( Lang.Rank.yestodayWishValue )
+	if yesRanking then
+		Ranking.save(yesRanking, Lang.Rank.yestodayWishValue)
+	end
+	
+	local fireRanking = Ranking.getRanking( Lang.Rank.sFireRankName )
+	if fireRanking then
+		Ranking.save(fireRanking, Lang.Rank.sFireRankName)
+	end
+	
+	local yestodayFireRanking = Ranking.getRanking(Lang.Rank.yestodayFireRank)
+	if yestodayFireRanking then
+		Ranking.save(yestodayFireRanking, Lang.Rank.yestodayFireRank)
+	end
+	local drawRanking = Ranking.getRanking(Lang.Rank.FestivalDrawYBRank)
+	if drawRanking then
+		Ranking.save(drawRanking,Lang.Rank.FestivalDrawYBRank)
+	end
+end
+
+function InitLanternRanking()
+	local lanternRankPtr = Ranking.getRanking( Lang.Rank.LanternName ) 
+	if lanternRankPtr == nil then
+		lanternRankPtr = Ranking.add(Lang.Rank.LanternName, 2000)
+		if lanternRankPtr then
+			local ret = Ranking.load(lanternRankPtr, Lang.Rank.LanternFile)
+			if not ret then
+				Ranking.addColumn(lanternRankPtr, "giftflag") --获取标记
+			end 
+		end
+	end	
+	
+	local dragonGodRankPtr = Ranking.getRanking( Lang.Rank.dragonGodName )
+	if dragonGodRankPtr == nil then
+		local dragonGodRankPtr = Ranking.add(Lang.Rank.dragonGodName, 2000)
+		if dragonGodRankPtr then
+			local ret = Ranking.load(dragonGodRankPtr, Lang.Rank.dragonGodFile)
+			if not ret then 
+				Ranking.addColumn(dragonGodRankPtr, "opCount1") --操作次数
+				Ranking.addColumn(dragonGodRankPtr, "opCount2") --操作次数
+				Ranking.addColumn(dragonGodRankPtr, "opCount3") --操作次数
+			end
+		end
+	end
+
+	local lanternParadeRankPtr = Ranking.getRanking( Lang.Rank.LanternParadeName ) --元宵巡游
+	if lanternParadeRankPtr == nil then
+		local lanternParadeRankPtr = Ranking.add(Lang.Rank.LanternParadeName, 2000)
+		if lanternParadeRankPtr then
+			local ret = Ranking.load(lanternParadeRankPtr, Lang.Rank.LanternParadeFile)
+			if not ret then 
+				Ranking.addColumn(lanternParadeRankPtr, "deadline") --截止时间，
+				Ranking.addColumn(lanternParadeRankPtr, "npc1flag") --第一个npc 0初始值 1可以领取  2已领
+				Ranking.addColumn(lanternParadeRankPtr, "npc2flag") --第二个npc 0初始值 1可以领取  2已领
+				Ranking.addColumn(lanternParadeRankPtr, "npc3flag") --第三个npc 0初始值 1可以领取  2已领
+			end
+		end
+	end
+	
+end 
+
+function LanternRankEnd()
+	local lanternRankPtr = Ranking.getRanking( Lang.Rank.LanternName )		
+	if lanternRankPtr then
+		Ranking.save(lanternRankPtr, Lang.Rank.LanternFile, true)
+	end
+	
+	local dragonGodRankPtr = Ranking.getRanking( Lang.Rank.dragonGodName )		
+	if dragonGodRankPtr then
+		Ranking.save(dragonGodRankPtr, Lang.Rank.dragonGodFile, true)
+	end
+	
+	local lanternParadeRankPtr = Ranking.getRanking( Lang.Rank.LanternParadeName )		
+	if lanternParadeRankPtr then
+		Ranking.save(lanternParadeRankPtr, Lang.Rank.LanternParadeFile, true)
+	end
+end 
+
+function InitWcRanking()
+	local wcGuessPtr = Ranking.getRanking( Lang.Rank.WcGuessFile ) 
+	if wcGuessPtr == nil then
+		wcGuessPtr = Ranking.add(Lang.Rank.WcGuessFile, 2000)
+		if wcGuessPtr then
+			local ret = Ranking.load(wcGuessPtr, Lang.Rank.WcGuessFile)  --世界杯竞猜榜
+			if not ret then
+				for i = 1, 18 do
+					Ranking.addColumn(wcGuessPtr, "value"..i-1) 
+				end
+				
+			end 
+		end
+	end	
+	
+	local wcSupportPtr = Ranking.getRanking( Lang.Rank.WcSupportFile )	--世界杯支持榜
+	if wcSupportPtr == nil then
+		local wcSupportPtr = Ranking.add(Lang.Rank.WcSupportFile, 2000)
+		if wcSupportPtr then
+			local ret = Ranking.load(wcSupportPtr, Lang.Rank.WcSupportFile)
+			if not ret then
+				for i = 1, 3 do
+					Ranking.addColumn(wcSupportPtr, "value"..i-1) 
+				end	
+				Ranking.addItem(wcSupportPtr, 33, -1)
+		
+			end
+		end
+	end
+	
+	local wcModelPtr = Ranking.getRanking( Lang.Rank.WcModelFile )	--世界杯
+	if wcModelPtr == nil then
+		local wcModelPtr = Ranking.add(Lang.Rank.WcModelFile, 2000)
+		if wcModelPtr then
+			local ret = Ranking.load(wcModelPtr, Lang.Rank.WcModelFile)
+			if not ret then
+				Ranking.addColumn(wcModelPtr, "value0") 
+			end
+		end
+	end
+end
+
+function WcRankEnd()
+	local wcGuessPtr = Ranking.getRanking( Lang.Rank.WcGuessFile )		
+	if wcGuessPtr then
+		Ranking.save(wcGuessPtr, Lang.Rank.WcGuessFile, true)
+	end
+	
+	local wcSupportPtr = Ranking.getRanking( Lang.Rank.WcSupportFile )		
+	if wcSupportPtr then
+		Ranking.save(wcSupportPtr, Lang.Rank.WcSupportFile, true)
+	end
+	
+	local wcModelPtr = Ranking.getRanking( Lang.Rank.WcModelFile )	--世界杯
+	if wcModelPtr then
+		Ranking.save(wcModelPtr, Lang.Rank.WcModelFile, true)
+	end
+	
+end 
+
+function InitValentinedays()
+	local valentAwardRanking = Ranking.getRanking("valentaward")
+	if valentAwardRanking == nil then
+		valentAwardRanking = Ranking.add("valentaward", 100)
+		if valentAwardRanking then
+			local ret = Ranking.load(valentAwardRanking, "valentaward.txt")  --七夕活动第一个活动
+			if not ret then
+				Ranking.addColumn(valentAwardRanking, "ID")
+				Ranking.addColumn(valentAwardRanking, "award1")
+				Ranking.addColumn(valentAwardRanking, "award2")
+				Ranking.addColumn(valentAwardRanking, "award3")
+				Ranking.addColumn(valentAwardRanking, "award4")
+				Ranking.addColumn(valentAwardRanking, "award5")
+				Ranking.addColumn(valentAwardRanking, "isparade") --1为已经巡游，0为没巡游
+			end 
+		end
+	end
+	local totalRechargeRanking = Ranking.getRanking("totalrecharge") --七夕第三个活动
+	if totalRechargeRanking == nil then
+		totalRechargeRanking = Ranking.add("totalrecharge", 100)
+		if totalRechargeRanking then
+			local ret = Ranking.load(totalRechargeRanking, "totalrecharge.txt")
+			if not ret then
+				Ranking.addColumn(totalRechargeRanking, "ID")	
+				Ranking.addColumn(totalRechargeRanking, "award1")
+				Ranking.addColumn(totalRechargeRanking, "award2")
+				Ranking.addColumn(totalRechargeRanking, "award3")
+				Ranking.addColumn(totalRechargeRanking, "award4")
+				Ranking.addColumn(totalRechargeRanking, "award5")
+				Ranking.addColumn(totalRechargeRanking, "wifeaward")
+			end 
+		end
+	end
+	--七夕活动之喜鹊宝箱数据加载
+	local seniorLevelRanking = Ranking.getRanking(Lang.Rank.SheepValentFile)
+	if seniorLevelRanking == nil then
+		seniorLevelRanking = Ranking.add(Lang.Rank.SheepValentFile, 0)
+		if seniorLevelRanking then
+			local ret = Ranking.load(seniorLevelRanking, Lang.Rank.SheepValentFile)
+			if not ret then
+				Ranking.addColumn(seniorLevelRanking, "ID")
+				Ranking.addColumn(seniorLevelRanking, "level")
+				Ranking.addColumn(seniorLevelRanking, "horse")
+			end
+		end
+	end
+	
+end
+
+function ValentinedaysEnd()
+	local valentAwardPtr = Ranking.getRanking( "valentaward" )
+	if valentAwardPtr then
+		Ranking.save(valentAwardPtr,"valentaward.txt", true)
+	end
+	
+	local totalRechargePtr = Ranking.getRanking( "totalrecharge" )
+	if totalRechargePtr then
+		Ranking.save(totalRechargePtr, "totalrecharge.txt", true)
+	end
+	--七夕活动之喜鹊宝箱数据保存
+	local seniorTreasurePtr = Ranking.getRanking(Lang.Rank.SheepValentFile)
+	if seniorTreasurePtr then
+		Ranking.save(seniorTreasurePtr, Lang.Rank.SheepValentFile, true)
+	end
+end
+
+function InitSuperRebate()
+	local superRebateRanking = Ranking.getRanking("SuperRebateAward.txt")
+	if superRebateRanking == nil then
+		superRebateRanking = Ranking.add("SuperRebateAward.txt", 100)
+		if superRebateRanking then
+			local ret = Ranking.load(superRebateRanking, "SuperRebateAward.txt")
+			if not ret then
+				Ranking.addColumn(superRebateRanking, "consume")
+				Ranking.addColumn(superRebateRanking, "award1")
+				Ranking.addColumn(superRebateRanking, "award2")
+				Ranking.addColumn(superRebateRanking, "award3")
+				Ranking.addColumn(superRebateRanking, "award4")
+				Ranking.addColumn(superRebateRanking, "total")
+			end 
+		end
+	end
+end
+
+function SuperRebateEnd()
+	local superRabatePtr = Ranking.getRanking("SuperRebateAward.txt")
+	if superRabatePtr then
+		Ranking.save(superRabatePtr, "SuperRebateAward.txt", true)
+	end
+end
+
+--2014中秋节充值返利配置
+function InitRecharge()
+	local rechargeRanking = Ranking.getRanking(Lang.Rank.AutumnRechargeFile)
+	if rechargeRanking == nil then
+		rechargeRanking = Ranking.add(Lang.Rank.AutumnRechargeFile, 100)
+		if rechargeRanking then
+			local ret = Ranking.load(rechargeRanking, Lang.Rank.AutumnRechargeFile)
+			if not ret then
+				for i = 1, 16 do
+					Ranking.addColumn(rechargeRanking, "value"..i-1) 
+				end
+			end
+		end
+	end
+end
+
+function RechargeEnd()
+	local rechargePtr = Ranking.getRanking(Lang.Rank.AutumnRechargeFile)
+	if rechargePtr then
+		Ranking.save(rechargePtr, Lang.Rank.AutumnRechargeFile, true)
+	end
+end
+
+--2014中秋节嫦娥奔月活动配置
+function InitChangeRunMoon()
+	local runMoonRanking = Ranking.getRanking(Lang.Rank.AutumnChangERunMoonFile)
+	if runMoonRanking == nil then
+		runMoonRanking = Ranking.add(Lang.Rank.AutumnChangERunMoonFile, 100)
+		if runMoonRanking then
+			local ret = Ranking.load(runMoonRanking, Lang.Rank.AutumnChangERunMoonFile)
+			if not ret then
+				for i = 1, 3 do
+					Ranking.addColumn(runMoonRanking, "arard"..i-1) 
+				end
+			end
+		end
+	end
+end
+
+function ChangeRunMoonEnd()
+	local runMoonPtr = Ranking.getRanking(Lang.Rank.AutumnChangERunMoonFile)
+	if runMoonPtr then
+		Ranking.save(runMoonPtr, Lang.Rank.AutumnChangERunMoonFile, true)
+	end
+end
+
+
+function InitAutumnRanking()
+	local AutumnConsumePtr = Ranking.getRanking( Lang.Rank.AutumnAccConsumeFile ) 
+	if AutumnConsumePtr == nil then
+		AutumnConsumePtr = Ranking.add(Lang.Rank.AutumnConsumeFile, 2000)
+		if AutumnConsumePtr then
+			local ret = Ranking.load(AutumnConsumePtr, Lang.Rank.AutumnConsumeFile)  --中秋消费单日排行榜
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(AutumnConsumePtr, "value"..i-1) 
+				end
+				
+			end 
+		end
+	end	
+	
+	local AutumnAccConsumePtr = Ranking.getRanking( Lang.Rank.AutumnAccConsumeFile ) 
+	if AutumnAccConsumePtr == nil then
+		AutumnAccConsumePtr = Ranking.add(Lang.Rank.AutumnAccConsumeFile, 2000)
+		if AutumnAccConsumePtr then
+			local ret = Ranking.load(AutumnAccConsumePtr, Lang.Rank.AutumnAccConsumeFile)  --中秋消费累计排行榜
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(AutumnAccConsumePtr, "value"..i-1) 
+				end	
+			end 
+		end
+	end
+	--[[  2015元宵节注释掉
+	local FlopCardllParamPtr = Ranking.getRanking( Lang.Rank.FlopCardllParamFile ) 
+	if FlopCardllParamPtr == nil then
+		FlopCardllParamPtr = Ranking.add(Lang.Rank.FlopCardllParamFile, 2000)
+		if FlopCardllParamPtr then
+			local ret = Ranking.load(FlopCardllParamPtr, Lang.Rank.FlopCardllParamFile)  --翻牌参数榜
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(FlopCardllParamPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end	
+	
+	local FlopCardInfoPtr = Ranking.getRanking( Lang.Rank.FlopCardInfoFile )  
+	if FlopCardInfoPtr == nil then
+		FlopCardInfoPtr = Ranking.add(Lang.Rank.FlopCardInfoFile, 2000)
+		if FlopCardInfoPtr then
+			local ret = Ranking.load(FlopCardInfoPtr, Lang.Rank.FlopCardInfoFile)  --翻牌参数榜
+			if not ret then
+				for i = 1, 10 do
+					Ranking.addColumn(FlopCardInfoPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end	
+	--]]
+end 
+
+function AutumnRankEnd()
+	local AutumnConsumePtr = Ranking.getRanking( Lang.Rank.AutumnConsumeFile )		
+	if AutumnConsumePtr then
+		Ranking.save(AutumnConsumePtr, Lang.Rank.AutumnConsumeFile, true)
+	end
+	
+	local AutumnAccConsumePtr = Ranking.getRanking( Lang.Rank.AutumnAccConsumeFile )		
+	if AutumnAccConsumePtr then
+		Ranking.save(AutumnAccConsumePtr, Lang.Rank.AutumnAccConsumeFile, true)
+	end
+	--[[
+	local FlopCardllParamPtr = Ranking.getRanking( Lang.Rank.FlopCardllParamFile )		
+	if FlopCardllParamPtr then
+		Ranking.save(FlopCardllParamPtr, Lang.Rank.FlopCardllParamFile, true)
+	end
+	
+	local FlopCardInfoPtr = Ranking.getRanking( Lang.Rank.FlopCardInfoFile )		
+	if FlopCardInfoPtr then
+		Ranking.save(FlopCardInfoPtr, Lang.Rank.FlopCardInfoFile, true)
+	end
+	--]]
+end
+
+function InitNationalDayHorse()
+	local turntableListPtr = Ranking.getRanking( Lang.Rank.TurntableListFile ) 
+	if turntableListPtr == nil then
+		turntableListPtr = Ranking.add(Lang.Rank.TurntableListFile, 2000)
+		if turntableListPtr then
+			local ret = Ranking.load(turntableListPtr, Lang.Rank.TurntableListFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(turntableListPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end	
+	
+	local turntableParamPtr = Ranking.getRanking( Lang.Rank.TurntableParamFile )  
+	if turntableParamPtr == nil then
+		turntableParamPtr = Ranking.add(Lang.Rank.TurntableParamFile, 2000)
+		if turntableParamPtr then
+			local ret = Ranking.load(turntableParamPtr, Lang.Rank.TurntableParamFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(turntableParamPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking( Lang.Rank.TurntableInfoFile )  
+	if turntableInfoPtr == nil then
+		turntableInfoPtr = Ranking.add(Lang.Rank.TurntableInfoFile, 2000)
+		if turntableInfoPtr then
+			local ret = Ranking.load(turntableInfoPtr, Lang.Rank.TurntableInfoFile)  
+			if not ret then
+				for i = 1, 15 do
+					Ranking.addColumn(turntableInfoPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end
+	
+	local fwCelebrationPtr = Ranking.getRanking( Lang.Rank.FwCelebrationFile )  
+	if fwCelebrationPtr == nil then
+		fwCelebrationPtr = Ranking.add(Lang.Rank.FwCelebrationFile, 2000)
+		if fwCelebrationPtr then
+			local ret = Ranking.load(fwCelebrationPtr, Lang.Rank.FwCelebrationFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(fwCelebrationPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end
+	
+	local fwCelebrationPointPtr = Ranking.getRanking( Lang.Rank.FwCelebrationPointFile )  
+	if fwCelebrationPointPtr == nil then
+		fwCelebrationPointPtr = Ranking.add(Lang.Rank.FwCelebrationPointFile, 2000)
+		if fwCelebrationPointPtr then
+			local ret = Ranking.load(fwCelebrationPointPtr, Lang.Rank.FwCelebrationPointFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(fwCelebrationPointPtr, "value"..i-1) 
+				end
+			end 
+			
+			local itemPtr = Ranking.getItemPtrFromId(fwCelebrationPointPtr, 1)
+			if not itemPtr then
+				Ranking.addItemExt(fwCelebrationPointPtr, 1, 0, false)
+			end
+		end
+	end
+	
+end 
+
+function NationalDayHorseEnd()
+	local turntableListPtr = Ranking.getRanking( Lang.Rank.TurntableListFile )		
+	if turntableListPtr then
+		Ranking.save(turntableListPtr, Lang.Rank.TurntableListFile, true)
+	end
+	
+	local turntableParamPtr = Ranking.getRanking( Lang.Rank.TurntableParamFile )		
+	if turntableParamPtr then
+		Ranking.save(turntableParamPtr, Lang.Rank.TurntableParamFile, true)
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking( Lang.Rank.TurntableInfoFile )		
+	if turntableInfoPtr then
+		Ranking.save(turntableInfoPtr, Lang.Rank.TurntableInfoFile, true)
+	end
+	
+	local fwCelebrationPtr = Ranking.getRanking( Lang.Rank.FwCelebrationFile )		
+	if fwCelebrationPtr then
+		Ranking.save(fwCelebrationPtr, Lang.Rank.FwCelebrationFile, true)
+	end
+	
+	local fwCelebrationPointPtr = Ranking.getRanking( Lang.Rank.FwCelebrationPointFile )		
+	if fwCelebrationPointPtr then
+		Ranking.save(fwCelebrationPointPtr, Lang.Rank.FwCelebrationPointFile, true)
+	end
+	
+end
+
+--八转副本神印八卦加载文件
+function InitShenYinBaGua()
+	local shenYinRanking = Ranking.getRanking(Lang.Rank.ShenYinBaGuaFile)
+	if shenYinRanking == nil then
+		shenYinRanking = Ranking.add(Lang.Rank.ShenYinBaGuaFile, 0)
+		if shenYinRanking then
+			local ret = Ranking.load(shenYinRanking, Lang.Rank.ShenYinBaGuaFile)
+			if not ret then
+				for i = 1, 8 do
+					Ranking.addColumn(shenYinRanking, "bossid"..i-1) 
+				end
+				Ranking.addColumn(shenYinRanking, "hScene") --第八位表示场景句柄
+			end
+		end
+	end
+end
+
+function ShenYinBaGuaEnd()
+	local shenYinPtr = Ranking.getRanking(Lang.Rank.ShenYinBaGuaFile)
+	if shenYinPtr then
+		Ranking.save(shenYinPtr, Lang.Rank.ShenYinBaGuaFile, true)
+	end
+end
+
+--豪华返利活动
+function InitLuxuryRebate()
+	local long = #LuxuryRebateConfig.award*2
+	local luxuryRebateRanking = Ranking.getRanking(Lang.Rank.LuxuryRebateFile)
+	if luxuryRebateRanking == nil then
+		luxuryRebateRanking = Ranking.add(Lang.Rank.LuxuryRebateFile, 0)
+		if luxuryRebateRanking then
+			local ret = Ranking.load(luxuryRebateRanking, Lang.Rank.LuxuryRebateFile)
+			if not ret then
+				for i = 1, long+1 do
+					Ranking.addColumn(luxuryRebateRanking, "value"..i-1) 
+				end
+			end
+		end
+	end
+end
+
+function LuxuryRebateEnd()
+	local luxuryRebatePtr = Ranking.getRanking(Lang.Rank.LuxuryRebateFile)
+	if luxuryRebatePtr then
+		Ranking.save(luxuryRebatePtr, Lang.Rank.LuxuryRebateFile, true)
+	end
+end
+
+
+--周年活动
+function InitAnniversaryAct()
+	local timesRanking = Ranking.getRanking(Lang.Rank.ThankYouLetterTimesFile) --赞的总数
+	if timesRanking == nil then
+		timesRanking = Ranking.add(Lang.Rank.ThankYouLetterTimesFile, 0)
+		if timesRanking then
+			local ret = Ranking.load(timesRanking, Lang.Rank.ThankYouLetterTimesFile)
+			if not ret then
+				Ranking.addColumn(timesRanking, "totalTimes")
+			end
+		end
+	end
+
+	local flagRanking = Ranking.getRanking(Lang.Rank.ThankYouLetterFlagFile) --是否可赞
+	if flagRanking == nil then
+		flagRanking = Ranking.add(Lang.Rank.ThankYouLetterFlagFile, 0)
+		if flagRanking then
+			local ret = Ranking.load(flagRanking, Lang.Rank.ThankYouLetterFlagFile)
+			if not ret then
+				Ranking.addColumn(flagRanking, "flag")
+			end
+		end
+	end
+	
+	local numRanking = Ranking.getRanking(Lang.Rank.BirthdayCakeChangeTimesFile) --生日蛋糕活动兑换材料总数量
+	if numRanking == nil then
+		numRanking = Ranking.add(Lang.Rank.BirthdayCakeChangeTimesFile, 0)
+		if numRanking then
+			local ret = Ranking.load(numRanking, Lang.Rank.BirthdayCakeChangeTimesFile)
+			if not ret then
+				Ranking.addColumn(numRanking, "total")
+				Ranking.addColumn(numRanking, "cakeid")
+			end
+		end
+	end
+	
+	local celebrationRanking = Ranking.getRanking(Lang.Rank.CelebrationDataFile) --周年庆典在线时长以及1-5领奖情况
+	if celebrationRanking == nil then
+		celebrationRanking = Ranking.add(Lang.Rank.CelebrationDataFile, 0)
+		if celebrationRanking then
+			local ret = Ranking.load(celebrationRanking, Lang.Rank.CelebrationDataFile)
+			if not ret then
+				for i = 1, 6 do
+					Ranking.addColumn(celebrationRanking, "value"..i-1) 
+				end
+			end
+		end
+	end
+	
+	local paramPtr = Ranking.getRanking( Lang.Rank.AnniverTurntableParamFile )  --周年转盘参数
+	if paramPtr == nil then
+		paramPtr = Ranking.add(Lang.Rank.AnniverTurntableParamFile, 2000)
+		if paramPtr then
+			local ret = Ranking.load(paramPtr, Lang.Rank.AnniverTurntableParamFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(paramPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end
+	
+	local infoPtr = Ranking.getRanking( Lang.Rank.AnniverTurntableInfoFile )  --周年转盘
+	if infoPtr == nil then
+		infoPtr = Ranking.add(Lang.Rank.AnniverTurntableInfoFile, 2000)
+		if infoPtr then
+			local ret = Ranking.load(infoPtr, Lang.Rank.AnniverTurntableInfoFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(infoPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end
+	
+	local fireworksPointPtr = Ranking.getRanking( Lang.Rank.FireworksPointFile )  --周年烟花盛宴
+	if fireworksPointPtr == nil then
+		fireworksPointPtr = Ranking.add(Lang.Rank.FireworksPointFile, 2000)
+		if fireworksPointPtr then
+			local ret = Ranking.load(fireworksPointPtr, Lang.Rank.FireworksPointFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(fireworksPointPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end
+	
+	local fireworksAccPointPtr = Ranking.getRanking( Lang.Rank.FireworksAccPointFile ) --周年烟花盛宴累计 
+	if fireworksAccPointPtr == nil then
+		fireworksAccPointPtr = Ranking.add(Lang.Rank.FireworksAccPointFile, 2000)
+		if fireworksAccPointPtr then
+			local ret = Ranking.load(fireworksAccPointPtr, Lang.Rank.FireworksAccPointFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(fireworksAccPointPtr, "value"..i-1) 
+				end
+			end 
+			
+			local itemPtr = Ranking.getItemPtrFromId(fireworksAccPointPtr, 0)
+			if not itemPtr then
+				Ranking.addItemExt(fireworksAccPointPtr, 1, 0, false)
+			end
+		end
+	end
+	
+	local buytimesPtr = Ranking.getRanking(Lang.Rank.AnniversaryBuyFile) --购买的次数
+	if buytimesPtr == nil then
+		buytimesPtr = Ranking.add(Lang.Rank.AnniversaryBuyFile, 0)
+		if buytimesPtr then
+			local ret = Ranking.load(buytimesPtr, Lang.Rank.AnniversaryBuyFile)
+			if not ret then
+				for i=1, 7 do
+					Ranking.addColumn(buytimesPtr, "buyitem"..i-1)
+				end
+			end
+		end
+	end
+
+end
+
+--双十一活动
+function InitDoubleElevenHorseAct()
+	local totalrking = Ranking.getRanking(Lang.Rank.DragonTotalConsumeFile) --盛世龙腾全服消费数
+	if totalrking == nil then
+		totalrking = Ranking.add(Lang.Rank.DragonTotalConsumeFile, 0)
+		if totalrking then
+			local ret = Ranking.load(totalrking, Lang.Rank.DragonTotalConsumeFile)
+			if not ret then
+				Ranking.addColumn(totalrking, "totalConsume")
+			end
+		end
+	end
+	local actorranking = Ranking.getRanking(Lang.Rank.DragonActorConsumeFile) --盛世龙腾个人消费数以及领奖情况
+	if actorranking == nil then
+		actorranking = Ranking.add(Lang.Rank.DragonActorConsumeFile, 0)
+		if actorranking then
+			local ret = Ranking.load(actorranking, Lang.Rank.DragonActorConsumeFile)
+			if not ret then
+				for i=1, 6 do
+					Ranking.addColumn(actorranking, "value"..i-1)--0消费,1-5领奖
+				end
+			end
+		end
+	end
+end
+	
+	
+
+function anniversaryActEnd()
+	local timesPtr = Ranking.getRanking(Lang.Rank.ThankYouLetterTimesFile)
+	if timesPtr then
+		Ranking.save(timesPtr, Lang.Rank.ThankYouLetterTimesFile, true)
+	end
+
+	local flagPtr = Ranking.getRanking(Lang.Rank.ThankYouLetterFlagFile)
+	if flagPtr then
+		Ranking.save(flagPtr, Lang.Rank.ThankYouLetterFlagFile, true)
+	end
+	
+	local totalPtr = Ranking.getRanking(Lang.Rank.BirthdayCakeChangeTimesFile)
+	if totalPtr then
+		Ranking.save(totalPtr, Lang.Rank.BirthdayCakeChangeTimesFile, true)
+	end
+
+	local celebrationPtr = Ranking.getRanking(Lang.Rank.CelebrationDataFile)
+	if celebrationPtr then
+		Ranking.save(celebrationPtr, Lang.Rank.CelebrationDataFile, true)
+	end
+	
+	local paramPtr = Ranking.getRanking( Lang.Rank.AnniverTurntableParamFile )		
+	if paramPtr then
+		Ranking.save(paramPtr, Lang.Rank.AnniverTurntableParamFile, true)
+	end
+	
+	local infoPtr = Ranking.getRanking( Lang.Rank.AnniverTurntableInfoFile )
+	if infoPtr then
+		Ranking.save(infoPtr, Lang.Rank.AnniverTurntableInfoFile, true)
+	end
+	
+	local buyPtr = Ranking.getRanking( Lang.Rank.AnniversaryBuyFile )
+	if buyPtr then
+		Ranking.save(buyPtr, Lang.Rank.AnniversaryBuyFile, true)
+	end
+	
+end
+
+function doubleElevenHorseActEnd()
+	local totalPtr = Ranking.getRanking( Lang.Rank.DragonTotalConsumeFile )
+	if totalPtr then
+		Ranking.save(totalPtr, Lang.Rank.DragonTotalConsumeFile, true)
+	end
+	local actorPtr = Ranking.getRanking( Lang.Rank.DragonActorConsumeFile )
+	if actorPtr then
+		Ranking.save(actorPtr, Lang.Rank.DragonActorConsumeFile, true)
+	end
+end
+
+--驯兽擂台加载文件
+function InitXunShouLeiTai()
+	local xsPtr = Ranking.getRanking(Lang.Rank.XunShouLeiTaiFile)
+	if xsPtr == nil then
+		xsPtr = Ranking.add(Lang.Rank.XunShouLeiTaiFile, 2000)
+		if xsPtr then
+			local ret = Ranking.load(xsPtr, Lang.Rank.XunShouLeiTaiFile)
+			if not ret then
+				Ranking.addColumn(xsPtr, "Name")
+				Ranking.addColumn(xsPtr, "BOSS1")
+				Ranking.addColumn(xsPtr, "BOSS2")
+				Ranking.addColumn(xsPtr, "BOSS3")
+				Ranking.addColumn(xsPtr, "Award")
+				for i = 1, 5 do
+					Ranking.addColumn(xsPtr, "nouse"..i)
+				end
+			end
+		end
+	end
+end
+
+function XunShouLeiTaiEnd()
+	local xsltPtr = Ranking.getRanking( Lang.Rank.XunShouLeiTaiFile )
+	if xsltPtr then
+		Ranking.save(xsltPtr, Lang.Rank.XunShouLeiTaiFile, true)
+	end
+end
+
+--马年圣诞活动加载文件
+function InitXamsHorse()
+	local xrPtr = Ranking.getRanking(Lang.Rank.SnowmanFile) --雪人全服数据
+	if xrPtr == nil then
+		xrPtr = Ranking.add(Lang.Rank.SnowmanFile, 10)
+		if xrPtr then
+			local ret = Ranking.load(xrPtr, Lang.Rank.SnowmanFile)
+			if not ret then
+				Ranking.addColumn(xrPtr, "nouse")
+				Ranking.addColumn(xrPtr, "totalNum")
+				Ranking.addColumn(xrPtr, "snowmanIndex")
+				Ranking.addColumn(xrPtr, "brushboss")
+				Ranking.addColumn(xrPtr, "nouse")
+			end
+		end
+	end
+	local xPtr = Ranking.getRanking(Lang.Rank.SnowmanBuyItemFile) --雪人个人数据
+	if xPtr == nil then
+		xPtr = Ranking.add(Lang.Rank.SnowmanBuyItemFile, 10)
+		if xPtr then
+			local ret = Ranking.load(xPtr, Lang.Rank.SnowmanBuyItemFile)
+			if not ret then
+				Ranking.addColumn(xPtr, "nouse")
+				Ranking.addColumn(xPtr, "item1")
+				Ranking.addColumn(xPtr, "item2")
+				Ranking.addColumn(xPtr, "item3")
+				Ranking.addColumn(xPtr, "nouse")
+			end
+		end
+	end
+	local olinePtr = Ranking.getRanking(Lang.Rank.ChristmasGiftFile) --马年圣诞在线时长以及1-5领奖情况
+	if olinePtr == nil then
+		olinePtr = Ranking.add(Lang.Rank.ChristmasGiftFile, 0)
+		if olinePtr then
+			local ret = Ranking.load(olinePtr, Lang.Rank.ChristmasGiftFile)
+			if not ret then
+				for i = 1, 6 do
+					Ranking.addColumn(olinePtr, "value"..i-1) 
+				end
+			end
+		end
+	end
+
+end
+
+function XamsHorseEnd()
+	local xrPtr = Ranking.getRanking( Lang.Rank.SnowmanFile )
+	if xrPtr then
+		Ranking.save(xrPtr, Lang.Rank.SnowmanFile, true)
+	end
+	local xPtr = Ranking.getRanking( Lang.Rank.SnowmanBuyItemFile )
+	if xPtr then
+		Ranking.save(xPtr, Lang.Rank.SnowmanBuyItemFile, true)
+	end
+	local onlinePtr = Ranking.getRanking(Lang.Rank.ChristmasGiftFile)
+	if onlinePtr then
+		Ranking.save(onlinePtr, Lang.Rank.ChristmasGiftFile, true)
+	end
+	
+end
+ 
+--马年圣诞活动
+function InitChristmasHorseAct() 
+	for k, v in ipairs(TurntableFileConfig or {}) do 
+		local turntableListPtr = Ranking.getRanking(v.listFile) --转盘物品列表 
+		if turntableListPtr == nil then
+			turntableListPtr = Ranking.add(v.listFile, 2000)
+			if turntableListPtr then
+				local ret = Ranking.load(turntableListPtr, v.listFile)  
+				if not ret then
+					for i = 1, 5 do
+						Ranking.addColumn(turntableListPtr, "value"..i-1) 
+					end
+				end 
+			end
+		end	
+		
+		local turntableParamPtr = Ranking.getRanking( v.paramFile )  --圣诞转盘参数  
+		if turntableParamPtr == nil then
+			turntableParamPtr = Ranking.add(v.paramFile, 2000)
+			if turntableParamPtr then
+				local ret = Ranking.load(turntableParamPtr, v.paramFile)  
+				if not ret then
+					for i = 1, 5 do
+						Ranking.addColumn(turntableParamPtr, "value"..i-1) 
+					end
+				end 
+			end
+		end	
+		
+		local turntableInfoPtr = Ranking.getRanking( v.infoFile )  --圣诞转盘
+		if turntableInfoPtr == nil then
+			turntableInfoPtr = Ranking.add(v.infoFile, 2000)
+			if turntableInfoPtr then
+				local ret = Ranking.load(turntableInfoPtr, v.infoFile)  
+				if not ret then
+					for i = 1, 15 do
+						Ranking.addColumn(turntableInfoPtr, "value"..i-1) 
+					end
+				end 
+			end
+		end
+		
+	end
+	
+	for k, v in ipairs(LuckDrawFileConfig or {}) do
+		if v.paramFile ~= nil then 
+			local luckDrawParamPtr = Ranking.getRanking( v.paramFile )  --圣诞老虎机参数   
+			if luckDrawParamPtr == nil then
+				luckDrawParamPtr = Ranking.add(v.paramFile, 2000)
+				if luckDrawParamPtr then
+					local ret = Ranking.load(luckDrawParamPtr, v.paramFile)  
+					if not ret then
+						for i = 1, 5 do
+							Ranking.addColumn(luckDrawParamPtr, "value"..i-1)  
+						end
+					end 
+				end
+			end
+		end
+		
+		if v.infoFile ~= nil then
+			local luckDrawInfoPtr = Ranking.getRanking( v.infoFile )  --圣诞老虎机
+			if luckDrawInfoPtr == nil then
+				luckDrawInfoPtr = Ranking.add(v.infoFile, 2000)
+				if luckDrawInfoPtr then
+					local ret = Ranking.load(luckDrawInfoPtr, v.infoFile)   
+					if not ret then
+						for i = 1, 15 do
+							Ranking.addColumn(luckDrawInfoPtr, "value"..i-1) 
+						end
+					end 
+				end
+			end
+		end
+	end
+	
+end 
+
+--马年圣诞活动
+function ChristmasHorseActEnd()   
+	for k, v in ipairs(TurntableFileConfig or {}) do 
+		local listPtr = Ranking.getRanking( v.listFile )		
+		if listPtr then
+			Ranking.save(listPtr, v.listFile, true)
+		end
+
+		local paramPtr = Ranking.getRanking( v.paramFile )		
+		if paramPtr then
+			Ranking.save(paramPtr, v.paramFile, true)
+		end
+		
+		local infoPtr = Ranking.getRanking( v.infoFile )
+		if infoPtr then
+			Ranking.save(infoPtr, v.infoFile, true) 
+		end
+	end
+	
+	for k, v in ipairs(LuckDrawFileConfig or {}) do 
+		local luckDrawParamPtr = Ranking.getRanking( v.paramFile )		
+		if luckDrawParamPtr then
+			Ranking.save(luckDrawParamPtr, v.paramFile, true)
+		end
+		
+		local luckDrawInfoPtr = Ranking.getRanking( v.infoFile ) 
+		if luckDrawInfoPtr then
+			Ranking.save(luckDrawInfoPtr, v.infoFile, true) 
+		end
+	end
+end
+
+--羊年元旦活动加载文件
+function InitNewYearSheep()
+	local xrPtr = Ranking.getRanking(Lang.Rank.NewClothesFile) --新装过节活动
+	if xrPtr == nil then
+		xrPtr = Ranking.add(Lang.Rank.NewClothesFile, 0)
+		if xrPtr then
+			local ret = Ranking.load(xrPtr, Lang.Rank.NewClothesFile)
+			if not ret then
+				for i=1,6 do
+					Ranking.addColumn(xrPtr, "values"..i-1)
+				end
+			end
+		end
+	end
+	local bossPtr = Ranking.getRanking(Lang.Rank.NewYearBossFile) --元旦boss活动
+	if bossPtr == nil then
+		bossPtr = Ranking.add(Lang.Rank.NewYearBossFile, 0)
+		if bossPtr then
+			local ret = Ranking.load(bossPtr, Lang.Rank.NewYearBossFile)
+			if not ret then
+				for i=1, 14 do
+					Ranking.addColumn(bossPtr, "values"..i-1)
+				end
+			end
+		end
+	end
+	
+
+end
+
+function NewYearSheepEnd()
+	local xrPtr = Ranking.getRanking( Lang.Rank.NewClothesFile )
+	if xrPtr then
+		Ranking.save(xrPtr, Lang.Rank.NewClothesFile, true)
+	end
+	
+	local bossPtr = Ranking.getRanking( Lang.Rank.NewYearBossFile )
+	if bossPtr then
+		Ranking.save(bossPtr, Lang.Rank.NewYearBossFile, true)
+	end
+	
+	
+end
+
+--羊年春节活动加载文件
+function InitSpringFestivalSheep()
+	local sfPtr = Ranking.getRanking(Lang.Rank.EveBossRankFile) --除夕夺宝
+	if sfPtr == nil then
+		sfPtr = Ranking.add(Lang.Rank.EveBossRankFile, 0)
+		if sfPtr then
+			local ret = Ranking.load(sfPtr, Lang.Rank.EveBossRankFile)
+			if not ret then
+				for i=1, 10 do
+					Ranking.addColumn(sfPtr, "values"..i-1) --0~4有效分别是 name，nModeId nWeaponApper  nWingAppear  nSex
+				end
+			end
+		end
+	end
+
+	local sfys = Ranking.getRanking(Lang.Rank.FestiveValueFile) --迎神祈福全服喜庆值
+	if sfys == nil then
+		sfys = Ranking.add(Lang.Rank.FestiveValueFile, 0)
+		if sfys then
+			local ret = Ranking.load(sfys, Lang.Rank.FestiveValueFile)
+			if not ret then
+				for i=1, 3 do
+					Ranking.addColumn(sfys, "values"..i-1)--0多余，1喜庆值，2当前倍数
+				end
+			end
+		end
+	end
+
+	local sfgr = Ranking.getRanking(Lang.Rank.GetAwardActCommonFile) --迎神祈福个人购买数据0
+	if sfgr == nil then
+		sfgr = Ranking.add(Lang.Rank.GetAwardActCommonFile, 0)
+		if sfgr then
+			local ret = Ranking.load(sfgr, Lang.Rank.GetAwardActCommonFile)
+			if not ret then
+				for i=1, 11 do
+					Ranking.addColumn(sfgr, "values"..i-1)--0多余，1,2,3...代表购买1,2,3...
+				end
+			end
+		end
+	end
+end
+
+function SpringFestivalSheepEnd()
+	local sfPtr = Ranking.getRanking( Lang.Rank.EveBossRankFile )--除夕夺宝
+	if sfPtr then
+		Ranking.save(sfPtr, Lang.Rank.EveBossRankFile, true)
+	end
+
+	local sfys = Ranking.getRanking( Lang.Rank.FestiveValueFile )--祈福迎神全服喜庆
+	if sfys then
+		Ranking.save(sfys, Lang.Rank.FestiveValueFile, true)
+	end
+
+	local sfgr = Ranking.getRanking( Lang.Rank.GetAwardActCommonFile )--祈福迎神个人购买
+	if sfgr then
+		Ranking.save(sfgr, Lang.Rank.GetAwardActCommonFile, true)
+	end
+end
+
+
+--羊年百服活动
+function InitSheepBaiFu()
+	local sfPtr = Ranking.getRanking(Lang.Rank.BaiFuCakeFile) --百服蛋糕全服数据
+	if sfPtr == nil then
+		sfPtr = Ranking.add(Lang.Rank.BaiFuCakeFile, 0)
+		if sfPtr then
+			local ret = Ranking.load(sfPtr, Lang.Rank.BaiFuCakeFile)
+			if not ret then
+				for i=1, 5 do
+					Ranking.addColumn(sfPtr, "values"..i-1)  --0空，1全服数据，2当前蛋糕模型
+				end
+			end
+		end
+	end
+	
+	local sfPtrs = Ranking.getRanking(Lang.Rank.BaiFuBuyItemFile) --百服蛋糕个人兑换数据
+	if sfPtrs == nil then
+		sfPtrs = Ranking.add(Lang.Rank.BaiFuBuyItemFile, 0)
+		if sfPtrs then
+			local ret = Ranking.load(sfPtrs, Lang.Rank.BaiFuBuyItemFile)
+			if not ret then
+				for i=1, 5 do
+					Ranking.addColumn(sfPtrs, "values"..i-1)  --0空，123分别代表兑换123的次数
+				end
+			end
+		end
+	end
+	
+	local zbrl = Ranking.getRanking(Lang.Rank.FuranceDataFile) --百服装备熔炉个人文件
+	if zbrl == nil then
+		zbrl = Ranking.add(Lang.Rank.FuranceDataFile, 0)
+		if zbrl then
+			local ret = Ranking.load(zbrl, Lang.Rank.FuranceDataFile)
+			if not ret then
+				for i=1, 5 do
+					Ranking.addColumn(zbrl, "values"..i-1)  --0空，1进度值
+				end
+			end
+		end
+	end
+
+end
+
+function SheepBaiFuEnd()
+	local sfPtr = Ranking.getRanking( Lang.Rank.BaiFuCakeFile )--百服蛋糕
+	if sfPtr then
+		Ranking.save(sfPtr, Lang.Rank.BaiFuCakeFile, true)
+	end
+	
+	local sfPtrs = Ranking.getRanking( Lang.Rank.BaiFuBuyItemFile )--百服蛋糕个人数据
+	if sfPtrs then
+		Ranking.save(sfPtrs, Lang.Rank.BaiFuBuyItemFile, true)
+	end
+	
+	local zbrls = Ranking.getRanking( Lang.Rank.FuranceDataFile )--百服装备熔炉个人数据
+	if zbrls then
+		Ranking.save(zbrls, Lang.Rank.FuranceDataFile, true)
+	end
+	
+end
+
+function InitConuseRankAct()
+	for k, v in ipairs(ConsumeRankFileConfig or {}) do  
+		if v.dayConsumeFile ~= nil then 
+			local dayConsumePtr = Ranking.getRanking(v.dayConsumeFile) --每日消费排名 
+			if dayConsumePtr == nil then
+				dayConsumePtr = Ranking.add(v.dayConsumeFile, 2000)
+				if dayConsumePtr then
+					local ret = Ranking.load(dayConsumePtr, v.dayConsumeFile)  
+					if not ret then
+						for i = 1, 5 do
+							Ranking.addColumn(dayConsumePtr, "value"..i-1) 
+						end
+					end 
+				end
+			end	
+		end
+		
+		if v.accConsumeFile ~= nil then
+			local accConsumePtr = Ranking.getRanking( v.accConsumeFile )  --累计消费排名 
+			if accConsumePtr == nil then
+				accConsumePtr = Ranking.add(v.accConsumeFile, 2000)
+				if accConsumePtr then
+					local ret = Ranking.load(accConsumePtr, v.accConsumeFile)  
+					if not ret then
+						for i = 1, 5 do
+							Ranking.addColumn(accConsumePtr, "value"..i-1) 
+						end
+					end 
+				end
+			end	
+		end
+		
+		
+	end
+end 
+
+function ConuseRankActEnd()
+	for k, v in ipairs(ConsumeRankFileConfig or {}) do 
+		if v.dayConsumeFile ~= nil then 
+			local dayConsumePtr = Ranking.getRanking( v.dayConsumeFile )		
+			if dayConsumePtr then
+				Ranking.save(dayConsumePtr, v.dayConsumeFile, true)
+			end
+		end
+
+		if v.accConsumeFile ~= nil then 
+			local accConsumePtr = Ranking.getRanking( v.accConsumeFile )		
+			if accConsumePtr then
+				Ranking.save(accConsumePtr, v.accConsumeFile, true)
+			end
+		end
+	end 
+end
+
+--羊年清明活动 祭念先贤
+function InitCommemorate()
+	local commPtr = Ranking.getRanking(Lang.Rank.CommemorateFile) --祭念先贤
+	if commPtr == nil then
+		commPtr = Ranking.add(Lang.Rank.CommemorateFile, 0)
+		if commPtr then
+			local ret = Ranking.load(commPtr, Lang.Rank.CommemorateFile)
+			if not ret then
+				for i=1, 5 do
+					Ranking.addColumn(commPtr, "values"..i-1)
+				end
+			end
+		end
+	end
+	
+	local commLb = Ranking.getRanking(Lang.Rank.CommemorateFreeFile) --清明礼包
+	if commLb == nil then
+		commLb = Ranking.add(Lang.Rank.CommemorateFreeFile, 0)
+		if commLb then
+			local ret = Ranking.load(commLb, Lang.Rank.CommemorateFreeFile)
+			if not ret then
+				for i=1, 5 do
+					Ranking.addColumn(commLb, "values"..i-1) --1位保存领取
+				end
+			end
+		end
+	end
+	
+	
+end 
+
+function CommemorateEnd()
+	local comm = Ranking.getRanking( Lang.Rank.CommemorateFile )--祭念先贤
+	if comm then
+		Ranking.save(comm, Lang.Rank.CommemorateFile, true)
+	end
+	
+	local comms = Ranking.getRanking( Lang.Rank.CommemorateFreeFile )--清明礼包
+	if comms then
+		Ranking.save(comms, Lang.Rank.CommemorateFreeFile, true)
+	end
+	
+end
+
+--羊年五一
+function InitSheepLaborDay()
+	local commPtr = Ranking.getRanking(Lang.Rank.LaborDayTreeFile) --神树培养值
+	if commPtr == nil then
+		commPtr = Ranking.add(Lang.Rank.LaborDayTreeFile, 0)
+		if commPtr then
+			local ret = Ranking.load(commPtr, Lang.Rank.LaborDayTreeFile)
+			if not ret then
+				for i=1, 5 do
+					Ranking.addColumn(commPtr, "values"..i-1) --1表示培养值，其他备用
+				end
+			end
+		end
+	end
+	
+	local commLb = Ranking.getRanking(Lang.Rank.LaborDayTreePlayerValFile) --个人贡献值
+	if commLb == nil then
+		commLb = Ranking.add(Lang.Rank.LaborDayTreePlayerValFile, 0)
+		if commLb then
+			local ret = Ranking.load(commLb, Lang.Rank.LaborDayTreePlayerValFile)
+			if not ret then
+				for i=1, 5 do
+					Ranking.addColumn(commLb, "values"..i-1) --1位保存贡献值，其他备用
+				end
+			end
+		end
+	end
+	
+
+end 
+
+function SheepLaborDayEnd()
+	local comm = Ranking.getRanking( Lang.Rank.LaborDayTreeFile )--神树培养值
+	if comm then
+		Ranking.save(comm, Lang.Rank.LaborDayTreeFile, true)
+	end
+	
+	local comms = Ranking.getRanking( Lang.Rank.LaborDayTreePlayerValFile )--神树个人贡献值
+	if comms then
+		Ranking.save(comms, Lang.Rank.LaborDayTreePlayerValFile, true)
+	end
+	
+end
+
+
+
+
+table.insert(MainFnTable, BlessTree_Main)
+table.insert(InitFnTable, InitWishRanking)
+table.insert(FinaFnTable, RankingEnd)
+table.insert(InitFnTable, InitLanternRanking) --元宵相关数据
+table.insert(FinaFnTable, LanternRankEnd)
+--table.insert(InitFnTable, InitWcRanking) --世界杯活动相关数据
+--table.insert(FinaFnTable, WcRankEnd)
+table.insert(InitFnTable, InitValentinedays) --七夕活动
+table.insert(FinaFnTable, ValentinedaysEnd)
+
+table.insert(InitFnTable,InitSuperRebate)
+table.insert(FinaFnTable, SuperRebateEnd)
+
+table.insert(InitFnTable,InitRecharge)--2014中秋节充值返利--2015元宵充值返利
+table.insert(FinaFnTable, RechargeEnd)
+table.insert(InitFnTable,InitChangeRunMoon)--2014中秋节嫦娥奔月--2015元宵美味汤圆
+table.insert(FinaFnTable, ChangeRunMoonEnd)
+
+table.insert(InitFnTable,InitAutumnRanking)  --2014中秋活动数据，2015元宵节
+table.insert(FinaFnTable, AutumnRankEnd)
+table.insert(InitFnTable,InitNationalDayHorse)  --2014国庆活动数据,双十一，后台开启的活动
+table.insert(FinaFnTable, NationalDayHorseEnd)
+table.insert(InitFnTable,InitShenYinBaGua)  --神印八卦
+table.insert(FinaFnTable, ShenYinBaGuaEnd)
+table.insert(InitFnTable,InitLuxuryRebate)  --豪华返利活动
+table.insert(FinaFnTable, LuxuryRebateEnd)
+--table.insert(InitFnTable,InitAnniversaryAct)  --周年活动
+--table.insert(FinaFnTable, anniversaryActEnd)
+table.insert(InitFnTable,InitDoubleElevenHorseAct)  --双十一活动
+table.insert(FinaFnTable, doubleElevenHorseActEnd)
+table.insert(InitFnTable,InitXunShouLeiTai)  --驯兽擂台
+table.insert(FinaFnTable, XunShouLeiTaiEnd)
+
+--table.insert(InitFnTable,InitXamsHorse)  --马年圣诞活动
+--table.insert(FinaFnTable, XamsHorseEnd)
+
+table.insert(InitFnTable,InitChristmasHorseAct)  --2014圣诞活动，这个是共用的不要注释掉
+table.insert(FinaFnTable, ChristmasHorseActEnd)
+
+--table.insert(InitFnTable,InitNewYearSheep)  --2015元旦活动
+--table.insert(FinaFnTable, NewYearSheepEnd)
+
+
+table.insert(InitFnTable, InitSpringFestivalSheep)  --2015春节活动
+table.insert(FinaFnTable, SpringFestivalSheepEnd)
+table.insert(InitFnTable, InitSheepBaiFu)  --2015百服活动
+table.insert(FinaFnTable, SheepBaiFuEnd)
+
+table.insert(InitFnTable,InitConuseRankAct)  --消费排名，这个是共用的不要注释掉
+table.insert(FinaFnTable, ConuseRankActEnd)
+
+table.insert(InitFnTable,InitCommemorate)  --祭念先贤
+table.insert(FinaFnTable, CommemorateEnd)
+
+table.insert(InitFnTable, InitSheepLaborDay)  --羊年五一
+table.insert(FinaFnTable, SheepLaborDayEnd)
+
+
+

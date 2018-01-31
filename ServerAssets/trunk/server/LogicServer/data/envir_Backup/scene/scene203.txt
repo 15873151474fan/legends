@@ -1,0 +1,80 @@
+﻿--新服战场
+{
+	scenceid = 203,
+	scencename = Lang.SceneName.s00203,
+	mapfilename = "211KaiFuZhanChang",
+	minlevel = 40,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "mengzhongtucheng.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 126,
+	sceneHeight = 136,
+	posx = 34,
+	posy = 93,
+
+	sceneType=1,
+	
+	seckillId = 0,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+	
+	area =
+	{
+		{ name = Lang.SceneName.s00203, range = { 10,10,20,20,60,50}, center = { 85,37},attri = {
+			{type=18,value = {}},  --穿人
+			{type=19,value = {}},  --穿怪
+			{type=3,value = {}},   --战斗区域
+			{type=80,value = {}},  --不爆装备
+			{type=6,value = {}},   --重配地图
+			{ type = 34,  value = {316,822,386,318,387,388,389,823,391,392,394,2272,2273,2274} },  --禁止使用物品
+			{ type = 23,  value = {1,2,3,4} },   --禁止行会拉
+			{ type = 30,  value = {1,2,3,4} },   --禁止被行会拉
+            {type=40,value = {}},   --关闭新手保护			          
+            { type = 89,  value = {}},   --不能丢弃物品
+			{type=33,value = {10}}, --禁制空间转移
+			},
+			},	--默认配置场景
+		
+	    { name = Lang.SceneName.a00119, range = {26,91,36,81,54,99,43,113}, center = {39,93},
+            attri = {
+		              {type=51,value = {}},    --区域禁止使用任何技能
+					  {type=46,value = {30,92,36,86,46,96,39,103}},    --安全复活区 
+					  {type=85,value = {}}, 
+					  {type=1,value = {}}, 
+                    },	
+         },--安全复活区域 
+
+	    { name = Lang.SceneName.a00120, range = {64,39,82,21,106,45,87,65}, center = {85,37},
+            attri = {
+					  {type=44,value = {}},  --禁止原地复活
+					  {type=56,value = {}},  --禁止交易
+                    },	
+        },
+		},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+----#include "refresh37.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00291, posx = 43 , posy = 89,script = "data/script/XinFuZhanChang/KaiFuZhanChangGuanYuan.txt",modelid = 1,icon = 1,funcId = 0},
+
+	},
+
+  teleport =
+  {
+
+  },
+
+},

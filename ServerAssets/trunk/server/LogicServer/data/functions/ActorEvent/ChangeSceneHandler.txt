@@ -1,0 +1,47 @@
+﻿--切场景的相关处理
+--#include "data\functions\Activity\BossDaZhaiMen\DaZhaiMenCommon.txt" once --大寨门
+--#include "data\functions\Activity\SpringFestivalSheep\EveBoss.txt" once --除夕BOSS
+--#include "data\config\activityconfig\Festival\Demons.txt" once
+TarNoCloseScenId = { 30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,} --如果不想在传送至目的地时的副本面板消失，则填上场景ID 
+
+EventCallDispatcher.ChangeSceneHandler = function (sysarg, args)
+   --场景切换关闭窗口面板 
+   local scenceId = Actor.getSceneId(sysarg)
+   local targetSceneId = Fuben.getSceneIdByPtr(args[1])
+   --print("ChangeSceneHandler:"..targetSceneId)
+   local IsOpen = false
+   for i = 1, #TarNoCloseScenId do
+       if TarNoCloseScenId[i] == targetSceneId then
+          IsOpen = true
+          break
+       end
+   end
+   if not IsOpen then
+      Actor.closeActivityWind( sysarg )
+   end
+   
+	----DzmSceneHandle(sysarg) --大寨门切场景处理
+	--EveBossSceneHandle(sysarg) --春节活动除夕BOSS切换场景处理
+	
+	
+	
+	
+	--[[降魔副本切场景清除段小姐  报错,先行屏蔽 
+	if DemonsConfig.sceneIdList and table.getn(DemonsConfig.sceneIdList) >= 3 then
+		local scenceId = Actor.getSceneId(sysarg) 
+		local targetSceneId = Fuben.getSceneIdByPtr(args[1])
+		if scenceId == DemonsConfig.sceneIdList[2] or scenceId == DemonsConfig.sceneIdList[3] then 
+			if targetSceneId ~= DemonsConfig.sceneIdList[3] then
+				Pet.delPetById(sysarg, DemonsConfig.DuanPet.PetId)
+				Pet.delPetById(sysarg, DemonsConfig.TreasurePet.PetId)
+			end
+		end 
+	end]]
+
+
+end
+
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeChangeScene, EventCallDispatcher.ChangeSceneHandler)

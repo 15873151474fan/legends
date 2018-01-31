@@ -1,0 +1,41 @@
+﻿--#include "NewVipRankPointer.txt" once
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function NewVipRanking_Init(npcobj)
+    --print("NewVipRank")
+	local config = NewVipRankPt
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+	local config = NewVipEveryRankPt
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function NewVipRanking_Fina(npcobj)
+    --print("NewVipRanking_Fina")
+	local config = NewVipRankPt
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+	local config = NewVipEveryRankPt
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+end
+
+--重置Vip数据 
+function ResetVipData()
+  --print("ResetVipData")
+  --清除vip每日记录名单（包括每日使用金砖次数，每日多倍经验领取以及个人Boss副本记录次数) 
+  local config = NewVipEveryRankPt
+  local Rank = Ranking.getRanking( config.RankName )
+  if Rank then	
+	 Ranking.clearRanking(Rank)
+  end
+  --并且每天定时保存VIP领奖数据
+  local config = NewVipRankPt
+  local Rank = Ranking.getRanking( config.RankName )
+  if Rank then
+     Ranking.save(Rank, config.RankFile) 
+  end   
+end
+
+table.insert(InitFnTable,NewVipRanking_Init)
+table.insert(FinaFnTable,NewVipRanking_Fina)

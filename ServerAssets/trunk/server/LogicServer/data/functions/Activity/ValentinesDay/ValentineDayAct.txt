@@ -1,0 +1,49 @@
+
+--lua script 
+--#include "data\config\activityconfig\ValentinesDay\ValentineParadeConfig.txt" once
+
+--登陆处理
+function ValentineLoginHandle(sysarg)
+	if System.isInDateRange(unpack(ValentineParadeConfig.actTime)) == true then
+		SendValentineOpenFlag(sysarg, 1)
+	end
+	
+end
+
+--新的一天处理
+function ValentineNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(ValentineParadeConfig.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(ValentineParadeConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendValentineOpenFlag(sysarg, 1)
+			
+		end
+	else
+		local activityTime = {}
+		for k, v in ipairs(ValentineParadeConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[3] = activityTime[9]
+		activityTime[9] = activityTime[9] + 1
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendValentineOpenFlag(sysarg, 0)
+		end
+	end
+
+end
+
+function SendValentineOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 63)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end

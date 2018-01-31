@@ -1,0 +1,1134 @@
+﻿--#include "..\..\language\LangCode.txt"
+
+-- 称号增加groupId 表示这个称号是哪个组的，默认是0，否则填写buff的id,从1开始，一个buff组里的buff只能存在一个
+-- 同时增加了time 表示有效时间，默认是0可以不配置，否则表示这个称号的有效时间，单位秒
+-- 增加了showOnlyGet 标记，默认是false，可以不配置，否则只在玩家有这个称号的时候才显示，如果配置了true，那么只有玩家在有这个称号才会显示
+--isDelete 表示称号是删除的，默认是false，如果是true表示该称号被删除了，客户端不用显示出来
+-- headTitleId 设置称号对应的头衔id 不配置默认-1
+-- isFamous 是否是名人堂的称号，这种称号需要特殊处理，拥有以后有一些特权 isFamous=true表示是，默认不用配置
+-- isPlatform 是否是平台头衔的称号，头衔图片编号由网页参数传入，isPlatform=true表示是，默认不是 不用配置,
+Titles=
+{
+
+	{
+		name = "",
+		desc = "",
+		buff = { 
+							{ type = 0, group = 2, value = 0 , Icon = 1,},
+		       },
+		groupId = 0,
+		showOnlyGet = false,
+		time = 0,
+		isDelete = false,
+		headTitleId = 0,
+	},
+--[[
+--锋芒崭露：等级40级
+	{
+		name = Lang.Title.name001,
+		desc = Lang.Title.desc001,
+		buff = { }, 
+		groupId = 0,
+		showOnlyGet = false,
+		time = 0,
+		isDelete = false,
+	},
+
+--独当一面：等级50级
+	{
+		name = Lang.Title.name002,
+		desc = Lang.Title.desc002,
+		buff = { }, 
+		groupId = 0,
+		showOnlyGet = false,
+		time = 0,
+		isDelete = false,
+	},
+
+--威风八面：等级60级
+	{
+		name = Lang.Title.name003,
+		desc = Lang.Title.desc003,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = false,
+		time = 0,
+		isDelete = false,
+	},
+
+--威震江湖：等级70级
+	{
+		name = Lang.Title.name004,
+		desc = Lang.Title.desc004,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = false,
+		time = 0,
+		isDelete = false,
+	},
+
+--武林盟主
+	{
+		name = Lang.Title.name005,
+		desc = Lang.Title.desc005,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = false,
+		time = 0,
+		isDelete = false,
+	},
+
+--小有影响：祈福1000元宝
+	{
+		name = Lang.Title.name006,
+		desc = Lang.Title.desc006,
+		buff = { }, 
+		groupId = 0,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--慷慨解囊：祈福5000元宝
+	{
+		name = Lang.Title.name007,
+		desc = Lang.Title.desc007,
+		buff = { }, 
+		groupId = 0,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--一掷千金：祈福10000元宝
+	{
+		name = Lang.Title.name008,
+		desc = Lang.Title.desc008,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--富甲一方：祈福20000元宝
+	{
+		name = Lang.Title.name009,
+		desc = Lang.Title.desc009,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--扬名立万：祈福50000元宝
+	{
+		name = Lang.Title.name010,
+		desc = Lang.Title.desc010,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--独步天下：祈福100000元宝
+	{
+		name = Lang.Title.name011,
+		desc = Lang.Title.desc011,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--仁义天王：祈福500000元宝
+	{
+		name = Lang.Title.name012,
+		desc = Lang.Title.desc012,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--黄金战神：祈福1000000元宝
+	{
+		name = Lang.Title.name013,
+		desc = Lang.Title.desc013,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--人气宝贝：周魅力第一名
+	{
+		name = Lang.Title.name014,
+		desc = Lang.Title.desc014,
+		buff = { },
+		groupId = 1,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--魅力宝贝：周魅力第二名
+	{
+		name = Lang.Title.name015,
+		desc = Lang.Title.desc015,
+		buff = { },
+		groupId = 1,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--活力宝贝：周魅力第二名
+	{
+		name = Lang.Title.name016,
+		desc = Lang.Title.desc016,
+		buff = { },
+		groupId = 1,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--玉树临风：周帅气榜第一名
+	{
+		name = Lang.Title.name017,
+		desc = Lang.Title.desc017,
+		buff = { },
+		groupId = 1,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--英俊潇洒：周帅气榜第二名
+	{
+		name = Lang.Title.name018,
+		desc = Lang.Title.desc018,
+		buff = { },
+		groupId = 1,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--风度翩翩：周帅气榜第三名
+	{
+		name = Lang.Title.name019,
+		desc = Lang.Title.desc019,
+		buff = { },
+		groupId = 1,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--至尊VIP
+	{
+		name = Lang.Title.name020,
+		desc = Lang.Title.desc020,
+		buff = { },
+		groupId = 2,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--黄金VIP
+	{
+		name = Lang.Title.name021,
+		desc = Lang.Title.desc021,
+		buff = { },
+		groupId = 2,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--白银VIP
+	{
+		name = Lang.Title.name022,
+		desc = Lang.Title.desc022,
+		buff = { },
+		groupId = 2,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+	},
+
+--生日之星
+	{
+		name = Lang.Title.name023,
+		desc = Lang.Title.desc023,
+		buff = { },
+		groupId = 0,
+		showOnlyGet = true,
+		time = 86400,
+		isDelete = false,
+		headTitleId = 12,
+	},
+--高富帅
+	{
+		name = Lang.Title.name024,
+		desc = Lang.Title.desc024,
+		buff =
+		{
+			{ type = 9, group = 0,  value =5	},
+			{ type = 11, group = 0, value =10	},
+			{ type = 13, group = 0, value =5	},
+			{ type = 15, group = 0, value =10	},
+			{ type = 17, group = 0, value =5	},
+			{ type = 19, group = 0, value =10	},
+		},
+		groupId = 3,
+		showOnlyGet = true,
+		time = 864000,
+		isDelete = false,
+		headTitleId = 13,
+	},
+--白富美
+	{
+		name = Lang.Title.name025,
+		desc = Lang.Title.desc025,
+		buff =
+		{
+			{ type = 9, group = 0,  value =5	},
+			{ type = 11, group = 0, value =10	},
+			{ type = 13, group = 0, value =5	},
+			{ type = 15, group = 0, value =10	},
+			{ type = 17, group = 0, value =5	},
+			{ type = 19, group = 0, value =10	},
+		},
+		groupId = 3,
+		showOnlyGet = true,
+		time = 864000,
+		isDelete = false,
+		headTitleId = 13,
+	},
+--永久高富帅
+	{
+		name = Lang.Title.name026,
+		desc = Lang.Title.desc026,
+		buff =
+		{
+			{ type = 9, group = 0,  value =5	},
+			{ type = 11, group = 0, value =10	},
+			{ type = 13, group = 0, value =5	},
+			{ type = 15, group = 0, value =10	},
+			{ type = 17, group = 0, value =5	},
+			{ type = 19, group = 0, value =10	},
+		},
+		groupId = 3,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+		headTitleId = 13,
+	},
+--永久白富美
+	{
+		name = Lang.Title.name027,
+		desc = Lang.Title.desc027,
+		buff =
+		{
+			{ type = 9, group = 0,  value =5	},
+			{ type = 11, group = 0, value =10	},
+			{ type = 13, group = 0, value =5	},
+			{ type = 15, group = 0, value =10	},
+			{ type = 17, group = 0, value =5	},
+			{ type = 19, group = 0, value =10	},
+		},
+		groupId = 3,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+		headTitleId = 14,
+	},
+	
+--雄霸天下
+	{
+		name = Lang.Title.name028,
+		desc = Lang.Title.desc028,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+		headTitleId = 17,
+	},
+	
+--PK之神
+	{
+		name = Lang.Title.name029,
+		desc = Lang.Title.desc029,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+	},
+--PK我最牛
+	{
+		name = Lang.Title.name030,
+		desc = Lang.Title.desc030,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 4,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+	},
+	
+--囧神
+	{
+		name = Lang.Title.name031,
+		desc = Lang.Title.desc031,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+		headTitleId = 18,
+	},
+	
+--万人迷
+	{
+		name = Lang.Title.name032,
+		desc = Lang.Title.desc032,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+		headTitleId = 23,
+	},
+	
+--爱你到永远
+	{
+		name = Lang.Title.name033,
+		desc = Lang.Title.desc033,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+		headTitleId = 20,
+	},
+	
+	
+--老婆我爱你
+	{
+		name = Lang.Title.name034,
+		desc = Lang.Title.desc034,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+		headTitleId = 21,
+	},
+	
+--老公我爱你
+	{
+		name = Lang.Title.name035,
+		desc = Lang.Title.desc035,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+		headTitleId = 22,
+	},
+--非PK勿扰
+	{
+		name = Lang.Title.name036,
+		desc = Lang.Title.desc036,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+	},
+	
+
+--人间凶器
+	{
+		name = Lang.Title.name037,
+		desc = Lang.Title.desc037,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+		headTitleId = 24,
+	},
+	
+--洋葱头
+	{
+		name = Lang.Title.name038,
+		desc = Lang.Title.desc038,
+		buff =
+		{
+			{ type = 70, group = 0, value = 100	},
+			{ type = 6, group = 0, value = 0.12	},
+			{ type = 8, group = 0, value = 0.12	},
+			{ type = 23, group = 0, value =240	},
+			{ type = 27, group = 0, value =240	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 259200,
+		isDelete = false,
+		headTitleId = 28,
+	},
+
+--PK我最牛
+	{
+		name = Lang.Title.name039,
+		desc = Lang.Title.desc039,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 4,
+		showOnlyGet = true,
+		time = 2592000,
+		isDelete = false,
+	},
+--名人堂亲王
+	{
+		name = Lang.Title.name040,
+		desc = Lang.Title.desc040,
+		buff =
+		{
+			{ type = 11, group = 0, value =400	},
+			{ type = 15, group = 0, value =400	},
+			{ type = 19, group = 0, value =400	},
+			{ type = 23, group = 0, value =400	},
+			{ type = 27, group = 0, value =400	},
+			{ type = 6, group = 0, value = 0.2	},
+			{ type = 8, group = 0, value = 0.2	},
+		},
+		groupId = 5,
+		showOnlyGet = true,
+		time = 2592000,
+		isDelete = false,
+		isFamous = true,
+		headTitleId = 31,
+	},
+--名人堂公爵
+	{
+		name = Lang.Title.name041,
+		desc = Lang.Title.desc041,
+		buff =
+		{
+			{ type = 11, group = 0, value =350	},
+			{ type = 15, group = 0, value =350	},
+			{ type = 19, group = 0, value =350	},
+			{ type = 23, group = 0, value =350	},
+			{ type = 27, group = 0, value =350	},
+			{ type = 6, group = 0, value = 0.17	},
+			{ type = 8, group = 0, value = 0.17	},
+		},
+		groupId = 5,
+		showOnlyGet = true,
+		time = 2592000,
+		isDelete = false,
+		isFamous = true,
+		headTitleId = 31,
+	},
+--名人堂侯爵
+	{
+		name = Lang.Title.name042,
+		desc = Lang.Title.desc042,
+		buff =
+		{
+			{ type = 11, group = 0, value =300	},
+			{ type = 15, group = 0, value =300	},
+			{ type = 19, group = 0, value =300	},
+			{ type = 23, group = 0, value =300	},
+			{ type = 27, group = 0, value =300	},
+			{ type = 6, group = 0, value = 0.15	},
+			{ type = 8, group = 0, value = 0.15	},
+		},
+		groupId = 5,
+		showOnlyGet = true,
+		time = 2592000,
+		isDelete = false,
+		isFamous = true,
+		headTitleId = 31,
+	},
+--名人堂伯爵
+	{
+		name = Lang.Title.name043,
+		desc = Lang.Title.desc043,
+		buff =
+		{
+			{ type = 11, group = 0, value =270	},
+			{ type = 15, group = 0, value =270	},
+			{ type = 19, group = 0, value =270	},
+			{ type = 23, group = 0, value =270	},
+			{ type = 27, group = 0, value =270	},
+			{ type = 6, group = 0, value = 0.14	},
+			{ type = 8, group = 0, value = 0.14	},
+		},
+		groupId = 5,
+		showOnlyGet = true,
+		time = 2592000,
+		isDelete = false,
+		isFamous = true,
+		headTitleId = 31,
+	},
+--名人堂子爵
+	{
+		name = Lang.Title.name044,
+		desc = Lang.Title.desc044,
+		buff =
+		{
+			{ type = 11, group = 0, value =250	},
+			{ type = 15, group = 0, value =250	},
+			{ type = 19, group = 0, value =250	},
+			{ type = 23, group = 0, value =250	},
+			{ type = 27, group = 0, value =250	},
+			{ type = 6, group = 0, value = 0.13	},
+			{ type = 8, group = 0, value = 0.13	},
+		},
+		groupId = 5,
+		showOnlyGet = true,
+		time = 2592000,
+		isDelete = false,
+		isFamous = true,
+		headTitleId = 31,
+	},
+--名人堂男爵
+	{
+		name = Lang.Title.name045,
+		desc = Lang.Title.desc045,
+		buff =
+		{
+			{ type = 11, group = 0, value =230	},
+			{ type = 15, group = 0, value =230	},
+			{ type = 19, group = 0, value =230	},
+			{ type = 23, group = 0, value =230	},
+			{ type = 27, group = 0, value =230	},
+			{ type = 6, group = 0, value = 0.12	},
+			{ type = 8, group = 0, value = 0.12	},
+		},
+		groupId = 5,
+		showOnlyGet = true,
+		time = 2592000,
+		isDelete = false,
+		isFamous = true,
+		headTitleId = 31,
+	},
+--名人堂勋爵
+	{
+		name = Lang.Title.name046,
+		desc = Lang.Title.desc046,
+		buff =
+		{
+			{ type = 11, group = 0, value =210	},
+			{ type = 15, group = 0, value =210	},
+			{ type = 19, group = 0, value =210	},
+			{ type = 23, group = 0, value =210	},
+			{ type = 27, group = 0, value =210	},
+			{ type = 6, group = 0, value = 0.11	},
+			{ type = 8, group = 0, value = 0.11	},
+		},
+		groupId = 5,
+		showOnlyGet = true,
+		time = 2592000,
+		isDelete = false,
+		isFamous = true,
+		headTitleId = 31,
+	},
+--平台专属头衔
+	{
+		name = Lang.Title.name047,
+		desc = Lang.Title.desc047,
+		buff =
+		{
+			{ type = 70, group = 0, value = 100	},
+			{ type = 6, group = 0, value = 0.12	},
+			{ type = 8, group = 0, value = 0.12	},
+			{ type = 23, group = 0, value =240	},
+			{ type = 27, group = 0, value =240	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 864000,
+		isDelete = false,
+		isPlatform = true,
+	},
+--杀戮之王
+	{
+		name = Lang.Title.name048,
+		desc = Lang.Title.desc048,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 86400,
+		isDelete = false,
+		headTitleId = 19,
+	},
+
+--天关战神
+	{
+		name = Lang.Title.name049,
+		desc = Lang.Title.desc049,
+		buff =
+		{
+			{ type = 23, group = 0, value =200	},
+			{ type = 27, group = 0, value =200	},
+			{ type = 6, group = 0, value = 0.1	},
+			{ type = 8, group = 0, value = 0.1	},
+		},
+		groupId = 0,
+		showOnlyGet = true,
+		time = 604800,
+		isDelete = false,
+		headTitleId = 25,
+	},
+	]]
+--玛沙克战神
+	{
+		name = Lang.Title.name050,
+		desc = Lang.Title.desc050,
+		buff =
+		{
+			{ type = 6, group = 1, value =0.05, Icon = 5,},
+			{ type = 8, group = 1, value =0.05, Icon = 7,},
+		},
+		way = Lang.Title.way050,
+		groupId = 1,
+		showOnlyGet = true,
+		time = 79200000,
+		isDelete = false,
+		headTitleId = 1,
+	},	
+	
+--玛沙克勇者
+	{
+		name = Lang.Title.name051,
+		desc = Lang.Title.desc051,
+		buff =
+		{
+			{ type = 6, group = 2, value =0.02, Icon = 5,},
+			{ type = 8, group = 2, value =0.02, Icon = 7,},
+		},
+		way = Lang.Title.way051,
+		groupId = 1,
+		showOnlyGet = true,
+		time = 79200000,
+		isDelete = false,
+		headTitleId = 2,
+	},		
+
+--涅槃重生
+	{
+		name = Lang.Title.name052,
+		desc = Lang.Title.desc052,
+		buff =
+		{
+			{ type = 21, group = 3, value =25, Icon = 21,	},
+			{ type = 23, group = 3, value =40, Icon = 21,	},
+			{ type = 25, group = 3, value =25, Icon = 25,	},
+			{ type = 27, group = 3, value =40, Icon = 25,	},
+		},
+		way = Lang.Title.way052,
+		groupId = 2,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+		headTitleId = 3,
+	},
+	
+--富甲天下
+	{
+		name = Lang.Title.name053,
+		desc = Lang.Title.desc053,
+		buff =
+		{
+			{ type = 6, group = 4, value =0.05, Icon = 5,},
+			{ type = 8, group = 4, value =0.05, Icon = 7,},
+		},
+		way = Lang.Title.way053,
+		groupId = 3,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+		headTitleId = 4,
+	},
+
+--穷得只剩钱
+	{
+		name = Lang.Title.name054,
+		desc = Lang.Title.desc054,
+		buff =
+		{
+			{ type = 6, group = 5, value =0.1, Icon = 5,},
+			{ type = 8, group = 5, value =0.1, Icon = 7,},
+			{ type = 45, group = 5, value =1, Icon = 132,},
+		},
+		way = Lang.Title.way054,
+		groupId = 3,
+		showOnlyGet = true,
+		time = 0,
+		isDelete = false,
+		headTitleId = 5,
+	},
+	
+--暮影战神
+	{
+		name = Lang.Title.name055,
+		desc = Lang.Title.desc055,
+		buff =
+		{
+			{ type = 80,  group = 6, value =0.05, Icon = 80,	},
+		},
+		way = Lang.Title.way055,
+		groupId = 4,
+		showOnlyGet = true,
+		time =-1,
+		isDelete = false,
+		headTitleId = 6,
+	},
+	
+--影之战神
+	{
+		name = Lang.Title.name056,
+		desc = Lang.Title.desc056,
+		buff =
+		{
+			{ type = 9,  group = 7, value =50, Icon = 9,	},
+			{ type = 11, group = 7, value =150, Icon = 9,	},
+		},
+		way = Lang.Title.way056,
+		groupId = 5,
+		showOnlyGet = true,
+		time =-1,
+		isDelete = false,
+		headTitleId = 7,
+	},
+	
+--影之法神
+	{
+		name = Lang.Title.name057,
+		desc = Lang.Title.desc057,
+		buff =
+		{
+			{ type = 13, group = 8, value =50, Icon = 13,	},
+			{ type = 15, group = 8, value =150, Icon = 13,	},
+		},
+		way = Lang.Title.way057,
+		groupId = 5,
+		showOnlyGet = true,
+		time =-1,
+		isDelete = false,
+		headTitleId = 8,
+	},
+	
+--影之道神
+	{
+		name = Lang.Title.name058,
+		desc = Lang.Title.desc058,
+		buff =
+		{
+			{ type = 17, group = 9, value =50, Icon = 17,	},
+			{ type = 19, group = 9, value =150, Icon = 17,	},
+		},
+		way = Lang.Title.way058,
+		groupId = 5,
+		showOnlyGet = true,
+		time =-1,
+		isDelete = false,
+		headTitleId = 9,
+	},
+	
+--强化大师
+	{
+		name = Lang.Title.name059,
+		desc = Lang.Title.desc059,
+		buff =
+		{
+			{ type = 9,  group = 10, value =100, Icon = 9,	},
+			{ type = 11, group = 10, value =150, Icon = 9,	},
+			{ type = 13, group = 10, value =100, Icon = 13,	},
+			{ type = 15, group = 10, value =150, Icon = 13,	},
+			{ type = 17, group = 10, value =100, Icon = 17,	},
+			{ type = 19, group = 10, value =150, Icon = 17,	},
+		},
+		way = Lang.Title.way059,
+		groupId = 6,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 10,
+	},
+	
+--辉煌曙光
+	{
+		name = Lang.Title.name060,
+		desc = Lang.Title.desc060,
+		buff =
+		{
+			{ type = 70,  group = 11, value =50, Icon = 70,	},
+		},
+		way = Lang.Title.way060,
+		groupId = 7,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 11,
+	},
+
+--杀怪大神
+	{
+		name = Lang.Title.name061,
+		desc = Lang.Title.desc061,
+		buff =
+		{
+			{ type = 136, group = 12, value =500, Icon = 136,},
+		},
+		way = Lang.Title.way061,
+		groupId = 8,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 12,
+	},
+	
+--巅峰之路
+	{
+		name = Lang.Title.name062,
+		desc = Lang.Title.desc062,
+		buff =
+		{
+			{ type = 70,  group = 13, value =100, Icon = 70,	},
+		},
+		way = Lang.Title.way062,
+		groupId = 9,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 13,
+	},
+
+	
+--杀敌大神
+	{
+		name = Lang.Title.name063,
+		desc = Lang.Title.desc063,
+		buff =
+		{
+			{ type = 137, group = 14, value =1000, Icon = 136,},
+		},
+		way = Lang.Title.way063,
+		groupId = 10,
+		showOnlyGet = true,
+		time =79200000,
+		isDelete = false,
+		headTitleId = 14,
+	},
+	
+--翱翔天际
+	{
+		name = Lang.Title.name064,
+		desc = Lang.Title.desc064,
+		buff =
+		{
+			{ type = 9,  group = 15, value =50, Icon = 9,	},
+			{ type = 11, group = 15, value =80, Icon = 9,	},
+			{ type = 13, group = 15, value =50, Icon = 13,	},
+			{ type = 15, group = 15, value =80, Icon = 13,	},
+			{ type = 17, group = 15, value =50, Icon = 17,	},
+			{ type = 19, group = 15, value =80, Icon = 17,	},
+		},
+		way = Lang.Title.way064,
+		groupId = 11,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 15,
+	},
+	
+--神龙之翼
+	{
+		name = Lang.Title.name065,
+		desc = Lang.Title.desc065,
+		buff =
+		{
+			{ type = 9,  group = 16, value =100, Icon = 9,	},
+			{ type = 11, group = 16, value =150, Icon = 9,	},
+			{ type = 13, group = 16, value =100, Icon = 13,	},
+			{ type = 15, group = 16, value =150, Icon = 13,	},
+			{ type = 17, group = 16, value =100, Icon = 17,	},
+			{ type = 19, group = 16, value =150, Icon = 17,	},
+		},
+		way = Lang.Title.way065,
+		groupId = 11,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 16,
+	},
+	
+--兽王之灵
+	{
+		name = Lang.Title.name066,
+		desc = Lang.Title.desc066,
+		buff =
+		{
+			{ type = 9,  group = 17, value =50, Icon = 9,	},
+			{ type = 11, group = 17, value =80, Icon = 9,	},
+			{ type = 13, group = 17, value =50, Icon = 13,	},
+			{ type = 15, group = 17, value =80, Icon = 13,	},
+			{ type = 17, group = 17, value =50, Icon = 17,	},
+			{ type = 19, group = 17, value =80, Icon = 17,	},
+		},
+		way = Lang.Title.way066,
+		groupId = 12,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 17,
+	},
+	
+--四神之力
+	{
+		name = Lang.Title.name067,
+		desc = Lang.Title.desc067,
+		buff =
+		{
+			{ type = 9,  group = 18, value =100, Icon = 9,	},
+			{ type = 11, group = 18, value =150, Icon = 9,	},
+			{ type = 13, group = 18, value =100, Icon = 13,	},
+			{ type = 15, group = 18, value =150, Icon = 13,	},
+			{ type = 17, group = 18, value =100, Icon = 17,	},
+			{ type = 19, group = 18, value =150, Icon = 17,	},
+		},
+		way = Lang.Title.way067,
+		groupId = 12,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 18,
+	},
+	
+	--暮影霸主
+	{
+		name = Lang.Title.name069,
+		desc = Lang.Title.desc069,
+		buff =
+		{
+			{ type = 136, group = 19, value =300, Icon = 136,},
+		},
+		way = Lang.Title.way069,
+		groupId = 13,
+		showOnlyGet = true,
+		time =84600000,
+		isDelete = false,
+		headTitleId = 19,
+	},
+	
+--锋芒初现
+	{
+		name = Lang.Title.name068,
+		desc = Lang.Title.desc068,
+		buff =
+		{
+            { type = 9,  group = 20, value =5, Icon = 9,	},
+			{ type = 11, group = 20, value =10, Icon = 9,	},
+			{ type = 13, group = 20, value =5, Icon = 13,	},
+			{ type = 15, group = 20, value =10, Icon = 13,	},
+			{ type = 17, group = 20, value =5, Icon = 17,	},
+			{ type = 19, group = 20, value =10, Icon = 17,	},
+		},
+		way = Lang.Title.way068,
+		groupId = 2,
+		showOnlyGet = true,
+		time =0,
+		isDelete = false,
+		headTitleId = 20,
+	},
+	
+
+	
+
+}

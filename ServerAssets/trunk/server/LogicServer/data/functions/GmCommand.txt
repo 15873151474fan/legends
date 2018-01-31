@@ -1,0 +1,21 @@
+﻿--#include "data\functions\Activity\BlackMarket\BlackMarket_Main.txt"  once
+function GM_BlackMarket(sysarg,state,time)
+ -- print(state..","..time)
+  -- if state == 1 then
+  --   OpenBlackMarket(time)    
+  -- else
+  --   CloseBlackMarket(time)
+  -- end
+
+
+end
+
+EventCallDispatcher.HandleGmCommand = function(sysarg,Param)
+  local OPID = Param[1] 
+  if OPID == 1 then
+    GM_BlackMarket(sysarg,Param[2],Param[3])  
+  end
+
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeGameCommond, EventCallDispatcher.HandleGmCommand )

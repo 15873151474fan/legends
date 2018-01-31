@@ -1,0 +1,124 @@
+﻿--开阳天神刺杀+几率烈火
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+					{cond = 13,value =1},
+					{cond = 11,value =2000}, --几率
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=300, rate=30000,value=0},
+						{mj=0,timeParam=500,type=20,id=1,value=1,delay=0,vt=1},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=62,keepTime=400,delay=400,always=false},
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=-1,--相对于中心点y下边的相对坐标
+		rangeType=2,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+						{cond = 22,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0, rate=5000,value=0},
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-2,--相对于中心点y上边的相对坐标
+			yEnd=-2,--相对于中心点y下边的相对坐标
+		rangeType=2,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+						{cond = 22,value =1},
+					},
+					results=
+					{					
+						{type=34,value=1},					
+						{mj=0,timeParam=1,type=3,delay=300, rate=2500,value=0},
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=2,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

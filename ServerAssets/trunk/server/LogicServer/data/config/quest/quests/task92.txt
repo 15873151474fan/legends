@@ -1,0 +1,44 @@
+﻿--lua script
+{
+	id = 92,			-- 谏书下落
+	parentid = 91,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name92,
+	content = Lang.Quest.desc92,
+
+	prom = { type = 0, scene = Lang.SceneName.s00002, npc = Lang.EntityName.n00019 },
+	comp = { type = 0, scene = Lang.SceneName.s00002, npc = Lang.EntityName.n00019 },
+	target = {
+		{
+			type = 10, id = 12, count = 1, rewardId = 0,useList = false,
+			location = {
+				sceneid = 2, x= 0,y = 0,entityName = Lang.EntityName.n00040,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 7725162, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 38500, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk921,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk921,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip921,
+	},
+	PassMsTip = {
+	},
+},

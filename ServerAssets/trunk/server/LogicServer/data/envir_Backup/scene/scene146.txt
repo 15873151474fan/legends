@@ -1,0 +1,51 @@
+﻿--仙侠村 副本
+{
+	--场景1
+	scenceid = 146,						--这个id必须每次递增，比如第一个场景id是0，下一个一定是1，类推
+	scencename = Lang.SceneName.s00140,					--场景名称
+	mapfilename = "140xianxiacun",								--场景对应的地图
+	minlevel = 1,						--限制等级
+	forbiddenitem = {1,2},		--限制物品
+	--forbiddenpet = {5,3},		--限制的坐骑（宠物）
+	forbiddenskill = {100,20},	--限制的技能
+	nopk = 0,								--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "shayuanchun.mp3",
+	musicInterval=60,
+
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 144,
+	sceneHeight = 160,
+	--posx = 48,
+	--posy = 90,
+	area =
+	{
+		{	name = Lang.SceneName.s00140, range = { 10,10,20,20,60,50}, center = { 54,75 },attri = {{type=18,value = {}},{ type=1, value={}},{type=19,value = {}},{type=87,value = {}},{type=34,value = {389,391,316,822,386}},{ type = 23, value = {1,2,3}},{ type = 30, value = {1,2,3}},{type=46,value = {}},{type=80,value = {}},}},	--默认配置场景，世界安全区，可以穿怪,可以穿人                                                                                          
+	},
+	refresh =
+	  {
+----#include "refresh1.txt"
+	  },
+	magicPassPoints={1,2,56,32}, --可以魔法穿透的障碍点的列表，比如小的石头，是可以魔法穿透的，这里
+
+	npc =
+	{
+		--仙侠村
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+    {name = Lang.EntityName.n00201, posx = 64 , posy = 75,script= "data/script/XianXiaCun/BaiYueShengNv.txt",modelid=148,icon = 11,funcId=0},
+    {name = Lang.EntityName.n00202, posx = 83 , posy = 89,script= "data/script/XianXiaCun/ZhaoLingEr.txt",modelid=149,icon = 11,funcId=0},
+	 {name = Lang.EntityName.n00210, posx = 96 , posy = 107,script= "data/script/XianXiaCun/JiuJianXian.txt",modelid=146,icon = 146,funcId=0},
+	},
+
+
+  teleport =
+  {
+     --posx和posy表示传送门出现的位置
+     --toSceneid表示要传送的目的场景id
+     --toPosx和toPosy分别要传送的目的坐标，此坐标必须是位于toSceneid场景里的
+     --script是传送点关联的脚本文件，
+     --modelid表示外观模型的id
+     { posx = 101, posy = 123,toSceneid = 1,toPosx = 142, toPosy = 55,modelid = 50000,name = Lang.SceneName.s00001 },  --仙侠村→边界村
+  },
+
+},

@@ -1,0 +1,123 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+
+--拉风坐骑主题活动
+
+--19点前的播报
+function BroadRideTopicNotice()
+	System.broadcastTipmsg(Lang.Activity.k00007,2+128)
+
+end
+
+--全名播报
+function FourWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00028,2+128)
+end
+
+--19点后的播报
+function OnTopicRideBroadcast()
+	System.broadSwingTopicMsg(1)
+end
+
+--23结算
+function OnAccountRide()
+	System.broadSwingTopicMsg(1)
+
+	System.onAccountAllActivity(OpenServerConfig.activitys[4].openDays,OpenServerConfig.activitys[4].needValue)		--全民活动结算
+end
+
+--播报结算的消息
+function OnBroadAccounMsg()
+	local nHoure,nMin,nSec = System.getTime(0,0,0)
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[4].rankName)
+
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0) 
+		if pItem then
+			local sName = Ranking.getSub(pItem,0)
+			tmpStr = string.format(Lang.Activity.k00010,sName,Item.getItemName(OpenServerConfig.activitys[4].awards[1].id))
+			System.broadcastTipmsg(tmpStr,2+128)
+			if nMin <= 5 then
+				System.giveTenDaysActivityAward(Ranking.getId(pItem),3)
+				BroadRideEndEffect()
+			end
+		end
+	end
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+end
+
+--播放庆典烟花
+function BroadRideEndEffect()
+	System.broadcastTipmsg(Lang.Activity.k00011,2+128)
+	local playerList = LuaHelp.getAllActorList()		
+	if playerList ~= nil then
+		local awardConfig = OpenServerConfig.activitys[4].AddBuff[1]
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.addBuff(player,awardConfig.buffType,awardConfig.buffGroup,awardConfig.value,awardConfig.times,awardConfig.interval,awardConfig.buffName)
+			end
+		end
+	end
+end
+
+--23点后的播报
+function OnBroadAfterRide()
+	OnBroadAccounMsg()
+end
+
+--播报公告
+function OnBroadRideRankMsg()
+	local nHoure,nMin,nSec = System.getTime(0,0,0)
+	if nHoure >=23 then
+		OnBroadAccounMsg()
+	end
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[4].rankName)
+
+	if RankNameList ~= nil then
+		local str1 = ""
+		local str2 = ""
+		local str3 = ""
+		
+		for i=0,2 do
+			local nLevel = 0
+			local sName
+			local pItem = Ranking.getItemFromIndex(RankNameList,i)
+			local rideName
+			if pItem then
+				if i == 0 then
+					sName = Ranking.getSub(pItem,0)
+					nLevel = tonumber(Ranking.getSub(pItem,1))
+					if Ranking.getId(pItem) > 0 then
+						rideName = System.getRideNameByLevel(nLevel)
+						str1 = "<(n"..sName..")> "..rideName..","
+					end
+				elseif i == 1 then
+					sName = Ranking.getSub(pItem,0)
+					nLevel = tonumber(Ranking.getSub(pItem,1))
+					if Ranking.getId(pItem) > 0 then
+						rideName = System.getRideNameByLevel(nLevel)
+						str2 =  " <(n"..sName..")> "..rideName..","
+					end
+				elseif i == 2 then
+					sName = Ranking.getSub(pItem,0)
+					if Ranking.getId(pItem) > 0 then
+						nLevel = tonumber(Ranking.getSub(pItem,1))
+						rideName = System.getRideNameByLevel(nLevel)
+						str3 =  " <(n"..sName..")> "..rideName..","
+					end
+				end
+			end
+		end
+		local str = str1..str2..str3
+		
+		local tmpStr = ""
+		if nHoure >= 19  and nHoure <22 then
+			tmpStr = string.format(Lang.Activity.k00008,str)
+			System.broadcastTipmsg(tmpStr,2+128)
+		elseif nHoure < 23 then
+			tmpStr = string.format(Lang.Activity.k00009,str)
+			System.broadcastTipmsg(tmpStr,2+128)
+		end
+	end
+end

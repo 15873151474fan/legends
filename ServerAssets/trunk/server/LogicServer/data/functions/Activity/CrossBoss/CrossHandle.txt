@@ -1,0 +1,157 @@
+--lua script
+
+--#include "CrossBoss_Main.txt" once
+--#include "data\functions\Activity\CrossBattlefield\CrossBattleField_Common.txt" once -- 跨服降魔战场
+--#include "data\functions\Activity\CrossMatches\CrossMatchesCommon.txt" once --跨服联赛
+--#include "data\functions\Activity\CrossSendFlowers\CsSendFlowers.txt" once --跨服送花
+--#include "data\functions\Activity\WorldCup\WorldCup.txt" once --世界杯
+
+--[[
+	local cEnterCrossOp = 1,				--请求进入跨服场景
+	local cGetCrossWorldState = 2,			--请求跨服天下第一的状态
+	local cSignupCrossBattle = 3,			--降魔战场报名
+	local cStartCrossBattle = 4,			--玩家开始降魔战场
+	local cGetCrossBattleData = 5,			-- 获得跨服的旗帜
+	local cReturnRawServerOp = 6,			--返回普通逻辑服
+	local cGetCrossBattleAwardsTips = 7,	--请求跨服降魔战场的奖励列表
+	local cSpGetCrossTeamInfo = 8,		--请求跨服队伍信息
+	local cSpGetCrossTeamList = 9,		--请求跨服队伍列表
+	local cSpCrossTeamOperate = 10,		--跨服队伍操作
+	lcoal cSpGetSelectMathesRank = 11,	--获取海选赛排行榜
+	local cSpGetBetInfo = 12 			--获取下注信息
+	local cSpReqBet = 13 				--跨服联赛下注
+	local cSpGetMatchesReport = 14		--获取跨服联赛战报
+	local cSpGetCrossMatchesAward = 15  --获取跨服奖励
+	local cSpCrossMatchesSg = 16 		--跨服联赛报名
+	local cSpCrossMatchesGroup = 17		--获取跨服联赛龙虎榜信息
+	local cSpMatchesAwardList = 18		--获取跨服联赛
+	loal cSpCreateCrossTeam = 19        --创建跨服战队
+	local cSpSendStartMatches = 20      --发送开始海选比赛
+	local cSpSendFlowersAward = 21		--发送送花排行榜 
+	local cSpGetSendFlowersAward = 22 	--领取跨服送花奖励
+	local cSendTotalFlowersRank = 23,		--发送累计跨服送花排行
+	local cSpCheckCanSendFlowers = 24,		--检测是否可送花
+	local cSpGetWcGuessAward = 25		--领取世界杯单次竞猜奖励
+	
+--]]
+
+CrossOpFuncList = {}
+
+EventCallDispatcher.HandlerCrossOp = function (sysarg, args)
+  if args[1] == nil then return end   
+  local func = CrossOpFuncList[args[1]]
+  if func ~= nil then
+    return func(sysarg, args) 
+  end
+end
+
+--请求进入跨服场景 进入跨服土城
+CrossOpFuncList[1] = function (sysarg, args)
+	OnEnterCrossSceneOp(sysarg, args)
+end
+
+--请求进入跨服场景 "跨" 按钮
+CrossOpFuncList[2] = function (sysarg, args)
+	OnSendCrossWorldState(sysarg, args)
+end
+
+--降魔战场报名
+CrossOpFuncList[3] = function (sysarg, args)
+	OnSignUpCrossBattlefield(sysarg, args)
+end
+
+--玩家开始降魔战场
+CrossOpFuncList[4] = function (sysarg, args)
+	OnStartCrossBattleField(sysarg, args)
+end
+
+--获得跨服的战绩
+CrossOpFuncList[5] = function (sysarg, args)
+	OnSendCrossBattleResult(sysarg, args)
+end
+
+--返回普通逻辑服
+CrossOpFuncList[6] = function (sysarg, args)
+	OnCrossReturnRawServerOp(sysarg)
+end
+
+--请求跨服降魔战场的奖励列表
+CrossOpFuncList[7] = function (sysarg, args)
+	OnSendCorssAwardTips(sysarg, args)
+end
+
+CrossOpFuncList[8] = function (sysarg, args)
+	OnGetCrossTeamInfo(sysarg, args) 
+end
+
+CrossOpFuncList[9] = function (sysarg, args)
+	OnGetCrossTeamList(sysarg, args)
+end
+
+CrossOpFuncList[10] = function (sysarg, args)
+	OnCrossTeamOperate(sysarg, args)
+end
+
+CrossOpFuncList[11] = function (sysarg, args)
+	OnSendSelectMathesRank(sysarg, args)
+end
+
+CrossOpFuncList[12] = function (sysarg, args)
+	OnSendBetInfo(sysarg, args)
+end
+
+CrossOpFuncList[13] = function (sysarg, args)
+	OnReqBet(sysarg, args)
+end
+
+CrossOpFuncList[14] = function (sysarg, args)
+	OnGetMatchesReport(sysarg, args)
+end
+
+CrossOpFuncList[15] = function (sysarg, args)
+	OnGetCrossMatchesAward(sysarg, args)
+end 
+
+CrossOpFuncList[16] = function (sysarg, args)
+	OnCrossMatchesSg(sysarg, args)
+end
+
+CrossOpFuncList[17] = function (sysarg, args)
+	OnGetCrossMatchesGroup(sysarg, args)
+end
+
+CrossOpFuncList[18] = function (sysarg, args)
+	OnGetMatchesAwardList(sysarg, args)
+end
+
+CrossOpFuncList[19] = function (sysarg, args)
+	return OnCreatCrossTeam(sysarg, args)
+end
+
+CrossOpFuncList[20] = function (sysarg, args) 
+	OnSpSendStartMatches(sysarg, args)
+end
+
+CrossOpFuncList[21] = function (sysarg, args)
+	OnSendFlowersAward(sysarg, args)
+end
+
+CrossOpFuncList[22] = function (sysarg, args)
+	OnGetSendFlowersAward(sysarg, args)
+end
+
+CrossOpFuncList[23] = function (sysarg, args)
+	OnSendTotalFlowersRank(sysarg, args)
+end
+
+CrossOpFuncList[24] = function (sysarg, args)
+	OnCheckCanSendFlowers(sysarg, args)
+end
+
+CrossOpFuncList[25] = function (sysarg, args)
+	OnGetWcGuessAward(sysarg, args)
+end
+
+
+-- 这里看做脚本调用入口
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeCrossOp, EventCallDispatcher.HandlerCrossOp)

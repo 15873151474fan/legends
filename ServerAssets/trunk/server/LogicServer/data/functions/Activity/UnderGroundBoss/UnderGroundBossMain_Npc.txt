@@ -1,0 +1,36 @@
+﻿--#include "data\config\BossSystem\MapBossConfig.txt" once
+
+--[[
+    函数名称：地宫宝藏 
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function IntoUnderGround_Main(sysarg)
+  Str = "\\<#BL".."进入地底宫殿".."/@OnEnterUnderGround>"  --<投入火柴>
+  --print("GouFire_Main:"..Str)
+  return Str
+end
+
+function OnEnterUnderGround(sysarg)   
+  local BindYb = Actor.getIntProperty(sysarg,PROP_ACTOR_BIND_YUANBAO)
+  local NeedBingYb = UnderGroundBossOtherConfig.NeedBindYbCount
+  if BindYb < NeedBingYb then
+     local npcHandle = Actor.getHandle(thisNPC)
+     local sAskMsg = Lang.Activity.t00228i
+     Actor.messageBox(sysarg,npcHandle,0,sAskMsg,Lang.ScriptTips.x00078.."/BuyMustItem,"..UnderGroundBossOtherConfig.item.id,Lang.ScriptTips.mt00005.."/Cancel",nil)
+  else
+    if not Actor.changeMoney(sysarg, mtBindYuanbao, -NeedBingYb, 1009, Lang.LogTips.yb048) then
+		return
+	end
+	Actor.enterScene(sysarg, UnderGroundBossOtherConfig.MapId, UnderGroundBossOtherConfig.x, UnderGroundBossOtherConfig.y, 3, 3)
+  System.broadcastTipmsg(string.format(Lang.NewVip.tip018, Actor.getName(sysarg)), ttScreenCenter+ttChatWindow)
+  end
+end
+
+function BuyMustItem(sysarg, itemId)
+	Actor.openDialogs(sysarg,diBuyAnItem,tostring(itemId))
+end
+
+
+
+table.insert(MainFnTable, IntoUnderGround_Main)

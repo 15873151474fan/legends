@@ -1,0 +1,202 @@
+﻿--lua script
+--申请护送美女的对话
+
+--#include "ApplyDartCommon.txt"
+
+--对话npc
+function ApplyDartAdv_Main(sysarg)
+	local str = ""
+	
+	if CheckDartAdvTime(sysarg) ~= true then return "" end
+	
+	if Actor.checkActorLevel(sysarg,DartAdvConfig.LevelLimit) == true then
+		str = str .."<#BL"..Lang.Activity.da0025.."/@ApplyDartAdv>"
+	end
+	return str
+end
+
+function ApplyDartAdv(sysarg)
+	local str = Lang.Activity.da0026
+	
+	if Actor.checkActorLevel(sysarg,DartAdvConfig.LevelLimit) == true then
+		str = str .. "\\".."<#BL"..Lang.Activity.da0027.."/@ActorApplyDartAdv,1>"
+		str = str .. "\\".."<#BL"..Lang.Activity.da0028.."/@ActorApplyDartAdv,2>"
+	end
+	
+	local sVar = Actor.getStaticVar(sysarg)
+	if sVar.ActorDartAdvStatus == nil then	--正在押送镖车
+		sVar.ActorDartAdvStatus = 0
+	end
+
+	if sVar.ActorDartAdvStatus == 1 then
+		str = str .. "\\".."<#BL"..Lang.Activity.da0002.."/@GiveUpApplyDartAdv>"
+	end
+	str = str .. "\\".."<#BL"..Lang.Activity.da0029.."/@AboutDartAdv>"
+	str = str.."<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+function ActorApplyDartAdv(sysarg, nInsureType)
+	if CheckDartAdvTime(sysarg) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.da0030, ttFlyTip)
+		return 
+	end
+	
+	local config = DartAdvConfig
+	local nInsureType = tonumber(nInsureType) or 1
+	local sVar = Actor.getStaticVar(sysarg)
+	if (sVar.ActorDartStatus == 1) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.da0039, ttFlyTip)
+		return
+	end
+	if not sVar.DartAdvInsureType or tonumber(sVar.DartAdvInsureType) <= 0 then
+		local npcHandle = Actor.getHandle(thisNPC)
+		local sAskMsg = ""
+		if nInsureType == 1 then
+			sAskMsg = string.format(Lang.Activity.da0031, config.DepositCoin)
+		else
+			sAskMsg = string.format(Lang.Activity.da0032, config.InsureYb)
+		end
+		
+		Actor.messageBox(sysarg,npcHandle,0,sAskMsg,Lang.Activity.da0033.."/OnActorApplyDartAdv,"..nInsureType, Lang.Activity.da0034.."/Cancel",nil)
+	else
+		if sVar.DartAdvInsureType == 1 and nInsureType == 2 then
+			local npcHandle = Actor.getHandle(thisNPC)
+			local sAskMsg = string.format(Lang.Activity.da0032, config.InsureYb)
+			Actor.messageBox(sysarg,npcHandle,0,sAskMsg,Lang.Activity.da0033.."/OnActorApplyDartAdv,"..nInsureType, Lang.Activity.da0034.."/Cancel",nil)
+		else
+			OnActorApplyDartAdv(sysarg, nInsureType)
+		end
+		
+	end
+end
+
+--护送美女
+function OnActorApplyDartAdv(sysarg, nInsureType)
+	if CheckDartAdvTime(sysarg) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.da0030, ttFlyTip)
+		return 
+	end
+	local config = DartAdvConfig
+	local nInsureType = tonumber(nInsureType) or 1
+	local sVar = Actor.getStaticVar(sysarg)
+	if sVar.ActorDartAdvStatus == nil then	--正在押送镖车
+		sVar.ActorDartAdvStatus = 0
+	end
+	
+	if sVar.ActorDartAdvStatus == 1 then
+		Actor.sendTipmsg( sysarg, Lang.Activity.da0003,ttFlyTip)
+		return
+	end
+	
+	if Actor.checkActorLevel(sysarg,config.LevelLimit) == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.da0004,config.LevelLimit),ttFlyTip)
+		return
+	end
+
+	if sVar.ActorApplyDartAdvTimes == nil then
+		sVar.ActorApplyDartAdvTimes = 0 
+	end
+	
+	local nTimes = config.OpenTimes		--能护送的次数
+	if Actor.isVip(sysarg) == true then
+		nTimes = config.VipOpenTimes
+	end
+
+	if sVar.ActorApplyDartAdvTimes >= nTimes then		--护送的次数
+		if config.DartQuestId and Actor.hasQuest(sysarg, config.DartQuestId) and not Actor.canFinishQuest(sysarg, config.DartQuestId) then
+		else
+			if Actor.isVip(sysarg) == false then
+				local pack = DataPack.allocPacket(sysarg, 145, 9)
+				DataPack.writeString(pack, Lang.Activity.da0042)
+				DataPack.flush(pack)
+			else
+				OpenGuideUi(sysarg)
+				Actor.sendTipmsg( sysarg, Lang.Activity.da0005,ttFlyTip)
+			end
+			return
+		end
+	end
+	
+	if not sVar.DartAdvInsureType or tonumber(sVar.DartAdvInsureType) <= 0 or sVar.ActorDartAdvType == nil then
+		local canDartAdv = 1
+		--先判断押金够不够
+		local hasCoin = Actor.getMoneyCount(sysarg, mtCoin)
+		if hasCoin < config.DepositCoin then
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.da0035,config.DepositCoin),ttFlyTip)
+			canDartAdv = 0
+			return
+		end
+		
+		if nInsureType == 2 then
+			--再判断保金够不够
+			if nInsureType == 2 then
+				local hasCoin = Actor.getMoneyCount(sysarg, mtYuanbao)
+				if hasCoin < config.InsureYb then
+					Actor.sendTipmsg(sysarg, string.format(Lang.Activity.da0036,config.InsureYb),ttFlyTip)
+					canDartAdv = 0
+					return
+				end
+				if canDartAdv == 1 then
+					if Actor.changeMoney(sysarg, mtYuanbao, -config.InsureYb, 917, Lang.LogTips.l00173) ~= true then return end
+				end
+			end
+		end
+		--扣押金
+		if Actor.changeMoney(sysarg, mtCoin, -config.DepositCoin, 917, Lang.LogTips.l00172) ~= true then return end
+		
+		sVar.DartAdvInsureType = nInsureType	--设置拉镖类型
+	elseif sVar.DartAdvInsureType == 1 and nInsureType == 2 then
+		--交付保金
+		if nInsureType == 2 then
+			local hasCoin = Actor.getMoneyCount(sysarg, mtYuanbao)
+			if hasCoin < config.InsureYb then
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.da0036,config.InsureYb),ttFlyTip)
+				return
+			end
+			if Actor.changeMoney(sysarg, mtYuanbao, -config.InsureYb, 917, Lang.LogTips.l00173) ~= true then return end
+			
+			sVar.DartAdvInsureType = nInsureType	--设置拉镖类型
+		end
+		
+	end
+	
+	
+	
+	
+	StartApplyActorDartAdv(sysarg, 0)
+	
+	--Actor.setWorkDayMask(sysarg, 0, 13, true)
+
+	Actor.closeNPCDialog(sysarg)
+end
+
+
+--放弃护送
+function GiveUpApplyDartAdv(sysarg)
+	local str = Lang.Activity.da0038
+	str = str .. "\\".."<#BL"..Lang.Activity.da0033.."/@OnGiveUpDartAdv>"
+	str = str .. "\\".."<#BL"..Lang.Activity.da0034.."/@OnCancleGiveUp>"
+	return str
+end
+
+function OnGiveUpDartAdv(sysarg)
+	ResetActorDartAdvInfo(sysarg,false)
+	Actor.closeNPCDialog(sysarg)
+end
+
+function OnCancleGiveUp(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+function Cancel(sysarg)
+
+end
+
+function AboutDartAdv(sysarg)
+	local str = Lang.Activity.da0037
+	str = str.."<#BL"..Lang.Activity.a00101.."/@ApplyDartAdv>"
+	return str
+end
+
+table.insert(MainFnTable, ApplyDartAdv_Main)

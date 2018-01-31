@@ -1,0 +1,542 @@
+﻿--[[File:CrossBattlefield_Main.txt]]
+
+-- 跨服战场NPC对话
+--#include "data\config\activityconfig\CrossBattlefield\CrossBattlefieldCfg.txt" once -- 配置文件
+--#include "data\functions\ExpandFunc\Container.txt" once 
+--#include "data\functions\MonsterFunction.txt" once
+
+-- 跨服商人NPC对话
+function CrossBattlefield_Main()
+	local dlgStr = Lang.Activity.kfzc0006;
+	-- 购买玫瑰
+	dlgStr = string.format("%s<#BL%s/@OnBuyRose>", dlgStr, Lang.Activity.kfzc0007);
+	-- 离开战场
+	dlgStr = string.format("%s<#BL%s/@OnQuitTeam>", dlgStr, Lang.Activity.kfzc0008);
+	dlgStr = dlgStr .. Lang.ScriptTips.back001; -- 返回
+	return dlgStr;
+end
+
+--table.insert(MainFnTable,CrossBattlefield_Main)
+CrossBattlefieldSystem = {
+	-- Node = {time, actorId};
+	--PlayerList, -- 已经报名的玩家列表
+	Groups,
+	-- 报名列表按时间排序
+	Sort = function(a, b)
+		return a.actorId < b.actorId;
+	end;
+	-- 查找玩家指针
+	FindPlayer = function(e,player)
+		return e.player == player; 
+	end;
+	-- 正在活动的玩家列表
+	-- Node = {id = 0, timeSec = 0, gameStart = false, Camps={[1] = {battleScore = 0, playerList = {}}, [2] = {battleScore = 0, playerList = {}} }} ;xiangMo = 1, lieYao =2
+	PlayingList,
+	-- 查找玩家所在的战场
+	FindGroup = function(e,player) -- e表示Node
+		for _, v in pairs(e.Camps) do		-- v表示Node[1]、Node[2]
+			for _, p in pairs(v.playerList)do	-- p表示Node[1][?]、Node[2][?]
+				if p == player then return true end;
+			end
+		end
+		return false;
+	end;
+	-- 根据id查找战场
+	FindGroupById = function(e,id) -- e表示Node
+		if id == e.id then return true end;
+		return false;
+	end;
+	-- 
+};
+
+-- 网络数据交互
+ApplyMsgId = 7;
+-- 1、报名时,msgId = 1
+--[[
+报名状态:Byte(0未报名，1已报名)
+已报名人数:Byte
+一场活动的人数:Byte
+]]
+-- 2、排行榜,msgId = 2
+RankMsgId = 8
+--[[
+总况：array[2]{胜或负:Byte(0负,1胜),阵营:Byte(1降魔，2猎妖),战场积分:Short}
+前十名：array[10]{阵营:Byte(1降魔，2猎妖),玩家名:String,杀敌数:Short,杀敌荣誉:Int}
+我的战勋:Int
+]]
+-- 3、活动面板积分
+UpdateScoreMsgId =  9;
+--[[
+我方战场积分：Short
+对方战场积分：Short
+杀敌数:Short
+--]]
+
+-- 发送报名信息到客户端
+function SendApplyInfo(sysarg, success)
+	--print("SendApplyInfo");
+	local npack = DataPack.allocPacket(sysarg,46, ApplyMsgId)
+	if npack == nil then return end
+	DataPack.writeByte(npack,46);DataPack.writeByte(npack,7);
+	--local b, _ = Container.FindIf(CrossBattlefieldSystem.PlayerList, CrossBattlefieldSystem.FindPlayer, sysarg);
+	--if b then
+		DataPack.writeByte(npack,success);
+	--else
+	--	DataPack.writeByte(npack,0);
+	--end
+	--local c = Container.Count(CrossBattlefieldSystem.PlayerList or {});
+	--DataPack.writeByte(npack,CrossBattlefieldCfg.NewActivityPlayers - (CrossBattlefieldCfg.TriggerNewActivity - c));
+	--DataPack.writeByte(npack,CrossBattlefieldCfg.NewActivityPlayers);
+	DataPack.writeInt(npack, 15);
+	DataPack.writeInt(npack, 20);
+	DataPack.flush(npack);
+end
+
+-- 发送战绩排行榜到客户端
+function SendRankInfo(sysarg, rankData)
+	if not rankData then return end;
+	local npack = DataPack.allocPacket(sysarg,BaseTypes.ActorEventId.crossBattlefieldSystemId, ApplyMsgId)
+	if npack == nil then return end
+	
+	DataPack.writeInt(npack,#(rankData.Zhenying));
+	for _, v in pairs(rankData.Zhenying or {} )do
+		DataPack.writeByte(npack,v.win);
+		DataPack.writeByte(npack, v.camp);
+		DataPack.writeShort(npack,v.score);
+	end
+	
+	DataPack.writeInt(npack,#(rankData.RankInfo));
+	for _, v in pairs(rankData.RankInfo or {} )do
+		DataPack.writeByte(npack,v.camp);
+		DataPack.writeString(npack, v.name);
+		DataPack.writeShort(npack,v.killNum);
+		DataPack.writeInt(npack,v.rongYu);
+	end
+	
+	DataPack.flush(npack);
+end
+
+-- 计算战绩排行榜
+function CalcRank(groupId)
+	local b, k =  Container.FindIf(CrossBattlefieldSystem.PlayingList, CrossBattlefieldSystem.FindGroupById, groupId);
+	if b then
+		local Camps = CrossBattlefieldSystem.PlayingList[k].Camps;
+		local Zhenying = {};
+		local  score1 = Camps[1].battleScore;
+		local  score2 = Camps[2].battleScore;
+		if score1 < score2 then
+			table.insert(Zhenying,{win = 0,camp = 1, score = score1});			
+			table.insert(Zhenying,{win = 1,camp = 2, score = score2});
+		else
+			table.insert(Zhenying,{win = 1,camp = 1, score = score1});			
+			table.insert(Zhenying,{win = 0,camp = 2, score = score2});		
+		end
+		local RankInfo = {};
+		for k, cam in pairs(Camps) do
+			for _, player in pairs(cam.playerList) do
+				local item = {};
+				item.camp = k;
+				item.name = Actor.getName(player);
+				local avar = Actor.getDyanmicVar(player);
+				item.killNum = avar.killNum;
+				item.rongYu = avar.Shadirongyu ;
+				table.insert(RankInfo, item);
+			end
+		end
+		local f = function(a, b)
+			return a.killNum > b.killNum;
+		end
+		table.sort(RankInfo,f);
+		local data = {};
+		data.Zhenying = Zhenying;
+		data.RankInfo =  {};
+		for i = 1, CrossBattlefieldCfg.FrontPlayers do
+			table.insert(data.RankInfo,RankInfo[i]);
+		end
+		return data; 
+	end
+	return nil;
+end
+
+-- 初始化
+function InitCrossBattlefieldSystem()
+	--CrossBattlefieldSystem.PlayerList = {};
+	CrossBattlefieldSystem.PlayingList = {};
+	-- 系统计时器
+	Actor.regScriptCallback(thisNPC, thisNPC, 1, 1, -1, "SystemTimer");
+	System.initCrossBattlefieldData(CrossBattlefieldCfg.TriggerNewActivity, CrossBattlefieldCfg.NewActivityPlayers);
+end
+
+function SystemTimer()
+	return;--[[
+	for k, v in pairs(CrossBattlefieldSystem.PlayingList) do
+		if v.gameStart then
+			CrossBattlefieldSystem.PlayingList[k].timeSec = v.timeSec + 1; 
+			local timeSec = v.timeSec + 1
+			if timeSec >= CrossBattlefieldCfg.ActivityTime * 60 then 
+				-- 一场活动结束
+				EndOneCrossBattlefield(v.id)
+			end 
+		end
+	end--]]
+end
+
+-- 活动开启
+function CrossBattlefieldOpen()
+	if not System.isStartCommonServer() then return	end;	--如果没连接到跨服服务器	
+
+	local sVar = System.getStaticVar();
+	sVar.CanEnterCrossBattlefieldFlag = 1;
+	InitCrossBattlefieldSystem(); -- 初始化系统
+	CrossBattlefieldAllow(); -- 可以报名
+end
+
+-- 活动关闭
+function CrossBattlefieldClose()
+	if not System.isStartCommonServer() then return	end;	--如果没连接到跨服服务器	
+
+	local sVar = System.getStaticVar();
+	sVar.CanEnterCrossBattlefieldFlag = nil;
+	Actor.unregScriptCallback(thisNPC,"SystemTimer"); -- 移除定时器
+end
+
+-- 允许报名
+function CrossBattlefieldAllow()
+	if not System.isStartCommonServer() then return	end;	--如果没连接到跨服服务器	
+
+	local sVar = System.getStaticVar();
+	sVar.CanCrossBattlefieldApplyFlag = 1;
+end
+
+-- 关闭报名
+function CrossBattlefieldForbid()
+	if not System.isStartCommonServer() then return	end;	--如果没连接到跨服服务器	
+
+	local sVar = System.getStaticVar();
+	sVar.CanCrossBattlefieldApplyFlag = nil;	
+end
+
+-- 玩家报名条件判断
+function CheckApplyCondictions(sysarg)
+	local ApplyCondictions = CrossBattlefieldCfg.ApplyCondictions;
+	for k, v in pairs(ApplyCondictions or {}) do
+		local CondictionType = CrossBattlefieldCfg.CondictionType;
+		if v.type == CondictionType.Level then
+			if not Actor.checkActorLevel(sysarg, v.Count, 0) then -- 等级不够
+				Actor.sendTipmsg( sysarg, string.format(CondictionType[v.type]), ttFlyTip);
+				--print("等级不够");
+				return false;
+			end
+		end		
+		if v.type == CondictionType.Coin then
+			local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)	
+			if nCoin < v.Count then		--金币不够
+				Actor.sendTipmsg( sysarg, string.format(CondictionType[v.type],v.Count),ttFlyTip);
+				--print("金币不够");
+				return false;
+			end
+		end		
+	end 
+	--print("满足报名条件");
+	return true;
+end
+function TestFun()
+	--print("function TestFun");
+end
+-- 玩家报名
+function OnCrossBattlefieldApply(sysarg, args)	
+	--print("OnCrossBattlefieldApply " .. args[1] .. args[2]);
+	--SendApplyInfo(sysarg)
+	--if not System.isStartCommonServer() then return	end;	--如果没连接到跨服服务器	
+	local sVar = System.getStaticVar();
+	if not sVar.CanEnterCrossBattlefieldFlag or sVar.CanEnterCrossBattlefieldFlag == 0 then 
+		-- 活动未开启
+		--return; 
+	end
+	
+	if not sVar.CanCrossBattlefieldApplyFlag or sVar.CanCrossBattlefieldApplyFlag == 0 then 
+		-- 不允许报名
+		--当前不是活动报名时间。
+		Actor.sendTipmsg( sysarg, Lang.Activity.kfzc0005,ttFlyTip);
+		--return; 
+	end
+	
+	--print(Actor.messageBox(sysarg, 0, 0, "biaoti", "anniu1/TestFun",nil,nil, 10,10));
+	
+	print(Actor.messageBox(sysarg, 0,0,Lang.Activity.kfzc0010,string.format(Lang.ScriptTips.t00063 .. "/EnterCrossBattlefield,0,%d,%d",unpack(CrossBattlefieldCfg.XiangMoPos)),nil,nil,60, 0,"8888888888888888", 0,1,0));
+	
+	local bAdd = tonumber(args[2]); -- 1 报名, 0 取消报名
+	if 1 == bAdd then 
+		--if not CheckApplyCondictions(sysarg) then return end;
+		--local b, k = Container.FindIf(CrossBattlefieldSystem.PlayerList, CrossBattlefieldSystem.FindPlayer, sysarg)
+		local b = System.HadCrossBattlefieldSignup(sysarg);
+		if b then
+			-- 已经报名
+			--print("已经报名");
+		else
+			local f = function(e)
+				if not e then return false end
+				local CondictionType = CrossBattlefieldCfg.CondictionType;
+				if e.type == CondictionType.Coin then
+					return true;
+				end
+			end
+			local ApplyCondictions = CrossBattlefieldCfg.ApplyCondictions;
+			b,k = Container.FindIf(ApplyCondictions, f);
+			if b and (not Actor.changeMoney(sysarg, mtCoin, -ApplyCondictions[k].Count, 183, Lang.LogTips.coin00003)) then
+				return; -- 扣金币失败
+			end
+			--local node = {time = System.getCurrMiniTime(), player = sysarg};
+			-- Container.Insert(CrossBattlefieldSystem.PlayerList, node);
+			-- 报名成功。
+			System.CrossBattlefieldSignup(sysarg, true);			
+			SendApplyInfo(sysarg, 1); -- 发送报名信息
+			Actor.sendTipmsg( sysarg, Lang.Activity.kfzc0004,ttFlyTip);
+		end
+		--table.sort(CrossBattlefieldSystem.PlayerList, CrossBattlefieldSystem.Sort);
+		--[[local num = System.GetCurrentCrossBattlefieldPlayerNum();
+		--print("CurrentCrossBattlefieldPlayerNum  " .. num);
+		if num >= CrossBattlefieldCfg.TriggerNewActivity then -- 报名人数足以触发新活动发生
+			NewActivity(); 
+		end  --]]
+	elseif 0 == bAdd then
+		CrossBattlefieldCancelApply(sysarg);
+	end
+end
+
+-- 玩家取消报名
+function CrossBattlefieldCancelApply(sysarg)
+	--if not System.isStartCommonServer() then return	end;	--如果没连接到跨服服务器
+	
+	local sVar = System.getStaticVar();
+	if not sVar.CanEnterCrossBattlefieldFlag or sVar.CanEnterCrossBattlefieldFlag == 0 then 
+		-- 活动未开启
+		--return; 
+	end
+	
+	if not sVar.CanCrossBattlefieldApplyFlag or sVar.CanCrossBattlefieldApplyFlag == 0 then 
+		-- 不允许报名
+		--return; 
+	end	
+
+	-- 已经报名
+	local b = System.HadCrossBattlefieldSignup(sysarg);
+	--if b then
+		System.CrossBattlefieldSignup(sysarg, false);
+		SendApplyInfo(sysarg, 0); -- 发送报名信息
+	--end
+	--Container.RemoveIf(CrossBattlefieldSystem.PlayerList, CrossBattlefieldSystem.FindPlayer, sysarg);	
+end
+
+-- 报名触发新活动
+function NewActivity()
+	-- 报名玩家列表
+	--local SignupPlayers = System.getCrossBattlefieldSignupList();
+	-- 分组,还需要写详细分组规则
+	local count = 0; -- 一个战场的人数
+	local NewGroup = {}; -- 新战场的玩家列表
+	while count < CrossBattlefieldCfg.NewActivityPlayers do
+		table.insert(NewGroup,CrossBattlefieldSystem.PlayerList[1]);
+		table.remove(CrossBattlefieldSystem.PlayerList,1);
+		count = count + 1;
+	end
+	
+	count = 0;
+	local xiangMo = {battleScore = 0, playerList = {}}; -- 降魔阵营
+	while count < CrossBattlefieldCfg.NewActivityPlayers / 2 do
+		table.insert(xiangMo.playerList, NewGroup[1]);
+		table.remove(NewGroup,1);
+		count = count + 1;
+	end
+	local lieYao = {battleScore = 0, playerList = {}}; -- 猎妖阵营
+	for _, v in pairs() do
+		table.insert(lieYao.playerList, v);
+	end
+	
+	local node = {id = Container.GetMaxId(CrossBattlefieldSystem.PlayingList) + 1, timeSec = 0, gameStart = false, Camps = {[1] = xiangMo, [2] = lieYao}};
+	table.insert(CrossBattlefieldSystem.PlayingList, node);
+	
+	-- 传送到新战场，这里一分钟倒计时后传送
+	local fhadle = Fuben.createFuBen(CrossBattlefieldCfg.FubenId)	
+	if fhadle <= 0 then return end
+	local fubenName = string.format(Lang.GuildLang.m00138,Actor.getName(sysarg),Actor.getName(player))
+	Fuben.setFubenName(fhadle,fubenName)
+	--[[local NpcPtr = System.getGlobalNpc()
+	if NpcPtr == nil then	
+		--print("NpcPtr is nil !!");
+		return;
+	end --]]
+	
+	for _, v in pairs(xiangMo.playerList) do
+		local avar = Actor.getDyanmicVar(v)
+		avar.group = 1; -- 在哪个阵营？1= 降魔,2= 猎妖		
+		
+		--Actor.messageBox(v, 0,0,string.format(Lang.Activity.kfzc0010,Lang.ScriptTips.t00063 .. "EnterCrossBattlefield,%d,%d",unpack(CrossBattlefieldCfg.XiangMoPos)),nil,nil,60, 0,const char* sTip=NULL,int nIcon=0,1,0);
+	end
+
+	for _, v in pairs(lieYao.playerList) do		
+		local avar = Actor.getDyanmicVar(v)
+		avar.group = 2; -- 在哪个阵营？1= 降魔,2= 猎妖
+		--Actor.messageBox(v, 0,0,string.format(Lang.Activity.kfzc0010,Lang.ScriptTips.t00063 .. "EnterCrossBattlefield,%d,%d",unpack(CrossBattlefieldCfg.LieYaoPos)),nil,nil,60, 0,const char* sTip=NULL,int nIcon=0,1,0);
+	end
+end
+
+--[[
+-- 正式启动一场新战斗
+function StartOneBattle()
+	-- 启动活动计时器
+end
+--]]
+
+--每隔5秒给战场积分
+function RegisterGiveScoreToGroup(groupId, camp)
+	Actor.regScriptCallback(thisNPC, thisNPC, CrossBattlefieldCfg.AddBattleScoreInterval, CrossBattlefieldCfg.AddBattleScoreInterval, -1, "GiveScoreToGroup",groupId, camp);
+end
+
+function GiveScoreToGroup(groupId, camp)
+	local b, k = Container.FindIf(CrossBattlefieldSystem.PlayingList,CrossBattlefieldSystem.FindGroupById, groupId);
+	local group = CrossBattlefieldSystem.PlayingList[k];
+	if b then
+		group.Camps[camp].battleScore = group.Camps[camp].battleScore + CrossBattlefieldCfg.AddBattleScore;	
+		if group.Camps[camp].battleScore  >= CrossBattlefieldCfg.EndBattleScore then
+			EndOneCrossBattlefield(group.id);
+		end
+	end
+end
+
+function UnRegisterGiveScoreToGroup()
+	Actor.regScriptCallback(thisNPC, thisNPC, "GiveScoreToGroup");
+end
+
+-- 传送到新战场
+function EnterCrossBattlefield(sysarg,fhadle,x,y)
+	Actor.unregScriptCallback(sysarg, "EnterCrossBattlefield");
+	-- 每周首次参加战场的玩家活动结束时可获得一定的荣誉奖励。
+	local svar = Actor.getStaticVar(sysarg);
+	svar.JoinCrossBattlefieldTime = svar.JoinCrossBattlefieldTime or System.getCurrMiniTime();
+	if not System.isSameWeek(svar.JoinCrossBattlefieldTime , System.getCurrMiniTime()) then
+		svar.JoinCrossBattlefieldTime = System.getCurrMiniTime(); -- 不是同一周，也就是说本周首次参战
+		-- 每周首次参加战场的玩家活动结束时可获得一定的荣誉奖励。
+		
+	end
+	-- 改名字	
+	local avar = Actor.getDyanmicVar(sysarg)
+	avar.group = 1; -- 在哪个阵营？1= 降魔,2= 猎妖
+	
+	local b, k = Container.FindIf(CrossBattlefieldSystem.PlayingList, CrossBattlefieldSystem.FindGroup, sysarg);
+	if b and (not CrossBattlefieldSystem.PlayingList[k].gameStart) then
+		CrossBattlefieldSystem.PlayingList[k].gameStart = true; -- 设置活动启动标记
+	end
+	Actor.enterFuBen(sysarg,fhadle,CrossBattlefieldCfg.SceneId, x, y);
+end
+
+-- 触发一场活动结束
+function EndOneCrossBattlefield(groupId)
+	-- 12．每周首次参加战场的玩家活动结束时可获得一定的荣誉奖励。
+	-- 10.	在活动结束后，获胜的阵营所在的队伍成员都可以获得大量的经验和战勋，输的阵营所在的队伍成员获得少量的经验和战勋。
+	--ReturnRawServer(sysarg);
+end
+
+-- 旗帜被砍
+function OnQizhiDie(sysarg,monster)
+	-- 定时增加本队的战场积分
+	local avar = Actor.getDyanmicVar(sysarg)
+	--avar.group = 1; -- 在哪个阵营？1= 降魔,2= 猎妖
+	local b ,groupId = Container.FindIf(CrossBattlefieldSystem.PlayingList, CrossBattlefieldSystem.FindGroup, sysarg);
+	if b then
+		RegisterGiveScoreToGroup(groupId, avar.group);	
+		UpdateActivityBoard(groupId);
+	end
+end
+
+-- 玩家sysarg被killer杀死
+function BeKilled(sysarg, killer)
+	local avar = Actor.getDyanmicVar(killer);
+	-- 添加本队战场积分
+	local b, k = Container.FindIf(CrossBattlefieldSystem.PlayingList, CrossBattlefieldSystem.FindGroup, killer);
+	if b then 
+		--avar.group = 1; -- 在哪个阵营？1= 降魔,2= 猎妖
+		CrossBattlefieldSystem.PlayingList[k].Camps[avar.group].battleScore = CrossBattlefieldSystem.PlayingList[k].Camps[avar.group].battleScore + CrossBattlefieldCfg.AddBattleScoreWhenKillOther;
+	end
+	-- 增加杀敌荣誉
+	avar.Shadirongyu = avar.Shadirongyu or 0;	
+	avar.Shadirongyu = avar.Shadirongyu + CrossBattlefieldCfg.AddShadirongyuWhen;
+	avar.killNum = avar.killNum or 0;
+	avar.killNum = avar.killNum + 1;	
+	-- 更新活动面板的积分信息
+	UpdateActivityBoard(k);
+end
+
+MonDieDispatcher.MonQizhiDie = function(monster,sysarg,monId)
+	OnQizhiDie(sysarg,monster,4)
+end
+
+-- 旗帜id
+--MonDieDispatcher.register(CrossBattlefieldCfg.QizhiId, MonDieDispatcher.MonQizhiDie )
+
+
+--[[
+-- 网络部分
+function OnCrossBattlefieldNetMessage(sysarg, systemid, msgid, packet)
+
+end
+--SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.crossBattlefieldSystemId, OnCrossBattlefieldNetMessage);
+--]]
+
+-- 玩家离线，踢出
+function OnDisconnect(sysarg)
+	-- 删报名表
+	Container.RemoveIf(CrossBattlefieldSystem.PlayerList, CrossBattlefieldSystem.FindPlayer, sysarg)
+	-- 删正在进行的
+	for k1, node in pairs(CrossBattlefieldSystem.PlayingList)do
+		for k2, camp in pairs(node.Camps) do		-- v表示Node[1]、Node[2]
+				for k3, p in pairs(camp.playerList)do	-- p表示Node[1][?]、Node[2][?]
+					if p == player then 
+						table.remove(CrossBattlefieldSystem.PlayingList[k1][k2],k3);
+						return ; 
+					end;
+				end
+			--end
+		end
+	end
+end
+
+-- 如果玩家主动退出队伍将会被踢出战场
+function OnQuitTeam(sysarg)	
+	Actor.messageBox(sysarg,0,0,Lang.Activity.kfzc0009,Lang.GuildLang.z00040.."/OnQuitTeamOk",Lang.GuildLang.z00041.."/OnCancleButton",NULL);
+end
+
+-- 玩家主动退出
+function OnQuitTeamOk(sysarg)
+	-- 踢出战场
+	OnDisconnect(sysarg);
+end
+-- 取消按钮
+function OnCancleButton(sysarg)	
+end
+
+-- 更新活动面板的积分信息
+function UpdateActivityBoard(groupId)
+	--local b, k = Container.FindIf(CrossBattlefieldSystem.PlayingList, CrossBattlefieldSystem.FindGroup, sysarg);
+	--if b then 		
+		local Camps = CrossBattlefieldSystem.PlayingList[groupId].Camps;
+		local auxiliaryArray = {{1,2},{2,1}};
+		for k1, camp in pairs(Camps)do
+			for _, player in pairs(camp.playerList)do				
+				local npack = DataPack.allocPacket(sysarg,BaseTypes.ActorEventId.crossBattlefieldSystemId, ApplyMsgId)
+				if npack then 
+					DataPack.writeShort(npack,Camps[auxiliaryArray[k1][1]].battleScore); -- 我方
+					DataPack.writeShort(npack,Camps[auxiliaryArray[k1][2]].battleScore); -- 对方
+					local avar = Actor.getDyanmicVar(killer);
+					DataPack.writeShort(npack,avar.killNum);
+					DataPack.flush(npack);
+				end	
+			end
+		end
+	--end
+end
+
+function OnBuyRose(sysarg)
+	-- TODO: 购买玫瑰的行为
+	return "HelloWorld".. Lang.ScriptTips.back001; 
+end

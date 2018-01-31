@@ -1,0 +1,229 @@
+﻿--土城
+{
+	scenceid = 8,
+	scencename = Lang.SceneName.s00008,
+	mapfilename = "8HanTianCheng",
+	minlevel = 26,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "MengZhongTuCheng.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 488,
+	sceneHeight = 408,
+	posx = 148,
+	posy = 180,
+	area =
+	{
+		{ name = Lang.SceneName.s00008, range = { 10,10,20,20,30,25 }, center = { 148,180 }, attri = {{type=18,value = {}},{type=19,value = {}},{type=76,value = {51,70}},{type=40,value = {}},}},	--默认配置场景，可以穿怪
+
+		{ name = Lang.SceneName.a00001, range = { 123,103,41,178,118,225,198,180 }, center = { 55,45 }, attri = {}}, --土城区域，城镇
+
+ 	  { name = Lang.SceneName.s00008, range = { 18,18,240,18,240,382,18,382 }, center = { 150,182 }, attri = {{type=87,value = {}},}}, --土城新手保护区域
+
+		{ name = Lang.SceneName.a00000, range = { 137,170,157,170,157,190,137,190 }, center = { 148,179 }, attri = {{type=1,value = {}},{type=39,value = {}},{type=46,value = {}},{type=83,value = {}},{type=60,value = {}},}},	--安全复活区，城镇，禁止放火墙术
+
+		--篝火区域，禁止穿人穿怪，这个属性不要移动位置
+		{ name = Lang.SceneName.a00006, range = { 125,182,129,182,129,186,125,186 }, center = { 148,179 }, attri = { {type=20,value = {}}, {type=21,value = {}}, {type=44,value = {}},}},
+
+		{ name = Lang.SceneName.a00002, range = { 340,175,260,255,334,328,414,249 }, center = { 148,179 }, attri = {{type=29,value = {}},{type=33,value = {56,57,58}},{type=44,value = {}},{type=79,value = { 1 }},{type=20,value = {}},{type=21,value = {}},{type=46,value = { 148,180,352,262,8}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },{type=34,value = {316,317,822,823,2272,2273,2274}},{ type = 40,  value = {} },}}, --沙城区域，不可定点传送，不可召集传送、玛沙克皇宫死亡复活区域（土城内、沙城内），禁止穿人，不可使用行会召集等、禁止复活，新手保护失效，禁止穿怪
+		{ name = Lang.SceneName.a00008, range = { 332,239,334,237,335,238,333,240 }, center = { 333,239 }, attri = {{type=82,value = {}},{type=79,value = { 1 }},{type=20,value = {}},{type=23,value = {1,2,3,4}},{type=30,value = {1,2,3,4}},{type=21,value = {}},}}, --城门区域，禁止穿人,禁止行会拉传，禁止被行会拉传，禁止穿怪
+		
+
+		{ name = Lang.SceneName.a00003, range = { 180,0,250,0,250,40,180,40 }, center = { 220,20 }, attri = {}}, --寺庙区域
+		{ name = Lang.SceneName.a00024, range = { 116,217,113,220,123,230,127,226 }, center = { 121,224 }, attri = {{type=80,value = {}},}}, --仓库区死亡不爆装备
+		{ name = Lang.SceneName.a00021, range = { 123,141,128,147,121,153,116,151 }, center = { 121,150 }, attri = {{type=80,value = {}},}}, --首饰店区死亡不爆装备
+		{ name = Lang.SceneName.a00022, range = { 211,153,219,163,215,167,206,159 }, center = { 212,160 }, attri = {{type=80,value = {}},}}, --书店区死亡不爆装备
+		{ name = Lang.SceneName.a00023, range = { 131,151,131,162,143,162,144,155 }, center = { 135,157 }, attri = {{type=80,value = {}},}}, --服装店区死亡不爆装备
+		{ name = Lang.SceneName.a00000, range = { 336,108,354,108,354,126,336,126 }, center = { 346,116 }, attri = {{type=39,value = {}},{type=1,value = {}},{type=83,value = {}},{type=94,value = {902,903,904,905,906}},}},	--高级运镖安全复活区
+      --{ name = Lang.SceneName.a00021, range = { 113,188,105,180,114,171,121,180 }, center = { 114,179 }, attri = {{type=80,value = {}},{type=3,value = {}},{type=44,value = {}},{type=87,value = {}},}}, --擂台区死亡不爆装备、不增加PK值、不能原地复活、新手保护有效 
+        { name = Lang.SceneName.a00100, range = { 381,319,396,319,396,334,381,334 }, center = { 389,326 }, attri = {{type=18,value = {}},{type=19,value = {}},{type=98,value = {1}},{type=40,value = {}},}}, --双城占领行会泡点区域 
+		{ name = Lang.SceneName.a00103, range = { 319,232,339,232,339,245,319,245 }, center = { 332,240 }, attri = {{type=99,value = {}},{type=79,value = { 1 }},{type=44,value = {}},{type=40,value = {}},{type=29,value = {}},{type=33,value = {56,57,58}},{type=20,value = {}},{type=21,value = {}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },{type=34,value = {316,317,822,823,2272,2273,2274}},{ type = 40,  value = {} },}}, --战车禁止通行区域 
+	    { name = Lang.SceneName.a00109, range = { 437,138,396,180,437,221,478,180 }, center = { 436,181 }, attri = {{type=29,value = {}},{type=33,value = {56,57,58}},{type=44,value = {}},{type=79,value = { 1 }},{type=20,value = {}},{type=21,value = {}},{type=46,value = { 148,180,352,262,8}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },{type=34,value = {316,317,822,823,2272,2273,2274}},{ type = 40,  value = {} },}}, --卫城区域，同沙城区域属性
+		{ name = Lang.SceneName.a00122, range = { 110,154,120,154,120,163,110,163 }, center = { 113,158 }, attri = {{type=1,value = {}},{type=83,value = {}},}},	--任务公告板安全区
+
+
+	},
+
+--地图中间的障碍   每一组包含障碍物的两个顶点
+	hinder =
+	{
+		{
+			pointArr = {
+							{posX = 225, posY = 317},
+							{posX = 300, posY = 119},
+						}
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh8.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货  10 书店，默认是0可以不配置
+		{name = Lang.EntityName.n00042, posx = 161, posy = 187,script= "data/script/MengZhongTuCheng/YaoDianZhangGui.txt",modelid=78,icon = 78,funcId=7,classId=0},
+		{name = Lang.EntityName.n00028, posx = 165, posy = 187,script= "data/script/MengZhongTuCheng/ZaHuoShang.txt",modelid=79,icon = 79,funcId=9,classId=0},
+		{name = Lang.EntityName.n00013, posx = 122, posy = 220,script= "data/script/MengZhongTuCheng/CangKuGuanLiYuan.txt",modelid=95,icon = 95,funcId=2,classId=0},
+		{name = Lang.EntityName.n00158, posx = 143, posy = 180,script = "data/script/MengZhongTuCheng/ChuanSongShi.txt",modelid=141,icon = 12,funcId=3,classId=0},--传送
+		{name = Lang.EntityName.n00009, posx = 148, posy = 166,script= "data/script/MengZhongTuCheng/TieJiang.txt",modelid=72,icon = 72,funcId=5,classId=0},
+		{name = Lang.EntityName.n00011, posx = 120, posy = 145,script= "data/script/MengZhongTuCheng/ShouShiDianZhangGui.txt",modelid=88,icon = 88,funcId=4,classId=0},
+		{name = Lang.EntityName.n00010, posx = 139, posy = 155,script= "data/script/MengZhongTuCheng/FuZhuangDianZhangGui.txt",modelid=56,icon = 56,funcId=4,classId=0},
+		{name = Lang.EntityName.n00012, posx = 215, posy = 158,script= "data/script/MengZhongTuCheng/ShuDianLaoBan.txt",modelid=86,icon = 86,funcId=10,classId=0},
+		{name = Lang.EntityName.n00175, posx = 129, posy = 176,script = "data/script/MengZhongTuCheng/ShenQiDaXia.txt",modelid=90,icon = 90,classId=0,},--神奇大侠
+		{name = Lang.EntityName.n00096, posx = 163, posy = 177,script= "data/script/MengZhongTuCheng/MeiGuiXiaoJie.txt",modelid=117,icon = 12,funcId=0,classId=0},
+
+		{name = Lang.EntityName.n00030, posx = 112, posy = 156,script= "data/script/MengZhongTuCheng/RenWuGongGaoBan.txt",modelid=19,icon = 19,funcId=0,classId=4},
+		{name = Lang.EntityName.n00031, posx = 129, posy = 146,script= "data/script/MengZhongTuCheng/DaJiSi.txt",modelid=58,icon = 58,funcId=0,classId=4},
+		{name = Lang.EntityName.n00032, posx = 106, posy = 156,script= "data/script/MengZhongTuCheng/YanRuHua.txt",modelid=84,icon = 84,funcId=0,classId=4},
+		--{name = Lang.EntityName.n00034, posx =  95, posy = 173,script= "data/script/MengZhongTuCheng/KeZhanLaoBan.txt",modelid=8,icon = 8,funcId=0},
+		{name = Lang.EntityName.n00035, posx = 117, posy = 203,script= "data/script/MengZhongTuCheng/YingWei.txt",modelid=100,icon = 100,funcId=0,classId=4},
+		{name = Lang.EntityName.n00022, posx = 171, posy = 183,script= "data/script/MengZhongTuCheng/WanShiTong.txt",modelid=57,icon = 57,funcId=0,title = Lang.NpcTitle.n00001,classId=0},
+		{name = Lang.EntityName.n00023, posx = 128, posy = 205,script= "data/script/MengZhongTuCheng/ChengZhu.txt",modelid=69,icon = 69,funcId=0,classId=3},
+		{name = Lang.EntityName.n00024, posx = 136, posy = 171,script= "data/script/MengZhongTuCheng/ZhuMoJiangJun.txt",modelid=59,icon = 59,funcId=0,classId=3},
+		{name = Lang.EntityName.n00025, posx = 108, posy = 163,script= "data/script/MengZhongTuCheng/YinShi.txt",modelid=102,icon = 102,funcId=0,classId=4},
+		{name = Lang.EntityName.n00027, posx = 151, posy = 197,script= "data/script/MengZhongTuCheng/BiMaWen.txt",modelid=105,icon = 105,funcId=0,classId=4},
+		{name = Lang.EntityName.n00092, posx = 170, posy = 121,script= "data/script/MengZhongTuCheng/HanTieWei.txt",modelid=12,icon = 12,funcId=0,classId=4},
+		{name = Lang.EntityName.n00115, posx =  99, posy = 308,script= "data/script/MengZhongTuCheng/LieHu.txt",modelid=132,icon = 132,funcId=0,classId=4},
+		{name = Lang.EntityName.n00095, posx = 158, posy = 174,script= "data/script/MengZhongTuCheng/QiFuXianZi.txt",modelid=56,icon = 56,funcId=0,classId=3},
+		{name = Lang.EntityName.n00155, posx = 158, posy = 187,script= "data/script/MengZhongTuCheng/LingQuanXianZhi.txt",modelid=53,icon = 56,funcId=0,classId=3},
+		{name = Lang.EntityName.n00292, posx = 161, posy = 176,script= "data/script/MengZhongTuCheng/HuDunShiZhe.txt",modelid=89,icon = 56,funcId=0,classId=0},
+		--烈火宫暂测
+		{name = Lang.EntityName.n00253, posx = 132, posy = 176,script= "data/script/MengZhongTuCheng/liehuogongshizhe.txt",modelid=73,icon = 59,funcId=8,title=Lang.NpcTitle.n00033,classId=1},
+		--沙城
+		{name = Lang.EntityName.n00033, posx = 334 , posy = 280,script= "data/script/MengZhongTuCheng/ShaTieJiang.txt",modelid=72,icon = 72,funcId=5,bCanHide=true,hideLocation = true,classId=0},
+		{name = Lang.EntityName.n00077, posx = 381 , posy = 256,script= "data/script/MengZhongTuCheng/ShaShouShiDianZhangGui.txt",modelid=88,icon = 88,funcId=0,bCanHide=true,hideLocation = true,classId=0},
+		{name = Lang.EntityName.n00037, posx = 370, posy = 278,script= "data/script/MengZhongTuCheng/ShaYaoDianLaoBan.txt",modelid=78,icon = 78,funcId=7,bCanHide=true,hideLocation = true,classId=0},
+		{name = Lang.EntityName.n00101, posx = 366, posy = 272,script= "data/script/MengZhongTuCheng/ShaZaHuoShang.txt",modelid=79,icon = 79,funcId=9,bCanHide=true,hideLocation = true,classId=0},
+		--{name = Lang.EntityName.n00104, posx = 215, posy = 158,script= "data/script/MengZhongTuCheng/ShaShuDianLaoBan.txt",modelid=17,icon = 17,funcId=10,bCanHide=true,hideLocation = true},
+		{name = Lang.EntityName.n00102, posx = 373, posy = 239,script= "data/script/MengZhongTuCheng/ShaFuZhuangDianZhangGui.txt",modelid=56,icon = 56,funcId=0,bCanHide=true,hideLocation = true,classId=0},
+		{name = Lang.EntityName.n00103, posx = 341, posy = 207,script= "data/script/MengZhongTuCheng/ShaCangKuGuanLiYuan.txt",modelid=95,icon = 95,funcId=2,bCanHide=true,hideLocation = true,classId=0},
+		{name = Lang.EntityName.n00173, posx = 406, posy = 335,script = "data/script/MengZhongTuCheng/GongChenQianFeng.txt",modelid = 52,icon = 3,funcId = 0,classId=3},		--攻城前锋
+
+		{name = Lang.EntityName.n00050, posx = 157, posy = 191,script = "data/script/MengZhongTuCheng/ShiTuGuanLiYuan.txt",modelid = 120,icon = 120,funcId = 0,classId=0},		--师徒管理员
+		{name = Lang.EntityName.n00051, posx = 127, posy = 184,script = "data/script/Activity/GouHuoZhengDuo/Outfire.txt",modelid = 224,icon = 2,funcId = 0,classId=3},		--熄灭的篝火
+		{name = Lang.EntityName.n00054, posx = 141, posy = 168,script = "data/script/MengZhongTuCheng/Wyzcgly.txt",modelid = 74,icon = 3,funcId = 0,classId=3,title = Lang.NpcTitle.n00024,isShowTitle = false,},		--武神
+		{name = Lang.EntityName.n00057, posx = 136, posy = 179,script = "data/script/MengZhongTuCheng/Wlzbgly.txt",modelid = 52,icon = 3,funcId = 0,classId=3,title = Lang.NpcTitle.n00026,isShowTitle = false,},		--战神
+		{name = Lang.EntityName.n00073, posx = 136, posy = 187,script = "data/script/MengZhongTuCheng/Mhxggly.txt",modelid = 76,icon = 76,funcId = 0,classId=3,title = Lang.NpcTitle.n00025,isShowTitle = false,},		--星宫护法
+		--{name = Lang.EntityName.n00078, posx = 141, posy = 191,script = "data/script/Activity/Mghzd/Mgjl.txt",modelid=53,icon = 3,funcId=0,classId=3},              --玫瑰精灵
+		{name = Lang.EntityName.n00079, posx = 145, posy = 191,script = "data/script/Activity/PKTz/Jw.txt",modelid=70,icon = 13,funcId=0,classId=3},              --PK挑战活动NPC
+		{name = Lang.EntityName.n00129, posx = 149, posy = 191,script = "data/script/MengZhongTuCheng/LeiZeChuanSongShi.txt",modelid=93,icon = 13,funcId=0,classId=3},              --雷泽传送师
+		{name = Lang.EntityName.n00154, posx = 158, posy = 180,script = "data/script/MengZhongTuCheng/ZhanChangZhiHuiGuan.txt",modelid=10,icon = 12,funcId=0,classId=3},
+		{name = Lang.EntityName.n00161, posx = 180, posy = 189,script = "data/script/MengZhongTuCheng/YanXiongTeShi.txt",modelid=70,icon = 70,classId=0},--英雄特使
+		{name = Lang.EntityName.n00172, posx = 167, posy = 178,script = "data/script/MengZhongTuCheng/ZhouQuanXiangJieYingRen.txt",modelid=51,icon = 70,classId=0,title = Lang.NpcTitle.n00027,},--咒泉乡接引人
+		{name = Lang.EntityName.n00174, posx = 164, posy = 216,script = "data/script/MengZhongTuCheng/KangMoDuiZhang.txt",modelid=71,icon = 71,classId=3,},--抗魔队长
+		{name = Lang.EntityName.n00179, posx = 153, posy = 191,script = "data/script/MengZhongTuCheng/BingGongShiZhe.txt",modelid=12,icon = 3,classId=3,},--冰宫使者
+		{name = Lang.EntityName.n00180, posx = 141, posy = 191,script = "data/script/MengZhongTuCheng/LieYuShiZhe.txt",modelid=62,icon = 3,classId=3,},--烈域使者
+		{name = Lang.EntityName.n00211, posx = 130, posy = 160,script = "data/script/MengZhongTuCheng/QiFuShu.txt",modelid=154,icon = 3,classId=3,},--祈福树
+		{name = Lang.EntityName.n00212, posx = 154, posy = 169,script = "data/script/MengZhongTuCheng/BaiShiTong.txt",modelid=130,icon = 3,classId=3,},--装备兑换使者
+		{name = Lang.EntityName.n00214, posx = 145, posy = 202,script= "data/script/KuaFuTuCheng/KuaFuChengZhuDiaoXiang.txt",modelid=159,icon = 159,classId=3,title = Lang.NpcTitle.n00031,},--跨服城主雕像
+		{name = Lang.EntityName.n00213, posx = 136, posy = 210,script= "data/script/MengZhongTuCheng/KuaFuZhanShenDiaoXiang.txt",modelid=160,icon = 79,classId=3,title=Lang.NpcTitle.n00030,},	--跨服第一战神雕像
+        {name = Lang.EntityName.n00255, posx = 144, posy = 165,script = "data/script/MengZhongTuCheng/ShengBinRongHeShiZhe.txt",modelid=83,icon = 3,classId=3,},--神兵融合使者
+		{name = Lang.EntityName.n00256, posx = 350, posy = 110,script = "data/script/MengZhongTuCheng/LongMenBiaoTou.txt",modelid=12,icon = 3,classId=3,},--龙门镖头
+		{name = Lang.EntityName.n00276, posx = 151, posy = 167,script = "data/script/MengZhongTuCheng/ShengJiZhiDaoYuan.txt",modelid=53,icon = 3,classId=3,},--升级指导员
+	    {name = Lang.EntityName.n00273, posx = 160, posy = 196,script = "data/script/MengZhongTuCheng/ZhanCheDaShi.txt",modelid=6,icon = 3,classId=3,},--土城战车大使
+		{name = Lang.EntityName.n00282, posx = 358, posy = 294,script = "data/script/MengZhongTuCheng/JianTaGuanLiYuan.txt",modelid=12,icon = 3,classId=3,},--箭塔管理员
+	    {name = Lang.EntityName.n00283, posx = 412, posy = 328,script = "data/script/MengZhongTuCheng/ZhanCheDaShi.txt",modelid=6,icon = 3,classId=3,},--沙城战车大使
+		{name = Lang.EntityName.n00288, posx = 137 , posy = 191,script = "data/script/MengZhongTuCheng/VipTeShi.txt",modelid = 129,icon = 1,funcId = 0},--VIP特使
+		{name = Lang.EntityName.n00290, posx = 137 , posy = 166,script = "data/script/MengZhongTuCheng/KaiFuZhanChangZhiYin.txt",modelid = 12,icon = 1,funcId = 0},--开服战场指引使者
+		{name = Lang.EntityName.n00295, posx = 133 , posy = 168,script = "data/script/MengZhongTuCheng/ShengDouHaiYuDaShi.txt",modelid = 98,icon = 1,funcId = 0},--神都海域大使
+		{name = Lang.EntityName.n00302, posx = 186 , posy = 193,script = "data/script/MengZhongTuCheng/ShenSouHuoDongDaShi.txt",modelid = 12,icon = 1,funcId = 0},--神兽活动大使
+		{name = Lang.EntityName.n00303, posx = 141 , posy = 161,script = "data/script/MengZhongTuCheng/TianGuanZhanShen.txt",modelid = 20,icon = 1,funcId = 0,title=Lang.NpcTitle.n00036,},--天关战神
+		{name = Lang.EntityName.n00308, posx = 146 , posy = 168,script = "data/script/MengZhongTuCheng/XiuLuoShiZhe.txt",modelid = 13,icon = 1,funcId = 0},--修罗使者
+		{name = Lang.EntityName.n00312, posx = 163 , posy = 192,script = "data/script/MengZhongTuCheng/HuanJinXianShi.txt",modelid = 94,icon = 1,funcId = 0},--鸿蒙仙使
+		{name = Lang.EntityName.n00314, posx = 132 , posy = 182,script = "data/script/BiQiCheng/ShenYinShiZhe.txt",modelid=89,icon = 13,funcId=8,title=Lang.NpcTitle.n00037,classId=1,nShowNpcForm=1}, --神印使者
+	    --{name = Lang.EntityName.n00323, posx = 125,  posy = 167,script = "data/script/MengZhongTuCheng/ZhouGong.txt",modelid=183,icon = 3,classId=3,},--周公
+		{name = Lang.EntityName.n00323, posx = 120,  posy = 167,script = "data/script/MengZhongTuCheng/BaiFuDanGao.txt",modelid=183,icon = 3,classId=3,},--百服蛋糕
+		--{name = Lang.EntityName.n00329, posx = 125,  posy = 165,script = "data/script/MengZhongTuCheng/Zhou.txt",modelid=188,icon = 3,classId=3,},--周
+		--{name = Lang.EntityName.n00330, posx = 125,  posy = 172,script = "data/script/MengZhongTuCheng/ZhouDaFu.txt",modelid=188,icon = 3,classId=3,},--周大福
+		--{name = Lang.EntityName.n00331, posx = 120,  posy = 168,script = "data/script/MengZhongTuCheng/ZhouJie.txt",modelid=188,icon = 3,classId=3,},--周杰
+		--{name = Lang.EntityName.n00332, posx = 116,  posy = 165,script = "data/script/MengZhongTuCheng/ZhouJieLun.txt",modelid=188,icon = 3,classId=3,},--周杰伦
+		{name = Lang.EntityName.n00333, posx = 120,  posy = 168,script = "data/script/MengZhongTuCheng/ZhouMin.txt",modelid=195,icon = 3,classId=3,},--清明祭桌
+        {name = Lang.EntityName.n00334, posx = 156, posy = 199,script = "data/script/MengZhongTuCheng/DaZhaiMen.txt",modelid=168,icon = 3,classId=3,},--BOSS大寨门
+		{name = Lang.EntityName.n00335, posx = 140, posy = 270,script = "data/script/MengZhongTuCheng/ShenShu.txt",modelid=196,icon = 3,classId=3,},--神树
+
+	},
+
+  teleport =
+  {
+		--传送点设置
+		{ posx =  89, posy = 380,toSceneid =  2,toPosx = 408, toPosy =  38,modelid = 50000,name = Lang.SceneName.s00002 },  --土城→王城
+		{ posx = 181, posy =  72,toSceneid = 10,toPosx =  35, toPosy = 119,modelid = 50000,name = Lang.SceneName.s00010 },  --土城→虫洞一层
+		{ posx = 103, posy = 193,toSceneid = 14,toPosx =  77, toPosy = 213,modelid = 50000,name = Lang.SceneName.s00014 },  --土城→猪洞一层
+		{ posx = 372, posy = 104,toSceneid = 17,toPosx =  91, toPosy = 230,modelid = 50000,name = Lang.SceneName.s00017 },  --土城→祖玛寺庙一层
+		{ posx = 446, posy = 371,toSceneid = 34,toPosx =  34, toPosy =  63,modelid = 50000,name = Lang.SceneName.s00034 },  --土城→红名村
+		{ posx =  92, posy =  71,toSceneid = 21,toPosx = 261, toPosy = 279,modelid = 50000,name = Lang.SceneName.s00021 },  --土城→伏魔谷
+
+		{ posx = 332, posy = 238,toSceneid =  9,toPosx = 16, toPosy = 19,modelid = 30000,name = Lang.SceneName.s50000,passid = 1,dist = 0,mapHide = true },  --土城→玛沙克皇宫正门   以后改成不显示名称，并且传送点模型更换 passid=1 表示占领沙城才可以通过
+		--{ posx = 333, posy = 237,toSceneid =  9,toPosx = 16, toPosy = 19,modelid = 50000,name = " ",passid = 1,dist = 0,mapHide = true },  --土城→玛沙克皇宫正门   以后改成不显示名称，并且传送点模型更换 passid=1 表示占领沙城才可以通过
+
+		{ posx = 326, posy = 242,toSceneid =  9,toPosx =  9, toPosy = 25,modelid = 50001,name = Lang.SceneName.s50001,dist = 0,mapHide = true },  --土城→玛沙克皇宫左城墙   以后改成不显示名称，并且传送点模型更换
+		{ posx = 329, posy = 241,toSceneid =  9,toPosx = 12, toPosy = 25,modelid = 50002,name = Lang.SceneName.s50002,dist = 0,mapHide = true },  --土城→玛沙克皇宫中城墙   以后改成不显示名称，并且传送点模型更换
+		{ posx = 336, posy = 234,toSceneid =  9,toPosx = 21, toPosy = 16,modelid = 50003,name = Lang.SceneName.s50003,dist = 0,mapHide = true },  --土城→玛沙克皇宫右城墙   以后改成不显示名称，并且传送点模型更换
+
+		{ posx = 262, posy = 251,toSceneid = 35,toPosx =  14, toPosy = 17,modelid = 50000,name = Lang.SceneName.s00035,dist = 1,mapHide = false },  --土城→沙城密道一
+		{ posx = 361, posy = 237,toSceneid = 35,toPosx = 169, toPosy = 77,modelid = 50000,name = Lang.SceneName.s00035,dist = 1,mapHide = false },  --土城→沙城密道二
+		{ posx = 276, posy = 256,toSceneid = 35,toPosx =  14, toPosy = 93,modelid = 50000,name = Lang.SceneName.s00035,dist = 1,mapHide = false },  --土城→沙城密道三
+		{ posx =  251, posy =  38,toSceneid = 121,toPosx = 42, toPosy = 158,modelid = 50000,name = Lang.SceneName.s00121 },  --土城→海底世界
+		{ posx =  51, posy =  115,toSceneid = 73,toPosx = 245, toPosy = 55,modelid = 50000,name = Lang.SceneName.s00073,mapHide = true },  --土城→五指山 
+		{ posx =  54, posy =  283,toSceneid = 174,toPosx = 205, toPosy = 226,modelid = 50000,name = Lang.SceneName.s00174 },  --土城→雪域
+		{ posx =  446, posy =  172,toSceneid = 194,toPosx = 24, toPosy = 30,modelid = 50000,name = Lang.SceneName.s00194 },  --土城→卫城皇宫(1)
+		{ posx =  441, posy =  168,toSceneid = 194,toPosx = 20, toPosy = 26,modelid = 30000,name = Lang.SceneName.s00204,mapHide = true},  --土城→卫城皇宫(2)
+		{ posx =  454, posy =  176,toSceneid = 194,toPosx = 29, toPosy = 35,modelid = 50000,name = Lang.SceneName.s00194,mapHide = true },  --土城→卫城皇宫(3)
+
+		{ posx =  258, posy =  348,toSceneid = 223,toPosx = 194, toPosy = 38,modelid = 50000,name = Lang.SceneName.s00223 },  --土城→隐龙山庄
+
+  },
+
+ landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=137,posy1=170,posx2=157,posy2=190,modelid=3,xinterval=2,yinterval=2},  --安全区的路灯
+		{posx1=336,posy1=108,posx2=353,posy2=126,modelid=3,xinterval=2,yinterval=2},  --运镖安全区的路灯
+		{posx1=381,posy1=319,posx2=396,posy2=334,modelid=74,xinterval=2,yinterval=2},  --双城泡点区的路灯
+		{posx1=127,posy1=184,posx2=127,posy2=184,modelid=5,xinterval=2,yinterval=2},  --篝火的位置
+
+		{posx1=406,posy1=328,posx2=406,posy2=328,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=394,posy1=316,posx2=394,posy2=316,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=382,posy1=304,posx2=382,posy2=304,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=366,posy1=284,posx2=366,posy2=284,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=356,posy1=274,posx2=356,posy2=274,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=350,posy1=268,posx2=350,posy2=268,modelid=18,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=352,posy1=260,posx2=352,posy2=260,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=412,posy1=334,posx2=412,posy2=334,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=401,posy1=323,posx2=401,posy2=323,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=388,posy1=310,posx2=388,posy2=310,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=376,posy1=298,posx2=376,posy2=298,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=361,posy1=280,posx2=361,posy2=280,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		{posx1=348,posy1=256,posx2=348,posy2=256,modelid=24,xinterval=1,yinterval=1},  --篝火的位置
+		
+		{posx1=110,posy1=158,posx2=110,posy2=158,modelid=86,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=114,posy1=154,posx2=114,posy2=154,modelid=86,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=198,posy1=172,posx2=198,posy2=172,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=203,posy1=177,posx2=203,posy2=177,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=337,posy1=251,posx2=337,posy2=251,modelid=86,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=343,posy1=245,posx2=343,posy2=245,modelid=86,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=372,posy1=301,posx2=372,posy2=301,modelid=86,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=377,posy1=296,posx2=377,posy2=296,modelid=86,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=409,posy1=207,posx2=409,posy2=207,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=415,posy1=213,posx2=415,posy2=213,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=355,posy1=114,posx2=355,posy2=114,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		{posx1=361,posy1=120,posx2=361,posy2=120,modelid=87,xinterval=1,yinterval=1},  --灯笼的位置
+		
+		--{posx1=148,posy1=172,posx2=148,posy2=172,modelid=92,xinterval=1,yinterval=1},  --炮台的位置
+
+
+
+ },
+
+},

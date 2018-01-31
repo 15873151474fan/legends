@@ -1,0 +1,16 @@
+--lua script
+--战队竞技的boss死亡
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "CorpsBattleCommon.txt" once
+
+MonDieDispatcher.Mon483Die = function(monster,sysarg,monId)
+	CorpsBossDie(sysarg)
+end
+
+MonDieDispatcher.Mon484Die = function(monster,sysarg,monId)
+	OnKillOtherMonsterDie(sysarg)
+end
+
+--MonDieDispatcher.register(483, MonDieDispatcher.Mon483Die )
+--MonDieDispatcher.register(484, MonDieDispatcher.Mon484Die )

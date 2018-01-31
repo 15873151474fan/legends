@@ -1,0 +1,1495 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\NpcOccupation\NpcOccupationConfig.txt" once
+--#include "RankPointer.txt" once
+
+--初始化NPC占领
+function InitNpcOccupation()
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local dVar = System.getDyanmicVar()
+	if (dVar.nzlInit ~= nil) and (dVar.nzlInit == 1) then
+		return
+	end
+	dVar.nzlInit = 1
+
+	for k, city in ipairs(config.city or {}) do
+		local tmpTable = LoadNpcOccupation(k)
+		local nCrystalKeeperFlag = tmpTable[13]
+		local nPos = 1
+
+		local hScene = Fuben.getSceneHandleById(city.enterScene.sid,0)  --获得场景句柄
+		for j, mon in ipairs(city.crystalMonsters or {}) do
+			local nMonster = Fuben.createMonster(hScene, mon.nMonsterID, mon.posX, mon.posY, mon.nLiveTime)	--创建水晶怪物
+		
+			local nCrystalGuildId = tmpTable[j * 2 + 1]
+			if nCrystalGuildId ~= 0 then
+				Actor.setMonsterName(nMonster,System.getGuildName(nCrystalGuildId))	--设置怪物名称
+				Actor.setNpcGuildId(nMonster,nCrystalGuildId)	--设置所属行会
+
+				local nCrystalCount = nCrystalKeeperFlag / nPos % 10
+				local crystalGuardMon = city.crystalGuardMonsters[j]
+				if nCrystalCount > table.getn(crystalGuardMon or {}) then
+					nCrystalCount = table.getn(crystalGuardMon or {})
+				end
+				--根据弓箭手数创建怪物
+				for i=1,nCrystalCount do
+					local pMonster = Fuben.createMonster(hScene, crystalGuardMon[i].nMonsterID, crystalGuardMon[i].posX, crystalGuardMon[i].posY, crystalGuardMon[i].nLiveTime)
+					if pMonster then
+						Actor.setNpcGuildId(pMonster,nCrystalGuildId)	--设置所属行会
+						Actor.setDyanmicValue(pMonster, j)	--设置动态值为第几个水晶
+					end
+				end
+			end
+			nPos = nPos * 10
+		end
+
+		SaveNpcOccupation(k, tmpTable)
+	end
+end
+
+--加载NPC占领数据
+function LoadNpcOccupation(cityId)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	local config = NpcOccupationConfig
+	if (not config) or (not NpcOccupationRankPt) then
+		return tmpTable
+	end
+
+	local ranking = Ranking.getRanking(NpcOccupationRankPt.NpcOccupationFile)
+	if not ranking then
+		ranking = Ranking.add(NpcOccupationRankPt.NpcOccupationFile, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, NpcOccupationRankPt.NpcOccupationFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, cityId)
+
+	--玩家加入排行榜
+	if pItem then
+		local tmpVal = 0
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存NPC占领数据
+function SaveNpcOccupation(cityId, tmpTable)
+	if not NpcOccupationRankPt then return end
+
+	local ranking = Ranking.getRanking(NpcOccupationRankPt.NpcOccupationFile)
+	if not ranking then
+		ranking = Ranking.add(NpcOccupationRankPt.NpcOccupationFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, NpcOccupationRankPt.NpcOccupationFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, cityId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,cityId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {}) do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--加载NPC占领行会排行数据
+function LoadNpcGuildRank(guildId)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	local config = NpcOccupationConfig
+	if (not config) or (not NpcOccupationRankPt) then
+		return tmpTable
+	end
+
+	local nGuildId = tonumber(guildId) or 0
+	if nGuildId == 0 then
+		return tmpTable
+	end
+
+	local ranking = Ranking.getRanking(NpcOccupationRankPt.NpcGuildRankFile)
+	if not ranking then
+		ranking = Ranking.add(NpcOccupationRankPt.NpcGuildRankFile, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, NpcOccupationRankPt.NpcGuildRankFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nGuildId)
+
+	--玩家加入排行榜
+	if pItem then
+		local tmpVal = 0
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存NPC占领行会排行数据
+function SaveNpcGuildRank(guildId, tmpTable)
+	if not NpcOccupationRankPt then return end
+
+	local nGuildId = tonumber(guildId) or 0
+	if nGuildId == 0 then
+		return
+	end
+
+	local ranking = Ranking.getRanking(NpcOccupationRankPt.NpcGuildRankFile)
+	if not ranking then
+		ranking = Ranking.add(NpcOccupationRankPt.NpcGuildRankFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, NpcOccupationRankPt.NpcGuildRankFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nGuildId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nGuildId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {}) do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--请求NPC占领
+function OnGetNpcOccupation(sysarg,args)
+	local btType = args[2]		--已在逻辑服判断
+	local btCityId = args[3]
+	
+	if true then return end
+
+	local config = NpcOccupationConfig
+	if (not config) then
+		return
+	end
+
+	if (btType ~= 0) and ((btCityId <= 0) or (btCityId > table.getn(config.city or {}))) then
+		return
+	end
+
+	InitNpcOccupation()
+	
+	if btType == 0 then	--请求活动总信息
+		OnGetNpcOccTotalInfo(sysarg)
+	elseif btType == 1 then	--请求城市信息
+		OnGetNpcOccCityInfo(sysarg, btCityId)
+	elseif btType == 2 then	--请求申请城市
+		OnApplyNpcOccCity(sysarg, btCityId)
+	elseif btType == 3 then	--请求进入城市
+		OnEnterNpcOccCity(sysarg, btCityId)
+	end	
+end
+
+--下发NPC占领总信息
+function OnGetNpcOccTotalInfo(sysarg)
+	local config = NpcOccupationConfig
+	if (not config) then
+		return
+	end
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local tmpGuildRankTable = LoadNpcGuildRank(nGuildId)
+
+	local nOwnCityId = tmpGuildRankTable[2]
+	local nApplyCityId = tmpGuildRankTable[4]
+	local nCityCount = table.getn(config.city or {})
+	local nCurrTime = System.getCurrMiniTime()
+
+	local dVar = System.getDyanmicVar()
+
+	local pack = DataPack.allocPacket(sysarg, 57, 3)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nApplyCityId)
+		DataPack.writeChar(pack, nCityCount)
+		for i=1,nCityCount do
+			local tmpTable = LoadNpcOccupation(i)
+			local nBelongGuildId = tmpTable[1]
+			local nOccupationTime = tmpTable[2]
+			local nGuardFlag = tmpTable[14]
+
+			local sName = ""
+			local nOccupationLastTime = 0
+			local nEnterFlag = 0
+			if (nBelongGuildId ~= 0) then
+				sName = System.getGuildName(nBelongGuildId)
+
+				if (nOccupationTime < nCurrTime) then
+					nOccupationLastTime = nCurrTime - nOccupationTime
+				end
+				
+				if (nGuildId == nBelongGuildId) then	--本行会
+					nEnterFlag = 1
+				elseif (nGuardFlag == 0) and (dVar.FreshNpcOccBoss == nil) then
+					nEnterFlag = 1
+				end
+			elseif (nApplyCityId == i) then
+				nEnterFlag = 1
+			end
+
+			DataPack.writeString(pack, sName)
+			DataPack.writeInt(pack, nOccupationLastTime)
+			DataPack.writeChar(pack, nEnterFlag)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--请求城市信息
+function OnGetNpcOccCityInfo(sysarg, btCityId)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local nNpcCount = table.getn(config.city[btCityId].crystalMonsters or {})
+	
+	local tmpTable = LoadNpcOccupation(btCityId)
+	local nBelongGuildId = tmpTable[1]
+	local nBelongGuildTime = tmpTable[2]
+	local nGuardFlag = tmpTable[14]
+
+	local nAllCrystalTime = 0
+	local nOccupyNpcCount = 0
+	for i=1,nNpcCount do
+		if (nBelongGuildId ~= 0) and (tmpTable[i * 2 + 1] == nBelongGuildId) then
+			nOccupyNpcCount = nOccupyNpcCount + 1
+			if nAllCrystalTime < tmpTable[i * 2 + 2] then
+				nAllCrystalTime = tmpTable[i * 2 + 2]
+			end
+		end
+	end
+	
+	local nCurrTime = System.getCurrMiniTime()
+
+	local nLastGuardTime = 0
+	if nGuardFlag == 1 then
+		local nGuardTime = 0
+		if (nCurrTime > nBelongGuildTime) then
+			nGuardTime = nCurrTime - nBelongGuildTime
+		end
+
+		if nGuardTime < config.city[btCityId].guardTime then
+			nLastGuardTime = config.city[btCityId].guardTime - nGuardTime
+		else
+			nGuardFlag = 0
+
+			tmpTable[14] = nGuardFlag
+			SaveNpcOccupation(btCityId, tmpTable)
+		end
+	end
+
+	local nLastCrystalTime = 0
+	if (nOccupyNpcCount == nNpcCount) and (nCurrTime > nAllCrystalTime) then
+		nLastCrystalTime = nCurrTime - nAllCrystalTime
+	end
+
+	local tmpGuildRankTable = LoadNpcGuildRank(nBelongGuildId)
+	local nOwnTime = tmpGuildRankTable[3]
+	local nDays = math.floor(nOwnTime / 24 / 3600)
+	if nDays > table.getn(config.city[btCityId].bossMonsters) then
+		nDays = table.getn(config.city[btCityId].bossMonsters)
+	end
+	local nBossIndex = 1
+	for i=1,nDays do
+		if table.getn(config.city[btCityId].bossMonsters[i]) > 0 then
+			nBossIndex = nBossIndex + 1
+		end
+	end
+	local dVar = System.getDyanmicVar()
+	if dVar.NpcOccBossFlag and (System.getIntBit(dVar.NpcOccBossFlag, btCityId-1) == 1) then
+		nBossIndex = nBossIndex - 1
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 57, 4)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, btCityId)
+		DataPack.writeInt(pack, nLastGuardTime)
+		DataPack.writeChar(pack, nOccupyNpcCount)
+		DataPack.writeInt(pack, nLastCrystalTime)
+		DataPack.writeChar(pack, nBossIndex)
+		DataPack.writeChar(pack, nNpcCount)
+		for i=1,nNpcCount do
+			local nGuildId = tmpTable[i * 2 + 1]
+			local nOccupationTime = tmpTable[i * 2 + 2]
+
+			local sName = ""
+			local nFlag = 0
+			local nOccupationLastTime = 0
+			if nGuildId ~= 0 then
+				sName = System.getGuildName(nGuildId)
+				if (nOccupationTime < nCurrTime) then
+					nOccupationLastTime = nCurrTime - nOccupationTime
+				end
+				nFlag = 1
+			else
+				--sName = config.city[btCityId].crystalMonsters[i].sName
+			end
+
+			DataPack.writeString(pack, sName)
+			DataPack.writeChar(pack, nFlag)
+			DataPack.writeInt(pack, nOccupationLastTime)
+		end
+		DataPack.flush(pack)
+	end
+end
+
+--请求申请城市
+function OnApplyNpcOccCity(sysarg, btCityId)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local weekDay = System.getDayOfWeek()
+	if weekDay == config.closeWeekDay then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0011, ttFlyTip)
+		return
+	end
+
+	local nMyGuildPos = Actor.getGuildPos(sysarg)
+	if (nMyGuildPos ~= smGuildAssistLeader) and (nMyGuildPos ~= smGuildLeader) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0001, ttFlyTip)
+		return
+	end
+
+	local level = config.limitLevel
+	local circle = config.limitCircle
+	if Actor.checkActorLevel(sysarg, level, circle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.nzl0003, level), ttFlyTip)
+		return
+	end
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local tmpGuildRankTable = LoadNpcGuildRank(nGuildId)
+
+	local nApplyFlag = tmpGuildRankTable[1]
+	local nOwnCityId = tmpGuildRankTable[2]
+	local nApplyCityId = tmpGuildRankTable[4]
+	--今天已申请
+	if nApplyFlag ~= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0002, ttFlyTip)
+		return
+	end
+
+	--该城市已被本行会占领
+	if nOwnCityId == btCityId then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0004, ttFlyTip)
+		return
+	end
+
+	local NPChandle = Actor.getHandle(thisNPC)
+	local sAskMsg = string.format(Lang.Activity.nzl0030)
+	local sConfMsg = string.format("%s/ConfApplyNpcOccCityFirst,%d", Lang.ScriptTips.mt00004, btCityId)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,sConfMsg,Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+--确认申请城市第一次提示
+function ConfApplyNpcOccCityFirst(sysarg, nCityId)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local tmpGuildRankTable = LoadNpcGuildRank(nGuildId)
+
+	local nOwnCityId = tmpGuildRankTable[2]
+
+	--已占领其他城市
+	if nOwnCityId ~= 0 then
+		local NPChandle = Actor.getHandle(thisNPC)
+		local sAskMsg = string.format(Lang.Activity.nzl0005)
+		local sConfMsg = string.format("%s/ConfApplyNpcOccCity,%d", Lang.ScriptTips.mt00004, tonumber(nCityId))
+		Actor.messageBox(sysarg,NPChandle,0,sAskMsg,sConfMsg,Lang.ScriptTips.mt00005.."/Cancel",nil)
+		return
+	end
+
+	ConfApplyNpcOccCity(sysarg, nCityId)
+end
+
+--确认申请城市
+function ConfApplyNpcOccCity(sysarg, nCityId)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+	local btCityId = tonumber(nCityId)
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId == 0 then
+		return
+	end
+	local tmpGuildRankTable = LoadNpcGuildRank(nGuildId)
+
+	local nApplyFlag = tmpGuildRankTable[1]
+	local nOwnCityId = tmpGuildRankTable[2]
+	local nOwnTime = tmpGuildRankTable[3]
+	local nApplyCityId = tmpGuildRankTable[4]
+	
+	local tmpTable = LoadNpcOccupation(btCityId)
+
+	local nBelongGuildId = tmpTable[1]
+	local nBelongGuildTime = tmpTable[2]
+
+	if nOwnCityId ~= 0 then
+		local tmpOwnTable = LoadNpcOccupation(nOwnCityId)
+
+		tmpOwnTable[1] = 0
+		tmpOwnTable[2] = 0
+
+		SaveNpcOccupation(nOwnCityId, tmpOwnTable)
+
+		nOwnCityId = 0
+		nOwnTime = 0
+	end
+
+	local nNpcCount = table.getn(config.city[btCityId].crystalMonsters or {})
+	local nOccupyNpcCount = 0
+	for i=1,nNpcCount do
+		if (tmpTable[i * 2 + 1] == nGuildId) then
+			nOccupyNpcCount = nOccupyNpcCount + 1
+		end
+	end
+
+	--所有NPC都属于该行会
+	if (nOccupyNpcCount == nNpcCount) then
+		local sMsg = ""
+		if nBelongGuildId == 0 then	--占领
+			sMsg = Lang.Activity.nzl0006
+		else	--攻打
+			sMsg = Lang.Activity.nzl0007
+
+			local tmpSorGuildRankTable = LoadNpcGuildRank(nBelongGuildId)
+
+			tmpSorGuildRankTable[2] = 0
+			tmpSorGuildRankTable[3] = 0
+
+			SaveNpcGuildRank(nBelongGuildId, tmpSorGuildRankTable)
+		end
+		nBelongGuildId = nGuildId
+		nBelongGuildTime = System.getCurrMiniTime()
+		nOwnCityId = btCityId
+		nOwnTime = System.getCurrMiniTime()
+
+		tmpTable[1] = nBelongGuildId
+		tmpTable[2] = nBelongGuildTime
+
+		SaveNpcOccupation(btCityId, tmpTable)
+
+		local nSceneId = config.city[btCityId].enterScene.sid
+		local sGuildName = System.getGuildName(nGuildId)
+		local sSceneName = Fuben.getSceneNameById(nSceneId)
+		
+		System.broadcastTipmsg(string.format(sMsg, sGuildName, sSceneName), ttScreenCenter)
+
+		OccupyCity(btCityId, nGuildId)
+	end
+
+	nApplyFlag = 1
+	nApplyCityId = btCityId
+
+	tmpGuildRankTable[1] = nApplyFlag
+	tmpGuildRankTable[2] = nOwnCityId
+	tmpGuildRankTable[3] = nOwnTime
+	tmpGuildRankTable[4] = nApplyCityId
+	SaveNpcGuildRank(nGuildId, tmpGuildRankTable)
+
+	OnGetNpcOccTotalInfo(sysarg)
+
+	Actor.sendTipmsg(sysarg, Lang.Activity.nzl0012, ttFlyTip)
+end
+
+--请求进入城市
+function OnEnterNpcOccCity(sysarg, btCityId)
+	if Actor.hasState(sysarg, esStateStall) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0012, ttFlyTip)
+		return
+	end
+
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) or (not config.city[btCityId]) then
+		return
+	end
+
+	local weekDay = System.getDayOfWeek()
+	if weekDay == config.closeWeekDay then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0011, ttFlyTip)
+		return
+	end
+
+	local city = config.city[btCityId]
+
+	local tmpTable = LoadNpcOccupation(btCityId)
+	local nBelongGuildId = tmpTable[1]
+	local nBelongGuildTime = tmpTable[2]
+	local nGuardFlag = tmpTable[14]
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0009, ttFlyTip)
+		return
+	end
+	local tmpGuildRankTable = LoadNpcGuildRank(nGuildId)
+
+	local nApplyCityId = tmpGuildRankTable[4]
+	
+	if (nBelongGuildId == 0) and (nApplyCityId ~= btCityId) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0008, ttFlyTip)
+		return
+	end
+
+	
+	local level = config.limitLevel
+	local circle = config.limitCircle
+	if Actor.checkActorLevel(sysarg, level, circle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.nzl0003, level), ttFlyTip)
+		return
+	end
+
+	--被占领且不属于自己行会，需判断保护时间
+	if (nBelongGuildId ~= 0) and (nGuildId ~= nBelongGuildId) then
+		local dVar = System.getDyanmicVar()
+		if (dVar.FreshNpcOccBoss ~= nil) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.nzl0033, ttFlyTip)
+			return
+		end
+		local nCurrTime = System.getCurrMiniTime()
+
+		local nGuardTime = 0
+		if (nCurrTime > nBelongGuildTime) then
+			nGuardTime = nCurrTime - nBelongGuildTime
+		end
+
+		if (nGuardFlag == 1) and (nGuardTime <= city.guardTime) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.nzl0010, ttFlyTip)
+			return
+		else
+			nGuardFlag = 0
+			
+			tmpTable[14] = nGuardFlag
+			SaveNpcOccupation(btCityId, tmpTable)
+		end
+	end
+	
+	local nSceneId = Actor.getSceneId(sysarg)
+
+	for k, cityInfo in ipairs(config.city or {}) do
+		if cityInfo.enterScene.sid == nSceneId then
+			Actor.sendTipmsg(sysarg, Lang.Activity.nzl0028, ttFlyTip)
+			return
+		end
+	end
+
+	local enter = city.enterScene
+	if Actor.enterScene(sysarg, enter.sid, unpack(enter.range)) == true then
+		return
+	end
+end
+
+--重置NPC占领每天数据
+function ResetNpcOccupation()
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local ranking = Ranking.getRanking(NpcOccupationRankPt.NpcGuildRankFile)
+	if ranking then
+		local nCount = Ranking.getRankItemCount(ranking)
+		for k=0,nCount-1 do
+			local pItem = Ranking.getItemFromIndex(ranking,k)
+			if pItem then
+				Ranking.setSub(pItem,0,0)	--重置申请标志
+				Ranking.setSub(pItem,3,0)	--申请城市ID
+			end
+		end
+	end
+
+	local weekDay = System.getDayOfWeek()
+
+	if weekDay ~= config.openWeekDay then
+		for k, city in ipairs(config.city or {}) do
+			local tmpTable = LoadNpcOccupation(k)
+
+			local nBelongGuildId = tmpTable[1]
+			local nBelongGuildTime = tmpTable[2]
+
+			if (nBelongGuildId ~= 0) and (nBelongGuildTime ~= 0) then
+				local nCurrTime = System.getCurrMiniTime()
+
+				local nOwnTime = 0
+				if nCurrTime > nBelongGuildTime then
+					nOwnTime = nCurrTime - nBelongGuildTime
+				end
+
+				local nTimes = math.floor(nOwnTime / 24 / 3600) + 1
+				if nTimes > table.getn(city.guildAwards or {}) then
+					nTimes = table.getn(city.guildAwards)
+				end
+
+				local nSceneId = city.enterScene.sid
+				local sSceneName = Fuben.getSceneNameById(nSceneId)
+				local nAddGuildCoin = city.guildAwards[nTimes]
+				local strEvent = string.format(Lang.GuildLang.z00151,sSceneName,nAddGuildCoin)
+				Guild.addEventRecord(nBelongGuildId,strEvent,30,nTimes*24,nAddGuildCoin,0,sSceneName,"")
+				System.changeGuildCoin(nBelongGuildId, nAddGuildCoin)
+			end
+		end
+	end
+
+	if weekDay == config.closeWeekDay then
+		local tmpTable = LoadNpcOccupation(1)
+		local nCombineFlag = tmpTable[15]
+
+		if nCombineFlag == 0 then
+			return
+		end
+		for k, city in ipairs(config.city or {}) do
+			local tmpTable = LoadNpcOccupation(k)
+			for i=0,15-1 do	--15列是合区标志，不用清
+				tmpTable[i+1] = 0
+			end
+			SaveNpcOccupation(k, tmpTable)
+
+			local hScene = Fuben.getSceneHandleById(city.enterScene.sid,0)  --获得场景句柄
+				
+			local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)
+			if monsterList ~= nil then
+				for j = 1, #monsterList do
+					local monster = monsterList[j]
+					if monster then
+						local monHandle = Actor.getHandle(monster)
+						Fuben.clearMonster(monHandle)
+					end
+				end
+			end
+			
+			local playerList = LuaHelp.getSceneActorListById(city.enterScene.sid)  --获取某场景玩家对象列表
+			if playerList ~= nil then
+				for i = 1, #playerList do
+					local player = playerList[i]
+					if player then
+						local retScene = city.returnArea
+						Actor.enterScene(player, retScene.sid, retScene.x, retScene.y)
+					end
+				end
+			end
+		end
+
+		local ranking = Ranking.getRanking(NpcOccupationRankPt.NpcGuildRankFile)
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+	elseif weekDay == config.openWeekDay then
+		local tmpTable = LoadNpcOccupation(1)
+		local nCombineFlag = tmpTable[15]
+
+		if nCombineFlag == 0 then
+			nCombineFlag = 1
+			tmpTable[15] = nCombineFlag
+			SaveNpcOccupation(1, tmpTable)
+		end
+		for k, city in ipairs(config.city or {}) do
+			local tmpTable = LoadNpcOccupation(k)
+			for i=0,15-1 do	--15列是合区标志，不用清
+				tmpTable[i+1] = 0
+			end
+			--SaveNpcOccupation(k, tmpTable)
+
+			local hScene = Fuben.getSceneHandleById(city.enterScene.sid,0)  --获得场景句柄
+				
+			local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)
+			if monsterList ~= nil then
+				for j = 1, #monsterList do
+					local monster = monsterList[j]
+					if monster then
+						local monHandle = Actor.getHandle(monster)
+						Fuben.clearMonster(monHandle)
+					end
+				end
+			end
+
+			local hScene = Fuben.getSceneHandleById(city.enterScene.sid,0)  --获得场景句柄
+			for j, mon in ipairs(city.crystalMonsters or {}) do		
+				local nMonster = Fuben.createMonster(hScene, mon.nMonsterID, mon.posX, mon.posY, mon.nLiveTime)
+				local nCrystalGuildId = tmpTable[j * 2 + 1]
+				if nCrystalGuildId ~= 0 then
+					Actor.setMonsterName(nMonster,System.getGuildName(nCrystalGuildId))
+					Actor.setNpcGuildId(nMonster,nCrystalGuildId)
+				end
+			end
+
+			SaveNpcOccupation(k, tmpTable)
+		end
+		
+		local ranking = Ranking.getRanking(NpcOccupationRankPt.NpcGuildRankFile)
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+	end
+end
+
+--击杀水晶怪物
+function OnKillCrystalMonster(pMonster, sysarg, monId)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local nSceneId = Actor.getSceneId(pMonster)
+
+	local cityInfo = nil
+	local monInfo = nil
+	local crystalId = 0
+	for k, city in ipairs(config.city or {}) do
+		if city.enterScene.sid == nSceneId then
+			for j, mon in ipairs(city.crystalMonsters or {}) do
+				if mon.nMonsterID == monId then
+					monInfo = mon
+					crystalId = j
+					break
+				end
+			end
+			cityInfo = city
+			break
+		end
+	end
+
+	if (not monInfo) or (not cityInfo) then
+		return
+	end
+
+	local btCityId = cityInfo.id
+
+	local hScene = Fuben.getSceneHandleById(cityInfo.enterScene.sid,0)  --获得场景句柄
+	local nMonsterID = monId
+	local posX =  0
+	local posY =  0
+	posX,posY = Actor.getEntityPosition(pMonster,0,0)
+	local nLiveTime = monInfo.nLiveTime
+	--信春哥，原地满血满状态复活
+	local nMonster = Fuben.createMonster(hScene, nMonsterID, posX, posY, nLiveTime)
+	if not nMonster then
+		return
+	end
+	local sMonName = Actor.getName(nMonster)
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	Actor.setMonsterName(nMonster,Actor.getGuildName(sysarg).." ")	--多加个空格防止最后的数字被屏蔽
+	Actor.setNpcGuildId(nMonster,nGuildId)
+
+	local tmpTable = LoadNpcOccupation(btCityId)
+	local nBelongGuildId = tmpTable[1]
+	local nBelongGuildTime = tmpTable[2]
+	local nCrystalGuildId = tmpTable[crystalId * 2 + 1]
+	local nCrystalGuildTime = tmpTable[crystalId * 2 + 2]
+	local nGuardFlag = tmpTable[14]
+
+	--水晶原来属于其他行会
+	if nCrystalGuildId ~= 0 then
+		local sMsg = Lang.Activity.nzl0013
+		
+		local nSceneId = config.city[btCityId].enterScene.sid
+		local sSceneName = Fuben.getSceneNameById(nSceneId)
+		local sGuildName = System.getGuildName(nGuildId)
+		System.broadcastTipmsg(string.format(sMsg, sGuildName, sSceneName, sMonName), ttScreenCenter)
+	end
+
+	nCrystalGuildId = nGuildId
+	nCrystalGuildTime = System.getCurrMiniTime()
+	
+	tmpTable[crystalId * 2 + 1] = nCrystalGuildId
+	tmpTable[crystalId * 2 + 2] = nCrystalGuildTime
+
+	local nNpcCount = table.getn(config.city[btCityId].crystalMonsters or {})
+	local nOccupyNpcCount = 0
+	for i=1,nNpcCount do
+		if (tmpTable[i * 2 + 1] == nGuildId) then
+			nOccupyNpcCount = nOccupyNpcCount + 1
+		end
+	end
+
+	if nBelongGuildId == 0 then	--城市未被占领
+		--占领城市
+		if nOccupyNpcCount == cityInfo.occupyNeedCrystal then
+			local tmpGuildRankTable = LoadNpcGuildRank(nGuildId)
+			
+			local nApplyCityId = tmpGuildRankTable[4]
+
+			if nApplyCityId == btCityId then	--申请本城才能占领
+				local nOwnCityId = tmpGuildRankTable[2]
+				local nOwnTime = System.getCurrMiniTime()
+
+				local sMsg = Lang.Activity.nzl0006
+				nBelongGuildId = nGuildId
+				nBelongGuildTime = System.getCurrMiniTime()
+				nGuardFlag = 1
+				nOwnCityId = btCityId
+
+				tmpTable[1] = nBelongGuildId
+				tmpTable[2] = nBelongGuildTime
+				tmpTable[14] = nGuardFlag
+
+				tmpGuildRankTable[2] = nOwnCityId
+				tmpGuildRankTable[3] = nOwnTime
+				SaveNpcGuildRank(nGuildId, tmpGuildRankTable)
+
+				local nSceneId = config.city[btCityId].enterScene.sid
+				local sSceneName = Fuben.getSceneNameById(nSceneId)
+				local sGuildName = System.getGuildName(nGuildId)
+				
+				System.broadcastTipmsg(string.format(sMsg, sGuildName, sSceneName), ttScreenCenter)
+
+				OccupyCity(btCityId, nGuildId)
+			end
+		end
+	else	--城市已被占领
+		--第5个水晶
+		if (nOccupyNpcCount == nNpcCount) then
+			local tmpGuildRankTable = LoadNpcGuildRank(nGuildId)
+			local nApplyCityId = tmpGuildRankTable[4]
+			--本行会占领
+			if (nBelongGuildId == nGuildId) then
+				nGuardFlag = 0
+				tmpTable[14] = nGuardFlag
+			elseif nApplyCityId == btCityId then	--申请本城才能占领
+				local tmpSorGuildRankTable = LoadNpcGuildRank(nBelongGuildId)
+				local nOwnTime = tmpSorGuildRankTable[3]
+
+				--if nOwnTime ~= 0 then
+					nOwnTime = 0
+
+					tmpSorGuildRankTable[2] = 0
+					tmpSorGuildRankTable[3] = nOwnTime
+
+					SaveNpcGuildRank(nBelongGuildId, tmpSorGuildRankTable)
+				--end
+
+				tmpGuildRankTable[2] = btCityId
+				tmpGuildRankTable[3] = System.getCurrMiniTime()
+				SaveNpcGuildRank(nGuildId, tmpGuildRankTable)
+
+				nBelongGuildId = nGuildId
+				nBelongGuildTime = System.getCurrMiniTime()
+
+				tmpTable[1] = nBelongGuildId
+				tmpTable[2] = nBelongGuildTime
+
+				local sMsg = Lang.Activity.nzl0007
+				local nSceneId = config.city[btCityId].enterScene.sid
+				local sSceneName = Fuben.getSceneNameById(nSceneId)
+				local sGuildName = System.getGuildName(nGuildId)
+				
+				System.broadcastTipmsg(string.format(sMsg, sGuildName, sSceneName), ttScreenCenter)
+
+				OccupyCity(btCityId, nGuildId)
+			end
+		end
+	end
+
+	local nCrystalKeeperFlag = tmpTable[13]
+	local nPos = 1
+	for i=1,crystalId-1 do
+		nPos = nPos * 10
+	end
+	local nCrystalCount = nCrystalKeeperFlag / nPos % 10
+	
+	--清除弓箭守卫怪
+	local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)		
+	if monsterList ~= nil then
+		for j = 1, #monsterList do
+			local monster = monsterList[j]
+			if monster then
+				local nValue = Actor.getDyanmicValue(monster)
+				if nValue == crystalId then
+					local monHandle = Actor.getHandle(monster)
+					Fuben.clearMonster(monHandle)
+				end
+			end
+		end
+	end
+	nCrystalKeeperFlag = nCrystalKeeperFlag - nCrystalCount * nPos
+	tmpTable[13] = nCrystalKeeperFlag
+
+	SaveNpcOccupation(btCityId, tmpTable)
+end
+
+--成功占领城市
+function OccupyCity(btCityId, nGuildId)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local city = config.city[btCityId]
+	--清理城市内非本行会玩家
+	local playerList = LuaHelp.getSceneActorListById(city.enterScene.sid)  --获取某场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player and (Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID ) ~= nGuildId) then
+				local retScene = city.returnArea
+				Actor.enterScene(player, retScene.sid, retScene.x, retScene.y)
+			end
+		end
+	end
+end
+
+--刷BOSS
+function OnFreshNpcOccBoss()
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+	
+	local dVar = System.getDyanmicVar()
+	dVar.FreshNpcOccBoss = 1
+	local nCurrTime = System.getCurrMiniTime()
+
+	for k, city in ipairs(config.city or {}) do
+		local tmpTable = LoadNpcOccupation(k)
+
+		local nBelongGuildId = tmpTable[1]
+		local nBelongGuildTime = tmpTable[2]
+
+		local nNpcCount = table.getn(city.crystalMonsters or {})
+		local nAllCrystalTime = 0
+		local nOccupyNpcCount = 0
+		for i=1,nNpcCount do
+			if (nBelongGuildId ~= 0) and (tmpTable[i * 2 + 1] == nBelongGuildId) then
+				nOccupyNpcCount = nOccupyNpcCount + 1
+				if nAllCrystalTime < tmpTable[i * 2 + 2] then
+					nAllCrystalTime = tmpTable[i * 2 + 2]
+				end
+			end
+		end
+
+		local nLastCrystalTime = 0
+		if (nOccupyNpcCount == nNpcCount) and (nCurrTime > nAllCrystalTime) then
+			nLastCrystalTime = nCurrTime - nAllCrystalTime
+		end
+
+		if (nBelongGuildId ~= 0) and (nLastCrystalTime ~= 0) then
+			--清理城市内非本行会玩家
+			local playerList = LuaHelp.getSceneActorListById(city.enterScene.sid)  --获取某场景玩家对象列表
+			if playerList ~= nil then
+				for i = 1, #playerList do
+					local player = playerList[i]
+					if player and (Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID ) ~= nBelongGuildId) then
+						local retScene = city.returnArea
+						Actor.enterScene(player, retScene.sid, retScene.x, retScene.y)
+					end
+				end
+			end
+
+			local hScene = Fuben.getSceneHandleById(city.enterScene.sid,0)  --获得场景句柄
+			local nTimes = math.floor(nLastCrystalTime / 24 / 3600) + 1
+			if nTimes > table.getn(city.bossMonsters) then
+				nTimes = table.getn(city.bossMonsters)
+			end
+			if (nTimes > 0) and (nTimes <= table.getn(city.bossMonsters)) then
+				for i, mon in ipairs (city.bossMonsters[nTimes] or {}) do
+					local nMonster = Fuben.createMonster(hScene, mon.nMonsterID, mon.posX, mon.posY, mon.nLiveTime)
+					if nMonster then
+						Actor.setDyanmicValue(nMonster, k)
+						if not dVar.NpcOccBossFlag then
+							dVar.NpcOccBossFlag = 0
+						end
+						dVar.NpcOccBossFlag = System.setIntBit(dVar.NpcOccBossFlag, k-1, true)
+						
+						local nSceneId = city.enterScene.sid
+						local sSceneName = Fuben.getSceneNameById(nSceneId)
+						System.sendGuildMsg(nBelongGuildId, 0, string.format(Lang.Activity.nzl0032, sSceneName), ttChatWindow)
+					end
+				end
+			end
+		end
+	end
+end
+
+--关闭
+function OnCloseNpcOccBoss()
+	local dVar = System.getDyanmicVar()
+	dVar.FreshNpcOccBoss = nil
+end
+
+--击杀BOSS怪物
+function OnKillNpcBossMonster(pMonster, sysarg, monId)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local btCityId = Actor.getDyanmicValue(pMonster)
+
+	if (btCityId <= 0) and (btCityId > table.getn(config.city)) then
+		return
+	end
+
+	local dVar = System.getDyanmicVar()
+	if not dVar.NpcOccBossFlag then
+		dVar.NpcOccBossFlag = 0
+	end
+	dVar.NpcOccBossFlag = System.setIntBit(dVar.NpcOccBossFlag, btCityId-1, false)
+end
+
+--刷NPC占领怪
+function OnFreshNpcOccMon()
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local weekDay = System.getDayOfWeek()
+
+	if weekDay == config.closeWeekDay then
+		return
+	end
+
+	local nCurrTime = System.getCurrMiniTime()
+
+	for k, city in ipairs(config.city or {}) do
+		local tmpTable = LoadNpcOccupation(k)
+
+		local nBelongGuildId = tmpTable[1]
+		local nBelongGuildTime = tmpTable[2]
+
+		local nNpcCount = table.getn(city.crystalMonsters or {})
+		local nAllCrystalTime = 0
+		local nOccupyNpcCount = 0
+		for i=1,nNpcCount do
+			if (nBelongGuildId ~= 0) and (tmpTable[i * 2 + 1] == nBelongGuildId) then
+				nOccupyNpcCount = nOccupyNpcCount + 1
+				if nAllCrystalTime < tmpTable[i * 2 + 2] then
+					nAllCrystalTime = tmpTable[i * 2 + 2]
+				end
+			end
+		end
+
+		local nLastCrystalTime = 0
+		if (nOccupyNpcCount == nNpcCount) and (nCurrTime > nAllCrystalTime) then
+			nLastCrystalTime = nCurrTime - nAllCrystalTime
+		end
+
+		if (nBelongGuildId ~= 0) then
+			for l=1,table.getn(city.crystalMonsters or {}) do
+				if tmpTable[l * 2 + 1] ~= 0 then	--被占领才刷怪
+					local nRandNum = System.getRandomNumber(10000)
+					if nRandNum <= city.randomRate then
+						local hScene = Fuben.getSceneHandleById(city.enterScene.sid,0)  --获得场景句柄
+						local nTimes = math.floor(nLastCrystalTime / 24 / 3600) + 1
+						if nTimes > table.getn(city.randomMonster) then
+							nTimes = table.getn(city.randomMonster)
+						end
+						if (nTimes > 0) and (nTimes <= table.getn(city.randomMonster or {})) then
+							for j, mon in ipairs (city.randomMonster[nTimes] or {}) do
+								for i=1,mon.nCount do
+									local posX = math.random(mon.posX1, mon.posX2)
+									local posY = mon.posY
+									local nMonster = Fuben.createMonster(hScene, mon.nMonsterID, posX, posY, mon.nLiveTime)
+									if nMonster then
+										local nValue = k * 1000 + l	--k为城市id，l为水晶id
+										Actor.setDyanmicValue(nMonster, nValue)
+
+										local nSceneId = city.enterScene.sid
+										local sSceneName = Fuben.getSceneNameById(nSceneId)
+										System.sendGuildMsg(nBelongGuildId, 0, string.format(Lang.Activity.nzl0031, sSceneName), ttChatWindow)
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+--随机怪夺回水晶
+function OnNpcOccRobCrystal()
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local weekDay = System.getDayOfWeek()
+
+	if weekDay == config.closeWeekDay then
+		return
+	end
+
+	for k, city in ipairs(config.city or {}) do
+		local tmpTable = LoadNpcOccupation(k)
+
+		local nBelongGuildId = tmpTable[1]
+		local nBelongGuildTime = tmpTable[2]
+		
+		--if (nBelongGuildId ~= 0) then
+			local hScene = Fuben.getSceneHandleById(city.enterScene.sid,0)  --获得场景句柄
+			
+			local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)
+			if monsterList ~= nil then
+				for j = 1, #monsterList do
+					local monster = monsterList[j]
+					if monster then
+						local nValue = Actor.getDyanmicValue(monster)
+						local nCrystalId = nValue % 1000
+						local nCityId = math.floor(nValue / 1000)
+						if nCityId > 0 then
+							if (nCrystalId > 0) and (nCrystalId <= table.getn(city.crystalMonsters or {})) then
+								local nCrystalGuildId = tmpTable[nCrystalId * 2 + 1]
+								if nCrystalGuildId ~= 0 then
+									local sMsg = Lang.Activity.nzl0014
+									
+									local nSceneId = city.enterScene.sid
+									local sSceneName = Fuben.getSceneNameById(nSceneId)
+									local sGuildName = System.getGuildName(nCrystalGuildId)
+									local sMonName = Actor.getName(monster)
+									System.broadcastTipmsg(string.format(sMsg, sGuildName, sSceneName, sMonName), ttScreenCenter)
+									
+									local nCrystalKeeperFlag = tmpTable[13]
+									local nPos = 1
+									for i=1,nCrystalId-1 do
+										nPos = nPos * 10
+									end
+									local nCrystalCount = nCrystalKeeperFlag / nPos % 10
+
+									local mon = city.crystalMonsters[nCrystalId]
+									--清除弓箭守卫怪
+									for j = 1, #monsterList do
+										local monsterKeeper = monsterList[j]
+										if monsterKeeper then
+											local nValue = Actor.getDyanmicValue(monsterKeeper)
+											if nValue == nCrystalId then
+												local monHandle = Actor.getHandle(monsterKeeper)
+												Fuben.clearMonster(monHandle)
+											end
+											if Actor.getIntProperty(monsterKeeper, PROP_ENTITY_ID) == mon.nMonsterID then
+												local monHandle = Actor.getHandle(monsterKeeper)
+												Fuben.clearMonster(monHandle)
+
+												Fuben.createMonster(hScene, mon.nMonsterID, mon.posX, mon.posY, mon.nLiveTime)
+											end
+										end
+									end
+									nCrystalKeeperFlag = nCrystalKeeperFlag - nCrystalCount * nPos
+									tmpTable[13] = nCrystalKeeperFlag
+
+									--if nBelongGuildTime ~= 0 then
+									--	nBelongGuildTime = 0
+									--end
+									nCrystalGuildId = 0
+									--tmpTable[2] = nBelongGuildTime
+									tmpTable[nCrystalId * 2 + 1] = nCrystalGuildId
+									tmpTable[nCrystalId * 2 + 2] = 0
+									SaveNpcOccupation(k, tmpTable)
+								end
+							end
+						end
+					end
+				end
+			end
+		--end
+
+		if (nBelongGuildId ~= 0) then
+			local nOccupyNpcCount = 0
+			for j, mon in ipairs(city.crystalMonsters or {}) do
+				if (tmpTable[j * 2 + 1] == nBelongGuildId) then
+					nOccupyNpcCount = nOccupyNpcCount + 1
+					break
+				end
+			end
+
+			if (nOccupyNpcCount == 0) then
+				local tmpGuildRankTable = LoadNpcGuildRank(nBelongGuildId)
+				local nOwnTime = tmpGuildRankTable[3]
+
+				--if nOwnTime ~= 0 then
+					nOwnTime = 0
+
+					tmpGuildRankTable[2] = 0
+					tmpGuildRankTable[3] = nOwnTime
+
+					SaveNpcGuildRank(nBelongGuildId, tmpGuildRankTable)
+				--end
+
+				tmpTable[1] = 0
+				tmpTable[2] = 0
+				SaveNpcOccupation(k, tmpTable)
+
+				OccupyCity(k, 0)
+			end
+		end
+	end
+end
+
+--购买水晶守卫
+function CallCrystalKeeper(sysarg, crystalId)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+	local weekDay = System.getDayOfWeek()
+
+	if weekDay == config.closeWeekDay then
+		return
+	end
+	local nCrystalId = tonumber(crystalId)
+	
+	local nMyGuildPos = Actor.getGuildPos(sysarg)
+	if (nMyGuildPos ~= smGuildAssistLeader) and (nMyGuildPos ~= smGuildLeader) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0022, ttFlyTip)
+		return
+	end
+
+	local nSceneId = Actor.getSceneId(sysarg)
+	local cityInfo = nil
+	for k, city in ipairs(config.city or {}) do
+		if city.enterScene.sid == nSceneId then
+			cityInfo = city
+			break
+		end
+	end
+
+	if (not cityInfo) then
+		return
+	end
+	
+	if (nCrystalId <= 0) or (nCrystalId > table.getn(cityInfo.crystalGuardMonsters or {})) then
+		return
+	end
+
+	local btCityId = cityInfo.id
+
+	local tmpTable = LoadNpcOccupation(btCityId)
+	local nCrystalGuildId = tmpTable[nCrystalId * 2 + 1]
+	local nCrystalKeeperFlag = tmpTable[13]
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nCrystalGuildId ~= nGuildId then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0020, ttFlyTip)
+		return
+	end
+
+	local crystalGuardMon = cityInfo.crystalGuardMonsters[nCrystalId]
+	if not crystalGuardMon then return end
+
+	local nPos = 1
+	for i=1,nCrystalId-1 do
+		nPos = nPos * 10
+	end
+
+	local nCrystalCount = 0
+	local hScene = Fuben.getSceneHandleById(cityInfo.enterScene.sid,0)  --获得场景句柄
+	local monsterList = LuaHelp.getSceneMonsterListByHandle(hScene)
+	if monsterList ~= nil then
+		for j = 1, #monsterList do
+			local monsterKeeper = monsterList[j]
+			if monsterKeeper then
+				local nValue = Actor.getDyanmicValue(monsterKeeper)
+				if nValue == nCrystalId then
+					nCrystalCount = nCrystalCount + 1
+				end
+			end
+		end
+	end
+
+	--local nCrystalCount = math.floor(nCrystalKeeperFlag / nPos) % 10
+	if nCrystalCount >= table.getn(crystalGuardMon or {}) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0021, ttFlyTip)
+		return
+	end
+
+	local nGuildCoin = Actor.getGuildCoin(sysarg)
+	local cunsumeGuildCoin = cityInfo.crystalGuardNeedGuildCoin
+	if nGuildCoin < cunsumeGuildCoin then
+		Actor.sendTipmsg(sysarg, Lang.Activity.nzl0023, ttFlyTip)
+		return
+	end
+
+	local scene = Actor.getScenePtr(sysarg)
+	local mon = nil
+	for k, monInfo in ipairs(crystalGuardMon or {}) do
+		local nMonsterList = LuaHelp.getNearEntityListFromRange(scene, monInfo.posX, monInfo.posY, 1, 1, 1)
+		if nMonsterList then
+			local boPos = true
+			for _, monsPtr in ipairs(nMonsterList) do
+				local id = Actor.getIntProperty(monsPtr, PROP_ENTITY_ID)
+				if id == monInfo.nMonsterID then
+					boPos = false
+				end
+			end
+			if boPos then
+				mon = monInfo
+				break
+			end
+		else
+			mon = monInfo
+			break
+		end
+	end
+	--crystalGuardMon[nCrystalCount+1]
+	local nMonster = Fuben.createMonster(hScene, mon.nMonsterID, mon.posX, mon.posY, mon.nLiveTime)
+	if not nMonster then return end
+
+	Actor.setNpcGuildId(nMonster,nGuildId)
+	Actor.setDyanmicValue(nMonster, crystalId)
+
+	local nSceneId = cityInfo.enterScene.sid
+	local sSceneName = Fuben.getSceneNameById(nSceneId)
+	--local sMonName = Actor.getName(nMonster)
+	local strEvent = string.format(Lang.GuildLang.z00152,Actor.getName(sysarg),sSceneName,cunsumeGuildCoin)
+	Actor.addEventRecord(sysarg,strEvent,31,cunsumeGuildCoin,0,0,Actor.getName(sysarg),sSceneName)
+	System.changeGuildCoin(nGuildId, -cunsumeGuildCoin)
+
+	nCrystalKeeperFlag = nCrystalKeeperFlag + nPos
+	tmpTable[13] = nCrystalKeeperFlag
+
+	SaveNpcOccupation(btCityId, tmpTable)
+
+	Actor.sendTipmsg(sysarg, Lang.Activity.nzl0024, ttFlyTip)
+end
+
+--攻击水晶
+function OnAttackNpcOccCrystal(pMonster, pKiller, monId)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+	
+	local nSceneId = Actor.getSceneId(pMonster)
+
+	local cityInfo = nil
+	local monInfo = nil
+	local crystalId = 0
+	for k, city in ipairs(config.city or {}) do
+		if city.enterScene.sid == nSceneId then
+			for j, mon in ipairs(city.crystalMonsters or {}) do
+				if mon.nMonsterID == monId then
+					monInfo = mon
+					crystalId = j
+					break
+				end
+			end
+			cityInfo = city
+			break
+		end
+	end
+
+	if (not monInfo) or (not cityInfo) then
+		return
+	end
+
+	local btCityId = cityInfo.id
+
+	local tmpTable = LoadNpcOccupation(btCityId)
+	local nCrystalGuildId = tmpTable[crystalId * 2 + 1]
+
+	local nHp = Actor.getIntProperty(pMonster, PROP_CREATURE_HP)
+	local nMaxHp = Actor.getIntProperty(pMonster, PROP_CREATURE_MAXHP)
+	local nHpPercentage = nHp / nMaxHp
+
+	if (nHpPercentage >= 0.49) and (nHpPercentage < 0.5) then
+		for i=1,6 do
+			System.sendGuildMsg(nCrystalGuildId, 0, Lang.Activity.nzl0025, ttChatWindow)
+		end
+	elseif (nHpPercentage >= 0.09) and (nHpPercentage < 0.1) then
+		for i=1,6 do
+			System.sendGuildMsg(nCrystalGuildId, 0, Lang.Activity.nzl0026, ttChatWindow)
+		end
+	elseif (nHpPercentage >= 0.99) and (nHpPercentage < 1) then
+		for i=1,6 do
+			System.sendGuildMsg(nCrystalGuildId, 0, string.format(Lang.Activity.nzl0029, monInfo.sName), ttChatWindow)
+		end
+	end
+end
+
+--NPC占领离开帮派
+function OnLeftNpcOccupation(sysarg,args)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+
+	local nSceneId = Actor.getSceneId(sysarg)
+
+	for k, city in ipairs(config.city or {}) do
+		if city.enterScene.sid == nSceneId then
+			local retScene = city.returnArea
+			Actor.enterScene(sysarg, retScene.sid, retScene.x, retScene.y)
+			break
+		end
+	end
+end
+
+--离开活动
+function ExitNpcOccupation(sysarg)
+	local config = NpcOccupationConfig
+	if (not config) or (not config.city) then
+		return
+	end
+	
+	local nSceneId = Actor.getSceneId(sysarg)
+
+	for k, city in ipairs(config.city or {}) do
+		if city.enterScene.sid == nSceneId then
+			local retScene = city.returnArea
+			Actor.enterScene(sysarg, retScene.sid, retScene.x, retScene.y)
+			break
+		end
+	end
+end
+
+--GM重刷远征行会地图怪物
+function GMInitNpcOccupation()
+	local dVar = System.getDyanmicVar()
+	dVar.nzlInit = nil
+
+	InitNpcOccupation()
+end

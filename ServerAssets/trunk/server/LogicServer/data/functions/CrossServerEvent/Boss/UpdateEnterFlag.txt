@@ -1,0 +1,38 @@
+﻿
+	--#include "data\config\task\CrossServer\BossConfig.txt" once --配置文件
+
+--更新跨服boss进入标志
+
+function CrossServerBossUpdateEnterFlag(nPacketID, packet)
+	--print("CrossServerUpdateEnterFlag")
+	local flag = tonumber(DataPack.readByte(packet))
+	--print(flag)
+	if flag == 1 then 
+		CallPlayerToCrossServerBoss()
+	else
+		flag = nil 
+	end
+	local dval = System.getDyanmicVar()
+	dval.CrossServerBossCanEnter = flag	--可进入跨服场景标志
+	BroadcastCrossServerBossEnterFlag()
+end
+
+function CallPlayerToCrossServerBoss()
+	local config = CrossServerBossConfig
+	if not config then return end
+	local playerList = LuaHelp.getAllActorList()  --获取在线玩家对象列表
+	if playerList == nil then return end  
+	local NPChandle = Actor.getHandle(thisNPC)
+	for i = 1, #playerList do
+		local player = playerList[i]
+		if player then
+			--判断在线玩家是否符合等级和是否在副本 
+			if Actor.getIntProperty(player, PROP_CREATURE_LEVEL) >= config.LimitLevel --[[and Actor.getFubenId(player) == 0--]] then
+				local userId = Actor.getIntProperty(player, PROP_ENTITY_ID)
+				Actor.messageBox(player,NPChandle,userId,Lang.TaskTalk.kf0023,Lang.TaskTalk.kf0015.."/GoCrossServerBossServer",Lang.TaskTalk.kf0016.."/Cancel",nil,20*1000,1,"跨服BOSS战")
+			end
+		end   
+	end
+end
+
+CrossServerHandlerDispatcher.registerHander(BaseTypes.CsPacketId.csBossEnterFlag, CrossServerBossUpdateEnterFlag)

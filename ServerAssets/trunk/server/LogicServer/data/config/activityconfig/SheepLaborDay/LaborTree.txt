@@ -1,0 +1,98 @@
+LaborTreeConfig = 
+{
+	--羊年五一活动神树配置
+	actTime = {2015, 4, 30, 0, 0, 0,  2015, 5, 3, 23, 59, 59},	--活动时间范围
+	needVal = 2500, --培养值1000的倍数开始刷BOSS
+	level = 50, --需要等级
+	everydayNum = 500, --每天自动减去培养值
+	delaytime = 1860, --31分钟
+	remVal = 500, --30分钟不杀死就扣培养值
+	bossPos = {x1=125, y1=255, x2=155, y2=285,}, --虫子随机范围
+	times = 1800, --存活时间
+	bossId = 1597, --虫子ID
+	bossNum = 35, --虫子数量
+	bossId = 1598, --虫子ID
+	bossNum = 15, --虫子数量
+	sharkVal = 50, --每次摇晃扣除个人贡献值
+	
+	expNum = {type = 20, id = 3, count = 500, quality = 0},--浇水施肥得到经验
+	
+	
+	--神树的进度
+	cakeprogress = 
+	{
+		{cakeid = 196, num = 0    }, --兑换材料需要达到的数量
+		{cakeid = 197, num = 3000 },
+		{cakeid = 198, num = 10000},
+		{cakeid = 199, num = 20000},
+	},
+	
+	
+	NPCDoing =
+	{
+		--浇水
+		{
+			needCount=1,--需要空格
+			costAwards={type=6, count = 300000},--消耗
+			awards =--获得的奖励
+			{
+				{ type = 20, id = 3  , count = 100, propability = 5102, bind = 1,},
+				{ type = 0, id = 1371, count = 1,   propability = 612 , bind = 1,},
+				{ type = 0, id = 3231, count = 5,   propability = 612 , bind = 1,},
+				{ type = 0, id = 2602, count = 5,   propability = 612 , bind = 1,},
+				{ type = 0, id = 731 , count = 5,   propability = 612 , bind = 1,},
+				{ type = 0, id = 1402, count = 1,   propability = 408 , bind = 1,},
+				{ type = 0, id = 661 , count = 1,   propability = 612 , bind = 1,},
+				{ type = 0, id = 662 , count = 1,   propability = 409 , bind = 1,},
+				{ type = 0, id = 3342, count = 1,   propability = 612 , bind = 1,},
+				{ type = 0, id = 3304, count = 1,   propability = 409 , bind = 1,},
+			},											
+			treeVal = 1, --获得培养值
+			playerVal = 2, --获得贡献值
+			maxTimes = 10, --最高次数
+		},
+		--施肥
+		{
+			needCount=1,--需要空格
+			costAwards={type=15, count = 20},--消耗
+			awards =--获得的奖励
+			{
+				{ type = 20,id = 3   , count = 300,propability = 4098 , bind = 1,},
+				{ type = 0, id = 2136, count = 1,  propability = 820  , bind = 1,},
+				{ type = 0, id = 1991, count = 1,  propability = 820  , bind = 1,},
+				{ type = 0, id = 2910, count = 1,  propability = 164  , bind = 1,},
+				{ type = 0, id = 2603, count = 1,  propability = 820  , bind = 1,},
+				{ type = 0, id = 2627, count = 2,  propability = 820  , bind = 1,},
+				{ type = 0, id = 3232, count = 1,  propability = 820  , bind = 1,},
+				{ type = 0, id = 3303, count = 1,  propability = 328  , bind = 1,},
+				{ type = 0, id = 918 , count = 1,  propability = 490  , bind = 1,},
+				{ type = 0, id = 2276, count = 1,  propability = 820  , bind = 1,},
+			},													
+			treeVal = 5, --获得培养值
+			playerVal = 5, --获得贡献值
+			maxTimes = 10, --最高次数			
+		},
+		--摇晃
+		{
+			needCount=1,--需要空格
+			costAwards={type=15, count = 10},--消耗
+			awards =--获得的奖励
+			{
+				{ type = 0, id = 664 , count = 1, propability = 1175, bind = 1,},
+				{ type = 0, id = 663 , count = 1, propability = 1468, bind = 1,},
+				{ type = 0, id = 414 , count = 1, propability = 1468, bind = 1,},
+				{ type = 0, id = 415 , count = 1, propability = 734 , bind = 1,},
+				{ type = 0, id = 416 , count = 1, propability = 294 , bind = 1,},
+				{ type = 0, id = 1371, count = 2, propability = 1468, bind = 1,},
+				{ type = 0, id = 3302, count = 1, propability = 734 , bind = 1,},
+				{ type = 0, id = 3303, count = 1, propability = 1468, bind = 1,},
+				{ type = 0, id = 2195, count = 1, propability = 15  , bind = 0,},
+				{ type = 0, id = 2910, count = 1, propability = 1175, bind = 1,},
+				{ type = 0, id = 3454, count = 1, propability = 1   , bind = 1,},
+			},
+			treeVal = 0, --获得培养值
+			playerVal = -50, --扣除贡献值			
+		},
+	},
+	
+}

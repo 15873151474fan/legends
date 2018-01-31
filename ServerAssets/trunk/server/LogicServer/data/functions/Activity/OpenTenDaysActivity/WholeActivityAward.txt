@@ -1,0 +1,21 @@
+﻿--lua script
+
+--全民活动的奖励
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+EventCallDispatcher.HandlerWholeAwardOp = function (sysarg, args)
+	if args[1] == nil then return end   --第1个参数 
+	local nDays = args[1]
+	local nLevel = args[2]
+
+	if nDays < 1 or nDays > table.getn(OpenServerConfig.activitys) then return end
+
+	if Awards.CheckBagGridCount(sysarg,OpenServerConfig.activitys[nDays].allAwards) then
+		Awards.Give(sysarg,OpenServerConfig.activitys[nDays].allAwards,57,Lang.Activity.k00024)
+	end
+end
+
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeWholeActivityAwards, EventCallDispatcher.HandlerWholeAwardOp)

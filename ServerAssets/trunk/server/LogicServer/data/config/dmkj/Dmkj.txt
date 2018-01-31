@@ -1,0 +1,235 @@
+﻿--luascript
+
+--盗梦空间相关的配置
+
+--#include "..\..\language\LangCode.txt"
+
+--修改配置后需要刷新命令
+-- @nreload dmkj	--服务器重启读取配置
+-- @callf sys RefreshDmkjLib	--重新加载盗梦库 在线玩家刷新盗梦列表
+
+
+DmkjConf=
+{
+	--RefreshYb={1,2,4}, --元宝刷新，废弃
+	DmParam=
+	{
+		{
+			{count=1, yb=200, item= {id= 850, count= 1},},
+				--count:表示梦境1的盗梦是1次机会，yb:花费10元宝，item:盗梦替换道具{id:物品ID， count:物品数量} 有道具且数量满足则优先消耗道具
+			{count=10,yb=1920,},
+			{count=50,yb=9000,},
+		},
+	},
+
+	MjName=
+	{
+		Lang.ScriptTips.dm007,
+	},
+
+	MjAward=
+		--梦阶奖励物品
+	{
+		{sp=10000,ep=20000,itemid=782,quality=0},
+			--sp和ep是梦阶1所需要的点数的范围，645是奖励的物品id，以下类推
+		{sp=20000,ep=30000,itemid=464,quality=0},
+		{sp=30000,ep=40000,itemid=465,quality=0},
+		{sp=40000,ep=50000,itemid=466,quality=0},
+		{sp=50000,ep=2000000,itemid=797,quality=0},
+			--200000是故意设置一个非常大的数字，不可能达到的
+	},
+	
+	MjPoint=1,	--每花费1元宝获得1点梦阶度
+	
+	--[[
+	TimeLimitItem=	--有时间限制的物品
+	{
+		hour=0,		--被抽中的间隔时间
+		item1=0,	--物品1
+		item2=0,	--最多2个物品
+	},
+	--]]
+	
+	FirstDmIndex = 1,	--首次盗梦库索引FirstDmIndex配置为0则不使用首次盗梦,
+	
+	ItemLibs =
+	{
+
+----#include "DmkjLib\dmkjlib_1.txt" once
+----#include "DmkjLib\dmkjlib_2.txt" once
+--#include "DmkjLib\dmkjlib_3.txt" once
+----#include "DmkjLib\dmkjlib_4.txt" once
+----#include "DmkjLib\dmkjlib_5.txt" once
+
+	},
+	
+	PointChange = {--积分兑换
+    
+     {--男女兑换 
+        --1装装备 
+        { 
+        job=1, --对应什么职业可兑换 
+        Consume = { ItemId = 57, NeedPoint = 10,},--需要的装备ID以及积分消耗(不需要装备或者不需要寻宝积分的配置0就行了) 
+        Award = {type = 0, id = 72, count = 1, quality = 0, strong = 0,bind=1},--鎏金战甲(女)
+        },
+		{ 
+        job=1, --对应什么职业可兑换 
+        Consume = { ItemId = 72, NeedPoint = 10,},
+        Award = {type = 0, id = 57, count = 1, quality = 0, strong = 0,bind=1},--鎏金战甲(男)
+        },
+        {
+        job=2,
+        Consume = { ItemId = 87, NeedPoint = 10,},
+        Award = {type = 0, id = 102, count = 1, quality = 0, strong = 0,bind=1},--碧玺法袍(女)
+        },
+		{
+		job=2,
+        Consume = { ItemId = 102, NeedPoint = 10,},
+        Award = {type = 0, id = 87, count = 1, quality = 0, strong = 0,bind=1},--碧玺法袍(男)
+        },
+        {
+        job=3,
+        Consume = { ItemId = 117, NeedPoint = 10,},
+        Award = {type = 0, id = 132, count = 1, quality = 0, strong = 0,bind=1},--岚空道铠(女)
+        },
+        {
+		job=3,
+        Consume = { ItemId = 132, NeedPoint = 10,},
+        Award = {type = 0, id = 117, count = 1, quality = 0, strong = 0,bind=1},--岚空道铠(男)
+        },
+		
+		--2装装备
+		{ 
+        job=1, --对应什么职业可兑换 
+        Consume = { ItemId = 58, NeedPoint = 10,}, 
+        Award = {type = 0, id = 73, count = 1, quality = 0, strong = 0,bind=1},--玄阳战甲(女)
+        },
+		{ 
+        job=1, --对应什么职业可兑换 
+        Consume = { ItemId = 73, NeedPoint = 10,}, 
+        Award = {type = 0, id = 58, count = 1, quality = 0, strong = 0,bind=1},--玄阳战甲(男)
+        },
+        {
+        job=2,
+        Consume = { ItemId = 88, NeedPoint = 10,},
+        Award = {type = 0, id = 103, count = 1, quality = 0, strong = 0,bind=1},--琉璃法袍(女)
+        },
+		{
+		job=2,
+        Consume = { ItemId = 103, NeedPoint = 10,},
+        Award = {type = 0, id = 88, count = 1, quality = 0, strong = 0,bind=1},--琉璃法袍(男)
+        },
+        {
+        job=3,
+        Consume = { ItemId = 118, NeedPoint = 10,},
+        Award = {type = 0, id = 133, count = 1, quality = 0, strong = 0,bind=1},--两仪道铠(女)
+        },
+        {
+		job=3,
+        Consume = { ItemId = 133, NeedPoint = 10,},
+        Award = {type = 0, id = 118, count = 1, quality = 0, strong = 0,bind=1},--两仪道铠(女)
+        },
+ 
+		--3装装备
+		{ 
+        job=1, --对应什么职业可兑换 
+        Consume = { ItemId = 59, NeedPoint = 10,},
+        Award = {type = 0, id = 74, count = 1, quality = 0, strong = 0,bind=1},--轰天战甲(女)
+        },
+		{ 
+        job=1, --对应什么职业可兑换 
+        Consume = { ItemId = 74, NeedPoint = 10,}, 
+        Award = {type = 0, id = 59, count = 1, quality = 0, strong = 0,bind=1},--轰天战甲(男)
+        },
+        {
+        job=2,
+        Consume = { ItemId = 89, NeedPoint = 10,},
+        Award = {type = 0, id = 104, count = 1, quality = 0, strong = 0,bind=1},--焚天法袍(女)
+        },
+		{
+		job=2,
+        Consume = { ItemId = 104, NeedPoint = 10,},
+        Award = {type = 0, id = 89, count = 1, quality = 0, strong = 0,bind=1},--焚天法袍(男)
+        },
+        {
+        job=3,
+        Consume = { ItemId = 119, NeedPoint = 10,},
+        Award = {type = 0, id = 134, count = 1, quality = 0, strong = 0,bind=1},--诛天道铠(女)
+        },
+        {
+		job=3,
+        Consume = { ItemId = 134, NeedPoint = 10,},
+        Award = {type = 0, id = 119, count = 1, quality = 0, strong = 0,bind=1},--诛天道铠(男)
+        }, 
+	   
+     },
+     {--材料
+
+        {
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 13,},
+        Award = {type = 0, id = 757, count = 1, quality = 0, strong = 0,bind=1},--挖掘套装
+        },
+        {
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 25,},
+        Award = {type = 0, id = 925, count = 1, quality = 0, strong = 0,bind=1},--血印碎晶(中)
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 50,},
+        Award = {type = 0, id = 926, count = 1, quality = 0, strong = 0,bind=1},--血印碎晶(大)
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 15,},
+        Award = {type = 0, id = 928, count = 1, quality = 0, strong = 0,bind=1},--玄盾碎晶(中)
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 60,},
+        Award = {type = 0, id = 929, count = 1, quality = 0, strong = 0,bind=1},--玄盾碎晶(大)
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 13,},
+        Award = {type = 0, id = 922, count = 1, quality = 0, strong = 0,bind=1},--护镜碎晶(中)
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 25,},
+        Award = {type = 0, id = 923, count = 1, quality = 0, strong = 0,bind=1},--护镜碎晶(大)
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 50,},
+        Award = {type = 0, id = 920, count = 1, quality = 0, strong = 0,bind=1},--星珠碎晶(大)
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 25,},
+        Award = {type = 0, id = 1145, count = 1, quality = 0, strong = 0,bind=1},--特戒图纸
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 25,},
+        Award = {type = 0, id = 1146, count = 1, quality = 0, strong = 0,bind=1},--灵宝结晶
+        },
+		{
+        job=0,
+        Consume = { ItemId = 0, NeedPoint = 25,},
+        Award = {type = 0, id = 1147, count = 1, quality = 0, strong = 0,bind=1},--灵宝图纸
+        },
+
+     },
+     	
+	},
+	
+	PointChangeRate = 1,--元宝兑换积分的比率 
+	
+	
+	
+	
+	
+
+}

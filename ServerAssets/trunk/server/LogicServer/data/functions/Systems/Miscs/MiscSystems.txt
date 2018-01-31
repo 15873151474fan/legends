@@ -1,0 +1,88 @@
+﻿--杂项子系统消息实现 
+
+--子消息号的用的表
+local MiscsImplement = 
+{
+} 
+MiscsImplement.main = function (sysarg, systemid, msgid, packet)
+  if MiscsImplement[msgid] then
+    --print("处理Misc子系统:"..msgid)
+    MiscsImplement[msgid](sysarg, msgid, packet)
+  end
+end    
+
+--[[
+    注册杂项子系统消息处理函数，函数的形式为function (sysarg, msgid, packet)
+]]
+MiscsImplement.registerMsgHandler = function (msgid, proc)
+  if MiscsImplement[msgid] then
+    return false
+  else
+    MiscsImplement[msgid] = proc
+    return true
+  end
+end
+--[[
+    取消已注册的子系统消息处理函数
+]]
+MiscsImplement.unregisterMsgHandler = function (msgid, proc)
+  if MiscsImplement[msgid] == proc then
+    MiscsImplement[msgid] = nil
+    return true
+  else
+    return false
+  end
+end     
+
+	--#include "FBRewardMsgHandler.txt" once    
+	--#include "ArchiveTitleHandler.txt" once
+	--#include "EnterChallengeSceneHandler.txt" once
+--#include "QuestTargetSpaceMoveHandler.txt" once
+--#include "RemoveScriptDelayMsg.txt" once
+	--#include "GetLogOutCountMsg.txt" once
+--#include "GetLogOutExpMsg.txt" once
+	--#include "SetUpSystemDataMsg.txt" once
+	--#include "StageChuanSongHandler.txt" once
+--#include "BossOnTimeToClienMsg.txt" once			--发Boss状态给前端
+--#include "GetAdvanceRewardHandler.txt" once
+--#include "FlowerMsgHandler.txt" once
+	--#include "ModifyCampDeclaration.txt" once
+	--#include "OpenCampTask.txt" once
+	--#include "TelToCampEquipNPC.txt" once
+	--#include "SlotMachineGetWealth.txt" once	--老虎机开奖
+--#include "ChangeIcon.txt" once
+	--#include "impeachCampKing.txt" once
+	--#include "ApplyLeaderConquest.txt" once
+--#include "VIPSystem.txt" once
+	--#include "CombatSpiritExchangeHandler.txt" once
+--#include "ActorReliveHandler.txt" once
+--#include "GetActivityAward.txt" once
+	--#include "CampDartClienMsg.txt" once
+--#include "SPUpdateInfo.txt" once
+	--#include "WuLinZhengBaHandler.txt" once
+	--#include "AthleticsPointHandler.txt" once 
+--#include "SaveGameAddress.txt" once
+
+--#include "LeaveActivityScene.txt" once
+
+--#include "NewBieGuilde.txt" once
+
+--#include "SpecialInteract.txt" once	--特殊交互
+--#include "GetWorkDayAward.txt" once	--快乐上班领取
+--#include "Voucher.txt" once	--代金劵
+--#include "..\PaySalesSystem\PaySales.txt" once --
+--#include "Festival.txt" once	--节日活动
+
+--#include "..\TimeReward\Salary.txt" once --工资
+--#include "..\PaySalesSystem\GroupOnHandler.txt"	--团购
+--#include "..\PaySalesSystem\PayGifts.txt" --充值大赠送
+--#include "..\..\Activity\SnowArea\ThrowDice.txt" --雪域帅子
+--#include "..\..\EquipEnhance\ShieldUpgrade.txt" once 	--护盾升级
+--#include "shieldExchange.txt" once --盾元符兑换
+--#include "data\functions\Systems\Miscs\EverDayDrawYuanBaoGift.txt" once --每日充值礼包
+--#include "data\functions\Systems\Miscs\QueryTeHuiLiBaoCanBuy.txt" once --查询特惠礼包是否可以购买 
+--#include "data\functions\Systems\Miscs\Collect.txt" once --收藏游戏
+
+
+ 
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.miscsSystem, MiscsImplement.main)

@@ -1,0 +1,44 @@
+﻿--lua script
+{
+	id = 2,			-- 屠夫烦恼
+	parentid = 1,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = false,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name2,
+	content = Lang.Quest.desc2,
+
+	prom = { type = 0, scene = Lang.SceneName.s00001, npc = Lang.EntityName.n00005 },
+	comp = { type = 0, scene = Lang.SceneName.s00001, npc = Lang.EntityName.n00006 },
+	target = {
+		{
+			type = 0, id = 6, count = 1, rewardId = 0,useList = false,
+			location = {
+				sceneid = 1, x= 104,y = 120,entityName = Lang.EntityName.m6,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+        { type = 0, id = 1, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 437, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 1200, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk21,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk21,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip21,
+	},
+	PassMsTip = {
+	},
+},

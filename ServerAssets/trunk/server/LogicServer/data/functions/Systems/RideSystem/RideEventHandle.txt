@@ -1,0 +1,31 @@
+--lua script
+--#include "RideSystemOp.txt" once
+
+--处理坐骑相关
+--[[
+local	cOnUpRideLevel = 1,				--坐骑进阶
+--]]
+
+RideOpFuncList = {}
+
+EventCallDispatcher.HandlerRideOp = function (sysarg, args)
+ --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = RideOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--坐骑进阶
+RideOpFuncList[1] = function (sysarg,args)
+	OnUpRideLevelOp(sysarg,args)
+end
+
+--坐骑觉醒
+RideOpFuncList[2] = function (sysarg,args)
+	OnRideAwakeOp(sysarg,args)
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeRideOp, EventCallDispatcher.HandlerRideOp)

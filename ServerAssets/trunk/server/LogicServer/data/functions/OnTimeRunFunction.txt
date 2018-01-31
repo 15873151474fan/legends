@@ -1,0 +1,101 @@
+--定时调用的脚本，
+--所有定时调用的脚本全部配置在config/misc/ScriptTimer.txt里，
+--让策划配置在某个时间点调用什么函数，而具体调用的简单函数写在这个文件里 
+--比如刷新定时抢购的商品在12点刷新等
+
+	--#include "data\functions\CombatChallange\CombatChallangeOp.txt" once
+
+--刷新商城的动态商品
+function  refreshStore(labelId)
+    System.refreshStore(labelId)
+end
+
+--定时扣除繁荣度的情况
+function GuildFrPerDayRefresh()
+	System.setGuildPerDayFr()
+end
+
+--定时给予战力竞技的奖励
+function CombatAwardPerDayRefresh()
+	FreshCombatAward()
+end
+
+--定时给予战力竞技的提示
+function CombatAwardPerDayNotice()
+	CombatNoticeOnTime()
+end
+
+--刷新元宝消费排行
+function YbConsumeRankFresh()
+	System.rfeshConsumeRank()
+end
+
+--统计玩家在地图地人数
+function CountActorSceneNum()
+	System.sendActorSceneInfoToLog()
+end
+
+--发送怪的死亡次数到后台
+function CountMonsterDeadToLog()
+	System.sendMonsterDeadToLog()
+end
+
+--发送物品产出统计
+function CountItemOutPutToLog()
+	System.sendItemOutPutToLog()
+end
+
+--新服开服双倍经验公告
+function OnOpenBroadDoubleExpMsg()
+	System.broadcastTipmsg(Lang.Activity.com018,8)
+end
+
+--每半小时保存金币、元宝等日志
+function SaveMoneyComsumeLog()
+	System.sendMoneyConsumeLog()
+end
+
+--关闭开服新活动
+function CloseNewActivityState()
+	System.setOpenNewActivityState(0)
+end
+
+--关闭开服新活动
+function SendCloseNewActivityTips()
+	System.broadcastTipmsg(Lang.Activity.new08,2+128)
+end
+
+--保存积分排行榜
+function SaveGodWealthRank()
+	local ranking = Ranking.getRanking("GodWealthRank")
+	if ranking then
+		Ranking.save(ranking,"GodWealthRank.txt")
+	end
+end
+
+--开启定时杀怪倍率奖励
+function OpenAcriptRate()
+	System.setScriptExpRate(2.0)
+end
+
+--开启定时杀怪倍率奖励
+function CloseAcriptRate()
+	System.setScriptExpRate(0.0)
+end
+
+function ClearActorFubenData()
+	local pActor = System.getEntityPtrByActorID(1208000379)
+	if pActor then
+		print("ClearActorFubenData")
+		--每天副本次数 
+		ResetActorDataPerDay(pActor) 
+	end
+end
+
+--[[
+function clearMonsterState()
+	local hScene = Fuben.getSceneHandleById(8, 0)
+	Fuben.clearMonster(hScene,0)
+end
+]]
+--table.insert(FinaFnTable,SaveGodWealthRank)

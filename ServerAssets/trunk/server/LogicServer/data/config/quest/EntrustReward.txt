@@ -1,0 +1,89 @@
+﻿	--lua script
+
+EntrustReward =
+{
+	BookQuestId = 8063,			--天书任务id
+	BookQuestLevel = 50,		--最小等级
+	AgainAccpetTimes = 10,		--每天额外可接的次数
+	CoinTimes = 3000,				--金币刷星最多次数
+	Levels = {					--每个等级区域对应最高刷星等级
+		--区域段的配置信息：最小等级，最大等级，能刷到最高级数，领取2倍奖励绑金数，领取3倍绑金数，刷星一次消耗绑金,刷星一次消耗元宝,增加次数消耗元宝,立即完成消耗元宝 
+		{min=50,max=50,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=51,max=51,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=52,max=52,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=53,max=53,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=54,max=54,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=55,max=55,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=56,max=56,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=57,max=57,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=58,max=58,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=59,max=59,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=60,max=60,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=61,max=61,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=62,max=62,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=63,max=63,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=64,max=64,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=65,max=65,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=66,max=66,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=67,max=67,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=68,max=68,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=69,max=69,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=70,max=70,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=71,max=71,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=72,max=72,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=73,max=73,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=74,max=74,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=75,max=75,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=76,max=76,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=77,max=77,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=78,max=78,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=79,max=79,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+		{min=80,max=80,maxLevel=10, doubleAward = 300000, thriceAward = 600000, flushCoin = 50000, flushYb=1, againAcceptBaseYb = 100, againAcceptBindBaseYb = 10000, speedFinYb = 100},
+	},
+	LevelRate = 0.03,    	--公式:(1+等级)*等级/2*系数+(100%-系数)
+	YbFlushLevels = {
+		--停留概率, 升1级概率,升2级概率,....
+		{0,81,10,5,3,1,0,0,0,0},
+		{0,10,75,9,4,2,0,0,0,0},
+		{0,0,18,70,8,3,1,0,0,0},
+		{0,0,0,25,65,7,2,1,0,0},
+		{0,0,0,0,33,60,6,1,0,0},
+		{0,0,0,0,0,38,56,4,1,1},
+		{0,0,0,0,0,0,43,52,4,1},
+		{0,0,0,0,0,0,0,80,19,1},
+		{0,0,0,0,0,0,0,0,80,20},
+		{0,0,0,0,0,0,0,0,0,100},
+		{53,32,8,1,1,1,1,1,1,1},
+		{57,30,7,1,1,1,1,1,1},
+		{61,28,6,1,1,1,1,1},
+		{65,26,5,1,1,1,1},
+		{69,24,4,1,1,1},
+		{73,22,3,1,1},
+		{76,21,2,1},
+		{79,20,1},
+		{70,30},
+		{70,30},
+	},
+	CoinFlushLevels = {
+		--停留概率, 升1级概率,升2级概率,....
+		{0,10,15,40,20,14,1},
+		{10,25,30,30,5},
+		{10,40,20,18,12},
+		{10,40,24,18,8},
+		{15,31,36,18},
+		{15,30,40,10,5},
+		{20,40,25,15},
+		{50,40,10},
+		{70,30},
+		{70,30},
+	},
+	MinLvToSurpId = 11,				--至少这个等级才会出现惊喜
+	SurpriseRate = 5000,				--万分数
+	SurpriseItemId = {
+		--最小星级，最大星级，{概率1，物品ID1,概率2，物品ID2,...}
+		{min = 9, max = 10, itemRate = {20,1183,20,1182,20,1181,}},
+		{min = 11, max = 12, itemRate = {20,1124,15,1183,15,1182,15,1181,}},
+		{min = 13, max = 15, itemRate = {25,1124,10,1183,10,1182,10,1181,10,816}},
+		{min = 16, max = 20, itemRate = {35,665,20,1124,5,1183,5,1182,5,1181,10,816}},
+	},
+}

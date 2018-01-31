@@ -1,0 +1,817 @@
+--lua script
+
+--求婚
+function OnProposeMarriage(sysarg)
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	
+	if nCoin < MarriedConfig.weddingNeedCoin then		--金币不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00022,ttFlyTip)
+		return
+	end
+	
+	local teamid = Actor.getTeamId(sysarg)
+	
+	if teamid == 0 then		--没有组队
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00023,ttFlyTip)
+		return
+	end
+
+	local actList = LuaHelp.getTeamMemberList(sysarg)
+	if actList == nil then
+		return
+	end
+	
+	local tCount = table.getn(actList)
+	if tCount ~= 2 then					--队伍人数不是2人
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00024,ttFlyTip)
+		return
+	end
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local mySex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+
+	local player
+	for i = 1, #actList do
+		local pActor = actList[i]
+
+		if pActor ~= nil then
+			local nId = Actor.getIntProperty(pActor,PROP_ENTITY_ID)
+
+			if nId ~= nActorId then
+				if not Actor.isInSameScreen(sysarg,pActor) then			--有成员不再附近
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00025,ttFlyTip)
+					return
+				end
+
+				local nSex = Actor.getIntProperty(pActor,PROP_ACTOR_SEX)
+				
+				if nSex == mySex then		--同性别
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00026,ttFlyTip)
+					return
+				end
+
+				player = pActor
+			end
+		end
+	end
+
+	if player ~= nil then
+		
+		local str = string.format(Lang.GuildLang.m00027,Actor.getName(player))
+	
+		str = str.."\\<#BL"..Lang.GuildLang.f00042.."/@OnChinaRequestMarry>"				--求婚
+		str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"					--
+		
+		return str
+
+	end
+end
+
+--中式、西式
+function OnChinaRequestMarry(sysarg)
+	OnRequestMarry(sysarg,1)
+end
+
+--天宫
+function OnProposeSkyMarriage(sysarg)
+	local teamid = Actor.getTeamId(sysarg)
+	
+	if teamid == 0 then		--没有组队
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00023,ttFlyTip)
+		return
+	end
+
+	local actList = LuaHelp.getTeamMemberList(sysarg)
+	if actList == nil then
+		return
+	end
+	
+	local tCount = table.getn(actList)
+	if tCount ~= 2 then					--队伍人数不是2人
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00024,ttFlyTip)
+		return
+	end
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local mySex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+
+	local player
+	for i = 1, #actList do
+		local pActor = actList[i]
+
+		if pActor ~= nil then
+			local nId = Actor.getIntProperty(pActor,PROP_ENTITY_ID)
+
+			if nId ~= nActorId then
+				if not Actor.isInSameScreen(sysarg,pActor) then			--有成员不再附近
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00025,ttFlyTip)
+					return
+				end
+
+				local nSex = Actor.getIntProperty(pActor,PROP_ACTOR_SEX)
+				
+				if nSex == mySex then		--同性别
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00026,ttFlyTip)
+					return
+				end
+
+				player = pActor
+			end
+		end
+	end
+
+	if player ~= nil then
+		
+		local str = string.format(Lang.GuildLang.m00027,Actor.getName(player))
+	
+		str = str.."\\<#BL"..Lang.GuildLang.f00042.."/@OnSkyRequestMarry>"				--求婚
+		str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"					--
+		
+		return str
+
+	end
+end
+
+--天宫
+function OnSkyRequestMarry(sysarg)
+	OnRequestMarry(sysarg,2)
+end
+
+--确定求婚
+function OnRequestMarry(sysarg,nType)
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	
+	if nCoin < MarriedConfig.weddingNeedCoin then		--金币不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00022,ttFlyTip)
+		return
+	end
+	
+	local teamid = Actor.getTeamId(sysarg)
+	
+	if teamid == 0 then		--没有组队
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00023,ttFlyTip)
+		return
+	end
+
+	local actList = LuaHelp.getTeamMemberList(sysarg)
+	if actList == nil then
+		return
+	end
+	
+	local tCount = table.getn(actList)
+	if tCount ~= 2 then					--队伍人数不是2人
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00024,ttFlyTip)
+		return
+	end
+	
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local mySex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+
+	local player
+	for i = 1, #actList do
+		local pActor = actList[i]
+
+		if pActor ~= nil then
+			local nId = Actor.getIntProperty(pActor,PROP_ENTITY_ID)
+
+			if nId ~= nActorId then
+				if not Actor.isInSameScreen(sysarg,pActor) then			--有成员不再附近
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00025,ttFlyTip)
+					return
+				end
+
+				local nSex = Actor.getIntProperty(pActor,PROP_ACTOR_SEX)
+				
+				if nSex == mySex then		--同性别
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00026,ttFlyTip)
+					return
+				end
+
+				player = pActor
+			end
+		end
+	end
+	
+	if player ~= nil then
+		if Actor.getSocialCurNum(player,6) > 0 then
+			Actor.sendTipmsg(sysarg,Lang.GuildLang.m00028,ttFlyTip)
+			return
+		end
+
+		if Actor.getSocialCurNum(sysarg,6) > 0 then
+			Actor.sendTipmsg(sysarg,Lang.GuildLang.m00029,ttFlyTip)
+			return
+		end
+		
+		local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+		if nLevel < MarriedConfig.marryLevel then
+			Actor.sendTipmsg(sysarg,string.format(Lang.GuildLang.m00091,MarriedConfig.marryLevel),ttFlyTip)
+			return
+		end
+
+		local tagLevel = Actor.getIntProperty(player,PROP_CREATURE_LEVEL)
+		if tagLevel < MarriedConfig.marryLevel then
+			Actor.sendTipmsg(sysarg,string.format(Lang.GuildLang.m00092,MarriedConfig.marryLevel),ttFlyTip)
+			return
+		end
+		
+		if nType ==  2 then		--是否有天宫礼服或结婚凭证
+			
+		end
+
+		Actor.changeMoney(sysarg,1,-MarriedConfig.weddingNeedCoin,823,Lang.LogTips.yb022)
+
+		local pack = DataPack.allocPacket(player, 41, 12)	--求婚
+		if (pack ~= nil) then
+			DataPack.writeUInt(pack,nActorId)
+			DataPack.writeString(pack,Actor.getName(sysarg))
+			DataPack.flush(pack)
+		end	
+	end
+
+	Actor.closeNPCDialog(sysarg)
+end
+
+--购买普通花篮1个（5元宝）
+function OnBuyOneFlowers(sysarg)
+	BuyFlowersCommon(sysarg,1)
+end
+
+--购买普通花篮10个（48元宝）
+function OnBuyTenFlowers(sysarg)
+	BuyFlowersCommon(sysarg,2)
+end
+
+--购买行会花篮1个（10元宝）
+function OnBuyGuildFlowers(sysarg)
+	BuyFlowersCommon(sysarg,3)
+end
+
+--购买行会花篮10个（88元宝）
+function OnBuyTenGuildFlowers(sysarg)
+	BuyFlowersCommon(sysarg,4)
+end
+
+--全场普通花篮（888元宝）
+function OnBuyAllSceenFlowers(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	
+	local flowersConfig = MarriedConfig.FlowersBag[5]
+	
+	local nIndex = GetSceneIndex(sysarg)
+	if nIndex == 0 then return end
+
+	if nYb < flowersConfig.needYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+	
+	Actor.changeMoney(sysarg,3,-flowersConfig.needYb,823,Lang.GuildLang.m00038)
+
+	local nSceenHandle = Actor.getSceneHandle(sysarg)
+	for i=1,table.getn(flowersConfig.FlowersMonster[nIndex]) do
+		Fuben.destroyLandscape(nSceenHandle,flowersConfig.FlowersMonster[nIndex][i].nMonsterID)
+	end
+
+	for i=1,table.getn(flowersConfig.FlowersMonster[nIndex]) do
+		local nMonster = Fuben.createLandscape(nSceenHandle,flowersConfig.FlowersMonster[nIndex][i].nMonsterID,flowersConfig.FlowersMonster[nIndex][i].posX1,flowersConfig.FlowersMonster[nIndex][i].posY,flowersConfig.FlowersMonster[nIndex][i].nLiveTime * 1000,Actor.getName(sysarg))
+		--Actor.setMonsterName(nMonster,Actor.getName(sysarg))
+	end
+
+	local nSceneid = Actor.getSceneId(sysarg)
+	local sname = Fuben.getSceneNameById(nSceneid)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00115,Actor.getName(sysarg),sname),2)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00116,Actor.getName(sysarg),sname,Actor.getName(sysarg)),128)
+end
+
+--全场行会花篮（1888元宝）
+function OnBuyAllSceenGuildFlowers(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	
+	local flowersConfig = MarriedConfig.FlowersBag[6]
+
+	if nYb < flowersConfig.needYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+
+	local nIndex = GetSceneIndex(sysarg)
+	if nIndex == 0 then return end
+
+	Actor.changeMoney(sysarg,3,-flowersConfig.needYb,823,Lang.GuildLang.m00038)
+
+	local nSceenHandle = Actor.getSceneHandle(sysarg)
+	for i=1,table.getn(flowersConfig.FlowersMonster[nIndex]) do
+		Fuben.destroyLandscape(nSceenHandle,flowersConfig.FlowersMonster[nIndex][i].nMonsterID)
+	end
+
+	for i=1,table.getn(flowersConfig.FlowersMonster[nIndex]) do
+		local nMonster = Fuben.createLandscape(nSceenHandle,flowersConfig.FlowersMonster[nIndex][i].nMonsterID,flowersConfig.FlowersMonster[nIndex][i].posX1,flowersConfig.FlowersMonster[nIndex][i].posY,flowersConfig.FlowersMonster[nIndex][i].nLiveTime * 1000,Actor.getName(sysarg))
+		--Actor.setMonsterName(nMonster,Actor.getName(sysarg))
+	end
+
+	local nSceneid = Actor.getSceneId(sysarg)
+	local sname = Fuben.getSceneNameById(nSceneid)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00117,Actor.getName(sysarg),sname),2)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00118,Actor.getName(sysarg),sname,Actor.getName(sysarg)),128)
+
+end
+
+--购买花篮通用
+function BuyFlowersCommon(sysarg,nType)
+	if nType <= 0 or nType > table.getn(MarriedConfig.FlowersBag) then return end
+
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	
+	local flowersConfig = MarriedConfig.FlowersBag[nType]
+
+	if nYb < flowersConfig.needYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	local needCount = flowersConfig.num
+
+	if hasCount < 1 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,3,-flowersConfig.needYb,823,Lang.GuildLang.m00038)
+	
+	Actor.addItem(sysarg,flowersConfig.itemId,0,0,flowersConfig.num,0,flowersConfig.liveTime,Lang.GuildLang.m00038)
+end
+
+--购买乐队
+function BuyWeddingBand(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	
+	if nYb < MarriedConfig.buyBankNeedYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+	
+	local nIndex = GetSceneIndex(sysarg)
+	if nIndex == 0 then return end
+
+	Actor.changeMoney(sysarg,3,-MarriedConfig.buyBankNeedYb,823,Lang.GuildLang.m00041)
+	
+	local nSceenHandle = Actor.getSceneHandle(sysarg)
+
+	for i=1,table.getn(MarriedConfig.BankConfig[nIndex]) do
+		Fuben.destroyLandscape(nSceenHandle,MarriedConfig.BankConfig[nIndex][i].nMonsterID)
+	end
+
+	for i=1,table.getn(MarriedConfig.BankConfig[nIndex]) do
+		local nMonster = Fuben.createLandscape(nSceenHandle,MarriedConfig.BankConfig[nIndex][i].nMonsterID,MarriedConfig.BankConfig[nIndex][i].posX1,MarriedConfig.BankConfig[nIndex][i].posY,MarriedConfig.BankConfig[nIndex][i].nLiveTime * 1000,Actor.getName(sysarg))
+	end
+
+	local nSceneid = Actor.getSceneId(sysarg)
+	local sname = Fuben.getSceneNameById(nSceneid)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00113,Actor.getName(sysarg),sname),2)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00114,Actor.getName(sysarg),sname,Actor.getName(sysarg)),128)
+end
+
+--购买礼服
+function OnBuyChinaManDress(sysarg)
+	BuyDressCommon(sysarg,1)
+end
+
+function OnBuyChinaWomanDress(sysarg)
+	BuyDressCommon(sysarg,2)
+end
+
+function OnBuyWestManDress(sysarg)
+	BuyDressCommon(sysarg,3)
+end
+
+function OnBuyWestWoManDress(sysarg)
+	BuyDressCommon(sysarg,4)
+end
+
+function OnBuySkyManDress(sysarg)
+	BuyDressCommon(sysarg,5)
+end
+
+function OnBuySkyWomanDress(sysarg)
+	BuyDressCommon(sysarg,6)
+end
+
+
+--购买礼服通用处理
+function BuyDressCommon(sysarg,nType)
+	if nType <= 0 or nType > table.getn(MarriedConfig.DressConfig) then return end
+
+	local tmpDressConfig = MarriedConfig.DressConfig[nType]
+
+	if tmpDressConfig == nil then return end
+
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	
+	if nYb < tmpDressConfig.needYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if hasCount < 1 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+	
+	Actor.changeMoney(sysarg,3,-tmpDressConfig.needYb,823,Lang.GuildLang.m00053)
+	Actor.addItem(sysarg,tmpDressConfig.itemId,0,0,1,0,0,Lang.GuildLang.m00053)
+end
+
+--购买手捧花
+function BuyHandFlowers(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	
+	if nYb < MarriedConfig.ButHandFlowersNeedYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if hasCount < 1 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+	
+	Actor.changeMoney(sysarg,3,-MarriedConfig.ButHandFlowersNeedYb,823,Lang.GuildLang.m00056)
+	Actor.addItem(sysarg,MarriedConfig.HandFlowersId,0,0,1,0,0,Lang.GuildLang.m00056)
+end
+
+--购买结婚戒指
+function BuyWeddingRing(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+	if nYb < MarriedConfig.ringNeedYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if hasCount < 1 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,3,-MarriedConfig.ringNeedYb,823,Lang.GuildLang.m00058)
+	Actor.addItem(sysarg,MarriedConfig.ringId,0,0,1,0,0,Lang.GuildLang.m00058)
+end
+
+--购买烟花
+function BuyWeddingfire(sysarg)
+	
+end
+
+--散玫瑰花
+function BuyRoseFlowers(sysarg)
+	local gVar = System.getDyanmicVar()
+	if gVar.BuyRoseFlowersCdTime == nil then
+		gVar.BuyRoseFlowersCdTime = 0
+	end
+
+	if gVar.BuyRoseFlowersCdTime > System.getCurrMiniTime() then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00169,ttFlyTip)
+		return
+	end
+
+	gVar.BuyRoseFlowersCdTime = System.getCurrMiniTime() + MarriedConfig.BuyRoseFlowerCdTime
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+
+	if nCoin < MarriedConfig.RoseFlowersNeedYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,1,-MarriedConfig.RoseFlowersNeedYb,823,Lang.GuildLang.m00076)
+
+	local playerList = LuaHelp.getSceneActorListById(Actor.getSceneId(sysarg))	
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.playScrSceneEffectCode(player,MarriedConfig.roseEffect.id,MarriedConfig.roseEffect.time,Actor.getSceneId(player))
+			end
+		end
+	end
+	
+	local nSceneid = Actor.getSceneId(sysarg)
+	local sname = Fuben.getSceneNameById(nSceneid)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00111,Actor.getName(sysarg),sname),2)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00112,Actor.getName(sysarg),sname,Actor.getName(sysarg)),128)
+end
+
+--消耗10W金币发放
+function SendWeddingRedBag1(sysarg)
+	SendWeddingRedCommon(sysarg,1,1)
+end
+
+function SendWeddingRedBag2(sysarg)
+	SendWeddingRedCommon(sysarg,2,1)
+end
+
+function SendWeddingRedBag3(sysarg)
+	SendWeddingRedCommon(sysarg,3,3)
+end
+
+--消耗1000元宝发放
+function SendWeddingRedBag4(sysarg)
+	SendWeddingRedCommon(sysarg,4,3)
+end
+
+--金币或元宝发放通用处理
+function SendWeddingRedCommon(sysarg,nIndex,nType)
+	if nIndex <= 0 or nIndex > table.getn(MarriedConfig.RedBagConfig) then return end
+
+	local nNeedCoin = 0
+	local nUseCoin = 0		--发红包需要消耗的手续费
+
+	local sActorname=Actor.getName(sysarg) --获得发钱的人的名字
+	if nType == 1 then
+		local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+
+		nUseCoin = MarriedConfig.nUseCoin
+		if nCoin < (MarriedConfig.RedBagConfig[nIndex].needCoin + nUseCoin) then		--金币不够
+			Actor.sendTipmsg(sysarg,Lang.GuildLang.m00072,ttFlyTip)
+			return
+		end
+		nNeedCoin = MarriedConfig.RedBagConfig[nIndex].needCoin
+	else 
+		if nType == 3 then
+			local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+			
+			if nYb < MarriedConfig.RedBagConfig[nIndex].needCoin then		--元宝不够
+				Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+				return
+			end
+			nNeedCoin = MarriedConfig.RedBagConfig[nIndex].needCoin
+			
+			local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+			nUseCoin = MarriedConfig.nUseCoin
+			if nCoin < (MarriedConfig.RedBagConfig[nIndex].needCoin + nUseCoin) then		--金币不够
+				Actor.sendTipmsg(sysarg,Lang.GuildLang.m00072,ttFlyTip)
+				return
+			end
+		else
+			return
+		end
+	end
+	
+	if nNeedCoin <=0 then return end
+	
+	if Actor.changeMoney(sysarg,1,-nUseCoin,207,Lang.GuildLang.m00180) ==false then return end
+	if Actor.changeMoney(sysarg,nType,-nNeedCoin,207,Lang.GuildLang.m00018) ==false then return end
+	
+	local addTocalMoney =0 --添加的总的钱
+	
+	local playerList = LuaHelp.getSceneActorListById(Actor.getSceneId(sysarg))	
+	if playerList ~= nil then
+		local nCount = table.getn(playerList)
+		
+		local awardCoin = math.floor(nNeedCoin / nCount)
+		if nCount <=0 then return end
+		
+		--print("awardCoin="..awardCoin.."nCount="..nCount.."#playerList="..#playerList)
+		
+		--local nNum = (nNeedCoin % nCount)
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				if addTocalMoney >= nNeedCoin then return end
+				
+				Actor.playScrSceneEffectCode(player,MarriedConfig.RedBagConfig[nIndex].effectId,MarriedConfig.RedBagConfig[nIndex].effectTime,Actor.getSceneId(player))
+				Actor.changeMoney(player,nType,awardCoin,207,sActorname)
+				addTocalMoney = addTocalMoney + awardCoin
+			end
+		end
+	end
+
+	local nSceneid = Actor.getSceneId(sysarg)
+	local sname = Fuben.getSceneNameById(nSceneid)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00121,Actor.getName(sysarg),sname,nNeedCoin),2)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00122,Actor.getName(sysarg),sname,nNeedCoin,Actor.getName(sysarg)),128)
+
+end
+
+--购买喜糖
+function BuyWeddingCandy(sysarg)
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	
+	if nCoin < MarriedConfig.buyCandyNeedCoin then		--金币不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00072,ttFlyTip)
+		return
+	end
+
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if hasCount < 1 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,1,-MarriedConfig.buyCandyNeedCoin,823,Lang.GuildLang.m00073)
+	Actor.addItem(sysarg,MarriedConfig.candyItemId,0,0,1,0,0,Lang.GuildLang.m00073)
+end
+
+
+--购买喜酒
+function BuyWeddingWind(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+	if nYb < MarriedConfig.buyWindNeedYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if hasCount < 1 then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00001, 1), ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,3,-MarriedConfig.buyWindNeedYb,823,Lang.GuildLang.m00074)
+	Actor.addItem(sysarg,MarriedConfig.windItemId,0,0,1,0,0,Lang.GuildLang.m00074)
+end
+
+--获取在那个婚礼场景
+function GetSceneIndex(sysarg)
+	local nSecneId = Actor.getSceneId(sysarg)
+	
+	local nIndex = 0
+	if nSecneId == MarriedConfig.chinaSceendId then
+		nIndex = 1
+	elseif nSecneId == MarriedConfig.westSceendId then
+		nIndex = 2
+	elseif nSecneId == MarriedConfig.templeSceenId then
+		nIndex = 3
+	end
+
+	return nIndex
+end
+
+--爱的代价
+function OnBroadLoveEffect(sysarg)
+	local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+
+	if nYb < MarriedConfig.loveEffect.needYb then		--元宝不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00037,ttFlyTip)
+		return
+	end
+
+	local nIndex = GetSceneIndex(sysarg)
+	if nIndex == 0 then return end
+
+	Actor.changeMoney(sysarg,3,-MarriedConfig.loveEffect.needYb,823,Lang.GuildLang.m00074)
+	
+	if MarriedConfig.loveEffect.effectConfig[nIndex] == nil then return end
+	local tmpConfig = MarriedConfig.loveEffect.effectConfig[nIndex]
+	
+	local nSceneid = Actor.getSceneId(sysarg)
+
+	local playerList = LuaHelp.getSceneActorListById(nSceneid)	
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				for i=1,table.getn(tmpConfig) do
+					Actor.playScrSceneEffectCode(player,tmpConfig[i].effectId,tmpConfig[i].liveTime,nSceneid,tmpConfig[i].effectX,tmpConfig[i].effectY)
+				end
+			end
+		end
+	end
+
+	local nSceneid = Actor.getSceneId(sysarg)
+	local sname = Fuben.getSceneNameById(nSceneid)
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00123,Actor.getName(sysarg),sname),2)
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00124,Actor.getName(sysarg),sname,Actor.getName(sysarg)),128)
+
+end
+
+--比翼双飞（200元宝）
+function OnFlyTogether(sysarg)
+		local teamid = Actor.getTeamId(sysarg)
+	
+	if teamid == 0 then		--没有组队
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00023,ttFlyTip)
+		return
+	end
+
+	local actList = LuaHelp.getTeamMemberList(sysarg)
+	if actList == nil then
+		return
+	end
+	
+	local tCount = table.getn(actList)
+	if tCount ~= 2 then					--队伍人数不是2人
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00024,ttFlyTip)
+		return
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	
+	local pPlayer = nil
+
+	for i = 1, #actList do
+		local pActor = actList[i]
+
+		if pActor ~= nil then
+			local nId = Actor.getIntProperty(pActor,PROP_ENTITY_ID)
+
+			if nId ~= nActorId then
+				if not Actor.isInSameScreen(sysarg,pActor) then			--有成员不再附近
+					Actor.sendTipmsg(sysarg,Lang.GuildLang.m00025,ttFlyTip)
+					return
+				end
+				
+				--if Actor.getSocialCurNum(pActor,6) <= 0 then		--不是伴侣
+					--Actor.sendTipmsg(sysarg,Lang.GuildLang.m00127,ttFlyTip)
+					--return
+				--end
+
+				pPlayer = pActor
+			end
+		end
+	end
+	
+	local nIndex = GetSceneIndex(sysarg)
+	if nIndex == 0 then
+		nIndex = 1
+	end
+
+	Actor.enterScene(sysarg, Actor.getSceneId(sysarg), MarriedConfig.path[nIndex].posX,MarriedConfig.path[nIndex].posY)
+	Actor.onTransToCarrier(sysarg,MarriedConfig.path[nIndex].Modelid)
+	if pPlayer then
+		Actor.takeOnCarrier(pPlayer,nActorId)
+		--Actor.onBoard(pPlayer,MarriedConfig.path[nIndex].vehicleId,MarriedConfig.path[nIndex].pathId,2)
+	end
+	--Actor.onBoard(sysarg,MarriedConfig.path[nIndex].vehicleId,MarriedConfig.path[nIndex].pathId,2)
+end
+
+--召集
+function OnCallAllActor(sysarg)
+	local str = Lang.GuildLang.m00145
+
+	str = str.."\\<#BL"..string.format(Lang.GuildLang.m00146,MarriedConfig.callNeedYb).."/@OnCallActorToMarry>"					--召集全服玩家（288元宝）
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--召集全服玩家（288金币）
+function OnCallActorToMarry(sysarg)
+	local gVar = System.getDyanmicVar()
+	if gVar.NextCallActorMarryTime == nil then
+		gVar.NextCallActorMarryTime = 0
+	end
+
+	if gVar.NextCallActorMarryTime > System.getCurrMiniTime() then
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00167,ttFlyTip)
+		return
+	end
+
+	gVar.NextCallActorMarryTime = System.getCurrMiniTime() + MarriedConfig.CallActorCdTime
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+
+	if nCoin < MarriedConfig.callNeedYb then		--金币不够
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00168,ttFlyTip)
+		return
+	end
+
+	Actor.changeMoney(sysarg,1,-MarriedConfig.callNeedYb,823,Lang.GuildLang.m00147)
+	--Actor.callAllActorToMarrySceen(sysarg)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local x, y = Actor.getEntityPosition(sysarg, 0, 0)		--获取实体X Y坐标
+
+	local playerList = LuaHelp.getAllActorList()	
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			local nLevel = Actor.getIntProperty(player,PROP_CREATURE_LEVEL)
+			local tagActorId = Actor.getIntProperty(player,PROP_ENTITY_ID)
+			if nLevel >= MarriedConfig.callNeedLevel and tagActorId ~= nActorId then
+				local pack = DataPack.allocPacket(player, 41, 15)
+				if (pack ~= nil) then
+					DataPack.writeUInt(pack, nActorId)
+					DataPack.writeString(pack, Actor.getName(sysarg))
+					DataPack.writeInt(pack, Actor.getSceneId(sysarg))
+					DataPack.writeInt(pack, x)
+					DataPack.writeInt(pack, y)
+					DataPack.flush(pack)
+				end
+			end
+		end
+	end
+
+	System.broadcastTipmsg(string.format(Lang.GuildLang.m00155,Actor.getName(sysarg),Actor.getName(sysarg)),2+128)
+end

@@ -1,0 +1,10 @@
+--系统提示位置定义
+TipMsgTypes = 
+{
+  ttTipmsgWindow =0, --只在右侧提示栏显示
+	ttScreenCenter=1, --屏幕中央，用于xxx把xxx强化到6级之类的全服公告
+	ttDialog =2,      --弹出框
+	ttBroadcast =3,  --公告栏，用于GM发通知
+	ttMessage = 4,	--短消息，在屏幕中央悬挂，点击后查看内容，
+	ttWarmTip  =5,   --温馨提示
+}

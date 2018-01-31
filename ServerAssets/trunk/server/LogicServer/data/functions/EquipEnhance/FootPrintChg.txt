@@ -1,0 +1,215 @@
+﻿--lua script
+
+--足迹转换
+function OnFootPrintChg( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]  			--原始物品的指针
+	local opPtr = args[3]				--消耗物品指针
+	local opType = args[ptrCount+2]		--操作类型
+	
+	local config = FootPrintChg
+	
+	if not config then return end
+	if (not srcPtr or not opPtr) then return false end
+	
+	--从物品身上取得类型
+	local itemType1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemType, 0 )
+	local itemType2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemType, 0 )
+	--是否足迹
+	if itemType1 ~= Item.itFootPrint or itemType2 ~= Item.itFootPrint then
+		return false
+	end
+	
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpc003, ttFlyTip)
+		return
+	end
+	
+	--判断位置
+	local guid1 = Item.getItemGuid(srcPtr)
+	local equipPtr1, itemPos1, heroId1 = Item.getEquipItemPtr(sysarg, guid1, 0, 0, 0)
+	if equipPtr1 ~= srcPtr or itemPos1 <= 0 or itemPos1 > 3 then return end
+	
+	local guid2 = Item.getItemGuid(opPtr)
+	local equipPtr2, itemPos2, heroId2 = Item.getEquipItemPtr(sysarg, guid2, 0, 0, 0)
+	if equipPtr2 ~= opPtr or itemPos2 <= 0 or itemPos2 > 3 then return end
+	
+	--获取属性
+	local itemStrong1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemStrong, 0 )
+	local itemStrong2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemStrong, 0 )
+	local itemQuality1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemQuality, 0 )
+	local itemQuality2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemQuality, 0 )
+	local itemBind1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemBind, 0 )
+	local itemBind2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemBind, 0 )
+	local itemId1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemID, 0 )
+	local itemId2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemID, 0 )
+	
+	local nLuck2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemLuck, 0 )
+	local nInsure2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemHole3Item, 0 )	--获取强化值
+	local initSmith2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemSpecSmith, 0)
+	local nLeftTime2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemExpiredTime, 0)
+	local nCurSharp2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemHole4Item, 0)
+	
+	--极品转移暂不支持
+	--local initSmith1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemSpecSmith, 0)
+	--local initSmith2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemSpecSmith, 0)
+	
+	local itemGroup1, itemLevel1 = GetFootPrintChgConfig(itemId1, config.itemMap)
+	local itemGroup2, itemLevel2 = GetFootPrintChgConfig(itemId2, config.itemMap)
+	if itemGroup1 == 0 or itemLevel1 == 0 or itemGroup2 == 0 or itemLevel2 == 0 then
+		System.trace(string.format("get FootPrint error,id1=%d,id2=%d", itemId1, itemId2))
+		return
+	end
+	
+	if itemId1 == itemId2 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpc001, ttFlyTip)
+		return
+	end
+	if itemLevel1 <= itemLevel2 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpc004, ttFlyTip)
+		return
+	end
+	
+	local destItem1 = config.itemMap[itemGroup2][itemLevel1]
+	local destItem2 = config.itemMap[itemGroup1][itemLevel2]
+	
+	if destItem1 == nil or destItem2 == nil then return end
+	
+	--判断额外消耗
+	local consumes = config.consumes
+	local result = SuccessCheck(sysarg, opType, consumes, 0, 0)
+	if (result ~= successCheckResult.ok) then return false end
+	
+	local result, isBind = EnhanceConsumes(sysarg, opType, consumes, 0, 0, 870, Lang.LogTips.l00170)
+	if (result ~= successCheckResult.ok) then return false end
+	
+	--消耗原材料
+	local bResult = true
+	local nResult = 0
+	if itemPos1 == 1 then
+		nResult = Actor.removeItemByPtr(sysarg, srcPtr, 1, true, Lang.LogTips.l00170, 870)
+		if nResult < 1 then
+			bResult = false
+		end
+	elseif itemPos1 == 2 or itemPos1 == 3 then
+		nResult = Item.removeEquip(sysarg, srcPtr, Lang.LogTips.l00170, 870, true)
+		if nResult < 1 then
+			bResult = false
+		end
+	else
+		bResult = false
+	end
+	
+	if bResult ~= true then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpc002, ttFlyTip)
+		System.trace(string.format("Error:WEChg remove src error,pos=%d,heroId=%d,rst=%d,actorid=%d", itemPos1, heroId1,nResult,Actor.getIntProperty(sysarg,PROP_ENTITY_ID)))
+		return 
+	end
+	
+	--消耗附属材料
+	if itemPos2 == 1 then
+		nResult = Actor.removeItemByPtr(sysarg, opPtr, 1, true, Lang.LogTips.l00170, 870)
+		if nResult < 1 then
+			bResult = false
+		end
+	elseif itemPos2 == 2 or itemPos2 == 3 then
+		nResult = Item.removeEquip(sysarg, opPtr, Lang.LogTips.l00170, 870, true)
+		if nResult < 1 then
+			bResult = false
+		end
+	else
+		bResult = false
+	end
+	
+	if bResult ~= true then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fpc002, ttFlyTip)
+		System.trace(string.format("Error:WEChg remove dest error,pos=%d,heroId=%d,actorid=%d", itemPos2, heroId2,nResult,Actor.getIntProperty(sysarg,PROP_ENTITY_ID)))
+		return 
+	end
+	
+	local bResult = false
+	--[[
+	if Actor.addItem(sysarg, destItem1, itemQuality1, itemStrong1, 1, itemBind1, 0, Lang.LogTips.l00136, 854) < 1 then
+		System.trace(string.format("Error: OnFootPrintChg additem error,destItem=%d,actorid=%d", destItem1, Actor.getIntProperty(sysarg,PROP_ENTITY_ID)))
+		bResult = true
+	end
+	--]]
+	local newItem2 = Item.createItem(destItem1, 1, itemStrong2, itemQuality2, itemBind2, 0)
+	if newItem2 then
+		if Item.addItem(sysarg, newItem2, Lang.LogTips.l00170, 870) < 1 then
+			System.trace("FootPrintChg add item err id="..destItem1)
+		end
+		if initSmith2 > 0 then
+			Item.setItemProperty( sysarg, newItem2, Item.ipItemSpecSmith, initSmith2)
+		end
+		--local nInsureCount = Item.getItemPropertyById(newItemId, Item.ipItemInsure) --投保金额 >0可投保
+		if nInsure2 > 0 then
+			Item.setItemProperty( sysarg, newItem2, Item.ipItemHole3Item, nInsure2)-- 第三个槽，保存强化值
+		end
+		if nLuck2 > 0 then
+			Item.setItemProperty( sysarg, newItem2, Item.ipItemLuck, nLuck2)
+		end
+		if nCurSharp2 > 0 then
+			Item.setItemProperty( sysarg, newItem2, Item.ipItemHole4Item, nCurSharp2)
+		end
+		if itemStrong1 > 0 or itemStrong2 >0 then
+			if itemStrong1 >  itemStrong2  then
+				Item.setItemProperty( sysarg, newItem2, Item.ipItemStrong, itemStrong1) --继承强化等级高的那个
+			else
+				Item.setItemProperty( sysarg, newItem2, Item.ipItemStrong, itemStrong2)
+			end		
+		end
+	else
+		System.trace(string.format("Error: OnFootPrintChg additem error,destItem=%d,actorid=%d", destItem2, Actor.getIntProperty(sysarg,PROP_ENTITY_ID)))
+		bResult = true
+	end
+	
+	--返回客户端处理结果
+	Item.sendItemProcessResult( sysarg, nil, opType, bResult)
+	
+	return true
+end
+
+--足迹转换消耗
+function GetFootPrintChgConsumes( sysarg, args )
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]  			--原始物品的指针
+	local opPtr = args[3]				--消耗物品指针
+	local opType = args[ptrCount+2]		--操作类型
+	--local count = args[ptrCount+3]		--转化数量
+	if not FootPrintChg then return end
+	if (not srcPtr or not opPtr) then return false end
+	
+	--从物品身上取得类型
+	local itemType1 = Item.getItemProperty( sysarg, srcPtr, Item.ipItemType, 0 )
+	local itemType2 = Item.getItemProperty( sysarg, opPtr, Item.ipItemType, 0 )
+	--是否足迹
+	if itemType1 ~= Item.itFootPrint or itemType2 ~= Item.itFootPrint then
+		return false
+	end
+	
+	local consumes = config.consumes
+	
+	--返回客户端消耗结果
+	SendConsumesToClient(sysarg, opType, consumes)
+end
+
+function GetFootPrintChgConfig(itemId,config)
+	for k, v in ipairs(config) do
+		for m, n in ipairs(v) do
+			if type(n) == 'table' then
+				for x, y in ipairs(n) do
+					if y == itemId then
+						return k, m
+					end
+				end
+			else
+				if n == itemId then
+					return k, m
+				end
+			end
+		end
+	end
+	
+	return 0, 0
+end

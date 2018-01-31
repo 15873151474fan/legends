@@ -1,0 +1,42 @@
+﻿
+--#include "data\functions\Activity\SnowArea\IslandTeleport.txt" once --雪域浮岛
+
+TelePortOpFuncList = {}
+
+EventCallDispatcher.OnTelePortHandler = function (sysarg, args)
+	local nPassId = args[1]	--传送门ID
+	-- local pFuben = args[2]	--传送门所在副本指针
+	-- local nTelSid = args[3]	--传送门传送场景id
+	-- local nTelPosX = args[4]	--传送门传送场景id
+	-- local nTelPosY = args[5]	--传送门传送场景id
+	
+	if args[1] == nil or args[1] < 2 then return end   --
+	local func = TelePortOpFuncList[args[1]]
+	if func ~= nil then
+		return func(sysarg, args)
+	end
+	
+	SnowIslandTeleport(sysarg, args)	--雪域浮岛处理
+end
+
+--[[
+TelePortOpFuncList[2] = function (sysarg,args)
+	local nPassId = args[1]	--传送门ID
+	local pFuben = args[2]	--传送门所在副本指针
+	local nTelSid = args[3]	--传送门传送场景id
+	local nTelPosX = args[4]	--传送门传送场景id
+	local nTelPosY = args[5]	--传送门传送场景id
+	
+	local hActorFuben = Actor.getFubenHandle(sysarg)
+	local hFuben = Fuben.getFubenHandle(pFuben)
+	
+	if hActorFuben ~= hFuben then return end
+	
+	
+	Actor.enterFuBen(sysarg, hFuben, 8, 110, 191, true)
+	
+end
+--]]
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeTelePort, EventCallDispatcher.OnTelePortHandler)

@@ -1,0 +1,55 @@
+﻿--[[BOSS  子系统客户端消息处理]]
+--定义4个子系统的ID索引 用于在处理客户端 消息区分
+--#include "data\functions\Systems\BossSystem\BossSystemMain.txt" once
+SubWorldBossCC = 1
+SubMapBossCC = 2
+SubHumBossCC = 3
+SubRandomBossCC = 4
+SubAllReshBoss = 5
+
+--#include "WorldBoss\WorldBossCC.txt" once
+--#include "RandomBoss\RandomBossCC.txt" once
+--#include "MapBoss\MapBossCC.txt" once
+--#include "HumBoss\HumBossCC.txt" once
+
+function ClientAskReshBossInfo(sysarg,packet)
+  local Data = DataPack.allocPacket(sysarg,153,SubAllReshBoss)
+  local Count = 0
+  for j = 1, #MapBossConfig do
+      if MapBossConfig[j].SceneID ~= UnderGroundBossOtherConfig.MapId then
+         local Val = GetMapBossDyanmicVar(j)
+         if Val.Alive == 1 then
+            Count = Count + 1
+         end
+      end
+  end
+  BossPrint(string.format("Boss数量:%d ", Count))
+  DataPack.writeByte(Data, Count)--发送客户端索数据组数 
+  for i = 1, #MapBossConfig do
+      if MapBossConfig[i].SceneID ~= UnderGroundBossOtherConfig.MapId then
+         local Val = GetMapBossDyanmicVar(i)
+         --BossPrint(string.format("Boss被杀! ID:%d,存活状态Alive:%d ", MapBossConfig[i].MonID, Val.Alive))
+         if Val.Alive == 1 then
+            DataPack.writeByte(Data, i)--发送客户端索Boss引 
+         end
+      end
+  end
+  DataPack.flush(Data)
+end
+
+function BossSystem_MessageHandle(sysarg, systemid, subBossSystem, packet)
+  --print(string.format("BossCC : %d ,subBoss:%d ",systemid, subBossSystem))
+  if subBossSystem == SubHumBossCC then  --个人BOSS 
+    HumBossMainHandle(sysarg,packet)   
+  elseif subBossSystem == SubWorldBossCC then --世界
+    WorldBossMainHandle(sysarg,packet)
+  elseif subBossSystem == SubMapBossCC then --野外  
+    MapBossMainHandle(sysarg,packet)
+  elseif subBossSystem == SubRandomBossCC then --狩猎 
+    RandomBossMainHandle(sysarg,packet)
+  elseif subBossSystem == SubAllReshBoss  then--请求可击杀boss列表
+    ClientAskReshBossInfo(sysarg,packet)
+  end 
+end 
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.BossSystem, BossSystem_MessageHandle)

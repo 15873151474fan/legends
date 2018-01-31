@@ -1,0 +1,97 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\friend\FriendConfig.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "data\config\friend\MarriedConfig.txt" once
+--#include "Teacher_Main.txt" once
+
+--发送推荐好友列表
+function SendCanAddFriendList(sysarg,args)
+	local nLevel = args[2]
+	local nIndex = args[3]
+
+	local nFlag = false
+
+	for i=1,table.getn(FriendConfig.PromptLevel) do
+		if nLevel == FriendConfig.PromptLevel[i] then
+			nFlag = true
+			break
+		end
+	end
+	
+	if nFlag == true then
+		Actor.sendCanAddFriendList(sysarg,FriendConfig.LevelInterval,FriendConfig.MaxNum)
+	end
+	
+	if nIndex == 2 then
+		GiveAwardByUpLevel(sysarg)
+	end
+
+	--升级存文件全名活动
+end
+
+--初始化玩家心情
+function InitActorMood(sysarg,args)
+	local randNum = System.getRandomNumber(FriendConfig.MaxMoodString)
+
+	if randNum <= 0 then
+		randNum = 1
+	end
+	
+	if Lang.ActorMood[randNum] then
+		Actor.setActorMood(sysarg,Lang.ActorMood[randNum])
+	end
+end
+
+--师父领取出师奖励
+function MasterGetGruaduateAward(sysarg,args)
+	Awards.Give(sysarg,FriendConfig.MasterAwards,822,"Gruaduate Award")
+end
+
+--徒弟升级给奖励
+function OnGiveAwardByUpLevelOp(sysarg,args)
+	local nIndex = args[2]
+	local nType = args[3]
+
+	if nIndex <1 or nIndex > table.getn(FriendConfig.giveAwardByUplevel) then
+		return
+	end
+
+	if nType == 1 then		--师父的奖励
+		Awards.Give(sysarg,FriendConfig.AwardByUpLevelMaster[nIndex],822,"UpLevel Award")
+	else
+		Awards.Give(sysarg,FriendConfig.AwardByUpLevelSelf[nIndex],822,"UpLevel Award")
+	end
+end
+
+--请出洞房
+function GetOutDongFangActor(sysarg,args)
+	local tagActorId = args[2]
+
+	local pActor = System.getEntityPtrByActorID(tagActorId)
+	if pActor then
+		local fubenHandle = Actor.getFubenHandle(sysarg)
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local bMonster = System.oneActorIsMonster(fubenHandle,nActorId)
+		if bMonster == true then
+			if System.oneActorIsMonster(fubenHandle,tagActorId) == true then
+				Actor.sendTipmsg(sysarg,Lang.GuildLang.m00154,ttFlyTip)
+				return
+			end
+
+			local nHandle = Actor.getFubenHandle(pActor)
+			if nHandle ~= fubenHandle then
+				Actor.sendTipmsg(sysarg,Lang.GuildLang.m00153,ttFlyTip)
+				return
+			end
+
+			--Actor.unregScriptCallback(pActor, "GiveMiYueAwardExp")
+			local nHandle = Fuben.getSceneHandleById(MarriedConfig.miSceneId,0)
+			Actor.enterFuBen(pActor,nHandle,MarriedConfig.miSceneId, MarriedConfig.miRange[1],MarriedConfig.miRange[2])
+		else
+			Actor.sendTipmsg(sysarg,Lang.GuildLang.m00152,ttFlyTip)
+		end
+	else
+		Actor.sendTipmsg(sysarg,Lang.GuildLang.m00151,ttFlyTip)
+	end
+end

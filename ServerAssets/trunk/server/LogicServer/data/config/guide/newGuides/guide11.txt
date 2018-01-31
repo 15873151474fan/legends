@@ -1,0 +1,114 @@
+--精锻的引导
+{
+  triggerList =
+  {
+       { type = 1, valueList = {1971,}},      --有这个任务
+  } ,
+  
+
+  --引导的步骤 
+  steps = 
+  {
+
+    --第1步 指向导航强化按钮
+    {
+      condList = 
+      {
+	 { type = 2,  helpId = 120, dataList = {0,} },      --强化界面没打开
+      },
+
+      action = { type = 1, helpId = 3, data = 0, desc = Lang.GuideLang.desc3 },
+    },
+
+
+    --第2步 指向精锻导航按钮
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 120, dataList = {0,} },        --强化界面打开
+	 { type = 15,  helpId = 121, dataList = {6,} },      --导航没有选中第六项
+      },
+
+      action = { type = 2, helpId = 121, data = 6, desc = Lang.GuideLang.desc6 },
+    },
+
+    --第3步 指向物品导航的身上装备
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+	 { type = 3,  helpId = 122, dataList = {2,} },      --导航选中第二项
+	 { type = 10,  helpId = 120, dataList = {300,301,311,312,289,290,278,279,} },    --背包没有这些物品
+      },
+
+      --引导玩家 点击身上装备
+      action = { type = 2, helpId = 122, data = 1, desc = Lang.GuideLang.desc7 },
+    },
+
+    --第4步 指向物品导航的背包装备
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+	 { type = 3,  helpId = 122, dataList = {1,} },      --导航选中第一项
+	 { type = 6,  helpId = 120, dataList = {300,301,311,312,289,290,278,279,} },    --背包有这些物品
+      },
+
+      action = { type = 2, helpId = 122, data = 2, desc = Lang.GuideLang.desc7 },
+    },
+	
+     --第5步 指向身上装备物品
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+	 { type = 3,  helpId = 122, dataList = {1,} },      --导航选中第一项
+	 { type = 10,  helpId = 120, dataList = {300,301,311,312,289,290,278,279,} },    --背包没有这些物品
+	 { type = 34,  helpId = 126, dataList = {0,} },      --精锻cell没数据
+      },
+
+      --指向这些物品
+      action = { type = 6, helpId = 123, data = {300,301,311,312,289,290,278,279}, desc = Lang.GuideLang.desc5 },
+    },
+
+     --第6步 指向身上背包物品
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+	 { type = 3,  helpId = 122, dataList = {2,} },      --导航选中第二项
+	 { type = 6,  helpId = 120, dataList = {300,301,311,312,289,290,278,279,} },    --背包有这些物品
+	 { type = 34,  helpId = 126, dataList = {0,} },      --精锻cell没数据
+      },
+
+      --指向这些物品
+      action = { type = 6, helpId = 124, data = {300,301,311,312,289,290,278,279}, desc = Lang.GuideLang.desc5 },
+    },
+
+    --第7步 点精锻按钮
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+	 { type = 29,  helpId = 120, dataList = {1971,} },      --任务没完成
+	 { type = 33,  helpId = 126, dataList = {0,} },      --精锻cell有数据
+      },
+
+      --引导玩家关闭
+      action = { type = 1, helpId = 125, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+
+    --第8步 关闭窗口
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 120, dataList = {0,} },      --强化界面打开
+	 { type = 33,  helpId = 126, dataList = {0,} },      --精锻cell有数据
+	 { type = 30,  helpId = 120, dataList = {1971,} },      --任务完成
+      },
+
+      --引导玩家关闭
+      action = { type = 4, helpId = 120, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+ }
+}

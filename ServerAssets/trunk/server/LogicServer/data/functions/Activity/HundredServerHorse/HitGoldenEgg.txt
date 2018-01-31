@@ -1,0 +1,701 @@
+
+--lua script
+
+--#include "data\config\activityconfig\HundredServerHorse\HitGoldenEgg.txt" once 
+--#include "data\functions\Activity\Common\Awards.txt" once 
+
+--请求砸金蛋活动信息
+function ReqHitGoldenEggInfo(sysarg, packet)
+	if System.isOpenHorseActById(13) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.egg0012, ttFlyTip)
+		return 
+	end
+	
+	InitHitEggAwardTab()  
+	SendGoldenEggInfo(sysarg)
+	
+end	 
+
+--发送金蛋信息
+function SendGoldenEggInfo(sysarg)
+	
+	local rankPtr = Ranking.getRanking(Lang.Rank.HitGoldenEggFile)  
+	if not rankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local itemPtr = Ranking.getItemPtrFromId(rankPtr, actorId)
+	if not itemPtr then
+		itemPtr = Ranking.addItemExt(rankPtr, actorId, 0, false)
+		if itemPtr then
+			for i = 1, 15 do 
+				Ranking.setSub(itemPtr, i-1, 0)
+			end
+			InitGoldenEggInfo(itemPtr)
+		end
+	end
+	
+	if itemPtr == nil then
+		return 
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 39)
+	if pack == nil then 
+		return 
+	end
+	
+	local hitItemCount = Actor.getItemCount(sysarg, HitGoldenEggConfig.hitItemId)
+	local curLayer = Ranking.getPoint(itemPtr) + 1
+	local layerCount = table.getn(HitGoldenEggConfig)
+	DataPack.writeInt(pack, hitItemCount)
+	if curLayer >= layerCount then
+		curLayer = layerCount
+	end
+	DataPack.writeByte(pack, curLayer)
+	DataPack.writeByte(pack, layerCount)
+	
+	local posVal = tonumber(Ranking.getSub(itemPtr, 0)) or 0
+	local posVal2 = tonumber(Ranking.getSub(itemPtr, 1)) or 0
+	
+	local allEggBeginPos = 0
+	for i = 1, layerCount do 
+		local config = HitGoldenEggConfig[i]
+		DataPack.writeByte(pack, config.count)
+		local HitPos = tonumber(Ranking.getSub(itemPtr, 1+layerCount+1+i)) or 0
+		for j = 1, config.count do 
+			local val = System.getIntBit(posVal, allEggBeginPos+j-1)
+			local val2 = System.getIntBit(posVal2, allEggBeginPos+j-1)
+			local status = 0
+			local itemCount = 0
+			if val == 0 then
+				status = 0
+			elseif val == 1 then
+				--local HitPos = tonumber(Ranking.getSub(itemPtr, 1+layerCount+1+i))
+				if HitPos > 0 and j == HitPos then
+					status, itemCount = GetAwardItemId(itemPtr, i, HitPos)
+				else
+					if val2 == 0 then
+						status = -1
+					elseif val2 == 1 then
+						status = -2
+					end				
+				end 
+			end
+			
+			DataPack.writeInt(pack, status)
+			DataPack.writeByte(pack, itemCount)
+		
+		end
+		
+		allEggBeginPos = allEggBeginPos + config.count
+	end
+	
+	DataPack.flush(pack)
+end
+
+function GetAwardItemId(itemPtr, layer, HitPos)
+	local result = 0
+	local itemCount = 0
+	local layerCount = table.getn(HitGoldenEggConfig)
+	local awardVal = tonumber(Ranking.getSub(itemPtr, 1+layerCount+1)) or 0  --奖励类型
+	local eggType = (System.getIntBit(awardVal, layer-1))+1
+	local awardTab = HitGoldenEggConfig[layer].awards[eggType]
+	
+	local index = tonumber(Ranking.getSub(itemPtr, 1+layer)) or 0
+	local itemConfig = awardTab[index] 
+	if itemConfig then
+		result = itemConfig.id
+		itemCount = itemConfig.count
+	end
+	
+	return result, itemCount
+
+end
+
+
+--初始化金蛋信息
+function InitGoldenEggInfo(itemPtr)
+	if not itemPtr then
+		return 
+	end
+	
+	local layerCount = table.getn(HitGoldenEggConfig) 
+	local posVal = 0
+	local posVal2 = 0
+	local allEggBeginPos = 0
+	for layer = 1, layerCount do 
+		
+		local eggPosTab = {}  --存放空蛋，彩蛋的位置
+		local config = HitGoldenEggConfig[layer] 
+		local eggCount = config.count
+		local beginPos = allEggBeginPos
+		
+		if config.emptyEggs then  --空蛋
+			if config.emptyEggs.diplayCount > 0 then
+				for i = 1, config.emptyEggs.diplayCount do  
+					local pos = ProduceEggPos(eggCount, eggPosTab, 1, layer)
+					if pos > 0 then
+						posVal = System.setIntBit(posVal,  beginPos+pos-1, false) 
+						posVal2 = System.setIntBit(posVal2,  beginPos+pos-1, false)
+					end
+					
+				end
+			end
+		end
+		
+		if config.colorEggs then --彩蛋 
+			if config.colorEggs.diplayCount > 0 then
+				for i = 1, config.emptyEggs.diplayCount do  
+					local pos = ProduceEggPos(eggCount, eggPosTab, 2, layer)
+					
+					if pos > 0 then
+						posVal = System.setIntBit(posVal,  beginPos+pos-1, true) 
+						posVal2 = System.setIntBit(posVal2,  beginPos+pos-1, true)  
+					end
+					
+				end
+			end	
+		end
+		
+		for pos = 1, eggCount do 
+			if CheckEggPos(pos, eggPosTab) == true then
+				posVal = System.setIntBit(posVal,  beginPos+pos-1, true) 
+				posVal2 = System.setIntBit(posVal2,  beginPos+pos-1, false) 
+			end
+		end
+		allEggBeginPos = allEggBeginPos + eggCount
+	
+	end	
+	
+	Ranking.setSub(itemPtr, 0, posVal)
+	Ranking.setSub(itemPtr, 1, posVal2)
+	
+end
+
+
+--产生随机蛋的位置
+function ProduceEggPos(count,EggPosTab,eggType,layer)
+	local pos = 0
+	local flag = false
+	if eggType == 1 then  --空蛋
+		flag = true
+	elseif eggType == 2 then  --彩蛋 
+		if layer >= 1 or layer <= table.getn(HitGoldenEggConfig) then
+			local config = HitGoldenEggConfig[layer]
+			local val = math.random(1, config.colorEggs.totalrate)
+			if val <= config.colorEggs.rate then
+				flag = true
+			end
+		end	
+	end
+	
+	if flag == true then
+		for i = 1, 10000 do 
+			pos = math.random(1, count)
+			if CheckEggPos(pos,EggPosTab) == true  then
+				break
+			end
+		end
+	end
+
+	if pos > 0 then 
+		table.insert(EggPosTab, pos)
+	end 
+	
+	return pos
+end
+
+
+
+--检测蛋的位置
+function CheckEggPos(val, EggPosTab)
+	for k, v in ipairs(EggPosTab) do 
+		if val == v then
+			return false
+		end
+	end
+	return true
+end
+
+--判断蛋类型
+function GetEggType(posVal, posVal2, pos)
+	local ret = 0
+	local val = System.getIntBit(posVal, pos)
+	local val2 = System.getIntBit(posVal2, pos)
+	if val == 0 then
+		ret = 0
+	elseif val == 1 then
+		if val2 == 0 then
+			ret = 1
+		elseif val2 == 1 then
+			ret = 2
+		end
+	end
+	
+	return ret
+end
+
+
+--请求砸金蛋 
+function ReqHitGoldenEgg(sysarg, packet)
+	if System.isOpenHorseActById(13) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.egg0012, ttFlyTip)
+		return 
+	end
+	
+	local layer = DataPack.readByte(packet)
+	local pos = DataPack.readByte(packet)
+
+	HitGoldenEggHandle(sysarg, 1, layer, pos) 
+end
+
+--砸蛋处理
+function HitGoldenEggHandle(sysarg, consumeTypeStr, layerStr, posStr)
+	local consumeType = tonumber(consumeTypeStr) or 0
+	local layer = tonumber(layerStr) or 0
+	local pos = tonumber(posStr) or 0
+	
+	local rankPtr = Ranking.getRanking(Lang.Rank.HitGoldenEggFile)
+	if not rankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local itemPtr = Ranking.getItemPtrFromId(rankPtr, actorId)
+	if not itemPtr then
+		return 
+	end
+	
+	if layer < 1 or layer > table.getn(HitGoldenEggConfig) then
+		return 
+	end
+	
+	if pos < 1 or pos > HitGoldenEggConfig[layer].count then
+		return 
+	end
+	
+	local point = Ranking.getPoint(itemPtr)
+	if layer ~= point + 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.egg0010, ttFlyTip) 
+		return
+	end
+	
+	local config = HitGoldenEggConfig[layer]
+	
+	local allBeginPos = 0
+	for i = 1, layer-1 do
+		local tempConfig = HitGoldenEggConfig[i]
+		allBeginPos = allBeginPos + tempConfig.count
+	end
+	
+	local posVal = tonumber(Ranking.getSub(itemPtr, 0)) or 0
+	local posVal2 = tonumber(Ranking.getSub(itemPtr, 1)) or 0
+	local eggType = GetEggType(posVal,posVal2, allBeginPos+pos-1)
+	--print("-------eggType-------",eggType)
+	
+	local result = false
+	local consumeCount = 0
+	local needYb = 0
+	if eggType == 0 then
+		result, consumeCount, needYb  = CanHitEgg(sysarg, 0, layer, pos, consumeType)
+	elseif eggType == 1 then
+		result, consumeCount, needYb  = CanHitEgg(sysarg, 1, layer, pos, consumeType)
+	elseif eggType == 2 then
+		result, consumeCount, needYb  = CanHitEgg(sysarg, 2, layer, pos, consumeType)
+	else
+		return 
+	end	
+	
+	if result then
+		if consumeCount > 0 then
+			Actor.removeConsume(sysarg, 0, HitGoldenEggConfig.hitItemId, consumeCount, -1,-1,-1,0,956,Lang.LogTips.egg001) 
+			--SendHitItemInfo(sysarg)
+		end
+		if needYb > 0 then
+			Actor.removeConsume(sysarg, 15, 0, needYb, -1,-1,-1,0,956,Lang.LogTips.egg002)
+			local awardRankPtr = Ranking.getRanking(Lang.Rank.HitGoldenEggAwardFile)
+			if awardRankPtr then
+				local ybitemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+				if ybitemPtr then
+					local curYb = tonumber(Ranking.getSub(ybitemPtr, 0)) or 0
+					Ranking.setSub(ybitemPtr, 0, curYb+needYb)
+				end
+			end			
+						
+		end 
+		
+		local awardFlag = false
+		if eggType == 0 then
+			awardFlag = false
+		elseif eggType == 1 then  --金蛋
+			local curVal = math.random(1, config.goldenEggs.totalrate)
+			--print("curVal ",curVal)
+			--print("totalrate ",config.goldenEggs.totalrate)
+			if curVal <= config.goldenEggs.rate then
+				awardFlag = true
+			end
+		elseif eggType == 2 then  --彩蛋
+			awardFlag = true
+		end 
+		
+		if awardFlag == true then
+			local awardTab = Awards.CanGiveAwards(sysarg, config.awards[eggType])
+			if table.getn(awardTab) > 0 then
+				local itemId,itemCount = GetHitEggAwardInfo(awardTab, layer, eggType)
+				
+				for k, v in ipairs(awardTab) do 
+					if v.id == itemId then
+						Ranking.setSub(itemPtr, 1+layer, k)  
+						
+						local layerCount = table.getn(HitGoldenEggConfig)
+						local awardVal = tonumber(Ranking.getSub(itemPtr, 1+layerCount+1)) or 0  --奖励类型
+						if eggType == 1 then
+							awardVal = System.setIntBit(awardVal, layer-1, false)
+						else
+							awardVal = System.setIntBit(awardVal, layer-1, true)
+						end
+						Ranking.setSub(itemPtr, 1+layerCount+1, awardVal)
+						
+						Ranking.setSub(itemPtr, 1+layerCount+1+layer, pos) --砸蛋位置
+						
+						break
+					end 
+				end
+			
+				--print("itemId ",itemId)
+				--print("itemCount ",itemCount)
+				Ranking.setItem(rankPtr, actorId, layer) 
+			
+				local pack = DataPack.allocPacket(sysarg, 145, 40)
+				if pack ~= nil then
+					DataPack.writeUInt(pack, itemId)
+					DataPack.writeByte(pack, itemCount)
+					DataPack.flush(pack)  
+				end 
+			end 
+			
+		else
+			Ranking.removeId(rankPtr, actorId)
+			
+			local returnItem = config.emptyEggs.returnHitItem
+			if Actor.giveAward(sysarg, returnItem.type, returnItem.id, returnItem.count, returnItem.quality, returnItem.strong, returnItem.bind, 0, 956, Lang.LogTips.egg004) == false then
+				System.addItemMsgById(actorId, 0, config.emptyEggs.returnHitItem.id, config.emptyEggs.returnHitItem.count, 0,  Lang.Activity.egg0014, "", 956, Lang.LogTips.egg004, true, 38)
+			end
+			
+			SendGoldenEggInfo(sysarg) 
+			--SendHitItemInfo(sysarg)
+			Actor.messageBox(sysarg, 0, 0, string.format(Lang.Activity.egg0008,config.emptyEggs.returnHitItem.count), Lang.Activity.egg0009.."/ViewFunction", nil, nil)  
+		end
+		
+		SendHitItemInfo(sysarg)
+	
+	end
+	
+end
+
+function ViewFunction(sysarg)
+	return 
+end
+
+
+--判断能否砸蛋, eggType:0空蛋，1金蛋，2彩蛋,   consumeType: 1使用道具砸蛋，2使用元宝替换
+function CanHitEgg(sysarg, eggType, layer, pos, consumeType)  
+	local result = false
+	local consumeCount = 0
+	local needYb = 0
+	if consumeType == 1 then
+		result, consumeCount, needYb  = CheckHitEgg(sysarg, eggType, layer, pos, consumeType)
+	elseif consumeType == 2 then
+		result, consumeCount, needYb = CheckHitEgg(sysarg, eggType, layer, pos, consumeType)
+	end
+	return result, consumeCount, needYb
+end 
+
+--检测砸蛋消耗
+function CheckHitEgg(sysarg, eggType, layer, pos, consumeType)
+	local eggType = tonumber(eggType) 
+	local layer = tonumber(layer) 
+	local consumeType = tonumber(consumeType)  
+	
+	local consume = nil
+	local repconsume = nil
+	local consumeCount = 0
+	local curCount = 0
+	local needYb = 0
+	local title = ""
+	local config = HitGoldenEggConfig[layer] 
+	local result = true
+		if eggType == 0 or eggType == 1 then
+			consume = config.goldenEggs.consume
+			repconsume = config.goldenEggs.repconsume 
+			curCount = Actor.getItemCount(sysarg, consume.id)
+			
+			if curCount < consume.count then
+				consumeCount = curCount
+				needYb = (consume.count - curCount)*repconsume.count
+				title = string.format(Lang.Activity.egg0001, consume.count, consumeCount, needYb)
+			else
+				consumeCount = consume.count
+			end 
+			
+		elseif eggType == 2 then
+			consume = config.colorEggs.consume
+			repconsume = config.colorEggs.repconsume 
+			curCount = Actor.getItemCount(sysarg, consume.id)
+			if curCount < consume.count then 
+				consumeCount = curCount
+				needYb = (consume.count - consumeCount)*repconsume.count
+				title = string.format(Lang.Activity.egg0001, consume.count, consumeCount, needYb)
+			else
+				consumeCount = consume.count
+			end
+		end
+	
+	if consumeType == 1 then
+		if Actor.checkConsume(sysarg, consume.type, consume.id, consume.count) == false then
+			consumeType = 2
+			Actor.messageBox(sysarg, 0, 0, title, Lang.Activity.egg0007.."/QuickBuy", Lang.Activity.egg0002.."/HitGoldenEggHandle,"..consumeType..","..layer..","..pos, Lang.Activity.egg0003.."/CancelFunc") 
+			result = false, consumeCount, needYb
+		end
+	elseif consumeType == 2 then
+		if Actor.checkConsume(sysarg, consume.type, consume.id, consumeCount) == false then
+			result = false
+		end
+		
+		if Actor.checkConsume(sysarg, repconsume.type, 0, needYb) == false then
+			Actor.sendTipmsg(sysarg, Lang.Activity.egg0004, ttFlyTip)
+			result = false
+		end
+	else
+		result = false
+	end
+	
+	return result, consumeCount, needYb
+	
+end
+
+function QuickBuy(sysarg)
+	Actor.openDialogs(sysarg, 51, HitGoldenEggConfig.hitItemId)
+end
+
+function CancelFunc(sysarg)
+	return 
+end
+
+
+--初始化奖励表
+function InitHitEggAwardTab()
+	local awardRankPtr = Ranking.getRanking(Lang.Rank.HitGoldenEggAwardFile) 
+	if not awardRankPtr then
+		return 
+	end
+	
+	if Ranking.getRankItemCount(awardRankPtr) > 0 then
+		return 
+	end 
+
+	local itemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+	if not itemPtr then
+		itemPtr = Ranking.addItemExt(awardRankPtr, 1, 0, false)
+		for i = 1, 12 do  
+			Ranking.setSub(itemPtr, i-1, 0)
+		end
+	end
+
+	local count = table.getn(HitGoldenEggConfig)
+	for i = 1, count do 
+		local awardsConfig = HitGoldenEggConfig[i].awards
+		if awardsConfig and table.getn(awardsConfig) > 0 then
+			for index = 1, table.getn(awardsConfig) do 
+				local awardConfig = awardsConfig[index]  --index == 1金蛋，2彩蛋
+				for k, v in ipairs(awardConfig) do
+					local awardItemPtr = Ranking.getItemPtrFromId(awardRankPtr, v.id)
+					if not awardItemPtr then
+						awardItemPtr = Ranking.addItemExt(awardRankPtr, v.id, 0, false)
+						for j = 1, 12 do  
+							Ranking.setSub(awardItemPtr, j-1, 0)
+						end
+					end
+			
+					if awardItemPtr then
+						Ranking.setSub(awardItemPtr, (index-1)*count+i-1, v.startYb)
+					end
+		
+				end
+			end 
+		
+		end
+	
+	end
+
+end
+
+--获取奖励信息
+function GetHitEggAwardInfo(awardTab, layer, eggType)
+	local totalRate = 0
+	local itemId = 0
+	local itemCount = 1
+	for k, v in ipairs(awardTab) do 
+		totalRate = totalRate + v.propability 
+	end
+	
+	for i = 1, 10000 do 
+		itemId, itemCount = GetHitEggAwardRandomInfo(awardTab, 1, totalRate)
+		if itemId == 0 then
+			return itemId, itemCount
+		end
+		if CheckAward(itemId,awardTab, layer, eggType) == true then
+			break
+		end
+	
+	end
+	
+	return  itemId, itemCount
+	
+end
+
+
+--根据概率获取值
+function GetHitEggAwardRandomInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local itemId = 0
+	local itemCount = 0
+	local tmpValue = 0
+
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].propability
+		if tmpValue >= randVal then
+			itemId = infoTable[i].id
+			--print("itemId", itemId)
+			itemCount = infoTable[i].count
+			break
+		end
+	end
+	return itemId, itemCount
+end
+
+--检测是否可获取奖励,根据砸蛋消耗的元宝
+function CheckAward(itemId, awardTab, layer, eggType) 
+	local result = false
+	local awardRankPtr = Ranking.getRanking(Lang.Rank.HitGoldenEggAwardFile)
+	if awardRankPtr then
+
+		local totalYb = 0
+		local ybitemPtr = Ranking.getItemPtrFromId(awardRankPtr, 1)
+			if ybitemPtr then
+				totalYb = tonumber(Ranking.getSub(ybitemPtr, 0)) or 0
+			end
+
+		local itemPtr = Ranking.getItemPtrFromId(awardRankPtr, itemId)
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(awardRankPtr, itemId, 0, false)
+			if itemPtr then
+				for i = 1, 12 do  
+					Ranking.setSub(itemPtr, i-1, 0)
+				end
+			end
+		end 		
+		
+		local layerCount = table.getn(HitGoldenEggConfig)
+		for k, v in ipairs(awardTab) do 
+			if v.id == itemId then				
+				local startYb = tonumber(Ranking.getSub(itemPtr, (eggType-1)*layerCount+layer-1)) or 0
+				if v.startYb > startYb then
+					startYb = v.startYb 
+				end
+				
+				if totalYb >= startYb then
+					result = true
+					Ranking.setSub(itemPtr, (eggType-1)*layerCount+layer-1, startYb+v.ybCircle)
+				end
+				break
+			end
+		end   
+	end
+
+	return result
+
+end
+
+--请求领取砸金蛋奖励 	
+function GetHitGoldenEggAward(sysarg, packet) 
+	if System.isOpenHorseActById(13) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.egg0012, ttFlyTip)
+		return 
+	end
+	
+
+	local rankPtr = Ranking.getRanking(Lang.Rank.HitGoldenEggFile)
+	if not rankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local itemPtr = Ranking.getItemPtrFromId(rankPtr, actorId)
+	if not itemPtr then
+		return 
+	end
+	
+	local layer = Ranking.getPoint(itemPtr)
+	local allLayer = table.getn(HitGoldenEggConfig)
+	--[[
+	if layer < allLayer then
+		Actor.sendTipmsg(sysarg, Lang.Activity.egg0005, ttFlyTip)
+		return 
+	end
+	--]]
+	if layer < 1 or layer > allLayer then
+		Actor.sendTipmsg(sysarg, Lang.Activity.egg0013, ttFlyTip)
+		return 
+	end
+	
+	local awardVal = tonumber(Ranking.getSub(itemPtr, 1+allLayer+1)) or 0  --奖励的不同层的奖励类型，0金蛋奖励库，1彩蛋奖励库
+	local giveAwrdTab = {}
+	for i = 1, layer do 
+		local eggType = (System.getIntBit(awardVal, i-1) )+1
+		local awardTab = HitGoldenEggConfig[i].awards[eggType]
+		local index = tonumber(Ranking.getSub(itemPtr, 1+i)) or 0
+		table.insert(giveAwrdTab, awardTab[index])
+	end
+	
+	if Dmkj.getStoreRestCount(sysarg) < table.getn(giveAwrdTab) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.egg0006, ttFlyTip)
+		return 
+	end
+	
+	local actorName = Actor.getName(sysarg)
+	for k, v in ipairs(giveAwrdTab) do   
+		--Dmkj.addItem(sysarg, v.id, v.count, v.quality, v.strong, v.bind, false) 
+		Dmkj.addItem(sysarg, v.id, v.count, v.quality, v.strong, v.bind, false, 0, 956, Lang.LogTips.egg003)  
+		if v.isBroadcast and v.isBroadcast == 1 then
+			local desc = Item.getAwardDesc(v.type, v.id)
+			System.broadcastTipmsg( string.format(Lang.Activity.egg0011, actorName, v.count, desc), ttScreenCenter+ttChatWindow) 	  
+		end
+			
+	end
+	
+	Ranking.removeId(rankPtr, actorId)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 41)
+	if pack ~= nil then
+		DataPack.writeChar(pack, 0)
+		DataPack.flush(pack)
+	end
+	
+	SendGoldenEggInfo(sysarg)
+	
+	Actor.messageBox(sysarg, 0, 0, Lang.Activity.egg0015, Lang.Activity.egg0009.."/ViewFunction", nil, nil)  
+	
+end
+
+function SendHitItemInfo(sysarg)
+	--print("SendHitItemInfo")
+	local pack = DataPack.allocPacket(sysarg, 145, 42)
+	if pack ~= nil then
+		local hitItemCount = Actor.getItemCount(sysarg, HitGoldenEggConfig.hitItemId)
+		--print("hitItemCount ",hitItemCount)
+		DataPack.writeInt(pack, hitItemCount)
+		DataPack.flush(pack)
+	end
+end

@@ -1,0 +1,247 @@
+----#include "data\functions\Activity\Common\Awards.txt" once	--奖励通用
+
+--开始升阶
+function OnStartUpArtifact(sysarg,args)
+	local nLevel = args[2]
+	
+	if nLevel >= table.getn(ArtifactUpLevConfig.artifacts) then		--已是最高阶
+		Actor.sendTipmsg(sysarg, Lang.Activity.sq0007, ttFlyTip)
+		return
+	end
+
+	if nLevel >= 0 and nLevel < table.getn(ArtifactUpLevConfig.artifacts) then
+		nLevel = nLevel + 1
+		local nConfig = ArtifactUpLevConfig.artifacts[nLevel]
+
+		if nConfig == nil then return end
+		
+		--材料是否足够
+		for i=1,table.getn(nConfig.consume) do
+			if Actor.checkConsume(sysarg,nConfig.consume[i].type,nConfig.consume[i].id,nConfig.consume[i].count) == false then 
+				Actor.sendTipmsg(sysarg, Lang.Activity.sq0002, ttFlyTip)
+				return
+			end
+		end
+
+		local nValue = Actor.getArtifactBlessValue(sysarg)		--祝福值
+
+		local nResult = 0
+		if nValue >= nConfig.maxBlessing then		--已到最大祝福值，肯定成功
+			nResult = 1
+		else	
+			local nRate = System.getRandomNumber(10000)
+			local nNeedRate = 10000
+			for i=1,table.getn(nConfig.upRate) do
+				if nValue >= nConfig.upRate[i].nValue[1] and nValue <= nConfig.upRate[i].nValue[2] then
+					nNeedRate = nConfig.upRate[i].nRate
+					break
+				end
+			end
+			
+			if nRate <= nNeedRate then
+				nResult = 1
+			else
+				nValue = nValue + nConfig.addValue
+			end
+		end
+		
+	
+		for i=1,table.getn(nConfig.consume) do
+			if Actor.removeConsume(sysarg,nConfig.consume[i].type,nConfig.consume[i].id,nConfig.consume[i].count,-1,-1,-1,0,939,Lang.Activity.sq0003) 
+				~= nConfig.consume[i].count then
+				Actor.sendTipmsg(sysarg, Lang.Activity.sq0002, ttFlyTip)
+				return
+			end
+		end
+
+		if nValue >= nConfig.maxBlessing then		--已到最大祝福值，肯定成功
+			nResult = 1
+		end
+
+		if nResult == 1 then
+			if nValue >= nConfig.maxBlessing then
+				nValue = nConfig.maxBlessing
+			end
+			
+		end
+		
+		Actor.setArtifactBlessValue(sysarg,nValue)
+
+		Actor.onUpArtifactSuc(sysarg,nResult)
+	end
+end
+
+--开始升级
+function OnUpArtifactLevel(sysarg,args)
+	if System.isCommonServer() == true then return end
+	
+	if Actor.getArtifactItemId(sysarg) <= 0 then			--没有神器
+		Actor.sendTipmsg(sysarg, Lang.Activity.sq0010, ttFlyTip)
+		return
+	end
+
+	for i=1,table.getn(ArtifactJieItemConfig) do
+		local nConfig = ArtifactJieItemConfig[i]
+		if nConfig == nil then 
+			break
+		end
+		
+		if Actor.canUseGodPower(sysarg) == 0 then 
+			break
+		end
+		
+		local nCount = Actor.getItemCount(sysarg,nConfig.item_id)
+		local nUseCount = Actor.addArtifactValueOneKey(sysarg,nConfig.nValue,nCount)
+		if nUseCount > 0 then
+			Actor.removeItem(sysarg,nConfig.item_id,nUseCount,-1,-1,-1,"use GodPoweritem",5)
+		end
+	end
+
+	Actor.sendUpArtifactLevMsg(sysarg)
+end
+
+--使用道具增加经验
+function OnAddMethodExpByItem(sysarg,args)
+	if System.isCommonServer() == true then return end
+	
+	local nIndex = args[2]
+	local nMethod = args[3]
+	local nItemId = args[4]
+	local nCount = args[5]
+	
+	if nCount == nil then return end
+	if nCount <= 0 then return end
+	
+	if Actor.getItemCount(sysarg,nItemId) < nCount then		
+		return
+	end
+	
+	local nConfig = ArtifactConfig.artifacts[nIndex+1].Method[1]
+	if nConfig == nil then return end
+	if nConfig.nCount <= 0 then return end
+	
+	local nScabbardConfig = nConfig.Scabbards[nMethod]
+	if nScabbardConfig == nil then return end
+
+	if nIndex > 5 then
+		if Actor.getScabbardHoleIndex(sysarg,nIndex-1) < nConfig.nCount then
+			Actor.sendTipmsg(sysarg, Lang.Activity.sc0007, ttFlyTip)
+			return
+		end
+	end
+	
+	local nCurExp = Actor.getScabbardExp(sysarg,nIndex,nMethod)
+	if nCurExp < 0 then		--已激活
+		Actor.sendTipmsg(sysarg, Lang.Activity.sc0001, ttFlyTip)
+		return
+	end
+	
+	local sIndex = 0
+	for i=1,table.getn(nScabbardConfig.needConsume) do
+		if nScabbardConfig.needConsume[i].id == nItemId then
+			sIndex = i
+			break
+		end
+	end
+	
+	if sIndex <= 0 then return end
+	
+	if nScabbardConfig.needExp <= nCurExp then 
+		nCurExp = nScabbardConfig.needExp
+	end
+
+	local needCount =  math.ceil((nScabbardConfig.needExp - nCurExp) / nScabbardConfig.needConsume[sIndex].addExp)
+	if needCount < nCount then
+		nCount = needCount
+	end
+
+	local nAddExp = nScabbardConfig.needConsume[sIndex].addExp * nCount
+
+	if Actor.removeItem(sysarg,nItemId,nCount,-1,-1,-1,Lang.Activity.sc0002,960) == nCount then
+		local nTotalExp = nCurExp + nAddExp
+		local nResult = 0
+		if nTotalExp >= nScabbardConfig.needExp then		--激活阵眼
+			nResult = 1
+			nTotalExp = nTotalExp - nScabbardConfig.needExp
+			if nMethod >= nConfig.nCount then
+				System.broadcastTipmsg(string.format(Lang.Activity.sc0008,Actor.getName(sysarg),nConfig.matrixName),2+128)
+				if nIndex < 9 then
+					local nNextConfig = ArtifactConfig.artifacts[nIndex+2].Method[1]
+					if nNextConfig then
+						if nTotalExp >= nNextConfig.Scabbards[1].needExp then
+							nTotalExp = nNextConfig.Scabbards[1].needExp - 10
+						end
+					end
+				end
+			else
+				if nTotalExp > nConfig.Scabbards[nMethod+1].needExp then
+					nTotalExp = nConfig.Scabbards[nMethod+1].needExp - 10
+				end
+			end
+		end
+
+		Actor.onAvadientScabbardResult(sysarg,nIndex,nMethod,nResult,nTotalExp)
+
+		local pack = DataPack.allocPacket(sysarg, 53, 10)
+		if (pack ~= nil) then
+			DataPack.writeByte(pack, nIndex)
+			DataPack.writeByte(pack, nMethod)
+			DataPack.writeByte(pack, nResult)
+			DataPack.writeInt(pack, nTotalExp)
+			DataPack.flush(pack)
+		end
+	end
+end
+
+--神器出鞘
+function OnArtifactScabbardOp(sysarg,args)
+	local nIndex = args[2]
+	local nTime = args[3]
+
+	local nConfig = ArtifactConfig.artifacts[nIndex+1].Method[1]
+	if nConfig == nil then return end
+	if nConfig.nCount <= 0 then return end
+	
+	if Actor.getOutSheathIndex(sysarg) == nIndex then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sc0005, ttFlyTip)
+		return
+	end
+
+	local nHoleIndex = Actor.getScabbardHoleIndex(sysarg,nIndex)
+
+	if nHoleIndex < nConfig.nCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sc0003, ttFlyTip)
+		return
+	end
+	
+	local tIndex = nTime / nConfig.OutSheath.nTime[1].time
+	local nTimeConfig = nConfig.OutSheath.nTime[1]
+	
+	if tIndex <= 0 then return end
+
+	--for i=1,table.getn(nConfig.OutSheath.nTime) do
+		--if nConfig.OutSheath.nTime[i].time == nTime then
+			--break
+		--end
+	--end
+	
+	if nTimeConfig == nil then return end
+
+	local nMyMagicPower = Actor.getIntProperty(sysarg,PROP_ACTOR_MAGICPOWER)
+	local nNeedPower = nTimeConfig.needCount * tIndex
+	if nMyMagicPower < nNeedPower then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sc0004, ttFlyTip)
+		return
+	end
+
+	if Actor.changeMagicPower(sysarg,-nNeedPower) == true then
+		Actor.onArtifactOutSheathOp(sysarg,nIndex,nTime)
+		Actor.sendTipmsg(sysarg, Lang.Activity.sc0006, ttFlyTip)
+
+		local nItemConfig = ArtifactConfig.artifacts[nIndex+1].iconid[1]
+		if nItemConfig == nil then return end
+
+		System.broadcastTipmsg(string.format(Lang.Activity.sc0009,Actor.getName(sysarg),Item.getItemName(nItemConfig.itemid)),2+128)
+	end
+end
+

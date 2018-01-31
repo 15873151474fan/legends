@@ -1,0 +1,108 @@
+
+--#include "data\config\activityconfig\HookMap\FireDragon.txt" once
+
+function FireDragonMain(sysarg)
+	local dlgStr = ""
+	dlgStr = string.format("%s<#BL%s/@EnterFireDragon>", dlgStr, Lang.Activity.map0003)
+	dlgStr = string.format("%s<#BL%s/@EquipExchange>", dlgStr, Lang.Activity.map0010)
+	dlgStr = string.format("%s<#BL%s/@ViewInfo>", dlgStr, Lang.Activity.eexh05)
+	return dlgStr
+end
+
+function ViewInfo(sysarg)
+	return Lang.Activity.eexh06 .. Lang.ScriptTips.back001
+end
+
+function EnterFireDragon(sysarg)
+	local sysVar = System.getDyanmicVar()
+	if not sysVar.FireDragonFlag then
+		Actor.sendTipmsg(sysarg, Lang.Activity.map0008, ttFlyTip)
+		return
+	end
+	if not Actor.checkActorLevel(sysarg, FireDragonConfig.MinLevel, 0) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.map0006, FireDragonConfig.MinLevel), ttFlyTip)
+		return
+	end
+	local nTime = FireDragonConfig.buff.interval
+	local x = math.random(FireDragonConfig.Pos[1], FireDragonConfig.Pos[2])
+	local y = math.random(FireDragonConfig.Pos[3], FireDragonConfig.Pos[4])
+	if Actor.enterScene(sysarg, FireDragonConfig.SceneId, x, y) then
+		Actor.initActivityWind(sysarg,Lang.Activity.map0004,nTime,Lang.Activity.map0005)
+	end	
+end
+
+function NoticeWorld()
+	System.broadcastTipmsg(Lang.Activity.map0009,ttScreenCenter + ttChatWindow)
+end
+
+function BeginFireDragon()
+	local sysVar = System.getDyanmicVar()
+	sysVar.FireDragonFlag = true
+	System.broadcastTipmsg(Lang.Activity.map0007,ttScreenCenter + ttChatWindow)
+	Actor.regScriptCallback(thisNPC, thisNPC, FireDragonConfig.CloseDoorSecs*1000, 0, 1, "StopEnterFireDragon")
+end
+
+function StopEnterFireDragon()
+	local sysVar = System.getDyanmicVar()
+	sysVar.FireDragonFlag = nil
+end
+
+function EndFireDragon()
+	local playerList = LuaHelp.getSceneActorListById(FireDragonConfig.SceneId)		--获取某场景玩家对象列表
+	for k, ptr in ipairs(playerList or {}) do
+		local Pos = LuaHelp.getReloadMapPos(ptr) 
+		Actor.enterScene(ptr,Pos[1],Pos[2],Pos[3])
+	end
+end
+
+function EquipExchange(sysarg)
+	local dlgStr = ""
+	for k, v in ipairs(FireDragonConfig.EquipExchange) do
+		local menuOpt = string.format(Lang.Activity.eexh01, k)
+		dlgStr = string.format("%s<#BL%s/@SelectExchange,%d>", dlgStr, menuOpt, k)
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function SelectExchange(sysarg, idx)
+	local dlgStr = Lang.Activity.eexh04
+	idx = tonumber(idx)
+	local cfg = FireDragonConfig.EquipExchange[idx]
+	if cfg then
+		for k, v in ipairs(cfg.exchageItems) do
+			local menuOpt = string.format(Lang.Activity.eexh03, Item.getItemName(v.id))
+			dlgStr = string.format("%s<#BL%s/@RealExchangeItem,%d,%d>", dlgStr, menuOpt, idx, k)
+		end
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function RealExchangeItem(sysarg, typeIdx, tabIdx)
+	typeIdx = tonumber(typeIdx)
+	tabIdx = tonumber(tabIdx)
+	local cfg = FireDragonConfig.EquipExchange[typeIdx]
+	if not cfg then
+		return
+	end
+	if Actor.getItemCount(sysarg, cfg.consumeItemId) < cfg.consumeItemCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.eexh02, typeIdx, cfg.consumeItemCount), ttFlyTip)
+		return
+	end
+	local awardCfg = cfg.exchageItems[tabIdx]
+	if not awardCfg then
+		return
+	end
+	local count = Item.getAddItemNeedGridCount( sysarg, awardCfg.id, awardCfg.count, 0, 0, awardCfg.bind)
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+		return false
+	end
+	if Actor.removeItem(sysarg, cfg.consumeItemId, cfg.consumeItemCount, 0,0,-1, Lang.LogTips.yb040, 845) == cfg.consumeItemCount then
+		Actor.giveAward(sysarg, awardCfg.type,awardCfg.id,awardCfg.count,0,0,awardCfg.bind,0,845,Lang.LogTips.yb01)
+		local noticeStr = string.format(Lang.Activity.eexh07, Actor.getName(sysarg), Item.getItemLinkMsg(awardCfg.id))
+		System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+	end
+end
+
+table.insert(MainFnTable, FireDragonMain)

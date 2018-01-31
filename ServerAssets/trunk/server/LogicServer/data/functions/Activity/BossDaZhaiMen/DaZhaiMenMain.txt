@@ -1,0 +1,154 @@
+--lua script
+--Boss 大寨门
+
+--#include "data\functions\Activity\BossDaZhaiMen\DaZhaiMenCommon.txt" once  
+
+function DaZhaiMen_Main(sysarg)   
+	local str = ""
+	str = str.."\\<#BL"..string.format(Lang.Activity.dzm001, BossDaZhaiMenConfig.circle, BossDaZhaiMenConfig.level).."/@EnterDaZhaiMen>" 
+	str = str.."\\<#BL"..Lang.Activity.dzm002.."/@DaZhaiMenIntro>"
+	return str
+end
+
+--进入大寨门
+function EnterDaZhaiMen(sysarg) 
+	local dVar = System.getDyanmicVar()
+	if dVar.DzmBossFlag == nil then
+		dVar.DzmBossFlag = 1  
+		CreateDaZhaiMenBoss()
+	end
+	
+	local config = BossDaZhaiMenConfig
+	if Actor.checkActorLevel(sysarg, config.level, config.circle) ~= true then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.dzm004, config.circle, config.level), ttFlyTip)
+		return 
+	end
+	
+	local freeCount = 0 
+	local vipType = Actor.getVipType(sysarg)
+	if vipType > 0 and vipType <= table.getn(config.freeCountTab) then
+		freeCount = config.freeCountTab[vipType]
+	end
+	
+	if freeCount > 0 then
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+		local useCount = GetRankFileData(BossDaZhaiMenConfig.DzmInfoFile, actorId, 0, 1) or 0 
+		if useCount <= 0 then
+			if AddRankFileData(BossDaZhaiMenConfig.DzmInfoFile, actorId, 0, false) ~= nil then
+				UpdateRankFileData(BossDaZhaiMenConfig.DzmInfoFile, actorId, 0, 1, 2) 
+			end
+		else
+			freeCount = freeCount - useCount
+		end
+	end
+	
+	if config.buffTab and table.getn(config.buffTab) > 0 then
+		if Actor.hasBuff(sysarg, config.buffTab[1].buffType, config.buffTab[1].groupId) ~= true then
+			if freeCount <= 0 then
+				local npcHandle = Actor.getHandle(thisNPC)
+				Actor.messageBox(sysarg, npcHandle, 0, string.format(Lang.Activity.dzm005,config.consumeTab[1]), Lang.Activity.dzm006.."/ConfirmFunc,1",Lang.Activity.dzm007.."/CancelFunc",nil)
+			else
+				UpdateRankFileData(BossDaZhaiMenConfig.DzmInfoFile, actorId, 0, 1, 1) 
+				AddDaZhaiMenBuff(sysarg, 1)   
+				EnterDazhaiMenExt(sysarg)
+				Actor.sendTipmsg(sysarg, Lang.Activity.dzm012, ttFlyTip) 
+			end
+		else
+			EnterDazhaiMenExt(sysarg)
+			CheckDaZhaiMenRenew(sysarg) --检测是否需要续费提示    
+		end
+	
+	end
+
+end
+
+--确认
+function ConfirmFunc(sysarg, openType) 
+	local openType = tonumber(openType)
+	local config = BossDaZhaiMenConfig
+	local consumYb = 0
+	if config.consumeTab and table.getn(config.consumeTab) >= 1  then
+		consumYb = config.consumeTab[1] or 0 
+	else
+		return
+	end
+	
+	if Actor.changeMoney(sysarg, mtYuanbao, -consumYb, config.logId, Lang.LogTips.dzm001) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.dzm008, ttFlyTip)
+		return
+	end
+	AddDaZhaiMenBuff(sysarg, openType)
+	EnterDazhaiMenExt(sysarg)  
+	
+end 
+
+--取消
+function CancelFunc(sysarg)
+end
+
+--进入大寨门相关处理
+function EnterDazhaiMenExt(sysarg)  
+	local config = BossDaZhaiMenConfig
+	local idx = System.getRandomNumber(table.getn(config.posTab or {})) 
+	idx = idx > 0 and idx or 1
+
+	Actor.enterScene(sysarg, BossDaZhaiMenConfig.scenceId, config.posTab[idx].posX, config.posTab[idx].posY)
+	local leftTime = 0
+	if config.buffTab and table.getn(config.buffTab) > 0 then
+		leftTime = Actor.getBuffRemainTime(sysarg, config.buffTab[1].buffType, config.buffTab[1].groupId)
+	end
+	Actor.initActivityWind(sysarg, Lang.Activity.dzm009, leftTime, Lang.Activity.dzm011)  
+	SendDaZhaiMenBossInfo(sysarg, 1, 0)   
+	DaZhaiMenRenew(sysarg, 0) --初始化面板按钮 
+end
+
+--详情
+function DaZhaiMenIntro(sysarg) 
+	local str = Lang.Activity.dzm003
+	return str
+end
+
+function InitDaZhaiMenData()   
+	local infoRankPtr = Ranking.getRanking(BossDaZhaiMenConfig.DzmInfoFile) 
+	if infoRankPtr == nil then
+		infoRankPtr = Ranking.add(BossDaZhaiMenConfig.DzmInfoFile, 2000)
+		if infoRankPtr then
+			local ret = Ranking.load(infoRankPtr, BossDaZhaiMenConfig.DzmInfoFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(infoRankPtr, "value"..i-1)  
+				end
+			end 
+		end
+	end	
+	
+	local bossRankPtr = Ranking.getRanking(BossDaZhaiMenConfig.DzmBossFile) 
+	if bossRankPtr == nil then
+		bossRankPtr = Ranking.add(BossDaZhaiMenConfig.DzmBossFile, 2000)
+		if bossRankPtr then
+			local ret = Ranking.load(bossRankPtr, BossDaZhaiMenConfig.DzmBossFile)  
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(bossRankPtr, "value"..i-1)  
+				end
+			end 
+		end
+	end	
+	
+end
+
+function DaZhaiMenDataEnd()   
+	local infoRankPtr = Ranking.getRanking( BossDaZhaiMenConfig.DzmInfoFile ) 		
+	if infoRankPtr then
+		Ranking.save(infoRankPtr, BossDaZhaiMenConfig.DzmInfoFile, true)
+	end
+	
+	local bossRankPtr = Ranking.getRanking( BossDaZhaiMenConfig.DzmBossFile ) 		
+	if bossRankPtr then
+		Ranking.save(bossRankPtr, BossDaZhaiMenConfig.DzmBossFile, true)
+	end
+end
+
+table.insert(MainFnTable, DaZhaiMen_Main)
+table.insert(InitFnTable, InitDaZhaiMenData) 
+table.insert(FinaFnTable, DaZhaiMenDataEnd)

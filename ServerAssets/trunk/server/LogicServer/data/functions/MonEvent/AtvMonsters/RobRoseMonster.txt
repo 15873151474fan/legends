@@ -1,0 +1,11 @@
+
+
+--#include "data\functions\Activity\RobRose\RobRoseCommon.txt" once
+
+MonDieDispatcher.RobRoseMonsterDie = function(monster, sysarg, monId)
+	if IsActivityTime() and GetFlushMonsterFlag() then
+		DelayFlushMonster()
+	end
+end
+
+--MonDieDispatcher.register(RobRoseConfig.RoseMonId, MonDieDispatcher.RobRoseMonsterDie)

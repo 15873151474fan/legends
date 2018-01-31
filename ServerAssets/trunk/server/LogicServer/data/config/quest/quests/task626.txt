@@ -1,0 +1,69 @@
+﻿{
+	id = 626,
+	name = Lang.Quest.q01247,
+	parentid = 625,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q01248,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00030, 
+    npc = Lang.EntityName.n00103,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00005,   
+	npc = Lang.EntityName.n00104,
+  },
+
+  target =
+  {
+       { type = 1, id = 728, count = 1,location={ sceneid=5,entityName=Lang.EntityName.n00104} }, --【信】
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 56857,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 7417,  bind = true, job = 0, sex = -1, group=0 },
+ },
+  --任务条件表
+  conds =
+  {
+        { type = 0, id = 0,count = 30 }, 
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t02133,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t02135,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t02136,
+  }, 
+  
+  PromCheck = "OnAddItem",
+    PromCheckArg = {728, 1},
+  
+  
+  --送物类的任务，需要加上此函数获取任务物品。
+  
+  	PromCallBack =  "OnPromAddItem",
+	PromCallBackArg = {728,0,0,1,1 },  
+
+  
+ --用于完成任务后的从背包里删除任务物品
+  	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {728,1}, 
+},                             

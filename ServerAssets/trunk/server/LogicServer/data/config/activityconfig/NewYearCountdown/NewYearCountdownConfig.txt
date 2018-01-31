@@ -1,0 +1,27 @@
+
+-- 新年倒计时活动的配置
+NewYearCountdownConfig = {
+	-- 发放奖励的场景id列表
+	Scenes = {8};
+	PlayerNum = 5; -- 给多少名玩家
+	MinLevel = 40; -- 大于多少级才给
+	Circle = 0 ; -- 转数
+	--所有玩家奖励
+	awards=
+	{
+		--经验 
+		{ type = 20, id = 2, mincount = 10000,maxcount = 10000, strong = 0, quality = 0, bind = 1 },		
+		--元宝               
+		{ type = 7, id = 0, mincount = 188,maxcount =188, strong = 0, quality = 0, bind = 1 },	
+	},
+	--随机玩家奖励
+	randAwards=
+	{
+		--元宝               随机PlayerNum名玩家多少元宝
+		{ type = 15, id = 0, mincount = 88,maxcount =128, strong = 0, quality = 0, bind = 1 },	
+	},
+	RedpacketEffects =
+	{
+		{effectId = 5,liveTime = 30,effectX = 48,effectY = 50,},  --红包的特效
+	}
+}

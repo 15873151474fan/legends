@@ -1,0 +1,367 @@
+﻿--lua script
+--To do something about Login and Logout
+--[[需要凌晨初始化的数据：1、副本次数(fb)；2、好友祝贺次数(friendCong)；3、打坐时间(medi)；4、副本挑战书的使用次数(fbBC)； 
+
+]]
+
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+--#include "data\config\godWealth\WealthEventConfig.txt" once
+--#include  "data\config\activityconfig\Festival\NationalDayActive.txt" once
+--#include "data\functions\Systems\Miscs\VIPLevelSystemCommon.txt" once 
+--#include "data\functions\Activity\SpringFestivalHorse\ReversedLuck.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\GoldSilverTree.txt" once
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once 
+--#include "data\functions\Activity\HundredServerHorse\LoginAward.txt" once
+--#include "data\functions\Activity\DiscountMall\DiscountMall.txt" once
+--#include "data\functions\Activity\Festival\LaborDayCommon.txt" once
+--#include "data\functions\Activity\WorldCup\WorldCup.txt" once
+--#include "data\functions\Activity\ValentinesDay\ValentineDayAct.txt" once
+--#include "data\functions\Activity\SuperRebate\SuperRebateAct.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\AnniversaryAct.txt" once
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseAct.txt" once
+--#include "data\functions\Activity\NewYearSheep\NewYearSheepAct.txt" once
+--#include "data\functions\Activity\SpringFestivalSheep\SpringFestivalSheepAct.txt" once 羊年春节
+--#include "data\functions\Activity\SheepHundredActivity\SheepHundredAct.txt" once 羊年百服
+--#include "data\functions\Activity\SheepLaborDay\SheepLaborDayAct.txt" once 羊年五一
+--#include "data\functions\Activity\OpenServerBless\OpenServerBless.txt" once --开服祈福活动
+--#include "data\functions\Activity\WaKuang\WaKuangTime.txt" once	--进入挖矿地图
+
+
+LocalDT.NEWDAY = {}
+LocalDT.NEWDAY.MEDITIME = 21600   
+LocalDT.NEWDAY.FRIENDCONG = 20      
+LocalDT.NEWDAY.FBBC = 3                                                                           
+LocalDT.NEWDAY.GETCAMPAWARDCOUNT = 1
+
+
+--重设每日个人数据 
+function ResetActorDataPerDay(sysarg)
+	local var = Actor.getStaticVar( sysarg ) 
+
+	var.GetChristmasGiftFlag = nil
+
+	--经验宝盒的次数
+	var.expbox1 = nil
+	var.expbox2 = nil
+	var.xiuweiBoxTime = nil
+	
+	var.dmkjmj = nil
+	var.isVoteForImpeach = nil
+	
+	--每天速传的次数
+	var.VipFreeTelCnt = 0
+	
+	-- 每日兑换的战魂值数量
+	var.ExtCSValToday = nil
+	
+	-- 每日劫镖次数
+	var.lootCampDartTimes = nil
+	
+	var.GuildDartOpenTimes = nil
+	var.GuildBossTimes1 = nil
+	var.GuildBossTimes2 = nil
+	var.mygetSbkWealState = nil
+	var.getConsumeAwardFlag = nil
+	var.ExpIncreamNum = nil
+
+	var.ActorApplyTimes = nil
+	var.FreshFreeTimes = nil
+	
+	--高级运镖
+	var.ActorApplyDartAdvTimes = nil
+	var.DartAdvFreshFreeTimes = nil
+	var.DartAdvLootTimes = nil
+
+	var.enterMiYueTimes = nil
+	var.GetBaiFashionFlag = nil
+	
+	--每天领取玫瑰种子
+	var.getGrowSeed = nil
+	var.getFreeGrowSeed = nil
+	
+	-- 每天免费叫鸡
+	var.hotSpring = nil
+	var.InteractTimes = nil
+	
+	--九天冰宫 深渊烈域
+	var.heavenFlag = nil
+	var.HellFlag = nil
+	
+	--每日领取节日物品
+	var.getFestivalItem = nil
+	
+	--每日使用物品刷怪
+	var.itemCreateMonsterPerDay = nil
+	
+	var.VipRewardDate = nil
+	
+	-- 每天领取梦想神符
+	var.GetWishItem = nil
+	
+	-- 每天护镖次数 
+	var.guardCount = 0
+	
+	-- 每天领取雪人礼物
+	var.GetPraySnowmanAward = nil
+	
+	--每天刺探敌营次数
+	var.spyCamp = nil
+	
+	--每天领取阵营俸禄的次数
+	var.ZYcount = LocalDT.NEWDAY.GETCAMPAWARDCOUNT
+	
+	-- 每天禁言列表
+	var.ShutupList = nil
+	
+	--每日坐骑觉醒次数
+	var.rideAwakeCount = nil
+	
+	var.ArriveWealthEnd = nil 
+
+	var.GetGuildBattleAward = nil
+	var.GetEventFlag = nil
+	var.GuildShopBuyTimes = {}--重置行会商店次数
+
+	ResetDayData(sysarg)
+	
+	--清空锋利值
+	Actor.clearEquipSharp(sysarg)
+	
+	--清空强化值
+	Actor.clearEquipStrongValue(sysarg, true)
+	
+	--清除当天没完成的任务
+	removeOldQuests(sysarg)
+
+	var.nUseExpTodayValue = nil
+
+	var.GetChristmasGiftTime = nil
+	
+	--每天副本次数 
+	ResetDayFubenTimes(sysarg) 
+	
+	resetPkExpGetOrDropTimes(sysarg)	--重置玩家每日PK获取或掉落经验次数
+	
+	Actor.setFinishState(sysarg,1)
+	
+	--print("nQuestId:"..WealthEventConfig.events[9].nQuestId[1])
+	if Actor.hasQuest(sysarg,WealthEventConfig.events[9].nQuestId[1]) == true then		--有财神任务，放弃财神任务
+		Actor.giveupQuest(sysarg,WealthEventConfig.events[9].nQuestId[1])
+	end
+	
+	OnNewDayClearChrist(sysarg)
+	--挖矿活动进入时间重置
+	--ResetWaKuangData(sysarg)
+	
+	--玩家开服登录判断
+    System.runNpcFunction(System.getGlobalNpc(), "SendClientStartActIndex", sysarg)
+    var.GetOnLineSecAwardLog = nil--在线奖励领取 
+end
+
+--每月重置数据
+function ResetActorDataPerMonth(sysarg, isLogin)
+	
+	local nLastLogOutTime = Actor.getLastLogoutTime(sysarg)
+	local nLoginTime = Actor.getLoginTime(sysarg)
+	
+	local isNewMonth = false
+	if isLogin then
+		if System.isSameMonth(nLastLogOutTime, nLoginTime) == false then
+			isNewMonth = true
+		end
+	else
+		local nYear, nMonth, nToday = System.getDate(0,0,0)
+		if nToday == 1 then
+			isNewMonth = true
+		end
+	end
+	
+	--新的一个月处理  每个月1号刷新
+	if isNewMonth then
+		local var = Actor.getStaticVar( sysarg ) 
+		
+		--每月补签 告诉客户端
+		var.fixSignInTimes = nil
+		local npack = DataPack.allocPacket(sysarg, 26, 49)
+		if npack then
+			DataPack.writeByte(npack, CalcHasSignInFixTimes(sysarg))
+			DataPack.flush(npack)
+		end
+		--
+	
+		
+	end
+	
+end
+
+function ResetLuckyBagTime(sysarg)
+	if NationalDayActiveConfig and NationalDayActiveConfig.actTime and System.isInDateRange(unpack(NationalDayActiveConfig.actTime)) == true then 
+		local var = Actor.getStaticVar(sysarg) 
+		if var then
+			var.getLBFlag = 0  --重置国庆红包领取
+			var.accLuckyBagTime = 0
+			var.getGBoxFlag = 0 --重置国庆礼盒领取
+			var.lastLBLoginTime = System.getCurrMiniTime()
+			Actor.regScriptCallback(sysarg, nil, NationalDayActiveConfig.luckyBag.accOnlineTime * 1000, 0, 1, "GiveLuckyBag")
+		end
+	end
+end
+
+function ResetNationalConsume(sysarg)
+	if NationalDayActiveConfig and NationalDayActiveConfig.ConsumeActivityCfg and 
+		System.isInDateRange(unpack(NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime)) == true then 
+		local var = Actor.getStaticVar(sysarg) 
+		if var then
+			var.drawLotteryFlag = 0
+			local currTime = System.getCurrMiniTime() 
+			local lastTime = 0
+			if var.lastCanDrawTime then
+				lastTime = var.lastCanDrawTime
+			end
+			
+			if not var.accDrawCount then
+				var.accDrawCount = 0
+			end
+			local result, mult = canDrawLottery(sysarg) 
+			--print("actorVar.accDrawCount" , var.accDrawCount) 
+		end
+	end
+end
+
+
+--vip相关信息处理
+function vipLevelInfoHandle(sysarg) 
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar then
+		return
+	end
+	local lastTime = 0
+	local currTime = System.getCurrMiniTime() 
+	
+	
+	if not actorVar.VipLvlItemCount then
+		actorVar.VipLvlItemCount = 0
+	end
+	
+	if not actorVar.vipLvlFb then
+		actorVar.vipLvlFb = {}
+	end
+	
+	if actorVar.vipLvlTime then
+		lastTime = actorVar.vipLvlTime
+	else
+		actorVar.vipLvlTime = 0
+	end
+	
+	if System.isSameDay(currTime, lastTime) ~= true and currTime > lastTime then    
+		actorVar.vipLvlFb = {}  
+		actorVar.VipLvlItemCount = 0 
+		
+		if actorVar.lastAddRollTimes then
+			actorVar.lastAddRollTimes = 0 
+		end
+		
+		actorVar.vipLvlTime = currTime
+	end
+	
+	UpdateVipLevelInfo(sysarg, false)
+end
+
+EventCallDispatcher.NewDayAcrriveDataInit = function (sysarg,arg)
+	--print("new day arrive!!")
+	local var = Actor.getStaticVar( sysarg ) 
+
+	--每天好友祝贺次数 
+	local friendCong = var.friendCong
+	if friendCong == nil then 
+		var.friendCong = {}
+		friendCong = var.friendCong
+	end
+	friendCong[1] = LocalDT.NEWDAY.FRIENDCONG 
+	--打坐时间
+	Actor.setDefaultPracticeTime(sysarg,LocalDT.NEWDAY.MEDITIME)
+
+	--副本挑战书的次数
+	local fbBC = var.fbBC
+	if fbBC == nil then 
+		var.fbBC = {}
+		fbBC = var.fbBC
+	end
+	fbBC[1] = LocalDT.NEWDAY.FBBC  
+
+	--天书任务
+	if var.CoinQuestTimes then
+		var.CoinQuestTimes = 0
+	end
+	Actor.setQuestBookInfo(sysarg, 0, -1, -1)
+	
+	ResetActorDataPerDay(sysarg)
+	--var.GuildDartTimes = nil
+	ResetActorDataPerMonth(sysarg, false)
+
+	--重设秒活动副本参加数据
+	ResetSecKill(sysarg)
+	
+	--重置国庆福袋每天领取时间
+	ResetLuckyBagTime(sysarg)
+
+	--重置春节倒福每天领取时间
+	ResetReversedLuckTime(sysarg)
+	
+	--重置登录奖励每天领取时间
+	ResetLoginAwardTime(sysarg)
+	
+	--重置春节消费礼包每天数据
+	--ResetConsumePackage(sysarg)
+	
+	--重置国庆消费抽奖时间
+	ResetNationalConsume(sysarg)
+	
+	--vip等级相关信息处理
+	vipLevelInfoHandle(sysarg) 
+	
+	--元宵处理
+	LanterNewDayArrive(sysarg)
+	
+	--折扣商城
+	DiscountNewDayArrive(sysarg)
+
+	--五一处理
+	LaborDayNewDayArrive(sysarg)
+	
+	--世界杯处理
+	WorldCupNewDayArrive(sysarg)
+	
+	--七夕活动处理
+	ValentineNewDayArrive(sysarg)
+	
+	--超级返利活动
+	SuperRebateNewDayArrive(sysarg)
+	
+	--中秋活动
+	MidAutumnNewDayArrive(sysarg)
+
+	--马年国庆活动
+	NationalDayHorNewDayArrive(sysarg)
+	
+	--马年周年活动
+	AnniversaryHorNewDayArrive(sysarg)
+	
+	--马年圣诞活动
+	ChristmasHorseNewDayArrive(sysarg)
+	
+	--羊年元旦活动
+	NewYearSheepNewDayArrive(sysarg)
+	
+	--羊年春节活动
+	SpringFestivalSheepNewDayArrive(sysarg)
+	
+	--羊年百服
+	SheepHundredNewDayArrive(sysarg)
+
+	--羊年五一
+	SheepLaborDayNewDayArrive(sysarg)
+end
+
+                                              
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeNewDayArrive, EventCallDispatcher.NewDayAcrriveDataInit)

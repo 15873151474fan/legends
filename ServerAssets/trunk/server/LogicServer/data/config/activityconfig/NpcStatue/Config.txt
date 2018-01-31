@@ -1,0 +1,113 @@
+﻿
+WorshipConfig = 
+{
+	limitLevel = 35,	--膜拜限制等级
+	multiExp = 	--多倍经验配置 
+	{
+		{
+			times = {100, 199}, 	--膜拜次数范围
+			buff = {buffType = 64, groupId = 94, value = 1.5, times = 1, interval = 3600, buffName = Lang.Activity.a00126, timeOverlay = false},	--奖励的BUFF配置
+		},
+		{
+			times = {200, 299}, 	--膜拜次数范围
+			buff = {buffType = 64, groupId = 94, value = 1.8, times = 1, interval = 3600, buffName = Lang.Activity.a00126, timeOverlay = false},	--奖励的BUFF配置
+		},
+		{
+			times = {300, 399}, 	--膜拜次数范围
+			buff = {buffType = 64, groupId = 94, value = 2, times = 1, interval = 3600, buffName = Lang.Activity.a00126, timeOverlay = false},		--奖励的BUFF配置
+		},
+		{
+			times = {400, 499}, 	--膜拜次数范围
+			buff = {buffType = 64, groupId = 94, value = 2.5, times = 1, interval = 3600, buffName = Lang.Activity.a00126, timeOverlay = false},	--奖励的BUFF配置
+		},
+		{
+			times = {500, 100000000}, 	--膜拜次数范围
+			buff = {buffType = 64, groupId = 94, value = 3, times = 1, interval = 3600, buffName = Lang.Activity.a00126, timeOverlay = false},		--奖励的BUFF配置
+		},
+		
+	},
+	
+	worshipsLimitTimes = 
+	{
+		goldTimes = 50,
+		ybTimes = 100,
+	},
+	
+	worships =	--膜拜配置 
+	{
+		{--金币膜拜	消耗公式 = 基础值*（1+增量）^（膜拜次数-1）
+			times = 1,		--点击一次增加的膜拜次数
+			inc = 0.25,		--膜拜增量 
+			consumes =		--基础消耗
+			{
+				{type = 6, id = 0, count = 5000},	
+			},
+			awards =	--返还奖励
+			{
+				{type = 20, id = 3, count = 50, quality = 0},
+			},
+		},
+		{--元宝膜拜 消耗公式 = 膜拜次数*基础值
+			times = 2,
+			consumes =
+			{
+				{type = 15, id = 0, count = 10},
+			},
+			awards =
+			{
+				{type = 20, id = 3, count = 150, quality = 0},
+			},
+		},
+		{--金币鄙视	消耗公式 = 基础值*（1+增量）^（膜拜次数-1）
+			times = 1,
+			inc = 0.25,		--膜拜增量 
+			consumes =
+			{
+				{type = 6, id = 0, count = 5000},
+			},
+			awards =
+			{
+				{type = 20, id = 3, count = 50, quality = 0},
+			},
+		},
+		{--元宝鄙视 消耗公式 = 膜拜次数*基础值
+			times = 2,
+			consumes =	
+			{
+				{type = 15, id = 0, count = 10},
+			},
+			awards =
+			{
+				{type = 20, id = 3, count = 150, quality = 0},
+			},
+		},
+	},
+	
+	castellanAward =	--城主奖励
+	{
+		limitTimes = 200,	--起始奖励次数 膜拜次数 >= limitTimes  经验= (int)(次数/100 -1) *库经验的%n
+		maxLimit = 5,		--最大经验加成限制 (次数/100 -1) <= maxLimit
+		awards = 	--基础奖励
+		{
+			{type = 20, id = 3, count = 5000, quality = 0},
+		},
+	},
+	
+	rewardWorship = 	--悬赏膜拜
+	{
+		chgRate = 2,	--转换比例 1:chgRate
+		consumes = 		--消耗 每一项对应每个菜单的消耗
+		{
+			{type = 15, id = 0, count = 100},	--每一项对应每个菜单消耗
+			{type = 15, id = 0, count = 200},
+			{type = 15, id = 0, count = 300},
+			{type = 15, id = 0, count = 500},
+			{type = 15, id = 0, count = 1000},
+		},
+		rewards = 	--膜拜一次获得奖励
+		{
+			{type = 7, id = 0, count = 10},
+		}
+	}
+	
+}

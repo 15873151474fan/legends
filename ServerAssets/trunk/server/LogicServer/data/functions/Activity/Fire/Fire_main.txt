@@ -1,0 +1,135 @@
+﻿--lua script
+
+
+--#include "data\config\activityconfig\fire.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+
+function burnUpFire()
+	Actor.regScriptCallback(thisNPC, thisNPC, ActFireConfig.GetExpInterval*1000, ActFireConfig.GetExpInterval*1000, -1, "loopGetExp")
+	Actor.regScriptCallback(thisNPC, thisNPC, ActFireConfig.GetExpReshHuoChai*1000, ActFireConfig.GetExpReshHuoChai*1000, -1, "loopReshHuoChai")
+	local scHd = Actor.getSceneHandle(thisNPC) --获取场景的handle
+	local x=0
+	local y=0
+	x,y=Actor.getEntityPosition(thisNPC,x,y)
+	
+	--加经验的半径
+	local count =#ActFireConfig.points
+	
+	for i=1,count do
+		Fuben.createLandscape(scHd,ActFireConfig.LandscapeModelid,x +ActFireConfig.points[i][1] ,y +ActFireConfig.points[i][2],ActFireConfig.durTime)
+	end
+	--Fuben.destroyLandscape(scHd, ActFireConfig.UnBurnModelId)
+	--Fuben.createLandscape(scHd, ActFireConfig.BurnModelId, x, y, ActFireConfig.durTime)
+	local dVal = System.getDyanmicVar()
+	if dVal.StartFireFlag == nil then
+		dVal.StartFireFlag = 0 --篝火开启标志
+	end
+	dVal.StartFireFlag = 1--篝火开启标志 
+	ResetFireData()--清除柴火数据名单 
+	System.broadcastTipmsg(Lang.Activity.w00181, ttScreenCenter+ttChatWindow)
+end
+
+--[[function fiveExpFire()
+	local sysDvar = System.getDyanmicVar()
+	sysDvar.FiveRateExpFlag = true
+
+	local playerList = LuaHelp.getAllActorList(ActFireConfig.MinLevel)
+	for k, ptr in ipairs(playerList or {}) do
+		local netPack = DataPack.allocPacket(ptr,139, 64)  --申请一个数据包
+		if netPack then
+			DataPack.flush(netPack)   --发送数据包
+		end
+	end
+end
+
+function getFiveRateFire()
+	local rate = 0
+	local sysDvar = System.getDyanmicVar()
+	if sysDvar.FiveRateExpFlag then
+		rate = ActFireConfig.fiveRateExp - 1
+	end
+	return rate
+end
+
+function closeFiveExpFire()
+	local sysDvar = System.getDyanmicVar()
+	sysDvar.FiveRateExpFlag = nil
+end]]
+
+function burnOutFire()
+	local dVal = System.getDyanmicVar()
+	dVal.StartFireFlag = nil --活动结束清零
+	Actor.unregScriptCallback(thisNPC, "loopGetExp")
+	Actor.unregScriptCallback(thisNPC, "loopReshHuoChai")
+	--[[local scHd = Actor.getSceneHandle(thisNPC) --获取场景的handle
+	local x, y = Actor.getEntityPosition(thisNPC,0,0)
+	Fuben.destroyLandscape(scHd, ActFireConfig.BurnModelId)
+	Fuben.createLandscape(scHd, ActFireConfig.UnBurnModelId, x, y, -1)]]
+	--closeFiveExpFire()
+end
+
+function loopGetExp()
+    local dVal = System.getDyanmicVar()
+    if dVal.StartFireFlag == nil then
+	  dVal.StartFireFlag = 0 --篝火开启标志
+    end
+    if dVal.StartFireFlag == 0 then
+       --Actor.sendTipmsg(sysarg,Lang.Activity.w00177,ttFlyTip)
+       return
+    end
+	local scHd = Actor.getSceneHandle(thisNPC) --获取场景的handle
+	local x=0
+	local y=0
+	x,y=Actor.getEntityPosition(thisNPC,x,y)
+	local scenePtr = Actor.getScenePtr(thisNPC)       
+	
+	--加经验的半径
+	local count =#ActFireConfig.points
+	--local nRate = GetCombineActivityRate()
+	
+	--[[双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(2) == 1 then
+		doubleAwardActRate = 1
+	end]]
+    --print("loopGetExp")
+	for i=1,count do
+		local nearPlayer = LuaHelp.getNearEntityListFromRange(scenePtr,x +ActFireConfig.points[i][1],y +ActFireConfig.points[i][2],0,0,0)
+		for k, plyPtr in pairs(nearPlayer or {}) do
+			local expVal = Actor.getActivityExp(plyPtr, ActFireConfig.TableIndex, ActFireConfig.FireExpRate, ActFireConfig.VipAddRate)
+			--print("expVal")
+			if expVal > 0 then
+				--local allExpRate = getFiveRateFire() + (nRate - 1) + doubleAwardActRate
+				Actor.addExp(plyPtr, expVal, 206, 0, 1) 
+			end
+		end
+	end
+end
+
+--刷新火柴 
+function loopReshHuoChai()
+  local dVal = System.getDyanmicVar()
+  if dVal.StartFireFlag == nil then
+     dVal.StartFireFlag = 0 --篝火开启标志
+  end
+  if dVal.StartFireFlag == 0 then
+     --Actor.sendTipmsg(sysarg,Lang.Activity.w00177,ttFlyTip)
+     return
+  end
+  local hScene = Fuben.getSceneHandleById(ActFireConfig.nSceneId, 0)
+  local Tb = ActFireConfig.monsters
+  for i=1,table.getn(Tb) do
+	Fuben.createMonsters(hScene, Tb[i].nMonsterID, Tb[i].posX1, Tb[i].posX2, Tb[i].posY, Tb[i].nCount, Tb[i].nLiveTime)
+  end
+end
+
+--重置篝火数据
+function ResetFireData()
+  --print("ResetFireData")
+  local config = FireRankPt
+  local Rank = Ranking.getRanking( config.RankName )
+  if Rank then
+	 Ranking.clearRanking(Rank)
+  end
+  Ranking.save(Rank, config.RankFile)  
+end

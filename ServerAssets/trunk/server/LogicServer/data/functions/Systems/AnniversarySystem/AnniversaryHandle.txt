@@ -1,0 +1,317 @@
+--lua script
+--周年庆典
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\anniversary\anniversaryconfig.txt" once
+--#include "data\config\anniversary\preferenceconfig.txt" once
+--#include "data\config\anniversary\extractconfig.txt" once
+--#include "data\config\anniversary\rechargepackageconfig.txt" once
+
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "AnniversaryCommon.txt" once
+--#include "PreferenceCommon.txt" once
+--#include "ExtractCommon.txt" once
+--#include "RechargePackageCommon.txt" once
+--#include "RechargeRankCommon.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\ReversedLuck.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\GoldSilverTree.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\ConsumePackage.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\RedEnvelope.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\SpringFestivalHorseActivities.txt" once
+--#include "data\functions\Activity\HundredServerHorse\LuckAward.txt" once
+--#include "data\functions\Activity\HundredServerHorse\LoginAward.txt" once
+--#include "data\functions\Activity\Tumulus\TumulusTreasure.txt" once
+--#include "data\functions\Activity\MidAutumn\MidAutumnLogin.txt" once
+--#include "data\functions\Activity\NationalDayHorse\Zillionaire.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\AnniversaryStore.txt" once
+--#include "data\functions\Activity\SpringFestivalSheep\LuckyGuess.txt" once
+--#include "data\functions\Activity\SheepLaborDay\Labor.txt" once
+--#include "data\functions\Activity\SheepLaborDay\PotPlanting.txt" once
+
+
+--[[
+local cGetPraiseAwardOp = 1,		-- 点赞
+local cGetRechargeAwardOp = 3,		-- 领取充值奖励
+local cGetVipAwardOp = 7,		-- 领取vip奖励
+local cGetLevelAwardOp = 8,		-- 领取等级奖励
+
+local cGetExtractYBRankAwardOp = 100,	-- 领取充值排行奖励
+local cGetPreferenceAwardOp = 101,	-- 领取特惠推送奖励
+local cGetExtractActivityAwardOp = 102,		-- 领取充值奖励
+local cGetExtractActivityYBRankAwardOp = 103,	-- 领取充值活动排行奖励
+local cGetRechargePackageAwardOp = 104,		-- 领取充值套餐奖励
+local cRechargePackageExtractYBOp = 105,	-- 充值套餐提取元宝
+local cCalcCycleInfoOp = 106,			-- 计算循环充值信息
+local cRechargePackageScoreOp = 107,		-- 红利换购
+local cGetRechargePackageOfflineOp = 108,	-- 领取充值套餐离线消息
+local cGetReversedLuckInfoOp = 109,		-- 下发守岁祈福信息
+local cGetReversedLuckItemOp = 110,		-- 兑换倒福道具
+local cGetGoldSilverTreeInfoOp = 111,		-- 下发金银福树信息
+local cOperateGoldSilverTreeOp = 112,		-- 操作金银福树
+local cAddConsumePackageYBOp = 113,		-- 添加消费礼包元宝数
+local cGetConsumePackageInfoOp = 114,		-- 获取消费礼包信息
+local cGetConsumePackageLotteryOp = 115,	-- 抽奖
+local cAddRedEnvelopeYBOp = 116,		-- 添加开门利是元宝数
+local cGetRedEnvelopeAwardOp = 117,		-- 领取开门利是奖励
+local cGetRechargeCommonDataOp = 118,		-- 获取通用充值排行信息
+local cGetRechargeCommonAwardOp = 119,		-- 领取通用充值排行奖励
+local cAddRechargeCommonRankOp = 120,		-- 添加到通用充值排行榜
+local cGetRechargeCommonRankAwardOp = 121,	-- 领取通用充值排行离线奖励
+local cGetDoubleAwardOpenFlagOp = 122,		-- 下发双倍奖励活动开启状态
+local cGetDoubleAwardOneOpenFlagOp = 123,	-- 下发双倍奖励活动单个开启状态
+local cGetLuckAwardTotalScoreRankOp = 124,	-- 下发马年幸运抽奖总积分排行
+local cGetLuckAwardScoreExchangeOp = 125,	-- 马年积分兑换
+local cGetLoginAwardStatusOp = 126,		-- 下发登录奖励领取状态
+local cGetLoginAwardOp = 127,			-- 领取登录奖励
+local cGetLuckAwardRankAwardOp = 128,		-- 领取马年幸运抽奖累计积分排行奖励
+local cGetTumulusTreasureOp = 129,		-- 古墓探宝
+local cGetRechargeCommonRankOp = 130,		-- 获取通用充值排行榜
+local cGetMidAutumnLoginAwardOp = 131,		-- 获取中秋登陆奖励
+local cGetZillionaireOp = 132,			-- 请求烈火大亨
+local cGetZillionaireAwardOp = 133,		-- 领取烈火大亨礼包
+local cGetAnniversaryStoreInfoOp = 134,		-- 请求周年专场信息
+local cGetAnniversaryStoreBuyOp = 135,		-- 请求周年专场购买
+local cGetRechargePerDay = 136,			-- 请求每日一充
+local cGetRechargePerDayGetAwardsOp = 137,	-- 请求每日一充领奖
+local cGetLuckyGuessOp = 138,			-- 请求幸运竞猜
+local cGetLaborOp = 139,			-- 请求天道酬勤
+local cGetPotPlantingOp = 140,			-- 请求珍宝盆栽
+--]]
+
+AnniversaryOpFuncList = {}
+
+EventCallDispatcher.HandlerAnniversaryOp = function (sysarg, args)
+	--print("参数："..args[1])
+	if args[1] == nil then return end
+	local func = AnniversaryOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args) 
+	end
+end
+
+--点赞
+AnniversaryOpFuncList[1] = function (sysarg,args)
+	OnGetPraiseAward(sysarg,args)
+end
+
+--领取充值奖励
+AnniversaryOpFuncList[3] = function (sysarg,args)
+	OnGetWithdrawAward(sysarg,args)
+end
+
+--领取vip奖励
+AnniversaryOpFuncList[7] = function (sysarg,args)
+	OnGetVipAward(sysarg,args)
+end
+
+--领取等级奖励
+AnniversaryOpFuncList[8] = function (sysarg,args)
+	OnGetLevelAward(sysarg,args)
+end
+
+--领取充值排行奖励
+AnniversaryOpFuncList[100] = function (sysarg,args)
+	OnGetExtractYBRankAward(sysarg,args)
+end
+
+--领取特惠推送奖励
+AnniversaryOpFuncList[101] = function (sysarg,args)
+	OnGetPreferenceAward(sysarg,args)
+end
+
+--领取充值奖励
+AnniversaryOpFuncList[102] = function (sysarg,args)
+	OnGetExtractAward(sysarg,args)
+end
+
+--领取充值排行奖励
+AnniversaryOpFuncList[103] = function (sysarg,args)
+	OnGetExtractYBActivityRankAward(sysarg,args)
+end
+
+--领取充值套餐奖励
+AnniversaryOpFuncList[104] = function (sysarg,args)
+	OnGetRechargePackageAward(sysarg,args)
+end
+
+--充值套餐单笔充值
+AnniversaryOpFuncList[105] = function (sysarg,args)
+	OnRechargePackageExtractYB(sysarg,args)
+end
+
+--计算循环充值信息
+AnniversaryOpFuncList[106] = function (sysarg,args)
+	OnCalcCycleInfo(sysarg,args)
+end
+
+--红利换购
+AnniversaryOpFuncList[107] = function (sysarg,args)
+	OnScoreExchange(sysarg,args)
+end
+
+--领取充值套餐离线消息
+AnniversaryOpFuncList[108] = function (sysarg,args)
+	OnGetRechargePackageOffline(sysarg,args)
+end
+
+--下发守岁祈福信息
+AnniversaryOpFuncList[109] = function (sysarg,args)
+	OnGetReversedLuckInfo(sysarg,args)
+end
+
+--兑换倒福道具
+AnniversaryOpFuncList[110] = function (sysarg,args)
+	OnGetReversedLuckItem(sysarg,args)
+end
+
+--下发金银福树信息
+AnniversaryOpFuncList[111] = function (sysarg,args)
+	OnGetGoldSilverTreeInfo(sysarg,args)
+end
+
+--操作金银福树
+AnniversaryOpFuncList[112] = function (sysarg,args)
+	OnOperateGoldSilverTree(sysarg,args)
+end
+
+--添加消费礼包元宝数
+AnniversaryOpFuncList[113] = function (sysarg,args)
+	OnAddConsumePackageYB(sysarg,args)
+end
+
+--获取消费礼包信息
+AnniversaryOpFuncList[114] = function (sysarg,args)
+	OnGetConsumePackageInfo(sysarg,args)
+end
+
+--抽奖
+AnniversaryOpFuncList[115] = function (sysarg,args)
+	OnGetConsumePackageLottery(sysarg,args)
+end
+
+--添加开门利是元宝数
+AnniversaryOpFuncList[116] = function (sysarg,args)
+	OnAddRedEnvelopeYB(sysarg,args)
+end
+
+--领取开门利是奖励
+AnniversaryOpFuncList[117] = function (sysarg,args)
+	OnGetRedEnvelopeAward(sysarg,args)
+end
+
+--获取通用充值排行信息
+AnniversaryOpFuncList[118] = function (sysarg,args)
+	OnGetRechargeCommonData(sysarg,args)
+end
+
+--领取通用充值排行奖励
+AnniversaryOpFuncList[119] = function (sysarg,args)
+	OnGetRechargeCommonAward(sysarg,args)
+end
+
+--添加到通用充值排行榜
+AnniversaryOpFuncList[120] = function (sysarg,args)
+	OnAddRechargeCommonRank(sysarg,args)
+end
+
+--领取通用充值排行离线奖励
+AnniversaryOpFuncList[121] = function (sysarg,args)
+	OnGetRechargeCommonRankAward(sysarg,args)
+end
+
+--下发双倍奖励活动开启状态
+AnniversaryOpFuncList[122] = function (sysarg,args)
+	OnGetDoubleAwardOpenFlag(sysarg,args)
+end
+
+--下发双倍奖励活动单个开启状态
+AnniversaryOpFuncList[123] = function (sysarg,args)
+	OnGetDoubleAwardOneOpenFlag(sysarg,args)
+end
+
+--下发马年幸运抽奖总积分排行
+AnniversaryOpFuncList[124] = function (sysarg,args)
+	OnGetLuckAwardTotalScoreRank(sysarg,args)
+end
+
+--马年积分兑换
+AnniversaryOpFuncList[125] = function (sysarg,args)
+	OnGetLuckAwardScoreExchange(sysarg,args)
+end
+
+--下发登录奖励领取状态
+AnniversaryOpFuncList[126] = function (sysarg,args)
+	OnGetLoginAwardStatus(sysarg,args)
+end
+
+--领取登录奖励
+AnniversaryOpFuncList[127] = function (sysarg,args)
+	OnGetLoginAward(sysarg,args)
+end
+
+--领取马年幸运抽奖累计积分排行奖励
+AnniversaryOpFuncList[128] = function (sysarg,args)
+	OnGetLuckAwardRankAward(sysarg,args)
+end
+
+--古墓探宝
+AnniversaryOpFuncList[129] = function (sysarg,args)
+	OnTumulusTreasure(sysarg,args)
+end
+
+--获取通用充值排行榜
+AnniversaryOpFuncList[130] = function (sysarg,args)
+	GetRechargeCommonRank(sysarg,args)
+end
+
+--获取中秋登陆奖励
+AnniversaryOpFuncList[131] = function (sysarg,args)
+	GetMidAutumnLoginAwardOp(sysarg,args)
+end
+
+--请求烈火大亨
+AnniversaryOpFuncList[132] = function (sysarg,args)
+	GetZillionaireOp(sysarg,args)
+end
+
+--领取烈火大亨礼包
+AnniversaryOpFuncList[133] = function (sysarg,args)
+	GetZillionaireAwardOp(sysarg,args)
+end
+
+--请求周年专场信息
+AnniversaryOpFuncList[134] = function (sysarg,args)
+	GetAnniversaryStoreInfoOp(sysarg,args)
+end
+
+--请求周年专场购买
+AnniversaryOpFuncList[135] = function (sysarg,args)
+	GetAnniversaryStoreBuyOp(sysarg,args)
+end
+
+--请求每日一充
+AnniversaryOpFuncList[136] = function (sysarg,args)
+	GetRechargePerDayOp(sysarg,args)
+end
+
+--请求每日一充领奖
+AnniversaryOpFuncList[137] = function (sysarg,args)
+	GetRechargePerDayGetAwardsOp(sysarg,args)
+end
+
+--请求幸运竞猜
+AnniversaryOpFuncList[138] = function (sysarg,args)
+	GetLuckyGuessOp(sysarg,args)
+end
+
+--请求天道酬勤
+AnniversaryOpFuncList[139] = function (sysarg,args)
+	GetLaborOp(sysarg,args)
+end
+
+--请求珍宝盆栽
+AnniversaryOpFuncList[140] = function (sysarg,args)
+	GetPotPlantingOp(sysarg,args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeAnniversaryOp, EventCallDispatcher.HandlerAnniversaryOp)

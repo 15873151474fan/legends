@@ -1,0 +1,87 @@
+﻿--lua script
+
+--#include "data\config\item\NormalItemDatas.txt" once
+
+--[[
+    函数名称：useRepairItemFunc
+    函数描述：使用磨刀石维修装备
+    参数 sysarg 的描述：
+    参数 itemidx 的描述：
+    参数 itemPtr 的描述：
+    参数 ItemTable 的描述：
+]]
+function useRepairItemFunc(sysarg,itemidx,itemPtr,ItemTable)
+  --通知客户端
+  --使用磨刀石维修装备
+	if ItemTable.item_id == itemidx then     --
+		if ItemTable.repairType == 1 then 	--修理单件装备 
+			--通知客户端
+			--136 NPC装备修理子系统 3
+			local npack = DataPack.allocPacket(sysarg,136,3)  --申请一个数据包
+			if (npack == nil) then return end
+			DataPack.flush(npack)
+		elseif ItemTable.repairType == 2 then									--修理身上装备 所有装备
+			local wequipamount = Item.getEquipCount( sysarg )  --玩家穿着装备数
+			local eptrs = {}  --玩家装备指针集
+			for i = 1, wequipamount do
+				local eptr = Item.getEquipBySortID( sysarg, i )
+				-- if (eptr ~= nil ) then table.insert( eptrs, eptr ) end
+				if eptr ~= nil then
+					--红装修理道具更改
+					local nQuality = Item.getItemProperty( sysarg, eptr, Item.ipItemQuality, 0 ) 
+					if nQuality < RedRepair.quality then
+						table.insert( eptrs, eptr )
+					end
+				end
+			end
+			local repairCount = 0
+			for k, ptr in pairs(eptrs) do
+				if repairAEquip( sysarg, ptr, ItemTable, 0 ) == true then
+					repairCount = repairCount + 1
+				end
+			end
+			local tipMsg = ""
+			if repairCount >= ItemTable.minRepairCount then
+				if Actor.removeItem(sysarg, itemidx, 1, -1, -1, -1, "useRepairItem", 2) >= 1 then 
+					for k, ptr in pairs(eptrs) do
+						repairAEquip( sysarg, ptr, ItemTable, 1 )
+					end
+					tipMsg = Lang.ScriptTips.x00150
+				else
+					print("useRepairItem to remove item error")
+				end
+			else
+				tipMsg = Lang.ScriptTips.x00151
+			end
+			Actor.sendTipmsg(sysarg, tipMsg, ttTipmsgWindow)
+		end
+	end
+end
+
+--身上装备修理操作  
+--itemptr 装备指针
+--type 操作类型 0为检测装备耐久状态 1为修复装备耐久
+function repairAEquip( sysarg, itemptr, ItemTable, type)
+  --是否装备
+  local itemType = Item.getItemProperty( sysarg, itemptr, Item.ipItemType, 0 )
+  if ( itemType < Item.itWeapon or itemType > Item.itEquipMax ) then return false end
+  --是否需要维修
+  local hardness = Item.getItemProperty( sysarg, itemptr, Item.ipItemDua, 0 )
+  local hardmax = Item.getItemProperty( sysarg, itemptr, Item.ipItemDuaMax, 0 )
+  if ( hardness + ItemTable.limitRepairValue > hardmax ) then return false end	
+	
+	local result = true
+	if type == 1 then
+		result = Item.setItemProperty( sysarg, itemptr, Item.ipItemDua, hardmax )
+	end
+  return result
+end
+
+function useRepairItem_Init(sysarg)
+  for i = 1,table.getn(RepairItems) do
+		local x = RepairItems[i]
+		GlobalItemFn[x.item_id] = { func = useRepairItemFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable,useRepairItem_Init)

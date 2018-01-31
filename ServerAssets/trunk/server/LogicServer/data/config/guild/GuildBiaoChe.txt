@@ -1,0 +1,106 @@
+--帮派运镖活动 相关的常量定义
+
+--常规设置表
+GuildDartConst =
+{	
+	OpenTimes = 1,			--开启帮派运镖次数
+	SbkOwnOpenTimes = 2,		--沙巴克占领行会每天开启帮派运镖次数
+
+	OpenInterval = 3600,		--开启帮派运镖时间至少间隔(秒)
+	needGuildCoin = 500000,		--领取镖车所需的押金 (行会资金)
+
+	returnCoinRate = 20,		--被劫返还40%
+
+	dartTime = {19,22},		--在这个时间内不能押镖
+	
+	protectItemId = 7430,		--护车令的id
+
+	Dest =     --行会押镖的目的地
+	{
+	    -- x、y为目标npc 所在坐标，destsceneid为目标场景，destnpcname为目标NPC名称
+		nSceneid = 8, x = 113, y = 45, destnpcname = Lang.EntityName.n00090,
+	},
+	
+	Src =     --行会接镖地
+	{
+	    --xy为
+		nSceneid = 8, x = 92, y = 42, snpcname = Lang.EntityName.n00090,
+	},
+	
+	 --行会镖车配置 (行会美女)
+	  GuildDartHorse =
+	  {
+		id = 308,				--镖车id
+		livetime = 3600,			--存活的时间
+		monName = Lang.EntityName.m00355,	--镖车名字
+		x = 133,
+		y = 203,
+	  },
+	
+	--被劫镖车配置 (被欺负的美女)
+	beLootDart = 
+	{
+		id = 309,				--镖车id
+		modleId = 272,				--模型id
+		livetime = 3600,			--存活的时间
+		monName = Lang.EntityName.m00355,	--镖车名字
+	},
+	--押镖成功的奖励
+         successAwards = 
+	 {
+		{type = 20, id = 1, count = 1000, quality = -1, strong = -1, bind = 1, param = 0},
+	 },
+	
+	actorNumAward =				--根据押镖人数给奖励
+	{
+		{1,1},
+		{2,1.25},
+		{4,1.5},
+		{6,1.75},
+		{8,2},
+		{10,2.5},
+		{12,3},
+		{14,3.5},
+		{16,4},
+		{20,6},
+		{25,8},
+		{30,11},
+		{40,15},
+		{50,20},
+	},
+
+	awardJieBiaoRate = 1,			--劫镖人数的奖励的倍率
+	 AwardGuildCoin = 500000,			--额外奖励的行会资金
+	
+	--被劫镖后的奖励
+	 beLootAwards = 
+	 {
+		{type = 20, id = 1, count = 1000, quality = -1, strong = -1, bind = 1, param = 0},
+	 },
+
+	 --劫镖获得的奖励
+	 onLootAwards = 
+	 {
+		{type = 20, id = 1, count = 300, quality = -1, strong = -1, bind = 1, param = 0},
+	 },
+
+	  DartSetup =
+	  {
+		succFollowDist = 30,						-- 交镖成功距离
+		actionTime = 3600,							-- 护镖活动时间，秒为单位
+		-- guargStatus 护镖状态定义
+		CampDartStatusIdle = 0,			-- 没有护镖
+		CampDartStatusAccept = 1,		-- 已经接镖
+		CampDartStatusFinished = 2,	-- 完成镖，但还没有领取奖励
+		CampDartStatusGotAward = 3, 	-- 已经领取奖励。实际上此状态不存在。在领取奖励之后，就会重置
+
+		-- guardFailedReason 护镖失败原因
+		CampDartFailUnknown = 0,			-- 未知原因
+		CampDartFailExpired = 1,  		-- 护镖超时
+		CampDartFailOverMaxDist = 2, -- 玩家和镖车距离过远
+		CampDartFailObjDie=3,				-- 镖车死亡
+		CampDartFailActorGiveUp=4,		-- 玩家放弃
+		CampDartFailActorLogout=5,		-- 玩家退出游戏
+		CampDartFailBeLoot = 6,	--玩家死亡 镖车被劫
+	},
+}

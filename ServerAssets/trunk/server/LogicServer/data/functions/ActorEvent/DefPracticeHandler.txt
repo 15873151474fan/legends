@@ -1,0 +1,346 @@
+﻿--lua script
+
+--#include "data/config/misc/MudiReward.txt" once
+--#include "data\language\LangCode.txt" once
+--默认非VIP打坐的模型ID定义，访问下标为：职业 * 2 + 性别 -1
+PracticeConf = 
+{
+	_DefaultPracticeModles =
+	{
+	  100, 101, --剑宗 
+	  100, 101, --气宗 
+		0, 103, --灵华 
+	  102, 103, --司命 
+	  104,   0, --易经经 
+	  104,   0, --洗髓经 
+	  105, 106, --剑士 
+	  107, 108, --忍者 
+	},
+	
+	--VIP打坐的模型ID定义，索引：1 降龙十八掌 2 蛤蟆功 3 铁沙掌 4 唱歌 5 跳舞 6 弹琴 7 吹笛 8 喝酒 9刺绣
+	_DefaultPracticeVipModles =
+	{
+		110,	111,	--vip1,男，女
+		--112,	113,			--这里是vip2，类推
+	},
+	
+	--打坐特效
+	_PracticeEffect = 
+	{
+		{14,46},		--普通打坐中，单人特效是14，双修是46，类推
+		{47,48},		--vip1打坐中，单人特效是47，双修是48
+	},
+	
+	-- VIP用户打坐经验提示比例
+	_VIPPracticeExpAddRate = 
+	{
+		{ rate = 0.25,},-- 周卡VIP打坐经验提升百分比
+		{ rate = 0.5,}, -- 月卡VIP打坐经验提升百分比
+		{ rate = 1.0,}, -- 半年VIP打坐经验提升百分比
+	},		
+	
+	--拥吻 搞基
+	_Kiss = 
+	{
+		freeTimes = 3,	--免费次数
+		reqItem = 110,	--非免费需要道具
+	},
+}
+
+
+function getPracticeModel(sysarg,actionId,vipFlag,pt)
+	local newId = 0
+	local effid = 0
+	if actionId == nil or actionId == 0 then 
+		newId = PracticeConf._DefaultPracticeModles[Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION) * 2 + Actor.getIntProperty(sysarg,PROP_ACTOR_SEX) - 1]
+		actionId = 0
+	else
+		local isVIP = Actor.isVip(sysarg)
+		if vipFlag and isVIP == false then
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00001,ttTipmsgWindow)	
+			return false
+		end
+		local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+		newId = PracticeConf._DefaultPracticeVipModles[(actionId-1)*2+sex+1]
+	end
+	effid = PracticeConf._PracticeEffect[actionId+1][pt]	--
+	return true,newId,effid
+end
+--[[
+    函数名称：OnRequestDefaultPractice
+    函数描述：玩家请求进入默认打操练 
+    参数 sysarg 的描述：
+    参数 actionId 的描述：所选的动作类型 
+]]
+EventCallDispatcher.handlerImplementDefaultPractice = function (sysarg, arg)
+	if (arg[1] == 1) then	--请求普通打坐
+		local actionId = arg[2]
+		if  Actor.hasMapAreaAttri(sysarg,aaNotMeditation) then 
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00002,ttTipmsgWindow)
+			return 
+		end
+		if actionId == -1 then
+			local sval = Actor.getDyanmicVar(sysarg)		
+			if sval.actionid ~= nil then
+				actionId = sval.actionid
+			else
+				actionId = 0 
+			end
+		end
+		
+		local result = false
+		local effid = 1
+		result,actionId,effid = getPracticeModel(sysarg,actionId,true,1)	--1表示是单人打坐，2是双修
+		if not result then
+			return
+		end
+		--设置操练奖励            
+		EventCallDispatcher.setDefaultPracticeAward(sysarg)
+		--开始操练 
+		Actor.startPractice(sysarg, actionId, effid)
+		Actor.setPracticeXiuweiRate(sysarg,15)	--普通打坐每20秒获得15点修为
+	elseif arg[1] == 2 then	--邀请双修
+		EventCallDispatcher.handlerImplementInvitePractice(sysarg,arg[2],arg[3])
+	elseif arg[1] == 3 then	--回复邀请双修
+		EventCallDispatcher.handlerImplementInvitePracticeResult(sysarg,arg[2],arg[3])
+		
+	elseif arg[1] == 4 then	--邀请搞基
+		EventCallDispatcher.handlerImplementInviteKiss(sysarg,arg[2],arg[3])
+	end
+end     
+
+--回复双修邀请
+EventCallDispatcher.handlerImplementInvitePracticeResult = function(sysarg,name,inviteresult)
+--[[
+EventCallDispatcher.handlerImplementInvitePracticeResult = function(sysarg)
+	local name = "程珊fa灵"
+	local inviteresult = 1
+--]]	
+	if Actor.isDeath(sysarg) then return end
+	
+	local ActorPtr = System.getActorPtr(name)
+	if ActorPtr == nil and inviteresult ~= 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz007,ttFlyTip)
+		return
+	end
+	
+	if Actor.isDeath(ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz010,ttFlyTip)
+		return
+	end
+	
+	if Actor.isOnBoard(ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz012,ttTipmsgWindow)
+		return
+	end
+	
+	if Actor.isOnBoard(sysarg) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz011,ttTipmsgWindow)
+		return
+	end
+	if inviteresult == 0 then
+		Actor.sendTipmsg(ActorPtr,Lang.ScriptTips.dz009,ttTipmsgWindow)
+		return
+	end
+	
+	if  Actor.hasMapAreaAttri(sysarg,aaNotMeditation) then 
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00002,ttTipmsgWindow)
+		return 
+	end
+	--自己是否在双修，对方是否在双修
+	if Actor.isDoublePracticeing(sysarg) ~= 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz002,ttFlyTip)
+		return
+	end
+	if Actor.isDoublePracticeing(ActorPtr) ~= 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz003,ttFlyTip)
+		return
+	end
+	--是否同屏，是否有位置双修
+	if not Actor.isInSameScreen(sysarg,ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz004,ttFlyTip)
+		return
+	end
+
+	local x = 0
+	local y = 0
+	local place = false
+	place,x,y = Actor.getDoublePracticePlace(ActorPtr,x,y)
+	if not place then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz008,ttTipmsgWindow)
+		return
+	end
+	
+
+	--计算外观
+	local sval = Actor.getDyanmicVar(ActorPtr)		
+	local actionId = sval.actionid
+	--print("actionId:"..actionId)
+	--开始操练 
+	local result = false
+	local newId = 0
+	local effid = 1
+	result,newId,effid = getPracticeModel(ActorPtr,actionId,true,2)	--
+	if not result then
+		return
+	end
+	
+	local rate = 20
+	if Actor.getIntProperty(sysarg,PROP_ACTOR_SEX) ~= Actor.getIntProperty(ActorPtr,PROP_ACTOR_SEX) then	--异性双修
+		rate = 25
+	end
+	
+	local x1 = 0
+	local y1 = 0
+	x1,y1 = Actor.getEntityPosition(ActorPtr,x1,y1)
+	local d1,d2 = 2,6
+	if x1 > x then
+		d1,d2 = d2,d1
+	end
+	Actor.setDir(ActorPtr,d1)	--右
+	Actor.setDir(sysarg,d2)
+	--print("d1:"..d1.." d2:"..d2)
+	--瞬移到对方的位置
+	System.telportSceneDelay(sysarg,Actor.getSceneId(ActorPtr),x,y,200)
+	--System.telportScene(sysarg,Actor.getSceneId(ActorPtr),x,y)
+	
+	Actor.startPractice(ActorPtr, newId, effid,sysarg)
+	Actor.setPracticeXiuweiRate(ActorPtr,rate)	--普通打坐每20秒获得15点修为
+	--print("newid:"..newId)
+	
+	--开始操练 
+	result,newId,effid = getPracticeModel(sysarg,actionId,false,2)	--跟邀请者，不需要管是不是vip
+	Actor.startPractice(sysarg, newId, effid,ActorPtr)
+	Actor.setPracticeXiuweiRate(sysarg,rate)	--普通打坐每20秒获得15点修为
+	--print("newid:"..newId)
+	
+	EventCallDispatcher.setDefaultPracticeAward(sysarg)
+	EventCallDispatcher.setDefaultPracticeAward(ActorPtr)
+	
+	Actor.DelDoublePracticeInvite(ActorPtr,Actor.getIntProperty(sysarg,PROP_ENTITY_ID))
+end
+--[[
+function testdir(sysarg,dir)
+	Actor.setDir(sysarg,dir)
+end
+--]]
+
+
+--邀请双修
+EventCallDispatcher.handlerImplementInvitePractice = function(sysarg,name,actionid)
+	if Actor.isDeath(sysarg) then return end
+	if Actor.isOnBoard(sysarg) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz011,ttFlyTip)
+		return
+	end
+	local sval = Actor.getDyanmicVar(sysarg)		
+	sval.actionid = actionid
+	
+	local ActorPtr = System.getActorPtr(name)
+	if ActorPtr == nil then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz001,ttFlyTip)
+		return
+	end
+	if Actor.isDeath(ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz010,ttFlyTip)
+		return
+	end
+	
+	if Actor.isOnBoard(ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz012,ttFlyTip)
+		return
+	end
+	
+	if  Actor.hasMapAreaAttri(sysarg,aaNotMeditation) then 
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00002,ttTipmsgWindow)
+		return 
+	end
+	--自己是否在双修，对方是否在双修
+	if Actor.isDoublePracticeing(sysarg) ~= 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz002,ttFlyTip)
+		return
+	end
+	if Actor.isDoublePracticeing(ActorPtr) ~= 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz003,ttFlyTip)
+		return
+	end
+	--是否同屏，是否有位置双修
+	if not Actor.isInSameScreen(sysarg,ActorPtr) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz004,ttFlyTip)
+		return
+	end
+	local x = 0
+	local y = 0
+	local place = false
+	place,x,y = Actor.getDoublePracticePlace(sysarg,x,y)
+	if not place then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz005,ttFlyTip)
+		return
+	end
+	local actorid = Actor.getIntProperty(ActorPtr,PROP_ENTITY_ID)
+	if Actor.HasDoublePracticeInvite(sysarg,actorid) then
+		return
+	end
+	Actor.AddDoublePracticeInvite(sysarg,actorid)
+	
+	--通知对方
+	local npack = DataPack.allocPacket(ActorPtr,17,2)  --申请一个数据包
+	DataPack.writeString(npack,Actor.getName(sysarg))
+	DataPack.flush(npack)
+	
+	Actor.sendTipmsg(sysarg,Lang.ScriptTips.dz006,ttTipmsgWindow)
+end
+
+
+--testprac = EventCallDispatcher.handlerImplementInvitePractice
+
+--[[
+    重设角色操练奖励 
+]] 
+EventCallDispatcher.setDefaultPracticeAward = function (sysarg)
+	--[[
+	--清空打坐奖励	
+	Actor.clearPracticeAward(sysarg)
+	
+	local index = Actor.isDoublePracticeing(sysarg)
+	--print("actionId:"..actionId)  
+	--设置操练奖励（最好是让策划提供数值算法，提供数据配置读取比较占脚本资源）
+	local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+	
+	local exp = 0
+	if MudiRewardConfig[level] == nil then return end
+	exp = MudiRewardConfig[level][index+1]
+	--如果是在城镇，要加成
+	if Actor.hasMapAreaAttri(sysarg,39) then
+		exp = exp + MudiRewardConfig[level][4]
+	end
+		
+	local vipExpAdd = 0	
+	local isVIP = Actor.isVip(sysarg)
+	if (isVIP) then
+		local vipType = Actor.getVipType(sysarg)
+		vipExpAdd = PracticeConf._VIPPracticeExpAddRate[vipType+1].rate
+	end	
+	local rewardexp = math.floor(exp*(1 + vipExpAdd))  	
+	Actor.addPracticeAward(sysarg,PROP_ACTOR_EXP, 5, rewardexp) --每5秒获得100经验
+	--]]
+end
+
+
+
+EventCallDispatcher.handlerLevelUpforDefaultPractice = function (sysarg, arg)	
+	if Actor.isPracticing(sysarg) then  	
+		EventCallDispatcher.setDefaultPracticeAward(sysarg)  
+	end
+end 
+   
+
+EventCallDispatcher.handleVIPStatusChanged = function(sysarg, arg)	
+	if (arg[1] == enVIPRedDiamond and Actor.isPracticing(sysarg) ) then		
+		EventCallDispatcher.setDefaultPracticeAward(sysarg)  		
+	end
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeRequestDefaultPractice, EventCallDispatcher.handlerImplementDefaultPractice)   
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeLevel, EventCallDispatcher.handlerLevelUpforDefaultPractice)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUpdateVipInfo, EventCallDispatcher.handleVIPStatusChanged)

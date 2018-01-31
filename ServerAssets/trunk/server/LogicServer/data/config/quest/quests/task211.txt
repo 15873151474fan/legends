@@ -1,0 +1,42 @@
+﻿--lua script
+{
+	id = 211,			-- 狩猎任务
+	parentid = -1,type = 3,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 86400,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = false,
+	excludetree = false,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name211,
+	content = Lang.Quest.desc211,
+
+	prom = { type = 1, scene = Lang.SceneName.s50013, npc = "" },
+	comp = { type = 1, scene = Lang.SceneName.s50013, npc = "" },
+	target = {
+		{
+			type = 10, id = 12, count = 10, rewardId = 0,useList = false,
+			location = {
+				sceneid = 2, x= 0,y = 0,entityName = Lang.EntityName.n00040,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 51 },
+                { type = 14, id = 1, count = 0 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 3000000, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 50000, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+	},
+	CompMsTalks = {
+	},
+	CompMsTip = {
+	},
+	PassMsTip = {
+	},
+},

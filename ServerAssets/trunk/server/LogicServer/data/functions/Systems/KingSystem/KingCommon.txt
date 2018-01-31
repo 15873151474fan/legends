@@ -1,0 +1,671 @@
+
+
+--请求捐献
+function DonateOp(sysarg,args)
+	if System.isCommonServer() == true then
+		return
+	end
+	
+	local nType = args[2]
+	local nCount = args[3]
+	
+	if nType ~= 1 and nType ~= 2 then
+		return 
+	end
+	
+	if nCount < 0 then
+		return 
+	end 
+	
+	local kingRankPtr = Ranking.getRanking(Lang.Rank.KingRankNameFile)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	local consumeType = 0
+	local exploit = 0
+	local logTipsStr = ""
+	
+	if nType == 1 then
+		if nCount < KingConfig.ybNum then  
+			return 
+		end
+		if Actor.checkConsume(sysarg, 15, 0, nCount) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kg0001, ttFlyTip)
+			return 
+		end
+		consumeType = 3
+		
+		exploit = math.floor(nCount / KingConfig.ybNum) * KingConfig.ybExploit
+		logTipsStr = Lang.LogTips.kg0001
+	else
+		if nCount < KingConfig.coinNum then
+			return 
+		end
+		if Actor.checkConsume(sysarg, 6, 0, nCount) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kg0002, ttFlyTip)
+			return 
+		end
+		
+		if kingRankPtr then
+			local itemPtr = Ranking.getItemPtrFromId(kingRankPtr, actorId)
+			if itemPtr then
+				local conSumcoin = tonumber(Ranking.getSub(itemPtr, 9)) or 0
+				if conSumcoin + nCount > KingConfig.maxCoin then
+					Actor.sendTipmsg(sysarg, Lang.Activity.kg0004, ttFlyTip) 
+					return 
+				end
+			else
+				if nCount > KingConfig.maxCoin then
+					Actor.sendTipmsg(sysarg, Lang.Activity.kg0004, ttFlyTip) 
+					return 
+				end
+			end
+		end
+		
+		consumeType = 1
+		exploit = math.floor(nCount / KingConfig.coinNum) * KingConfig.coinExploit 
+		nCount = math.floor(nCount / KingConfig.coinNum) * KingConfig.coinNum
+		logTipsStr = Lang.LogTips.kg0002
+	end
+	
+	
+	
+	if Actor.changeMoney(sysarg,consumeType,-nCount,948,logTipsStr) ~= true then
+		return 
+	end
+	
+	System.addToKingRankFile(sysarg, exploit) --添加到排行
+
+	if kingRankPtr then
+		local kingItemPtr = Ranking.getItemPtrFromId(kingRankPtr, actorId) 
+		if kingItemPtr then
+			if nType == 2 then 
+				local curConSumcoin = tonumber(Ranking.getSub(kingItemPtr, 9)) or 0
+				Ranking.setSub(kingItemPtr, 9, curConSumcoin + nCount)
+				
+			elseif nType == 1 then
+				if nCount >= KingConfig.broadcastCount then
+					local actorName = Actor.getName(sysarg)
+					System.broadcastTipmsg(string.format(Lang.Activity.kg0006, actorName, nCount), ttScreenCenter+ttChatWindow)
+				end
+			end 
+			
+			local kingId = Actor.calcKingId(sysarg) --重新计算kingid 
+			local limitIdCount = System.getKingIdLimitCount()
+			if kingId > 0 and kingId <= limitIdCount then
+				if kingId == 1 then
+					local lastKingId = tonumber(Ranking.getSub(kingItemPtr, 10)) or 0
+					if lastKingId ~= kingId then 
+						local actorName = Actor.getName(sysarg)
+						System.broadcastTipmsg(string.format(Lang.Activity.kg0005, actorName), ttScreenCenter+ttChatWindow)
+					end
+				end
+				
+				local index = Ranking.getIndexFromPtr(kingItemPtr)
+				local limitCount = System.getKingLimitCount()
+				refreshByKingRank(index, limitCount)
+			else
+				local lastRank = tonumber(Ranking.getSub(kingItemPtr, 8)) or 0
+				local curRank = GetOneselfRank(actorId)
+				
+				Ranking.setSub(kingItemPtr, 7, lastRank)
+				Ranking.setSub(kingItemPtr, 8, curRank)   	
+				Actor.refreshAttriByKing(sysarg)
+			end
+			
+		end
+	end
+		
+	local pack = DataPack.allocPacket(sysarg, 58, 3)
+	if pack ~= nil then
+		DataPack.writeChar(pack, 1)
+		DataPack.flush(pack)
+	end
+end
+
+--刷新排名
+function refreshByKingRank(index, limitCount)
+	local kingRankPtr = Ranking.getRanking(Lang.Rank.KingRankNameFile)
+	if kingRankPtr then
+		
+		for i = index, limitCount do 
+			local kingItemPtr = Ranking.getItemPtrByIndex(kingRankPtr, i)
+			if kingItemPtr then
+				local actorId = Ranking.getId(kingItemPtr)
+				
+				local lastRank = tonumber(Ranking.getSub(kingItemPtr, 8)) or 0
+				local curRank = GetOneselfRank(actorId)
+			
+				Ranking.setSub(kingItemPtr, 7, lastRank)
+				Ranking.setSub(kingItemPtr, 8, curRank)   				
+				
+				local actorPtr = System.getEntityPtrByActorID(actorId)
+				
+				local point = Ranking.getPoint(kingItemPtr)
+				local kingId = System.getKingId(point)
+				local lastKingId = tonumber(Ranking.getSub(kingItemPtr, 11)) or 0
+				local curKingId = GetKingId(i, kingId)
+				
+				Ranking.setSub(kingItemPtr, 10, lastKingId)
+				Ranking.setSub(kingItemPtr, 11, curKingId)
+			
+				if lastKingId > 0 then
+					if curKingId > lastKingId then
+						if curKingId <= table.getn(KingConfig.kingList) then
+							local KingName = KingConfig.kingList[curKingId].name
+							System.addOfflineMsg(actorId, 58, string.format(Lang.Activity.kg0003, KingName), 0, curKingId)
+						end
+	
+					end
+				
+				end
+				
+				if actorPtr then
+					Actor.refreshAttriByKing(actorPtr)
+				end
+			end
+			
+		end 
+	end 
+
+end
+
+--获取剩余爵位名额
+function GetRemainKing(sysarg,args)
+	if System.isCommonServer() == true then
+		return
+	end
+	
+	local curKingIdTab = {}
+	local limitCount = System.getKingLimitCount()
+	local limitIdCount = System.getKingIdLimitCount()
+	local kingCount = System.getKingCount()
+	
+	for i = 1, kingCount do 
+		curKingIdTab[i] = 0
+	end
+	
+	local kingRankPtr = Ranking.getRanking(Lang.Rank.KingRankNameFile)
+	if kingRankPtr then
+		for i = 1, limitCount do 
+			local kingItemPtr = Ranking.getItemPtrByIndex(kingRankPtr, i-1) 
+			if kingItemPtr then
+				local point = Ranking.getPoint(kingItemPtr)
+				local kingId = System.getKingId(point)
+				local index = Ranking.getIndexFromPtr(kingItemPtr)
+				
+				
+				if kingId > 0 and kingId <= kingCount then
+					if kingId <= limitIdCount then
+						kingId = GetKingId(index, kingId)
+					end
+					
+					curKingIdTab[kingId] = curKingIdTab[kingId] + 1
+				else
+					break
+				end
+			
+			end
+		end 
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 58, 1)
+	if pack == nil then
+		return 
+	end
+	
+	DataPack.writeByte(pack, kingCount)
+	for i = 1, kingCount do 
+		DataPack.writeByte(pack, i)
+		DataPack.writeByte(pack, curKingIdTab[i])
+	end
+
+	DataPack.flush(pack)
+end
+
+--获取排名
+function GetKingRank(sysarg,args) 
+	if System.isCommonServer() == true then
+		return
+	end
+	
+	local nIndex = args[2]
+	local nCount = 0 --args[3]
+	local startKingId = 0  --本页开始的kingid
+	local startIndex = 0   --本页开始kingid的个第几个的开始
+	local lastEndIndex = 0  --从开始页的第一到上一页的结束索引
+	local curEndIndex = 0  --从开始页的第一个到本页结束的索引
+	
+	local endKingId = 0  --本页结束的kingid，
+	local endIndex = 0 	--本页结束的kingid的索引
+	
+	local rankIndex = 0
+	
+	if nIndex < 0 or nCount < 0 then
+		return 
+	end
+	
+	local kingCount = System.getKingCount()
+	if nIndex == 0 then
+		nCount = KingConfig.firtPage
+		startKingId = 1 --本页开始的kingid
+		startIndex = 1  --本页开始kingid的个第几个的开始
+		curEndIndex = KingConfig.firtPage
+	else 
+		nCount = KingConfig.otherPage  
+		lastEndIndex = KingConfig.firtPage + (nIndex - 1) * nCount
+		curEndIndex = KingConfig.firtPage + nIndex * nCount
+		
+		for i = 1, kingCount do 
+			local kingAccNum = System.getKingAccNum(i)
+			if kingAccNum >= lastEndIndex then
+				if kingAccNum == lastEndIndex then
+					startKingId = i+1
+					startIndex = 1
+				elseif kingAccNum > lastEndIndex  then
+					startKingId = i
+					local temp = kingAccNum - lastEndIndex
+					startIndex = System.getKingNum(i) - temp + 1
+				end
+				break
+			end
+		end
+	end
+	
+	for i = 1, kingCount do 
+			local kingAccNum = System.getKingAccNum(i)
+			if kingAccNum >= curEndIndex then
+				if kingAccNum == curEndIndex then
+					endKingId = i
+					endIndex = System.getKingNum(i)
+				elseif kingAccNum > lastEndIndex  then
+					endKingId = i
+					local temp = kingAccNum - curEndIndex
+					endIndex = System.getKingNum(i) - temp
+				end
+				break
+			end
+	end
+	
+	
+	local pack = DataPack.allocPacket(sysarg, 58, 2)
+	if pack == nil then
+		return 
+	end
+	
+	local limitCount = System.getKingLimitCount()  --总排名个数
+	local limitIdCount = System.getKingIdLimitCount() --有个数现在的爵位数量
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local myrank = GetOneselfRank(actorId)
+	
+	if myrank > limitCount then
+		myrank = 0
+	end
+	
+	DataPack.writeByte(pack, myrank) --我的排名
+	
+	local rankIndex = lastEndIndex + 1  --排名
+	
+	local tempStartIndex = 1 --临时起始索引
+	local sendCount = 0 --发送的个数
+	
+	local curPage = 0
+	local totalPage = 0
+	
+	if nIndex == 0 then
+		totalPage = 1
+	else
+		local addPage = 0
+		if (limitCount - KingConfig.firtPage) % KingConfig.otherPage > 0 then
+			addPage = 1
+		end
+		totalPage = math.floor((limitCount - KingConfig.firtPage) / KingConfig.otherPage) + addPage
+	end
+	
+	DataPack.writeByte(pack, nIndex)
+	DataPack.writeByte(pack, totalPage)
+	
+	DataPack.writeByte(pack, nCount) 
+	
+	local tempKingId = startKingId  --当前kingId
+	
+	--local needCount = System.getKingNum(tempKingId) - startIndex + 1 --当前kingId需要的个数, 没有的补0
+	local needCount = GetCurKingNeedCount(tempKingId, startIndex, nCount, sendCount)
+	
+	local kingRankPtr = Ranking.getRanking(Lang.Rank.KingRankNameFile)
+	if kingRankPtr then
+		for i = 1, limitCount do 
+			local kingItemPtr = Ranking.getItemPtrByIndex(kingRankPtr, i-1)
+			if kingItemPtr then
+				
+				local point = Ranking.getPoint(kingItemPtr)
+				local kingId = System.getKingId(point)
+				local index = Ranking.getIndexFromPtr(kingItemPtr)
+				
+				kingId = GetKingId(index, kingId) 
+				
+				if kingId > 0 then
+					if kingId == tempKingId then
+						if tempStartIndex < startIndex then
+							tempStartIndex = tempStartIndex + 1
+						else
+							WriteKingData(pack, nIndex, rankIndex, kingId, true, kingItemPtr)
+							rankIndex = rankIndex + 1
+							needCount = needCount - 1
+							sendCount = sendCount + 1
+							if kingId == endKingId then
+								if startIndex == endIndex then
+									break
+								end
+							end
+							
+							startIndex = startIndex + 1
+							tempStartIndex = tempStartIndex + 1
+							
+							if needCount <= 0 then
+								tempKingId = tempKingId + 1
+								startIndex = 1
+								tempStartIndex = 1
+								--needCount = System.getKingNum(tempKingId) - startIndex + 1 --当前kingId需要的个数, 没有的补0
+								needCount = GetCurKingNeedCount(tempKingId, startIndex, nCount, sendCount)
+							end
+						end
+					elseif kingId > tempKingId then
+						if needCount > 0 then
+							for j = 1, needCount do 
+								local sendkingId = System.getKingIdByIndex(rankIndex)
+								WriteKingData(pack, nIndex, rankIndex, sendkingId, false, nil)
+								rankIndex = rankIndex + 1
+								sendCount = sendCount + 1
+							end
+							needCount = 0
+						end
+						
+						if kingId <= endKingId then
+							local temp = kingId - tempKingId - 1 --相差多少个爵位类型
+							for k = 1, temp do 
+								tempKingId = tempKingId + 1
+								startIndex = 1
+								--needCount = System.getKingNum(tempKingId) - startIndex + 1
+								needCount = GetCurKingNeedCount(tempKingId, startIndex, nCount, sendCount)
+								for l = 1, needCount do 
+									WriteKingData(pack, nIndex, rankIndex, tempKingId, false, nil)
+									rankIndex = rankIndex + 1
+									sendCount = sendCount + 1
+								end
+								needCount = 0
+							end
+						
+							
+							tempKingId = tempKingId + 1   
+							tempStartIndex = 1 --重置起始
+							startIndex = 1 --重置起始
+							--needCount = System.getKingNum(tempKingId) - startIndex + 1
+							needCount = GetCurKingNeedCount(tempKingId, startIndex, nCount, sendCount)
+
+							WriteKingData(pack, nIndex, rankIndex, tempKingId, true, kingItemPtr)
+							rankIndex = rankIndex + 1
+							needCount = needCount - 1
+							sendCount = sendCount + 1
+							startIndex = startIndex + 1
+							tempStartIndex = tempStartIndex + 1
+							
+						else
+							break
+						end
+
+					end
+					
+				end
+			end
+		end
+	end
+	
+	if nCount > sendCount then
+		local needCount = rankIndex - lastEndIndex - 1
+		for m = 1, nCount-sendCount do 
+			kingId = System.getKingIdByIndex(rankIndex)
+			WriteKingData(pack, nIndex, rankIndex, kingId, false, nil)
+			rankIndex = rankIndex + 1
+		end
+	end
+	
+	DataPack.flush(pack)
+
+end
+
+function GetCurKingNeedCount(tempKingId, startIndex, nCount, sendCount)
+	local needCount = System.getKingNum(tempKingId) - startIndex + 1
+	if needCount > nCount - sendCount then
+		needCount = nCount - sendCount
+	end
+	return needCount
+
+end
+
+--获取自己的排名
+function GetOneselfRank(actorId)
+	local flag = 0
+	local rankIndex = 0
+	local kingRankPtr = Ranking.getRanking(Lang.Rank.KingRankNameFile)
+	if kingRankPtr then
+		
+		local limitCount = System.getKingLimitCount()
+		local limitIdCount = System.getKingIdLimitCount()
+		local count = 0
+		local tempKingId = 1
+		
+		local needCount = System.getKingNum(tempKingId)
+		
+		for i = 1, limitCount do 
+			local kingItemPtr = Ranking.getItemPtrByIndex(kingRankPtr, i-1)
+			if kingItemPtr then
+				local point = Ranking.getPoint(kingItemPtr)
+				local kingId = System.getKingId(point)
+				local tempActorId = Ranking.getId(kingItemPtr)
+				
+				if kingId == tempKingId then
+					rankIndex = rankIndex + 1 
+					needCount = needCount - 1
+					if needCount <= 0 then
+						tempKingId = tempKingId + 1
+						needCount = System.getKingNum(tempKingId)
+					end
+			
+				elseif kingId > tempKingId then
+					if needCount > 0 then
+						rankIndex = rankIndex + needCount
+						
+						needCount = 0
+					end
+				
+					if kingId <= limitIdCount then
+						local temp = kingId - tempKingId - 1 --相差多少个爵位类型
+						for j = 1, temp do 
+							tempKingId = tempKingId + 1
+							needCount = System.getKingNum(tempKingId)
+							
+							if needCount > 0 then
+								
+								rankIndex = rankIndex + needCount
+								
+							end
+							needCount = 0
+						end
+					
+					end
+				
+					tempKingId = tempKingId + 1   
+					needCount = System.getKingNum(tempKingId)
+					rankIndex = rankIndex + 1
+					needCount = needCount - 1
+				else
+					rankIndex = rankIndex + 1
+					needCount = needCount - 1
+					if needCount <= 0 then
+						tempKingId = tempKingId + 1
+						needCount = System.getKingNum(tempKingId)
+						
+					end
+				end	
+				
+				if actorId == tempActorId then
+					flag = 1
+					break
+				end
+				
+			end
+		end 	
+	end
+	
+	if flag ~= 1 then
+		rankIndex = 0 
+	end
+
+	return rankIndex
+	
+end
+
+
+--nType 0发第一页数据，1发其他页数据，  isHave为false，该位没值，为true该为有值
+function WriteKingData(pack, nType, rankIndex, kingId, isHave, kingItemPtr)
+
+	DataPack.writeByte(pack, rankIndex)
+	DataPack.writeByte(pack, kingId)
+	
+	if isHave == true then
+		if kingItemPtr then
+			DataPack.writeInt(pack, Ranking.getPoint(kingItemPtr))
+			DataPack.writeString(pack, Ranking.getSub(kingItemPtr, 0))
+		
+			local lastRank = tonumber(Ranking.getSub(kingItemPtr, 7)) or 0
+			local curRank = tonumber(Ranking.getSub(kingItemPtr, 8)) or 0
+			local flag = 0
+			
+			if lastRank <= 0 then
+				if curRank > 0 then
+					flag = 1
+				end
+			else
+				if curRank < lastRank then
+					flag = 1
+				elseif curRank > lastRank then
+					flag = 2
+				end
+			end
+			
+			DataPack.writeByte(pack, flag)
+			if nType == 0 then
+				DataPack.writeInt(pack, (tonumber(Ranking.getSub(kingItemPtr, 1)) or 0)) 
+				DataPack.writeChar(pack, (tonumber(Ranking.getSub(kingItemPtr, 2)) or 0))
+				DataPack.writeInt(pack, (tonumber(Ranking.getSub(kingItemPtr, 3)) or 0))
+				DataPack.writeInt(pack, (tonumber(Ranking.getSub(kingItemPtr, 4)) or 0))
+				DataPack.writeInt(pack, (tonumber(Ranking.getSub(kingItemPtr, 5)) or 0))
+			end
+		end
+	else
+		if nType == 0 then
+			DataPack.writeInt(pack, 0)
+			DataPack.writeString(pack, "-")
+			DataPack.writeByte(pack, 0)
+			DataPack.writeInt(pack, (tonumber(Ranking.getSub(kingItemPtr, 1)) or 0)) 
+			DataPack.writeChar(pack, (tonumber(Ranking.getSub(kingItemPtr, 2)) or 0))
+			DataPack.writeInt(pack, (tonumber(Ranking.getSub(kingItemPtr, 3)) or 0))
+			DataPack.writeInt(pack, (tonumber(Ranking.getSub(kingItemPtr, 4)) or 0))
+			DataPack.writeInt(pack, (tonumber(Ranking.getSub(kingItemPtr, 5)) or 0))
+		else
+			DataPack.writeInt(pack, 0)
+			DataPack.writeString(pack, "-")
+			DataPack.writeByte(pack, 0)
+		end
+	end 
+	
+end
+
+
+--零点重置爵位系统数据
+function OnResetKingParamData()
+	local kingRankPtr = Ranking.getRanking(Lang.Rank.KingRankNameFile)
+	if kingRankPtr then
+		local count = Ranking.getRankItemCount(kingRankPtr)
+		for i = 1, count do
+			local kingItemPtr = Ranking.getItemPtrByIndex(kingRankPtr, i-1)
+			if kingItemPtr then
+				Ranking.setSub(kingItemPtr, 9, 0)
+			end
+		end
+	end
+end
+
+
+--每周重置爵位系统数据
+function OnResetKingData()
+	local kingRankPtr = Ranking.getRanking(Lang.Rank.KingRankNameFile)
+	if kingRankPtr then
+		local count = Ranking.getRankItemCount(kingRankPtr)
+		for i = 1, count do
+			local kingItemPtr = Ranking.getItemPtrByIndex(kingRankPtr, i-1)
+			if kingItemPtr then
+				local kingItemPtr = Ranking.getItemPtrByIndex(kingRankPtr, i-1)
+				if kingItemPtr then
+					local actorId = Ranking.getId(kingItemPtr)
+					local actorPtr = System.getEntityPtrByActorID(actorId)	
+					Actor.setUIntProperty(actorPtr, PROP_ACTOR_KINGID, 0)
+					Actor.setUIntProperty(actorPtr, PROP_ACTOR_EXPLOIT, 0)
+					Actor.refreshAttriByKing(actorPtr)
+				end
+			end
+		end
+		
+		Ranking.clearRanking(kingRankPtr)
+		
+	end
+
+end
+
+
+--获取kingId
+function GetKingId(nIndex, nKingId) 
+	
+	local nCurKingId = nKingId
+	local nTempCount = 0
+	local nNeedCount = System.getKingNum(nCurKingId)
+	
+	local nLimitIdCount = System.getKingIdLimitCount()
+	local nLimitCount = System.getKingLimitCount() - 1
+	
+	local kingRankPtr = Ranking.getRanking(Lang.Rank.KingRankNameFile)
+	if kingRankPtr then
+			if nKingId > 0 and nKingId <= nLimitIdCount then
+				for nIdx = 0, nLimitCount do 
+					local  kingItemPtr = Ranking.getItemPtrByIndex(kingRankPtr, nIdx) 
+					
+					if kingItemPtr then
+						local nTempPoint = Ranking.getPoint(kingItemPtr)
+						local nTempKingId = tonumber(Ranking.getSub(kingItemPtr, 11)) or 0  --System.getKingId(nTempPoint)
+						
+						
+						if nIdx < nIndex then
+						
+							if nTempKingId >= nKingId then
+								nTempCount = nTempCount + 1
+								if nTempCount == nNeedCount then
+									nCurKingId = nCurKingId + 1
+									
+									nNeedCount = System.getKingNum(nCurKingId)
+									nTempCount = 0
+								end
+							end
+						else
+							break
+						end
+					end
+				end
+
+				nKingId = nCurKingId
+			end
+	end
+	
+	return nKingId
+
+end

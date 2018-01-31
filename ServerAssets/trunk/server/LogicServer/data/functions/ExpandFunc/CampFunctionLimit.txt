@@ -1,0 +1,17 @@
+﻿
+
+--[[
+    函数名称：checkCampFunctionLimitWithNpc
+    函数描述：阵营NPC功能限制 --所挂的NPC必须存在全局NPC对象
+    参数 sysarg 的描述：角色对象 
+    参数 npcobj 的描述：所指NPC对象 
+]]
+function checkCampFunctionLimitWithNpc(sysarg,npcobj)
+  local str = Lang.TaskTalk.n00025
+  local npcZY = Actor.getCampId(npcobj)
+  local userZY = Actor.getCampId(sysarg)
+	if npcZY == userZY then
+		return true, ""
+	end
+  return false, str
+end

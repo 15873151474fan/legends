@@ -1,0 +1,27 @@
+
+--#include "data\functions\Activity\KillEvil\KillEvilCommon.txt" once
+
+MonDieDispatcher.Boss4000Die = function (monster,sysarg,monId)
+	SetKillEvilMonster(nil)
+end
+
+MonDieDispatcher.Boss6000Die = function (monster,sysarg,monId)
+	local hScene = Actor.getSceneHandle(monster)
+	if hScene > 0 then
+		local info = KillEvilConfig.MinBoss
+		Fuben.createMonsters(hScene, info.id,info.x1,info.x2,info.y,info.count,info.time)
+	end
+end
+
+MonDieDispatcher.MinBossDie = function (monster,sysarg,monId)
+	local hScene = Actor.getSceneHandle(monster)
+	local count = Fuben.getLiveMonsterCount(hScene, monId)
+	if count <= 0 then
+		SetKillEvilMonster(nil)
+	end
+end
+
+
+--MonDieDispatcher.register(160, MonDieDispatcher.Boss4000Die)
+--MonDieDispatcher.register(161, MonDieDispatcher.Boss6000Die)
+--MonDieDispatcher.register(162, MonDieDispatcher.MinBossDie)

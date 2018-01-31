@@ -1,0 +1,91 @@
+﻿--#include "data\config\activityconfig\GuildSos\GuildSosConfig.txt" once --劫狱副本配置
+--#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once           --用于处理副本的通用函数
+
+--[[
+    函数名称：行会劫狱副本Boss 
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function SosFubenNpcDialog(sysarg)
+  --确定玩家在第几层
+  local ndx = 1
+  local nSceneId = Actor.getSceneId(sysarg)
+  for i = 1, #GuildSosConfig.nEnterScreen do
+      if GuildSosConfig.nEnterScreen[i] == nSceneId then
+         ndx = i
+      end
+  end
+  local Tb = GuildSosConfig.nEnterScreen[ndx]
+  if not Tb then return end--索引不对
+  local Str = ""
+  if ndx < #GuildSosConfig.nEnterScreen then
+     Str = Str.."\\<#BL".."进入牢狱下一层".."/@IntoSosFubenNext,"..ndx..">"  --<进入下一层>
+  else
+     Str = Str.."\\<#BL".."领取副本通关奖励".."/@GetSosFubenAward,"..ndx..">"  --<获取副本奖励>
+     Str = Str.."\\<#BL".."离开副本".."/@LeaveFuben>"  --<离开副本>
+  end 
+
+  return Str
+end
+
+--离开副本 
+function LeaveFuben(sysarg)
+  onExitFubenFunc(sysarg)
+end
+
+--进入牢狱副本下一层 
+function IntoSosFubenNext(sysarg, ndx)
+  local ndx = tonumber(ndx)
+  local Tb = GuildSosConfig.nEnterScreen[ndx] 
+  local nSceneId = Actor.getSceneId(sysarg)
+  if (Tb ~= nSceneId) or (ndx >= #GuildSosConfig.nEnterScreen) then return end
+  local fhandle = Actor.getFubenHandle( sysarg)
+  Actor.enterFuBen(sysarg,fhandle,GuildSosConfig.nEnterScreen[ndx+1],GuildSosConfig.nMapX,GuildSosConfig.nMapY)
+  Actor.changeActivityProgress(sysarg,ndx+1)
+end 
+
+--领取副本通关奖励
+function GetSosFubenAward(sysarg, ndx)  
+  local FubenPtr = Actor.getFubenPrt(sysarg)
+  local FubenSvar = Fuben.getDyanmicVar( FubenPtr )
+  if not FubenSvar then
+     return
+  end
+  local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  if not FubenSvar.GetSosAward then
+     FubenSvar.GetSosAward  = {}
+  end
+  local Times = FubenSvar.GetSosAward[nActorId]
+  if not Times then
+     Times = 0
+  end  
+  if Times > 0 then
+     Actor.sendTipmsg(sysarg, Lang.Activity.w00168, 130)
+     return
+  end 
+   local totalGrid = 0
+   local itemData = GuildSosConfig.Award
+   for i = 1, #itemData do
+	   if itemData[i] ~= nil then
+			if itemData[i].type == 0 then
+				totalGrid = totalGrid + Item.getAddItemNeedGridCount(sysarg,itemData[i].id,itemData[i].count,itemData[i].quality,itemData[i].strong,itemData[i].bind)
+			end
+       end
+   end
+
+   --判断能否获取物品，因为有背包满的情况
+   local x = totalGrid - Item.getBagEmptyGridCount(sysarg)
+   if x > 0 then
+      Actor.sendTipmsg(sysarg,string.format(Lang.ScriptTips.f00059, x) ,ttDialog)
+      return
+   end
+  FubenSvar.GetSosAward[nActorId] = 1
+  --给奖励
+  local awards = GuildSosConfig.Award
+  for i=1,table.getn(awards) do
+	  Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,998,Lang.Activity.w00169, -1)
+  end
+end
+
+
+table.insert(MainFnTable, SosFubenNpcDialog)

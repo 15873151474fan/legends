@@ -1,0 +1,37 @@
+﻿--列王幻境（指引玩家领取奖励）
+{
+  maxLevel = 65,
+  triggerList =
+  {
+		{ type = 2, valueList = {123,}},      --任务完成
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+    --第1步 指向导航标签
+    {
+      condList =
+      {
+				{ type = 15,  helpId = 0, dataList = {97,} },      --迷幻魔森 
+				{ type = 8,  helpId = 0, dataList = {123,} },      --任务完成
+				{ type = 1,  helpId = 194, dataList = {0,} },      --领取奖励按钮可见 
+      },
+
+      action = { type = 1, helpId = 194, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc3 },  --指向任务追踪面板第2项
+    },
+
+    --第4步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 12,  helpId = 0, dataList = {23,} },		--不存在可接任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

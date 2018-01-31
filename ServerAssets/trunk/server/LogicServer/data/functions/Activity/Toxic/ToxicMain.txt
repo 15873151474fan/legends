@@ -1,0 +1,390 @@
+﻿--勇闯毒潭
+--#include "data\config\activityconfig\RushToxic\ToxicConfig.txt" once
+--#include "data\config\activityconfig\RushToxic\ToxicRankFile.txt" once
+--#include "data\functions\Activity\CrossBattlefield\CrossBattleField_Common.txt" once -- 跨服降魔战场
+
+--开启活动
+function OpenToxicActivity(sysarg)
+	local nPos = Actor.getGuildPos(sysarg)
+
+	if nPos ~= 2 and nPos ~= 3 then
+		return Lang.Activity.w00095
+	end
+
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+
+	if System.getToxicFreshTimes(nGuildId) > 0 then
+		return Lang.Activity.w00096
+	end
+
+	local nTimes = 0
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+		if pItem then
+			nTimes = tonumber(Ranking.getSub(pItem,1))
+		end
+	end
+
+	if nTimes == nil then
+		nTimes = 0
+	end
+
+	if nTimes >= ToxicConfig.maxTimes then
+		Actor.sendTipmsg(sysarg,Lang.Activity.w00114,ttFlyTip)
+		return
+	end
+
+	--免费次数已用完
+	if nTimes >= ToxicConfig.freeTimes then
+		local needCoin = ToxicConfig.needCoin + ToxicConfig.AddCoin * (nTimes - ToxicConfig.freeTimes)
+		local str2 = string.format(Lang.Activity.w00099,needCoin)
+		str2 = str2.."\\<#BL"..Lang.Activity.w00100.."/@OpenToxicFubenNeedcoin>"
+		str2 = str2..Lang.Activity.w00110
+
+		return str2
+	end
+
+	local fhadle = Fuben.createFuBen(ToxicConfig.FubId)
+
+	if fhadle > 0 then
+		Actor.setGuildFuBenHandle(sysarg,fhadle)
+		System.setkillToxicNum(nGuildId,0)
+
+		--local nHandle = Fuben.getSceneHandleById(GuildBattleConfig.eSceenId,0)
+		--local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00124)
+
+		--Actor.unregScriptCallback(NpcPtr, "exitToxicBossFuben")
+		--Actor.regScriptCallback(NpcPtr, NpcPtr, ToxicConfig.LastTime * 1000,ToxicConfig.LastTime*1000, 1, "exitToxicBossFuben",fhadle)
+
+		local hScene = Fuben.getSceneHandleById(ToxicConfig.EnterScreen, fhadle)
+		for i=1,table.getn(ToxicConfig.monsters[1]) do
+			Fuben.createMonsters(hScene, ToxicConfig.monsters[1][i].nMonsterID, ToxicConfig.monsters[1][i].posX1, ToxicConfig.monsters[1][i].posX2, ToxicConfig.monsters[1][i].posY, ToxicConfig.monsters[1][i].nCount, ToxicConfig.monsters[1][i].nLiveTime)
+		end
+
+		--Fuben.setSceneTime(fhadle,ToxicConfig.LastTime)
+		System.setToxicFreshTimes(nGuildId,1)
+
+		local aName = Actor.getName(sysarg)
+		local gStr = string.format(Lang.Activity.w00098, aName)
+		Actor.sendGuildMsg(sysarg,smGuildCommon,gStr,2+128)	--发帮派广播
+
+		if RankNameList then
+			nTimes = nTimes + 1
+			local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+			if pItem then
+				Ranking.setSub(pItem,1,tostring(nTimes))
+			else
+				local mItem = Ranking.addItem(RankNameList,nGuildId,0)
+
+				if mItem then
+					local gName = System.getGuildName(nGuildId)
+					Ranking.setSub(mItem,0,gName)
+					Ranking.setSub(mItem,1,tostring(nTimes))
+				end
+			end
+		end
+
+		local str = ""
+		str = str.."\\<#BL"..Lang.Activity.w00094.."/@EnterToxicFuben>"
+
+		return str
+	end
+end
+
+--开启需要行会资金
+function OpenToxicFubenNeedcoin(sysarg)
+	local nTimes = 0
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+		if pItem then
+			nTimes = tonumber(Ranking.getSub(pItem,1))
+		end
+	end
+
+	if nTimes == nil then
+		nTimes = 0
+	end
+
+	local needCoin = 0
+	--免费次数已用完
+	if nTimes >= ToxicConfig.freeTimes then
+		needCoin = ToxicConfig.needCoin + ToxicConfig.AddCoin * (nTimes - ToxicConfig.freeTimes)
+	end
+
+	local gCoin = Actor.getGuildCoin(sysarg)
+
+	if gCoin < needCoin then
+		--return Lang.Activity.w00101
+	end
+	if System.getToxicFreshTimes(nGuildId) > 0 then--添加一个排错判断 
+		return Lang.Activity.w00096
+	end
+	local fhadle = Fuben.createFuBen(ToxicConfig.FubId)
+
+	if fhadle > 0 then
+		Actor.setGuildFuBenHandle(sysarg,fhadle)
+
+		--local nHandle = Fuben.getSceneHandleById(GuildBattleConfig.eSceenId,0)
+		--local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00124)
+
+		--Actor.unregScriptCallback(NpcPtr, "exitToxicBossFuben")
+		--Actor.regScriptCallback(NpcPtr, NpcPtr, ToxicConfig.LastTime * 1000, ToxicConfig.LastTime*1000, 1, "exitToxicBossFuben",fhadle)
+
+		Actor.setGuildCoin(sysarg,-needCoin)
+
+		local hScene = Fuben.getSceneHandleById(ToxicConfig.EnterScreen, fhadle)
+		for i=1,table.getn(ToxicConfig.monsters[1]) do
+			Fuben.createMonsters(hScene, ToxicConfig.monsters[1][i].nMonsterID, ToxicConfig.monsters[1][i].posX1, ToxicConfig.monsters[1][i].posX2, ToxicConfig.monsters[1][i].posY, ToxicConfig.monsters[1][i].nCount, ToxicConfig.monsters[1][i].nLiveTime)
+		end
+
+		--Fuben.setSceneTime(fhadle,ToxicConfig.LastTime)
+		System.setToxicFreshTimes(nGuildId,1)
+		System.setkillToxicNum(nGuildId,0)
+
+		local aName = Actor.getName(sysarg)
+		local gStr = string.format(Lang.Activity.w00098, aName)
+		Actor.sendGuildMsg(sysarg,smGuildCommon,gStr,2+128)	--发帮派广播
+
+		if RankNameList then
+			nTimes = nTimes + 1
+			local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+			if pItem then
+				Ranking.setSub(pItem,1,tostring(nTimes))
+			else
+				local mItem = Ranking.addItem(RankNameList,nGuildId,0)
+
+				if mItem then
+					local gName = System.getGuildName(nGuildId)
+					Ranking.setSub(mItem,0,gName)
+					Ranking.setSub(mItem,1,tostring(nTimes))
+				end
+			end
+		end
+
+		local str = ""
+		str = str.."\\<#BL"..Lang.Activity.w00094.."/@EnterToxicFuben>"
+
+		return str
+	end
+end
+
+--进入副本
+function EnterToxicFuben(sysarg)
+	local fhadle = Actor.getGuildFuBenHandle(sysarg)
+
+	if fhadle == nil then
+		return Lang.Activity.w00097
+	end
+
+	if fhadle == 0 then
+		return Lang.Activity.w00097
+	end
+
+	local nLevel = ToxicConfig.nLimitLevel
+
+	if Actor.checkActorLevel(sysarg,nLevel) == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00069,nLevel),ttFlyTip)
+		return
+	end
+
+	Actor.enterFuBen(sysarg,fhadle,ToxicConfig.EnterScreen,ToxicConfig.nMapX,ToxicConfig.nMapY)
+
+	UpdateToxicActivityForm(sysarg,1)
+end
+
+--退出副本
+function exitToxicBossFuben(FbPtr)
+	local fhadle = Fuben.getFubenHandle(FbPtr)
+
+	if fhadle<= 0 then
+		return
+	end
+
+	local gId = System.getGuildId(fhadle)
+
+	if gId > 0 then
+		System.setToxicFreshTimes(gId,0)
+		System.setGuildFuBenHandle(gId,0)
+
+		UpdateToxicRank(gId)
+		System.setkillToxicNum(gId,0)
+		SaveToxicRank()
+	end
+
+	local nId = System.findGuildIdByHandle(fhadle)
+	if nId > 0 then
+		System.setBossChanllengeHandle(nId,0)
+		System.sendGuildChanllengeResult(nId,0,0,0)
+	end
+
+	if System.isCommonServer() == true then
+		OnCrossBattleOver(FbPtr)
+	end
+	--Actor.unregScriptCallback(sysarg, "exitToxicBossFuben")
+end
+
+--结束更新排行
+function UpdateToxicRank(nGuildId)
+	if nGuildId <= 0 then return end
+
+	local nNum = System.getkillToxicNum(nGuildId)
+
+	if nNum <= 0 then return end
+
+	local gName = System.getGuildName(nGuildId)
+
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList then
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+
+		if pItem then
+			local curNum = Ranking.getPoint(pItem)
+			if curNum < nNum then
+				Ranking.setItem(RankNameList,nGuildId,nNum)
+			end
+		else
+			local mItem = Ranking.addItem(RankNameList,nGuildId,nNum)
+
+			if mItem then
+				Ranking.setSub(mItem,0,gName)
+			end
+		end
+	end
+
+	local weekRankNameList = Ranking.getRanking(ToxicRankConfig.weekRankName)		--通过排行名称获取排行对象
+	if weekRankNameList then
+		local pItem = Ranking.getItemPtrFromId(weekRankNameList,nGuildId)
+
+		if pItem then
+			local curNum = Ranking.getPoint(pItem)
+			if curNum < nNum then
+				Ranking.setItem(weekRankNameList,nGuildId,nNum)
+			end
+		else
+			local mItem = Ranking.addItem(weekRankNameList,nGuildId,nNum)
+
+			if mItem then
+				Ranking.setSub(mItem,0,gName)
+				local pActor = System.getGuildLeader(nGuildId)
+				Ranking.setSub(mItem,1,Actor.getName(pActor))
+				local nNumem = Guild.getGuildMemberNum(nGuildId)
+				Ranking.setSub(mItem,2,tostring(nNumem))
+			end
+		end
+	end
+
+	--[[
+		local nDays = System.getDaysSinceOpenServer()
+
+		if nDays >= 4 and System.getActivityFinishDays(4) == 0 and nNum > ToxicConfig.minNum then
+			local ranking = Ranking.getRanking(OpenServerConfig.activitys[4].rankName)
+			if ranking then
+				local pItem = Ranking.getItemPtrFromId(ranking,nGuildId)
+
+				if pItem then
+					local curNum = Ranking.getPoint(pItem)
+					if curNum < nNum then
+						Ranking.setItem(ranking,nGuildId,nNum)
+					end
+				else
+					local mItem = Ranking.addItem(ranking,nGuildId,nNum)
+
+					if mItem then
+						Ranking.setSub(mItem,0,gName)
+					end
+				end
+			end
+		end
+	]]
+end
+
+
+--更新活动面板信息 1 表示进入 2 表示在场景内更新
+function UpdateToxicActivityForm(sysarg,nType)
+	local ranking = Ranking.getRanking(ToxicRankConfig.dayRankName)
+
+	local mPoint = 0
+
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	local nTimes = System.getToxicFreshTimes(nGuildId)
+
+	if ranking then
+		local nItem = Ranking.getItemPtrFromId(ranking,nGuildId)
+
+		if nItem then
+			mPoint = Ranking.getPoint(nItem)
+		end
+	end
+
+	local bFb = Actor.getFubenPrt(sysarg)
+	local nCount = Fuben.getKillMonsterCount(bFb)
+	local monsterCount = 0
+	for i,v in ipairs(ToxicConfig.mosterCount) do
+		if i <= nTimes then
+			monsterCount = monsterCount + v
+		end
+	end
+	local passTimes = #(ToxicConfig.mosterCount)
+
+	if nType == 1 then
+		local fhadle = Actor.getGuildFuBenHandle(sysarg)
+		local nTime = Fuben.getFbTime(bFb)
+		Actor.initActivityWind(sysarg,Lang.Activity.w00102,nTime,Lang.Activity.w00111,Lang.Activity.w00103,nCount,
+			Lang.Activity.w00104,nTimes, Lang.Activity.HHfuben001, monsterCount, Lang.Activity.HHfuben002, passTimes)
+	else
+		Actor.changeActivityProgress(sysarg,nCount,nTimes,monsterCount,passTimes)
+	end
+end
+
+
+--初始化
+function ToxicRankInit()
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(ToxicRankConfig.dayRankName,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,ToxicRankConfig.dayFileName)
+
+			if isLoad == false then
+				for i=1, table.getn(ToxicRankConfig.dayRankColumn) do
+					Ranking.addColumn(RankNameList,ToxicRankConfig.dayRankColumn[i].columnName) --添加一个标题列
+				end
+			end
+		end
+	end
+
+	local weekRankNameList = Ranking.getRanking(ToxicRankConfig.weekRankName)		--通过排行名称获取排行对象
+	if weekRankNameList == nil then								--没有排行对象则创建并加载数据
+		weekRankNameList = Ranking.add(ToxicRankConfig.weekRankName,1000,1)		--创建排行榜
+		if weekRankNameList ~= nil then
+			local isLoad = Ranking.load(weekRankNameList,ToxicRankConfig.weekFileName)
+
+			if isLoad == false then
+				for i=1, table.getn(ToxicRankConfig.weekRankColumn) do
+					Ranking.addColumn(weekRankNameList,ToxicRankConfig.weekRankColumn[i].columnName) --添加一个标题列
+				end
+			end
+		end
+	end
+
+end
+
+--结束
+function SaveToxicRank()
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList ~= nil then							--没有排行对象则创建并加载数据
+		Ranking.save(RankNameList,ToxicRankConfig.dayFileName)
+	end
+
+	local weekRankNameList = Ranking.getRanking(ToxicRankConfig.weekRankName)		--通过排行名称获取排行对象
+	if weekRankNameList ~= nil then							--没有排行对象则创建并加载数据
+		Ranking.save(weekRankNameList,ToxicRankConfig.weekFileName)
+	end
+
+end
+
+table.insert(InitFnTable,ToxicRankInit)
+table.insert(FinaFnTable,SaveToxicRank)

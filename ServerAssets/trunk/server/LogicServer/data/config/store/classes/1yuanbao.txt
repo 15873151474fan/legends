@@ -1,0 +1,252 @@
+--1元特价
+{
+	name = Lang.Store.c00011, --分类名称
+	labelId =3,  --0表示是普通的商城，1表示背包限时抢购，2表示0元抢购,3表示1元抢购
+	totalBuyLimit =1,    --表示大类的数目的限制个数,0表示无限制，1表示限制一个
+	dynamicAdd =true, --是否是动态添加进来的，true表示是动态添加的，动态添加的有数量限制，客户端需要向服务器请求剩余的数据，普通的没有时间限制的配置false
+
+        desc =Lang.Store.desc0002,   --分类的刷新描述
+
+	--该分类中的商品表
+	items =
+	{
+		--	1.5倍经验丹
+		{
+			id =	91001	,
+			item =	1588	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price = 1	, bind = true,oldPrice=	20	 },
+			},
+		},
+
+		--	疾风令
+		{
+			id =	91002	,
+			item =	1559	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	6	 },
+			},
+		},
+
+		--	千里传音
+		{
+			id =	91003	,
+			item =	1558	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	20	 },
+			},
+		},
+
+		--	复活石
+		{
+			id =	91004	,
+			item =	1442	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	25	 },
+			},
+		},
+
+		--	生命之源（1天）
+		{
+			id =	91005	,
+			item =	618	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	30	 },
+			},
+		},
+
+		--	内力之源（1天）
+		{
+			id =	91006	,
+			item =	621	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	30	 },
+			},
+		},
+
+		--	资质强化石
+		{
+			id =	91007	,
+			item =	1939	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	10	 },
+			},
+		},
+
+		--	提品符
+		{
+			id =	91008	,
+			item =	2061	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	6	 },
+			},
+		},
+
+		--	初级强化石
+		{
+			id =	91009	,
+			item =	1002	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	5	 },
+			},
+		},
+
+		--	中级强化石
+		{
+			id =	91010	,
+			item =	1646	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	10	 },
+			},
+		},
+
+		--	高级强化石
+		{
+			id =	91011	,
+			item =	1647	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	20	 },
+			},
+		},
+
+		--	修为封存宝器
+		{
+			id =	91012	,
+			item =	1750	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	5	 },
+			},
+		},
+
+		--	召集令
+		{
+			id =	91013	,
+			item =	1664	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	12	 },
+			},
+		},
+
+		--	换车令
+		{
+			id =	91014	,
+			item =	1717	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	6	 },
+			},
+		},
+
+		--	9朵玫瑰
+		{
+			id =	91015	,
+			item =	1721	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	20	 },
+			},
+		},
+
+		--	闯关令
+		{
+			id =	91016	,
+			item =	2159	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price =	1	, bind = true,oldPrice=	5	 },
+			},
+		},
+
+		--	盟主威武
+		{
+			id =	91017	,
+			item =	2138	,
+			quality =	0	,
+			strong =	0	,
+			singleBuyLimit =	1 	,
+
+			price =
+			{
+				{ spid = "*", type = 3, price = 	1	, bind = true,oldPrice=	12	 },
+			},
+		},
+
+	},
+},

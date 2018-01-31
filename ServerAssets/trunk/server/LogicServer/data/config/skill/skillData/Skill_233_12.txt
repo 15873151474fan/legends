@@ -1,0 +1,145 @@
+--跨服BOSS普攻
+{
+	--技能的三个动作的播放顺序
+	--act动作编号effect施法特效编号
+	actions=
+	{
+		{act=1,effect=0,}
+
+	},
+	
+	desc=Lang.Skill.s209L1Desc,--技能的描述
+	
+	iconID=1,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 48,value =1566},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=191,keepTime=400,delay=200,always=false},
+						{type=4,mj=0,id=304,keepTime=400,delay=600,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 48,value =1567},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=257,keepTime=400,delay=200,always=false},
+						{type=4,mj=0,id=256,keepTime=400,delay=600,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 3,value =1},
+						{cond = 48,value =1568},
+					},
+					results=
+					{
+						--{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=289,keepTime=400,delay=100,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 48,value =1568},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+						--{type=3,mj=0,id=257,keepTime=400,delay=200,always=false},
+						{type=4,mj=0,id=293,keepTime=400,delay=300,always=false},
+					},
+				},
+			},
+		},
+		
+
+	},
+	 spellConds=
+	{
+		{cond=13,value=13,consume=false},
+	},
+	singTime=0,	
+	cooldownTime=1000,
+        
+
+
+},

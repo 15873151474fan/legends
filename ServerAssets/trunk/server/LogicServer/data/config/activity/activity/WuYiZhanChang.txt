@@ -1,0 +1,50 @@
+--18:30-19:00 武易战场
+{
+	--活动的名字
+	name =Lang.ActivityName.name00002,
+	--活动的描述
+	desc=Lang.ActivityName.desc00002,
+	--时间的描述,如果是20:30-21:05这样的就不需要记录到语言包，如果是"全天"就需要记录到语言包
+	timeDesc = Lang.ActivityName.timeDesc002,
+	level = 40, --活动的等级
+	circle = 0, --转数
+	icon = 40,
+	type = 5,  --1是今日活动 2 是每日必做 3 十天活动 4 全名活动  5每周活动（1-7有效）
+	index =0,  --第1场
+	--seckillId = 7,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+	mainAwardDesc = Lang.ActivityName.mainAward015,    --主要奖励
+	--活动的开启时间
+	openTimes=
+	{
+		{
+			months={}, 
+			days ={},
+			weeks={3,0},
+			minutes= 
+			{
+				"18:30-19:00",
+			}
+		},
+	},
+	awards=
+	{ 
+                {type=0,id=276,count=-1,bind=1,strong=0,quality=0}, -- 奖励强化保护符 
+				{type=0,id=283,count=-1,bind=1,strong=0,quality=0}, -- 奖励四级灵珠
+				{type=0,id=282,count=-1,bind=1,strong=0,quality=0}, -- 奖励三级灵珠
+				{type=0,id=281,count=-1,bind=1,strong=0,quality=0}, -- 奖励二级灵珠
+				{type=0,id=280,count=-1,bind=1,strong=0,quality=0}, -- 奖励一级灵珠 
+				{type=0,id=559,count=-1,bind=1,strong=0,quality=0}, -- 奖励朱雀神翎
+				{type=0,id=1992,count=-1,bind=1,strong=0,quality=0}, -- 奖励恶魔足迹(7天)
+				{type=0,id=2111,count=-1,bind=1,strong=0,quality=0}, -- 奖励足迹精华
+				{type=2,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励经验   
+		        {type=21,id=0,count=-1,bind=1,strong=0,quality=0}, -- 奖励荣誉值30000
+
+	},
+	npc=
+	{
+		{
+			sceneId=8,name=Lang.EntityName.n00054,
+			conds = { },
+		},
+	},
+},

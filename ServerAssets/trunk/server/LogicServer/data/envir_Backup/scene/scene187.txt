@@ -1,0 +1,99 @@
+﻿--雪域浮岛
+{
+	scenceid = 187,
+	scencename = Lang.SceneName.s00187,
+	mapfilename = "187XueYuFudao",
+	minlevel = 70,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,  
+	music = "liehuobeijian02.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 244,
+	sceneHeight = 240,
+	sceneType=1,
+	
+	seckillId = 0,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+	area =
+	{
+		{ name = Lang.SceneName.s00187, range = { 10,10,20,20,60,50}, center = { 37,120},attri = {{type=46,value = {}},{type=80,value = {}},{ type = 33,  value = {10}},{type = 34,  value = {316,822,386,392,393,394,2272,2273,2274}},{type=6,value = {}},{type=18,value = {}},{type=19,value = {}},{type=3,value = {}},{type=45,value = {}},{type=44,value = {}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },}},	--默认配置场景，禁止行会的召集，传送，行会回程卷
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+----#include "refresh174.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		--{name = Lang.EntityName.n00130, posx = 78 , posy = 139,script = "data/script/LeiZeZhiDi/YaoPinShangRen.txt",modelid = 78,icon = 1,funcId = 0},
+		--{name = Lang.EntityName.n00129, posx = 83 , posy = 138,script = "data/script/MengZhongTuCheng/LeiZeChuanSongShi.txt",modelid = 93,icon = 1,funcId = 0},
+	},
+
+  teleport =
+  {
+     --posx和posy表示传送门出现的位置
+     --toSceneid表示要传送的目的场景id
+     --toPosx和toPosy分别要传送的目的坐标，此坐标必须是位于toSceneid场景里的
+     --script是传送点关联的脚本文件，
+     --modelid表示外观模型的id
+     { posx = 34, posy = 115,toSceneid = 187,toPosx = 118, toPosy = 31,modelid = 50000,name = Lang.SceneName.s00187,passid = 2,mapHide = true },  --A 岛1→岛2
+	 { posx = 118, posy = 33,toSceneid = 187,toPosx = 34, toPosy = 117,modelid = 50000,name = Lang.SceneName.s00187,passid = 3,mapHide = true },  --A 岛2→岛1
+
+     { posx = 33, posy = 125,toSceneid = 187,toPosx = 160, toPosy = 75,modelid = 50000,name = Lang.SceneName.s00187,passid = 4,mapHide = true },  --B 岛1→岛3
+	 { posx = 160, posy = 73,toSceneid = 187,toPosx = 33, toPosy = 127,modelid = 50000,name = Lang.SceneName.s00187,passid = 5,mapHide = true },  --B 岛3→岛1
+ 
+     { posx = 40, posy = 125,toSceneid = 187,toPosx = 76, toPosy = 75,modelid = 50000,name = Lang.SceneName.s00187,passid = 6,mapHide = true },  --C 岛1→岛4
+	 { posx = 76, posy = 73,toSceneid = 187,toPosx = 40, toPosy = 127,modelid = 50000,name = Lang.SceneName.s00187,passid = 7,mapHide = true },  --C 岛4→岛1
+
+     { posx = 41, posy = 115,toSceneid = 187,toPosx = 118, toPosy = 117,modelid = 50000,name = Lang.SceneName.s00187,passid = 8,mapHide = true },  --D 岛1→岛5
+	 { posx = 118, posy = 115,toSceneid = 187,toPosx = 41, toPosy = 117,modelid = 50000,name = Lang.SceneName.s00187,passid = 9,mapHide = true },  --D 岛5→岛1
+
+     { posx = 125, posy = 31,toSceneid = 187,toPosx = 159, toPosy = 85,modelid = 50000,name = Lang.SceneName.s00187,passid = 10,mapHide = true },  --L 岛2→岛3
+	 { posx = 159, posy = 83,toSceneid = 187,toPosx = 125, toPosy = 33,modelid = 50000,name = Lang.SceneName.s00187,passid = 11,mapHide = true },  --L 岛3→岛2
+
+     { posx = 117, posy = 41,toSceneid = 187,toPosx = 125, toPosy = 117,modelid = 50000,name = Lang.SceneName.s00187,passid = 12,mapHide = true },  --H 岛2→岛5
+	 { posx = 125, posy = 115,toSceneid = 187,toPosx = 117, toPosy = 43,modelid = 50000,name = Lang.SceneName.s00187,passid = 13,mapHide = true },  --H 岛5→岛2
+
+     { posx = 167, posy = 73,toSceneid = 187,toPosx = 75, toPosy = 85,modelid = 50000,name = Lang.SceneName.s00187,passid = 14,mapHide = true },  --J 岛4→岛3
+	 { posx = 75, posy = 83,toSceneid = 187,toPosx = 167, toPosy = 75,modelid = 50000,name = Lang.SceneName.s00187,passid = 15,mapHide = true },  --J 岛3→岛4
+
+     { posx = 83, posy = 73,toSceneid = 187,toPosx = 117, toPosy = 127,modelid = 50000,name = Lang.SceneName.s00187,passid = 16,mapHide = true },  --I 岛4→岛5
+	 { posx = 117, posy = 125,toSceneid = 187,toPosx = 83, toPosy = 75,modelid = 50000,name = Lang.SceneName.s00187,passid = 17,mapHide = true },  --I 岛5→岛4
+
+     { posx = 125, posy = 40,toSceneid = 187,toPosx = 83, toPosy = 159,modelid = 50000,name = Lang.SceneName.s00187,passid = 18,mapHide = true },  --F 岛2→岛6
+	 { posx = 83, posy = 157,toSceneid = 187,toPosx = 125, toPosy = 42,modelid = 50000,name = Lang.SceneName.s00187,passid = 19,mapHide = true },  --F 岛6→岛2
+
+     { posx = 167, posy = 82,toSceneid = 187,toPosx = 118, toPosy = 211,modelid = 50000,name = Lang.SceneName.s00187,passid = 20,mapHide = true },  --N 岛3→岛7
+	 { posx = 118, posy = 209,toSceneid = 187,toPosx = 167, toPosy = 84,modelid = 50000,name = Lang.SceneName.s00187,passid = 21,mapHide = true },  --N 岛7→岛3
+
+     { posx = 83, posy = 82,toSceneid = 187,toPosx = 76, toPosy = 159,modelid = 50000,name = Lang.SceneName.s00187,passid = 22,mapHide = true },  --E 岛4→岛6
+	 { posx = 76, posy = 157,toSceneid = 187,toPosx = 83, toPosy = 84,modelid = 50000,name = Lang.SceneName.s00187,passid = 23,mapHide = true },  --E 岛6→岛4
+
+     { posx = 125, posy = 124,toSceneid = 187,toPosx = 118, toPosy = 201,modelid = 50000,name = Lang.SceneName.s00187,passid = 24,mapHide = true },  --M 岛5→岛7
+	 { posx = 118, posy = 199,toSceneid = 187,toPosx = 125, toPosy = 126,modelid = 50000,name = Lang.SceneName.s00187,passid = 25,mapHide = true },  --M 岛7→岛5
+
+     { posx = 75, posy = 167,toSceneid = 187,toPosx = 125, toPosy = 210,modelid = 50000,name = Lang.SceneName.s00187,passid = 26,mapHide = true },  --K 岛6→岛7
+	 { posx = 125, posy = 208,toSceneid = 187,toPosx = 75, toPosy = 169,modelid = 50000,name = Lang.SceneName.s00187,passid = 27,mapHide = true },  --K 岛7→岛6
+
+     { posx = 83, posy = 166,toSceneid = 187,toPosx = 167, toPosy = 169,modelid = 50000,name = Lang.SceneName.s00187,passid = 28,mapHide = true },  --O 岛6→岛8
+	 { posx = 167, posy = 167,toSceneid = 187,toPosx = 83, toPosy = 168,modelid = 50000,name = Lang.SceneName.s00187,passid = 29,mapHide = true },  --O 岛8→岛6
+
+     { posx = 125, posy = 200,toSceneid = 187,toPosx = 167, toPosy = 160,modelid = 50000,name = Lang.SceneName.s00187,passid = 30,mapHide = true },  --P 岛7→岛8
+	 { posx = 167, posy = 158,toSceneid = 187,toPosx = 125, toPosy = 202,modelid = 50000,name = Lang.SceneName.s00187,passid = 31,mapHide = true },  --P 岛8→岛7
+
+     { posx = 160, posy = 167,toSceneid = 187,toPosx = 209, toPosy = 126,modelid = 50000,name = Lang.SceneName.s00187,passid = 32,mapHide = true },  --G 岛8→岛9
+	 { posx = 209, posy = 124,toSceneid = 187,toPosx = 160, toPosy = 169,modelid = 50000,name = Lang.SceneName.s00187,passid = 33,mapHide = true },  --G 岛9→岛8
+  },
+
+},

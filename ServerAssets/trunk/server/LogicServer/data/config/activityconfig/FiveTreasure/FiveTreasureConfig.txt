@@ -1,0 +1,40 @@
+﻿--lua script
+--五行宝库配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+FiveTreasureConfig = 
+{
+	nFubeId = 23,		--副本的id
+	nSceenId = 54,		--场景id
+	
+	--五行丹
+	nItem = {id = 755, nBind = 0, ncount = 1,needYb = 400,},
+
+	--boss的配置
+	nBossId = 
+	{
+		{nMonsterID = 245, posX = 50, posY = 45, nCount = 1, nLiveTime = 3600,},		--金
+		{nMonsterID = 246, posX = 50, posY = 45, nCount = 1, nLiveTime = 3600,},		--木
+		{nMonsterID = 249, posX = 50, posY = 45, nCount = 1, nLiveTime = 3600,},		--土
+		{nMonsterID = 247, posX = 50, posY = 45, nCount = 1, nLiveTime = 3600,},		--水
+		{nMonsterID = 248, posX = 50, posY = 45, nCount = 1, nLiveTime = 3600,},		--火
+	},
+
+	--小怪的配置
+	nMonsterId = 
+	{
+		{nMonsterID = 240, posX = 61, posY = 58, nCount = 1, nLiveTime = 3600,},		--金
+		{nMonsterID = 241, posX = 57, posY = 31, nCount = 1, nLiveTime = 3600,},		--木
+		{nMonsterID = 244, posX = 40, posY = 36, nCount = 1, nLiveTime = 3600,},		--土
+		{nMonsterID = 242, posX = 36, posY = 55, nCount = 1, nLiveTime = 3600,},		--水
+		{nMonsterID = 243, posX = 46, posY = 65, nCount = 1, nLiveTime = 3600,},		--火
+	},
+
+	--减boss的buff
+	DelBuff = 
+	{
+		{buffType= 9, value= -6000, buffGroup= 90,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel053,},
+		{buffType= 11, value=-9000, buffGroup= 90,times =1,interval= 600,needDelete =true,timeOverlay =false,buffName = Lang.GuildLang.wel053,},
+	},
+
+}

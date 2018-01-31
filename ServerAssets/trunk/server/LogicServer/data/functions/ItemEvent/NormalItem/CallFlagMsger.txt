@@ -1,0 +1,33 @@
+--lua script
+
+function CallFlagMsgerFunc( sysarg,itemidx,itemPtr,ItemTable )
+	if Actor.getFubenId( sysarg) ~= ItemTable.fbId then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.bt00052, ttDialog)
+		return
+	end
+	if Actor.getItemCount( sysarg, ItemTable.map_item_id ) <= 0 then
+		local itName = Item.getItemName( ItemTable.map_item_id )
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.bt00053, itName), ttDialog)
+		return
+	end
+	local pos = ItemTable.pos
+	local x, y = Actor.getEntityPosition(sysarg, 0, 0)
+	if x >= pos[1] and y >= pos[2] and x <= pos[3] and y <= pos[4] then
+		Actor.removeItem( sysarg, ItemTable.item_id, 1)
+		Actor.removeItem( sysarg, ItemTable.map_item_id, 1)
+		local sceneHandle = Actor.getSceneHandle(sysarg)
+		Fuben.createMonster(sceneHandle, ItemTable.monid, x, y, 0)
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.bt00054, ttScreenCenter)
+	else
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.bt00058, ttDialog)
+	end 
+end
+
+function CallFlagMsgerInit(sysarg)
+  for i = 1,table.getn(CallFlagMsgers) do
+	local x = CallFlagMsgers[i]
+	GlobalItemFn[x.item_id] = { func = CallFlagMsgerFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable,CallFlagMsgerInit)

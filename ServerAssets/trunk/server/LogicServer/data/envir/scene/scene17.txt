@@ -1,0 +1,56 @@
+﻿--伏魔寺庙
+{
+	scenceid = 17,
+	scencename = Lang.SceneName.s00017,
+	mapfilename = "17Fumosimiaoyiceng",
+	minlevel = 45,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "fumosimiao.mp3",
+	musicInterval = 60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 268,
+	sceneHeight = 264,
+	posx = 94,
+	posy = 226,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00017, range = {5,8,8,250,261,249,261,8,5,7}, center = { 175,75},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 19, value = {} },
+					{ type = 36, value = {45} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh17.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00369, posx = 228, posy = 84, script = "data/NPC/RenwuNPC/zhantie.txt", modelid = 341,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00370, posx = 158, posy = 98, script = "data/NPC/RenwuNPC/nandoulaoren.txt", modelid = 83,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00363, posx = 114, posy = 127, script = "data/NPC/RenwuNPC/zuijianxian.txt", modelid = 343,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00364, posx = 104, posy = 81, script = "data/NPC/RenwuNPC/longzizi.txt", modelid = 374,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00380, posx = 176, posy = 146, script = "data/NPC/RenwuNPC/lufeng.txt", modelid = 260,icon = 12,funcId = 0, classId = 4 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 178, posy = 72, toSceneid = 4, toPosx = 422, toPosy =  337, modelid = 50000, name = Lang.SceneName.s00004, dist = 1, mapHide = false },  --伏魔寺庙→都郡城
+		{ posx = 52, posy = 129, toSceneid = 18, toPosx = 111, toPosy =  238, modelid = 50000, name = Lang.SceneName.s00018, dist = 1, mapHide = false },  --伏魔寺庙→伏魔寺庙二层
+
+	},
+},

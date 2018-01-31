@@ -1,0 +1,34 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\Festival\AnniversaryActive.txt" once
+--#include "data\functions\Activity\ProgrammerActivity\ProgrammerCommon.txt" once
+--#include "AnniversaryCommon.txt" once
+
+--周年活动
+function Anniversary_main(sysarg)
+	local str = ""
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return str
+	end
+	sysVar.CelebrationSaluteValue = sysVar.CelebrationSaluteValue or 0
+	str = string.format(Lang.Activity.zn0002, sysVar.CelebrationSaluteValue)
+	str = string.format("%s<#BL%s/@EnterProgrammerMap>", str, Lang.Activity.cx0001)  --<程序大神活动>
+	str = string.format("%s<#BL%s/@GetProgrammerAward>", str, Lang.Activity.cx0022)  --<领取程序大神活动排名奖励>
+	str = string.format("%s<#BL%s/@GetAnniversaryThanksgivingGift>", str, Lang.Activity.zn0005)  --<领取感恩礼包>
+	str = string.format("%s<#BL%s/@GetAnniversaryCelebrationSalute>", str, Lang.Activity.zn0014)  --<领取庆典礼炮>
+	str = string.format("%s<#BL%s/@AboutAnniversary>", str, Lang.Activity.zn0010)  --<周年活动介绍>
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+--迷雾之城
+function Programmer_main(sysarg)
+	local str = ""
+	str = string.format(Lang.Activity.hhs0011)
+	str = string.format("%s<#BL%s/@EnterProgrammerMap>", str, Lang.Activity.cx0001)  --<程序大神活动>
+	str = string.format("%s<#BL%s/@GetProgrammerAward>", str, Lang.Activity.cx0022)  --<领取程序大神活动排名奖励>
+	str = str.."\\<#BL"..Lang.Activity.cx0028.."/@AboutProgrammer>"  --<活动详情>
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end

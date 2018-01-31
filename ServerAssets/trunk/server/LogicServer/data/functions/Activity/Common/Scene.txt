@@ -1,0 +1,63 @@
+﻿
+--#include "data\functions\GlobalDefine.txt" once 
+
+--场景相关
+--[[
+	
+--]]
+Scene =
+{
+	--清除场景表里的玩家 返回重配地图 tbClearId = {sid1, sid2, sid3....} 需除玩家的场景ID表
+	ClearActorToReloadMap = function (tbClearId)
+		if (not tbClearId) then return end
+		for i=1, #tbClearId do
+			local playerList = LuaHelp.getSceneActorListById(tbClearId[i])  --获取某场景玩家对象列表
+			if playerList ~= nil then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then
+						--直接把玩家传出来
+						ExitToReloadMap(player)
+					end
+				end
+			end
+		end
+	end,
+	
+	--将某个场景里的玩家传送回自己服务器
+	--tbClearId:清除场景ID表 tbClearId = {sid1, sid2, sid3....} 需除玩家的场景ID表
+	ClearActorToRawServer = function (tbClearId)
+		if (not tbClearId) then return end
+		for i=1, #tbClearId do
+			local playerList = LuaHelp.getSceneActorListById(tbClearId[i])  --获取某场景玩家对象列表
+			if playerList ~= nil then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player and Actor.isInRawServer(player) ~= true then
+						Actor.reqTransmitToRawServer(player)
+					end
+				end
+			end
+		end
+	end,
+}
+
+--询问是否离开地图回重配点 --sAskMsg:询问语句
+function AskExitToReloadMap(sysarg, sAskMsg)
+	local sAskMsg = tostring(sAskMsg)
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ExitToReloadMap",Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+--离开场景回重配点
+function ExitToReloadMap(sysarg)
+	--直接把玩家传出来
+	local Pos = LuaHelp.getReloadMapPos(sysarg) 
+	Actor.enterScene(sysarg,Pos[1],Pos[2],Pos[3])
+	Actor.closeNPCDialog(sysarg) 
+end
+
+function Cancel(sysarg)
+
+end
+

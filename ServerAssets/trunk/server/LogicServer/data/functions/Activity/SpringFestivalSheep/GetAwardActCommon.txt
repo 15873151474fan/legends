@@ -1,0 +1,207 @@
+--lua script 
+--#include "data\config\activityconfig\SpringFestivalSheep\GetAwardActCommonConfig.txt" once
+
+--祈福迎神活动
+
+--请求面板信息
+function ReqGetAwardActInfo(sysarg)
+	--判断活动
+	if System.isInDateRange(unpack(GetAwardActCommonConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj001, ttFlyTip)
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, GetAwardActCommonConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj002, ttFlyTip)
+		return
+	end
+	
+	local festiveVal = ReadAllGetAwardData(1)
+
+	--返回数据
+	local pack = DataPack.allocPacket(sysarg, 145, 120)
+	if not pack then return end
+	local maxNum = #GetAwardActCommonConfig.accAwards
+	if not maxNum then return end
+	DataPack.writeByte(pack, maxNum)
+	for i=1,maxNum do
+		local ret = ReadGetAwardActData(sysarg, i)
+		DataPack.writeByte(pack, ret)
+	end
+	DataPack.writeUInt(pack, festiveVal)
+	local grade  = ReadAllGetAwardData(2)
+	if grade<1 then grade = 1 end
+	local val = GetAwardActCommonConfig.needValue
+	DataPack.writeUInt(pack, grade*val)
+	DataPack.flush(pack)
+end
+
+--请求领取物品
+function ReqGetAwardAct(sysarg, index)
+	--判断活动
+	if System.isInDateRange(unpack(GetAwardActCommonConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj001, ttFlyTip)
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, GetAwardActCommonConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj002, ttFlyTip)
+		return
+	end
+	
+	--判断领取
+	local tab = GetAwardActCommonConfig.accAwards[index]
+	if not tab then return end
+	if tab.maxTimes ~= 0 then
+		local nowNum = ReadGetAwardActData(sysarg, index)
+		if nowNum >= tab.maxTimes then
+			Actor.sendTipmsg(sysarg, Lang.Activity.yncj003, ttFlyTip)
+			return
+		end
+	end
+
+	local consumetype = tab.costAwards.type
+	local count = tab.costAwards.count
+	local needCount = tab.needBagCount
+
+	--判断空格
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	local nDmkCount= Dmkj.getStoreRestCount(sysarg) --获得仓库有多少个格子
+	if nBagCount < needCount and  nDmkCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj004, ttFlyTip)
+		return
+	end
+
+	if count >0 then
+		--扣材料
+		if consumetype == 15 then --元宝
+			if Actor.changeMoney(sysarg, mtYuanbao, -count, 983, Lang.LogTips.msd0101) ~= true then
+				Actor.sendTipmsg(sysarg, Lang.Activity.yncj005, ttFlyTip)
+				return
+			end
+		elseif consumetype == 6 then --金币
+			if Actor.changeMoney(sysarg, mtCoin, -count, 983, Lang.LogTips.msd0101) ~= true then
+				Actor.sendTipmsg(sysarg, Lang.Activity.yncj006, ttFlyTip)
+				return
+			end
+		elseif consumetype == 7 then --绑定元宝（礼券）
+			if Actor.changeMoney(sysarg, mtBindYuanbao, -count, 983, Lang.LogTips.msd0101) ~= true then
+				Actor.sendTipmsg(sysarg, Lang.Activity.yncj007, ttFlyTip)
+				return
+			end
+		end
+	end
+	
+	--保存领取次数
+	SaveGetAwardActData(sysarg, index, 1)
+	
+	--发放物品
+	for k,v in ipairs(tab.awardList) do
+		local newItem = Item.createItem(v.id, v.count, 0, 0, v.bind, 0)
+		if not newItem then
+			return false
+		end
+		local num = Item.addItem(sysarg, newItem, Lang.LogTips.yyd0001, 983, v.count)
+
+		if num ~= v.count then
+			Actor.sendTipmsg(sysarg, Lang.Activity.yncj008, ttFlyTip)
+			--放入仓库
+			Dmkj.addItem(sysarg, v.id, v.count, 0, 0,v.bind,false,0,983,Lang.LogTips.yyd0001)
+		end
+	end
+	--返回面板
+	ReqGetAwardActInfo(sysarg)
+end
+
+--保存全服数据 全服喜庆值
+function SaveAllGetAwardData(num)
+	local ranking = Ranking.getRanking(Lang.Rank.FestiveValueFile)
+	if ranking then
+		local total = 0
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = tonumber(Ranking.getSub(item, 1)) or 0 --1喜庆值，2目前档次
+			total = result + num
+			Ranking.setSub(item, 1, total)
+		else
+			item = Ranking.addItem(ranking, 0, 0)
+			Ranking.setSub(item, 1, num)
+			total = num
+		end
+		local nowGrade = tonumber(Ranking.getSub(item, 2)) or 1
+		local needValue = GetAwardActCommonConfig.needValue
+		if total >= needValue*nowGrade then --nowGrade是倍数
+			--广播播报
+			System.broadcastTipmsg(string.format(Lang.Activity.yncj010, needValue*nowGrade), 128+2)
+			--刷怪
+			local hScene = Fuben.getSceneHandleById(8, 0) --土城
+			local id = GetAwardActCommonConfig.bossId
+			local bossX = GetAwardActCommonConfig.bossX
+			local bossY = GetAwardActCommonConfig.bossY
+			local liveTime = GetAwardActCommonConfig.liveTime
+			Fuben.createMonster(hScene, id, bossX, bossY, liveTime)
+			Ranking.setSub(item, 2, nowGrade+1)
+		end
+	end
+end
+
+--读取全服数据 读取喜庆值
+function ReadAllGetAwardData(subid)
+	local ranking = Ranking.getRanking(Lang.Rank.FestiveValueFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			return tonumber(Ranking.getSub(item, subid)) or 0 --1喜庆值，2目前档次(倍数)
+		end
+	end
+	return 0
+end
+
+
+--读取个人数据
+function ReadGetAwardActData(sysarg, subid)
+	local ranking = Ranking.getRanking(Lang.Rank.GetAwardActCommonFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, subid)) or 0 --1,2,3分别表示物品1,2,3
+		end
+	end
+	return 0
+end
+
+--保存个人数据
+function SaveGetAwardActData(sysarg, subid, value)
+	local ranking = Ranking.getRanking(Lang.Rank.GetAwardActCommonFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			local ret = tonumber(Ranking.getSub(itemPtr, subid)) or 0
+			Ranking.setSub(itemPtr, subid, ret+value)--1,2,3分别表示物品1,2,3
+		else
+			itemPtr = Ranking.addItem(ranking, nActorId,0)
+			Ranking.setSub(itemPtr, subid, value)
+		end
+	end
+end
+
+--活动结束清除全服数据
+function ClearAllGetAwardData()
+	local ranking = Ranking.getRanking(Lang.Rank.FestiveValueFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+--每天0点清除个人数据
+function ClearGetAwardActData()
+	local ranking = Ranking.getRanking(Lang.Rank.GetAwardActCommonFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+

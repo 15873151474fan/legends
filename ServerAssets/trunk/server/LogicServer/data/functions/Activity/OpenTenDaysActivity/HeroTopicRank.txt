@@ -1,0 +1,113 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+
+--最强英雄
+
+--19点前的播报
+function BroadHeroTopicNotice()
+	System.broadcastTipmsg(Lang.Activity.k00017,2+128)
+end
+
+--全民播报
+function EightWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00033,2+128)
+end
+
+--19点后的播报
+function BroadHeroLeadNotice()
+	System.broadSwingTopicMsg(3)
+end
+
+
+--播报消息
+function OnBroadHeroRankMsg()
+	local nHoure,nMin,nSec = System.getTime(0,0,0)
+	if nHoure >=23 then
+		OnBroadAccounHeroMsg()
+	end
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[8].rankName)
+
+	if RankNameList ~= nil then
+		local str1 = ""
+		local str2 = ""
+		local str3 = ""
+		
+		for i=0,2 do
+			local nLevel = 0
+			local sName
+			local pItem = Ranking.getItemFromIndex(RankNameList,i)
+			if pItem then
+				if i == 0 then
+					sName = Ranking.getSub(pItem,0)
+					str1 = "<(n"..sName..")>"..","
+				elseif i == 1 then
+					sName = Ranking.getSub(pItem,0)
+					str2 =  " <(n"..sName..")>"..","
+				elseif i == 2 then
+					sName = Ranking.getSub(pItem,0)
+					str3 =  " <(n"..sName..")>"..","
+				end
+			end
+		end
+		local str = str1..str2..str3
+		
+		local tmpStr = ""
+		if nHoure >= 19  and nHoure <22 then
+			tmpStr = string.format(Lang.Activity.k00018,str)
+			System.broadcastTipmsg(tmpStr,2+128)
+		elseif nHoure < 23 then
+			tmpStr = string.format(Lang.Activity.k00019,str)
+			System.broadcastTipmsg(tmpStr,2+128)
+		end
+	end
+end
+
+--23点结算
+function OnAccountHeroTopic()
+	System.broadSwingTopicMsg(3)
+
+	System.onAccountAllActivity(OpenServerConfig.activitys[8].openDays,OpenServerConfig.activitys[8].needValue)		--全民活动结算
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+
+end
+
+--播报结算的消息
+function OnBroadAccounHeroMsg()
+	local nHoure,nMin,nSec = System.getTime(0,0,0)
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[8].rankName)
+
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0) 
+		if pItem then
+			local sName = Ranking.getSub(pItem,0)
+			tmpStr = string.format(Lang.Activity.k00020,sName,tonumber(Ranking.getSub(pItem,1)),Item.getItemName(OpenServerConfig.activitys[8].awards[1].id))
+			System.broadcastTipmsg(tmpStr,2+128)
+			if nMin <= 5 then
+				System.giveTenDaysActivityAward(Ranking.getId(pItem),7)
+				System.broadcastTipmsg(Lang.Activity.k00021,2+128)
+				--BroadRideEndEffect()
+			end
+		end
+	end
+end
+
+--23点后的播报
+function OnBroadAccountHreo()
+	OnBroadAccounHeroMsg()
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+end
+
+--刷boss
+function OnFreshHeroBoss()
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[8].rankName)
+	
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+
+		if pItem then
+			local hScene = Fuben.getSceneHandleById(OpenServerConfig.activitys[8].monster[1].nSceenId, 0)
+			local monsterConfig = OpenServerConfig.activitys[8].monster[1]
+			local nMonster = Fuben.createOneMonsters(hScene, monsterConfig.nMonsterID, monsterConfig.posX1, monsterConfig.posX2, monsterConfig.posY, monsterConfig.nCount, monsterConfig.nLiveTime)
+		end
+	end
+end

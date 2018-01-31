@@ -1,0 +1,37 @@
+﻿--#ifndef _LANGUAGE_INCLUDED_
+--#define _LANGUAGE_INCLUDED_
+
+--[[
+     miros 2011-04-10
+     加入Lang变量是否已经定义的判断。
+     由于每个脚本和配置都包含这个文件，导致脚本内存开销极大。仅语言包自身就占据2M-3M内存，
+     加之有数百个NPC，将导致语言包占据数百兆内存，也严重影响配置和脚本的加载效率。
+
+     目前的解决方案是在程序中单独读取语言包配置，并导出到每个脚本中作为userdata并设置__index
+     原方法关联读取函数。使得整个游戏中针对脚本加载数据以及加载的NPC脚本都不会再次读取语言配
+     置，从而减少内存使用并加快启动速度！
+     
+     副本为正式发行版  调试期间因为查错工具对宏支持定义不好 所以 所以强制使用zh-cn 李昀 2015 -8-27
+  ]]
+if not Lang then
+
+--简体
+--#if LANGUAGE == zh-CN
+--#include "Zh-CN\Zh-CN.txt" once
+Lang = zh_CN
+--#endif
+
+--选择繁体
+--#if LANGUAGE == zh-TW
+--#include "Zh-TW\Zh-CN.txt" once
+Lang = zh_CN
+--#endif
+
+
+
+
+
+
+end
+
+--#endif

@@ -1,0 +1,716 @@
+﻿--[[File:ActorLoginHandler.txt]]
+--To do something about Login and Logout
+
+--#include "ActorDataFunc.txt" once
+--#include "data\functions\Systems\FlowerSystem\config.txt" once
+--#include "data\config\TasksConfig.inc" once --活动开始配置
+--#include "data\config\activityconfig\corpsBattle\corpsBattle.txt" once
+--#include "data\config\activityconfig\Dart\DartConfig.txt"  once  --基本设置
+--#include "data\functions\Systems\FlowerSystem\RoseRanking.txt" once  --玫瑰配置
+	--#include "data\functions\Tasks\LuoYangBattle\BattleCommon.txt" once
+--#include "data\config\activityconfig\KillEvil\KillEvilConfig.txt" once  --装备不可回收时物品
+--#include "data\config\activityconfig\Blessing\BlessingConfig.txt" once  --祈福头衔
+--#include "data\functions\Activity\Answer\AnswerCommon.txt" once		  --答题
+--#include "data\functions\Systems\PaTaSystem\PaTaCommon.txt" once
+--#include "data\config\activity\seckill.txt" once	--秒活动
+--#include "data\config\quest\MiscQuest.txt" once
+--#include "data\functions\Activity\Festival\FestivalAct.txt" once
+--#include "data\config\activityconfig\CrossGuildSbk\CrossWorldNumOne.txt" once	
+--#include "data\functions\Activity\Festival\FestivalFireCommon.txt" once
+--#include "data\functions\Activity\CrossBattlefield\CrossBattleField_Common.txt" once 
+--#include "data\functions\Activity\Festival\NationalDayCommon.txt" once
+--#include "data\functions\Activity\CrossMatches\EnterCrossMatchesCommon.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\ReversedLuck.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\GoldSilverTree.txt" once
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once
+--#include "data\functions\Activity\HundredServerHorse\LoginAward.txt" once
+--#include "data\functions\Activity\DiscountMall\DiscountMall.txt" once
+--#include "data\functions\Activity\Festival\LaborDayCommon.txt" once
+--#include "data\functions\Activity\RushSkyMars\RushSkyCommon.txt" once
+--#include "data\functions\Activity\WorldCup\WorldCup.txt" once
+--#include "data\functions\Activity\HongMengRealm\HongMengRealmCommon.txt" once
+--#include "data\functions\Activity\DouDiscountMall\DouDiscountMall.txt" once 
+--#include "data\functions\Activity\ValentinesDay\ValentineDayAct.txt" once
+--#include "data\functions\Activity\SuperRebate\SuperRebateAct.txt" once
+--#include "data\functions\Activity\MidAutumn\MidAutumnAct.txt" once
+--#include "data\functions\Activity\NationalDayHorse\NationalDayAct.txt" once
+--#include "data\functions\Activity\LuxuryRebate\LuxuryRebateAct.txt" once
+--#include "data\functions\Activity\AnniversaryHorse\AnniversaryAct.txt" once
+--#include "data\functions\Activity\NanJiangGuDi\XunShouLeiTai.txt" once --驯兽擂台
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseAct.txt" once
+--#include "data\functions\Activity\NewYearSheep\NewYearSheepAct.txt" once
+--#include "data\functions\Activity\ChristmasHorse\ChristmasHorseTurntable.txt" once 
+--#include "data\functions\Activity\SpringFestivalSheep\SpringFestivalSheepAct.txt" once 羊年春节
+--#include "data\functions\Activity\SheepHundredActivity\SheepHundredAct.txt" once 羊年百服
+--#include "data\functions\Activity\SheepQingMing\Commemorate.txt" once --祭念先贤
+--#include "data\functions\Activity\SheepLaborDay\SheepLaborDayAct.txt" once 羊年五一
+--#include "data\functions\Systems\WingSystem\WingSystemMain.txt" once --翅膀 
+--#include "data\functions\Activity\OpenServerBless\OpenServerBless.txt" once --开服祈福活动
+--#include "data\functions\Activity\SaveRadish\SaveRadishFunc.txt" once --塔防副本再次登录面板处理 
+--#include "data\functions\CombatChallange\CombatPkCommonOp.txt" once  --竞技场挑战 
+--#include "data\functions\Activity\BlackMarket\BlackMarket_Main.txt" once
+----#include "data\functions\Systems\NewVipSystem\NewVipUpGrade.txt" once--vip主系统
+-------------------------------------------------------------------------------------------
+--死亡后重新登陆的判断
+EventCallDispatcher._LoginLoginResurrection = function (sysarg)
+	if Actor.getIntProperty(sysarg,PROP_CREATURE_HP) == 0 then
+		------------------------------------------------------------
+		--掉落操作
+		PkDropFunc(sysarg)
+		
+
+		--清除击杀者信息
+		ClearKillerData(sysarg)
+		----------------------------------------------------------
+		
+		Actor.relive(sysarg)
+		if Actor.getIntProperty(sysarg,PROP_CREATURE_HP) == 0 then
+	    local maxhp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXHP) 
+			Actor.changeHp(sysarg,maxhp*0.3)
+			local actorMp = Actor.getIntProperty(sysarg,PROP_CREATURE_MP)
+			local maxmp = Actor.getIntProperty(sysarg,PROP_CREATURE_MAXMP)
+			--print("actorMp:"..actorMp)
+			Actor.changeMp(sysarg,-(actorMp-maxmp*0.3))
+		end
+		Actor.addBuff(sysarg,65,1,1,1,15,Lang.ScriptTips.b00009)
+		
+	end
+end
+
+--上线通知结拜兄弟
+function noticeBrother(sysarg)
+	local handle = Actor.getBrotherGroupHandle(sysarg)
+	if handle == 0 then return end
+	
+	local idList = System.getBrotherPtrList(handle)
+	if idList == nil then return end
+	
+	local x = 0
+	local y = 0
+	local name = nil
+	name,x,y = Actor.getSceneName(sysarg,x,y)
+	local str = string.format(Lang.ScriptTips.jb030,Actor.getName(sysarg),name,x,y)
+	--print(str)
+	local id = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	for i = 1, #idList do
+		local ptr = idList[i]
+		if ptr ~= nil and ptr ~= sysarg then
+			Actor.messageBox(ptr,0,0,str,Lang.ScriptTips.jb031.."/sayBrotherHello,"..id,Lang.ScriptTips.jb032.."/inviteBrotherTeam,"..id, Lang.ScriptTips.x00079.."/cancelFunction", 0,1)
+		end
+	end
+end
+
+--通知领取鲜花系统的时装
+function noticeGetFlowerAward(sysarg)
+	local week = System.getDayOfWeek()
+	if week == 1 then
+		local awardRank = Ranking.getRanking(FlowerConfig.awardRank) 
+		if awardRank == nil then return	end
+		
+		local id = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(awardRank,id)
+		if item ~= nil then
+			if Ranking.getSub(item,1) == "-" then
+				local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+				local sexNotice = FlowerConfig.noticTip[sex+1]
+				local str = string.format(Lang.Flower.f028,sexNotice)
+				Actor.messageBox(sysarg,0,0,str,Lang.Flower.f029.."/telportScene,"..FlowerConfig.scenePos[1]..","..FlowerConfig.scenePos[2]..","..FlowerConfig.scenePos[3],Lang.Flower.f030.."/cancelFunction,", nil, 0,1,Lang.Flower.f031,24)
+				Ranking.setSub(item,1,"n")
+				Ranking.save(awardRank,FlowerConfig.awardRank..".txt")
+			end
+		end
+	end
+end
+
+
+-------------------------------------------------------------------------------------------
+EventCallDispatcher.defaultHandlerPlayerLogin = function (sysarg,arg)
+	EventCallDispatcher._LoginLoginResurrection(sysarg)
+	loadActorData(sysarg)  --暂时屏蔽掉
+	--print("玩家登录")
+	--跨服限制
+	if OnCsActorLoginLmt() == false then 
+		
+		ResetSecKill(sysarg)
+	
+		EventCallDispatcher.handleLoginSetPlantYbParam(sysarg)
+	  
+
+		local isFirstLogin = arg[1]
+		if (isFirstLogin == 1) then
+			FirstLoginToLearnSkill(sysarg,arg)
+			Actor.addBuff(sysarg, 93, -1, 0, 1, 3*3600, Lang.ScriptTips.pk00010)	--新手保护
+		end
+		
+		
+		--删除武林盟主
+		--SetWuLinMaster(sysarg)
+
+        WingSystem_OnActorLogin(sysarg)  --根据翅膀阶段设置翅膀外观
+        
+		SetLuoYangMaster(sysarg)
+		--通知结拜兄弟
+		--noticeBrother(sysarg)
+		--noticeGetFlowerAward(sysarg)
+		OnSendInitData(sysarg)
+		SetBlessingTitle(sysarg)
+		SetAnswerTitle(sysarg)
+		SetPaTaState(sysarg)
+		SetFlowerTitle(sysarg)
+
+		SetCorpsTitle(sysarg)
+		
+		SetCrossFirstOneTitle(sysarg)
+
+		SendMyWishBottle(sysarg)
+
+		SendApplyDartLeftTimes(sysarg)
+
+		SendVipWelfare(sysarg)
+		
+		--充值促销系统
+		OnPaySalesActorLogin(sysarg)
+		
+		--惊喜回馈
+		OnSurpriseRetActorLogin(sysarg)
+		
+		--团购
+		OnGroupOnActorLogin(sysarg)
+		
+		--福袋
+		SetLuckyBagTimeByLogin(sysarg)
+
+		--倒福
+		SetReversedLuckTimeByLogin(sysarg)
+
+		--登录奖励
+		SetLoginAwardTimeByLogin(sysarg)
+
+		--金银福树
+		if (System.isInDateRange(unpack(SpringFestivalHorseActiveConfig.actTime)) == true) then
+			LoadGoldSilverTree(sysarg)
+		end
+
+		--国庆消费活动
+		setConsumeActivity(sysarg)
+		
+		--vip等级处理
+		vipLevelLoginHandle(sysarg)
+		
+		--元宵节
+		LanternLoginHandle(sysarg)
+		
+		--折扣商城
+		DiscountMallLoginHandle(sysarg) 
+
+		--五一
+		LaborDayLoginHandle(sysarg)
+		--天关
+		RuahSkyLoginHandle(sysarg)
+		
+		--世界杯
+		WorldCupLoginHandle(sysarg)
+		
+		--鸿蒙幻境
+		--HmrLoginHandle(sysarg)
+		
+		--全民折上折
+		DouDiscountMallLoginHandle(sysarg)
+		
+		--七夕活动
+		ValentineLoginHandle(sysarg)
+		
+		--超级返利活动
+		SuperRebateHandle(sysarg)
+
+		--豪华返利活动
+		LuxuryRebateHandle(sysarg)
+		
+		--中秋活动
+		MidAutumnLoginHandle(sysarg)
+
+		--马年国庆活动
+		NationalDayHorLoginHandle(sysarg)
+		
+		--马年周年活动
+		AnniversaryHorLoginHandle(sysarg)
+		
+		XunShouLeiTaiLoginHandle(sysarg)
+		
+		--马年圣诞活动
+		ChristmasHorseLoginHandle(sysarg)
+		
+		--马年圣诞转盘，后台开启
+		ChrHorseTurntableLoginHandle(sysarg) 
+
+		--羊年元旦活动
+		NewYearSheepLoginHandle(sysarg)
+		
+		--羊年春节活动
+		SpringFestivalSheepLoginHandle(sysarg)
+		
+		--羊年百服 
+		SheepHundredLoginHandle(sysarg)
+
+		--古墓探宝
+		TumulusLoginHandle(sysarg)
+		
+		--祭念先贤
+		CommemorateShowNPC()
+
+		--羊年五一
+		SheepLaborDayLoginHandle(sysarg)
+		TalkClientShowBlessUi(sysarg) --开启祈福面板
+		OnExitSaveRadishFb(sysarg, 17) --塔防副本再次登录奖励面板打开
+		--print("GiveSiteBuff")
+        GiveSiteBuff(Actor.getName(sysarg))--竞技场buff上线添加 
+        
+        
+
+		--重置百服豪华礼包
+		local sVar = Actor.getStaticVar(sysarg)
+		if (not sVar.HundredBigGiftTime) or (System.isInHorseHundredServer(sVar.HundredBigGiftTime) ~= true) then
+			if (not sVar.HundredBigGift) or (sVar.HundredBigGift ~= 0) then
+				sVar.HundredBigGift = 0
+			end
+		end
+		
+		--临时处理下，等级》45级的都全部完成
+		if Actor.isAchieveFinished(sysarg,195) ==false then
+			if Actor.getIntProperty(sysarg,6) >=40 then
+				for i=1,5 do
+					Actor.triggerAchieveEvent(sysarg,5,8001)
+				end
+			end
+		end
+
+		Actor.triggerAchieveEvent(sysarg, 86, 1, 1)
+	end
+	
+	--登陆判断是不是在烈火宫,是的话踢出
+	if Actor.getSceneId(sysarg) == 173 then
+		Actor.enterFuBen(sysarg,0,8,142,174)
+	end
+	
+	-- OnLogin_BlackMarket(sysarg) --黑市登录 \
+	
+YuanbaoBuChange20160324(sysarg)
+	--如果是公共服
+	if System.isCommonServer() then
+		OnCrossBattleLoginOp(sysarg)
+		OnAutoEnterCrossMatchScene(sysarg)
+	else
+		OnSendCorssLoginTips(sysarg)
+	end
+	ManageActorLogin(sysarg)--玩家重新登录护龙深潭的处理 
+	--VipAwardStatus(sysarg)--给客户端推送vip状态 
+	--玩家开服登录判断
+    System.runNpcFunction(System.getGlobalNpc(), "SendClientStartActIndex", sysarg) 
+
+end
+
+function YuanbaoBuChange20160324(sysarg)
+  local svar = Actor.getStaticVar(sysarg)
+  local nowt = System.getCurrMiniTime()
+  local time = System.encodeNumTime(2016,3,24,12,0,0)
+  local endtime = System.encodeNumTime(2016,3,25,0,0,0)
+  if (svar.ybbc20160324 == nil) and (nowt > time) and (nowt < endtime) then
+  local Award = {
+        {type = 15 , itemid = 1,count = 5000000 ,strong = 0 ,quality =0, bind = 0},
+            }
+    System.addMail(sysarg,"游戏小秘书","系统补偿","系统内网补偿500W元宝",3*3600*24,Award)
+  end
+end
+
+--下发vip玩家是否领过福利
+function SendVipWelfare( sysarg )
+	if Actor.isVip(sysarg) then
+		local sVar = Actor.getStaticVar(sysarg)
+		local vipAwardFlag = 0
+		if sVar.VipRewardDate and sVar.VipRewardDate == 1 then
+			vipAwardFlag = sVar.VipRewardDate
+		end
+		local netPack = DataPack.allocPacket(sysarg, 139, 61)
+		if netPack then
+			DataPack.writeByte(netPack, vipAwardFlag)
+			DataPack.flush(netPack)
+		end
+	end
+end
+
+function SetFlowerTitle(sysarg)
+	--当天魅力值头衔
+	local myName = Actor.getName(sysarg)
+	local sysVar = System.getStaticVar()
+	if sysVar.FesFireTitleName and sysVar.FesFireTitleName == myName then
+		Actor.setTopTitle(sysarg, FestivalWishes.TitleId, true)
+	end
+	local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+	local info = RoseRankConfig.RankData[2 - sex]
+	if info == nil then return end
+	--显示本周第一名
+	local ranking = Ranking.getRanking(info.rankFile)
+	if ranking then
+		for _idx, titleId in ipairs(info.titles) do
+			local item = Ranking.getItemFromIndex(ranking, _idx -1 )
+			if item and Ranking.getId(item) == myId then
+				Actor.setTopTitle(sysarg, titleId, true)
+				if _idx == 1 then		--只是第一名提示
+					System.broadcastTipmsg(string.format(info.noticeStr, myName, myName), ttScreenCenter+ttChatWindow)
+				end
+				return
+			end
+		end
+	end
+end
+
+--设置祈福头衔
+function SetBlessingTitle( sysarg )	
+	local ranking = Ranking.getRanking(BlessingConfig.RankName)
+	if ranking then
+		local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+		local item = Ranking.getItemFromIndex(ranking, 0)
+		if item then
+			if myId == Ranking.getId(item) then
+				Actor.setTopTitle(sysarg, BlessingConfig.TitleId, true)
+			end
+		end
+	end
+
+	local sVar = System.getStaticVar()
+	local titleActName = sVar.BlessingTitleActName
+	if titleActName then
+		local myName = Actor.getName(sysarg)
+		if myName == titleActName then
+			Actor.setTopTitle(sysarg, BlessingConfig.TitleId, true)
+		end
+	end
+end
+
+function SetAnswerTitle( sysarg )
+	local myName = Actor.getName(sysarg)
+	local sysVar = System.getStaticVar()
+	local lastRanking = Ranking.getRanking( Lang.Rank.LastWeekAnswer )
+	if lastRanking then
+		local item = Ranking.getItemFromIndex(lastRanking, 0)
+		if item then
+			local topName = Ranking.getSub(item, 0)
+			if topName == myName then
+				Actor.setTopTitle(sysarg, AnswerConfig.TitleId, true)
+			end
+		end
+	end
+	--处理文采值是否过期
+	local sVar = Actor.getStaticVar(sysarg)
+	if sVar.AnswerPoints then
+		if sysVar.AnswerResetDt and sVar.LastGetAnswerPtDt and sysVar.AnswerResetDt > sVar.LastGetAnswerPtDt then
+			sVar.AnswerPoints = nil
+			sVar.LastGetAnswerPtDt = nil
+		else
+			Actor.setUIntProperty(sysarg, PROP_ACTOR_KNOWLEDGE_POINT, sVar.AnswerPoints)
+		end
+	end
+end
+
+function sayBrotherHello(sysarg,arg)
+	if arg == nil then
+		return
+	end
+	local ptr = System.getEntityPtrByActorID(arg)
+	if ptr ~= nil then
+		Actor.sendPrivateChatMsg(sysarg,ptr,Lang.ScriptTips.jb033)
+	end
+end
+
+function inviteBrotherTeam(sysarg,arg)
+	if arg == nil then
+		return
+	end
+	local ptr = System.getEntityPtrByActorID(arg)
+	if ptr ~= nil then
+		Actor.inviteJoinTeam(sysarg,ptr)
+	end
+end
+
+function SetLuoYangMaster( sysarg )
+	local sysSVar = System.getStaticVar()
+	local oldMaster = sysSVar.luoyangMaster
+	if oldMaster then
+		local guildId = oldMaster[2]
+		if guildId > 0 and Actor.getGuildId(sysarg) == guildId then			
+			local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+			local leaderId = Guild.getGuildLeaderId(guildId)
+			if leaderId == myId then
+				setGuildTopTitle(guildId, true)
+			end
+		end
+	end
+end
+
+--设置武林盟主
+function SetWuLinMaster(sysarg)
+	if not WuLinZhengBaConst then return end
+	local config = WuLinZhengBaConst
+	local sval = System.getStaticVar()
+	local FinalOne = sval.WuLinZhengBaFinalOne			-- 取出冠军数据
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	if not FinalOne or userId ~= FinalOne[8] then
+		--去除旧盟主头衔
+		if config.LeaderTopTitleId then
+			Actor.setTopTitle(sysarg, config.LeaderTopTitleId, false)
+		end
+		--删除旧的武林盟主
+		Actor.setSocialMask(sysarg, smIsWulinMaster, false)
+		--删除旧的称号
+		if config.LeaderTitleId then 
+			if Actor.HasTitle(sysarg, config.LeaderTitleId) == true then
+				Actor.GiveupTitle(sysarg, config.LeaderTitleId)
+			end
+		end
+	elseif userId == FinalOne[8] then
+		--设置武林盟主头衔
+		if config.LeaderTopTitleId then
+			Actor.setTopTitle(sysarg, config.LeaderTopTitleId)
+		end
+
+		--设置社会关系为武林盟主
+		Actor.setSocialMask(sysarg, smIsWulinMaster, true)
+		
+	end
+end
+
+
+function OnSendInitData( sysarg )
+	--装备回收
+	local netPack = DataPack.allocPacket(sysarg, 7, 8)
+	if netPack then
+		DataPack.writeByte(netPack, 1)
+		DataPack.writeInt(netPack, #KillEvilConfig.NoDropItems)
+		for _, itId in ipairs(KillEvilConfig.NoDropItems) do
+			DataPack.writeInt(netPack, itId)
+		end		
+		DataPack.flush(netPack)
+	end
+end
+
+--发送个人押镖剩余次数
+function SendApplyDartLeftTimes(sysarg)
+	local var = Actor.getStaticVar(sysarg)
+				
+	if var.ActorApplyTimes == nil then
+		var.ActorApplyTimes = 0
+	end
+
+	--vip类型
+	local bVip = Actor.isVip(sysarg)
+					
+	local maxTimes = 0
+	if(bVip == true) then
+	    local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+		maxTimes = NewVipConfig.VipInclude[VipLevel].VipOpenTimes
+	else
+		maxTimes = EscortDartConfig.OpenTimes
+	end
+	local pack = DataPack.allocPacket(sysarg,145,8) --分配一个数据包
+	if(pack~=nil) then
+		DataPack.writeInt(pack,maxTimes - var.ActorApplyTimes)
+
+		DataPack.flush(pack) --向客户端发送
+	end
+end
+
+--秒活动副本参加数据
+function ResetSecKill(sysarg)
+	local lastLogoutTime = Actor.getLastLogoutTime(sysarg)
+	local loginTime = System.getCurrMiniTime()
+	if System.isSameDay(loginTime, lastLogoutTime) == true then
+		return
+	end
+	-- print("		ResetSecKill")
+	local config = SecKill
+	if not config then return end
+	local circle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	local maxId = 1
+	for k, v in ipairs(config) do
+		if v.id > maxId then
+			maxId = v.id
+		end
+		if v.circle == nil then
+			v.circle = 0
+		end
+
+		if v.level == 0 or Actor.checkActorLevel(sysarg,v.level,v.circle) == false then
+			Actor.setWorkDayMask(sysarg, 1, v.id, true)
+			Actor.setWorkDayMask(sysarg, 2, v.id, true)
+			Actor.setWorkDayMask(sysarg, 3, v.id, true)
+		end
+	end
+	
+	for i=(maxId+1), 64 do
+		Actor.setWorkDayMask(sysarg, 0, i, true)
+	end
+end
+
+--设置第一战队的头衔
+function SetCorpsTitle(sysarg)
+	local dvar = System.getStaticVar()
+
+	if dvar.CorpsBattleWinId == nil then
+		dvar.CorpsBattleWinId = 0
+	end
+	
+	local nCorpsid = Actor.getCorpsId(sysarg)
+	if nCorpsid > 0 and nCorpsid == dvar.CorpsBattleWinId then
+		Actor.setTopTitle(sysarg, corpsBattleConfig.corpsTitleId,true)
+	end
+end
+
+
+--设置天下第一头衔
+function SetCrossFirstOneTitle(sysarg)
+	local pRanking = Ranking.getRanking(CrossWorldOneConfig.WorldOneRankName)
+	if pRanking then
+		local pItem = Ranking.getItemFromIndex(pRanking,0)
+		if pItem then
+			if Ranking.getId(pItem) == Actor.getIntProperty( sysarg, PROP_ENTITY_ID ) then
+				Actor.setTopTitle(sysarg,CrossWorldOneConfig.nTitleId,true)
+			end
+		end
+	end
+end
+
+--保存获取福袋时间
+function SetLuckyBagTimeByLogin(sysarg)
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.actTime) or (not NationalDayActiveConfig.luckyBag) then
+		return 
+	end
+	
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar then
+		return
+	end
+	
+	if System.isInDateRange(unpack(NationalDayActiveConfig.actTime)) ~= true then
+		actorVar.getLBFlag = 0
+		actorVar.accLuckyBagTime = 0
+		actorVar.lastLBLoginTime = 0
+		return
+	end
+	
+	local accLuckyBagTimeConfig = NationalDayActiveConfig.luckyBag.accOnlineTime
+	if not accLuckyBagTimeConfig then
+		return
+	end
+	
+	
+	if not actorVar.lastLBLoginTime then
+		actorVar.lastLBLoginTime = 0
+	end
+	local currTime = System.getCurrMiniTime() 
+	local lastTime = actorVar.lastLBLoginTime
+
+	if (System.isSameDay(currTime, lastTime) ~= true) and (currTime > lastTime) then   
+		actorVar.getLBFlag = 0  --重置国庆红包领取
+		actorVar.accLuckyBagTime = 0
+		actorVar.getGBoxFlag = 0 --重置国庆礼盒领取
+	end
+	actorVar.lastLBLoginTime = currTime
+	
+	if not actorVar.getGBoxFlag then  --领取标记 0可领, 1已领
+		actorVar.getGBoxFlag = 0
+	end  
+	--print("SetLuckyBagTimeByLogin -> actorVar.getLBFlag ",actorVar.getLBFlag)
+	if not actorVar.getLBFlag then  --领取标记 0不可领，1可领, 2已领
+		actorVar.getLBFlag = 0
+	elseif actorVar.getLBFlag > 0 then
+		return 
+	end
+	
+	local beginTime = 0
+	if not actorVar.accLuckyBagTime then
+		actorVar.accLuckyBagTime = 0
+		beginTime = accLuckyBagTimeConfig
+	elseif accLuckyBagTimeConfig >= actorVar.accLuckyBagTime then
+		beginTime = accLuckyBagTimeConfig - actorVar.accLuckyBagTime
+	end
+	
+	Actor.regScriptCallback(sysarg, nil, beginTime * 1000, 0, 1, "GiveLuckyBag")  
+	
+end
+
+--国庆消费活动玩家登录时候的处理
+function setConsumeActivity(sysarg)
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.ConsumeActivityCfg) or 
+		(not NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime) then
+		return 
+	end
+	
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar then
+		return
+	end
+	
+	if System.isInDateRange(unpack(NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime)) ~= true then
+		actorVar.lastCanDrawTime = 0 --上次可抽奖时间
+		actorVar.accDrawCount = 0 --连续抽奖次数
+		actorVar.drawLotteryFlag = 0 --领取标记 0未抽奖，1已抽奖,
+		
+		local consumRankPtr = Ranking.getRanking(Lang.Rank.nationalDayConsumRank)
+		if not consumRankPtr then
+			consumRankPtr = Ranking.add(Lang.Rank.nationalDayConsumRank, 2000)
+			if consumRankPtr then
+				local ret = Ranking.load(consumRankPtr, Lang.Rank.nationalDayConsumRank .. ".txt")
+				if ret then
+					if Ranking.getRankItemCount(consumRankPtr) > 0 then
+						Ranking.clearRanking(consumRankPtr)
+					end
+				end
+			end
+		end
+		return
+	end
+	
+	canDrawLottery(sysarg)
+end
+
+--vip等级处理
+function vipLevelLoginHandle(sysarg)
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar then
+		return
+	end
+	
+	local lastTime = 0
+	local currTime = System.getCurrMiniTime()  
+	
+	if not actorVar.VipLvlItemCount then
+		actorVar.VipLvlItemCount = 0
+	end
+	
+	if not actorVar.vipLvlFb then
+		actorVar.vipLvlFb = {}
+	end
+	
+	if actorVar.vipLvlTime then
+		lastTime = actorVar.vipLvlTime
+	else
+		actorVar.vipLvlTime = 0
+	end
+	
+	if System.isSameDay(currTime, lastTime) ~= true and currTime > lastTime then    
+		actorVar.vipLvlFb = {}  
+		actorVar.VipLvlItemCount = 0 --使用道具增加成长值的次数 
+		
+		if actorVar.lastAddRollTimes then
+			actorVar.lastAddRollTimes = 0 
+		end
+		
+		actorVar.vipLvlTime = currTime
+	end
+
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, EventCallDispatcher.defaultHandlerPlayerLogin)

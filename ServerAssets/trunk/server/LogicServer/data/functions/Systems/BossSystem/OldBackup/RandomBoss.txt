@@ -1,0 +1,111 @@
+﻿
+--#include "data\config\boss\RandomBossConfig.txt"
+
+
+
+function FlushRandomBoss()
+	local bossList = RandomBossConfig.boss
+	local mapList = RandomBossConfig.map
+	
+	local sysVar = System.getDyanmicVar()
+	if not sysVar.RandomBossInfo then
+		sysVar.RandomBossInfo = {}
+	end
+	
+	for k, bossId in ipairs(bossList or {}) do
+		if CheckRandomBossTime(bossId) then
+			local mapInfo = GetRandomInfo(mapList[bossId], 1, mapList[bossId].totalRate)
+			if mapInfo then
+				local sceneId = mapInfo.sceneId
+				local posX = mapInfo.posX
+				local posY = mapInfo.posY 
+			
+				--local str = string.format("bossId : %d, sceneId : %d , posx : %d, posy : %d",bossId,sceneId, posX, posY)
+				--print(str)
+				local hScene = Fuben.getSceneHandleById(sceneId,0)  
+				local monsterPtr = Fuben.createMonster(hScene, bossId, posX, posY, 0)
+				--[[
+				if monsterPtr then
+					print("create boss success")
+					local bossName = Actor.getName(monsterPtr)
+					print(bossName)
+				end
+				--]]
+				
+				
+			end
+		end
+	end
+end
+
+--检测刷新时
+function CheckRandomBossTime(bossId)
+	local result = false
+	local sysVar = System.getDyanmicVar()
+	if not sysVar.RandomBossInfo[bossId] then
+		local curTime = System.getCurrMiniTime()
+		--print("curTime : ",curTime)
+		local nextRefreshTime = GetRandomInfo(RandomBossConfig.refreshTime[bossId], 1, RandomBossConfig.refreshTime[bossId].totalRate) or 3600 
+		--print("CheckTime .. nextRefreshTime : ",nextRefreshTime)
+		sysVar.RandomBossInfo[bossId] = curTime + nextRefreshTime * 60
+		--print("CheckTime .. nextRefreshTime : ",sysVar.RandomBossInfo[bossId])
+	else
+		local refreshTime = sysVar.RandomBossInfo[bossId] 
+		if refreshTime > 0 then
+			local curTime = System.getCurrMiniTime()
+			--print("curTime : ", curTime)
+			if curTime >= refreshTime then
+				sysVar.RandomBossInfo[bossId] = 0
+				result = true
+			end
+		end
+	end
+	return result
+end
+
+
+function GetRandomInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i].value
+			break
+		end
+	end
+	return result
+	
+end
+
+function OnRandomBossDie(monster, sysarg, monId)
+	local sysVar = System.getDyanmicVar()
+	if not sysVar.RandomBossInfo then
+		sysVar.RandomBossInfo = {}
+	end
+	
+	local curTime = System.getCurrMiniTime()
+	--print("OnRandomBossDie .. curTime : ",curTime)
+	local nextRefreshTime = GetRandomInfo(RandomBossConfig.refreshTime[monId], 1, RandomBossConfig.refreshTime[monId].totalRate) or 3600
+	--print("nextRefreshTime : ",nextRefreshTime)
+	
+	sysVar.RandomBossInfo[monId] = curTime + nextRefreshTime * 60 
+	--print("OnRandomBossDie .. sysVar.RandomBossInfo[monId] ", sysVar.RandomBossInfo[monId])
+	
+	local actorName = Actor.getName(sysarg)
+	local sceneId = Actor.getSceneId(sysarg)
+	local sceneName = Fuben.getSceneNameById(sceneId)
+	local bossName = Actor.getName(monster)
+	
+	--local str = string.format(Lang.Activity.rd0001, actorName, sceneName, bossName)
+	--print(str)
+	System.broadcastTipmsg(string.format(Lang.Activity.rd0001, actorName, sceneName, bossName), ttScreenCenter+ttChatWindow)
+	
+end
+
+--重置boss刷新时间
+function ResetRandomBoss()
+	local sysVar = System.getDyanmicVar()
+	sysVar.RandomBossInfo = {}
+end

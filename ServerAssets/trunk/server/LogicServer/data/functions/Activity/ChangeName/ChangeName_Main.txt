@@ -1,0 +1,68 @@
+--lua script
+--改名字 1410
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\ChangeName\ChangeNameConfig.txt" once
+
+function ChangeName_Main(sysarg)
+	local str = ""
+	
+	if System.getchangeNameFlag() == false then
+		return str
+	end
+
+	str = str.."\\<#BL"..Lang.Activity.ku0002.."/@GetChangeNameCard>"			--领取改名卡	
+
+	return str
+end
+
+--领取改名卡 
+function GetChangeNameCard(sysarg)
+	local str = Lang.Activity.ku0003
+
+	str = str.."\\<#BL"..Lang.Activity.ku0004.."/@OnGetNameCard>"			--领取改名卡	
+	str = str.."\\<#BL"..Lang.Activity.g00008.."/@main>"					--返回
+
+	return str
+end
+
+function OnGetNameCard(sysarg)
+	if Actor.checkActorLevel(sysarg,ChangeNameConfig.minLevel) == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.ku0005,ChangeNameConfig.minLevel),ttFlyTip)
+		return
+	end
+	
+	local sname = Actor.getName(sysarg)
+	
+	if sname then
+		local fPos,endPos = string.find(sname,"[[]",1)
+
+		if fPos == nil or fPos <= 0 then
+			Actor.sendTipmsg( sysarg, Lang.Activity.ku0006,ttFlyTip)
+			return
+		end
+	end
+
+	-- local sVar = Actor.getStaticVar(sysarg)
+
+	-- if sVar.HaveGetNameCard == nil then
+	-- 	sVar.HaveGetNameCard = 0
+	-- end
+
+	-- if sVar.HaveGetNameCard == 1 then
+	-- 	Actor.sendTipmsg( sysarg, Lang.Activity.ku0007,ttFlyTip)
+	-- 	return
+	-- end
+
+	-- local nFreeBag = Item.getBagEmptyGridCount(sysarg)
+	-- if nFreeBag < 1 then
+	-- 	Actor.sendTipmsg( sysarg, Lang.Activity.ku0008,ttFlyTip)
+	-- 	return
+	-- end
+
+	-- Actor.addItem(sysarg,ChangeNameConfig.itemId.id,ChangeNameConfig.itemId.quality,ChangeNameConfig.itemId.strong,ChangeNameConfig.itemId.count,ChangeNameConfig.itemId.bind,0,Lang.Activity.ku0002,85)
+	
+	-- sVar.HaveGetNameCard = 1
+end
+
+table.insert(MainFnTable, ChangeName_Main)

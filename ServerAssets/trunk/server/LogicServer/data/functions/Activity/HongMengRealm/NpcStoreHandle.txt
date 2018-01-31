@@ -1,0 +1,415 @@
+
+--#include "data\config\activityconfig\HongMengRealm\HongMengRealmConfig.txt" once
+
+--根据npc类型获取配置
+function GetConfigByShopType(shopType)
+	local config = nil 
+	if shopType == 1 then  --该类型根据该npc商店所配的类型
+		config = HongMengRealmConfig.shopConfig
+	end
+	
+	return config
+end
+
+
+--初始化鸿蒙商店物品列表
+function ProduceHmrShopList(config) 
+	
+	local itemCount = config.itemCount
+	if not itemCount or itemCount <= 0 then
+		return 
+	end	
+	
+	local shopList = config.shopInfo.shopList
+	if not shopList then
+		return 
+	end
+														
+	local hongMengListRankPtr = Ranking.getRanking(config.shopListFile)
+	if not hongMengListRankPtr then 
+		return 
+	end
+		
+	local itemProduceTab = {}  
+	
+	local itemIndex = 0
+	for i = 1, itemCount do  
+		itemIndex = ProduceHmrShopItem(itemProduceTab, shopList, config.shopRate)
+		if itemIndex > 0 then
+			local hongMengListItemPtr = Ranking.getItemPtrFromId(hongMengListRankPtr, shopList[itemIndex].item)
+			if not hongMengListItemPtr then
+				hongMengListItemPtr = Ranking.addItemExt(hongMengListRankPtr, shopList[itemIndex].item, 0, false)
+				if hongMengListItemPtr then
+					for j = 1, 5 do  
+						Ranking.setSub(hongMengListItemPtr, j-1, 0) 
+					end
+				end
+			end 
+			
+			if hongMengListItemPtr then
+				Ranking.setSub(hongMengListItemPtr, 0, itemIndex) 
+				Ranking.setSub(hongMengListItemPtr, 1, shopList[itemIndex].condition) 
+			end
+		end
+	end
+
+end
+
+--产生鸿蒙商城物品
+function ProduceHmrShopItem(itemProduceTab, shopList, shopRate)
+	local tempIndex = 1
+	local itemIndex = tempIndex
+	
+	local itemCount = table.getn(shopList)
+	
+	local tempShopRate = {}
+	for k, v in ipairs(shopRate or {}) do
+	 	table.insert(tempShopRate, v)
+	end
+	
+	for i=1,10000 do 
+		if tempShopRate and table.getn(tempShopRate) > 0 then
+			itemIndex = GetIdxByRandom(tempShopRate)
+		else
+			itemIndex = math.random(1, itemCount)
+		end
+		
+	    if CheckDiscountItem(itemIndex,itemProduceTab) == true then
+			break
+		end
+	end
+	
+	local itemConfig = shopList[itemIndex] 
+	if not itemConfig then
+		table.insert(itemProduceTab, tempIndex)
+		return tempIndex
+	else
+		table.insert(itemProduceTab, itemIndex)
+		return itemIndex
+	end
+
+end
+
+--根据概率产生物品序号
+function GetIdxByRandom(infoTable)
+	local totalVal = 0
+	for k, v in ipairs(infoTable or {}) do 
+		totalVal = totalVal + v.rate
+	end
+
+	local randVal = math.random(totalVal)
+	local result = nil
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i].id
+			table.remove(infoTable, i)
+			break
+		end
+	end
+	return result
+	
+end
+
+
+
+
+--判断鸿蒙物品
+function CheckDiscountItem(val, itemProduceTab)
+	for k, v in ipairs(itemProduceTab) do  
+		if val == v then
+			return false
+		end
+	end
+	return true 
+end
+
+
+
+--请求打开npc商店信息，args为npc商店类型，跟商店的类型配置要一致
+function OpenHmrStore(sysarg, args)
+	local npcShopType = tonumber(args)
+	
+	local config = GetConfigByShopType(npcShopType)
+	if not config then
+		return 
+	end
+
+	local shopList = config.shopInfo.shopList
+	if not shopList then
+		return 
+	end
+	
+	
+	local hongMengListRankPtr = Ranking.getRanking(config.shopListFile) 
+	if not hongMengListRankPtr then
+		return 
+	end
+	
+	if Ranking.getRankItemCount(hongMengListRankPtr) <= 0 then
+		ProduceHmrShopList(config)
+	end
+	
+	SendHmrStoreInfo(sysarg, config)
+	
+	Actor.closeNPCDialog(sysarg)
+end
+
+
+--发送npc商店信息
+function SendHmrStoreInfo(sysarg, config) 
+	local hongMengBuyInfoRankPtr = Ranking.getRanking(config.shopBuyInfoFile) 
+	if not hongMengBuyInfoRankPtr then
+		return 
+	end
+	
+	local hongMengListRankPtr = Ranking.getRanking(config.shopListFile)
+	if not hongMengListRankPtr then 
+		return 
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 50)
+	if pack == nil then
+		return 
+	end
+	
+	DataPack.writeByte(pack, config.shopInfo.type)
+	
+	local todayTime = System.getToday()
+	local curTime = System.getCurrMiniTime()
+	local actTimeRange = HongMengRealmConfig.actTimeRange	
+	local startTime = todayTime + ((actTimeRange[1] * 60 + actTimeRange[2]) * 60 + actTimeRange[3])
+	local endTime = todayTime + ((actTimeRange[4] * 60 + actTimeRange[5]) * 60 + actTimeRange[6]) 
+	
+	
+	local todayTime = System.getToday()
+	local curTime = System.getCurrMiniTime()
+	local actTimeRange = config.actTimeRange
+	local curLeftTime = curTime - ((actTimeRange[1] * 60 + actTimeRange[2]) * 60 + actTimeRange[3]) - config.npcShopStartTime + config.npcIntervalTime
+	local interval = config.npcShopTime + config.npcIntervalTime
+
+	local temp = math.floor(curLeftTime / (interval))
+	local remainFreshTime = (temp + 1) * interval - curLeftTime
+	
+	if remainFreshTime > config.npcShopTime then
+		remainFreshTime = 0  --后端有延迟，前端倒计为0，后端发0
+	end
+	DataPack.writeUInt(pack, remainFreshTime)
+	
+	DataPack.writeByte(pack, config.itemCount)
+	for i = 1, config.itemCount do 
+		local hongMengListItemPtr = Ranking.getItemPtrByIndex(hongMengListRankPtr, i-1)
+		if hongMengListItemPtr then
+			local itemIdx = tonumber(Ranking.getSub(hongMengListItemPtr, 0))
+			DataPack.writeByte(pack, itemIdx)  
+			local limitCount = tonumber(Ranking.getSub(hongMengListItemPtr, 1))
+			DataPack.writeByte(pack, limitCount)
+		end		
+	end
+	
+	DataPack.flush(pack)
+	
+end
+
+
+--请求npc购买商店信息
+function ReqBuyNpcStore(sysarg, packet)
+	
+	local storeType = DataPack.readByte(packet) 
+	local config = GetConfigByShopType(storeType)
+	if not config then
+		return 
+	end
+	
+	local itemIndx = DataPack.readByte(packet)
+	local buyCount = DataPack.readByte(packet)
+	
+	if itemIndx <= 0 or buyCount <= 0 then
+		return 
+	end
+	
+	local hongMengBuyInfoRankPtr = Ranking.getRanking(config.shopBuyInfoFile) 
+	if not hongMengBuyInfoRankPtr then
+		return 
+	end
+	
+	local hongMengListRankPtr = Ranking.getRanking(config.shopListFile)
+	if not hongMengListRankPtr then 
+		return 
+	end
+	
+	local shopList = config.shopInfo.shopList 
+	if not shopList then
+		return 
+	end
+	
+	if itemIndx > config.itemCount then
+		return 
+	end
+	
+	local hongMengBuyInfoRankPtr = Ranking.getRanking(config.shopBuyInfoFile) 
+	if not hongMengBuyInfoRankPtr then
+		return 
+	end
+	
+	local hongMengListRankPtr = Ranking.getRanking(config.shopListFile)
+	if not hongMengListRankPtr then 
+		return 
+	end
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local hongMengBuyInfoItemPtr = Ranking.getItemPtrFromId(hongMengBuyInfoRankPtr, actorId)
+	
+	if not hongMengBuyInfoItemPtr then
+		hongMengBuyInfoItemPtr = AddHmrShopBuyInfo(actorId, config)
+	end
+	
+	if not hongMengBuyInfoItemPtr then
+		return 
+	end 
+	
+	local val = tonumber(Ranking.getSub(hongMengBuyInfoItemPtr, itemIndx-1)) or 0
+	local index = System.getIntWord(val, 1)  --物品库序号
+	local hasBuycount = System.getIntWord(val, 0)
+	
+	local itemConfig = shopList[index]
+	if not itemConfig then
+		return 
+	end
+	local curMoney = Actor.getMoneyCount(sysarg, itemConfig.price[1].type)
+	local needMoney = itemConfig.price[1].price * buyCount
+	
+	--[[
+	if needMoney > curMoney then
+		return 
+	end
+	--]]
+	
+	if buyCount > itemConfig.singleBuyLimit or hasBuycount >= itemConfig.singleBuyLimit then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.hmr0011,itemConfig.singleBuyLimit), ttFlyTip)
+		return 
+	end
+	
+	local hongMengListItemPtr = Ranking.getItemPtrFromId(hongMengListRankPtr, itemConfig.item)
+	if not hongMengListItemPtr then
+		return 
+	end
+	
+	local limitCount = tonumber(Ranking.getSub(hongMengListItemPtr, 1)) or 0
+	if buyCount > limitCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hmr0012, ttFlyTip)
+		return 
+	end
+	
+	local needCount = Item.getAddItemNeedGridCount(sysarg, itemConfig.item, buyCount, itemConfig.quality, itemConfig.strong, itemConfig.bind)
+	local hasCount = Item.getBagEmptyGridCount(sysarg)
+	if needCount > hasCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.hmr0010,needCount), ttFlyTip) 
+		return 
+	end
+	
+	if Actor.changeMoney(sysarg, itemConfig.price[1].type, -needMoney, 967, Lang.LogTips.hmr001) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hmr0030, ttFlyTip) 
+		return 
+	end
+	
+	local shopRate = config.shopRate
+	if shopRate and index <= table.getn(shopRate) then
+		if shopRate[index] then
+			if shopRate[index].isBroadcast == true then
+				local actorName = Actor.getName(sysarg)
+				local awardName = Item.getAwardDesc(0, itemConfig.item)
+				System.broadcastTipmsg(string.format(Lang.Activity.hmr0031, actorName, awardName), ttScreenCenter+ttChatWindow)
+			end
+		end
+	end
+	
+	Actor.giveAward(sysarg, 0, itemConfig.item, buyCount, itemConfig.quality, itemConfig.strong, itemConfig.bind, 0, 967, Lang.LogTips.hmr002)
+	
+	val = 0
+	val = System.setIntWord(val, index, 1)
+	val = System.setIntWord(val, hasBuycount + buyCount, 0)
+	Ranking.setSub(hongMengBuyInfoItemPtr, itemIndx-1, val) 
+	
+	Ranking.setSub(hongMengListItemPtr, 1, limitCount - buyCount)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 51)
+	if pack then
+		DataPack.writeByte(pack, storeType)
+		DataPack.writeByte(pack, itemIndx)
+		DataPack.writeByte(pack, limitCount - buyCount)
+		
+		DataPack.flush(pack)
+	end
+	
+	
+end
+
+--增加ncp商店玩家购买信息
+function AddHmrShopBuyInfo(actorId, config)
+	local result = nil
+	local hongMengBuyInfoRankPtr = Ranking.getRanking(config.shopBuyInfoFile) 
+	if not hongMengBuyInfoRankPtr then
+		return result
+	end
+	
+	local hongMengListRankPtr = Ranking.getRanking(config.shopListFile)
+	if not hongMengListRankPtr then 
+		return result
+	end
+
+	local hongMengBuyInfoItemPtr = Ranking.getItemPtrFromId(hongMengBuyInfoRankPtr, actorId)
+	if not hongMengBuyInfoItemPtr then
+		hongMengBuyInfoItemPtr = Ranking.addItemExt(hongMengBuyInfoRankPtr, actorId, 0, false)
+	end
+	
+	if not hongMengBuyInfoItemPtr then
+		return result
+	end
+	
+	for i=1, config.itemCount do 
+		local hongMengListItemPtr = Ranking.getItemFromIndex(hongMengListRankPtr, i-1)
+		if hongMengListItemPtr then
+			local val = 0
+			local itemIndex = tonumber(Ranking.getSub(hongMengListItemPtr, 0))
+			local hasBuyCount = 0
+			val = System.setIntWord(val, itemIndex, 1)
+			val = System.setIntWord(val, hasBuyCount, 0)
+			Ranking.setSub(hongMengBuyInfoItemPtr, i-1, val) 
+		end
+	
+	end
+	
+	return hongMengBuyInfoItemPtr
+end
+
+--清除商店数据及玩家购买数据
+function ClearHmrRank(shopType)
+	local config = GetConfigByShopType(shopType)
+	local hongMengBuyInfoRankPtr = Ranking.getRanking(config.shopBuyInfoFile) 
+	if hongMengBuyInfoRankPtr then
+		Ranking.clearRanking(hongMengBuyInfoRankPtr)
+	end
+	
+	local hongMengListRankPtr = Ranking.getRanking(config.shopListFile)
+	if hongMengListRankPtr then 
+		Ranking.clearRanking(hongMengListRankPtr)
+	end
+end
+
+--发送关闭npc商店
+function SendCloseHmrShop(sysarg, shopType)
+	local pack = DataPack.allocPacket(sysarg, 145, 52)
+	if pack == nil then
+		return 
+	end
+	DataPack.writeByte(pack, shopType)
+	DataPack.flush(pack)
+end
+
+function CloseHmrShopInDeath(sysarg)
+	if Actor.getSceneId(sysarg) == HongMengRealmConfig.sceneId then
+		SendCloseHmrShop(sysarg, 1)
+	end
+end

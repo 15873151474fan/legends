@@ -1,0 +1,175 @@
+--lua script
+--隐龙地宫配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+HiddenDragonConfig = 
+{
+	briberyYb = 200,			--贿赂消耗元宝
+	briberyAwardRate = 4000,	--贿赂得奖励概率，1点表示万分之一
+	briberyAwards =			--贿赂奖励
+	{
+		{ type = 0, id = 2915, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+	},
+
+	buyKeyYb = 200,			--购买隐龙密钥消耗元宝
+	buyKeyAwards =			--购买隐龙密钥奖励
+	{
+		{ type = 0, id = 2915, count = 1, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+	},
+
+
+	--栅栏怪配置 ID和生存时间
+	fenceMonster = {nMonsterID = 389, nLiveTime = 1800,},
+	fencePos =		--栅栏坐标配置
+	{
+		--栅栏一
+		{
+			{posX =	36, posY = 86,},
+			{posX =	37, posY = 87,},
+			{posX =	38, posY = 88,},
+			{posX =	39, posY = 89,},
+			{posX =	40, posY = 90,},
+			{posX =	41, posY = 91,},
+			{posX =	42, posY = 92,},
+			{posX =	43, posY = 93,},
+			{posX =	37, posY = 86,},
+			{posX =	38, posY = 87,},
+			{posX =	39, posY = 88,},
+			{posX =	40, posY = 89,},
+			{posX =	41, posY = 90,},
+			{posX =	42, posY = 91,},
+			{posX =	43, posY = 92,},
+		},
+		--栅栏二
+		{
+			{posX = 65, posY = 57,},
+			{posX = 66, posY = 58,},
+			{posX = 67, posY = 59,},
+			{posX = 68, posY = 60,},
+			{posX = 69, posY = 61,},
+			{posX = 70, posY = 62,},
+			{posX = 71, posY = 63,},
+			{posX = 72, posY = 64,},
+			{posX = 65, posY = 58,},
+			{posX = 66, posY = 59,},
+			{posX = 67, posY = 60,},
+			{posX = 68, posY = 61,},
+			{posX = 69, posY = 62,},
+			{posX = 70, posY = 63,},
+			{posX = 71, posY = 64,},
+		},
+	},
+
+	zoneTwoMonsters =	--区域二怪
+	{
+		{nMonsterID = 1397, posX1 = 50, posX2 = 62, posY = 72, nCount = 8, nLiveTime = 1800,},	--小怪
+		{nMonsterID = 1399, posX1 = 48, posX2 = 60, posY = 74, nCount = 7, nLiveTime = 1800,},	--BOSS
+		{nMonsterID = 1397, posX1 = 46, posX2 = 58, posY = 76, nCount = 8, nLiveTime = 1800,},	--小怪
+		{nMonsterID = 1397, posX1 = 52, posX2 = 64, posY = 70, nCount = 9, nLiveTime = 1800,},	--小怪
+		{nMonsterID = 1399, posX1 = 54, posX2 = 66, posY = 68, nCount = 8, nLiveTime = 1800,},	--BOSS
+		{nMonsterID = 1397, posX1 = 56, posX2 = 70, posY = 66, nCount = 8, nLiveTime = 1800,},	--小怪
+	},
+	
+	zoneThreeMonsters =	--区域三怪
+	{
+		{nMonsterID = 1398, posX1 = 66, posX2 = 82, posY = 50, nCount = 4, nLiveTime = 1800,},	--小怪
+		{nMonsterID = 1400, posX1 = 68, posX2 = 84, posY = 52, nCount = 3, nLiveTime = 1800,},	--BOSS
+		{nMonsterID = 1398, posX1 = 70, posX2 = 86, posY = 54, nCount = 4, nLiveTime = 1800,},	--小怪
+		{nMonsterID = 1398, posX1 = 72, posX2 = 86, posY = 56, nCount = 4, nLiveTime = 1800,},	--小怪
+		{nMonsterID = 1400, posX1 = 78, posX2 = 86, posY = 58, nCount = 4, nLiveTime = 1800,},	--BOSS
+		{nMonsterID = 1400, posX1 = 70, posX2 = 80, posY = 48, nCount = 3, nLiveTime = 1800,},	--BOSS
+		{nMonsterID = 1398, posX1 = 68, posX2 = 80, posY = 46, nCount = 4, nLiveTime = 1800,},	--小怪
+		{nMonsterID = 1398, posX1 = 70, posX2 = 76, posY = 44, nCount = 4, nLiveTime = 1800,},	--小怪
+	},
+
+	bossMonsters =		--终极BOSS
+	{
+		{nMonsterID = 1401, posX1 = 78, posX2 = 82, posY = 50, nCount = 1, nLiveTime = 1800,},	--BOSS
+	},
+
+	--宝箱配置
+	monsterBox = 
+	{
+		--宝箱怪物配置，宝箱个数为boxMinCount到boxMaxCount的随机值
+		monsters =
+		{
+			{nMonsterID = 1402, boxMinCount = 2, boxMaxCount = 4, nLiveTime = 1800,},	--宝箱怪物
+		},
+		--刷出宝箱坐标范围
+		boxPosRange =
+		{
+			{posX = 75 ,posY = 44,},
+			{posX = 79 ,posY = 60,},
+		},
+	},
+
+	--隐龙密钥
+	hiddenDragonKey = {type = 0, id = 2915, count = 1, strong = 0, quality = 0, bind = 0},
+	--隐龙秘宝奖励，每组随机一种奖励
+	hiddenDragonGiftAward =
+	{
+		--1组
+		{
+			{
+				value = {type = 0, id = 2836, minCount = 1, maxCount = 2, strong = 0, quality = 0, bind = 1},
+				rate = 1,
+			},
+			{
+				value = {type = 0, id = 2916, minCount = 0, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 1,
+			},
+			{
+				value = {type = 0, id = 2910, minCount = 1, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 1,
+			},
+		},
+		
+		--2组
+		{
+			{
+				value = {type = 0, id = 2895, minCount = 1, maxCount = 2, strong = 0, quality = 0, bind = 1},
+				rate = 1,
+			},
+			{
+				value = {type = 0, id = 2937, minCount = 1, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 3,
+			},
+			{
+				value = {type = 0, id = 2850, minCount = 1, maxCount = 2, strong = 0, quality = 0, bind = 1},
+				rate = 5,
+			},
+		},
+		
+		--3组
+		{
+			{
+				value = {type = 0, id = 549, minCount = 0, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 1,
+			},
+			{
+				value = {type = 0, id = 550, minCount = 0, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 1,
+			},
+			{
+				value = {type = 0, id = 551, minCount = 0, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 1,
+			},
+			{
+				value = {type = 0, id = 1175, minCount = 0, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 1000,
+			},
+			{
+				value = {type = 0, id = 2258, minCount = 0, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 10000,
+			},
+			{
+				value = {type = 0, id = 1991, minCount = 0, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 1000,
+			},
+			{
+				value = {type = 0, id = 2136, minCount = 0, maxCount = 1, strong = 0, quality = 0, bind = 1},
+				rate = 1000,
+			},
+		},
+	},
+}

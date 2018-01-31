@@ -1,0 +1,68 @@
+﻿--主线挖矿指引退出（完成任务去交任务）
+{
+  maxLevel = 50,
+  guidePlace = 1,
+  triggerList =
+	{
+		{ type = 2, valueList = {75,}},      --任务完成
+	},
+
+
+  --引导的步骤
+  steps =
+	{
+    --第5步 指向离开按钮
+    {
+        condList =
+        {
+            { type = 8, helpId = 0, dataList = {75,} },   --任务完成
+            { type = 15, helpId = 0, dataList = {74,} },   --在矿场
+            { type = 1, helpId = 5, dataList = {0,} },   --退出副本可见
+        },
+
+        action = { type = 1, helpId = 5, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc90 },
+    },
+
+
+    --第5步 指任务连接（NPC，交任务）
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 50, dataList = {0,} },		--任务追踪面板可见
+				{ type = 3,  helpId = 51, dataList = {1,} },		--任务追踪面板选中第一项
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 5,  helpId = 0, dataList = {75,} },		--存在任务
+				{ type = 8,  helpId = 0, dataList = {75,} },		--任务完成
+      },
+
+      --指向任务寻路连接
+      action = { type = 5, helpId = 75, data = Lang.GuideLang.name48, pointerValue = 1, desc = Lang.GuideLang.desc2 ,offX=-20,offY=0 },
+    },
+
+    --第5步 指向npc对话框 完成任务按钮
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 40, dataList = {0,} },	  --npc对话框可见
+				{ type = 5,  helpId = 0, dataList = {75,} },			--存在任务
+				{ type = 19, helpId = 40, dataList = {Lang.GuideLang.name48,} },     --指定NPC
+				{ type = 8,  helpId = 0, dataList = {75,} },			--任务完成
+      },
+
+      --指向NPC对话框的完成按钮
+      action = { type = 1, helpId = 41, data = 0, rot = 180, pointerValue = 1, desc = Lang.GuideLang.desc3 },
+    },
+
+    --第4步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+				{ type = 6,  helpId = 0, dataList = {75,} },			--不存在任务
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

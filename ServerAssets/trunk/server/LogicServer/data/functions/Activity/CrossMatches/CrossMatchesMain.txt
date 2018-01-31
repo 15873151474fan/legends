@@ -1,0 +1,388 @@
+--lua script
+
+--#include "data\config\activityconfig\CrossMatches\CrossMatchesConfig.txt" once
+--#include "EnterCrossMatchesCommon.txt" once
+--跨服联赛
+function CrossMatches_Main(sysarg)
+	local str = ""
+	--str = str.."\\<#BL"..Lang.Activity.kf0050.."/@CrossMatchesInfo>"
+	str = str.."\\<#BL"..Lang.Activity.kf0051.."/@EnterSelectMatchesScene>"
+	str = str.."\\<#BL"..Lang.Activity.kf0052.."/@EnterCrossMatchesScene>"
+	str = str.."\\<#BL"..Lang.Activity.kf0053.."/@EnterViewMatches>"
+	return str
+end
+
+--联赛说明
+function CrossMatchesInfo()
+	local str = Lang.Activity.kf0061
+	str = str..Lang.Activity.t00046
+	return str 
+end
+
+--进入海选赛场景
+ function EnterSelectMatchesScene(sysarg)
+	if System.isCommonServer() == false then		--是否在公共服 
+		return 
+	end	
+	
+	if Actor.isDeath(sysarg) == true then
+		return 
+	end
+	
+	--[[
+	local weekDay = System.getDayOfWeek()
+	local weekNum = System.getCurrWeekNum()
+	
+	if weekNum > 3 or ( weekNum == 3 and (weekDay < 1 or weekDay > 5)) then  
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0066, ttFlyTip)   
+		return 
+	end
+	
+	if System.isInTimeRange(unpack(CrossMatchesConfig.timeRange)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0066, ttFlyTip)
+		return 
+	end
+	--]]
+	
+	if CheckMatchesActivityTime(1) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0066, ttFlyTip)
+		return 
+	end
+	
+	
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar then
+		return 
+	end
+	
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )  
+	if not memberRankingPtr then
+		return
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId)
+	if not memberItemPtr then
+		return
+	end
+	
+	local teamId = tonumber(Ranking.getSub(memberItemPtr , 0))  --队伍id
+	local groupNum = tonumber(Ranking.getSub(memberItemPtr , 7))  --分组
+	
+	local sysVar = System.getStaticVar()
+	if (not sysVar) or (not sysVar.MatchesTeamCount) then
+		return
+	end
+	
+	if sysVar.MatchesTeamCount == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0062, ttFlyTip) 
+		return
+	end 
+	
+	if groupNum <= 0 then   
+		return 
+	end
+	
+	if sysVar.CrossMatchFbList == nil then 
+		sysVar.CrossMatchFbList = {}
+	end 
+	
+	local fHandle = sysVar.CrossMatchFbList[groupNum] 
+	if not fHandle then
+		return 
+	end
+	
+	local state = tonumber(Ranking.getSub(memberItemPtr, 9))
+	if state ~= 0 then
+		return
+	end
+	
+	local teamPos = tonumber(Ranking.getSub(memberItemPtr, 8))
+	if teamPos ~= 1 and teamPos ~= 2 then
+		return
+	end
+	
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	if teamId > 0 then
+		local teamRnkingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )
+		if teamRnkingPtr then
+			local teamItemPtr = Ranking.getItemPtrFromId(teamRnkingPtr, teamId)
+			if teamItemPtr then
+				Ranking.setSub(teamItemPtr, 6, fHandle)
+			end
+		end
+	end
+	
+	if Actor.isDeath(sysarg) == true then
+		Actor.relive(sysarg)
+	end
+	local ret = Actor.enterFuBen(sysarg, fHandle, CrossMatchesConfig.smSceneId, CrossMatchesConfig.enterSelectMatches[teamPos].posX, CrossMatchesConfig.enterSelectMatches[teamPos].posY) 
+	if ret == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0062, ttFlyTip)
+	end
+	
+	Ranking.setSub(memberItemPtr, 9, 1) --设置参赛状态 
+	Ranking.setSub(memberItemPtr, 10, 1) --设置是否pk 	
+	CrossMatchAutoGroup(sysarg, 1)
+	
+	local fbPtr = Actor.getFubenPrt(sysarg) 
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	if not fbVar then
+		return
+	end	
+	
+	local leftTime = Fuben.getFbTime(fbPtr)
+	local haveStartTime = CrossMatchesConfig.activityTime - leftTime
+	if haveStartTime < CrossMatchesConfig.beginPkTime then
+		Actor.setCanNotAttackedFlag(sysarg, 1)  --设置不可攻击
+	end
+	
+	if fbVar.joinMatchesTeamIds == nil then
+		fbVar.joinMatchesTeamIds = {}
+	end
+	
+	if fbVar.joinMatchesNum == nil then 
+		fbVar.joinMatchesNum = {}
+	end 
+	
+	if fbVar.joinMatchesTeamIds[1] == nil or fbVar.joinMatchesTeamIds[1] == teamId then 
+		fbVar.joinMatchesTeamIds[1] = teamId
+	elseif fbVar.joinMatchesTeamIds[2] == nil or fbVar.joinMatchesTeamIds[2] == teamId then 
+		fbVar.joinMatchesTeamIds[2] = teamId 
+	end 
+	
+	if fbVar.joinMatchesNum[teamId] == nil then  --joinMatchesNum 参加比赛的人数列表
+		fbVar.joinMatchesNum[teamId] = 1  
+	else
+		if fbVar.joinMatchesNum[teamId] < CrossMatchesConfig.maxMember then 
+			fbVar.joinMatchesNum[teamId] = fbVar.joinMatchesNum[teamId] + 1
+		else
+			fbVar.joinMatchesNum[teamId] = CrossMatchesConfig.maxMember
+		end
+	end
+	InitCrossMatchFormInfo(sysarg, 1)
+	UpdateSelectMatchFormInfo(sysarg)
+ end 
+ 
+ 
+--进入淘汰赛场景
+function EnterCrossMatchesScene(sysarg)
+	if System.isCommonServer() == false then		--是否在公共服 
+		return 
+	end
+	
+	if Actor.isDeath(sysarg) == true then
+		return 
+	end
+	
+	--[[
+	local weekDay = System.getDayOfWeek()
+	local weekNum = System.getCurrWeekNum()
+	
+	if (weekNum ~= 3 and weekNum ~= 4) or (weekNum == 3 and (weekDay ~= 0 and weekDay ~= 6)) or
+	(weekNum == 4 and (weekDay ~= 0 and weekDay ~= 6)) then  
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0067, ttFlyTip)   
+		return 
+	end
+	
+	if System.isInTimeRange(unpack(CrossMatchesConfig.timeRange)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0067, ttFlyTip)
+		return 
+	end
+	--]]
+	
+	if CheckMatchesActivityTime(2) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0067, ttFlyTip)
+		return 
+	end
+
+	
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	local actorVar = Actor.getStaticVar(sysarg) 
+	if not actorVar then
+		return 
+	end
+	
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )  
+	if not memberRankingPtr then 
+		return
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId)
+	if not memberItemPtr then
+		return
+	end
+
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+	if not selectMatchesRankingPtr then
+		return
+	end
+	
+	
+	local joinFlag = true
+	local state = tonumber(Ranking.getSub(memberItemPtr, 9))
+	if state ~= 0 then  
+		joinFlag = false
+	end
+	
+	if joinFlag == true then 
+		local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+		if selectMatchesItemPtr and joinFlag == true then 
+			local groupType = tonumber(Ranking.getSub(selectMatchesItemPtr, 11)) 
+			local matchesType = tonumber(Ranking.getSub(selectMatchesItemPtr, 12))  
+			local groupNum = tonumber(Ranking.getSub(selectMatchesItemPtr, 4))  
+			
+			local curMatchesType = GetCrossMatchType()
+			if curMatchesType ~= matchesType then
+				joinFlag = false
+			end
+			
+			local index = 0
+			for k, v in ipairs(CrossMatchesConfig.matchesTypeTab or {}) do   
+				if v == matchesType then
+					index = k
+					break
+				end
+			end
+		
+			local enterPosConfig = CrossMatchesConfig.enterCrossMatches
+			if groupType <= 0 or groupType > table.getn(enterPosConfig) then
+				joinFlag = false
+			end
+			if index <= 0 or index > table.getn(enterPosConfig[groupType]) then 
+				joinFlag = false
+			end
+			
+			local teamPos = tonumber(Ranking.getSub(memberItemPtr, 8))
+			if teamPos ~= 1 and teamPos ~= 2 then
+				joinFlag = false
+			end
+		
+			if joinFlag == true then 
+				local reportRankingPtr = nil 
+				if groupType == 1 then
+					reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+				elseif groupType == 2 then
+					reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+				end
+				if reportRankingPtr then
+					local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType + groupNum)
+					if reportItemPtr then
+						local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+						local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+						local curJoinNum = 0
+						if teamId == teamId1 then
+							curJoinNum = tonumber(Ranking.getSub(reportItemPtr, 8))
+							if curJoinNum >= CrossMatchesConfig.maxMember  then
+								Ranking.setSub(reportItemPtr, 8, CrossMatchesConfig.maxMember)
+							else
+								Ranking.setSub(reportItemPtr, 8, curJoinNum+1)
+							end
+						elseif teamId == teamId2 then
+							curJoinNum = tonumber(Ranking.getSub(reportItemPtr, 9))
+							if curJoinNum >= CrossMatchesConfig.maxMember then
+								Ranking.setSub(reportItemPtr, 9, CrossMatchesConfig.maxMember)
+							else
+								Ranking.setSub(reportItemPtr, 9, curJoinNum+1)
+							end
+						end
+					end
+					
+					local posConfig = enterPosConfig[groupType][index]
+					local groupPosConfig = posConfig[groupNum]
+					
+					if state == 0 then
+						--print("posConfig[teamPos].posX ", groupPosConfig[teamPos].posX)
+						--print("posConfig[teamPos].posY ",groupPosConfig[teamPos].posY)
+						
+						Actor.enterFuBen(sysarg, 0, CrossMatchesConfig.cmSceneId, groupPosConfig[teamPos].posX, groupPosConfig[teamPos].posY) 
+						local svar = System.getDyanmicVar()
+						if svar.EnterMatchesFlag and svar.EnterMatchesFlag == 0 then
+							Actor.setCanNotAttackedFlag(sysarg, 1)
+						end
+						Ranking.setSub(memberItemPtr, 9, 1) --设置参赛状态
+						Ranking.setSub(memberItemPtr, 10, 1) --设置是否pk 
+						CrossMatchAutoGroup(sysarg, 2)
+						InitCrossMatchFormInfo(sysarg, 2)
+						UpdateCorssMatchFormInfo(reportItemPtr, actorId)
+					end
+				end
+			end
+		end
+	end
+	
+	if joinFlag == false then --非参赛玩家
+		Actor.enterFuBen(sysarg, 0, CrossMatchesConfig.cmSceneId, CrossMatchesConfig.enterCmPosX, CrossMatchesConfig.enterCmPosY)
+	end
+end
+
+function EnterViewMatches(sysarg)
+
+	if System.isCommonServer() == false then		--是否在公共服 
+		return 
+	end
+
+	--[[
+	local weekDay = System.getDayOfWeek()
+	local weekNum = System.getCurrWeekNum()
+
+	if (weekNum ~= 3 and weekNum ~= 4) or (weekNum == 3 and (weekDay ~= 0 and weekDay ~= 6)) or
+	(weekNum == 4 and (weekDay ~= 0 and weekDay ~= 6)) then  
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0067, ttFlyTip)   
+		return 
+	end
+
+	if System.isInTimeRange(unpack(CrossMatchesConfig.timeRange)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0067, ttFlyTip)
+		return 
+	end
+	--]]
+	if CheckMatchesActivityTime(2) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0067, ttFlyTip)
+		return 
+	end
+
+	Actor.enterFuBen(sysarg, 0, CrossMatchesConfig.cmSceneId, CrossMatchesConfig.enterCmPosX, CrossMatchesConfig.enterCmPosY)
+end 
+
+
+--跨服联赛开始一分钟玩家状态处理
+function CrossMatchFirstMiniHandle()
+
+	local playerList = LuaHelp.getSceneActorListById(CrossMatchesConfig.cmSceneId)		
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then	
+				Actor.setCanNotAttackedFlag(player, 0)
+			end
+		end
+	end
+	
+	local cmHandle = Fuben.getSceneHandleById(CrossMatchesConfig.cmSceneId, 0)
+
+	Fuben.sendMsgToScene(cmHandle, Lang.Activity.kf0098, 2 + 128)
+	Fuben.sendMsgToScene(cmHandle, Lang.Activity.kf0098, 2 + 128)
+
+	local svar = System.getDyanmicVar()
+	svar.EnterMatchesFlag = 1
+	
+	local nHandle = Fuben.getSceneHandleById(CrossMatchesConfig.enterComSeneId, 0)
+	local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00301)
+	Actor.unregScriptCallback(NpcPtr, "CrossMatchFirstMiniHandle")
+	
+end
+
+table.insert(MainFnTable, CrossMatches_Main)
+

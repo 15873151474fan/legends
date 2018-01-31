@@ -1,0 +1,159 @@
+--lua script
+
+--#include "data\config\activityconfig\RushSkyMars\RushSkyMarsConfig.txt" once 
+
+
+NPCFubenTable = {73} 
+--#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once           --用于处理副本的通用函数
+
+function RushSkyMars_Main(sysarg)
+	local str = GetRushMarsInfo(sysarg, 1)
+	str = str.."\\<#BL"..Lang.Activity.tg0001.."/@ExchangePoint>"
+	str = str.."\\<#BL"..Lang.Activity.tg0002.."/@Introduce>"
+	str = str.."\\<#BL"..Lang.Activity.tg0035.."/@ViewLastWeekMars>"
+	return str
+end
+
+
+function ExchangePoint(sysarg)
+	OpenExchangeDialog(sysarg) 
+end
+
+function Introduce(sysarg)
+	local str = Lang.Activity.tg0004
+	str = str .. Lang.Activity.tg0029 
+	return str
+end
+
+function ViewLastWeekMars(sysarg)
+	local str = GetRushMarsInfo(sysarg, 2)
+	str = str .. Lang.Activity.tg0029 
+	return str 
+		
+end
+
+function GetRushMarsInfo(sysarg, ntype)
+	local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+	local marsName = ""
+	local marsPassNum = 0
+	local marsCostTime = 0
+	local marsCostMin = 0
+	local marsCostSec = 0
+	local myPassNum = 0
+	local myPoint = 0
+	
+	local RankName = ""
+	if ntype == 1 then
+		RankName = Lang.Rank.RushSkyMarsName
+	elseif ntype == 2 then
+		RankName = Lang.Rank.LastRushSkyMarsName
+	end 
+	
+	local RushSkyMarsRankPtr = Ranking.getRanking( RankName )
+	
+	if RushSkyMarsRankPtr then
+		local count = Ranking.getRankItemCount(RushSkyMarsRankPtr)
+		
+		if count > 0 then
+			local RushSkyMarsItemPtr = Ranking.getItemPtrByIndex(RushSkyMarsRankPtr, 0)
+			if RushSkyMarsItemPtr then
+				marsName = Ranking.getSub(RushSkyMarsItemPtr, 1)
+				marsPassNum = Ranking.getPoint(RushSkyMarsItemPtr)
+				marsCostTime = tonumber(Ranking.getSub(RushSkyMarsItemPtr, 0))
+				marsCostMin = marsCostTime / 60
+				marsCostSec = marsCostTime % 60
+			end
+		end
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr then
+		local RushSkyItemPtr = Ranking.getItemPtrFromId(RushSkyRankPtr, actorId)
+		if RushSkyItemPtr then
+			myPassNum = Ranking.getPoint(RushSkyItemPtr)
+		end
+	end
+	
+	myPoint = Actor.getIntProperty(sysarg, PROP_ACTOR_SKY_POINT)
+	
+	local str = ""
+	if ntype == 1 then
+		str = string.format(Lang.Activity.tg0003, marsName, marsPassNum, marsCostMin, marsCostSec, myPassNum, myPoint)
+	elseif ntype == 2 then
+		str = string.format(Lang.Activity.tg0036, marsName, marsPassNum, marsCostMin, marsCostSec)
+	end
+	
+	if str == nil then
+		str = ""
+	end
+    return str	
+end
+
+function RushSkyRankInit()
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )
+	if RushSkyRankPtr == nil then
+		RushSkyRankPtr = Ranking.add(Lang.Rank.RushSkyName, 2000)
+		if RushSkyRankPtr then
+			local ret = Ranking.load(RushSkyRankPtr, Lang.Rank.RushSkyFile)
+			if not ret then
+				Ranking.addColumn(RushSkyRankPtr, "curpass") --当前通关数
+				Ranking.addColumn(RushSkyRankPtr, "costtime") --花费时间
+				Ranking.addColumn(RushSkyRankPtr, "exp") --经验
+				Ranking.addColumn(RushSkyRankPtr, "point") --积分
+				Ranking.addColumn(RushSkyRankPtr, "fbTime") --副本当前时间
+				Ranking.addColumn(RushSkyRankPtr, "flag") --领取奖励状态，-1需要发离线奖励消息，0不需要发，1表示有奖励未领取(玩家掉线后，副本时间到了，玩家登陆的时候发奖励)
+				Ranking.addColumn(RushSkyRankPtr, "logoutTime") --上次掉线时间
+			end 
+		end
+	end	
+	
+	local RushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.RushSkyMarsName )
+	if RushSkyMarsRankPtr == nil then
+		RushSkyMarsRankPtr = Ranking.add(Lang.Rank.RushSkyMarsName, 2000)
+		if RushSkyMarsRankPtr then
+			local ret = Ranking.load(RushSkyMarsRankPtr, Lang.Rank.RushSkyMarsFile)
+			if not ret then
+				Ranking.addColumn(RushSkyMarsRankPtr, "costtime") --花费时间
+				Ranking.addColumn(RushSkyMarsRankPtr, "name") --战神名称
+				Ranking.addColumn(RushSkyMarsRankPtr, "sex") --战神性别
+			end
+		end
+	end
+	
+	local LastRushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.LastRushSkyMarsName )
+	if LastRushSkyMarsRankPtr == nil then
+		LastRushSkyMarsRankPtr = Ranking.add(Lang.Rank.LastRushSkyMarsName, 2000)
+		if LastRushSkyMarsRankPtr then
+			local ret = Ranking.load(LastRushSkyMarsRankPtr, Lang.Rank.LastRushSkyMarsFile)
+			if not ret then
+				Ranking.addColumn(LastRushSkyMarsRankPtr, "costtime") --花费时间
+				Ranking.addColumn(LastRushSkyMarsRankPtr, "name") --战神名称
+				Ranking.addColumn(LastRushSkyMarsRankPtr, "sex") --战神性别
+			end
+		end
+	end
+end
+
+function RushSkyRankSave()
+	local RushSkyRankPtr = Ranking.getRanking( Lang.Rank.RushSkyName )		
+	if RushSkyRankPtr then
+		Ranking.save(RushSkyRankPtr, Lang.Rank.RushSkyFile, true)
+	end
+	
+	local RushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.RushSkyMarsName )		
+	if RushSkyMarsRankPtr then
+		Ranking.save(RushSkyMarsRankPtr, Lang.Rank.RushSkyMarsFile, true)
+	end
+	
+	local LastRushSkyMarsRankPtr = Ranking.getRanking( Lang.Rank.LastRushSkyMarsName )		
+	if LastRushSkyMarsRankPtr then
+		Ranking.save(LastRushSkyMarsRankPtr, Lang.Rank.LastRushSkyMarsFile, true)
+	end
+end
+
+
+table.insert(MainFnTable, RushSkyMars_Main)
+table.insert(InitFnTable, RushSkyRankInit)
+table.insert(FinaFnTable, RushSkyRankSave)
+

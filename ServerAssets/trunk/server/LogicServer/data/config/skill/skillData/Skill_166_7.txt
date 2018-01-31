@@ -1,0 +1,94 @@
+--VIPBoss 召唤分身
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=32},--技能说话
+						{mj=0,timeParam=1,type=17,id=1151,delay=0, interval=0,value=3,buffType=1,rate=3},	
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+
+		{
+
+			xStart=-7,--相对于中心点x左边的相对坐标
+			xEnd=7,--相对于中心点x右边的相对坐标
+			yStart=-7,--相对于中心点y上边的相对坐标
+			yEnd=7,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 6,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=58},--技能说话
+						{mj=0,timeParam=1,type=3,delay=0,value=50000,rate=10000},	
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=134,keepTime=400,delay=500,always=false},
+					},
+				},
+			},
+		},
+		
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=18,value=50,consume=false},
+		{cond=13,value=21,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=600000,
+
+},

@@ -1,0 +1,37 @@
+﻿--lua script
+-- 开启宝物槽脚本处理逻辑
+--#include "data\config\gem\GemConfig.txt" once
+--#include "GemCommon.txt" once
+
+
+local function GemOpenHoleImpl(sysarg, gemSlotIdx)
+	--print("----------GemOpenHoleImpl----------")
+	if (gemSlotIdx < 0 or gemSlotIdx >= 8) then
+		print("invalid gemslotidx = " .. gemSlotIdx)
+		return
+	end
+	
+	if (Actor.isGemSlotOpened(sysarg, gemSlotIdx)) then
+		print(string.format("slot(%d) is opened already", gemSlotIdx))
+		return
+	end
+		
+	local reqItemId 	= GemGlobalConfig.openHoleItemId
+	local reqItemCnt 	= GemGlobalConfig.openHoleConsumeItemCnt
+	if (not CheckItemReq(sysarg, reqItemId, reqItemCnt)) then return end
+	
+	if (Actor.removeItem(sysarg, reqItemId, reqItemCnt, -1, -1, -1, "open gem slot", 73) ~= reqItemCnt) then	
+		print("remove consume item failed")
+		return
+	end
+	
+	Actor.setGemSlotOpen(sysarg, gemSlotIdx)
+end
+
+--[[--]]
+GemSystemImpl.GemUpGradeHandler = function (sysarg, msgid, packet)
+	local gemSlotIdx 				= DataPack.readInt(packet)		-- 宝物槽位号	
+	GemOpenHoleImpl(sysarg, gemSlotIdx)	
+end
+
+GemSystemImpl.registerMsgHandler(4, GemSystemImpl.GemUpGradeHandler)

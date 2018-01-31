@@ -1,0 +1,38 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本
+    函数名称：useBroadcast
+    函数描述：使用祝福附发送祝福播报
+    参数 sysarg 的描述：使用者指针
+    参数 itemidx 的描述：道具ID
+    参数 itemPtr 的描述：道具指针
+    参数 ItemTable 的描述：物品表
+  ]]--
+
+-- 物品使用功能函数，当使用一个物品就发条播报
+function useBroadcast(sysarg,itemidx,itemptr,ItemTable)
+  if ItemTable == nil then return end 
+  local count = table.getn(ItemTable.text)
+  if(count <= 0) then return end  
+  local rand = System.getRandomNumber(count)
+  if ItemTable.item_id == itemidx then
+    local lmsg = ItemTable.text[rand+1]
+    local actorName = Actor.getName(sysarg)
+    local msg = string.format(lmsg,actorName)
+    Actor.removeItemByPtr(sysarg,itemptr,1,true," ",5)      --删除一个物品  	     
+    System.broadcastTipmsg(msg,ttScreenCenter)
+  end
+  -- 发送全服播报消息
+end
+
+
+function useBroadcast_Init(sysarg)
+
+	for i = 1, table.getn(BroadcastItem) do
+		local x = BroadcastItem[i]
+		GlobalItemFn[x.item_id] = {func = useBroadcast,params = x}
+	end
+end
+
+
+table.insert(InitFnTable,useBroadcast_Init)

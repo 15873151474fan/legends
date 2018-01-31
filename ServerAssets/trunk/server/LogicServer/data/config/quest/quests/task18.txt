@@ -1,0 +1,40 @@
+﻿--lua script
+{
+	id = 18,			-- 拜访书店
+	parentid = 17,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = false,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name18,
+	content = Lang.Quest.desc18,
+
+	prom = { type = 0, scene = Lang.SceneName.s00002, npc = Lang.EntityName.n00013 },
+	comp = { type = 0, scene = Lang.SceneName.s00002, npc = Lang.EntityName.n00012 },
+	target = {
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 1067, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 4400, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+            { type = 0, id = 570, count = 1, group = 0,strong = 0,quality = 0,job = 2,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00}, --法师雷击术
+            { type = 0, id = 580, count = 1, group = 0,strong = 0,quality = 0,job = 3,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00}, --道士剧毒术	
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk181,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk181,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip181,
+	},
+	PassMsTip = {
+	},
+},

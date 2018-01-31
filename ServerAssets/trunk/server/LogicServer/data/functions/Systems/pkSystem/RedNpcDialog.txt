@@ -1,0 +1,260 @@
+﻿--#include "data\config\pk\PkConfig.txt" once --pk配置
+--红名村npc对话 
+
+function RedDialogMain(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.t00039.."/@OnExitPrison>"
+
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+
+	if nPkValue >= PkConfig.redName then
+		local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+		local nCoin = PkConfig.param1 * math.pow(nLevel,2) + PkConfig.param2
+		if (nCoin > ClearRedNameCoinMax) then nCoin = ClearRedNameCoinMax end; -- 设上限
+		str = str.."\\<#BL"..string.format(Lang.Activity.t00040,nCoin) .. string.format("/@OnClearRedName,%d>",nCoin);
+		
+		local ybClear = PkConfig.ybClear
+		if ybClear then
+			str = str.."\\<#BL"..string.format(Lang.Activity.t00170, ybClear.yb, ybClear.pkValue).."/@OnClearRedNameByYb, 1>"
+			
+			str = str.."\\<#BL"..string.format(Lang.Activity.t00171).."/@ClearRedNameByYb>"
+		end
+
+		str = str.."\\<#BL"..string.format(Lang.Activity.t00177, PkConfig.coinClear.ncoin, PkConfig.coinClear.pkValue).."/@OnClearRedNameByCoin>"
+		str = str.."\\<#BL"..string.format(Lang.Activity.t00178).."/@ClearRedNameByCoin>"
+	end 
+	
+	return str
+end
+
+--离开监狱
+function OnExitPrison(sysarg)
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+
+	if nPkValue < PkConfig.redName then
+		Actor.enterScene(sysarg,PkConfig.nExitSceenId,unpack(PkConfig.nExitRange))
+		--Actor.enterScene(sysarg,8,148,180,2,2)
+		Actor.sendTipmsg( sysarg, Lang.Activity.t00041,ttFlyTip )
+	else
+		local str = string.format(Lang.Activity.t00042,PkConfig.redName)
+		Actor.sendTipmsg( sysarg, str,ttFlyTip )
+	end
+end
+
+function ClearRedNameOp(sysarg)
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+
+	local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	local nCoin = 4 * math.pow(nLevel,3)
+	
+	if nPkValue < PkConfig.redName then
+		Actor.sendTipmsg( sysarg, Lang.Activity.t00044,ttFlyTip )
+		nCoin = 0
+	end
+
+	local str1 = string.format(Lang.Activity.t00045,nCoin)
+
+	local str = str1
+	str = string.format(str.."\\<#BL"..Lang.Activity.w00010.."/@OnClearRedName,%d>",nCoin)
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+
+--清洗红名
+function OnClearRedName(sysarg,nCoin) -- 需要多少金币
+	nCoin = tonumber(nCoin);
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+
+	local nLevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	
+	local myCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+
+	if nPkValue < PkConfig.redName then
+		Actor.sendTipmsg( sysarg, Lang.Activity.t00044,ttFlyTip )
+		nCoin = 0
+	end
+
+	if myCoin > nCoin then
+		if Actor.changeMoney(sysarg,1,-nCoin,823,Lang.Activity.t00094) == true then
+			Actor.enterScene(sysarg,PkConfig.nExitSceenId,unpack(PkConfig.nExitRange))
+		end
+	else
+		local str = string.format(Lang.Activity.t00043,nCoin)
+		Actor.sendTipmsg( sysarg, str,ttFlyTip )
+	end
+end
+
+function ClearRedNameByYb(sysarg)
+	local ybClear = PkConfig.ybClear
+	if not ybClear then return end
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+	if nPkValue < ybClear.pkValue then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00172, ybClear.pkValue),ttFlyTip )
+		return
+	end
+	local nYb = math.ceil(nPkValue*(ybClear.yb/ybClear.pkValue))
+	local sAskMsg = string.format(Lang.Activity.t00173, nPkValue, nYb)
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/OnClearRedNameByYb, 2",Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+function Cancel()
+
+end
+
+--清洗红名
+function OnClearRedNameByYb(sysarg, type)
+	local type = tonumber(type)
+	local ybClear = PkConfig.ybClear
+	if not ybClear then return end
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+	
+	if nPkValue < ybClear.pkValue then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00172, ybClear.pkValue),ttFlyTip )
+		return
+	end
+
+	local nCoin = 0
+	if type == 1 then
+		nCoin = ybClear.yb
+	else
+		nCoin = nPkValue
+	end
+
+	local myCoin = Actor.getMoneyCount(sysarg,3)
+	
+	if myCoin < nCoin then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00174, nCoin), ttFlyTip )
+		return
+	end
+	
+	if Actor.changeMoney(sysarg,3,-nCoin,823, Lang.LogTips.yb029) == true then
+		if type == 1 then
+			local pkValue = nPkValue-ybClear.pkValue
+			if pkValue < 0 then
+				pkValue = 0
+			end
+			Actor.setUIntProperty(sysarg, PROP_ACTOR_PK_VALUE, pkValue)
+			Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00175, ybClear.pkValue), ttFlyTip )
+		else
+			Actor.setUIntProperty(sysarg, PROP_ACTOR_PK_VALUE, 0)
+			Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00176), ttFlyTip )
+		end
+		if Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE) == 0 then
+			--Actor.enterScene(sysarg, PkConfig.nSceenId, unpack(PkConfig.nExitRange))
+			Actor.enterScene(sysarg,PkConfig.nExitSceenId,unpack(PkConfig.nExitRange))
+			--Actor.enterScene(sysarg,8,148,180,2,2)
+			Actor.sendTipmsg( sysarg, Lang.Activity.t00041,ttFlyTip )
+		end
+	end
+end
+
+--金币清洗红名
+function OnClearRedNameByCoin(sysarg)
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+	
+	if nPkValue < PkConfig.coinClear.pkValue then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00179, PkConfig.coinClear.pkValue),ttFlyTip )
+		return
+	end
+	
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if nCoin < PkConfig.coinClear.ncoin then
+		Actor.sendTipmsg( sysarg, Lang.Activity.t00180, ttFlyTip )
+		return
+	end
+	
+	if Actor.changeMoney(sysarg,1,-PkConfig.coinClear.ncoin,823, Lang.Activity.t00181) == true then
+		local pkValue = nPkValue-PkConfig.coinClear.pkValue
+		if pkValue < 0 then
+			pkValue = 0
+		end
+		Actor.setUIntProperty(sysarg, PROP_ACTOR_PK_VALUE, pkValue)
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00175, PkConfig.coinClear.pkValue), ttFlyTip )
+	end
+end
+
+--金币一次性洗红名
+function ClearRedNameByCoin(sysarg)
+	local ybClear = PkConfig.coinClear
+	if not ybClear then return end
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+	if nPkValue < ybClear.pkValue then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00172, ybClear.pkValue),ttFlyTip )
+		return
+	end
+	local NPChandle = Actor.getHandle(thisNPC)
+	local nValuePk = nPkValue
+	local sAskMsg = ""
+	local nYb = 0
+	if nValuePk > 200000 then
+		nValuePk = 200000
+		nYb = nValuePk * PkConfig.coinClearRedOneTimes
+		sAskMsg = string.format(Lang.Activity.t00184, nPkValue, nYb)
+		Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ClearRedNameByCoinOneTimes",Lang.ScriptTips.mt00005.."/Cancel",nil)
+	else
+		nYb = nValuePk * PkConfig.coinClearRedOneTimes
+		sAskMsg = string.format(Lang.Activity.t00182, nPkValue, nYb)
+		Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ClearRedNameByCoinOneTimes",Lang.ScriptTips.mt00005.."/Cancel",nil)
+	end
+	
+	--[[
+	if nValuePk > 10000 then
+		nValuePk = 10000
+	end
+	local nYb = nValuePk * PkConfig.coinClearRedOneTimes
+	local sAskMsg = string.format(Lang.Activity.t00182, nPkValue, nYb)
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ClearRedNameByCoinOneTimes",Lang.ScriptTips.mt00005.."/Cancel",nil)
+	]]
+end
+
+--一次洗红名
+function ClearRedNameByCoinOneTimes(sysarg)
+	local nValuePk = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+	local nLastPk = 0
+	local nYb = 0
+	if nValuePk > 200000 then
+		nLastPk = nValuePk - 200000
+		nValuePk = 200000
+		nYb = nValuePk * PkConfig.coinClearRedOneTimes
+	else
+		nYb = nValuePk * PkConfig.coinClearRedOneTimes
+	end
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if nCoin < nYb then
+		Actor.sendTipmsg( sysarg, Lang.Activity.t00180, ttFlyTip )
+		return
+	end
+
+	if Actor.changeMoney(sysarg,1,-nYb,823, Lang.Activity.t00181) == true then
+		Actor.setUIntProperty(sysarg, PROP_ACTOR_PK_VALUE, nLastPk)
+		if nLastPk == 0 then
+			Actor.sendTipmsg( sysarg, Lang.Activity.t00183, ttFlyTip )
+		else
+			Actor.sendTipmsg( sysarg, Lang.Activity.t00185, ttFlyTip )
+		end
+	end
+--[[
+	local nPkValue = Actor.getIntProperty(sysarg,PROP_ACTOR_PK_VALUE)
+	if nPkValue > 10000 then
+		nPkValue = 10000
+	end
+	local nYb = nPkValue * PkConfig.coinClearRedOneTimes
+
+	local nCoin = Actor.getIntProperty(sysarg,PROP_ACTOR_COIN)
+	if nCoin < PkConfig.coinClear.ncoin then
+		Actor.sendTipmsg( sysarg, Lang.Activity.t00180, ttFlyTip )
+		return
+	end
+
+	if Actor.changeMoney(sysarg,1,-nYb,823, Lang.Activity.t00181) == true then
+		Actor.setUIntProperty(sysarg, PROP_ACTOR_PK_VALUE, 0)
+		Actor.sendTipmsg( sysarg, Lang.Activity.t00183, ttFlyTip )
+	end
+]]
+end
+
+table.insert(MainFnTable, RedDialogMain)

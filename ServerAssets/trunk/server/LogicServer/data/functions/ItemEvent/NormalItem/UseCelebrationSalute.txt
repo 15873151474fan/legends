@@ -1,0 +1,36 @@
+--lua script
+--用户使用庆典礼炮的个性处理
+--#include "data\functions\Activity\Festival\AnniversaryCommon.txt" once
+--#include "data\config\item\NormalItemDatas.txt" once
+
+function CelebrationSaluteFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.getItemCount(sysarg, itemIdx) < 1 then return end
+	if OnUseCelebrationSalute(sysarg) == true then
+		--添加实体特效
+		if(itemConfig.entityEffects ~= nil) then
+			for i=1, table.getn(itemConfig.entityEffects)   do
+				local effect = itemConfig.entityEffects[i]
+				Actor.addEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime) --添加特效 
+			end
+		end
+		
+		--添加场景特效
+		if(itemConfig.sceneEffects ~= nil) then
+			for i=1, table.getn(itemConfig.sceneEffects)   do
+				local effect = itemConfig.sceneEffects[i]
+				Actor.addSceneEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime,effect.x,effect.y) --添加特效 
+			end
+		end
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use celebrationsalute",5)
+	end
+end
+
+function UseCelebrationSalute_Init(sysarg)
+	for i = 1,table.getn(EffectItemItem) do
+		local x = EffectItemItem[i]
+		GlobalItemFn[x.item_id] = { func = CelebrationSaluteFunc, params = x }
+	end
+end
+
+table.insert( InitFnTable, UseCelebrationSalute_Init)
+

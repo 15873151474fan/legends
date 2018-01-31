@@ -1,0 +1,100 @@
+--2015五一装盘配置
+{
+	ldIdx = 5, --老虎机序号      
+	paramFile = "LaborTurntableParam.txt",   
+	infoFile = "LaborTurntableInfo.txt",  
+	
+	logId = 987, --日志id
+	consumeLogTips = Lang.LogTips.ywy0201,   
+	awardLogTips = Lang.LogTips.ywy0202,
+	
+	--isAwardPool = 1, --需要发奖金池奖励
+	--awardPool = 10000, --奖金池初始值 
+	--addPoolYb = 20, --每抽一次奖金池增加的元宝 
+	
+	--isRankPoint = 0, --需要按积分排名
+	--ybToPoint = 1,	--1元宝对应的积分
+
+	actTime = {2015, 4, 30, 0, 0, 0,  2015, 5, 3, 23, 59, 59},	--活动时间范围     
+	circle = 0, --转数 
+	level = 50, --等级
+	
+	--isFree = 1, --是否可以每天免费  
+	--freeCount = 1, --每天免费次数  
+	
+	isShowLog = 1, --需要显示抽奖记录
+	isAllLog = 1, --是否需要全服抽奖记录
+	--isPerLog = 1, --是否需要个人抽奖记录
+	maxLogCount = 50, --最大记录数  
+
+	--isSaveName = 1, --是否保存名字,一般积分排名需要用到    
+	
+	--isMultAward = 1, --是否抽到相同的有多倍奖励
+	--multAward = {1,2,5}, --奖励倍率，一个单倍，两个2倍，3个5倍 
+	
+	isBroadCastTip = 1, --是否需要使用播报 
+	awardTip = Lang.Activity.shs0103, --抽到其他奖励播报 
+	
+	isBetTurntable = 1, --是否是投注转盘
+	betYbTab = {10, 10}, --投注花费元宝，第一个为初始元宝，第二个递增元宝， 
+	betLimitNumber = 5, --可以投注的颜色，这个表示1到5种颜色可以投
+	betLimitMult = 5, --最高投注倍数
+	colorTab =  
+	{
+	   Lang.Activity.ywy0201,
+	   Lang.Activity.ywy0202,
+	   Lang.Activity.ywy0203,
+	   Lang.Activity.ywy0204,
+	   Lang.Activity.ywy0205,
+	},
+	
+	
+	isDirectDraw = 1, --直接抽奖
+	drawCountTab = {1,10}, --抽奖次数 
+	drawYbTab = {20,200},  --抽奖1次花元宝，抽奖10次花元宝    
+	
+	
+	itemCount = 1000, --每个库的最大物品数量   
+	turntableCount = 1,	--转盘的数量  
+	itemLists =   
+	{
+		--isInit为true表示系统刷的，为false需要花元宝才能刷到; rate为刷刷出的概率，startYb为起始元宝，ybCircle为间隔元宝，isBrocast为true表示播报 , 
+		--betNumber为投注的颜色序号（只有isBetTurntable=1才有用）
+		--第1个物品库
+		{
+			itemList =   
+			{
+				{ idx = 1, type = 0, id = 749 , count =  1 , strong = 0, quality = 0, bind = 1, rate = 800 , startYb = 100  , ybCircle = 150   , isBrocast = true , betNumber = 1, }, --5级物攻魂石
+				{ idx = 2, type = 0, id = 731 , count =  5 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 0     , isBrocast = false, betNumber = 2, }, --快马鞭      
+				{ idx = 3, type = 0, id = 3140, count =  1 , strong = 0, quality = 0, bind = 0, rate = 100 , startYb = 10000, ybCircle = 15000 , isBrocast = true , betNumber = 3, }, --黄金华戒包  
+				{ idx = 4, type = 0, id = 2910, count =  1 , strong = 0, quality = 0, bind = 1, rate = 550 , startYb = 300  , ybCircle = 400   , isBrocast = true , betNumber = 4, }, --鸿蒙紫莲    
+				{ idx = 5, type = 0, id = 3183, count =  3 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 0     , isBrocast = false, betNumber = 5, }, --强效九转丹  
+				{ idx = 6, type = 0, id = 3302, count =  1 , strong = 0, quality = 0, bind = 1, rate = 500 , startYb = 500  , ybCircle = 500   , isBrocast = true , betNumber = 2, }, --6级魂石包   
+				{ idx = 7, type = 0, id = 2817, count =  1 , strong = 0, quality = 0, bind = 1, rate = 30  , startYb = 25000, ybCircle = 50000 , isBrocast = true , betNumber = 1, }, --潜能果      
+				{ idx = 8, type = 0, id = 2136, count =  1 , strong = 0, quality = 0, bind = 1, rate = 800 , startYb = 150  , ybCircle = 150   , isBrocast = false, betNumber = 3, }, --兽灵        
+				{ idx = 9, type = 0, id = 644 , count =  1 , strong = 0, quality = 0, bind = 1, rate = 15  , startYb = 35000, ybCircle = 90000 , isBrocast = true,  betNumber = 5, }, --幸运骰子    
+				{ idx = 10, type = 0, id =759 , count =  1 , strong = 0, quality = 0, bind = 1, rate = 800 , startYb = 100  , ybCircle = 150   , isBrocast = true,  betNumber = 4, }, --5级魔攻魂石 
+				{ idx = 11, type = 0, id =3186, count =  3 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 0     , isBrocast = false, betNumber = 1, }, --强效凝元丹  
+				{ idx = 12, type = 0, id =3247, count =  1 , strong = 0, quality = 0, bind = 1, rate = 500 , startYb = 400  , ybCircle = 500   , isBrocast = false, betNumber = 2, }, --流光星陨    
+				{ idx = 13, type = 0, id =2603, count =  1 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 30    , isBrocast = false, betNumber = 3, }, --焰光铁      
+				{ idx = 14, type = 0, id =769 , count =  1 , strong = 0, quality = 0, bind = 1, rate = 800 , startYb = 100  , ybCircle = 150   , isBrocast = true , betNumber = 5, }, --5级道攻魂石 
+				{ idx = 15, type = 0, id =1022, count =  1 , strong = 0, quality = 0, bind = 1, rate = 800 , startYb = 50   , ybCircle = 100   , isBrocast = false, betNumber = 2, }, --超级攻击药水
+				{ idx = 16, type = 0, id =2195, count =  1 , strong = 0, quality = 0, bind = 1, rate = 30  , startYb = 30000, ybCircle = 80000 , isBrocast = true , betNumber = 4, }, --绝世        
+				{ idx = 17, type = 0, id =2558, count =  5 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 0     , isBrocast = false, betNumber = 1, }, --天赋丹      
+				{ idx = 18, type = 0, id =1755, count =  8 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 0     , isBrocast = false, betNumber = 3, }, --灵力丹(小)  
+				{ idx = 19, type = 0, id =3450, count =  1 , strong = 0, quality = 0, bind = 1, rate = 300 , startYb = 500  , ybCircle = 800   , isBrocast = true , betNumber = 5, }, --启天之泪    
+				{ idx = 20, type = 0, id =1991, count =  1 , strong = 0, quality = 0, bind = 1, rate = 800 , startYb = 150  , ybCircle = 150   , isBrocast = false, betNumber = 2, }, --羽炼石      
+				{ idx = 21, type = 0, id =2276, count =  1 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 50    , isBrocast = false, betNumber = 4, }, --小转生灵魄  
+				{ idx = 22, type = 0, id =2982, count =  1 , strong = 0, quality = 0, bind = 1, rate = 650 , startYb = 300  , ybCircle = 400   , isBrocast = false, betNumber = 1, }, --兽魂丹(大)  
+				{ idx = 23, type = 0, id =731 , count =  10, strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 0     , isBrocast = false, betNumber = 4, }, --快马鞭      
+				{ idx = 24, type = 0, id =3303, count =  1 , strong = 0, quality = 0, bind = 1, rate = 800 , startYb = 100  , ybCircle = 150   , isBrocast = true , betNumber = 3, }, --5级魂石包   
+				{ idx = 25, type = 0, id =2627, count =  1 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 0     , isBrocast = false, betNumber = 4, }, --神力结晶(大)
+				{ idx = 26, type = 0, id =1125, count =  1 , strong = 0, quality = 0, bind = 1, rate = 5   , startYb = 50000, ybCircle = 100000, isBrocast = true , betNumber = 2, }, --黄金屠龙    
+				{ idx = 27, type = 0, id =3304, count =  1 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 0     , isBrocast = false, betNumber = 3, }, --4级魂石包   
+				{ idx = 28, type = 0, id =3189, count =  3 , strong = 0, quality = 0, bind = 1, rate = 1000, startYb = 0    , ybCircle = 30    , isBrocast = false, betNumber = 4, }, --强效大还丹  
+
+			},
+		},	
+	},
+	
+},

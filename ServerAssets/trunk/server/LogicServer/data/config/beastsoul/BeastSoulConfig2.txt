@@ -1,0 +1,2544 @@
+--第2个灵兽配置,为默认灵兽  
+--白虎，百分比减少战士伤害
+{
+	name = Lang.Misc.bsdesc002,
+	actTip = Lang.Misc.actbsdesc002, --激活描述
+	
+	--激活灵兽条件
+	activatCdn =  
+	{
+		circle = 6,			--转数
+		level = 50,			--等级
+		vipLevel = 0,		--vip等级
+		needYb = 0,		--需要元宝
+		needItem = 0, 	--需要道具id
+		needItemCount = 0,	--需要道具数量	
+	},
+
+	--灵兽各阶配置
+	beastLevelsConfig = 
+	{
+		--0阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 0,			--需要的金币
+				needItem = 0,		--需要道具 
+				needItemCount = 0,		--需要道具数量
+				maxBlessValue = 0,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 0,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 0, range = {1,20}},
+					{rate = 0, range = {21,40}},
+					{rate = 0, range = {41,60}},
+					{rate = 0, range = {61,80}},
+					{rate = 0, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 0, rate = 22},
+					{blessVal = 0, rate = 24},
+					{blessVal = 0, rate = 22},
+					{blessVal = 0, rate = 20},
+					{blessVal = 0, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=0,},
+					{type=137,value=0,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 87,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=4,},
+						{type=15, vaction = 2, value=4,}, 
+						{type=19, vaction = 3, value=4,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 87,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=4,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 87,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=4,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 87,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=9,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 87,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=5,},
+						{type=15, vaction = 2, value=5,}, 
+						{type=19, vaction = 3, value=5,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 87,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=5,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 87,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=5,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 87,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=13,},
+					},
+				},
+			},
+		},
+		
+		--1阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 33, range = {1,20}},
+					{rate = 48, range = {21,40}},
+					{rate = 58, range = {41,60}},
+					{rate = 70, range = {61,80}},
+					{rate = 84, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=100,},
+					{type=137,value=100,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab =  
+					{
+						{type = 41, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 80,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=6,},
+						{type=15, vaction = 2, value=6,}, 
+						{type=19, vaction = 3, value=6,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 80,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=6,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 80,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=6,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 80,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=15,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 80,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=9,},
+						{type=15, vaction = 2, value=9,}, 
+						{type=19, vaction = 3, value=9,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 80,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=9,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 80,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=9,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 80,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=23,},
+					},
+				},
+			},
+		},
+
+		--2阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 18, range = {1,20}},
+					{rate = 48, range = {21,40}},
+					{rate = 58, range = {41,60}},
+					{rate = 70, range = {61,80}},
+					{rate = 84, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=200,},
+					{type=137,value=200,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 74,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=9,},
+						{type=15, vaction = 2, value=9,}, 
+						{type=19, vaction = 3, value=9,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 74,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=9,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 74,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=9,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 74,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=22,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 74,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=13,},
+						{type=15, vaction = 2, value=13,}, 
+						{type=19, vaction = 3, value=13,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 74,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=13,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 74,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=13,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 74,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=33,},
+					},
+				},
+			},
+		},
+
+		--3阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 5, range = {1,20}},
+					{rate = 47, range = {21,40}},
+					{rate = 48, range = {41,60}},
+					{rate = 58, range = {61,80}},
+					{rate = 70, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=300,},
+					{type=137,value=300,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 67,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=12,},
+						{type=15, vaction = 2, value=12,}, 
+						{type=19, vaction = 3, value=12,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 67,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=12,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 67,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=12,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 67,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=29,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 67,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=18,},
+						{type=15, vaction = 2, value=18,}, 
+						{type=19, vaction = 3, value=18,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 67,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=18,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 67,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=18,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 67,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=44,},
+					},
+				},
+			},
+		},
+
+		--4阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 2, range = {1,20}},
+					{rate = 17, range = {21,40}},
+					{rate = 48, range = {41,60}},
+					{rate = 58, range = {61,80}},
+					{rate = 70, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=400,},
+					{type=137,value=400,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 60,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=15,},
+						{type=15, vaction = 2, value=15,}, 
+						{type=19, vaction = 3, value=15,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 60,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=15,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 60,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=15,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 60,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=37,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 60,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=22,},
+						{type=15, vaction = 2, value=22,}, 
+						{type=19, vaction = 3, value=22,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 60,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=22,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 60,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=22,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 500, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 60,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=56,},
+					},
+				},
+			},
+		},
+
+		--5阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 0, range = {1,20}},
+					{rate = 2, range = {21,40}},
+					{rate = 38, range = {41,60}},
+					{rate = 48, range = {61,80}},
+					{rate = 58, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=500,},
+					{type=137,value=500,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 900, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 52,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=18,},
+						{type=15, vaction = 2, value=18,}, 
+						{type=19, vaction = 3, value=18,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 900, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 52,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=18,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 900, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 52,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=18,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 900, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 52,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=45,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 900, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 52,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=27,},
+						{type=15, vaction = 2, value=27,}, 
+						{type=19, vaction = 3, value=27,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 900, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 52,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=27,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 900, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 52,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=27,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 900, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 52,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=68,},
+					},
+				},
+			},
+		},
+
+		--6阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 0, range = {1,20}},
+					{rate = 2, range = {21,40}},
+					{rate = 13, range = {41,60}},
+					{rate = 48, range = {61,80}},
+					{rate = 58, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=600,},
+					{type=137,value=600,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1000, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 45,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=22,},
+						{type=15, vaction = 2, value=22,}, 
+						{type=19, vaction = 3, value=22,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1000, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 45,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=22,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1000, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 45,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=22,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1000, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 45,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=54,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1000, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 45,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=32,},
+						{type=15, vaction = 2, value=32,}, 
+						{type=19, vaction = 3, value=32,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1000, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 45,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=32,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1000, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 45,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=32,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 600, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1000, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 45,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=81,},
+					},
+				},
+			},
+		},
+
+		--7阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 0, range = {1,20}},
+					{rate = 0, range = {21,40}},
+					{rate = 2, range = {41,60}},
+					{rate = 17, range = {61,80}},
+					{rate = 48, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=700,},
+					{type=137,value=700,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 41,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=25,},
+						{type=15, vaction = 2, value=25,}, 
+						{type=19, vaction = 3, value=25,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 41,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=25,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 41,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=25,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 41,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=63,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 41,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=38,},
+						{type=15, vaction = 2, value=38,}, 
+						{type=19, vaction = 3, value=38,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 41,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=38,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 41,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=38,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1100, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 41,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=94,},
+					},
+				},
+			},
+		},
+
+		--8阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 0, range = {1,20}},
+					{rate = 0, range = {21,40}},
+					{rate = 2, range = {41,60}},
+					{rate = 9, range = {61,80}},
+					{rate = 48, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=800,},
+					{type=137,value=800,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 38,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=29,},
+						{type=15, vaction = 2, value=29,}, 
+						{type=19, vaction = 3, value=29,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 38,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=29,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 38,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=29,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 38,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=72,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 38,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=43,},
+						{type=15, vaction = 2, value=43,}, 
+						{type=19, vaction = 3, value=43,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 38,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=43,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 38,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=43,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 700, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1200, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 38,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=108,},
+					},
+				},
+			},
+		},
+
+		--9阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 0, range = {1,20}},
+					{rate = 0, range = {21,40}},
+					{rate = 0, range = {41,60}},
+					{rate = 2, range = {61,80}},
+					{rate = 10, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=900,},
+					{type=137,value=900,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 35,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=33,},
+						{type=15, vaction = 2, value=33,}, 
+						{type=19, vaction = 3, value=33,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 35,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=33,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 35,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=33,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 35,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=82,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 35,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=49,},
+						{type=15, vaction = 2, value=49,}, 
+						{type=19, vaction = 3, value=49,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 35,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=49,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 35,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=49,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 800, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 1300, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 400, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 35,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=123,},
+					},
+				},
+			},
+		},
+
+		--10阶
+		{
+			--升阶
+			upgrade = 
+			{
+				needCoin = 50000,			--需要的金币
+				needItem = 2984,		--需要道具 
+				needItemCount = 2,		--需要道具数量
+				maxBlessValue = 100,	--最大祝福值
+				minAddBlessVal = 1,		--最小增加祝福值
+				maxAddBlessVal = 5,		--最大增加祝福值
+				useYb = 50,				--使用元宝代替(总价格)
+				
+				--直接升级概率
+				upRate =  
+				{
+					{rate = 0, range = {1,20}},
+					{rate = 0, range = {21,40}},
+					{rate = 0, range = {41,60}},
+					{rate = 0, range = {61,80}},
+					{rate = 6, range = {81,99}},
+					totalRate = 100,
+				},
+				
+				--升级失败增加的祝福值
+				randBless = 
+				{
+					{blessVal = 1, rate = 22},
+					{blessVal = 2, rate = 24},
+					{blessVal = 3, rate = 22},
+					{blessVal = 4, rate = 20},
+					{blessVal = 5, rate = 12},
+				},
+				
+
+				--升阶属性，从上一阶升到当前阶锁获得附魂的属性
+				attrList = 
+				{
+					{type=119,value=1000,},
+					{type=137,value=1000,}, 
+				},
+			},
+	
+			--从上一阶升到当前阶需获得的内丹
+			nedans =
+			{
+				--第1个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 0,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=0,},
+						{type=15, vaction = 2, value=0,}, 
+						{type=19, vaction = 3, value=0,},
+					},
+				},
+				--第2个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 0,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=0,},
+					},
+				},
+				--第3个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 0,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=0,},
+					},
+				},
+				--第4个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 0,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=0,},
+					},
+				},
+				--第5个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 0,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=11, vaction = 1, value=0,},
+						{type=15, vaction = 2, value=0,}, 
+						{type=19, vaction = 3, value=0,},
+					},
+				},
+				--第6个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 0,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=23, vaction = 0, value=0,},
+					},
+				},
+				--第7个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 0,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=27, vaction = 0, value=0,},
+					},
+				},
+				--第8个内丹
+				{
+					--激活消耗					
+					consumeTab = 
+					{
+						{type = 41, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --兽魂
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+					--激活失败返回
+					returnTab =
+					{
+						{type = 34, id = 0, count = 0, strong = 0, quality = 0, bind = 0},  --灵力
+					},
+								
+					rate = 0,			--激活内丹的概率
+					totalRate = 100,	--激活内丹的总概率
+					--属性列表
+					attrList = 
+					{	--vaction 1战士，2法师，3道士, 0公用的
+						{type=5, vaction = 0, value=0,},
+					},
+				},
+			},
+		},
+
+
+		
+	},
+	
+},

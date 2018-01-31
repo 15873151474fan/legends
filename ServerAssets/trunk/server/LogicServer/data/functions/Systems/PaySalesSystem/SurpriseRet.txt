@@ -1,0 +1,160 @@
+﻿
+--#include "data\config\guide\SurpriseRet.txt" once --惊喜回馈
+--#include "RankInit.txt" once
+
+--下发充值促销数据
+function SendSurpriseRetData(sysarg, datas)
+	
+	local npack = DataPack.allocPacket(sysarg, 139, 59)
+	if not npack then return end
+	DataPack.writeByte(npack, -1)
+	
+	for k, v in ipairs(datas) do
+
+		DataPack.writeByte(npack, v.id)
+		DataPack.writeUInt(npack, v.yb)
+		DataPack.writeUInt(npack, v.overTime)
+		
+	end
+	DataPack.flush(npack)
+	
+	
+end
+
+
+function OnSurpriseRetWithDrawYuanBao(sysarg, nYuanBao)
+
+	if not nYuanBao or nYuanBao <= 0 then return end
+	
+	local config = SurpriseRet
+	if not config then return end
+	
+	
+	local libId, startTime, overTime = System.getSurpriseRetData(0,0,0);
+	if startTime ~= 0 or overTime == 0 then return end
+	if libId <= 0 or libId > table.getn(config) then return end
+	local libConfig = config[libId]
+	if not libConfig then return end
+	
+	local ranking = Ranking.getRanking(SurpriseRetRankPt.RankName)
+	if not ranking then return end
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(ranking, userId)
+	local isGetAward = false
+	if pItem then
+		if Ranking.getSub(pItem, 0) ~= "-" then
+			isGetAward = true
+		end
+	end
+	
+	if isGetAward ~= false then return end
+	
+	local SurpriseRetData = {}
+	if pItem then
+		pItem = Ranking.updateItem(ranking, userId, nYuanBao)
+	else
+		pItem = Ranking.addItem(ranking, userId, nYuanBao)
+	end
+	
+	if not pItem then return end;
+	
+	local ybCount = Ranking.getPoint(pItem)
+	
+	
+	--已足够发奖励
+	if ybCount >= libConfig.goalCount then
+		Ranking.setSub(pItem, 0, "1")
+		
+		System.addItemMsgById(userId, 0, libConfig.awardItemId, 1, 1, Lang.ScriptTips.mt00070, Lang.ScriptTips.mt00071, 850, Lang.LogTips.l00129,true,31)
+		
+		overTime = 0
+	end
+	
+	local data = {id = libId, yb = ybCount, overTime = overTime}
+	table.insert(SurpriseRetData, data)
+	
+	SendSurpriseRetData(sysarg, SurpriseRetData)
+end
+
+--角色登录处理
+function OnSurpriseRetActorLogin(sysarg)
+
+	local config = SurpriseRet
+	if not config then return end
+	
+	local libId, startTime, overTime = System.getSurpriseRetData(0,0,0);
+	if startTime ~= 0 or overTime == 0 then return end
+	if libId <= 0 or libId > table.getn(config) then return end
+	local libConfig = config[libId]
+	if not libConfig then return end
+	
+	local ranking = Ranking.getRanking(SurpriseRetRankPt.RankName)
+	if not ranking then return end
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(ranking, userId)
+	local ybCount = 0;
+	local isGetAward = false
+	if pItem then
+		ybCount = Ranking.getPoint(pItem)
+		if Ranking.getSub(pItem, 0) ~= "-" then
+			isGetAward = true
+		end
+	end
+
+	if isGetAward ~= false then return end
+	
+	local SurpriseRetData = {}
+	
+	if ybCount >= 0 then
+		local data = {id = libId, yb = ybCount, overTime = overTime}
+		table.insert(SurpriseRetData, data)
+	else
+		return
+	end
+	
+	SendSurpriseRetData(sysarg, SurpriseRetData)
+end
+
+function SurpriseRetStart()
+
+	local ranking = Ranking.getRanking(SurpriseRetRankPt.RankName)
+	if not ranking then return end
+	
+	Ranking.clearRanking(ranking)	
+	
+	local players = LuaHelp.getAllActorList()
+	if not players then return end
+	
+	for k, v in ipairs(players) do
+		OnSurpriseRetActorLogin(v)
+	end
+end
+
+function SurpriseRetOver()
+
+	local ranking = Ranking.getRanking(SurpriseRetRankPt.RankName)
+	if not ranking then return end
+	
+	Ranking.clearRanking(ranking)	
+	
+	local config = SurpriseRet
+	if not config then return end
+	local libId, startTime, overTime = System.getSurpriseRetData(0,0,0);
+	if libId <= 0 or libId > table.getn(config) then return end
+	local libConfig = config[libId]
+	if not libConfig then return end
+	
+	local SurpriseRetData = {}
+	local data = {id = libId, yb = 0, overTime = 0}
+	table.insert(SurpriseRetData, data)
+	
+	local players = LuaHelp.getAllActorList()
+	if not players then return end
+	
+	for k, v in ipairs(players) do
+		SendSurpriseRetData(v, SurpriseRetData)
+	end
+end
+
+
+

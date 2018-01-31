@@ -1,0 +1,34 @@
+﻿
+--#include "data\config\activityconfig\SnowArea\SnowArea.txt" once
+
+function SnowOnePieceBekill(pMonster, pKiller, monId)
+	local dvar = System.getDyanmicVar()
+	local actIndex = tonumber(dvar.SnowTeleport)
+	local config = SnowAreaConfig.dest[actIndex]
+	if not config then return end
+	local onePiece = tonumber(dvar.SnowOnePiece)
+	if not onePiece or onePiece <= 0 then return end
+	
+	dvar.SnowOnePiece = onePiece - 1
+	
+	local Pos = LuaHelp.getReloadMapPos(pKiller) 
+	Actor.enterScene(pKiller,Pos[1],Pos[2],Pos[3])  
+    Actor.closeActivityWind(pKiller) 	
+	local killerName = Actor.getName(pKiller)
+	--更新信息群发
+	for k, v in ipairs(config.actScene) do
+		local hScene = Fuben.getSceneHandleById(v, 0)
+		Fuben.sendMsgToScene(hScene, string.format(Lang.Activity.sa010,killerName), ttScreenCenter)
+		
+		Fuben.broadSceneActProgress(v, 0, dvar.SnowOnePiece)
+	end
+    System.broadcastTipmsg(string.format(Lang.Activity.sa022, killerName),128+ 2)
+    local pRank = Ranking.getRanking(SnowAreaRankPt.RankName)
+    if not pRank then return end
+    local ActorId = Actor.getIntProperty(pKiller, PROP_ENTITY_ID)
+    local pItems = Ranking.getItemPtrFromId(pRank, ActorId)
+    if pItems == nil then
+       pItems = Ranking.addItem(pRank,ActorId,0)
+    end
+    Ranking.updateItem(pRank, ActorId, 1)
+end

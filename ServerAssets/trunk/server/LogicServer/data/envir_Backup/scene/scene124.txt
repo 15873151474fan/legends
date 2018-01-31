@@ -1,0 +1,76 @@
+﻿--海底世界四层
+{
+	scenceid = 124,
+	scencename = Lang.SceneName.s00124,
+	mapfilename = "124HaiDiShiJie4Ceng",
+	minlevel = 51,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "kuangdong.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 220,
+	sceneHeight = 224,
+	posx = 17,
+	posy = 85,
+
+	area =
+	{
+		{ name = Lang.SceneName.s00124, range = { 10,10,20,20,60,50}, center = { 53,193},attri = {{type=44,value = {}},{type=18,value = {}},{type=19,value = {}},{type=36,value = {51}},}},	--默认配置场景
+
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh124.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+      --{name = Lang.EntityName.n00296, posx = 121 , posy = 53,script= "data/script/ShengDouHaiYu/ShengDouHaiYuShiZhe.txt",modelid=62,icon = 62,funcId=0},
+   
+	},
+
+  teleport =
+  {
+		--传送点设置
+		{ posx = 50, posy = 196,toSceneid = 123,toPosx = 190, toPosy = 108,modelid = 50000,name = Lang.SceneName.s00123 },  --海底世界四层→海底世界三层
+		--{ posx = 117, posy = 47,toSceneid = 216,toPosx = 70, toPosy = 103,modelid = 50000,name = Lang.SceneName.s00216 },  --海底世界四层→神都海域
+		
+
+  },
+  landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		{posx1=53,posy1=187,posx2=53,posy2=187,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=71,posy1=195,posx2=71,posy2=195,modelid=58,xinterval=1,yinterval=1},  --水泡	
+		{posx1=87,posy1=183,posx2=87,posy2=183,modelid=58,xinterval=1,yinterval=1},  --水泡	
+		{posx1=97,posy1=151,posx2=97,posy2=151,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=84,posy1=129,posx2=84,posy2=129,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=112,posy1=122,posx2=112,posy2=122,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=124,posy1=94,posx2=124,posy2=94,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=119,posy1=82,posx2=119,posy2=82,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=95,posy1=118,posx2=95,posy2=118,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=81,posy1=83,posx2=81,posy2=83,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=65,posy1=61,posx2=65,posy2=61,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=53,posy1=66,posx2=53,posy2=66,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=43,posy1=86,posx2=43,posy2=86,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=61,posy1=86,posx2=61,posy2=86,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=154,posy1=105,posx2=154,posy2=105,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=152,posy1=80,posx2=152,posy2=80,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=135,posy1=98,posx2=135,posy2=98,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=161,posy1=71,posx2=161,posy2=71,modelid=58,xinterval=1,yinterval=1},  --水泡
+		{posx1=131,posy1=45,posx2=131,posy2=45,modelid=58,xinterval=1,yinterval=1},  --水泡
+	 
+ },
+
+},

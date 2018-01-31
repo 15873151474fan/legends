@@ -1,0 +1,367 @@
+--#include "data\config\Cards\CardsConfig.txt" once
+
+--卡牌激活
+function OnAcitivatingCardsOp(sysarg,args)
+	local nItemsId = args[2]
+	
+	local nIndex = 0
+	for i=1,table.getn(CardsItemConfig) do
+		if CardsItemConfig[i].item_id == nItemsId then
+			nIndex = i
+			break
+		end
+	end
+	
+	if nIndex <= 0 then return end
+
+	local nCount = Actor.getCardItemCount(sysarg,nItemsId)
+	if nCount <= 0 then		--没有卡牌
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kp0001,Item.getItemName(nItemsId)), ttFlyTip) 
+		return
+	end
+	
+	if Actor.getCardsType(sysarg,CardsItemConfig[nIndex].nIndex,CardsItemConfig[nIndex].nId) > 0 then		--已激活了
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0002, ttFlyTip)
+		return
+	end
+	
+	Actor.activatingCardsResult(sysarg,nItemsId,CardsItemConfig[nIndex].nIndex,CardsItemConfig[nIndex].nId)
+	Actor.setCardStar(sysarg, CardsItemConfig[nIndex].nIndex, CardsItemConfig[nIndex].nId, 1)	--激活设置星
+	Actor.setCardLevel(sysarg, CardsItemConfig[nIndex].nIndex, CardsItemConfig[nIndex].nId, 1)	--激活设置等级
+
+	local nCardIndex = Actor.getAllCardType(sysarg,CardsItemConfig[nIndex].nIndex) 
+	if nCardIndex > 0 then
+		local str = Lang.Activity.cp0001
+		local cardListIndex = CardsItemConfig[nIndex].nIndex
+		if (cardListIndex >= 2) and (cardListIndex <= table.getn(CardsConfig.CardList or {})) then
+			local config = CardsConfig.CardList[cardListIndex]
+			if not config then return end
+			str = config.cardListName
+		end
+	--[[
+		local str = Lang.Activity.cp0001
+		if CardsItemConfig[nIndex].nIndex == 2 then
+			str = Lang.Activity.cp0002
+		elseif CardsItemConfig[nIndex].nIndex == 3 then
+			str = Lang.Activity.cp0007
+		elseif CardsItemConfig[nIndex].nIndex == 4 then
+			str = Lang.Activity.cp0010
+		elseif CardsItemConfig[nIndex].nIndex == 5 then
+			str = Lang.Activity.cp0013
+		elseif CardsItemConfig[nIndex].nIndex == 6 then
+			str = Lang.Activity.cp0015
+		elseif CardsItemConfig[nIndex].nIndex == 7 then
+			str = Lang.Activity.cp0020
+		end
+	]]
+		System.broadcastTipmsg(string.format(Lang.Activity.kp0012,Actor.getName(sysarg),str),2+128)
+	end
+end
+
+--升品提升经验
+function OnUpCardsAddExp(sysarg,args)
+	local nCard = args[2]
+	local nIndex = 0	--Actor.getAllCardType(sysarg,nCard)
+	
+	--print("OnUpCardsAddExp")
+	for i=1,8 do
+		nIndex = Actor.getCardsType(sysarg,nCard,i)
+		if nIndex > 0 then
+			break
+		end
+	end
+ 	if nIndex <= 0 then		--有卡牌未激活或者不是所有的瓶子
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0011, ttFlyTip)
+		return
+	end
+	
+	local nCardConfig = CardQualityCopnfig.UpCardQuality[nCard]
+	if nCardConfig == nil then return end
+	
+	if nIndex >= (table.getn(nCardConfig)+1) then		--已到最高品质
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0004, ttFlyTip)
+		return
+	end
+
+	local nConfig = nCardConfig[nIndex]
+	if nConfig == nil then return end
+
+	local nCueExp = Actor.getCardExp(sysarg,nCard)
+	
+	--print("OnUpCardsAddExp:"..nCueExp)
+	if nCueExp >= nConfig.needExp then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0005, ttFlyTip)
+		return
+	end
+	
+	local nAddExp = 0
+
+	for i=1,table.getn(nConfig.UpExpConsume) do
+		local nCount = Actor.getCardItemCount(sysarg,nConfig.UpExpConsume[i].nItemId)
+		local nResult = 0
+		local nDelCount = 0
+		for j=1,nCount do
+			nAddExp = nAddExp + nConfig.UpExpConsume[i].nAddExp
+			nDelCount = nDelCount + 1
+			if nCueExp + nAddExp >= nConfig.needExp then
+				nResult = 1
+				break
+			end
+		end
+		
+		if nDelCount > 0 then
+			if Actor.onDelCardItem(sysarg,nConfig.UpExpConsume[i].nItemId,nDelCount) <= 0 then
+				return
+			end
+		end
+
+		if nResult == 1 then 
+			break
+		end
+	end
+
+	if nAddExp == 0 then			--没有卡牌
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0008, ttFlyTip)
+		return
+	end
+
+	nCueExp = nCueExp + nAddExp
+
+	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kp0013,nAddExp), ttFlyTip)
+	if nCueExp > nConfig.needExp then
+		nCueExp = nConfig.needExp
+	end
+	
+	Actor.setCardExp(sysarg,nCard,nCueExp)
+	
+	--print("nCueExp:"..nCueExp)
+	local npack = DataPack.allocPacket(sysarg, 56, 4)
+	if not npack then return false end
+	DataPack.writeByte(npack, nCard)
+	DataPack.writeInt(npack,nCueExp)
+	DataPack.flush(npack)
+end
+
+--提升品质
+function OnUpCardQualityOp(sysarg,args)
+	local nCard = args[2]
+	
+	local nIndex = 0	--Actor.getAllCardType(sysarg,nCard)
+	
+	for i=1,8 do
+		nIndex = Actor.getCardsType(sysarg,nCard,i)
+		if nIndex > 0 then
+			break
+		end
+	end
+ 	if nIndex <= 0 then		--有卡牌未激活或者不是所有的瓶子
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0011, ttFlyTip)
+		return
+	end
+
+	local nCardConfig = CardQualityCopnfig.UpCardQuality[nCard]
+	if nCardConfig == nil then return end
+	
+	if nIndex >= (table.getn(nCardConfig)+1) then		--已到最高品质
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0004, ttFlyTip)
+		return
+	end
+	local nConfig = nCardConfig[nIndex]
+	if nConfig == nil then return end
+
+	local nCueExp = Actor.getCardExp(sysarg,nCard)
+
+	if nCueExp < nConfig.needExp then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0006, ttFlyTip)
+		return
+	end
+	
+	local nItemCount = Actor.getItemCount(sysarg,nConfig.UpBlessConsume[1].nItemId)
+	if nItemCount < nConfig.UpBlessConsume[1].nCount then
+		local npack = DataPack.allocPacket(sysarg, 56, 6)
+		if not npack then return false end
+		DataPack.writeInt(npack,nConfig.UpBlessConsume[1].nCount)
+		DataPack.flush(npack)
+
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kp0007,Item.getItemName(nConfig.UpBlessConsume[1].nItemId),nConfig.UpBlessConsume[1].nCount), ttFlyTip)
+		return
+	end
+
+	local curBlessValue = Actor.getCardValue(sysarg,nCard)
+
+	if Actor.removeItem(sysarg,nConfig.UpBlessConsume[1].nItemId,nConfig.UpBlessConsume[1].nCount) == nConfig.UpBlessConsume[1].nCount then
+		curBlessValue = curBlessValue + nConfig.UpBlessConsume[1].nAddBless
+		local nResult = 0
+		if curBlessValue >= nConfig.needBless then
+			nResult = 1
+			curBlessValue = nConfig.needBless
+		end
+		
+		if nResult == 0 then
+			for i=1,table.getn(nConfig.UpSucRate) do
+				if curBlessValue >= nConfig.UpSucRate[i].nValue[1] and curBlessValue <= nConfig.UpSucRate[i].nValue[2] then
+					local nCurRate = System.getRandomNumber(10000)
+					if nCurRate <= nConfig.UpSucRate[i].nRate then
+						nResult = 1
+					end
+					break
+				end
+			end
+		end
+		
+		if nResult == 1 then		--成功
+			curBlessValue = 0
+			Actor.onUpCardQualityResult(sysarg,nCard,nIndex+1)
+			Actor.setCardExp(sysarg,nCard,0)
+			nIndex = nIndex+1
+			
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0010, ttFlyTip)
+
+			if nIndex == (table.getn(nCardConfig)+1) then		--升到最高等级了
+				System.broadcastTipmsg(string.format(Lang.Activity.kp0009,Actor.getName(sysarg)),2+128)
+			end
+		end
+
+		Actor.setCardValue(sysarg,nCard,curBlessValue)
+
+		local npack = DataPack.allocPacket(sysarg, 56, 5)
+		if not npack then return false end
+		DataPack.writeByte(npack, nCard)
+		DataPack.writeByte(npack,nResult)
+		DataPack.writeInt(npack,curBlessValue)
+		DataPack.writeByte(npack, nIndex)
+
+		DataPack.flush(npack)
+		
+	end
+end
+
+--卡牌兑换
+function OnCardsExchange(sysarg,args)
+	local nCount = args[2]
+	
+	local nItems = {}
+	local nItemCount = {}
+	for i=1,nCount do
+		nItems[i] = args[2 + (i-1)*2 + 1]
+		nItemCount[i] = args[2 + (i-1)*2 + 2]
+		if Actor.getCardItemCount(sysarg,nItems[i]) < nItemCount[i] then		--有卡牌不够
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0015, ttFlyTip)
+			return
+		end
+	end
+
+	local needCoin = 0		--需要的金币
+	local addSoul = 0		--获得的卡魂
+	for i=1,nCount do
+		local bExits = false
+		for j=1,table.getn(CardsExchangeConfig.ExchangeData) do
+			if CardsExchangeConfig.ExchangeData[j].card_itemId == nItems[i] then
+				needCoin = needCoin + CardsExchangeConfig.ExchangeData[j].coin * nItemCount[i]
+				addSoul = addSoul + CardsExchangeConfig.ExchangeData[j].soul * nItemCount[i]
+				bExits = true
+				break
+			end
+		end
+
+		if bExits == false then			--有道具不能兑换卡魂
+			return
+		end
+	end
+	
+	local myCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+	if myCoin < needCoin then			--金币不够
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0014, ttFlyTip)
+		return
+	end
+
+	for i=1,nCount do
+		if Actor.onDelCardItem(sysarg,CardsExchangeConfig.ExchangeData[i].card_itemId,nItemCount[i]) < 0 then
+			return
+		end
+	end
+	
+	Actor.changeMoney(sysarg,1,-needCoin,101,Lang.Activity.kp0019)
+
+	local npack = DataPack.allocPacket(sysarg, 56, 7)
+	if not npack then return false end
+	DataPack.writeByte(npack, 1)
+
+	DataPack.flush(npack)
+
+	Actor.sendCardsBagData(sysarg)
+
+	local mySoul = Actor.getIntProperty(sysarg, PROP_ACTOR_CARDSHUN)
+	Actor.setUIntProperty(sysarg,PROP_ACTOR_CARDSHUN,mySoul+addSoul)
+	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kp0022,addSoul), ttTipmsgWindow)
+
+end
+
+--卡牌合成
+function OnCardsCombineOp(sysarg,args)
+	local nItemId = args[2]
+	local nCount = args[3]
+	
+	if nCount <= 0 then return end
+	if nCount > 300000 then return end
+
+	local nIndex = 0
+	for i=1,table.getn(CardsExchangeConfig.cardCombine) do
+		if CardsExchangeConfig.cardCombine[i].itemId == nItemId then
+			nIndex = i
+			break
+		end
+	end
+
+	if nIndex == 0 then return end		--没有这个卡包
+	
+	local nNeedBag = Item.getAddItemNeedGridCount(sysarg,nItemId,nCount)
+	--背包格子不够
+	if Item.getBagEmptyGridCount(sysarg) < nNeedBag then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0018, ttFlyTip)
+		return
+	end
+
+	local nCondfig = CardsExchangeConfig.cardCombine[nIndex]
+	if nCondfig == nil then return end
+
+	local myCoin = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+	local nNeedCoin = nCondfig.needCoin * nCount
+	if myCoin < nNeedCoin then		--金币不够不能合成
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0016, ttFlyTip)
+		return
+	end
+	
+	--需要的卡牌不够
+	for i=1,table.getn(nCondfig.needCards) do
+		if Actor.getCardItemCount(sysarg,nCondfig.needCards[i].nItemId) < nCondfig.needCards[i].nCount*nCount then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kp0017, ttFlyTip)
+			return
+		end
+	end
+		
+	local mySoul = Actor.getIntProperty(sysarg, PROP_ACTOR_CARDSHUN)
+	local nNeedSoul = nCondfig.needSoul * nCount
+	if mySoul < nNeedSoul then		--卡魂不足
+		Actor.sendTipmsg(sysarg, Lang.Activity.kp0024, ttFlyTip)
+		return
+	end
+
+	for i=1,table.getn(nCondfig.needCards) do
+		if Actor.onDelCardItem(sysarg,nCondfig.needCards[i].nItemId,nCondfig.needCards[i].nCount * nCount) < 0 then
+			return
+		end
+	end
+	
+	Actor.setUIntProperty(sysarg,PROP_ACTOR_CARDSHUN,mySoul-nNeedSoul)
+
+	Actor.changeMoney(sysarg,1,-nNeedCoin,101,Lang.Activity.kp0020)
+	
+	Actor.addItem(sysarg,nCondfig.itemId,0,0,nCount,1)
+
+	Actor.sendTipmsg(sysarg, Lang.Activity.kp0021, ttFlyTip)
+	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kp0023,nNeedSoul), ttTipmsgWindow)
+
+	Actor.sendCardsBagData(sysarg)
+end
+

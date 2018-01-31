@@ -1,0 +1,33 @@
+﻿drops=
+{
+	{ id = 226, count = 1, propability = 1, bind = 0, group = 1,},--巨阙
+	{ id = 227, count = 1, propability = 1, bind = 0, group = 1,},--星辰战甲（男）
+	{ id = 228, count = 1, propability = 1, bind = 0, group = 1,},--星辰战甲（女）
+	{ id = 229, count = 1, propability = 1, bind = 0, group = 1,},--蛮荒头盔
+	{ id = 230, count = 1, propability = 1, bind = 0, group = 1,},--蛮荒项链
+	{ id = 231, count = 1, propability = 1, bind = 0, group = 1,},--蛮荒手镯
+	{ id = 232, count = 1, propability = 1, bind = 0, group = 1,},--蛮荒腰带
+	{ id = 233, count = 1, propability = 1, bind = 0, group = 1,},--蛮荒战靴
+	{ id = 234, count = 1, propability = 1, bind = 0, group = 1,},--狂乱之意
+	{ id = 235, count = 1, propability = 1, bind = 0, group = 1,},--蛮荒之戒
+	{ id = 237, count = 1, propability = 1, bind = 0, group = 1,},--业火红莲
+	{ id = 238, count = 1, propability = 1, bind = 0, group = 1,},--朱雀魔衣（男）
+	{ id = 239, count = 1, propability = 1, bind = 0, group = 1,},--朱雀魔衣（女）
+	{ id = 240, count = 1, propability = 1, bind = 0, group = 1,},--火鸾盔
+	{ id = 241, count = 1, propability = 1, bind = 0, group = 1,},--火鸾项链
+	{ id = 242, count = 1, propability = 1, bind = 0, group = 1,},--火鸾手镯
+	{ id = 243, count = 1, propability = 1, bind = 0, group = 1,},--火鸾腰带
+	{ id = 244, count = 1, propability = 1, bind = 0, group = 1,},--火鸾战靴
+	{ id = 245, count = 1, propability = 1, bind = 0, group = 1,},--元素宝珠
+	{ id = 246, count = 1, propability = 1, bind = 0, group = 1,},--火鸾戒指
+	{ id = 248, count = 1, propability = 1, bind = 0, group = 1,},--湛蓝
+	{ id = 249, count = 1, propability = 1, bind = 0, group = 1,},--湛蓝道袍（男）
+	{ id = 250, count = 1, propability = 1, bind = 0, group = 1,},--湛蓝道袍（女）
+	{ id = 251, count = 1, propability = 1, bind = 0, group = 1,},--辰曦头盔
+	{ id = 252, count = 1, propability = 1, bind = 0, group = 1,},--辰曦项链
+	{ id = 253, count = 1, propability = 1, bind = 0, group = 1,},--辰曦手镯
+	{ id = 254, count = 1, propability = 1, bind = 0, group = 1,},--辰曦腰带
+	{ id = 255, count = 1, propability = 1, bind = 0, group = 1,},--辰曦战靴
+	{ id = 256, count = 1, propability = 1, bind = 0, group = 1,},--辰曦之眼
+	{ id = 257, count = 1, propability = 1, bind = 0, group = 1,},--辰曦之戒
+}

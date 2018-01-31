@@ -1,0 +1,415 @@
+﻿--#include "..\..\..\language\LangCode.txt" once
+--开服活动配置 
+OpenServerActivityConfig = {
+  EndOpenServerDay = 8,--第七天活动结束客户端关闭面板，同时未领取的奖励不可领取
+  nMinLevel = 60, --开服活动 游戏上方活动图标最低开放显示等级
+  --所有活动配置如下： 
+  AllActivity = {
+     {  --全民升级
+     nMinLevel = 20,				--全民升级查看面板所需最低等级
+     PeriodName = Lang.Activity.OpenServerActivity006,
+     --阶段性配置 
+     Period = {
+                --第一阶段 
+               {
+                  Des = Lang.Activity.OpenServerActivity006, --描述，给客户端用，策划或者客户端添加服务端不用到
+                  Circle = 0, --达标转生等级 
+                  Level = 60, --达标等级
+                  LimitNumber = 1000,--限制人数 
+  	              awards = --阶段奖励 
+		          {
+	  	             { type = 0, id = 871, count = 1, strong = 0, quality = 0, bind = 1 },
+	              },
+                },
+                --第二阶段 
+			    {
+                   Des = Lang.Activity.OpenServerActivity006, --描述，给客户端用，策划或者客户端添加服务端不用到
+			       Circle = 0, --达标转生等级
+			       Level = 70, --达标等级
+			       LimitNumber = 100,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 872, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第三阶段
+			    {
+                   Des = Lang.Activity.OpenServerActivity006, --描述，给客户端用，策划或者客户端添加服务端不用到
+			       Circle = 1, --达标转生等级
+			       Level = 60, --达标等级
+			       LimitNumber = 25,--限制人数
+					awards = --阶段奖励
+					{
+				  	   { type = 0, id = 873, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第四阶段
+			    {
+                   Des = Lang.Activity.OpenServerActivity006, --描述，给客户端用，策划或者客户端添加服务端不用到
+			       Circle = 2, --达标转生等级
+			       Level = 60, --达标等级
+			       LimitNumber = 10,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 874, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+				--第五阶段
+			    {
+                   Des = Lang.Activity.OpenServerActivity006, --描述，给客户端用，策划或者客户端添加服务端不用到
+			       Circle = 3, --达标转生等级
+			       Level = 60, --达标等级
+			       LimitNumber = 5,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 902, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+              }, 
+       },
+       --全民充值
+      {  --全民充值
+     nMinLevel = 10,				--全民充值查看面板所需最低等级
+     PeriodName = Lang.Activity.OpenServerActivity007,
+     --阶段性配置
+     Period = {
+                 --第一阶段
+                {
+                  RechangNumber = 10000, --充值第一档元宝数量 
+                  LimitNumber = 1000,--限制人数
+  	              awards = --阶段奖励
+		          {
+	  	             { type = 0, id = 875, count = 1, strong = 0, quality = 0, bind = 1 },
+	              },
+                },
+                --第二阶段
+			    {
+                   RechangNumber = 50000, 
+			       LimitNumber = 50,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 876, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第三阶段
+			    {
+                   RechangNumber = 100000,
+			       LimitNumber = 20,--限制人数
+					awards = --阶段奖励
+					{
+				  	   { type = 0, id = 877, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第四阶段
+			    {
+                   RechangNumber = 500000,
+			       LimitNumber = 5,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 878, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+				
+              },
+       },
+       --全民元魄
+      { 
+     nMinLevel = 30,				--全民元魄查看面板所需最低等级
+     PeriodName = Lang.Activity.OpenServerActivity008,
+     --阶段性配置
+     Period = {
+                --第一阶段
+               {
+                  Grade = 2, --全民元魄第一档元魄等级
+                  Star  = 1,--表示1阶一星 
+                  LimitNumber = 1000,--限制人数
+  	              awards = --阶段奖励
+		          {
+	  	             { type = 0, id = 887, count = 1, strong = 0, quality = 0, bind = 1 },
+	              },
+                },
+                --第二阶段
+			    {
+                  Grade = 2, 
+                  Star  = 5,
+			       LimitNumber = 50,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 888, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第三阶段
+			    {
+                   Grade = 3,
+                   Star  = 4,
+			       LimitNumber = 25,--限制人数
+					awards = --阶段奖励
+					{
+				  	   { type = 0, id = 889, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第四阶段
+			    {
+                   Grade = 4,
+                   Star  = 3,
+			       LimitNumber = 10,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 890, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+				--第五阶段
+			    {
+                   Grade = 5,
+                   Star  = 1,
+			       LimitNumber = 5,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 906, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+              },
+       }, 
+       --全民坐骑
+      {  
+     nMinLevel = 35,				--全民元魄查看面板所需最低等级
+     PeriodName = Lang.Activity.OpenServerActivity009,
+     --阶段性配置
+     Period = {
+                --第一阶段
+               {  	
+                  --RideMaxLevel = 110,--表示最高等级十阶十星
+                  levelNumber = 21,--表示一阶一星 
+                  LimitNumber = 1000,--限制人数
+  	              awards = --阶段奖励
+		          {
+	  	             { type = 0, id = 879, count = 1, strong = 0, quality = 0, bind = 1 },
+	              },
+                },
+                --第二阶段
+			    {
+                   levelNumber = 28,
+			       LimitNumber = 50,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 880, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第三阶段
+			    {
+                   levelNumber = 35,
+			       LimitNumber = 25,--限制人数
+					awards = --阶段奖励
+					{
+				  	   { type = 0, id = 881, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第四阶段
+			    {
+                   levelNumber = 41,
+			       LimitNumber = 10,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 882, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+				--第五阶段
+			    {
+                   levelNumber = 51,
+			       LimitNumber = 5,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 904, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+              },
+       },
+       --全民翅膀
+      {  --全民翅膀
+     nMinLevel = 45,				--全民翅膀查看面板所需最低等级
+     PeriodName = Lang.Activity.OpenServerActivity0010,
+     --阶段性配置
+     Period = {
+                --第一阶段
+               {
+                  Grade = 1, --全民翅膀第一档翅膀等级
+                  Star  = 8,--表示1阶一星
+                  LimitNumber = 1000,--限制人数
+  	              awards = --阶段奖励
+		          {
+	  	             { type = 0, id = 883, count = 1, strong = 0, quality = 0, bind = 1 },
+	              },
+                },
+                --第二阶段
+			    {
+                  Grade = 2,
+                  Star  = 1,
+			       LimitNumber = 50,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 884, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第三阶段
+			    {
+                   Grade = 2,
+                   Star  = 8,
+			       LimitNumber = 25,--限制人数
+					awards = --阶段奖励
+					{
+				  	   { type = 0, id = 885, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第四阶段
+			    {
+                   Grade = 3,
+                   Star  = 1,
+			       LimitNumber = 10,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 886, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+				--第五阶段
+			    {
+                   Grade = 3,
+                   Star  = 8,
+			       LimitNumber = 5,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 905, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+              },
+       },
+       --全民魂玉
+      {  --全民魂玉
+     nMinLevel = 50,				--全民魂玉查看面板所需最低等级
+     PeriodName = Lang.Activity.OpenServerActivity0011,
+     --阶段性配置
+     Period = {
+                --第一阶段
+               {
+                  DiamondScore = 72,--魂玉战力 
+                  LimitNumber = 1000,--限制人数
+  	              awards = --阶段奖励
+		          {
+	  	             { type = 0, id = 891, count = 1, strong = 0, quality = 0, bind = 1 },
+	              },
+                },
+                --第二阶段
+			    {
+                   DiamondScore = 324,--魂玉战力
+			       LimitNumber = 50,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 892, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第三阶段
+			    {
+                   DiamondScore = 1134,--魂玉战力
+			       LimitNumber = 25,--限制人数
+					awards = --阶段奖励
+					{
+				  	   { type = 0, id = 893, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第四阶段
+			    {
+                   DiamondScore = 1944,--魂玉战力
+			       LimitNumber = 10,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 894, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+				--第五阶段
+			    {
+                   DiamondScore = 2916,--魂玉战力
+			       LimitNumber = 5,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 907, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+              },
+       },
+       --全民血脉
+      {  --全民血脉
+     nMinLevel = 50,				--全民血脉查看面板所需最低等级
+     PeriodName = Lang.Activity.OpenServerActivity0013,
+     --阶段性配置
+     Period = {
+                --第一阶段
+               {
+                  Grade = 2, --全民血脉第一档血脉等级
+                  Star  = 1,--表示1阶一星
+                  LimitNumber = 1000,--限制人数
+  	              awards = --阶段奖励
+		          {
+	  	             { type = 0, id = 875, count = 1, strong = 0, quality = 0, bind = 1 },
+	              },
+                },
+                --第二阶段
+			    {
+                  Grade = 2,
+                  Star  = 5,
+			       LimitNumber = 50,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 876, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第三阶段
+			    {
+                   Grade = 3,
+                   Star  = 4,
+			       LimitNumber = 25,--限制人数
+					awards = --阶段奖励
+					{
+				  	   { type = 0, id = 877, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+			    --第四阶段
+			    {
+                   Grade = 4,
+                   Star  = 3,
+			       LimitNumber = 10,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 878, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+				--第五阶段
+			    {
+                   Grade = 5,
+                   Star  = 1,
+			       LimitNumber = 5,--限制人数
+			       awards = --阶段奖励
+					{
+				  	   { type = 0, id = 903, count = 1, strong = 0, quality = 0, bind = 1 },
+					},
+			    },
+              },
+       },
+       --沙城主 
+      {  --沙城主
+     nMinLevel = 50,				--沙城主查看面板所需最低等级
+     PeriodName = Lang.Activity.OpenServerActivity0012,
+     --阶段性配置
+     Period = {
+                --第一阶段
+               {
+			      LimitNumber = 1,--限制人数
+  	              awards = --阶段奖励
+		          {
+	  	             { type = 0, id = 895, count = 1, strong = 0, quality = 0, bind = 1 },
+	              },
+               },
+              },
+       },
+       
+  },
+   
+}

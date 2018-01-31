@@ -1,0 +1,139 @@
+--lua script
+--活动：押镖活动通用处理
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\guild\GuildBiaoChe.txt"  once  --基本设置 
+
+--检测押镖的条件是否满足
+function OnCheckCanApplyDart(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	
+	if nGuildId <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00010, ttFlyTip)
+		return false
+	end
+
+	local sVar = System.getStaticVar()
+	local dVar = System.getDyanmicVar()
+	if dVar.StartGuildDart == nil then		
+		dVar.StartGuildDart = {}
+	end
+	if dVar.StartGuildDart[nGuildId] == nil then
+		dVar.StartGuildDart[nGuildId] = 0
+	end
+	
+	if dVar.StartGuildDart[nGuildId] == 1 then	--行会押镖正在进行中
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00012, ttFlyTip)
+		return false
+	end
+	
+	if sVar.GuildDartTimes == nil then
+		sVar.GuildDartTimes = {}
+	end
+	if sVar.GuildDartTimes[nGuildId] == nil then
+		sVar.GuildDartTimes[nGuildId] = 0
+	end
+
+	local nTimes = GuildDartConst.OpenTimes
+	if System.getSbkGuildId() == nGuildId then
+		nTimes = GuildDartConst.SbkOwnOpenTimes
+	end
+	--sVar.GuildDartTimes[nGuildId] = 0		--测试暂用 要屏蔽
+	if sVar.GuildDartTimes[nGuildId] >= nTimes then		--今天护送次数已达上限
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00013, ttFlyTip)
+		return false
+	end
+
+	local nPos = Actor.getGuildPos(sysarg)
+	if nPos ~= 3 and nPos ~= 2 then					--职位不够
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00010, ttFlyTip)
+		return false
+	end
+
+	local gCoin = Actor.getGuildCoin(sysarg)
+	if gCoin < GuildDartConst.needGuildCoin then			--行会资金不够
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00011, ttFlyTip)
+		return false
+	end
+
+	if sVar.CanNotApplyGuildDartFlag == nil then
+		sVar.CanNotApplyGuildDartFlag = 0
+	end
+	
+	local nHours,nMin,nsec = System.getTime(0,0,0)
+	if nHours >= GuildDartConst.dartTime[1] and nHours < GuildDartConst.dartTime[2] then		--不在活动时间内
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00034, ttFlyTip)
+		return false
+	end
+
+	return true
+end
+
+--开使押镖
+function onStartGuildDart(sysarg)
+	local sVar = System.getStaticVar()
+	local dVar = System.getDyanmicVar()
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	Actor.changeGuildCoin(sysarg,-GuildDartConst.needGuildCoin)
+
+	dVar.StartGuildDart[nGuildId] = 1			--开始押镖的标记
+	sVar.GuildDartTimes[nGuildId] = sVar.GuildDartTimes[nGuildId] + 1		--今天押镖的次数
+	
+	local monsterInfo = GuildDartConst.GuildDartHorse
+	if monsterInfo ~= nil then
+		local sceneHandle = Actor.getSceneHandle(sysarg)
+
+		local monster = Fuben.createMonster(sceneHandle, monsterInfo.id, monsterInfo.x, monsterInfo.y, monsterInfo.livetime)
+		if monster ~= nil then
+			local gName = Actor.getGuildName(sysarg)
+			Actor.setMonsterName(monster,string.format(Lang.Activity.g00043,gName))
+			Actor.setNpcGuildId(monster,nGuildId)
+			Actor.refreshActorObserveList(sysarg)			--刷新观察者，防止客户端延迟 
+			Actor.setGuildDartHandle(sysarg,Actor.getHandle(monster))	 --怪物句柄
+			
+			System.setGuildExipredTime(nGuildId,System.getCurrMiniTime() + GuildDartConst.OpenInterval)
+
+			Actor.setDieRefreshHpPro(monster,100)
+			--Actor.unregScriptCallback(sysarg, "OnGuildDartExpired")
+			--Actor.regScriptCallback(sysarg, thisNPC, GuildDartConst.OpenInterval * 1000, 10000, 1, "OnGuildDartExpired")
+			
+			System.broadcastTipmsg(string.format(Lang.Activity.g00016, gName), ttScreenCenter + 128)
+		end
+	end
+end
+
+-- @brief: 押镖活动时间到
+function OnGuildDartExpired(sysarg)	
+	OnGuildDartFailed(sysarg, GuildDartConst.DartSetup.CampDartFailExpired)
+end
+
+-- @brief: 护送失败处理处理。怪物死亡、超时、距离太远等
+function OnGuildDartFailed(sysarg, reason)
+	ResetGuildDartInfo(sysarg)
+	
+	Actor.sendTipmsg(sysarg, Lang.Activity.t0069, ttScreenCenter)
+end
+
+-- @brief: 重置护送相关的数据
+function ResetGuildDartInfo(sysarg)
+	local sVar = System.getStaticVar()
+	local dVar = System.getDyanmicVar()
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+
+	local dartMonster = Actor.getGuildDartHandle(sysarg)
+	local nMonster = Actor.getEntity(dartMonster)
+	
+	if nMonster ~= nil then
+		Fuben.clearMonster(dartMonster, false)
+		if (dartMonster ~= nil and dartMonster ~= 0) then
+			local pack = DataPack.allocPacket(sysarg, 139, 13)
+			DataPack.writeInt64(pack, dartMonster)		
+			DataPack.flush(pack)		
+		end
+	end
+	
+	--Actor.unregScriptCallback(sysarg, "OnGuildDartExpired")
+	dVar.StartGuildDart[nGuildId] = nil
+	Actor.setGuildDartHandle(sysarg,0)
+end

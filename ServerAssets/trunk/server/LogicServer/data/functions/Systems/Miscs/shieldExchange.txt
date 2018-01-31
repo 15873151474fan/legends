@@ -1,0 +1,114 @@
+﻿---#include "data\config\item\ShieldExchange.txt" once
+
+--#include "data\config\item\itemEnhance\ShieldUpgrade.txt" once
+
+MiscsImplement.ShieldExchange = function (sysarg, msgid, packet)
+	local result = -1
+	
+	if Actor.isDealing(sysarg) then
+		return
+	end
+	
+	local itemCount = DataPack.readChar(packet)
+	if itemCount <= 0 then
+		SendResult(sysarg, result)
+		return
+	end
+	
+	local EquipPtr = Item.getEquipByType(sysarg, Item.itShield)
+	if not EquipPtr then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.su00009, ttFlyTip)
+		SendResult(sysarg, result)
+		return
+	end
+
+	local itemDua = Item.getItemProperty(sysarg, EquipPtr, Item.ipItemDuraAndMax, 0) --当前盾元值
+	local itmeDuraMax = Item.getItemProperty(sysarg, EquipPtr, Item.ipItemStaticDuaMax, 0)  --最大盾元值
+
+	--print("itemDua : ",itemDua)
+	--print("itmeDuraMax : ",itmeDuraMax)
+	if itemDua >= itmeDuraMax then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.su00010, ttFlyTip)
+		SendResult(sysarg, result)
+		return
+	end
+	
+	--local exchangeTabs = ShieldExchangeConfig.exchangeTables
+	local exchangeTabs = ShieldUpgrade.shieldPoint
+	if not exchangeTabs then
+		return
+	end
+
+	for i = 1, itemCount do
+		local itemguid = DataPack.readInt64(packet)
+		local count = DataPack.readByte(packet)
+		--print("count : ", count )
+		if count > 0 then
+			local itemPtr = Item.getBagItemPtrByGuid(sysarg, itemguid)
+			local itemId = Item.getItemProperty(sysarg, itemPtr, Item.ipItemID, 0)
+			if itemguid and itemPtr and itemId then
+				if itemDua < itmeDuraMax then
+					local addValue = getItemAddValue(sysarg, exchangeTabs, itemPtr, itemId, count)
+					itemDua = itemDua + addValue
+				else
+					break
+				end
+			end
+	
+		end
+	end
+	
+	result = 0
+	--print("itemDua : ",itemDua)
+	--print("itmeDuraMax : ",itmeDuraMax)
+	if itemDua >= itmeDuraMax then
+		Item.setItemProperty( sysarg, EquipPtr, Item.ipItemDuraAndMax, itmeDuraMax)
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.su00010, ttFlyTip)
+	else
+		Item.setItemProperty( sysarg, EquipPtr, Item.ipItemDuraAndMax, itemDua)
+	end
+	SendResult(sysarg, result)
+end
+
+--获取物品增加的盾元值
+function getItemAddValue(sysarg, exchangeTabs, itemPtr, itemId, count)
+	local addValue = 0
+	local isFind = false
+	for j = 1, table.getn(exchangeTabs or {}) do
+		local exchangeTab = exchangeTabs[j]
+		local items = exchangeTab.items
+		for k = 1, table.getn(items or {}) do
+			if items[k] == itemId then
+				local itemCount = Item.getItemProperty(sysarg, itemPtr, Item.ipItemCount, 0)
+				if count > 0 and count == itemCount then
+					if Actor.removeItemByPtr(sysarg, itemPtr, count, true, Lang.LogTips.l00195, 936) > 0 then
+						local quality = Item.getItemProperty(sysarg, itemPtr, Item.ipItemQuality, 0)
+						if quality >= 0 then
+							addValue = exchangeTab.point * math.pow(2, quality) * count
+						end
+					end
+				end
+				isFind = true
+				break
+			end
+		end	
+		if isFind then
+			break
+		end
+	end
+	
+	return addValue
+	
+end
+
+--发送盾元补充结果
+function SendResult(sysarg, result)
+	local pack = DataPack.allocPacket(sysarg, 139, 76)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, result)			
+		DataPack.flush(pack)  			
+	end
+end
+
+
+MiscsImplement.registerMsgHandler(80, MiscsImplement.ShieldExchange)

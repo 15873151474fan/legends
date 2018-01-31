@@ -1,0 +1,200 @@
+--凌云宝阁 通用处理
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--初始化事件
+function InitCollectData()
+	local nMaxTab = table.getn(CloudData.pagedata)
+
+	System.setMaxTab(nMaxTab,CloudData.minLevel)
+
+	for i=1,nMaxTab do
+		for j=1,table.getn(CloudData.pagedata[i].needmaterial) do
+			for k=1,table.getn(CloudData.pagedata[i].needmaterial[j].data) do
+				local nConfig = CloudData.pagedata[i].needmaterial[j].data[k]
+				local nFresh = nConfig.nNeedFresh or 0
+				local nYb = nConfig.needYb or 0
+				System.setCollectBaseData(i,j,nConfig.id,nFresh,nYb,nConfig.goodsId,nConfig.needNum)
+			end
+		end
+	end
+end
+
+--领取凌云宝阁奖励
+function OnGetCollectAward(sysarg,args)
+	local nTab = args[2]
+	local nIndex = args[3]
+	local nId = args[4]
+
+	if nId == 4 then			--领取额外奖励
+		GetGiveAwardOp(sysarg,nTab,nIndex,nId)
+		return
+	end
+	
+	if CloudData.pagedata[nTab] == nil then return end
+	
+	if CloudData.pagedata[nTab].needmaterial[nIndex] == nil then return end
+	
+	local nConfig = CloudData.pagedata[nTab].needmaterial[nIndex].data[nId]
+	if nConfig == nil then return end
+
+	if Actor.getAwardFlag(sysarg,nTab,nIndex,nId) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0002, ttFlyTip)
+		return
+	end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+	
+	local myCount = Actor.getItemCount(sysarg,nConfig.goodsId)
+	if myCount < nConfig.needNum then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0006, ttFlyTip)
+		return
+	end
+
+	if Awards.CheckBagGridCount(sysarg,nConfig.reward) then		--背包不够
+		if Actor.removeItem(sysarg,nConfig.goodsId,nConfig.needNum) > 0 then
+			for i=1,table.getn(nConfig.reward) do
+				if (nConfig.reward[i].job == -1 or nConfig.reward[i].job == myJob) and (nConfig.reward[i].sex == -1 or nConfig.reward[i].sex == mySex) then
+					Actor.giveAward(sysarg,nConfig.reward[i].type,nConfig.reward[i].id,nConfig.reward[i].count,nConfig.reward[i].quality,nConfig.reward[i].strong,nConfig.reward[i].bind,0,923,Lang.Activity.ly0001)
+				end
+			end
+
+			Actor.setFinlishAwardFlag(sysarg,nTab,nIndex,nId)		--设置完成
+			SendGetCollectResult(sysarg,nTab,nIndex,nId)
+		end
+	end
+end
+
+--领取额外奖励
+function GetGiveAwardOp(sysarg,nTab,nIndex,nId)
+	if CloudData.pagedata[nTab] == nil then return end
+	
+	if CloudData.pagedata[nTab].needmaterial[nIndex] == nil then return end
+	
+	for i=1,table.getn(CloudData.pagedata[nTab].needmaterial[nIndex].data) do
+		local nIdConfig = CloudData.pagedata[nTab].needmaterial[nIndex].data[i]
+		if Actor.getAwardFlag(sysarg,nTab,nIndex,nIdConfig.id) == 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ly0004, ttFlyTip)
+			return
+		end
+	end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	local nConfig = CloudData.pagedata[nTab].needmaterial[nIndex].LastReward
+	if Awards.CheckBagGridCount(sysarg,nConfig.awards) then
+		for i=1,table.getn(nConfig.awards) do
+			if (nConfig.awards[i].job == -1 or nConfig.awards[i].job == myJob) and (nConfig.awards[i].sex == -1 or nConfig.awards[i].sex == mySex)  then
+				Actor.giveAward(sysarg,nConfig.awards[i].type,nConfig.awards[i].id,nConfig.awards[i].count,nConfig.awards[i].quality,nConfig.awards[i].strong,nConfig.awards[i].bind,0,923,Lang.Activity.ly0001)
+			end
+		end
+
+		Actor.setFinlishAwardFlag(sysarg,nTab,nIndex,4)		--设置完成
+		SendGetCollectResult(sysarg,nTab,nIndex,nId)
+	end
+end
+
+--返回领取奖励成功
+function SendGetCollectResult(sysarg,nTab,nIndex,nId)
+	local pack = DataPack.allocPacket(sysarg, 50, 2)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nTab)
+		DataPack.writeInt(pack, nIndex)
+		DataPack.writeInt(pack, nId)
+		DataPack.flush(pack)
+	end
+end
+
+--立即完成凌云宝阁事件
+function OnFinishCollectOp(sysarg,args)
+	local nTab = args[2]
+	local nIndex = args[3]
+	local nId = args[4]
+
+	if CloudData.pagedata[nTab] == nil then return end
+	
+	if CloudData.pagedata[nTab].needmaterial[nIndex] == nil then return end
+
+	local nConfig = CloudData.pagedata[nTab].needmaterial[nIndex].data[nId]
+	if nConfig == nil then return end
+	
+	if Actor.getAwardFlag(sysarg,nTab,nIndex,nId) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0002, ttFlyTip)
+		return
+	end
+	
+	local myCount = Actor.getItemCount(sysarg,nConfig.goodsId)
+	local needYb = 0
+	local delCount = nConfig.needNum
+	if myCount < nConfig.needNum then
+		if nConfig.needYb <= 0 then
+			return
+		end
+
+		needYb = (nConfig.needNum - myCount) * nConfig.needYb
+		delCount = myCount
+	end
+
+	local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	if myYb < needYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0005, ttFlyTip)
+		return
+	end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	Actor.removeItem(sysarg,nConfig.goodsId,delCount)
+	Actor.changeMoney(sysarg,3,-needYb,923,Lang.Activity.ly0003)
+	for i=1,table.getn(nConfig.reward) do
+		if (nConfig.reward[i].job == -1 or nConfig.reward[i].job == myJob) and (nConfig.reward[i].sex == -1 or nConfig.reward[i].sex == mySex)  then
+			Actor.giveAward(sysarg,nConfig.reward[i].type,nConfig.reward[i].id,nConfig.reward[i].count,nConfig.reward[i].quality,nConfig.reward[i].strong,nConfig.reward[i].bind,0,923,Lang.Activity.ly0001)
+		end
+	end
+
+	Actor.setFinlishAwardFlag(sysarg,nTab,nIndex,nId)		--设置完成
+	SendGetCollectResult(sysarg,nTab,nIndex,nId)
+end
+
+--经验转换天赋点操作
+function OnChangeTalentOP(sysarg,args)
+	local nValue = args[2]
+	local nNeedExp = args[3]
+	local nMaxExp = args[4]			--每天能转换的最大值
+
+	local svar = Actor.getStaticVar(sysarg)
+	if svar.nUseExpTodayValue == nil then
+		svar.nUseExpTodayValue = 0
+	end
+	
+	if svar.nUseExpTodayValue < 0 then
+		svar.nUseExpTodayValue = 0
+	end
+	
+	if nValue > 2000 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.cw0005, ttFlyTip)
+		return
+	end
+
+	if svar.nUseExpTodayValue >= nMaxExp then	--每天转换经验的最大值是20亿
+		Actor.sendTipmsg(sysarg, Lang.Activity.cw0005, ttFlyTip)
+		return
+	end
+	
+	if svar.nUseExpTodayValue +nNeedExp > nMaxExp then	--每天还可以兑换多少点天赋值
+		local num = 2000 - svar.nUseExpTodayValue /1000000
+		local str =string.format(Lang.Activity.cw0006, num)
+		Actor.sendTipmsg(sysarg, str, ttFlyTip)
+		return
+	end
+	
+
+	Actor.onChangeTalentOP(sysarg,nValue,nNeedExp)
+
+	svar.nUseExpTodayValue = svar.nUseExpTodayValue+nNeedExp
+end
+
+function OnClearNewDayDataOp(sysarg,args)
+	ResetActorDataPerDay(sysarg)
+end

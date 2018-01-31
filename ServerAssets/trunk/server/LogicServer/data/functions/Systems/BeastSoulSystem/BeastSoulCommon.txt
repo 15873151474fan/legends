@@ -1,0 +1,335 @@
+
+
+--请求激活灵兽
+function ActBeast(sysarg,args)
+	local nIndex = args[2]
+	if nIndex > table.getn(BeastSoulGameConfig.BeastSoulConfig)then
+		return 
+	end
+	
+	local beastSoulConfig = BeastSoulGameConfig.BeastSoulConfig[nIndex]
+	if not beastSoulConfig then
+		return 
+	end
+	
+	local activatConfig = beastSoulConfig.activatCdn
+	
+	if Actor.checkActorLevel(sysarg, activatConfig.level, activatConfig.circle) == false then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0001, ttFlyTip)
+		return 
+	end
+	
+	if Actor.checkVipLevel(sysarg, activatConfig.vipLevel) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0002, ttFlyTip)
+		return
+	end
+	
+	if activatConfig.needYb > 0 then
+		if Actor.checkConsume(sysarg, 15, 0, activatConfig.needYb) == false then
+			Actor.sendTipmsg(sysarg, Lang.Activity.bs0003, ttFlyTip)
+			return 
+		end
+	end
+	
+	if activatConfig.needItem > 0 and activatConfig.needItemCount > 0 then
+		if Actor.checkConsume(sysarg, 0, activatConfig.needItem, activatConfig.needItemCount) == false then
+			Actor.sendTipmsg(sysarg, Lang.Activity.bs0004, ttFlyTip)
+			return  
+		end
+	end
+	
+	if activatConfig.needYb > 0 then
+		if Actor.changeMoney(sysarg, 3, activatConfig.needYb, 964, Lang.LogTips.bs0001) == false then
+			return 
+		end
+	end 
+	
+	if activatConfig.needItem > 0 and activatConfig.needItemCount > 0 then
+		if Actor.removeConsume(sysarg, 0, activatConfig.needItem, activatConfig.needItemCount, -1,-1,-1,0,964,Lang.LogTips.bs0002) <= 0 then
+			return 
+		end
+	end 
+	
+	Actor.addBeast(sysarg, nIndex)
+	
+	local pack = DataPack.allocPacket(sysarg, 59, 1)
+	if pack ~= nil then
+		DataPack.writeChar(pack, 0)
+		DataPack.flush(pack)
+	end
+end
+
+--激活内丹
+function ActNedan(sysarg,args)
+	local nIndex = args[2]
+	local nLevel = args[3]
+	local nNedanIdx = args[4]
+
+	local beastConfig = BeastSoulGameConfig.BeastSoulConfig[nIndex] 
+	if not beastConfig then 
+		return
+	end
+	
+	if nLevel + 1 >= table.getn(beastConfig.beastLevelsConfig) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0006, ttFlyTip) 
+		return 
+	end
+	
+	local levelConfig = beastConfig.beastLevelsConfig[nLevel+1]
+	if not levelConfig then
+		return 
+	end
+	
+	local nedanConfig = levelConfig.nedans[nNedanIdx]
+	if not nedanConfig then
+		return 
+	end
+	
+	if Consumes.Check(sysarg, nedanConfig.consumeTab, Lang.Activity.bs0005) == false then
+		return 
+	end
+	
+	if Consumes.Remove(sysarg, nedanConfig.consumeTab, 964, Lang.LogTips.bs0003) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0005, ttFlyTip)
+		return 
+	end
+	
+	local curRate = math.random(nedanConfig.totalRate)
+	if curRate <= nedanConfig.rate then
+		Actor.updateBeastSoulInfo(sysarg, nIndex, nLevel, nNedanIdx, 0)
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local name = Actor.getName(sysarg)
+		System.sendCommonLog(964, actorId, name, nLevel, nNedanIdx, nIndex, Lang.LogTips.bs0010)  --语言包暂时用，以后要改
+	else
+		Awards.Give(sysarg, nedanConfig.returnTab, 964, Lang.LogTips.bs0004)   --激活失败，返回
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0013, ttFlyTip)
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 59, 2)
+	if pack ~= nil then
+		DataPack.writeChar(pack, 0)
+		DataPack.flush(pack)
+	end
+end
+
+--灵兽升阶
+function UpgradeBeast(sysarg,args)  
+	local nType = args[2]
+	local nUseYb = args[3]
+	local nIndex = args[4]
+	local nLevel = args[5]
+	local nBlessVal = args[6]
+
+	local result = 0  --升阶是否成功
+	local upResult = 0 --一键升阶是否成功
+	
+	if nType ~= 1 and nType ~= 2 then
+		return 
+	end
+	
+	local upgrateRet = false
+	local isEnough = true
+	if nType == 1 then  --普通升阶
+		upgrateRet, nBlessVal, isEnough = UpgradeBeastOp(sysarg, nIndex, nLevel, nBlessVal, nUseYb)
+		
+	else  --一键升阶，一直到升阶成功或者材料不足
+		for i = 1, 10000 do   
+			upgrateRet, nBlessVal, isEnough = UpgradeBeastOp(sysarg, nIndex, nLevel, nBlessVal, nUseYb)
+			if upgrateRet == true or isEnough == false then
+				break
+			end
+		end
+	end
+	
+	if upgrateRet == false then
+		result = -1
+		Actor.updateBeastSoulInfo(sysarg, nIndex, -1, -1, nBlessVal)
+	else
+		Actor.updateBeastSoulInfo(sysarg, nIndex, nLevel, 0, nBlessVal)
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local name = Actor.getName(sysarg)
+		System.sendCommonLog(964, actorId, name, nLevel, 0, nIndex, Lang.LogTips.bs0011)  --语言包暂时用，以后要改
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 59, 3)
+	if pack ~= nil then
+		if isEnough == true then
+			upResult = 0
+		else
+			upResult = -1
+		end
+		DataPack.writeChar(pack, result)
+		DataPack.writeChar(pack, upResult)
+		DataPack.flush(pack)
+	end
+end
+
+--普通升阶
+function UpgradeBeastOp(sysarg, nIndex, nLevel, nBlessVal, nUseYb)
+	local upgrateRet = false
+	local blessValRet = nBlessVal
+	local isEnoughRet = false
+	local useYbFlag = false  --是否使用元宝代替
+	
+	if nIndex > table.getn(BeastSoulGameConfig.BeastSoulConfig)then
+		return upgrateRet,blessValRet,isEnoughRet
+	end
+
+	local beastConfig = BeastSoulGameConfig.BeastSoulConfig[nIndex]
+	if not beastConfig then
+		return upgrateRet,blessValRet,isEnoughRet 
+	end
+
+	if nLevel+1 > table.getn(beastConfig.beastLevelsConfig) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0006, ttFlyTip) 
+		return upgrateRet,blessValRet,isEnoughRet 
+	end
+
+	local levelConfig = beastConfig.beastLevelsConfig[nLevel+1]
+	if not levelConfig then
+		return upgrateRet,blessValRet,isEnoughRet
+	end 
+	
+	local upgradeConfig = levelConfig.upgrade
+	
+	if upgradeConfig.needCoin > 0 then
+		if Actor.checkConsume(sysarg, 6, 0, upgradeConfig.needCoin) == false then
+			Actor.sendTipmsg(sysarg, Lang.Activity.bs0008, ttFlyTip)
+			return upgrateRet,blessValRet,isEnoughRet
+		end
+	end
+
+	if nUseYb == 0 then	
+		if upgradeConfig.needItem > 0 and upgradeConfig.needItemCount > 0 then
+			if Actor.checkConsume(sysarg, 0, upgradeConfig.needItem, upgradeConfig.needItemCount) == false then
+				Actor.sendTipmsg(sysarg, Lang.Activity.bs0007, ttFlyTip)
+				return upgrateRet,blessValRet,isEnoughRet  
+			end
+			
+			Actor.removeConsume(sysarg, 0, upgradeConfig.needItem, upgradeConfig.needItemCount, -1, -1, -1, 0, 964, Lang.LogTips.bs0005)
+		end
+	
+		if upgradeConfig.needCoin > 0 then
+			Actor.removeConsume(sysarg, 6, 0, upgradeConfig.needCoin, -1, -1, -1, 0, 964, Lang.LogTips.bs0006) 
+		end
+	else
+		if upgradeConfig.useYb > 0 then
+			if Actor.checkConsume(sysarg, 0, upgradeConfig.needItem, upgradeConfig.needItemCount) == true then
+				Actor.removeConsume(sysarg, 0, upgradeConfig.needItem, upgradeConfig.needItemCount, -1, -1, -1, 0, 964, Lang.LogTips.bs0005)
+			else
+				if Actor.removeConsume(sysarg, 15, 0, upgradeConfig.useYb, -1, -1, -1, 0, 964, Lang.LogTips.bs0008) <= 0 then
+					Actor.sendTipmsg(sysarg, Lang.Activity.bs0015, ttFlyTip) 
+					return upgrateRet,blessValRet,isEnoughRet  
+				end
+			end
+		end	
+		
+		if upgradeConfig.needCoin > 0 then
+			Actor.removeConsume(sysarg, 6, 0, upgradeConfig.needCoin, -1, -1, -1, 0, 964, Lang.LogTips.bs0006) 
+		end
+	end
+	
+	local upRateConf = upgradeConfig.upRate
+	local randVal = math.random(upRateConf.totalRate)
+	for k, v in ipairs(upRateConf) do 
+		if nBlessVal >= v.range[1] and nBlessVal <= v.range[2] then
+			if v.rate >= randVal then
+				upgrateRet = true
+				break
+			end
+		end
+	end
+	
+	if upgrateRet == true then
+		nBlessVal = 0
+	else
+		local addBless = GetRandomBlessVal(upgradeConfig.randBless)
+		nBlessVal = nBlessVal + addBless
+		
+		if nBlessVal >= upgradeConfig.maxBlessValue then
+			nBlessVal = 0
+			upgrateRet = true
+		end	
+	end
+	isEnoughRet = true
+	
+	Actor.updateBeastSoulInfo(sysarg, nIndex, -1, -1, nBlessVal)
+
+	return upgrateRet,nBlessVal,isEnoughRet
+end
+
+--根据概率获取祝福值
+function GetRandomBlessVal(infoTable) 
+	local blessVal = 0
+	local totalVal = 0
+	local tmpValue = 0
+	
+	for j = 1, table.getn(infoTable or {}) do 
+		totalVal = totalVal + infoTable[j].rate
+	end
+	
+	if totalVal <= 0 then
+		return blessVal
+	end
+
+	local randVal = math.random(totalVal)
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			blessVal = infoTable[i].blessVal
+			break
+		end
+	end
+	return blessVal
+end
+
+--灵兽附魂
+function AttachBeast(sysarg,args) 
+	local nType = args[2]
+	local nIndex = args[3]
+	local result = 0
+	
+	if nType ~= 1 and nType ~= 2 then
+		return 
+	end
+	
+	local curAttachSoulId = Actor.getIntProperty(sysarg, PROP_ACTOR_ATTACH_SOUL_ID)
+	
+	local nLevel = Actor.getBeastSoulInfo(sysarg, nIndex, 1)
+	if nLevel <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0014, ttFlyTip)
+		return 
+	end
+	
+	local curTime = System.getCurrMiniTime()
+	local attachTime = Actor.getAttachSoulTime(sysarg)
+	
+	if curTime < attachTime then
+		Actor.sendTipmsg(sysarg, Lang.Activity.bs0012, ttFlyTip)
+		return 
+	end
+	
+	if nType == 1 then  --附魂
+		if curAttachSoulId > 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.bs0009, ttFlyTip)
+			return 
+		end 
+		result = nIndex
+	else  --解除附魂
+		if curAttachSoulId <= 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.bs0010, ttFlyTip)
+			return 
+		end
+	end
+	
+	Actor.setAttachBeast(sysarg, nIndex, nType)
+	
+	Actor.setAttachSoulTime(sysarg, curTime + BeastSoulGameConfig.cdTime)
+	
+	local pack = DataPack.allocPacket(sysarg, 59, 4)
+	if pack ~= nil then
+		DataPack.writeByte(pack, result)
+		DataPack.flush(pack)
+	end
+	
+end

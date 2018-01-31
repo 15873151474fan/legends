@@ -1,0 +1,50 @@
+
+--#include  "data\config\activityconfig\Festival\NationalDayActive.txt" once
+--#include "data\functions\Activity\Festival\NationalDayCommon.txt" once
+
+--国庆活动灵兽
+function OnSpiritBeastDie( monster,sysarg,monId )
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.spiritBeastXianRui) or 
+		(not NationalDayActiveConfig.spiritBeastXianRui.spiritBeast) then
+		return
+	end
+	local beastConfig = NationalDayActiveConfig.spiritBeastXianRui.spiritBeast
+	
+	for indx, beastInfo in ipairs(beastConfig or {}) do
+		if beastInfo.id == monId then
+			local hBeast = Actor.getSubordinateHandle(sysarg)
+			if hBeast and hBeast > 0 then
+				return
+			end
+		
+			local x, y = Actor.getEntityPosition(sysarg, 0, 0)		--获取实体X Y坐标
+			local beastPtr = Actor.createMonster(sysarg, monId, x, y, 0, true)	
+			if beastPtr then
+				hBeast = Actor.getHandle(beastPtr)
+				--print("hBeast ",hBeast)
+				--local petId = Pet.addPet(sysarg, beastInfo.id, 1, 197, beastInfo.petLiveTime) 
+				Actor.setSubordinateHandle(sysarg, hBeast)
+				Actor.followActor(beastPtr, sysarg, 3, 30, true) --跟随某个玩家
+				--Actor.setEntityTelByOwnderAttr(monster, true)   --设置实体是否跟着归属者传送
+				Actor.setEntityLazyFollow(beastPtr, true)        --设置实体是否惰性跟随
+				Actor.setDenyAttackedByActor(beastPtr, true)     --设置实体是否不可被玩家攻击
+				Actor.setDenyAttackActor(beastPtr, true)         --设置实体是否不攻击玩家   
+				Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟 
+				
+				Actor.regScriptCallback(sysarg, nil, NationalDayActiveConfig.spiritBeastXianRui.submitTime * 1000, 0, 1, "ClearSpiritBeast")
+			end
+			break
+		end
+	end
+end
+
+
+MonDieDispatcher.SpiritBeastDie = function (monster,sysarg,monId)
+	OnSpiritBeastDie( monster,sysarg,monId )
+end
+
+
+--注册boss
+for idx, beastInfo in ipairs(NationalDayActiveConfig.spiritBeastXianRui.spiritBeast or {}) do
+	--MonDieDispatcher.register(beastInfo.id, MonDieDispatcher.SpiritBeastDie)
+end

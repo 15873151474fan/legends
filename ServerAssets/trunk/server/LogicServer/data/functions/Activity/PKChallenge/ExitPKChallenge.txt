@@ -1,0 +1,23 @@
+
+
+--#include "PKChallengeCommon.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+function ExitPKChallenge( sysarg )
+	return Lang.Activity.a00004 .. "\\<#BL"..Lang.Activity.w00037 .."/@doExitScene>"
+end
+
+function doExitScene( sysarg )
+	local npcHandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg, npcHandle,0, Lang.ScriptTips.pk00006, Lang.ScriptTips.x00076.."/ensureExitPkScene",Lang.ScriptTips.x00077.."/cancelExitScene",NULL)
+end
+
+function ensureExitPkScene( sysarg )
+	ExitPKScene(sysarg)
+end
+
+function cancelExitScene( sysarg )
+
+end
+
+table.insert(MainFnTable, ExitPKChallenge)

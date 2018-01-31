@@ -1,0 +1,98 @@
+--魔龙神殿怪物拉弓箭手仇恨
+{
+
+	actions=
+	{
+		--{act=0,effect=38,},
+	},
+	
+	desc=Lang.Skill.s7L1Desc,--技能的描述
+	
+	iconID=7,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		
+		{
+
+			xStart=-18,--相对于中心点x左边的相对坐标
+			xEnd=18,--相对于中心点x右边的相对坐标
+			yStart=-18,--相对于中心点y上边的相对坐标
+			yEnd=18,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 30,value =485},
+					},
+					results=
+					{
+						--{mj=0,timeParam=1,type=34,value=1},
+						{mj=0,timeParam=1,type=4,delay=0, rate=0,value=1},
+						{mj=0,timeParam=1,type=13,delay=0, rate=0,value=1},
+					},
+
+					specialEffects=
+					{
+					--	{type=1,mj=0,id=38,keepTime=500,delay=0,always=false},							
+					},
+				},
+
+			},
+		},	
+		{
+
+			xStart=-18,--相对于中心点x左边的相对坐标
+			xEnd=18,--相对于中心点x右边的相对坐标
+			yStart=-18,--相对于中心点y上边的相对坐标
+			yEnd=18,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 30,value =486},
+					},
+					results=
+					{
+						--{mj=0,timeParam=1,type=34,value=1},
+						{mj=0,timeParam=1,type=4,delay=0, rate=0,value=1},
+						{mj=0,timeParam=1,type=13,delay=0, rate=0,value=1},
+					},
+
+					specialEffects=
+					{
+					--	{type=1,mj=0,id=38,keepTime=500,delay=0,always=false},							
+					},
+				},
+
+			},
+		},	
+	
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=13,consume=false},
+		--{cond=35,value=1,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=10000,
+
+},

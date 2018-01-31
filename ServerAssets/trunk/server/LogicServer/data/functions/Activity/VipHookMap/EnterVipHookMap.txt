@@ -1,0 +1,148 @@
+
+--#include "VipHookMapCommon.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+--进入VIP挂机地图Main函数
+function EnterVipHookMap_Main(sysarg)
+	local closeBtn = ""
+	local dlgStr = ""
+	local sceneName = Actor.getSceneName(sysarg, 0, 0)
+	--如果在土城
+	if sceneName == Lang.SceneName.s00008 then
+		local enterHookBtn = string.format("\\<#BL%s/@EnterVipHookMapDispter>", Lang.ScriptTips.viphook001)
+		dlgStr = enterHookBtn
+	--如果在炼狱密境
+	else
+		local buyVipTimesByGold = string.format("\\<#BL%s/@BuyVipTimesByGold>", Lang.ScriptTips.viphook006)
+		local buyVipTimesByBindGold = string.format("\\<#BL%s/@BuyVipTimesByBindGold>", Lang.ScriptTips.viphook007)
+		local buyHookItem = string.format("\\<#BL%s/@OnBuyVipHookItem>", Lang.ScriptTips.viphook008)
+		local changeMap = string.format("\\<#BL%s/@ChangeVipMap>", Lang.ScriptTips.viphook022)
+		local closeBtn = string.format("%s\\<#BL%s/@CloseWnd>", Lang.Activity.a00004, Lang.ScriptTips.viphook013)	
+		dlgStr = buyVipTimesByGold .. buyVipTimesByBindGold .. buyHookItem .. changeMap .. closeBtn
+	end
+	return dlgStr
+end
+
+--购买挂机礼包
+function OnBuyVipHookItem(sysarg)
+	Actor.openDialogs(sysarg,diBuyAnItem,tostring(1076))
+end
+
+--切换VIP挂机地图
+function ChangeVipMap(sysarg)
+	local dlgStr = ""
+	local nowSceneName = Actor.getSceneName(sysarg, 0, 0)
+	for k, config in ipairs(VipHookMapConfig or {}) do
+		local realSceneName = config.SceneName
+		if nowSceneName ~= realSceneName then
+			local countFlag = ""
+			local handleScene = Fuben.getSceneHandleByName(realSceneName, 0) 
+			local playerCount = Fuben.getScenePlayerCount(handleScene)
+			if playerCount >= VipHookMapConfig.HotPlayerCount then
+				countFlag = Lang.ScriptTips.viphook023
+			end
+			local sceneName = VipHookMapConfig.ShowSceneName[k]
+			dlgStr = string.format("%s\\<#BL%s%s/@EnterVipHookMapFunc,%d>", dlgStr, sceneName, countFlag, k)
+		end
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+--进入VIP挂机地图
+function GoVipMap( sysarg, mapIdx )
+	mapIdx = tonumber(mapIdx)
+	local sceneName = VipHookMapConfig.SceneNames[mapIdx]
+	if sceneName then
+		local x = math.random(VipHookMapConfig.PosArea[1], VipHookMapConfig.PosArea[2])
+		local y = math.random(VipHookMapConfig.PosArea[3], VipHookMapConfig.PosArea[4])
+		System.telportSceneByName( sysarg, sceneName, x, y)
+		local mapTime = Actor.getBuffRemainTime(sysarg, VipHookMapConfig.buff.buffType, VipHookMapConfig.buff.groupId)
+		Actor.initActivityWind(sysarg, Lang.Activity.map0001, mapTime, Lang.Activity.map0002)
+	end
+end
+
+--关闭窗口
+function CloseWnd( sysarg )
+	Actor.closeNPCDialog( sysarg)
+	Actor.startSingWnd(sysarg,14,3000,Lang.ScriptTips.sc00000,false,true,false)
+end	
+
+--进入VIP挂机地图子菜单
+function EnterVipHookMapDispter()
+	local enterHookBtn = string.format("\\<#BL%s/@EnterVipHookMapChooseDispter>", Lang.ScriptTips.viphook005)
+	local buyVipTimesByGold = string.format("\\<#BL%s/@BuyVipTimesByGold>", Lang.ScriptTips.viphook006)
+	local buyVipTimesByBindGold = string.format("\\<#BL%s/@BuyVipTimesByBindGold>", Lang.ScriptTips.viphook007)
+	local buyVipHookItem = string.format("\\<#BL%s/@OnBuyVipHookItem>", Lang.ScriptTips.viphook008)
+	return enterHookBtn .. buyVipTimesByGold .. buyVipTimesByBindGold .. buyVipHookItem .. Lang.ScriptTips.back001
+end
+
+--进入VIP挂机地图选测菜单
+function EnterVipHookMapChooseDispter(sysarg)
+	local dlgStr = ""
+	for k, config in ipairs( VipHookMapConfig or {} ) do
+		local countFlag = ""
+		local handleScene = Fuben.getSceneHandleByName(config.SceneName, 0) 
+		local playerCount = Fuben.getScenePlayerCount(handleScene)
+		if playerCount >= VipHookMapConfig.HotPlayerCount then
+			countFlag = Lang.ScriptTips.viphook023
+		end
+		local showName = VipHookMapConfig.ShowSceneName[k]
+		dlgStr = string.format("%s\\<#BL%s%s/@EnterVipHookMapFunc,%d>", dlgStr, showName,countFlag, k)
+	end
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+--进入VIP挂机地图
+function EnterVipHookMapFunc( sysarg, mapIdx )
+	--如果不是VIP
+	local mapIdx = tonumber(mapIdx)
+	local Config = VipHookMapConfig[mapIdx]
+	if not Config then
+		return 
+	end
+	
+	if not Actor.isVip(sysarg) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.viphook014, Config.SceneName), ttFlyTip)
+		return
+	end
+
+	--如果转数或等级不足
+	if not Actor.checkActorLevel(sysarg, Config.MinLevel, Config.MinCircle) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.viphook015, Config.MinCircle, Config.MinLevel, Config.SceneName), ttFlyTip)
+		return
+	end
+	
+	--vip等级不够
+	local viplvl = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+	if not Actor.checkVipLevel(sysarg, Config.MinVipLevel) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.viphook024, Config.MinVipLevel), ttFlyTip)
+		return 
+	end
+	
+	
+	local boResult = false
+	local v = VipHookMapConfig.buff
+	if Actor.hasBuff(sysarg, v.buffType, v.groupId) then
+		boResult = true
+		if not IsVipTodayGetBuff( sysarg ) then
+			Actor.addBuff( sysarg, v.buffType, v.groupId, v.value, v.times, v.interval, v.buffName, v.timeOverlay)
+			SetVipTodayGetBuff(sysarg)
+		end
+	end
+	if not boResult then
+		if IsVipTodayGetBuff( sysarg ) then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.viphook016, ttFlyTip)
+			return
+		end
+		Actor.addBuff( sysarg, v.buffType, v.groupId, v.value, v.times, v.interval, v.buffName, v.timeOverlay)
+		SetVipTodayGetBuff(sysarg)
+	end
+	local mapTime = Actor.getBuffRemainTime(sysarg, v.buffType, v.groupId)
+	local x = math.random(VipHookMapConfig.PosArea[1], VipHookMapConfig.PosArea[2])
+	local y = math.random(VipHookMapConfig.PosArea[3], VipHookMapConfig.PosArea[4])
+	System.telportSceneByName( sysarg, Config.SceneName, x, y)
+	Actor.initActivityWind(sysarg, Lang.Activity.vh0001, mapTime, Lang.Activity.vh0002)
+
+end
+
+table.insert(MainFnTable, EnterVipHookMap_Main)

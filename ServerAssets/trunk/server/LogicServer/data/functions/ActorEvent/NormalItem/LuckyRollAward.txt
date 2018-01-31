@@ -1,0 +1,158 @@
+--lua script
+--#include "data\config\item\scriptItemConfig\LuckyRollAwardItem.txt" once
+
+--[[
+    函数名称：LuckyRollAward
+    函数描述：点击打开 滚轮抽奖 
+    参数 sysarg 的描述：
+    参数 itemidx 的描述：
+    参数 itemPtr 的描述：
+    参数 ItemTable 的描述：
+]]
+function LuckyRollAward(sysarg,itemidx,itemPtr,ItemTable)
+  --通知客户端
+  --140 成就系统子系统 1
+  if ItemTable.item_id == itemidx then
+    --获取玩家目前有多少个空格子，如果格子不够，就返回
+	  local count = Item.getBagEmptyGridCount(sysarg)
+	  local needGridCount=1
+	  if( type( ItemTable ) == 'number' ) then
+	    needGridCount = ItemTable
+	  else
+	    needGridCount = ItemTable.needMinBagGrid
+	  end
+	  if needGridCount and count < needGridCount then
+	    local tipMsg = string.format(Lang.ScriptTips.x00090,needGridCount)
+	    Actor.sendTipmsg( sysarg,tipMsg,ttDialog )
+	    return false
+	  end
+	  
+	  --检测魔珠背包
+	local count = MagicItem.getMagicBagEmptyGridCount(sysarg)
+	local needGridCount= ItemTable.checkMagicBeadBag or 0   --需要背包格子的数量 
+	
+	if count < needGridCount then
+		local tipMsg = string.format(Lang.ScriptTips.magic020,needGridCount)
+		Actor.sendTipmsg( sysarg,tipMsg,ttFlyTip );
+		return false
+	end
+	
+    --幸运滚轮抽奖进行标识
+    if Actor.getRTIntValue(sysarg,GETLUCKYROLLAWARDING) == 1 then return end
+		Actor.setRTIntValue(sysarg,GETLUCKYROLLAWARDING,1)
+		--幸运转轮 抽奖逻辑处理
+		LuckyRollAwardFunc(sysarg,itemidx,ItemTable)
+
+  end
+end
+
+                       
+--[[
+    函数名称：LuckyRollAwardCallBack
+    函数描述：循环抽奖 回调 
+    参数 sysarg 的描述：
+]]
+function LuckyRollAwardCallBack(sysarg, itemidx, ItemTable)
+  --幸运转轮 抽奖逻辑处理
+  LuckyRollAwardFunc(sysarg,itemidx,ItemTable)
+end
+
+
+--[[
+    函数名称：LuckyRollAwardFunc
+    函数描述：幸运转轮 抽奖逻辑处理 
+    参数 sysarg 的描述：
+]]
+function LuckyRollAwardFunc(sysarg,itemidx,ItemTable)
+  ---
+	--31保存组数 32保存结果
+	--运行时变量31保存随机物品组，如果没产生到随机组则从新生成
+	--用运行时变量保存抽奖结果可以防止玩家再次点击物品请求是产生不同的结果
+	local group = 0  --保存随机组
+	if (Actor.getRTIntValue(sysarg,LUCKYROLLAWARDINDEX+1) == 0) then
+	  group = math.random(1,table.getn(ItemTable.dropName))
+	else
+	  group = Actor.getRTIntValue(sysarg,LUCKYROLLAWARDINDEX+1)
+	end
+	Actor.setRTIntValue(sysarg,LUCKYROLLAWARDINDEX+1,group)  --记录奖励组数
+	if group == 0 then return end
+	--需要roll一个物品组
+  local dropName = DROPNAME.."_"..tostring(ItemTable.item_id).."_"..group --按名字索引的
+  local drop = System.getObjectVar(dropName)   --获取组对象
+  if (not drop) then
+    System.trace("getObjectVar is nil"..itemidx)
+		return
+  end
+  local c = ItemTable.dropInclude[group].drops
+  if not c then return end
+  ---------------运行时变量32保存随机物品组里随机到的物品，如果没产生到随机物品则从新生成
+  local result = 0
+  if(Actor.getRTIntValue(sysarg,LUCKYROLLAWARDINDEX+2) == 0) then
+    --遍历掉落列表，并添加玩家的物品
+    local items = nil
+	
+    if ItemTable.drop == 1 then
+      items = drop:proabilityDrop(sysarg) --按照总概率Roll物品
+    else
+      items = drop:drop(sysarg)        --按怪物的掉落爆出物品
+    end 
+    if items == nil or ( items.itemCount <= 0) then return end
+	  for i=1, table.getn(c) do
+      local x = c[i]
+      --目前只支持单个奖励物品 
+	    if items.itemList[0].wItemId == x.id then result = i end
+	  end
+  else
+    result = Actor.getRTIntValue(sysarg,LUCKYROLLAWARDINDEX+2)
+  end
+  if result == 0 then return end
+  Actor.setRTIntValue(sysarg,LUCKYROLLAWARDINDEX+2,result)  --记录奖励结果
+  ------------
+  --140 成就系统子系统 1 通知客户端打开成就礼包界面
+  local npack = DataPack.allocPacket(sysarg,140,1)  --申请一个数据包
+  if (npack == nil) then return end
+  DataPack.writeByte(npack,16)  --物品个数
+  -----------发送随机到组的物品到客户端
+  for i=1,16 do
+    local x = c[i]
+    ----print(x.itemid)
+    DataPack.writeWord(npack,x.id)
+    DataPack.writeWord(npack,x.count)
+    DataPack.writeByte(npack,x.quality)
+    DataPack.writeByte(npack,x.strong)
+    DataPack.writeByte(npack,x.bind)
+  end
+  ----------------
+  DataPack.writeString(npack,ItemTable.interfaceName) --抽奖界面显示标题
+  DataPack.writeByte(npack,result) --抽奖物品的结果
+  DataPack.writeShort(npack,itemidx) --抽奖物品ID
+  DataPack.flush(npack)
+end
+
+--[[
+    函数名称：LuckyRollAwardInit
+    函数描述：幸运转轮初始化 
+    参数 sysarg 的描述：
+]]
+function LuckyRollAwardInit(sysarg)
+  for i = 1,table.getn(LuckyRollAwardItemConfig) do
+		local x = LuckyRollAwardItemConfig[i]
+		--如果只执行爆率的话，那么就注册调用函数
+		if(x.onlyDoRoll) then
+		  GlobalItemFn[x.item_id] = { func = LuckyRollAward,params =x }
+		end
+		for i = 1, table.getn(x.dropName) do
+		  --在初始化的时候全部装载进来 ,避免后期临时去加载
+			local dropName = DROPNAME.."_"..tostring(x.item_id).."_"..i
+			local boxdrop = System.getObjectVar(dropName)
+			if (not boxdrop) then
+				boxdrop = CBoxDropMgr:getSingleton():createBoxDrop(dropName)  -- 这里会返回一个宝箱掉落对象(CBoxDrop)
+			end
+			if (boxdrop) then
+				boxdrop:load(x.dropName[i])
+			end
+		end
+	end
+end
+
+table.insert(InitFnTable,LuckyRollAwardInit)

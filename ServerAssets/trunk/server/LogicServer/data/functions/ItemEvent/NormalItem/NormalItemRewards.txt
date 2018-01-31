@@ -1,0 +1,272 @@
+--lua script
+--Reward configs
+
+--#include "data\config\item\RewardConfig.txt" once
+
+--时间 新手奖励
+REWARDLIMLEVEL = 30  --上线奖励等级上限
+LOGINTIMEINTERVALS = {		--在线奖励的时间配置(秒)
+	180,
+	300,
+	600,
+	900,
+	1800,
+	3600,
+}
+
+MONEYTYPE = {
+[0] = Lang.ScriptTips.x00004, 
+[1] = Lang.ScriptTips.x00005,
+[2] = Lang.ScriptTips.x00006, 
+[3] = Lang.ScriptTips.x00007,
+}
+--当前开奖励需求不大的时候把这个模块独立出来可便于扩展
+--奖励行为将会是个量非常大的需求 开物品不仅开金钱物品 还可能开出其它点数奖励
+--从扩展性和可维护性的角度看 有必要把这个配置独立出来
+--rewardCheck	作为专门对应该配置的工具方法 用于检测奖励的可添加状况并返回不同结果
+--doReward	作为专门对应该配置的工具方法 用于执行奖励行为
+--以上两个工具方法使用时 可先rewardCheck后根据返回进行其它处理 确定奖励时再以doReward进行奖励
+local Rewards = RewardConfig
+
+--通过奖励表进行奖励检查
+function rewardConfigCheck (sysarg,rewardConfig)
+	if rewardConfig == nil then return 2 end
+	local needspace = 0
+	local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+	local mySex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	for i,c in ipairs(rewardConfig) do
+		if c.rewardtype == 1 and (not c.sex or c.sex == mySex) and (not c.job or c.job == myJob) then
+			needspace = needspace + Item.getAddItemNeedGridCount( sysarg, c.itemid, c.amount )
+		end
+	end
+	if ( needspace > Item.getBagEmptyGridCount( sysarg ) ) then
+		----print("---Reward config bag space lack."..needspace)
+		return 2 , needspace
+	end
+	return 0 , needspace
+end
+
+--通过奖励列表进行奖励
+function doRewardConfig (sysarg,rewardConfig)
+	if rewardConfig == nil then return end
+	local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+	local mySex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	for i = 1, #rewardConfig do
+		local c = rewardConfig[i]
+		if ( c.rewardtype == 1 ) then
+			if (not c.sex or c.sex == mySex) and (not c.job or c.job == myJob) then
+				Actor.addItem(sysarg,c.itemid,c.quality,c.strong, c.amount,c.bind,0,Lang.LogTips.l00035,57)
+				local itemname = Item.getItemName(c.itemid)
+				if itemname then
+					local allmsg = string.format(Lang.ScriptTips.q00037,itemname,c.amount)
+					Actor.sendTipmsg(sysarg,allmsg, ttChatWindow)
+				else
+					print("Item.getItemName() failed, itemid = " .. c.itemid);
+				end
+			end
+		elseif ( c.rewardtype == 2 ) then
+			Actor.changeMoney( sysarg, c.type, c.amount,137, Lang.LogTips.l00036)
+			local moneystr = MONEYTYPE[c.type]
+			local allmsg = string.format(moneystr,c.amount)  
+			Actor.sendTipmsg(sysarg,allmsg, ttChatWindow)
+		end
+	end
+end
+--奖励检查
+function rewardCheck( sysarg, rewardID )
+ 
+  local rewardconfig = Rewards[rewardID]
+  
+  if ( rewardconfig == nil ) then
+	--print("---Reward config empty."..rewardID)
+	return 1,0
+  end
+  local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+  local job = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+  local needspace = 0  --物品所需空格
+  if rewardID == 1 then 
+	  for i,c in ipairs(rewardconfig) do
+			if ( c.rewardtype == 1 ) then
+				needspace = needspace + Item.GetAddItemNeedGridCount( sysarg, c.itemid, c.amount )
+			end
+  	end
+  else 
+  	local rewardDB = {}
+    table.foreachi( rewardconfig, function( i, v )  if ((v.job == job or v.job == 0) and (v.sex == sex or v.sex == 2)) then  index,rewardDB = i, v end end ) 
+    if table.getn(rewardDB) < 1 then return 1 ,0 end
+    for i,c in ipairs(rewardDB) do
+    	if (c.rewardtype == 1) then
+    		needspace = needspace + Item.getAddItemNeedGridCount( sysarg, c.itemid, c.amount )
+			end
+		end
+	end
+  if ( needspace > Item.getBagEmptyGridCount( sysarg ) ) then
+	--print("---Reward config bag space lack."..needspace)
+	return 2,needspace
+  end
+  return 0,needspace
+end
+
+--获取索引值和奖励列表
+function getRewardOnlineRand(sysarg,rewardID)
+	local rewardconf = Rewards[rewardID]
+  local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+  local rewardconfig = {}
+  if level < 20 then
+    rewardconfig = rewardconf[1]
+  elseif level < 40 then
+    rewardconfig = rewardconf[2]
+  elseif level <= 70 then
+    rewardconfig = rewardconf[3]
+  end
+  if (( rewardconfig == nil ) or (table.getn(rewardconfig) <= 0)) then
+	print("---Reward config empty."..rewardID)
+	return 1 ,{}
+  end
+  local rand = math.random(1,table.getn(rewardconfig))
+  --print("return rand")
+  local rewardconfigdata = rewardconfig[rand]
+  return rand,rewardconfigdata
+end
+
+--通过索引值获取奖励列表
+function getRewardOnlineConfig(sysarg,rewardID,rand)
+	local rewardconf = Rewards[rewardID]
+  local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+  local rewardconfig = {}
+  if level < 20 then
+    rewardconfig = rewardconf[1]
+  elseif level < 40 then
+    rewardconfig = rewardconf[2]
+  elseif level <= 70 then
+    rewardconfig = rewardconf[3]
+  end
+ 
+  if (( rewardconfig == nil ) or (table.getn(rewardconfig) <= 0)) then
+	print("---Reward config empty."..rewardID)
+	return {}
+  end
+  local rewardconfigdata = rewardconfig[rand]
+  return rewardconfigdata
+end
+-- 在线奖励检查
+function rewardOnlineCheck( sysarg, rewardID ,rand)
+  local rewardconf = Rewards[rewardID]
+  local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+  local rewardconfig = {}
+  if level < 20 then
+    rewardconfig = rewardconf[1]
+  elseif level < 40 then
+    rewardconfig = rewardconf[2]
+  elseif level <= 70 then
+    rewardconfig = rewardconf[3]
+  end
+  if (( rewardconfig == nil ) or (table.getn(rewardconfig) <= 0)) then
+	----print("---Reward config empty."..rewardID)
+	return 1 ,0
+  end
+  local rand = tonumber(rand)
+  rewardconfigdata = rewardconfig[rand]
+  local needspace = 0  --物品所需空格
+  for i,c in ipairs(rewardconfigdata) do
+	if ( c.rewardtype == 1 ) then
+		needspace = needspace + Item.getAddItemNeedGridCount( sysarg, c.itemid, c.amount )
+	end
+  end
+  if ( needspace > Item.getBagEmptyGridCount( sysarg ) ) then
+	----print("---Reward config bag space lack."..needspace)
+	return 2 , needspace
+  end
+  return 0 , needspace
+end
+--在线时间奖励
+function doOnlineReward( sysarg, rewardID ,rand)
+  local rewardconf = Rewards[rewardID]
+  local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+  local rewardconfig = {}
+  if level < 20 then
+    rewardconfig = rewardconf[1]
+  elseif level < 40 then
+    rewardconfig = rewardconf[2]
+  elseif level <= 70 then
+    rewardconfig = rewardconf[3]
+  end
+  
+  for i = 1, #rewardconfig[rand] do
+	local c = rewardconfig[rand][i]
+	if ( c.rewardtype == 1 ) then
+		Actor.addItem(sysarg,c.itemid,c.quality,c.strong, c.amount,c.bind, 0, Lang.LogTips.l00035,57)
+		local itemname = Item.getItemName(c.itemid)
+		local allmsg = string.format(Lang.ScriptTips.q00037,itemname,c.amount)
+		Actor.sendTipmsg(sysarg,allmsg,ttScreenCenter)  
+	elseif ( c.rewardtype == 2 ) then
+		Actor.changeMoney( sysarg, c.type, c.amount,137,Lang.LogTips.l00036 )
+		local moneystr = MONEYTYPE[c.type]
+		local allmsg = string.format(moneystr,c.amount)  
+		Actor.sendTipmsg(sysarg,allmsg,ttScreenCenter)
+	end
+  end
+  ----print("Reward finished.")
+end
+
+--[[
+ --奖励类型--
+//物品或者装备	rewardtype: 1
+//修为	rewardtype: 5
+//角色经验值	rewardtype: 6
+//帮派贡献值	rewardtype: 3
+//阵营贡献	rewardtype: 4
+//绑定银两 rewardtype: 2
+//银两	rewardtype: 2
+//绑定元宝	rewardtype: 2
+//称谓	rewardtype: 8	itemid: 称号ID
+//技能	rewardtype: 9	itemid：技能ID  amount：技能等级	
+//战魂	rewardtype: 10	
+//成就点	rewardtype: 11 
+//声望	rewardtype: 12
+--]]
+
+--奖励
+function doReward( sysarg, rewardID )
+  local rewardconfig = Rewards[rewardID]
+  ----print("lang:"..table.getn(rewardconfig))
+  local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+  local job = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+  if rewardID == 1 then 
+			for i = 1,#rewardconfig do 
+				local a = rewardconfig[i]
+				Actor.addItem(sysarg,a.itemid,a.quality,a.strong, a.amount,a.bind,0,Lang.LogTips.l00037,56)
+			end
+  else 
+  	local rewardDB = {}
+		table.foreachi( rewardconfig, function( i, v ) if ((v.job == job or v.job == 0) and (v.sex == sex or v.sex == 2)) then index,rewardDB = i, v end end ) 
+		if table.getn(rewardDB) < 1 then
+			print("rewardDB is nil !") 
+		end
+		for i = 1 ,#rewardDB do 
+			local c = rewardDB[i]
+			if ( c.rewardtype == 1 ) then
+				----print("c.bind:"..c.bind)
+				Actor.addItem(sysarg,c.itemid,c.quality,c.strong, c.amount,c.bind,0,Lang.LogTips.l00037,56)
+			elseif ( c.rewardtype == 2 ) then
+				--print("c.type:"..c.type.." "..c.amount )
+				Actor.changeMoney( sysarg, c.type, c.amount ,136,Lang.LogTips.l00037)
+			elseif (c.rewardtype == 3) or (c.rewardtype == 4) then
+				Actor.giveAward(sysarg, c.rewardtype,0,c.amount, 0, 0, 1, 0,1, Lang.LogTips.l00037)
+			elseif (c.rewardtype == 5) then
+				Actor.giveAward(sysarg, 1,0, c.amount, 0, 0, 1, 0,1, Lang.LogTips.l00037)
+			elseif (c.rewardtype == 6) then
+				Actor.giveAward(sysarg, 2, 0,c.amount,0, 0, 1, 0,1, Lang.LogTips.l00037)
+			elseif ( c.rewardtype == 8 ) then
+				if Actor.HasTitle(sysarg, c.itemid) == false then
+					Actor.GiveTitle(sysarg, c.itemid )
+				end
+			elseif (c.rewardtype == 9) then
+				Actor.giveAward(sysarg, 9, 0,c.itemid, 0, 0, 1, c.amount,1, Lang.LogTips.l00037)
+			elseif (c.rewardtype == 10) or (c.rewardtype == 11) or (c.rewardtype == 12) then
+				Actor.giveAward(sysarg, c.rewardtype, 0,c.amount, 0, 0, 1,0, 1, Lang.LogTips.l00037)
+			end
+	  end
+  end
+  ----print("Reward finished.")
+end

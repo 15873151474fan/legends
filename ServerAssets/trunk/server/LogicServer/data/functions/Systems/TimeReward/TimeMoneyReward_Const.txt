@@ -1,0 +1,13 @@
+--在线奖励系统实现相关的常量定义
+ 
+LocalDT.TimeMoneyRewardConst =
+{
+   
+	REWARDLIMLEVEL = {1,100},     --限制领取等级 
+	DAYTIME = 3600*24,        --每日时间(用于控制日)(秒)
+  REWARDLIMITTIME = 5*3600,   --每日领奖累计总时间
+  REWARDLIMITTIMES = 5,   --每日领奖累计总次数 
+	REWARDTIME = 3600,        --每XX时间计算一次奖励(秒)
+  REWARDMONEY = 20,         --金钱数量
+	
+}

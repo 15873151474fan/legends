@@ -1,0 +1,166 @@
+--lua script
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\activityconfig\CrossGuildSbk\CrossGuildSbk.txt" once 
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--天下第一城主对话
+function CrossServerAward_Main(sysarg)
+	local RankNameList = Ranking.getRanking("GuildCrossSbkOwn")
+	
+	local str1 = ""
+	local nServer = ""
+	local nUseId = 0
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+		if pItem then
+			nServer = tostring(Ranking.getPoint(pItem)) or ""
+			str1 = Ranking.getSub(pItem,2) or ""
+			nUseId = tonumber(Ranking.getSub(pItem,1))
+		end
+	end
+
+	local str = string.format(Lang.Activity.ku0043,nServer,str1)
+
+	str = str.."<#BL"..Lang.Activity.ku0044.."/@GetCrossCityrerAward>"		--领取跨服沙城主特色时装
+	str = str.."<#BL"..Lang.Activity.ku0045.."/@OnGetCrossSbkAward>"		--领取跨服沙行会奖励
+	str = str.."<#BL"..Lang.Activity.a00123.."/@LookWorldOneMsg, "..nUseId..">"		--查看装备
+
+	return str
+end
+
+--查看装备
+function LookWorldOneMsg(sysarg, userId)
+	local userId = tonumber(userId)
+	if userId <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00124, ttFlyTip)
+		return
+	end
+	
+	Actor.viewOffLineActor(sysarg, userId)
+end
+
+--领取跨服沙城主特色时装
+function GetCrossCityrerAward(sysarg)
+	local nActorId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	local bCrossOwn = false
+
+	local pRanking = Ranking.getRanking("GuildCrossPos")
+	if pRanking then
+		local pItem = Ranking.getItemPtrFromId(pRanking,1)
+		if pItem then
+			if Ranking.getPoint(pItem) == nActorId or nActorId == tonumber(Ranking.getSub(pItem,8)) then
+				bCrossOwn = true
+			end
+		end
+	end
+	
+	local sVar = System.getStaticVar()
+	if sVar.GetCrosSbkOwnAward == nil then
+		sVar.GetCrosSbkOwnAward = 0
+	end
+
+	if bCrossOwn == true then		--是跨服城主
+		if sVar.GetCrosSbkOwnAward == 1 then	--已领取奖励
+			Actor.sendTipmsg(sysarg, Lang.Activity.ku0047, ttFlyTip)
+			return
+		end
+
+		local nHour,nMin,nSec = System.getTime(0,0,0)
+		
+		if nHour < 22 and System.getDayOfWeek() == 4 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ku0052, ttFlyTip)
+			return
+		end
+
+		if System.getDayOfWeek() ~= 5 and System.getDayOfWeek() ~= 4 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ku0052, ttFlyTip)
+			return
+		end
+		
+		local nSex = Actor.getIntProperty( sysarg, PROP_ACTOR_SEX )
+
+		if nSex == 0 then
+			if Awards.CheckBagGridCount(sysarg,CrossSbkConfig.AwardItemId) then
+				Awards.Give(sysarg,CrossSbkConfig.AwardItemId,187,Lang.Activity.ku0048)
+			end
+		else
+			if Awards.CheckBagGridCount(sysarg,CrossSbkConfig.WomanAwardItemId) then
+				Awards.Give(sysarg,CrossSbkConfig.WomanAwardItemId,187,Lang.Activity.ku0048)
+			end
+		end
+
+		sVar.GetCrosSbkOwnAward = 1
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0046, ttFlyTip)
+	end
+end
+
+--领取跨服沙行会奖励
+function OnGetCrossSbkAward(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local guildId = 0
+	local RankNameList = Ranking.getRanking("GuildCrossSbkOwn")
+
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+		if pItem then
+			guildId = Ranking.getId(pItem)
+		end
+	end
+	
+	if nGuildId > 0 and guildId == nGuildId then
+		if Actor.checkActorLevel(sysarg, CrossSbkConfig.minLevel, 0) ~= true then
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ku0050,CrossSbkConfig.minLevel), ttFlyTip)
+			return
+		end
+
+		local nHour,nMin,nSec = System.getTime(0,0,0)
+		
+		if nHour < 22 and System.getDayOfWeek() == 4 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ku0052, ttFlyTip)
+			return
+		end
+
+		if System.getDayOfWeek() ~= 5 and System.getDayOfWeek() ~= 4 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ku0052, ttFlyTip)
+			return
+		end
+
+		local sVar = Actor.getStaticVar(sysarg)
+		if sVar.getCrossSbkAwardTime == nil then
+			sVar.getCrossSbkAwardTime = 0
+		end
+		local nCurTime = System.getCurrMiniTime()
+
+		if sVar.getCrossSbkAwardTime > 0 and sVar.getCrossSbkAwardTime + 3*24*60*60 > nCurTime then --已领取奖励
+			Actor.sendTipmsg(sysarg, Lang.Activity.ku0051, ttFlyTip)
+			return
+		end
+				
+		local nIndex = table.getn(CrossSbkConfig.CrossAward)
+		local pRanking = Ranking.getRanking("GuildCrossPos")
+		if pRanking then
+			local nActorId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+			for i=1,5 do
+				local pItem = Ranking.getItemPtrFromId(pRanking,i)
+				if pItem and (Ranking.getPoint(pItem) == nActorId or tonumber(Ranking.getSub(pItem,8)) == nActorId) then
+					nIndex = i
+				end
+			end
+		end
+		
+		local nAwawrdConfig = CrossSbkConfig.CrossAward[nIndex]
+		if nAwawrdConfig then
+			if Awards.CheckBagGridCount(sysarg,nAwawrdConfig.nAwards) then
+				Awards.Give(sysarg,nAwawrdConfig.nAwards,187,Lang.Activity.ku0048)
+			end
+		end
+		sVar.getCrossSbkAwardTime = nCurTime
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.ku0049, ttFlyTip)
+	end
+
+end
+
+table.insert(MainFnTable,CrossServerAward_Main)

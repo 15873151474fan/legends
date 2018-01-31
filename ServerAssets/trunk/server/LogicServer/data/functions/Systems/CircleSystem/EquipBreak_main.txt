@@ -1,0 +1,42 @@
+﻿--NPC执行：转生老人（盟重土城）
+
+--#include "data\config\circle\EquipBreak.txt" once	--装备分解淬炼结晶配置
+
+
+--[[
+    函数名称：main
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function EquipBreak_Main(sysarg)
+	local config = EquipBreak
+	if (not config) then return "" end
+	local str = ""
+	if Actor.checkActorLevel(sysarg, config.reqLevel, 0) == true then
+		str = str.."\\<#BL"..Lang.ScriptTips.c000012.."/@OnEquipBreak>"  --<装备分解淬炼结晶>
+	end
+	
+	return str
+end
+
+--装备分解淬炼结晶
+function OnEquipBreak(sysarg)
+	local str = Lang.ScriptTips.c000013
+	str = str.."\\<#BL"..Lang.ScriptTips.c000014.."/@ReqEquipBreak>"  --<分解装备>
+	str = str.."\\<#BL"..Lang.ScriptTips.c000011.."/@main>"
+	return str
+end
+
+--分解装备
+function ReqEquipBreak(sysarg)
+	local config = EquipBreak
+	if (not config) then return "" end
+	if Actor.checkActorLevel(sysarg, config.reqLevel, 0) ~= true then
+		return false
+	end
+	local npack = DataPack.allocPacket(sysarg,8,20)  --申请一个数据包
+	if (npack == nil) then return end
+	DataPack.flush(npack)
+end
+
+table.insert(MainFnTable, EquipBreak_Main)

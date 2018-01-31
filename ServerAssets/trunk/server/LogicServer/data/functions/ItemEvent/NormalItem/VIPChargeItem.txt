@@ -1,0 +1,236 @@
+--VIP道具，使用后延长VIP有效时间
+
+--#include "data\language\LangCode.txt" once  --语言包
+	--#include "data\functions\ActorEvent\LogOutExpHandler.txt" once
+--#include "data\config\item\SkillBookItemData.txt" once
+
+--[[
+--VIP道具物品使用处理函数
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表
+--]]
+
+function SendVIPUserTip(sysarg, vipType)
+	vipType = vipType or 1
+	local tips = {
+		Lang.Misc.m000439,
+		Lang.Misc.m000440,
+		Lang.Misc.m000441,
+	}
+	
+	local tip = tips[vipType]
+	local info = string.format(tip, Actor.getName(sysarg))
+	System.broadcastTipmsg(info, ttScreenCenter + ttChatWindow)
+end
+
+-- @svar.temp_vip用于标记玩家的当前的VIP类型。为1表明是体验卡，否则是非体验卡
+function VIPChargeItemUseHandler(sysarg, itemIdx, itemPtr, conf)
+	-- if (conf == nil) then return end
+	-- if (conf.time == 0) then return end
+	-- if (conf.vipType > enVIPYellowDiamond or conf.vipType < enVIPRedDiamond) then
+	-- 	print("VIPChargeItemUseHandler error, invalid vip type")
+	-- 	return
+	-- end
+	
+	-- local svar = Actor.getStaticVar(sysarg)	
+	-- local isVip = Actor.isVip(sysarg)
+	-- if isVip then		
+	-- 	local VIPtype = Actor.getVipType(sysarg)
+	-- 	local addTime = false	-- 为true表明VIP时间叠加；false表明用新的VIP时间直接替换
+	-- 	local dest_vip_type = conf.vipType  -- 使用卡之后的VIP类型
+	-- 	local add_vip_time = conf.time * 86400
+	-- 	if (conf.temp == true) then
+	-- 		addTime = true
+	-- 		dest_vip_type = VIPtype
+	-- 	else
+	-- 		-- 当前已经是体验卡，并且使用其他卡（非体验卡），也是直接叠加时间
+	-- 		if (svar.temp_vip == 1) then				
+	-- 			add_vip_time = add_vip_time + Actor.getVIPLeftTimeByType(sysarg, VIPtype)
+	-- 			addTime = false				
+	-- 		else
+	-- 			if VIPtype < conf.vipType then		
+	-- 				-- 已经存在高级VIP，无法使用低级VIP道具	
+	-- 				Actor.sendTipmsg(sysarg,Lang.Misc.m000423,ttDialog)
+	-- 				return
+	-- 			elseif VIPtype == conf.vipType then
+	-- 				addTime = true				
+	-- 			end
+	-- 		end
+	-- 	end
+		
+	-- 	if (Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "vip charge", 71) ~= 1) then
+	-- 		return
+	-- 	end
+				
+	-- 	if (not addTime) then
+	-- 		Actor.InvalidVIP(sysarg, VIPtype)			
+	-- 	end
+	-- 	Actor.addVIPTimeByType(sysarg, dest_vip_type, add_vip_time)
+	-- 	local svar = Actor.getStaticVar(sysarg)
+	-- 	svar.VipFreeTelCnt = 0
+	-- 	LocalDT.SyncLeftFreeTelCount(sysarg)
+	-- 	if (conf.tip) then
+	-- 		SendVIPUserTip(sysarg, dest_vip_type+1)			
+	-- 	end
+		
+	-- 	if (svar.temp_vip ~= nil) then
+	-- 		svar.temp_vip = nil
+	-- 	end
+		
+	-- --[[	
+	-- 	-- 如果当前已经是vip，并且使用VIP体验卡，那么直接将当前VIP时间增加VIP体验卡的时间
+	-- 	if (conf.temp == true) then
+	-- 		if (Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "vip charge", 71) ~= 1) then
+	-- 			return
+	-- 		end
+	-- 		Actor.addVIPTimeByType(sysarg, conf.vipType, conf.time*86400)
+	-- 		local svar = Actor.getStaticVar(sysarg)
+	-- 		svar.VipFreeTelCnt = 0
+	-- 		LocalDT.SyncLeftFreeTelCount(sysarg)
+	-- 		if (conf.tip) then
+	-- 			SendVIPUserTip(sysarg, conf.vipType+1)			
+	-- 		end
+	-- 		return
+	-- 	end
+		
+	--   	--获取指定类型。如果是vip，则这里类型为0， 1， 2（分布对应周、月、半年卡）		
+	-- 	if VIPtype > conf.vipType then		
+	-- 		-- 已经存在高级VIP，无法使用低级VIP道具	
+	-- 		Actor.sendTipmsg(sysarg,Lang.Misc.m000423,ttDialog)
+	-- 		return
+	-- 	else
+	-- 		if (Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "vip charge", 71) ~= 1) then
+	-- 			return
+	-- 		end
+	-- 		-- 高等级的VIP卡会替换低级VIP卡
+	-- 		if (VIPtype < conf.vipType) then
+	-- 			Actor.InvalidVIP(sysarg, VIPtype)
+	-- 		end
+	-- 		Actor.addVIPTimeByType(sysarg, conf.vipType, conf.time*86400)
+	-- 		local svar = Actor.getStaticVar(sysarg)
+	-- 		svar.VipFreeTelCnt = 0
+	-- 		LocalDT.SyncLeftFreeTelCount(sysarg)
+	-- 		if (conf.tip) then
+	-- 			SendVIPUserTip(sysarg, conf.vipType+1)			
+	-- 		end
+	-- 	end
+	-- 	--]]
+	-- else
+	-- 	-- 删除VIP道具物品
+	-- 	if (Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "vip charge", 71) ~= 1) then				
+	-- 		return
+	-- 	end
+	-- 	Actor.addVIPTimeByType(sysarg, conf.vipType,conf.time*86400)		
+	-- 	LocalDT.SyncLeftFreeTelCount(sysarg)
+	-- 	--Actor.sendTipmsg(sysarg, Lang.Misc.m000429, ttScreenCenter)
+	-- 	if (conf.tip) then
+	-- 		SendVIPUserTip(sysarg, conf.vipType+1)		
+	-- 	end
+	-- 	-- 设置VIP体验卡卡标记
+	-- 	if (conf.temp == true) then
+	-- 		svar.temp_vip = 1			
+	-- 	else
+	-- 		svar.temp_vip = nil
+	-- 	end
+	-- end
+			
+end
+
+VIPNotices = {
+	Lang.Misc.m000439,
+	Lang.Misc.m000440,
+	Lang.Misc.m000441,
+}
+
+function CumulationSendTime( sysarg, vipType )
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- svar.VipFreeTelCnt = 0
+end
+
+function HaveExperienceVipDate( sysarg )
+	-- local sVar = Actor.getStaticVar(sysarg)
+	-- local nNowDt = System.getCurrMiniTime()
+	-- if sVar.VipExperienceDate and sVar.VipExperienceDate > nNowDt then
+	-- 	return true
+	-- end
+	-- return false
+end
+
+function SetExperienceVipDate( sysarg, addTime )
+	-- local sVar = Actor.getStaticVar(sysarg)
+	-- if addTime == nil then
+	-- 	sVar.VipExperienceDate = nil
+	-- else
+	-- 	local nNowDt = System.getCurrMiniTime()
+	-- 	sVar.VipExperienceDate = nNowDt + addTime
+	-- end	
+end
+
+function ChargeVipItem( sysarg, itemIdx, itemPtr, ItemConf )
+	--[[local vipType = Actor.getVipType( sysarg )
+	if vipType > 0 then
+		if vipType > ItemConf.vipType then
+			Actor.sendTipmsg(sysarg,Lang.Misc.m000423,ttDialog)
+			return
+		end
+	end]]
+	-- if Actor.removeItemByPtr(sysarg, itemPtr, 1, true, Lang.LogTips.l00110, 71) > 0 then
+	-- 	local addTimes = ItemConf.time * 86400
+	-- 	local isVip = Actor.isVip(sysarg)
+	-- 	local boExperience = HaveExperienceVipDate(sysarg)
+	-- 	Actor.addVIPTimeByType( sysarg, ItemConf.vipType, addTimes, boExperience, ItemConf.temp)
+	-- 	if ItemConf.temp then
+	-- 		SetExperienceVipDate(sysarg, addTimes + 60)
+	-- 	end
+		
+	-- 	if isVip then --and ItemConf.temp ~= true then
+	-- 		SetExperienceVipDate(sysarg, nil)
+	-- 	end
+	-- 	CumulationSendTime(sysarg, ItemConf.vipType)
+	-- 	if ItemConf.vipType == enVIPSupremacy then
+	-- 		local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	-- 		local myJob = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )
+	-- 		for k, v in ipairs(SkillBoolConfig) do
+	-- 			if v.vipActorLv and v.jop_id == myJob and myLevel >= v.vipActorLv then
+	-- 				local curLevel = Actor.getSkillLevel(sysarg, v.skill_id)
+	-- 				if curLevel == 0 then
+	-- 					Actor.startLearnSkill(sysarg, v.skill_id, v.vip_level)
+	-- 				elseif curLevel <= v.vip_level then
+	-- 					Actor.setSkillProperty(sysarg, v.skill_id, 1, v.vip_level)
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	end
+
+	-- 	if ItemConf.tip then
+	-- 		local tipId = VIPNotices[ItemConf.vipType]
+	-- 		System.broadcastTipmsg(string.format(tipId, Actor.getName(sysarg)), ttScreenCenter + ttChatWindow)
+	-- 	end
+
+	-- 	local sVar = Actor.getStaticVar(sysarg)
+	-- 	local vipAwardFlag = 0
+	-- 	if sVar.VipRewardDate and sVar.VipRewardDate == 1 then
+	-- 		vipAwardFlag = sVar.VipRewardDate
+	-- 	end
+	-- 	local netPack = DataPack.allocPacket(sysarg, 139, 61)
+	-- 	if netPack then
+	-- 		DataPack.writeByte(netPack, vipAwardFlag)
+	-- 		DataPack.flush(netPack)
+	-- 	end
+	-- end
+end
+
+-- @brief: 注册VIP道具物品使用Handler
+function VIPChargeItemInit(sysarg)
+	-- VIP功能物品相关的初始化
+	-- for i = 1, table.getn(VIPChargeItem) do
+	-- 	local conf = VIPChargeItem[i]
+	-- 	GlobalItemFn[conf.item_id] = { func = ChargeVipItem, params = conf, }
+	-- end
+	
+	-- VIP相关数据的初始化
+end
+
+table.insert(InitFnTable, VIPChargeItemInit)

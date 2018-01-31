@@ -1,0 +1,26 @@
+
+
+--#include "CampBattleCommon.txt"
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+function ExitCampBattle_Main( sysarg )
+	local dlgStr = Lang.Activity.a00004
+	dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.a00022.."/@messageBoxForExit>"
+	return dlgStr
+end
+
+function messageBoxForExit( sysarg )
+	local npcHandle = Actor.getNpc(sysarg)
+	Actor.messageBox(sysarg, npcHandle,0,Lang.Activity.a00023,Lang.Activity.a00024.."/ensureExitBattle",Lang.Activity.a00025.."/cancelExitBattle",NULL)
+
+end
+
+function ensureExitBattle( sysarg )
+	doExitCampBattle(sysarg)
+end
+
+function cancelExitBattle( sysarg )
+end
+
+
+table.insert(MainFnTable, ExitCampBattle_Main) 

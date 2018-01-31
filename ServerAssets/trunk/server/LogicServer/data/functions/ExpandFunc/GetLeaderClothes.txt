@@ -1,0 +1,76 @@
+﻿--lua script
+--领取盟主时装
+--[[
+日月城：张九烈
+无忌城：莫正羽
+逍遥城：凌云志
+--]]
+ 
+--剑宗=1,气宗=2,灵华=3,司命=4,易筋=5,洗髓=6,剑士=7,忍者=8 
+local getClothesTbl = 
+{
+	--男
+	{
+		{job = 2, item = 2021,},
+		{job = 4, item = 2023,},
+		{job = 7, item = 2019,},
+		{job = 8, item = 2017,},
+	},
+	--女
+	{        
+		{job = 2, item = 2022,},
+		{job = 4, item = 2024,},
+		{job = 7, item = 2020,},
+		{job = 8, item = 2018,},
+	},
+}
+
+function GetLeaderClothes_Main(sysarg) 
+  local str = ""
+	local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  if level < 20 then return "" end
+  str = str.."<#BL"..Lang.ScriptTips.x00135.."/@GetLeaderClothes>\\"  --领取盟主时装
+  return str
+end
+
+function GetLeaderClothes(sysarg)
+	local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)   
+	local job = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local camp = Actor.getCamp(sysarg)
+	local userName =Actor.getName(sysarg) 
+	local titleid = Actor.getCampTitle(sysarg)
+	if titleid ~= 1 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00136,ttDialog )
+		return false
+	end
+	local clothes = getClothesTbl[sex+1]
+	if not clothes then return false end
+	local hasCloth = false
+	for i=1, table.getn(clothes) do
+		local item = clothes[i].item
+		if Actor.getItemCount(sysarg, item, -1, -1, -1) > 0 or Actor.hasEquiment(sysarg, item) == true then
+			hasCloth = true
+			break
+		end
+	end
+	if hasCloth == true then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00137,ttDialog )
+		return false
+	end
+	if Item.getBagEmptyGridCount(sysarg) < 1 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00138,ttDialog )
+		return false
+	end
+	for i=1, table.getn(clothes) do
+		local item = clothes[i].item
+		if clothes[i].job == job then
+			Actor.addItem(sysarg, item, 0, 0, 1, 1, 0, "GetLeaderClothes", 1) 
+			local tip = string.format(Lang.ScriptTips.x00139, Camp.getCampName(camp),userName,Item.getItemName(item))
+			System.broadcastTipmsg(tip, ttScreenCenter)
+			break
+		end
+	end
+	Actor.closeNPCDialog(sysarg)
+end
+
+table.insert(MainFnTable,GetLeaderClothes_Main)

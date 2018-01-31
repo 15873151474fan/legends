@@ -1,0 +1,79 @@
+﻿{
+	id = 691,
+	name = Lang.Quest.q01377,
+	parentid = 690,
+	type = 0,
+	level = 0,
+	cangiveup = false,
+	content = Lang.Quest.q01378,
+
+	prom =
+  {
+    type = 0,
+    scene = Lang.SceneName.s00047,   
+    npc = Lang.EntityName.n00129,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00047,   
+	npc = Lang.EntityName.n00129,
+  },
+
+  target =
+  { 
+       { type = 1, id = 737, count = 18,location={ sceneid=35,entityName=Lang.EntityName.m00155} }, --【雪豹肉】，雪豹掉落
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 2, id = 0, count = 595504,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 5, id = 0, count = 95359,  bind = true, job = 0, sex = -1, group=0 },
+    { type = 0, id = 1186, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 1, sex = 0},
+    { type = 0, id = 1187, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 1, sex = 1},
+    { type = 0, id = 1229, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 2, sex = 0},
+    { type = 0, id = 1230, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 2, sex = 1},
+    { type = 0, id = 1251, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 3, sex = -1},
+    { type = 0, id = 1240, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 4, sex = 0},
+    { type = 0, id = 1241, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 4, sex = 1},
+    { type = 0, id = 1197, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 5, sex = -1},
+    { type = 0, id = 1261, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 6, sex = -1},
+    { type = 0, id = 1218, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 7, sex = 0},
+    { type = 0, id = 1219, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 7, sex = 1},
+    { type = 0, id = 1207, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 8, sex = 0},
+    { type = 0, id = 1208, count = 1, group = 0, strong= 0, quality= 1,  bind = true, job = 8, sex = 1},
+ },
+  --任务条件表
+  conds =
+  {
+
+        { type = 0, id = 0,count = 40 },  --40级可接
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+  PromMsTalks = {
+       Lang.Talk.t02378,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t02380,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t02381,
+  }, 
+ --[[ 
+ --用于完成任务后的从背包里删除任务物品
+  CompCallBack = function(sysarg,mission)
+		if Actor.isFinishQuest(sysarg,mission) then
+    	Actor.removeItem(sysarg,737,18)
+     	----print("removed")
+    end
+  end, 
+ --]] 
+  }, 
+                            

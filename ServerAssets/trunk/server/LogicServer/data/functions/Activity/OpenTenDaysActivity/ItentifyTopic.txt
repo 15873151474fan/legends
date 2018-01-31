@@ -1,0 +1,41 @@
+--lua script
+
+--#include "data\config\activityconfig\OpenServerTenDays\OpenServerConfig.txt" once
+
+--更新鉴定宗师 主题活动排行
+function UpdateAuthenRank(sysarg,nCount,nIndex)
+	local nDays = System.getDaysSinceOpenServer()
+	local nScroe = 0
+	if nIndex == 1 then		--鉴定
+		nScroe = nCount * OpenServerConfig.activitys[9].AuthenScroe
+	elseif nIndex == 3 then		--清洗
+		nScroe = nCount * OpenServerConfig.activitys[9].SuoScroe
+	end
+	local curScroe = Actor.getIdentTimes(sysarg)
+	Actor.setIdentTimes(sysarg,curScroe+nScroe)
+	--Actor.setUIntProperty(sysarg,PROP_ACTOR_IDENTIFY,curScroe+nScroe)
+	local pack = DataPack.allocPacket(sysarg, 41, 13)
+	DataPack.writeInt(pack, curScroe+nScroe)
+	DataPack.flush(pack)
+
+	if System.getActivityFinishDays(9) <= 0 then
+		local ranking = Ranking.getRanking(OpenServerConfig.activitys[9].rankName)
+
+		if ranking then
+			local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+			local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+
+			if pItem then
+				Ranking.updateItem(ranking,nActorId,nScroe)
+			else
+				pItem = Ranking.addItem(ranking,nActorId,nScroe)
+
+				if pItem then
+					local strName = Actor.getName(sysarg)
+					Ranking.setSub(pItem,0,strName)
+				end
+			end
+		end
+	end
+end
+

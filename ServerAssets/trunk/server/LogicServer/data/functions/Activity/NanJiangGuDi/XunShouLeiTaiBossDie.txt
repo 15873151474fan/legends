@@ -1,0 +1,19 @@
+--#include "data\functions\Activity\NanJiangGuDi\XunShouLeiTai.txt" once  
+--#include "data\config\activityconfig\NanJiangGuDi\XunShouLeiTaiConfig.txt" once
+
+
+MonDieDispatcher.XunShouLeiTaiBossDie = function (monster,sysarg,monId)
+	OnXunShouLeiTaiBossDie(monster, sysarg, monId)
+end
+
+MonAttackedDispatcher.XunShouAttacked = function (monster, sysarg, monId, damage)
+	OnXunShouAttacked(monster, sysarg, monId, damage)
+end
+
+
+--×¢²ábossËÀÍö¡¢±»¹¥»÷
+for idx, bossId in ipairs(XunShouLeiTaiConfig.bossId) do
+	--MonDieDispatcher.register(bossId, MonDieDispatcher.XunShouLeiTaiBossDie)
+	--MonAttackedDispatcher.register(bossId, MonAttackedDispatcher.XunShouAttacked)
+end
+

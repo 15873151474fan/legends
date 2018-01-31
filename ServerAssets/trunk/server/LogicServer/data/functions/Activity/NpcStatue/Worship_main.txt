@@ -1,0 +1,264 @@
+﻿--膜拜
+
+
+--#include "Common.txt" once --通用
+--#include "data\functions\Activity\Common\Consumes.txt" once --活动通用 消耗
+--#include "data\functions\Activity\Common\Awards.txt" once --活动通用 奖励
+
+--#include "data\functions\Activity\NpcStatue\RankInit.txt" once --排行榜初始化
+--#include "data\functions\Activity\NpcStatue\AutoRun.txt" once	--自动执行
+--#include "WorshipCommon.txt" once
+
+local tipsTbl = {Lang.Activity.a00102, Lang.Activity.a00102, Lang.Activity.a00103, Lang.Activity.a00103}
+local typeTbl = {1, 1, 2, 2}
+local rsubTbl = {1, 2, 1, 2}
+
+--[[
+    函数名称：main
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function Worship_Main(sysarg)	
+	local config = WorshipConfig
+	if (not config) then return "" end
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.a00091.."/@SbkWorship>"  --<膜拜>
+	str = str.."\\<#BL"..Lang.Activity.a00092.."/@OpenBuff>"  --<开启多倍经验>
+	str = str.."\\<#BL"..Lang.Activity.a00093.."/@CastellanAward>"  --<城主奖励>
+	str = str.."\\<#BL"..Lang.Activity.a00094.."/@RewardWorship>"  --<悬赏膜拜>
+	str = str.."\\<#BL"..Lang.Activity.a00127.."/@AboutWorship>"  --<说明>
+	return str
+end
+
+function SetCastellan(sysarg)
+	local guilId = Actor.getGuildId(sysarg)
+	System.setSbkGuildId(guilId)
+	--print(System.getSbkGuildId())
+end
+
+--城主膜拜
+function SbkWorship(sysarg)
+	local sval = System.getStaticVar()
+	
+	if sval.worship == nil then
+		sval.worship = {}
+		 for i = 1, 7 do
+			sval.worship[i] = 0
+		end
+	end
+
+	local str1 = Lang.Activity.s00003
+	if sval.worship[1] >= sval.worship[2] then
+		str1 = Lang.Activity.s00003
+	else
+		str1 = Lang.Activity.s00004
+	end
+
+	local str = string.format(Lang.Activity.s00001,str1)
+	local sname = ""
+	local guildName = ""
+	local mobaiTimes = sval.worship[1]
+	local bishiTimes = sval.worship[2]
+
+	local nGuildId = System.getSbkGuildId()
+	if nGuildId > 0 then
+		local nLeaderId = Guild.getGuildLeaderId(nGuildId)
+		if nLeaderId > 0 then
+			sname = Guild.getGuildLeaderName(nGuildId)
+		end
+
+		if sname == nil then
+			sname = ""
+		end
+		guildName = System.getGuildName(nGuildId)
+		if guildName == nil then
+			guildName = ""
+		end
+	end
+
+	local str2 = string.format(Lang.Activity.s00002,sname,guildName,mobaiTimes,bishiTimes)
+	
+	str = str..str2
+	str = str.."\\<#BL"..Lang.Activity.s00005.."/@OnSbkWorship>"
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+
+	return str
+end
+
+function OpenBuff(sysarg)
+	local str = Lang.Activity.a00105
+	str = str.."\\<#BL"..Lang.Activity.a00106.."/@OnOpenBuff>"  --<开启>
+	return str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+end
+
+function OnOpenBuff(sysarg)
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local ownerId = Guild.getSbkCityOwner()
+	
+	if userId ~= ownerId then
+		Actor.sendTipmsg(sysarg,Lang.Activity.a00107, ttFlyTip)
+		return
+	end
+	local guildId = Actor.getGuildId(sysarg)
+	if guildId <= 0 then return end
+	
+	--获取膜拜数据
+	local data = GetWorshipData()
+	if data[5] ~= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00108, ttFlyTip)
+		return false
+	end	
+	local config = WorshipConfig.multiExp
+	local times = data[1] - data[2]
+	
+	local index = 0
+	for k, v in ipairs(config) do
+		if times >= v.times[1] and times <= v.times[2] then
+			index = k
+		end
+	end
+	
+	if index == 0 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00109, ttFlyTip)
+		return false
+	end
+	
+	local buff = config[index].buff
+	
+	local sval = System.getStaticVar()
+	sval.worship[5] = 1
+	
+	--加BUFF
+	System.onSbkMasterOpenBuff(guildId, buff.buffType, buff.groupId, buff.value, buff.times, buff.interval, buff.buffName, buff.timeOverlay)
+	
+	local name = Actor.getName(sysarg)
+	System.broadcastTipmsg(string.format(Lang.Activity.a00110, name, buff.value), ttScreenCenter+ttChatWindow)
+	
+	return Lang.Activity.a00111.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+end
+
+function CastellanAward(sysarg)
+	--获取膜拜数据
+	local data = GetWorshipData()
+	
+	local str = string.format(Lang.Activity.a00112, data[3], data[4])
+	
+	
+	str = str.."\\<#BL"..Lang.Activity.a00113.."/@GetCastellanAward>"  --<领取>
+	
+	
+	return str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+end
+
+function GetCastellanAward(sysarg)
+	local config = WorshipConfig.castellanAward
+	if not config then return end
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local lastOwner = Guild.getLastSbkOwnerId()
+	if userId ~= lastOwner then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00128, ttFlyTip)
+		return 
+	end
+	
+	--获取膜拜数据
+	local data = GetWorshipData()
+	
+	if data[6] ~= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00114, ttFlyTip)
+		return false
+	end	
+	
+	local times = data[3] - data[4]
+	
+	if times < config.limitTimes then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00115, ttFlyTip)
+		return
+	end
+	
+	local param = (times/100 - 1)
+	if param > config.maxLimit then
+		param = config.maxLimit
+	end
+	
+	local awards = {}
+	for k, v in ipairs(config.awards) do
+		local award = {type = v.type, id = v.id, count = v.count, quality = v.quality}
+		if v.type == 20 then
+			local exp = Actor.getActivityExp(sysarg, award.id, award.count, award.quality)
+			local giveExp = param * exp
+			award = {type = 2, id = 0, count = giveExp}
+		end
+		table.insert(awards, award)
+	end
+	
+	-- local award = config.awards[1]
+	-- local exp = 0
+	-- if award.type == 20 then
+		-- exp = Actor.getActivityExp(sysarg, award.id, award.count, award.quality)
+	-- end
+	
+	-- local giveExp = param * exp
+	-- local awards = {{type = 2, id = 0, count = giveExp}}
+	
+	if Awards.CheckBagGridCount(sysarg, awards) ~= true then return end
+	
+	local sval = System.getStaticVar()
+	sval.worship[6] = 1
+	
+	Awards.Give(sysarg, awards, 205, Lang.LogTips.l00078)
+    System.broadcastTipmsg(string.format(Lang.Activity.s00022,Actor.getName(sysarg)),2+128)
+	return Lang.Activity.a00116.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+end
+
+function RewardWorship(sysarg)
+	local config = WorshipConfig.rewardWorship
+	if not config then return end
+	--获取膜拜数据
+	local data = GetWorshipData()
+	local str = Lang.Activity.a00117
+			
+	str = str..string.format(Lang.Activity.a00118, data[7])
+	
+	for k, v in ipairs(config.consumes) do
+		local desc = Item.getAwardDesc(v.type, v.id)
+		str = str.."\\<#BL"..string.format(Lang.Activity.a00119, v.count, desc).."/@OnRewardWorship,"..k..">"  --<投入X元宝>
+	end
+	
+	return str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+end
+
+function OnRewardWorship(sysarg, idx)
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local owner = Guild.getSbkCityOwner()
+	if userId ~= owner then
+		Actor.sendTipmsg(sysarg, Lang.Activity.a00120, ttFlyTip)
+		return
+	end
+	local idx = tonumber(idx)
+	local config = WorshipConfig.rewardWorship
+	if not config then return end
+	
+	local consume = config.consumes[idx]
+	if not consume then return end
+	local consumes = {consume}
+	
+	--消耗
+	if Consumes.Check(sysarg, consumes) ~= true then return end
+	if Consumes.Remove(sysarg, consumes, 702, Lang.LogTips.l00079) ~= true then return end
+	
+	local chgCount = consume.count * config.chgRate
+	
+	local sval = System.getStaticVar()
+	sval.worship[7] = sval.worship[7] + chgCount
+	
+	local name = Actor.getName(sysarg)
+	System.broadcastTipmsg(string.format(Lang.Activity.a00121,name,consume.count), ttScreenCenter+ttChatWindow)
+	
+	return Lang.Activity.a00122.."\\<#BL"..Lang.Activity.a00101.."/@RewardWorship>"  --<返回>
+end
+
+function AboutWorship(sysarg)
+	return Lang.Activity.a00090.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+end
+
+table.insert(MainFnTable, Worship_Main)

@@ -1,0 +1,205 @@
+﻿--lua script
+--转生装备锻造
+
+
+--玩家开始锻造, args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function OnCircleForge(sysarg, args)
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]				--源操作装备指针
+	local opType = args[ptrCount+2]		--操作类型
+	local isRepCost = args[ptrCount+3]	--是否元宝替代
+	-- local nGrade = args[ptrCount+3]		--选择合成档次
+	
+	if not srcPtr then return false end
+	
+	local consumeConfig = enhanceConfigMap[opType]
+	
+	if not consumeConfig then return false end
+	
+	local nItemId = Item.getItemProperty(sysarg, srcPtr, Item.ipItemID, 0)
+	local nQuality = Item.getItemProperty(sysarg, srcPtr, Item.ipItemQuality, 0)
+	local nStrong = Item.getItemProperty(sysarg, srcPtr, Item.ipItemStrong, 0)
+	local nUseLevel = Item.getItemProperty(sysarg, srcPtr, Item.ipItemActorLevel, 0)
+	local bNotConsume = Item.getItemProperty(sysarg, srcPtr, Item.ipItemNotConsumeForCircleForge, 0)
+	--print("bNotConsume:"..bNotConsume)
+	
+	local nChgQuality = nQuality + 1
+	
+	local nCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	local nLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	
+	local checkCount = 2
+	local guid = Item.getItemGuid(srcPtr)
+	local equipPtr, itemPos, heroId = Item.getEquipItemPtr(sysarg, guid, 0, 0, 0)
+	if equipPtr ~= srcPtr or itemPos == 0 then return end
+	
+	if equipPtr ~= nil and itemPos > 1 then	--如果装备在身上
+		checkCount = 1
+		if bNotConsume == 1 then
+			checkCount = 0
+		end
+		if itemPos == 2 then
+			if Actor.checkActorLevel(sysarg, nUseLevel, nChgQuality) ~= true then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf074, nChgQuality, nUseLevel, nChgQuality), ttFlyTip)
+				return false
+			end
+		else
+			if Hero.checkHeroLevel(sysarg, heroId, nUseLevel, nChgQuality) ~= true then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf074, nChgQuality, nUseLevel, nChgQuality), ttFlyTip)
+				return false
+			end
+		end
+	else
+		if bNotConsume == 1 then
+			checkCount = 1
+		end
+	end
+	
+	--local configs = consumeConfig[nChgQuality]
+	local configs = consumeConfig
+	
+	local circleConfig = nil
+	if IsZhanShenEquip(nItemId) then
+		circleConfig = configs.zhanShenEquip
+	else
+		circleConfig = configs.baseEquip
+	end
+	
+	local rate = circleConfig.rates[nChgQuality]
+	if not rate then return end
+	
+	if not circleConfig then return false end
+	
+	local config = GetCircleForgeConfig(sysarg, srcPtr, circleConfig)
+	
+	if (config == nil) then
+		System.trace(string.format("GetCircleForgeConsumes error can't find config, nQuality=%d, ItemId=%d", nChgQuality,nItemId))
+		return false
+	end
+	
+	local nItemCount = Actor.getItemCount(sysarg, nItemId, nQuality, -1, -1)
+	--print("checkCount:"..checkCount)
+	if nItemCount < checkCount then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf073, ttFlyTip)
+		return false
+	end
+	
+	--重构消耗
+	local consumes = {}
+	for k, v in ipairs(config.consumes) do
+		local consume = {type = v.type, id = v.id, count = math.floor(v.count*rate), yb = v.yb}
+		table.insert(consumes, consume)
+	end
+	
+	--local consumes = config.consumes
+	--local dyConsume = {type = 0, id = nItemId, count = 1, quality = nQuality}
+	
+	--table.insert(consumes, dyConsume)
+	
+	local result = SuccessCheck(sysarg, opType, consumes, isRepCost, 0)
+	
+	if (result ~= successCheckResult.ok) then return false end
+	
+	local itemName = Item.getItemName(nItemId)
+	local logstr = string.format(Lang.LogTips.l00073, itemName)
+	
+	--删除副装备
+	if bNotConsume == 0 and Item.removeOtherItem(sysarg, srcPtr, 1, logstr, 101) < 1 then
+		System.trace("remove other item error! id = "..nItemId)
+		return false
+	end
+	
+	local result, isBind = EnhanceConsumes(sysarg, opType, consumes, isRepCost, 0, 0, logstr)
+	if (result ~= successCheckResult.ok) then return false end
+	
+	--设置品质
+	Item.setItemProperty(sysarg, srcPtr, Item.ipItemQuality, nChgQuality)
+	if isBind == 1 then
+		--Item.setItemProperty(sysarg, srcPtr, Item.ipItemBind, 1)
+	end
+	if Item.getItemProperty(sysarg, srcPtr, Item.ipItemBind, 0) ~= 0 then
+		Item.setItemProperty(sysarg, srcPtr, Item.ipItemBind, 0)
+	end
+	
+	--返回客户端处理结果
+	Item.sendItemProcessResult(sysarg, srcPtr, opType, false)
+	return true
+end
+
+--获取锻造的消耗,args = {物品指针数量,[指针1],[指针2],..物品处理类型,[参数1]，[参数2],...}
+function GetCircleForgeConsumes(sysarg, args)
+	local ptrCount = args[1]			--指针数量
+	local srcPtr = args[2]				--源操作装备指针
+	local opType = args[ptrCount+2]		--操作类型
+	-- local nGrade = args[ptrCount+3]		--选择合成档次
+	if not srcPtr then return false end
+	
+	local consumeConfig = enhanceConfigMap[opType]
+	
+	if not consumeConfig then return false end
+	
+	local nQuality = Item.getItemProperty(sysarg, srcPtr, Item.ipItemQuality, 0)
+	local nItemId = Item.getItemProperty(sysarg, srcPtr, Item.ipItemID, 0)
+	local nChgQuality = nQuality + 1
+	
+	--local configs = consumeConfig[nChgQuality]
+	local configs = consumeConfig
+	
+	if not configs then return false end
+	
+	local circleConfig = nil
+	if IsZhanShenEquip(nItemId) then
+		circleConfig = configs.zhanShenEquip
+	else
+		circleConfig = configs.baseEquip
+	end
+	
+	if not circleConfig then return false end
+	
+	local rate = circleConfig.rates[nChgQuality]
+	if not rate then return end
+	local config = GetCircleForgeConfig(sysarg, srcPtr, circleConfig)
+	
+	if (config == nil) then
+		System.trace("GetCircleForgeConsumes error can't find config, nQuality="..nChgQuality)
+		return false
+	end
+	
+	--重构消耗
+	local consumes = {}
+	for k, v in ipairs(config.consumes) do
+		local consume = {type = v.type, id = v.id, count = math.floor(v.count*rate), yb = v.yb}
+		table.insert(consumes, consume)
+	end
+	
+	SendConsumesToClient(sysarg, opType, consumes)
+end
+
+--获取每转锻造配置
+function GetCircleForgeConfig(sysarg, srcPtr, configs)
+	local nType = Item.getItemProperty(sysarg, srcPtr, Item.ipItemType, 0)
+	local nUseLevel = Item.getItemProperty(sysarg, srcPtr, Item.ipItemActorLevel, 0)
+	for k, v in pairs(configs.base) do
+		if nUseLevel >= v.level[1] and nUseLevel <= v.level[2] then
+			for m, n in pairs(v.eqtype) do
+				if n == nType then
+					return v
+				end
+			end
+		end
+	end
+	return nil
+end
+
+--判断是否为战神装
+function IsZhanShenEquip(itemId)
+	local config = ZhanShenEquipId
+	if not config then return false end
+	for k, v in ipairs(config) do
+		if itemId == v then
+			return true
+		end
+	end
+	
+	return false
+end

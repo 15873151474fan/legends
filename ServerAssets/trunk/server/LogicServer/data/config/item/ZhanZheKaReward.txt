@@ -1,0 +1,1540 @@
+﻿--[[File:ZhanZheKaReward.txt]]
+--[[
+配置内容说明：
+	[1]		表示增值卡的类型
+	value		表示 此类型的卡每个玩家能用多少次，-1表示无限次 
+	rewardtype	奖励类型 1 物品 2 金钱 ... 其余可自定义
+	type		奖励内容的类型  目前只用作金钱类型
+	amount		奖励数量 物品数量  或者  金额
+	itemid		奖励的物品ID数量  
+
+注意事项:
+最好不奖励太多的物品，因为多了可能会导致玩家背包满了领不到奖励的概率大大提高
+
+文档地址：
+	svn://192.168.0.160/idgp/Dragon/X-新传奇项目系统文档/Z.增值卡/增值卡类型及相关奖励.docx
+
+具体内容：
+	1.媒体礼包1
+	--道具ID1203
+	2.媒体礼包2
+	--道具ID1204
+	3.媒体礼包3
+	--道具ID1205
+	4.媒体礼包4
+	--道具ID1206 
+	
+	
+	
+	5.媒体礼包(金)
+	--100礼券×1\\生命药水(中)×1\\中级怒气丹×2\\苹果×3\\超级回城卷×1\\超级随机传送卷×1\\飞天鞋×5\\战神油×1
+	6.媒体礼包(木)
+	--100礼券×1\\魔法药水(中)×1\\中级怒气丹×2\\苹果×3\\超级回城卷×1\\超级随机传送卷×1\\飞天鞋×5\\战神油×1
+	7.媒体礼包(水)
+	--100礼券×1\\攻击药水(中)×1\\中级怒气丹×2\\苹果×3\\超级回城卷×1\\超级随机传送卷×1\\飞天鞋×5\\战神油×1
+	8.媒体礼包(火)
+	--100礼券×1\\防御药水(中)×1\\中级怒气丹×2\\苹果×3\\超级回城卷×1\\超级随机传送卷×1\\飞天鞋×5\\战神油×1
+	9.媒体礼包(土)
+	--100礼券×1\\2倍经验神符×1\\中级怒气丹×2\\苹果×3\\超级回城卷×1\\超级随机传送卷×1\\飞天鞋×5\\战神油×1
+	10.尊贵特权礼包
+	--一日VIP卡\\百年雪莲×1\\续命丹×1\\副本通行证×2\\懒人令牌×2\\斑斓石×3\\中级怒气丹×4\\香皂×5
+	11.至尊特权礼包
+	--5000荣誉\\百年人参×1\\3倍经验神符(1小时)×1\\背包扩展符×1\\5倍离线经验丹×2\\女儿红×4\\丘比特之箭×5\\百花争艳图×5
+	12.360黄金特权礼包
+	--3000荣誉\\2倍经验神符×1\\续命丹×1\\战神油×1\\背包扩展符×1\\斑斓石×3\\丘比特之箭×4\\飞天鞋×5
+	13.360钻石特权礼包
+	--一日VIP卡\\百年人参×1\\百年雪莲×1\\5倍离线经验丹×2\\苹果×3\\中级怒气丹×3\\女儿红×4\\百花争艳图×5
+	14.37W生日礼包
+	--生日之星头衔\\一日VIP卡\\人参王×1\\雪莲王×1\\苹果×2\\女儿红×6\\百花争艳图×10\\生日快乐×10
+	15.37W超级VIP包
+	--100礼券×1\\4倍经验神符×1\\人参王×1\\雪莲王×1\\5倍离线经验丹×2\\苹果×3\\立即完成符×3\\高级怒气丹×10
+	16.37W手机验证
+	--中级怒气丹×5\\百花争艳图×4\\苹果×3\\立即完成符×2\\战神油×1\\2倍经验神符×1
+	17.360.200积分
+	--5倍经验神符×1\\懒人令牌×1\\立即完成符×2\\高级怒气丹×2\\百花争艳图×5
+	18.360.800积分
+	--一级灵珠×5\\祝福油×5\\紫水晶×18\\鉴定图鉴×20
+	19.360.1500积分
+	--灵魂水晶×2\\鉴定图鉴×20\\快马鞭×5\\飞天神符×10\\遁地神符×10\\英雄经验丹(大)×5\\5倍经验神符×1
+	20.50RMB包
+	--高级怒气丹×10\\百花争艳图×10\\立即完成符×5\\副本通行证×5\\懒人令牌×5\\苹果×5\\快马鞭×5\\5倍离线经验丹×1\\5倍经验神符×1
+	21.末日礼包
+	--高级怒气丹×5\\5倍经验神符×1\\强效英雄经验丹×2\\飞天神符×5\\遁地神符×5\\苹果×5
+	22.圣诞礼包
+	--冬暮麋鹿碎片×1\\背包扩展符×2\\苹果×5\\高级怒气丹×2\\神秘彩蛋×5\\英雄经验丹(大)×5\\6倍经验神符×1
+	23.元旦礼包
+	--英雄经验丹(大)×10\\百花争艳图×10\\苹果×5\\一级灵珠×5\\快马鞭×5\\神秘彩蛋×5\\8倍经验神符(8小时)×1
+	24.5000RMB返利包
+	--金耀火凤召唤石碎片×1\\圣魔麒麟灵魄3天.×1\\10倍经验神符(8小时)×1\\英雄经验丹(大)×10\\5倍离线经验丹×5\\99朵红玫瑰×2\\100礼券×10\\苹果×20
+	25.老战友召唤
+	--5倍经验神符(8小时)×1\\人参王×4\\雪莲王×4\\苹果×5\\战神油×10\\5倍离线经验丹×18
+	26.百服红玫瑰
+	--红玫瑰×5
+	27.百服999礼券
+	--999礼券
+	28.百服99礼券
+	--99礼券
+	29.百服媒体礼包
+	--100礼券×1\\4倍经验神符×1\\人参王×1\\雪莲王×1\\苹果×5\\高级怒气丹×10
+	30.影魅之翼(4档)
+	31.55级套装武器礼包
+	32.55级套装衣服礼包
+	33.60级套装武器礼包
+	34.60级套装衣服礼包
+	35.至尊特权礼包
+	--5000荣誉\\百年人参×1\\3倍经验神符(1小时)×1\\背包扩展符×1\\5倍离线经验丹×2\\女儿红×4\\丘比特之箭×5\\百花争艳图×5
+	36.10级完美强化符
+	37.5级生命魂石
+	38.快马鞭×10
+	39.百服9999礼券
+	--9999礼券
+	40.《游戏自造工厂》参与奖
+	--快马鞭×10，苹果×3
+	41.二百服媒体礼包
+	--99朵蓝玫瑰×1\\4倍经验神符×1\\人参王×1\\雪莲王×1\\苹果×5\\高级怒气丹×10
+	42.49U老友回归包
+	--99朵红玫瑰×1\\10倍经验神符(8小时)×1\\一亿经验灵符×3\\四级灵珠×5\\灵魂水晶×10\\苹果×10\\黄金礼票×10
+	43.9377感恩回馈
+	--苹果×2\\红玫瑰×1\\人参王×1\\雪莲王×1\\5倍离线经验丹×1\\英雄经验丹(大)×2
+	44.37W白银礼包
+	--100礼券×2\\4倍经验神符(8小时)×1\\苹果×3\\千年玄参×1\\千年冰莲×1\\高级怒气丹×10
+	45.37W纯金礼包
+	--100礼券×3\\5倍经验神符(8小时)×1\\苹果×5\\千年玄参×3\\千年冰莲×3\\快马鞭×12
+	46.37W翡翠礼包
+	--100礼券×4\\6倍经验神符(8小时)×1\\苹果×9\\万年人参×3\\万年雪莲×3\\灵魂水晶×10
+	47.37W水晶礼包
+	--100礼券×7\\8倍经验神符(8小时)×1\\苹果×15\\人参王×5\\雪莲王×5\\三级灵珠×5
+	48.37W钻石礼包
+	--100礼券×10\\10倍经验神符(8小时)×1\\苹果×20\\人参王×10\\雪莲王×10\\四级灵珠×5
+	49.91W媒体包
+	--100礼券×1\\4倍经验神符×1\\苹果×5\\懒人令牌×5\\快马鞭×5\\飞天鞋×5\\生命药水(大)×1\\魔法药水(大)×1
+	50.玩家回归包
+	--6倍经验神符(8小时)×1\\一亿经验灵符×1\\人参王×3\\雪莲王×3\\苹果×5\\黄金礼票×3
+	51.老友回归包
+	--9朵红玫瑰×9\\8倍经验神符(8小时)×1\\一亿经验灵符×3\\人参王×3\\雪莲王×3\\苹果×5\\黄金礼票×3
+	52.VIP回归包
+	--99朵红玫瑰×1\\10倍经验神符(8小时)×1\\一亿经验灵符×5\\人参王×5\\雪莲王×5\\四级灵珠×5\\苹果×20\\黄金礼票×10
+	53.快玩2W包
+	54.快玩5W包
+	55.快玩10W包
+	56.五级灵珠
+	57.四级灵珠
+	58.微信卡
+	--10倍经验神符×2\\黄金礼票×3\\攻击药水(大)×5\\人参王×5\\雪莲王×5\\懒人令牌×10\\5倍离线经验丹×10\\高级怒气丹×20
+	59.60级套装头盔
+	60.60级套装衣服
+	61.幸运骰子
+	62.10级物防魂石
+	63.10级魔防魂石
+	64.战神勋章
+	65.战神项链
+	66.41号囧囧有神包
+	67.老K单笔200RMB
+	--8倍经验神符×1\\9朵红玫瑰×1\\万年雪莲×1\\万年人参×1\\高级怒气丹×5\\坐骑代金卡×1\\魂石代金卡×1
+	68.老K单笔1999RMB
+	--99紫水晶包×1\\鉴定锁×10\\灵魂水晶×5\\8倍经验神符×1\\万年人参×1\\万年雪莲×1\\灵珠代金卡×2\\坐骑代金卡×2\\魂石代金卡×2
+	69.老K单笔4999RMB
+	--龙鳞圣骑灵魄【10天】×1\\战士5级魂石套包×1\\法师5级魂石套包×1\\道士5级魂石套包×1\\10级完美强化符×1\\鉴定锁×10\\灵魂水晶×10\\99朵蓝玫瑰×1\\万年人参×3\\万年雪莲×3\\10倍经验神符×1
+	70.老K单笔9999RMB
+	--金耀火凤灵魄【10天】×1\\九重叠浪板(1阶)×1\\战士5级魂石套包×1\\法师5级魂石套包×1\\道士5级魂石套包×1\\刺杀秘剑(4级)×1\\穿透闪电(4级)×1\\符咒术(4级)×1\\宫廷男礼服×1\\宫廷女礼服×1\\10级完美强化符×1\\神秘彩蛋×10\\999朵蓝玫瑰×1\\万年人参×6\\万年雪莲×6\\10倍经验神符×2
+
+--]]
+
+ZhanZheKaReward = 
+{ 
+  --count	奖励数量 物品数量  
+  --serverId = {700,701},		--不配置表示都可以使用
+  --itemid 物品的id; count 物品的数量; quality 品质; strong 强化; bind 是否绑定 
+	[1] = 
+	{ 
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1203, quality=0, strong=0, bind=1 },
+	},
+	[2] = 
+	{ 
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1204, quality=0, strong=0, bind=1 },
+	},
+	[3] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1205, quality=0, strong=0, bind=1 },
+	},
+	[4] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1206, quality=0, strong=0, bind=1 },
+	},
+	[5] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 422, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 372, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 703, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 391, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 394, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 386, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 383, quality=0, strong=0, bind=1 },
+	},
+	[6] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 422, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 375, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 703, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 391, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 394, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 386, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 383, quality=0, strong=0, bind=1 },
+	},
+	[7] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 422, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 378, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 703, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 391, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 394, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 386, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 383, quality=0, strong=0, bind=1 },
+	},
+	[8] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 422, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 381, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 703, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 391, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 394, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 386, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 383, quality=0, strong=0, bind=1 },
+	},
+	[9] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 422, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 330, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 703, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 391, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 394, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 386, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 383, quality=0, strong=0, bind=1 },
+	},
+	[10] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1038, quality=0, strong=0, bind=1 },
+	},
+	[11] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1039, quality=0, strong=0, bind=1 },
+	},
+	[12] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1040, quality=0, strong=0, bind=1 },
+	},
+	[13] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1041, quality=0, strong=0, bind=1 },
+	},
+	[14] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1173, quality=0, strong=0, bind=1 },
+	},
+	[15] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1174, quality=0, strong=0, bind=1 },
+	},
+	[16] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1180, quality=0, strong=0, bind=1 },
+	},
+	[17] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1436, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 628, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 817, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1124, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 816, quality=0, strong=0, bind=1, },
+	},
+	[18] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1437, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 280, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 370, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 18, itemid = 275, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 277, quality=0, strong=0, bind=1, },
+	},
+	[19] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1438, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1172, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 277, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1170, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1171, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 830, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 628, quality=0, strong=0, bind=1, },
+	},
+	[20] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1439, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 816, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1124, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 815, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 817, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 480, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 628, quality=0, strong=0, bind=1, },
+	},
+	[21] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1440, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 628, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 830, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1170, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1171, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+	},
+	[22] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1441, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1068, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 545, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 830, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1118, quality=0, strong=0, bind=1, },
+	},
+	[23] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1442, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 830, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 816, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 280, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1121, quality=0, strong=0, bind=1, },
+	},
+	[24] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1443, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1051, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1001, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1123, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 830, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 480, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 356, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 910, quality=0, strong=0, bind=1, },
+	},
+	[25] =
+	{
+		value = 1,
+		--{ rewardtype = 1, type = 0, amount = 1, itemid = 1444, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 629, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 383, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 18, itemid = 480, quality=0, strong=0, bind=1, },
+	},
+	[26] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 354, quality=0, strong=0, bind=1 },
+	},
+	[27] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1430, quality=0, strong=0, bind=1 },
+	},
+	[28] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1431, quality=0, strong=0, bind=1 },
+	},
+	[29] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 682, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 704, quality=0, strong=0, bind=1, },
+	},
+	[30] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 262, quality=0, strong=0, bind=1, },
+	},
+	[31] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 193, quality=0, strong=0, job=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 204, quality=0, strong=0, job=2, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 215, quality=0, strong=0, job=3, bind=0, },
+	},
+	[32] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 194, quality=0, strong=0, job=1, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 195, quality=0, strong=0, job=1, sex=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 205, quality=0, strong=0, job=2, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 206, quality=0, strong=0, job=2, sex=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 216, quality=0, strong=0, job=3, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 217, quality=0, strong=0, job=3, sex=1, bind=0, },
+	},
+	[33] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 226, quality=0, strong=0, job=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 237, quality=0, strong=0, job=2, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 248, quality=0, strong=0, job=3, bind=0, },
+	},
+	[34] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 227, quality=0, strong=0, job=1, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 228, quality=0, strong=0, job=1, sex=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 238, quality=0, strong=0, job=2, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 239, quality=0, strong=0, job=2, sex=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 249, quality=0, strong=0, job=3, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 250, quality=0, strong=0, job=3, sex=1, bind=0, },
+	},
+	[35] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 661, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 366, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 626, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 545, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 480, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 677, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 864, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 816, quality=0, strong=0, bind=1 },
+	},
+	[36] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1031, quality=0, strong=0, bind=1 },
+	},
+	[37] =
+	{
+		value = 0,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 799, quality=0, strong=0, bind=1 },
+	},
+	[38] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 731, quality=0, strong=0, bind=1 },
+	},
+	[39] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1430, quality=0, strong=0, bind=1 },
+	},
+	[40] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 731, quality=0, strong=0, bind=1 },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1 },
+	},
+	[41] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 361, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 682, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 704, quality=0, strong=0, bind=1, },
+	},
+	[42] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 356, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1123, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1037, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 283, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1172, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1371, quality=0, strong=0, bind=1, },
+	},
+	[43] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 930, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 354, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 480, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 830, quality=0, strong=0, bind=1, },
+	},
+	[44] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 683, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 369, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 704, quality=0, strong=0, bind=1, },
+	},
+	[45] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 629, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 369, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 12, itemid = 731, quality=0, strong=0, bind=1, },
+	},
+	[46] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1119, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 9, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1074, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1172, quality=0, strong=0, bind=1, },
+	},
+	[47] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 7, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1121, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 15, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 282, quality=0, strong=0, bind=1, },
+	},
+	[48] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1123, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 283, quality=0, strong=0, bind=1, },
+	},
+	[49] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 682, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 817, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 386, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 373, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 376, quality=0, strong=0, bind=1, },
+	},
+	[50] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1119, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1037, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1371, quality=0, strong=0, bind=1, },
+	},
+	[51] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 9, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1121, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1037, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1371, quality=0, strong=0, bind=1, },
+	},
+	[52] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 356, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1123, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1037, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 283, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1371, quality=0, strong=0, bind=1, },
+	},
+	[53] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 282, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1121, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1037, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 662, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 731, quality=0, strong=0, bind=1, },
+	},
+	[54] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 283, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1123, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1037, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 918, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1172, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 30, itemid = 731, quality=0, strong=0, bind=1, },
+	},
+	[55] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1402, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1123, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1037, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 918, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 30, itemid = 1172, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 50, itemid = 731, quality=0, strong=0, bind=1, },
+	},
+	[56] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1402, quality=0, strong=0, bind=1, },
+	},
+	[57] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 283, quality=0, strong=0, bind=1, },
+	},
+	[58] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1122, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 379, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 817, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 480, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 704, quality=0, strong=0, bind=1, },
+	},
+	[59] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 229, quality=0, strong=0, job=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 240, quality=0, strong=0, job=2, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 251, quality=0, strong=0, job=3, bind=0, },
+	},
+	[60] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 227, quality=0, strong=0, job=1, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 228, quality=0, strong=0, job=1, sex=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 238, quality=0, strong=0, job=2, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 239, quality=0, strong=0, job=2, sex=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 249, quality=0, strong=0, job=3, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 250, quality=0, strong=0, job=3, sex=1, bind=0, },
+	},
+	[61] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 644, quality=0, strong=0, bind=1, },
+	},
+	[62] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 784, quality=0, strong=0, bind=1, },
+	},
+	[63] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 794, quality=0, strong=0, bind=1, },
+	},
+	[64] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 960, quality=0, strong=0, bind=0, },
+	},
+	[65] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 577, quality=0, strong=0, bind=0, },
+	},
+	[66] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1540, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1656, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1121, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[67] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1074, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1044, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 974, quality=0, strong=0, bind=1, },
+	},
+	[68] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1079, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 279, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1172, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1074, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 975, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1044, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 974, quality=0, strong=0, bind=1, },
+	},
+	[69] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 735, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1104, quality=0, strong=0, job=1, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1105, quality=0, strong=0, job=2, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1106, quality=0, strong=0, job=3, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1031, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 279, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1172, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 362, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1074, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1122, quality=0, strong=0, bind=1, },
+	},
+	[70] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 738, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1646, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1104, quality=0, strong=0, job=1, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1105, quality=0, strong=0, job=2, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1106, quality=0, strong=0, job=3, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1425, quality=0, strong=0, job=1, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1417, quality=0, strong=0, job=2, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1421, quality=0, strong=0, job=3, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 686, quality=0, strong=0, sex=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 687, quality=0, strong=0, sex=1, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1031, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1362, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 362, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 6, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 6, itemid = 1074, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1122, quality=0, strong=0, bind=1, },
+	},
+	[71] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1860, quality=0, strong=0, bind=1, },
+	},
+	[72] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1861, quality=0, strong=0, bind=1, },
+	},
+	[73] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1862, quality=0, strong=0, bind=1, },
+	},
+	[74] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1863, quality=0, strong=0, bind=1, },
+	},
+	[75] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1864, quality=0, strong=0, bind=1, },
+	},
+	[76] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1118, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 369, quality=0, strong=0, bind=1, },
+	},
+	[77] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 804, quality=0, strong=0, bind=1, },
+	},
+	[78] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 814, quality=0, strong=0, bind=1, },
+	},
+	[79] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 754, quality=0, strong=0, bind=1, },
+	},
+	[80] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 764, quality=0, strong=0, bind=1, },
+	},
+	[81] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 774, quality=0, strong=0, bind=1, },
+	},
+	[82] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 311, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 369, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 682, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1, },
+	},
+	[83] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 920, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1892, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1074, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 383, quality=0, strong=0, bind=1, },
+	},
+	[84] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 628, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 703, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 369, quality=0, strong=0, bind=1, },
+	},
+	[85] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 480, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 703, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 384, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1074, quality=0, strong=0, bind=1, },
+	},
+	[86] =
+	{
+		value = -1,
+		{ rewardtype = 2, type = 3, amount = 1500, itemid = 0, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 618, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 497, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 276, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 369, quality=0, strong=0, bind=1, },
+	},
+	[87] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1757, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1118, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1124, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1170, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1171, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[88] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 480, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 816, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 864, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 531, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1074, quality=0, strong=0, bind=1, },
+	},
+	[89] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1949, quality=0, strong=0, bind=1, },
+	},
+	[90] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 703, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 816, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1124, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 383, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 330, quality=0, strong=0, bind=1, },
+	},
+	[91] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 660, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 626, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 384, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 383, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 545, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 531, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 864, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 386, quality=0, strong=0, bind=1, },
+	},
+	[92] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 683, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 369, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 704, quality=0, strong=0, bind=1, },
+	},
+	[93] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 629, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 369, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 12, itemid = 731, quality=0, strong=0, bind=1, },
+	},
+	[94] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1755, quality=0, strong=0, bind=1, },
+	},
+	[95] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1756, quality=0, strong=0, bind=1, },
+	},
+	[96] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1757, quality=0, strong=0, bind=1, },
+	},
+	[97] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 230, quality=0, strong=0, job=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 241, quality=0, strong=0, job=2, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 252, quality=0, strong=0, job=3, bind=0, },
+	},
+	[98] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1729, quality=0, strong=0, bind=0, },
+	},
+	[99] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1713, quality=4, strong=0, bind=1, },
+	},
+	[100] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1958, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 354, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1969, quality=0, strong=0, bind=1, },
+	},
+	[101] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1021, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1122, quality=0, strong=0, bind=1, },
+	},
+	[102] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 9, itemid = 404, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1951, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 360, quality=0, strong=0, bind=1, },
+	},
+	[103] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 703, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 369, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 628, quality=0, strong=0, bind=1, },
+	},
+	[104] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 330, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 383, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1124, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 531, quality=0, strong=0, bind=1, },
+	},
+	[105] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 379, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1855, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 6, itemid = 1371, quality=0, strong=0, bind=1, },
+	},
+	[106] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1118, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 379, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1855, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1371, quality=0, strong=0, bind=1, },
+	},
+	[107] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 628, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 379, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1855, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1371, quality=0, strong=0, bind=1, },
+	},
+	[108] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1878, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 379, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1976, quality=0, strong=0, bind=1, },
+	},
+	[109] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1878, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1985, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 15, itemid = 1976, quality=0, strong=0, bind=1, },
+	},
+	[110] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1892, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 379, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1981, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1983, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1976, quality=0, strong=0, bind=1, },
+	},
+	[111] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 628, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 384, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 817, quality=0, strong=0, bind=1, },
+	},
+	[112] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 944, quality=0, strong=0, bind=1, },
+	},
+	[113] =
+	{
+		value = 1,
+		serverId = {700,701,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000},
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1986, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1118, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1755, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 731, quality=0, strong=0, bind=1, },
+	},
+	[114] =
+	{
+		value = 2,
+		{ rewardtype = 2, type = 3, amount = 500, itemid = 0, quality=0, strong=0, bind=1, },
+	},
+	[115] =
+	{
+		value = 2,
+		{ rewardtype = 2, type = 3, amount = 1000, itemid = 0, quality=0, strong=0, bind=1, },
+	},
+	[116] =
+	{
+		value = 2,
+		{ rewardtype = 2, type = 3, amount = 1500, itemid = 0, quality=0, strong=0, bind=1, },
+	},
+	[117] =
+	{
+		value = 1,
+		{ rewardtype = 2, type = 3, amount = 1500, itemid = 0, quality=0, strong=0, bind=1, },
+	},
+	[118] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 626, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 815, quality=0, strong=0, bind=1, },
+	},
+	[119] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 277, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 383, quality=0, strong=0, bind=1, },
+	},
+	[120] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 480, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 370, quality=0, strong=0, bind=1, },
+	},
+	[121] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 367, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 369, quality=0, strong=0, bind=1, },
+	},
+	[122] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 276, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 279, quality=0, strong=0, bind=1, },
+	},
+	[123] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 273, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 274, quality=0, strong=0, bind=1, },
+	},
+	[124] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 386, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 817, quality=0, strong=0, bind=1, },
+	},
+	[125] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1175, quality=0, strong=0, bind=1, },
+	},
+	[126] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 549, quality=0, strong=0, job=1, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 550, quality=0, strong=0, job=2, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 551, quality=0, strong=0, job=3, bind=1, },
+	},
+	[127] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1195, quality=0, strong=0, job=1, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1206, quality=0, strong=0, job=2, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1217, quality=0, strong=0, job=3, sex=0, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1196, quality=0, strong=0, job=1, sex=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1207, quality=0, strong=0, job=2, sex=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1218, quality=0, strong=0, job=3, sex=1, bind=0, },
+	},
+	[128] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1948, quality=0, strong=0, bind=1, },
+	},
+	[129] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 910, quality=0, strong=0, bind=1, },
+	},
+	[130] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1998, quality=0, strong=0, bind=1, },
+	},
+	[131] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1986, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1987, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1037, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1075, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1409, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 8, itemid = 1122, quality=0, strong=0, bind=1, },
+	},
+	[132] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 628, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 704, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1985, quality=0, strong=0, bind=1, },
+	},
+	[133] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1118, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1756, quality=0, strong=0, bind=1, },
+	},
+	[134] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1118, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1175, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1986, quality=0, strong=0, bind=1, },
+	},
+	[135] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1175, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1987, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1986, quality=0, strong=0, bind=1, },
+	},
+	[136] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1175, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1987, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 4, itemid = 1986, quality=0, strong=0, bind=1, },
+	},
+	[137] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1122, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1175, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1987, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1986, quality=0, strong=0, bind=1, },
+	},
+	[138] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1122, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1402, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1175, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1987, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1986, quality=0, strong=0, bind=1, },
+	},
+	[139] =
+	{
+		value = -1,
+		serverId = {970},
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 422, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 480, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 703, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 384, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1072, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1074, quality=0, strong=0, bind=1, },
+	},
+	[140] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1728, quality=0, strong=0, bind=1, },
+	},
+	[141] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 2291, quality=0, strong=0, bind=1, },
+	},
+	[142] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 2111, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 2563, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 910, quality=0, strong=0, bind=1, },
+	},
+	[143] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2136, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 2563, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 9, itemid = 2291, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1987, quality=0, strong=0, bind=1, },
+	},
+	[144] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 2136, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 2563, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 9, itemid = 1986, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1987, quality=0, strong=0, bind=1, },
+	},
+	[145] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1676, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 955, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 355, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1987, quality=0, strong=0, bind=1, },
+	},
+	[146] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2258, quality=0, strong=0, bind=1, },
+	},
+	[147] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2136, quality=0, strong=0, bind=1, },
+	},
+	[148] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2671, quality=0, strong=0, bind=1, },
+	},
+	[149] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1991, quality=0, strong=0, bind=1, },
+	},
+	[150] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1123, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2661, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 357, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[151] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1123, quality=0, strong=0, bind=1, },
+	},
+	[152] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1757, quality=0, strong=0, bind=1, },
+	},
+	[153] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2603, quality=0, strong=0, bind=1, },
+	},
+	[154] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2836, quality=0, strong=0, bind=1, },
+	},
+	[155] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 2558, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[156] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1122, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2661, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 2627, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[157] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1118, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1371, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1756, quality=0, strong=0, bind=1, },
+	},
+	[158] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[159] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1756, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[160] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 662, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 2558, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[161] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1122, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2661, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 2627, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[162] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1122, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2672, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1756, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	[163] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 2136, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 2563, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 9, itemid = 1986, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 20, itemid = 1987, quality=0, strong=0, bind=1, },
+	},
+	[164] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1120, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 2, itemid = 1756, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1073, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1075, quality=0, strong=0, bind=1, },
+	},
+	--2014/8/8 新增
+	[165] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1119, quality=0, strong=0, bind=1, },
+	},
+	[166] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 731, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2671, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2660, quality=0, strong=0, bind=1, },
+	},
+	[167] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1756, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2276, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 918, quality=0, strong=0, bind=1, },
+	},
+	[168] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 910, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 10, itemid = 2627, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 2276, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1121, quality=0, strong=0, bind=1, },
+	},
+	[169] =
+	{
+		value = 1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 3304, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 3183, quality=0, strong=0, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 5, itemid = 3186, quality=0, strong=0, bind=1, },
+	},
+	--2015/3/12 新增(羊年百服)
+	[170] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2817, quality=0, strong=0, bind=1, },
+	},
+	[171] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2877, quality=0, strong=0, bind=1, },
+	},
+	[172] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2214, quality=0, strong=0, bind=0, },
+	},
+	[173] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1713, quality=7, strong=0, bind=1, },
+	},
+	[174] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2195, quality=0, strong=0, bind=0, },
+	},
+	[175] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1194, quality=0, strong=0, job=1, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1205, quality=0, strong=0, job=2, bind=0, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 1216, quality=0, strong=0, job=3, bind=0, },
+	},
+	[176] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 3450, quality=0, strong=0, bind=1, },
+	},
+	[177] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 2910, quality=0, strong=0, bind=1, },
+	},
+	[178] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 3247, quality=0, strong=0, bind=1, },
+	},
+	[179] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 749, quality=0, strong=0, job=1, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 759, quality=0, strong=0, job=2, bind=1, },
+		{ rewardtype = 1, type = 0, amount = 1, itemid = 769, quality=0, strong=0, job=3, bind=1, },
+	},
+	[180] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 1987, quality=0, strong=0, bind=1, },
+	},
+	[181] =
+	{
+		value = -1,
+		{ rewardtype = 1, type = 0, amount = 3, itemid = 3189, quality=0, strong=0, bind=1, },
+	},
+}

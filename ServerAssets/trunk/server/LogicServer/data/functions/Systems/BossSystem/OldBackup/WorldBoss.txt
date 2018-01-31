@@ -1,0 +1,40 @@
+﻿
+--#include "WorldBossCommon.txt" once
+--#include "data\config\activityconfig\Festival\Fireworks.txt" once
+
+function BossInit(sysarg)
+	RankingBossInit(sysarg)
+end
+
+function LoadActiveExpRate()
+	local sysVar = System.getStaticVar()
+	local level = sysVar.BlessTreeTitleIdx
+	local deadline = sysVar.BlessTreeDeadline
+	local nNowDt = System.getRealtimeMiniTime()
+	if deadline and deadline > nNowDt and level then
+		System.setActivtyExpRate(FireworkConfig.BuffBaseRate * level, deadline - nNowDt)
+	end
+end
+
+--开服时，先检查是不是在活动时间内
+function ResetHolidayIcon()
+	local nYear,nMon,nDay = System.getDate(0,0,0)
+	if nMon >= FireworkConfig.startTime[1] and nMon < FireworkConfig.endTime[1] then
+		if nMon == FireworkConfig.startTime[1] and nDay >= FireworkConfig.startTime[2] then
+			System.setHolidayOnOff(1,0)
+		elseif nMon > FireworkConfig.startTime[1] and nDay <= FireworkConfig.endTime[2] then
+			System.setHolidayOnOff(1,0)
+		end
+	elseif nMon == FireworkConfig.endTime[1] and nDay <= FireworkConfig.endTime[2] then
+		System.setHolidayOnOff(1,0)
+	end
+end
+
+function BossFinal(sysarg)
+
+end
+
+table.insert(InitFnTable, BossInit)
+table.insert(InitFnTable, LoadActiveExpRate)
+--table.insert(InitFnTable, ResetHolidayIcon)
+table.insert(FinaFnTable, BossFinal)

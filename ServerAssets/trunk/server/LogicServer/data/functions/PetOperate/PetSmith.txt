@@ -1,0 +1,55 @@
+﻿--lua script
+
+
+
+
+--玩家开始洗练宠物, args = [操作的类型,宠物的ID]
+function onPetSimth( sysarg, args )
+  local petId = args[2] --宠物的ID
+  if (not petId) or (not PetSmithConsume) then return end
+  --宠物属性
+  local petCircle = Pet.getPetProperty(sysarg, petId, 3)
+  --配置最大属性限制
+  local CircleMax = table.getn(PetSmithConsume)
+  --宠物是否属性满级
+  if (petCircle > CircleMax) then
+    Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00111,ttDialog )
+    return
+  end
+  local CircleLev = (petCircle+1)
+  if (not PetSmithConsume[CircleLev]) then return end
+  local consumes = PetSmithConsume[CircleLev].consume
+  local canConsume, tipMsg1 = checkConsumes(sysarg, consumes)
+  if canConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00112, tipMsg1),ttDialog )
+    return
+  end
+  local hasConsume, tipMsg2 = getConsumes(sysarg, consumes,12)
+  if hasConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00113, tipMsg2),ttDialog )
+    return
+  end
+  Pet.petSmith(sysarg, petId)
+	Pet.sendPetOpResult(sysarg, petId, 2, true) --发送结果
+ 	Actor.triggerAchieveEvent(sysarg, 56, 0, 1, 0) -- 触发成就事件
+	Actor.triggerQuestEvent(sysarg, 7, 2, 1)
+end
+
+
+
+--获取宠物洗练的消耗,args = [操作的类型,宠物的ID]
+function getPetSimthConsume( sysarg, args )
+  local petId = args[2] --宠物的ID
+  if (not petId) or (not PetSmithConsume) then return end
+  --宠物属性
+  local petCircle = Pet.getPetProperty(sysarg, petId, 3)
+  --配置最大属性限制
+  local CircleMax = table.getn(PetSmithConsume)
+  --宠物是否属性满级
+  if (petCircle > CircleMax) then return end
+  local CircleLev = (petCircle+1)
+  if (not PetSmithConsume[CircleLev]) then return end
+  local consumes = PetSmithConsume[CircleLev].consume
+  if consumes == false then return end    
+  sendClientPetOperateMsg(sysarg, args, consumes)
+end

@@ -1,0 +1,152 @@
+﻿
+--萝卜本箭塔技能第5级
+{
+
+	actions=
+	{
+		{act=0,effect=0},
+	},
+
+	desc=Lang.Skill.s195L5Desc,
+
+	iconID=6,
+
+	actRange=
+	{
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+
+			rangeType=0,
+			rangeCenter=0,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=3,value=0},
+						{cond=36,value=1},
+						{cond=53,value=0}, --等级大于 0 则伤害 200
+						{cond=52,value=1}, --等级小于等于1
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=200},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=199,keepTime=300,delay=0,always=false},
+						{type=4,mj=0,id=200,keepTime=200,delay=300,always=false},
+					},
+				},
+				{
+					conds=
+					{
+						{cond=3,value=0},
+						{cond=36,value=1},
+						{cond=53,value=1}, --等级大于 1 则伤害 400
+						{cond=52,value=2}, --等级小于等于2
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=400},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=199,keepTime=300,delay=0,always=false},
+						{type=4,mj=0,id=200,keepTime=200,delay=300,always=false},
+					},
+				},
+				{
+					conds=
+					{
+						{cond=3,value=0},
+						{cond=36,value=1},
+						{cond=53,value=2}, --等级大于 2 则伤害 600
+						{cond=52,value=3}, --等级小于等于3
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=600},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=199,keepTime=300,delay=0,always=false},
+						{type=4,mj=0,id=200,keepTime=200,delay=300,always=false},
+					},
+				},
+				{
+					conds=
+					{
+						{cond=3,value=0},
+						{cond=36,value=1},
+						{cond=53,value=3}, --等级大于 3 则伤害 800
+						{cond=52,value=4}, --等级小于等于1
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=800},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=199,keepTime=300,delay=0,always=false},
+						{type=4,mj=0,id=200,keepTime=200,delay=300,always=false},
+					},
+				},
+				{
+					conds=
+					{
+						{cond=3,value=0},
+						{cond=36,value=1},
+						{cond=53,value=4}, --等级大于 4 则伤害 1000
+						{cond=52,value=5}, --等级小于等于5
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=1000},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=199,keepTime=300,delay=0,always=false},
+						{type=4,mj=0,id=200,keepTime=200,delay=300,always=false},
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+	},
+
+	spellConds=
+	{
+		{cond=13,value=20,consume=false},
+	},
+
+	singTime=0,
+
+	cooldownTime=0,
+},

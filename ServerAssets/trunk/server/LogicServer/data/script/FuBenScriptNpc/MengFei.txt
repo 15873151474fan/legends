@@ -1,0 +1,57 @@
+﻿--lua script
+--夫妻副本中的梦飞
+--用于副本中段的提醒npc
+
+--[[当前脚本内的全局变量]]--
+thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+--#include "data\language\LangCode.txt"          -- 语言表 
+--#include "data\functions\ChuanSongNextScene.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once  --购买药品 购买红玫瑰的关联文件
+--#include "data\functions\FuBenNpcFunc\FuQiQueQiao\FuQiNpcDialog.txt" once
+
+
+
+--这个包含这个副本场景通过需要达到的条件文件
+CondMs = 
+{
+--#include "data\envir\FubenCondition\ShenMiDongXueJingLing2.txt" once
+}
+
+
+--[[此处为NPC对白]]
+NpcDialogue = {  --如果NPC随机对白数多与三个或少于三个，可适当增加或减少此表内的子表 
+	{ say = Lang.NormalTalk.n02089, },
+}
+
+
+
+--[[脚本主函数]]--
+function main(sysarg)
+	local rand = System.getRandomNumber( table.getn(NpcDialogue) )
+	local str = NpcDialogue[rand +1].say
+	local str1 = str..MengFei_Main( sysarg )
+	return str1
+end
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  --SPID = TSystem.getGlobalVariant( "spid" )  
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

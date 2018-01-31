@@ -1,0 +1,294 @@
+﻿--[[
+翅膀系统功能实现。
+李昀 2015-9-1 
+]]
+--#include "data\config\WingSystem\WingSystemConfig.txt"
+local WingHandleTable = {}
+local WingMsgPrinted = false --是否要打印翅膀消息
+
+--升星升阶货币类型 
+local Wing_UpgradeMoney_Type = PROP_ACTOR_BIND_COIN 
+local Wing_UpstarMoney_Type = PROP_ACTOR_COIN 
+
+--获取物品元宝的出售价格 
+function GetItemYBSellPrice(ItemID)
+  a = WingOpItemPrice[ItemID]
+  if a then return a end
+  return 1
+end
+
+
+EventCallDispatcher.WingSystemHandle = function (sysarg, args)
+  if args[1] == nil then return end   --第1个参数 1 表示升星 2表示升阶 
+  local func = WingHandleTable[args[1]]
+  if func ~= nil then
+    func(sysarg, args)
+  end
+end
+
+--升星 
+WingHandleTable[1] = function(sysarg,args)
+  --WingPrint("xxxxxx")
+  local nGrade = Actor.getIntProperty(sysarg,PROP_ACTOR_WINGGRADE) or 1 --获取当前翅膀的阶段
+  local nStar = Actor.getIntProperty(sysarg,PROP_ACTOR_WINGSTAR) or 1--获取当前翅膀的星级
+
+  if nGrade < 1 or nStar < 1 then 
+    RetCode = -5
+    nGrade = (nGrade > 1) and nGrade or 1
+    nStar = (nStar > 1) and nStar or 1
+  end
+   
+  local MaxGrade = #WingSystemConfig.WingInclude  --翅膀的最高阶数
+  local MaxStar = 10
+  local RetCode = 0
+   
+  if nStar >= MaxStar  then RetCode = -4 end --已经达到最高星级 不能提升 
+  if nGrade > MaxGrade then RetCode = -3 end --已经达到最高阶段了 不能提升
+  
+  --等级星级验证不过 通知客户端错误代码 
+  if RetCode < 0 then
+    local Data = DataPack.allocPacket( sysarg,62,1)
+    DataPack.writeByte(Data,RetCode) 
+    DataPack.flush(Data)
+    WingPrint("Wing UpStar RetCode[1] :".. RetCode)
+    return  
+  end 
+  
+  --开始验证材料是否足够 
+  local GradeConfig = WingSystemConfig.WingInclude[nGrade]
+  local NeedItemID = GradeConfig.UpStarNeed[nStar].ItemID --需要的物品ID 
+  local NeedItemCount = GradeConfig.UpStarNeed[nStar].Count --需要的物品数量 
+  local UpSucessRate = GradeConfig.UpStarSucessRate[nStar]  --成功率 百万分比
+  
+  local ItemCount = Actor.getItemCount(sysarg,NeedItemID,-1,-1,-1)
+  
+  local NeedDelItemCount = NeedItemCount --需要扣除的物品数量
+  local NeedTakeYBCount = 0  --需要扣除的元宝数量 
+  
+  if ItemCount < NeedItemCount then
+    RetCode = -2 --表示物品数量不足
+    local DiffCount = NeedItemCount - ItemCount --还差多少数量
+    --判断是否使用了元宝代替
+    local btUseYB = args[2]
+    WingPrint("wingUpgrade btUseYB :" .. btUseYB)
+    if btUseYB == 1 then
+      
+      local aYB = GetItemYBSellPrice(NeedItemID) 
+      local NeedYB = aYB * DiffCount  --计算获得总元宝数量
+      local OwnerYBCount = Actor.getIntProperty( sysarg,PROP_ACTOR_YUANBAO) --获取自身元宝的数量
+      if OwnerYBCount < NeedYB then
+        RetCode = -1
+      else
+        RetCode = 0
+        NeedTakeYBCount = NeedYB
+      end -- 表示元宝不足
+    end
+  end
+  
+  --材料验证不通过 立马通知客户端情况 
+  if RetCode < 0 then
+    local Data = DataPack.allocPacket( sysarg,62,1)
+    DataPack.writeByte(Data,RetCode)
+    DataPack.flush(Data)
+    WingPrint("Wing UpStar RetCode[2] :".. RetCode)
+    return
+  end
+  
+  --扣除物品以及元宝提升星级并且更新给客户端 新的星级 和 阶段
+  local TakeCount = Actor.removeItem( sysarg,NeedItemID,NeedDelItemCount,-1,-1,-1,"WingUpStar",988)
+  if NeedTakeYBCount > 0 then
+    local NewYB = Actor.getIntProperty( sysarg,PROP_ACTOR_YUANBAO) - NeedTakeYBCount
+    Actor.setUIntProperty(sysarg,PROP_ACTOR_YUANBAO,NewYB)     
+  end   
+  
+  --设置新的翅膀阶段和星级  并且更新下去 
+  Actor.setUIntProperty(sysarg,PROP_ACTOR_WINGSTAR,nStar + 1)
+  Actor.collectOperate(sysarg,0)
+  
+  WingUpStarTip(sysarg,nGrade,nStar + 1)
+  TriggerWingQuest(sysarg)
+  
+  RetCode = 1
+  local Data = DataPack.allocPacket( sysarg,62,1)
+  DataPack.writeByte(Data,RetCode)
+  DataPack.flush(Data)
+  WingPrint("xxxxxx OK")
+end
+
+--升阶 
+WingHandleTable[2] = function(sysarg,args)
+  --获取翅膀的星级和阶段
+  WingPrint("UpWingGrade")
+  local nGrade = Actor.getIntProperty(sysarg,PROP_ACTOR_WINGGRADE) --获取当前翅膀的阶段
+  local nStar = Actor.getIntProperty(sysarg,PROP_ACTOR_WINGSTAR) --获取当前翅膀的星级
+
+  if nGrade < 1 or nStar < 1 then RetCode = -5 end
+
+  local MaxGrade = #WingSystemConfig.WingInclude  --翅膀的最高阶数
+  local MaxStar = 10
+  local RetCode = 0
+
+  
+  --检查是否能升阶
+  if nStar < MaxStar then RetCode = -3 end   --未到满星 无法提升 
+  if nGrade >= MaxGrade then RetCode = -4 end  --已经到最高阶 无法提升 
+  
+  --如果检查过不去 立马通知客户端
+  if RetCode < 0 then
+    local Data = DataPack.allocPacket( sysarg,62,2)
+    DataPack.writeByte(Data,RetCode)
+    DataPack.flush(Data)
+    WingPrint("UpWingGrade 1 "..RetCode)
+    return 0
+  end
+  
+  --计算材料消耗
+  local GradeConfig = WingSystemConfig.WingInclude[nGrade]
+  local NeedItemID = GradeConfig.GradeItemID
+  local NeedItemCount = GradeConfig.GradeItemCount
+  local NeedGold = GradeConfig.GradeGold
+  local NeedTakeYBCount = 0
+  local ItemCount = Actor.getItemCount(sysarg,NeedItemID,-1,-1,-1)
+ 
+  
+   local btUseYB = args[2]
+   WingPrint("wingUpgrade btUseYB :" .. btUseYB)
+   if btUseYB == 1 then
+     local aDiff = NeedItemCount - ItemCount
+     NeedTakeYBCount = GetItemYBSellPrice(NeedItemID) * aDiff
+     local OwnerYBCount = Actor.getIntProperty( sysarg,PROP_ACTOR_YUANBAO) --获取自身元宝的数量
+     
+     if OwnerYBCount < NeedTakeYBCount then
+       RetCode = -1
+     else
+       RetCode = 0
+     end   
+             
+   else
+     if ItemCount < NeedItemCount then RetCode = -1 end
+   end
+  
+  
+  local Gold = Actor.getIntProperty(sysarg,Wing_UpgradeMoney_Type) 
+  WingPrint("GoldCount ".. Gold)
+  if Gold < NeedGold then RetCode = -2 end
+  
+
+     
+  --如果材料不足 通知客户端
+  if RetCode < 0 then
+    local Data = DataPack.allocPacket( sysarg,62,2)
+    DataPack.writeByte(Data,RetCode)
+    DataPack.flush(Data)
+    WingPrint("UpWingGrade 2 "..RetCode)
+    return
+  end
+  
+    if NeedTakeYBCount > 0 then
+    local NewYB = Actor.getIntProperty( sysarg,PROP_ACTOR_YUANBAO) - NeedTakeYBCount
+    Actor.setUIntProperty(sysarg,PROP_ACTOR_YUANBAO,NewYB)
+  end
+  
+  --扣除材料设置新的翅膀阶段 和 星级
+  WingPrint("wingUpgrade NeedItemCount :" .. NeedItemCount)
+  Actor.removeItem( sysarg,NeedItemID,NeedItemCount,-1,-1,-1,"WingUpGrade",989) 
+  Actor.setUIntProperty(sysarg,Wing_UpgradeMoney_Type,Gold - NeedGold )
+  
+  Actor.setUIntProperty(sysarg,PROP_ACTOR_WINGGRADE,nGrade + 1)
+  Actor.setUIntProperty(sysarg,PROP_ACTOR_WINGSTAR,1)
+  
+  --刷新翅膀外观 
+  WingSystem_OnActorLogin(sysarg)
+  
+  --刷新属性 
+  Actor.collectOperate(sysarg,1)
+  
+  WingUpGradeTip(sysarg,nGrade + 1)
+  TriggerWingQuest(sysarg)
+  WingPrint("UpWingGrade OK") 
+end
+
+function WingSystem_OnActorLevelUp(sysarg,args)
+  WingPrint("WingSystemLevelUp")
+  local Level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL)
+  --如果翅膀等级到了开放等级 
+  if Level >= WingSystemConfig.WingSystemOpenLevel then
+    local nGrade = Actor.getIntProperty(sysarg,PROP_ACTOR_WINGGRADE)
+    WingPrint("OpenWing : ".. nGrade) 
+    --说明没有开启 要激活翅膀系统 
+    if nGrade == 0 then
+      Actor.setUIntProperty(sysarg,PROP_ACTOR_WINGGRADE,1)
+      Actor.setUIntProperty(sysarg,PROP_ACTOR_WINGSTAR,1)
+    end 
+     
+  end
+
+
+
+end
+
+
+function WingSystem_OnActorLogin(sysarg,args)
+
+  local nGrade = Actor.getIntProperty(sysarg,PROP_ACTOR_WINGGRADE) --获取当前翅膀的阶段
+  if nGrade > 0 then
+    local Config = WingSystemConfig.WingInclude[nGrade]
+    local Shape = Config.shape
+    --print("翅膀Shape = "..Shape)
+    Actor.setUIntProperty(sysarg,PROP_ACTOR_SWINGAPPEARANCE,Shape)
+
+    local s = Actor.getIntProperty(sysarg,PROP_ACTOR_SWINGAPPEARANCE)
+    --print("S 外观:"..s)
+      --刷新外观
+    Actor.collectOperate(sysarg,1)
+
+  end
+
+end
+
+
+function WingUpGradeTip(sysarg,Grade)
+  local WingName = WingSystemConfig.WingInclude[Grade].name
+  local sMsg = Lang.ScriptTips.WingUpGrade
+  if sMsg == nil or sMsg == "" then return end
+  sMsg = string.format(sMsg,Actor.getName(sysarg),Grade,WingName) 
+  System.broadcastTipmsg(sMsg,ttScreenCenter)
+  
+  local sChatMsg = sMsg..Lang.ScriptTips.OpenWingWindow
+  System.broadcastTipmsg(sChatMsg,ttChatWindow)
+end
+
+function WingUpStarTip(sysarg,Grade,Star)
+
+  local sMsg = Lang.ScriptTips.WingUpStar
+  if sMsg == nil or sMsg == "" then return end
+  sMsg = string.format(sMsg,Actor.getName(sysarg),Grade,Star)
+  System.broadcastTipmsg(sMsg,ttScreenCenter)
+
+  local sChatMsg = sMsg..Lang.ScriptTips.OpenWingWindow
+  System.broadcastTipmsg(sChatMsg,ttChatWindow) 
+
+
+end
+
+
+function TriggerWingQuest(sysarg) 
+  local nGrade = Actor.getIntProperty(sysarg,PROP_ACTOR_WINGGRADE) --获取当前翅膀的阶段
+  local nStar = Actor.getIntProperty(sysarg,PROP_ACTOR_WINGSTAR)  --获取当前翅膀的星级
+  local LevelGrade = nGrade * 100 + nStar
+  Actor.triggerQuestEvent(sysarg,45,LevelGrade,0)
+  Actor.triggerAchieveEvent( sysarg,97,nGrade,nStar,0,0) 
+end
+
+
+function WingPrint(sMsg)
+  local ShowDebugMessage = WingMsgPrinted
+  
+  if ShowDebugMessage == true then
+    print(sMsg)
+  end 
+
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeWingSystem, EventCallDispatcher.WingSystemHandle)

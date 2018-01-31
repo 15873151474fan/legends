@@ -1,0 +1,165 @@
+﻿--[[地图BOSS 处理主文件]]
+
+--[[
+  地图BOSS逻辑 
+  开启服务器立即刷新  死亡后一定时间内刷新 不公告。 
+]]
+
+local MapBossImp = {}
+
+--#include "data\config\BossSystem\MapBossConfig.txt" once
+--#include "data\functions\Systems\BossSystem\MapBoss\MapBossEvent.txt" once
+
+------------------------------------------------------
+--地图BOSS自动运行key
+function MapBossImp.AutoRunKey(BossID)
+  local Key = "MapBossAutoRun" 
+  if BossID == -1 then
+    return Key
+  end 
+  return Key.."#"..BossID
+end 
+
+--【注意说话的Key不能包含 ”MapBoss“因为在重载恢复自动执行的时候 会根据这个来判断是否重新注册自动执行 ，而说话不需要】 
+--地图BOSS刷出前5分钟公告自动执行key  
+function MapBossImp.BeforeAliveSayRunKey(BossID)
+  local Key = "MapB_SayAutoRun"
+  if BossID == -1 then
+    return Key
+  end
+  return Key.."#"..BossID
+end
+
+-------------------------------------------------------
+--获取下一次地图BOSS的刷新时间 
+function MapBossImp.GetNextMobTime(BossID)
+  return BossImp.GetNextRunTime(MapBossImp.AutoRunKey(BossID))
+end
+
+
+--获取BOSS 的运行期存储变量  如果BOSSID 为空 = nil  则返回总表 否则返回对应的子表
+function GetMapBossDyanmicVar(BossID)
+  local var = System.getDyanmicVar()
+
+  --检查确定非空
+  if var.MapBossInfo == nil then
+    var.MapBossInfo = {}
+  end
+
+  --确定要返回总表还是分表
+  if BossID ~= nil then
+    local sType = type(BossID)
+    if sType == "number" then
+      if var.MapBossInfo[BossID] == nil then
+        var.MapBossInfo[BossID] = {}
+      end
+      return var.MapBossInfo[BossID]
+    else
+      BossPrint("GetWorldBossDyanmicVar Error.Boss want Number : but is ".. sType)
+      return nil
+    end
+  else
+    return var.MapBossInfo
+  end
+
+end
+
+--刷出地图BOSS 
+function MapBossImp.MobMapBoss(BossID)
+  --获得配置文件 
+  local Boss = MapBossConfig[BossID]
+  if Boss == nil then 
+    return 
+  end
+  
+  local Scene = Fuben.getSceneHandleById(Boss.SceneID,0)
+  if Scene == nil then
+    print(string.format("地图BOSS :%d 配置的场景ID: %d 不存在",BossID,Boss.SceneID))
+    return
+  end 
+
+  local Monster = Fuben.createMonster(Scene,Boss.MonID, Boss.X, Boss.Y ,0)
+  if Monster == nil then
+    print(string.format("地图BOSS : %d 刷出失败!请检查坐标配置",BossID))
+    return
+  end
+  
+  OnMapBossCreate(Monster,BossID)
+  
+end 
+
+--刷出前五分钟公告
+function MapBossImp.MapBossBeforeAlive5MinSay(BossID) 
+   local Msg = MapBossConfig[BossID].BeforeAlive5Min
+   if Msg then
+     System.broadcastTipmsg(Msg , ttScreenCenter + ttChatWindow)
+   end
+end
+
+--重新注册下一次自动执行函数 
+function MapBossImp.RegNextMobTime(BossID)
+   local Boss = MapBossConfig[BossID]  
+   if Boss == nil then return end 
+   local Now = System.getCurrMiniTime()
+    --Syste
+   --if Boss.
+   --注册下次刷新时间 
+   local NextRun = 0
+   --local  
+   if Boss.SceneID ==  UnderGroundBossOtherConfig.MapId then
+      local Interval = 0
+      local nDays = System.getDaysSinceOpenServer()
+      if nDays > 0 and nDays <= table.getn(Boss.DeadMobInterval) then
+         Interval = Boss.DeadMobInterval[nDays]
+      else
+         Interval = Boss.DeadMobInterval[table.getn(Boss.DeadMobInterval)]
+      end
+      NextRun = Now + Interval  
+      local Y,M,D,OHour,OMin,OSec = System.decodeNumTime( NextRun )
+      BossPrint(string.format("下次刷新时间 : %d %d %d %d %d %d",Y,M,D,OHour,OMin,OSec ))
+      NextRun = NextRun - OSec - 1
+      local Y,M,D,OHour,OMin,OSec = System.decodeNumTime( NextRun )
+      BossPrint(string.format("下次刷新时间 : %d %d %d %d %d %d",Y,M,D,OHour,OMin,OSec ))
+   else
+     NextRun = Now + Boss.DeadMobInterval
+   end
+   local Key = MapBossImp.AutoRunKey(BossID)
+   BossImp.RegisterAutoRun(Key,MapBossImp.MobMapBoss,NextRun,BossID)
+   
+   --注册下次刷新公告的时间 
+   NextRun = NextRun - (5 * 60)
+   if NextRun > Now then 
+     Key = MapBossImp.BeforeAliveSayRunKey(BossID)
+     BossImp.RegisterAutoRun(Key,MapBossImp.MapBossBeforeAlive5MinSay,NextRun,BossID)
+   end
+   local sNexRunTime = System.decodeTime(NextRun)
+   BossPrint(string.format("地图BOSS : %d 下次刷新时间: %s",BossID,sNexRunTime))
+end 
+
+---------------------初始化反初始化----------------
+function MapBossImp.Init(npcobj)
+  --local sName = Actor.getName(npcobj)
+ -- print("=============MapBossImp.Init NPC:"..sName)
+  --如果是服务器启动则刷出怪物 
+  local gVar = System.getDyanmicVar()
+  BossPrint("==========地图BOSS.Init===========")
+  if gVar.MapBossStart == nil then
+    gVar.MapBossStart = 1
+    BossPrint("开始刷出地图BOSS")
+      for i = 1 , #MapBossConfig do
+	    MapBossImp.MobMapBoss(i)
+      end 
+  end 
+
+end
+
+function MapBossImp.Final(npcobj)
+
+
+end
+
+--if InitFnTable ~= nil then
+  --print("==========地图BOSS==========="..#InitFnTable)
+  table.insert(InitFnTable, MapBossImp.Init)
+  table.insert(InitFnTable, MapBossImp.Final)
+--end

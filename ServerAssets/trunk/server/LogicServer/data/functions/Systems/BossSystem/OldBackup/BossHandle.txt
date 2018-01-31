@@ -1,0 +1,49 @@
+--lua script
+--BOSS子系统
+
+--#include "data\language\LangCode.txt" once   --语言包
+
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "BossCommon.txt" once
+--#include "data\functions\Activity\AsuraField\Asura_common.txt" once
+--#include "data\functions\Activity\NpcOccupation\NpcOccupation.txt" once
+
+--[[
+local cOnDigBossOp = 1,		-- 挖尸体
+local cOnZombieRemoveOp = 2,	-- 尸化状态消失
+local cOnGetNpcOccupation = 3,	-- 请求NPC占领
+local cOnLeftNpcOccupation = 4,	-- NPC占领离开帮派
+--]]
+
+BossOpFuncList = {}
+
+EventCallDispatcher.HandlerBossOp = function (sysarg, args)
+	--print("参数："..args[1])
+	if args[1] == nil then return end
+	local func = BossOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args) 
+	end
+end
+
+--挖尸体
+BossOpFuncList[1] = function (sysarg,args)
+	OnDigBoss(sysarg,args)
+end
+
+--尸化状态消失
+BossOpFuncList[2] = function (sysarg,args)
+	OnZombieRemove(sysarg,args)
+end
+
+--请求NPC占领
+BossOpFuncList[3] = function (sysarg,args)
+	OnGetNpcOccupation(sysarg,args)
+end
+
+--NPC占领离开帮派
+BossOpFuncList[4] = function (sysarg,args)
+	OnLeftNpcOccupation(sysarg,args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeBossOp, EventCallDispatcher.HandlerBossOp)

@@ -1,0 +1,123 @@
+--lua script
+--双击装配坐骑
+
+--#include "data\config\ride\RideItem.txt" once 
+--#include "data\config\ride\AllRideConfig.txt" once
+
+--[[
+--添加buff的物品
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+function UseRideItem(sysarg,itemidx,itemPtr,ItemTable)
+	if System.isCommonServer() == true then return end
+
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+
+	local mIndex = 1
+	for i=1,table.getn(RideItemConfig) do
+		if RideItemConfig[i].item_id == ItemTable.item_id then
+			mIndex = i
+			break
+		end
+	end
+
+	--local nRideId = Actor.getIntProperty(sysarg,PROP_ACTOR_TAKEON_RIDEID)
+	
+	local nRoder = Actor.getRideOrder(sysarg)
+	local nStar = Actor.getRideStarIndex(sysarg)
+	
+	--坐骑的阶星没有达到
+	if nRoder < RideItemConfig[mIndex].needOrder or (nRoder == RideItemConfig[mIndex].needOrder and nStar < RideItemConfig[mIndex].needStar) then
+		Actor.sendTipmsg(sysarg,Lang.Gem.t00047,ttFlyTip)
+		return
+	end
+	
+	local nId = RideItemConfig[mIndex].rideId
+	
+	if RideItemConfig[mIndex].needConsume == true then
+		Actor.removeItemByPtr(sysarg,itemPtr,1,true,"JadeExp",5)
+	end
+	
+	Actor.addTimeRideToList(sysarg,nId,RideItemConfig[mIndex].time)
+	--[[
+		if nRideId == 0 then		--没有装配坐骑
+			local nDays = RideItemConfig[mIndex].time / (24 * 60 * 60)
+			local nTime = System.getCurrMiniTime() + RideItemConfig[mIndex].time
+
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_TAKEON_RIDEID,nId)
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_EXPIRED_TIME,nTime)
+			Actor.collectOperate(sysarg,0)
+			if RideItemConfig[mIndex].needConsume == true then
+				Actor.removeItemByPtr(sysarg,itemPtr,1,true,"JadeExp",5)
+			end
+			Actor.sendTipmsg( sysarg,string.format(Lang.Gem.t00043,RideConfig[nId].name,nDays),ttFlyTip )
+		else
+			local sname = RideConfig[nRideId].name
+
+			local curRideId = Actor.getIntProperty(sysarg,PROP_ACTOR_RIDEONID)
+			if curRideId == nRideId then
+				Actor.sendTipmsg(sysarg,string.format(Lang.Gem.t00042,sname),ttFlyTip)
+				return
+			end
+
+			local nIndex = Item.getBagItemIndex(sysarg,itemPtr)
+			
+			local str = string.format(Lang.Gem.t00036,sname)
+
+			Actor.messageBox(sysarg,0,0,str,Lang.Gem.t00037.."/OnTakeOnRide,"..nIndex,Lang.Gem.t00038.."/CanleUseRideItem",NULL)
+		end
+	]]
+end
+
+--装配坐骑
+function OnTakeOnRide(sysarg,args)
+	local nIndex = tonumber(args)
+
+	if nIndex >= 0 then 
+		local itemPtr = Item.getItemPtrByIndex(sysarg,nIndex)
+
+		if itemPtr then
+			local nValue = 0
+			local mIndex = 1
+			local itemId = Item.getItemProperty(sysarg,itemPtr,0,nValue)
+			for i=1,table.getn(RideItemConfig) do
+				if RideItemConfig[i].item_id == itemId then
+					mIndex = i
+					break
+				end
+			end
+
+			local nDays = RideItemConfig[mIndex].time / (24 * 60 * 60)
+			local nTime = System.getCurrMiniTime() + RideItemConfig[mIndex].time
+
+			local nId = RideItemConfig[mIndex].rideId
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_TAKEON_RIDEID,nId)
+			Actor.setUIntProperty(sysarg,PROP_ACTOR_RIDE_EXPIRED_TIME,nTime)
+			Actor.collectOperate(sysarg,0)
+			if RideItemConfig[mIndex].needConsume == true then
+				Actor.removeItemByPtr(sysarg,itemPtr,1,true,"JadeExp",5)
+			end
+			--Actor.sendTipmsg( sysarg,Lang.Gem.t00035,ttFlyTip )
+			Actor.sendTipmsg( sysarg,string.format(Lang.Gem.t00043,RideConfig[nId].name,nDays),ttFlyTip )
+		end
+	end
+end
+
+function CanleUseRideItem(sysarg)
+	return nil
+end
+
+function UseRideItemInit(sysarg)
+  for i = 1,table.getn(RideItemConfig) do
+	local x = RideItemConfig[i]
+	GlobalItemFn[x.item_id] = { func = UseRideItem, params = x }
+  end
+end
+
+table.insert(InitFnTable,UseRideItemInit)

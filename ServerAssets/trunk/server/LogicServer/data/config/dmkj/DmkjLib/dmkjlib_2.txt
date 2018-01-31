@@ -1,0 +1,215 @@
+{
+	--开服OpenDays或者合服世界文明度等级CultureLvl  如果两项都配置了则先判断开服天数再判断合服世界文明度等级
+	--OpenDays配置为0 代表 当作常规库  配置为nil则为 首次盗梦库 此位置索引要与FirstDmIndex对应 不进行常规库帅选 如果多个常规库  会进行随机选择一个
+	OpenDays = 0,	
+	
+	--每档的物品库,刷新的时候会从以下各档抽取物品
+	--[[
+		--yb:全局元宝消耗判断  服务器每盗梦yb元宝,产出一次,如果再使用yb元宝才能再次命中
+		--mjPoint:个人梦阶值限制，当前梦阶值大于等于mjPoint才能命中
+		--useItem：使用道具是否能可以开出来false为可开出，false为不可开出，默认为false
+	--]]
+	MjLibList=
+	{
+		--梦境级
+		{
+
+{ Persent = 1000, ItemList =
+{	
+	{ type=0,itemid=268,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=314,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=360,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=406,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=451,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 1000, ItemList =
+{	
+	{ type=0,itemid=6,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=55,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=70,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=146,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=192,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 1000, ItemList =
+{
+	{ type=0,itemid=36,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=115,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=130,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=176,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=222,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=268,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 1000, ItemList =
+{
+	{ type=0,itemid=21,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=85,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=100,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=161,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=207,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 1000, ItemList =
+{
+	{ type=0,itemid=284,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=330,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=376,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=421,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=238,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 1000, ItemList =
+{
+	{ type=0,itemid=253,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=299,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=345,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=391,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=436,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 300, ItemList =
+{
+	{ type=0,itemid=7,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=56,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=71,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=147,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=193,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=239,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=6,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=285,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=331,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=377,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=422,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=6,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 300, ItemList =
+{
+	{ type=0,itemid=22,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=86,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=101,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=162,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=208,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=254,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=6,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=300,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=346,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=392,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=437,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=6,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 300, ItemList =
+{	
+	{ type=0,itemid=37,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=116,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=131,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=177,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=223,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=269,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=6,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=315,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=361,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=407,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 1, ItemList =
+{	
+	{ type=0,itemid=723,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=50000,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 30000, ItemList =
+{	
+	{ type=0,itemid=486,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=10,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+        { type=0,itemid=487,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=10,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+        { type=0,itemid=488,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=10,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+        { type=0,itemid=657,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=10,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+        { type=0,itemid=661,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=10,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+        { type=0,itemid=727,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+        { type=0,itemid=728,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+
+
+
+},	},
+	{ Persent = 700, ItemList =
+{	
+	{ type=0,itemid=485,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=1,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	
+},	},
+{ Persent = 2000, ItemList =
+{	
+	{ type=0,itemid=5,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=20,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=35,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=237,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=252,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=267,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=283,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=298,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=313,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=191,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=206,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=221,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=420,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=435,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=450,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},	
+{ Persent = 2000, ItemList =
+{
+	{ type=0,itemid=329,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=344,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=359,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=375,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=390,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=405,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+        { type=0,itemid=54,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=69,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=84,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=99,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=3,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=114,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=2,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=129,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+{ Persent = 15000, ItemList =
+{
+	{ type=0,itemid=145,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=160,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=175,count=1,quality=0,strongMin=3,strongMax=6,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+{ Persent = 1000, ItemList =
+{
+	{ type=0,itemid=634,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=20,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=635,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=30,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=636,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=20,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=638,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=20,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=640,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=10,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+{ Persent = 20, ItemList =
+{
+	{ type=0,itemid=464,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=5000,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+{ Persent = 40000, ItemList =
+{
+	{ type=0,itemid=473,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=4,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=489,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=490,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+	{ type=0,itemid=463,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=5,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 400, ItemList =
+{	
+	{ type=0,itemid=523,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=150000,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 400, ItemList =
+{	
+	{ type=0,itemid=524,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=130000,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 400, ItemList =
+{	
+	{ type=0,itemid=525,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=140000,broadcast=1,autoUse=false,useItem=false },
+},	},
+        { Persent = 200, ItemList =
+{	
+	{ type=0,itemid=522,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=160000,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 200, ItemList =
+{	
+	{ type=0,itemid=521,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=170000,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 200, ItemList =
+{	
+	{ type=0,itemid=520,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=180000,broadcast=1,autoUse=false,useItem=false },
+},	},
+	{ Persent = 1, ItemList =
+{	
+	{type=0,itemid=719,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=5000,yb=2000000,broadcast=1,autoUse=false,useItem=false },
+},	},
+
+		},
+	}
+},

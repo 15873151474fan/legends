@@ -1,0 +1,812 @@
+
+--lua script 
+--#include "data\config\activityconfig\MidAutumn\MidAutumnAct.txt" once
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once
+--#include "RankPointer.txt" once
+
+--中秋圆月奖励
+function GiveMidAutumnServAwards()
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.ServRecharge
+
+	if not config then return end
+
+	local rechargeRankActId = 11
+
+	local nPointFirst, nameFirst, pItemFirst, nRankAllCount = LoadRechargeRankTotalFileByIndex(rechargeRankActId, 1)
+	local nServYB = 0
+	for i = 1, nRankAllCount do
+		local nPointTmp = LoadRechargeRankTotalFileByIndex(rechargeRankActId, i)
+		nServYB = nServYB + nPointTmp
+	end
+
+	if nServYB < config.needServYB then
+		return
+	end
+
+	local playCount = 0
+	local onlinePlayerList = {}
+	local playerList = LuaHelp.getAllActorList()
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player and (Actor.checkActorLevel(player, config.limitLevel, config.limitCircle)) then
+				playCount = playCount + 1
+				table.insert(onlinePlayerList, player)
+			end
+		end
+	end
+
+	if playCount == 0 then return end
+
+	local onlineAwards = nil
+	for k, servAwards in ipairs(config.servAwards or {}) do
+		if playCount < servAwards.onlinePlayer then
+			break
+		end
+		onlineAwards = servAwards
+	end
+
+	if not onlineAwards then return end
+
+	local onlinePlayer = onlineAwards.onlinePlayer
+	if onlinePlayer > playCount then
+		onlinePlayer = playCount
+	end
+
+	local awardPlayers = onlineAwards.awardPlayers
+	if awardPlayers > playCount then
+		awardPlayers = playCount
+	end
+
+	for j = 1, table.getn(onlinePlayerList or {}) do
+		local player = onlinePlayerList[j]
+		if player then --and (Actor.checkActorLevel(player, config.limitLevel, config.limitCircle)) then
+			for i, award in ipairs(onlineAwards.averageAwards or {}) do
+				Actor.giveAward(player,award.type,award.id,math.floor(award.count/playCount),
+					award.quality,award.strong,award.bind,0,970,Lang.Activity.mzq0201, -1)
+			end
+		end
+	end
+
+	System.playScrEffectCode(config.effectId, config.effectSecs)	--全服
+
+	local awardList = {}
+	for i = 1, 10000 do
+		if table.getn(awardList or {}) >= awardPlayers then
+			break
+		end
+		local nNum = math.random(1, playCount)
+		local nFind = 0
+		for j = 1, table.getn(awardList or {}) do
+			if awardList[j] == nNum then
+				nFind = 1
+				break
+			end
+		end
+		if (nFind == 0) and (onlinePlayerList[nNum]) then
+			local player = onlinePlayerList[nNum]
+			local nYB = 0
+			for k, onlineAward in ipairs(onlineAwards.individualAwards or {}) do
+				if onlineAward.type == 15 then
+					nYB = math.random(onlineAward.minCount, onlineAward.maxCount)
+				end
+			end
+			if nYB == 0 then
+				break
+			end
+			local nActorId = Actor.getIntProperty(player,PROP_ENTITY_ID)
+			System.addOfflineMsg(nActorId, 64, string.format(Lang.Activity.mzq0203, nYB), 0, nYB)
+
+			local actorName = Actor.getName(player)
+			System.broadcastTipmsg(string.format(Lang.Activity.mzq0202, nYB, actorName), ttScreenCenter)
+
+			table.insert(awardList, nNum)
+		end
+	end
+end
+
+--预告中秋圆月奖励
+function NoticeGiveMidAutumnServAwards()
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.ServRecharge
+
+	if not config then return end
+
+	local rechargeRankActId = 11
+
+	local nPointFirst, nameFirst, pItemFirst, nRankAllCount = LoadRechargeRankTotalFileByIndex(rechargeRankActId, 1)
+	local nServYB = 0
+	for i = 1, nRankAllCount do
+		local nPointTmp = LoadRechargeRankTotalFileByIndex(rechargeRankActId, i)
+		nServYB = nServYB + nPointTmp
+	end
+
+	if nServYB < config.needServYB then
+		return
+	end
+
+	System.broadcastTipmsg(Lang.Activity.mzq0217, ttScreenCenter)
+end
+
+--加载中秋登录数据
+function LoadMidAutumnLogin(sysarg)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	if (not MidAutumnRankPt.LoginRankPt) then
+		return tmpTable
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(MidAutumnRankPt.LoginRankPt.File)
+	if not ranking then
+		ranking = Ranking.add(MidAutumnRankPt.LoginRankPt.File, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, MidAutumnRankPt.LoginRankPt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		local nLastLogoutTime = Actor.getLastLogoutTime(sysarg)
+		local nTime = Actor.getLoginTime(sysarg) - nLastLogoutTime
+		if nTime < 0 then
+			nTime = 0
+		end
+		--登出时间超过7天
+		if (nLastLogoutTime ~= 0) and (nTime >= MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.nLogoutDays * 24 * 3600) then
+			tmpTable[4] = 1
+			tmpTable[6] = 0		--MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.addTimes
+		end
+
+		tmpTable[1] = 1
+
+		if pItem then
+			for i=0,table.getn(tmpTable or {})-1 do
+				Ranking.setSub(pItem,i,tmpTable[i+1])
+			end
+		end
+	end
+
+	--玩家加入排行榜
+	if pItem then
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存中秋登录数据
+function SaveMidAutumnLogin(sysarg, tmpTable)
+	if not MidAutumnRankPt.LoginRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(MidAutumnRankPt.LoginRankPt.File)
+	if not ranking then
+		ranking = Ranking.add(MidAutumnRankPt.LoginRankPt.File, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, MidAutumnRankPt.LoginRankPt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		local nTime = Actor.getLoginTime(sysarg) - Actor.getLastLogoutTime(sysarg)
+		if nTime < 0 then
+			nTime = 0
+		end
+		--登出时间超过7天
+		if nTime >= MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.nLogoutDays * 24 * 3600 then
+			tmpTable[4] = 1
+			tmpTable[6] = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.addTimes
+		end
+
+		tmpTable[1] = 1
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {})-1 do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--保存中秋登录时间
+function SetMidAutumnTimeByLogin(sysarg)
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) ~= true then
+		return
+	end
+
+	local tmpTable = LoadMidAutumnLogin(sysarg)
+
+	local days = tmpTable[1]
+	local accTime = tmpTable[2]
+	local nValue = tmpTable[3]
+
+	SaveMidAutumnLogin(sysarg, tmpTable)
+
+	if days > table.getn(config.loginAwards or {}) then
+		return
+	end
+
+	local nLoginDays = 1
+	for i = 1, 16 do
+		local nFlag = System.getIntBit(nValue, 16+i-1)
+		if nFlag == 0 then
+			break
+		end
+		nLoginDays = nLoginDays + 1
+	end
+
+	if days == nLoginDays then
+		local beginTime = 0
+		if config.onlineTime > accTime then
+			beginTime = config.onlineTime - accTime
+		end
+		Actor.regScriptCallback(sysarg, nil, beginTime * 1000, 0, 1, "SetMidAutumnLoginAward")
+	end
+end
+
+--设置可领取登录奖励
+function SetMidAutumnLoginAward(sysarg)
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) ~= true then
+		return
+	end
+
+	if (Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true) then
+		return
+	end
+
+	local tmpTable = LoadMidAutumnLogin(sysarg)
+
+	local days = tmpTable[1]
+	--local accTime = tmpTable[2]
+	local nValue = tmpTable[3]
+	local nIsOldPlay = tmpTable[4]
+	local nCanUseTimes = tmpTable[6]
+
+	nValue = System.setIntBit(nValue, 16+days-1, 1)
+
+	if nIsOldPlay == 1 then
+		nCanUseTimes = nCanUseTimes + config.addTimes
+	end
+
+	tmpTable[3] = nValue
+	tmpTable[6] = nCanUseTimes
+
+	SaveMidAutumnLogin(sysarg, tmpTable)
+end
+
+--设置中秋登录时间
+function SetMidAutumnTimeByLogout(sysarg)
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) ~= true then
+		return
+	end
+
+	local tmpTable = LoadMidAutumnLogin(sysarg)
+
+	local days = tmpTable[1]
+	local accTime = tmpTable[2]
+	local nValue = tmpTable[3]
+	
+	local currTime = System.getCurrMiniTime()
+	local loginTime = Actor.getLoginTime(sysarg)
+
+	if System.isSameDay(currTime, loginTime) ~= true then
+		loginTime = System.getToday()
+	end
+
+	if currTime - loginTime > 0 then
+		accTime = accTime + currTime - loginTime
+	end
+
+	tmpTable[2] = accTime
+
+	SaveMidAutumnLogin(sysarg, tmpTable)
+end
+
+--获取领奖状态
+function GetMidAutumnLoginAwardStatus(nValue, nIndex)
+	local canGetFlag = System.getIntBit(nValue, 16+nIndex-1)
+	local getFlag = System.getIntBit(nValue, nIndex-1)
+
+	if (canGetFlag == 0) then
+		return 2
+	elseif (canGetFlag == 1) and (getFlag == 0) then
+		return 0
+	else
+		return 1
+	end
+end
+
+--获取中秋登陆奖励
+function GetMidAutumnLoginAwardOp(sysarg, args)
+	local nActivityId = args[2]
+	local nType = args[3]
+	local nIndex = args[4]
+
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+
+	if nActivityId ~= config.activityId then
+		return
+	end
+
+	if nType == 0 then	--请求中秋登录奖励状态
+		SendMidAutumnLoginAward(sysarg)
+	elseif nType == 1 then	--请求领取中秋登陆奖励
+		GetMidAutumnLoginAward(sysarg, nIndex)
+	elseif nType == 2 then	--请求翻牌
+		GetMidAutumnOldPlayerAward(sysarg, nIndex)
+	elseif nType == 3 then	--请求翻10次牌
+		GetMidAutumnOldPlayerAwardTenTimes(sysarg, nIndex)
+	end
+end
+
+--下发中秋登录奖励
+function SendMidAutumnLoginAward(sysarg)
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+
+	local nActivityId = config.activityId
+	if not nActivityId then
+		nActivityId = 1
+	end
+	
+	local tmpTable = LoadMidAutumnLogin(sysarg)
+
+	local nValue = tmpTable[3]
+	local nIsOldPlay = tmpTable[4]
+	local nRecharge = tmpTable[5]
+	local nCanUseTimes = tmpTable[6]
+
+	local nAwardCount = table.getn(config.loginAwards or {})
+
+	local pack = DataPack.allocPacket(sysarg, 52, 36)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nActivityId)
+		DataPack.writeChar(pack, nAwardCount)
+
+		for i = 1, nAwardCount do
+			DataPack.writeChar(pack, 1)
+			DataPack.writeChar(pack, GetMidAutumnLoginAwardStatus(nValue, i))
+		end
+		
+		if config.useOldPlayerAwards ~= 0 then
+			DataPack.writeInt(pack, nCanUseTimes)
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--领取中秋登陆奖励
+function GetMidAutumnLoginAward(sysarg, nIndex)
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0212, ttFlyTip)
+		return
+	end
+
+	if (nIndex <= 0) or (nIndex > table.getn(config.loginAwards or {})) or (nIndex > 16) then
+		return
+	end
+
+	if (Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0204, ttFlyTip)
+		return
+	end
+
+	local tmpTable = LoadMidAutumnLogin(sysarg)
+
+	local nValue = tmpTable[3]
+
+	if GetMidAutumnLoginAwardStatus(nValue, nIndex) == 2 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0205, ttFlyTip)
+		return
+	elseif GetMidAutumnLoginAwardStatus(nValue, nIndex) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0206, ttFlyTip)
+		return
+	end
+
+	local awards = config.loginAwards[nIndex].awards
+	if not awards then return end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,config.logId,Lang.Activity.mzq0207, -1)
+			end
+		end
+		nValue = System.setIntBit(nValue, nIndex-1, 1)
+
+		tmpTable[3] = nValue
+		
+		SaveMidAutumnLogin(sysarg, tmpTable)
+
+		SendMidAutumnLoginAward(sysarg)
+	end
+end
+
+--重置马年中秋登录奖励数据
+function ResetMidAutumnLoginAward()
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) ~= true then
+		return
+	end
+
+	local playerList = LuaHelp.getAllActorList()
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player and (Actor.checkActorLevel(player, config.limitLevel, config.limitCircle)) then
+				local tmpTable = LoadMidAutumnLogin(player)
+
+				local days = tmpTable[1]
+				local accTime = tmpTable[2]
+				local nValue = tmpTable[3]
+
+				local nCanGetDays = 0
+				for i = 1, 16 do
+					if GetMidAutumnLoginAwardStatus(nValue, i) == 2 then
+						break
+					end
+					nCanGetDays = nCanGetDays + 1
+				end
+
+				if days == nCanGetDays then
+					days = days + 1
+					accTime = 0
+					local beginTime = config.onlineTime
+
+					Actor.unregScriptCallback(player, "SetMidAutumnLoginAward")
+					Actor.regScriptCallback(player, nil, beginTime * 1000, 0, 1, "SetMidAutumnLoginAward")
+
+					tmpTable[1] = days
+					tmpTable[2] = accTime
+					
+					SaveMidAutumnLogin(player, tmpTable)
+				end
+			end
+		end
+	end
+
+	if (not MidAutumnRankPt.LoginRankPt) then
+		return
+	end
+
+	local ranking = Ranking.getRanking(MidAutumnRankPt.LoginRankPt.File)
+	if not ranking then
+		ranking = Ranking.add(MidAutumnRankPt.LoginRankPt.File, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, MidAutumnRankPt.LoginRankPt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+
+	local nRankCount = Ranking.getRankItemCount(ranking)
+
+	for i = 1, nRankCount do
+		local pItem = Ranking.getItemPtrByIndex(ranking, i-1)
+		if pItem then
+			local days = tonumber(Ranking.getSub(pItem,0)) or 0
+			local accTime = tonumber(Ranking.getSub(pItem,1)) or 0
+			local nValue = tonumber(Ranking.getSub(pItem,2)) or 0
+			local nIsOldPlay = tonumber(Ranking.getSub(pItem,3)) or 0
+			local nCanUseTimes = tonumber(Ranking.getSub(pItem,5)) or 0
+
+			local nCanGetDays = 0
+			for i = 1, 16 do
+				if GetMidAutumnLoginAwardStatus(nValue, i) == 2 then
+					break
+				end
+				nCanGetDays = nCanGetDays + 1
+			end
+
+			if days == nCanGetDays then
+				days = days + 1
+			end
+			accTime = 0
+
+			if config.useOldPlayerAwards ~= 0 then
+				if nIsOldPlay == 1 then
+					nCanUseTimes = nCanUseTimes + config.addTimes
+				end
+			end
+
+			Ranking.setSub(pItem,0,days)
+			Ranking.setSub(pItem,1,accTime)
+			Ranking.setSub(pItem,5,nCanUseTimes)
+		end
+	end
+end
+
+--请求翻牌
+function GetMidAutumnOldPlayerAward(sysarg, nIndex)
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+
+	if config.useOldPlayerAwards == 0 then
+		return
+	end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0212, ttFlyTip)
+		return
+	end
+
+	if (Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0204, ttFlyTip)
+		return
+	end
+
+	local tmpTable = LoadMidAutumnLogin(sysarg)
+
+	local nIsOldPlay = tmpTable[4]
+	local nCanUseTimes = tmpTable[6]
+
+	if nIsOldPlay == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0208, ttFlyTip)
+		return
+	end
+
+	if nCanUseTimes <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0209, ttFlyTip)
+		return
+	end
+
+	local awardTabs = config.oldPlayerAwards
+	if not awardTabs then
+		return
+	end
+
+	local nTotalRate = 0
+	for k, awardInfo in ipairs(awardTabs or {}) do
+		nTotalRate = nTotalRate + awardInfo.rate
+	end
+	
+	local awardTab = nil
+	local nAwardId = 0
+	awardTab, nAwardId = GetMidAutumnLoginInfo(awardTabs, 1, nTotalRate)
+
+	if (not awardTab) or (nAwardId == 0) then
+		return
+	end
+
+	for k, awardInfo in ipairs(awardTab or {}) do
+		Dmkj.addItem(sysarg,awardInfo.id,awardInfo.count,awardInfo.quality,awardInfo.strong,awardInfo.bind,false,config.logId,Lang.Activity.mzq0210)
+		if awardInfo.isRarity and awardInfo.isRarity == true then
+			local actorName = Actor.getName(sysarg)
+			local itemName = Item.getAwardDesc(awardInfo.type, awardInfo.id)
+			System.broadcastTipmsg(string.format(Lang.Activity.mzq0219, actorName, itemName), ttScreenCenter)
+		end
+	end
+
+	nCanUseTimes = nCanUseTimes - 1
+
+	tmpTable[6] = nCanUseTimes
+
+	SaveMidAutumnLogin(sysarg, tmpTable)
+
+	SendMidAutumnOldPlayerAward(sysarg, nIndex, nAwardId, nCanUseTimes)
+end
+
+--根据概率获取值
+function GetMidAutumnLoginInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	local nAwardId = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i].value
+			nAwardId = i
+			break
+		end
+	end
+	return result, nAwardId
+end
+
+--添加到充值排行榜
+function OnAddRechargeMidAutumnLogin(sysarg, nMoneyValue)
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+	
+	if config.useOldPlayerAwards == 0 then
+		return
+	end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) ~= true then
+		return
+	end
+
+	local tmpTable = LoadMidAutumnLogin(sysarg)
+
+	local nIsOldPlay = tmpTable[4]
+	local nRecharge = tmpTable[5]
+	local nCanUseTimes = tmpTable[6]
+
+	if nIsOldPlay == 1 then
+		local nLastMoney = math.floor(nRecharge % config.addTimesNeedYB)
+
+		local nNewMoneyValue = nMoneyValue + nLastMoney
+
+		local nAddTimes = math.floor(nNewMoneyValue / config.addTimesNeedYB)
+
+		if nAddTimes > 0 then
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mzq0211, nMoneyValue, nAddTimes), ttFlyTip)
+
+			nCanUseTimes = nCanUseTimes + nAddTimes
+
+			tmpTable[6] = nCanUseTimes
+			
+			SaveMidAutumnLogin(sysarg, tmpTable)
+		end
+	end
+end
+
+--下发翻牌结果
+function SendMidAutumnOldPlayerAward(sysarg, nIndex, nAwardId, nCanUseTimes)
+	local pack = DataPack.allocPacket(sysarg, 52, 37)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nIndex)
+		DataPack.writeInt(pack, nAwardId)
+		DataPack.writeInt(pack, nCanUseTimes)
+		DataPack.flush(pack)
+	end
+end
+
+--请求翻10次牌
+function GetMidAutumnOldPlayerAwardTenTimes(sysarg, nIndex)
+	local config = MidAutumnActConfig.MidAutumnLoginConfig.LoginAward
+
+	if not config then return end
+	
+	if config.useOldPlayerAwards == 0 then
+		return
+	end
+
+	if System.isInDateRange(unpack(MidAutumnActConfig.MidAutumnLoginConfig.LoginAward.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0212, ttFlyTip)
+		return
+	end
+
+	if (Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0204, ttFlyTip)
+		return
+	end
+
+	local tmpTable = LoadMidAutumnLogin(sysarg)
+
+	local nIsOldPlay = tmpTable[4]
+	local nCanUseTimes = tmpTable[6]
+
+	if nIsOldPlay == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0208, ttFlyTip)
+		return
+	end
+
+	local nNeedUseTimes = 10
+	if nCanUseTimes < nNeedUseTimes then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0218, ttFlyTip)
+		return
+	end
+
+	local awardTabs = config.oldPlayerAwards
+	if not awardTabs then
+		return
+	end
+
+	local nAwardIdTab = {}
+	for i=1,nNeedUseTimes do
+		local nTotalRate = 0
+		for k, awardInfo in ipairs(awardTabs or {}) do
+			nTotalRate = nTotalRate + awardInfo.rate
+		end
+		
+		local awardTab = nil
+		local nAwardId = 0
+		awardTab, nAwardId = GetMidAutumnLoginInfo(awardTabs, 1, nTotalRate)
+
+		if (not awardTab) or (nAwardId == 0) then
+			return
+		end
+
+		table.insert(nAwardIdTab, nAwardId)
+
+		for k, awardInfo in ipairs(awardTab or {}) do
+			Dmkj.addItem(sysarg,awardInfo.id,awardInfo.count,awardInfo.quality,awardInfo.strong,awardInfo.bind,false,config.logId,Lang.Activity.mzq0210)
+			if awardInfo.isRarity and awardInfo.isRarity == true then
+				local actorName = Actor.getName(sysarg)
+				local itemName = Item.getAwardDesc(awardInfo.type, awardInfo.id)
+				System.broadcastTipmsg(string.format(Lang.Activity.mzq0219, actorName, itemName), ttScreenCenter)
+			end
+		end
+	end
+
+	nCanUseTimes = nCanUseTimes - nNeedUseTimes
+
+	tmpTable[6] = nCanUseTimes
+
+	SaveMidAutumnLogin(sysarg, tmpTable)
+
+	SendMidAutumnOldPlayerAwardSeveralTimes(sysarg, nAwardIdTab, nCanUseTimes)
+end
+
+
+--下发翻10次牌结果
+function SendMidAutumnOldPlayerAwardSeveralTimes(sysarg, nAwardIdTab, nCanUseTimes)
+	local nTimes = table.getn(nAwardIdTab or {})
+
+	local pack = DataPack.allocPacket(sysarg, 52, 38)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nCanUseTimes)
+		DataPack.writeChar(pack, nTimes)
+
+		for i=1,table.getn(nAwardIdTab or {}) do
+			DataPack.writeInt(pack, nAwardIdTab[i])
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--清除人月团圆排行
+function OnClearMidAutumnLogin()
+	local ranking = Ranking.getRanking(MidAutumnRankPt.LoginRankPt.File)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end

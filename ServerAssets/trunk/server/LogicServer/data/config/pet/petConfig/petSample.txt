@@ -1,0 +1,280 @@
+﻿ --ID=0，配置样例 
+  {
+
+     id=0,
+     name =Lang.EntityName.p0, --宠物的名字 
+                        --宠物的图标
+   
+     aiId = 3,   --怪物ai的 ID
+     icon=1, 
+
+     modelid = 1, --外观模型id    (整数)
+
+   	--宠物的属性
+	property=
+	{
+	    --1级的属性
+		{
+			 
+			color ={0,255,255,255},
+			nMaxHp=100,   --最大的血
+			nMaxMp=100, --最大蓝(内力)
+		   
+			nPhysicalAttackMin=1, -- 最小物理攻击
+			nPhysicalAttackMax=10, -- 最大物理攻击
+
+			nMagicAttackMin=1,	 --最小魔法攻击
+			nMagicAttackMax=4,	 --最大魔法攻击
+
+			nWizardAttackMin= 0,	--最小道术攻击
+			nWizardAttackMax=1,	--最大道术攻击
+
+			nHysicalDefenceMin=1, --最小物理防御
+			nHysicalDefenceMax=5, --最大物理防御
+
+			nMagicDefenceMin=1, --最小魔法防御
+			nMagicDefenceMax=2, --最大魔法防御
+
+			nHitrate=2,		--准确
+			nDogerate=3,		--敏捷
+			
+			fMagicHitRate=0.1,--魔法命中
+			fMagicDogerate=0.1,--魔法闪避
+			fToxicDogerate=0.0,--毒物闪避
+
+			fHpRenew=0.0,		-- 生命恢复
+			fMpRenew =0.0,		--魔法恢复
+			fToxicRenew =0.0,   --毒物恢复
+			nMoveOneSlotTime = 1000,      --移动1格需要的时间，单位毫秒，数值越小，速度越快
+    
+			nAttackSpeed = 1000,		--攻击速度，单位毫秒，数值越小，速度越快
+	
+		},
+		--2级属性
+		{
+			
+			color ={0,255,255,255},
+			nMaxHp=100,   --最大的血
+			nMaxMp=100, --最大蓝(内力)
+		   
+			nPhysicalAttackMin=1, -- 最小物理攻击
+			nPhysicalAttackMax=10, -- 最大物理攻击
+
+			nMagicAttackMin=1,	 --最小魔法攻击
+			nMagicAttackMax=4,	 --最大魔法攻击
+
+			nWizardAttackMin= 0,	--最小道术攻击
+			nWizardAttackMax=1,	--最大道术攻击
+
+			nHysicalDefenceMin=1, --最小物理防御
+			nHysicalDefenceMax=5, --最大物理防御
+
+			nMagicDefenceMin=1, --最小魔法防御
+			nMagicDefenceMax=2, --最大魔法防御
+
+			nHitrate=2,		--准确
+			nDogerate=3,		--敏捷
+			
+			fMagicHitRate=0.1,--魔法命中
+			fMagicDogerate=0.1,--魔法闪避
+			fToxicDogerate=0.0,--毒物闪避
+
+			fHpRenew=0.0,		-- 生命恢复
+			fMpRenew =0.0,		--魔法恢复
+			fToxicRenew =0.0,   --毒物恢复
+			nMoveOneSlotTime = 1000,      --移动1格需要的时间，单位毫秒，数值越小，速度越快
+    
+			nAttackSpeed = 1000,		--攻击速度，单位毫秒，数值越小，速度越快
+			
+		},
+		--3级属性
+		{
+			
+			color ={0,255,255,255},
+			nMaxHp=100,   --最大的血
+			nMaxMp=100, --最大蓝(内力)
+		   
+			nPhysicalAttackMin=1, -- 最小物理攻击
+			nPhysicalAttackMax=10, -- 最大物理攻击
+
+			nMagicAttackMin=1,	 --最小魔法攻击
+			nMagicAttackMax=4,	 --最大魔法攻击
+
+			nWizardAttackMin= 0,	--最小道术攻击
+			nWizardAttackMax=1,	--最大道术攻击
+
+			nHysicalDefenceMin=1, --最小物理防御
+			nHysicalDefenceMax=5, --最大物理防御
+
+			nMagicDefenceMin=1, --最小魔法防御
+			nMagicDefenceMax=2, --最大魔法防御
+
+			nHitrate=2,		--准确
+			nDogerate=3,		--敏捷
+			
+			fMagicHitRate=0.1,--魔法命中
+			fMagicDogerate=0.1,--魔法闪避
+			fToxicDogerate=0.0,--毒物闪避
+
+			fHpRenew=0.0,		-- 生命恢复
+			fMpRenew =0.0,		--魔法恢复
+			fToxicRenew =0.0,   --毒物恢复
+			nMoveOneSlotTime = 1000,      --移动1格需要的时间，单位毫秒，数值越小，速度越快
+    
+			nAttackSpeed = 1000,		--攻击速度，单位毫秒，数值越小，速度越快
+		},
+		
+		--4级属性
+		{
+			
+			color ={0,255,255,255},
+			nMaxHp=100,   --最大的血
+			nMaxMp=100, --最大蓝(内力)
+		   
+			nPhysicalAttackMin=1, -- 最小物理攻击
+			nPhysicalAttackMax=10, -- 最大物理攻击
+
+			nMagicAttackMin=1,	 --最小魔法攻击
+			nMagicAttackMax=4,	 --最大魔法攻击
+
+			nWizardAttackMin= 0,	--最小道术攻击
+			nWizardAttackMax=1,	--最大道术攻击
+
+			nHysicalDefenceMin=1, --最小物理防御
+			nHysicalDefenceMax=5, --最大物理防御
+
+			nMagicDefenceMin=1, --最小魔法防御
+			nMagicDefenceMax=2, --最大魔法防御
+
+			nHitrate=2,		--准确
+			nDogerate=3,		--敏捷
+			
+			fMagicHitRate=0.1,--魔法命中
+			fMagicDogerate=0.1,--魔法闪避
+			fToxicDogerate=0.0,--毒物闪避
+
+			fHpRenew=0.0,		-- 生命恢复
+			fMpRenew =0.0,		--魔法恢复
+			fToxicRenew =0.0,   --毒物恢复
+			nMoveOneSlotTime = 1000,      --移动1格需要的时间，单位毫秒，数值越小，速度越快
+    
+			nAttackSpeed = 1000,		--攻击速度，单位毫秒，数值越小，速度越快
+		},
+		
+		--5级属性
+		{
+			
+			color ={0,255,255,255},
+			nMaxHp=100,   --最大的血
+			nMaxMp=100, --最大蓝(内力)
+		   
+			nPhysicalAttackMin=1, -- 最小物理攻击
+			nPhysicalAttackMax=10, -- 最大物理攻击
+
+			nMagicAttackMin=1,	 --最小魔法攻击
+			nMagicAttackMax=4,	 --最大魔法攻击
+
+			nWizardAttackMin= 0,	--最小道术攻击
+			nWizardAttackMax=1,	--最大道术攻击
+
+			nHysicalDefenceMin=1, --最小物理防御
+			nHysicalDefenceMax=5, --最大物理防御
+
+			nMagicDefenceMin=1, --最小魔法防御
+			nMagicDefenceMax=2, --最大魔法防御
+
+			nHitrate=2,		--准确
+			nDogerate=3,		--敏捷
+			
+			fMagicHitRate=0.1,--魔法命中
+			fMagicDogerate=0.1,--魔法闪避
+			fToxicDogerate=0.0,--毒物闪避
+
+			fHpRenew=0.0,		-- 生命恢复
+			fMpRenew =0.0,		--魔法恢复
+			fToxicRenew =0.0,   --毒物恢复
+			nMoveOneSlotTime = 1000,      --移动1格需要的时间，单位毫秒，数值越小，速度越快
+    
+			nAttackSpeed = 1000,		--攻击速度，单位毫秒，数值越小，速度越快
+			
+		},
+		
+		--6级属性
+		{
+			color ={0,255,255,255},
+			nMaxHp=100,   --最大的血
+			nMaxMp=100, --最大蓝(内力)
+		   
+			nPhysicalAttackMin=1, -- 最小物理攻击
+			nPhysicalAttackMax=10, -- 最大物理攻击
+
+			nMagicAttackMin=1,	 --最小魔法攻击
+			nMagicAttackMax=4,	 --最大魔法攻击
+
+			nWizardAttackMin= 0,	--最小道术攻击
+			nWizardAttackMax=1,	--最大道术攻击
+
+			nHysicalDefenceMin=1, --最小物理防御
+			nHysicalDefenceMax=5, --最大物理防御
+
+			nMagicDefenceMin=1, --最小魔法防御
+			nMagicDefenceMax=2, --最大魔法防御
+
+			nHitrate=2,		--准确
+			nDogerate=3,		--敏捷
+			
+			fMagicHitRate=0.1,--魔法命中
+			fMagicDogerate=0.1,--魔法闪避
+			fToxicDogerate=0.0,--毒物闪避
+
+			fHpRenew=0.0,		-- 生命恢复
+			fMpRenew =0.0,		--魔法恢复
+			fToxicRenew =0.0,   --毒物恢复
+			nMoveOneSlotTime = 1000,      --移动1格需要的时间，单位毫秒，数值越小，速度越快
+    
+			nAttackSpeed = 1000,		--攻击速度，单位毫秒，数值越小，速度越快
+			
+		},
+		
+		--7级属性
+		{
+			
+			color ={0,255,255,255},
+			nMaxHp=100,   --最大的血
+			nMaxMp=100, --最大蓝(内力)
+		   
+			nPhysicalAttackMin=1, -- 最小物理攻击
+			nPhysicalAttackMax=10, -- 最大物理攻击
+
+			nMagicAttackMin=1,	 --最小魔法攻击
+			nMagicAttackMax=4,	 --最大魔法攻击
+
+			nWizardAttackMin= 0,	--最小道术攻击
+			nWizardAttackMax=1,	--最大道术攻击
+
+			nHysicalDefenceMin=1, --最小物理防御
+			nHysicalDefenceMax=5, --最大物理防御
+
+			nMagicDefenceMin=1, --最小魔法防御
+			nMagicDefenceMax=2, --最大魔法防御
+
+			nHitrate=2,		--准确
+			nDogerate=3,		--敏捷
+			
+			fMagicHitRate=0.1,--魔法命中
+			fMagicDogerate=0.1,--魔法闪避
+			fToxicDogerate=0.0,--毒物闪避
+
+			fHpRenew=0.0,		-- 生命恢复
+			fMpRenew =0.0,		--魔法恢复
+			fToxicRenew =0.0,   --毒物恢复
+			nMoveOneSlotTime = 1000,      --移动1格需要的时间，单位毫秒，数值越小，速度越快
+    
+			nAttackSpeed = 1000,		--攻击速度，单位毫秒，数值越小，速度越快
+			
+		},
+		
+	},
+
+     
+  },

@@ -1,0 +1,151 @@
+--lua script
+--元旦BOSS活动
+--#include "data\config\activityconfig\NewYearSheep\NewYearBossConfig.txt" once
+
+--请求面板信息
+function ReqNewYearBossInfo(sysarg)
+	if System.isInDateRange(unpack(NewYearBossConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0201, ttFlyTip)--不在活动时间范围内
+		return
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 115)
+	if not pack then return end
+
+	local htimes = {}
+	local isGet = {}
+	for i=1,3 do
+		htimes[i] = GetNewYearBossHurtTimes(sysarg, i) --伤害次数
+		if htimes[i] > NewYearBossConfig.boss[i].hurtTime then
+			htimes[i] = NewYearBossConfig.boss[i].hurtTime
+		end
+		isGet[i] = tonumber(ReadNewYearBossData(sysarg,i+9)) or 0
+	end
+
+	for i=1,3 do
+		DataPack.writeByte(pack, htimes[i]) --伤害次数
+		DataPack.writeByte(pack, isGet[i])--可否领取
+	end
+	DataPack.flush(pack)
+end
+
+--请求领奖
+function ReqNewYearBossAward(sysarg, bossIndex)
+	if System.isInDateRange(unpack(NewYearBossConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0201, ttFlyTip)--不在活动时间范围内
+		return
+	end
+
+	local isGet = tonumber(ReadNewYearBossData(sysarg,bossIndex+9)) or 0
+	if isGet > 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0205, ttFlyTip) --已领了
+		return
+	end
+	
+
+	local needTime = NewYearBossConfig.boss[bossIndex].hurtTime --需要的次数
+	local nowTime = GetNewYearBossHurtTimes(sysarg, bossIndex)--目前的次数
+	
+	if nowTime < needTime then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0206, ttFlyTip) --次数未达
+		return
+	end
+
+	--判断背包
+	local needbag = NewYearBossConfig.boss[bossIndex].needbag
+	local nGridCount = Item.getBagEmptyGridCount(sysarg)
+	if needbag > nGridCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0204, ttFlyTip)
+		return
+	end
+
+	SaveNewYearBossData(sysarg, bossIndex+9,1) --10,11,12已领标志
+	
+	--给奖励
+	Awards.Give(sysarg,NewYearBossConfig.boss[bossIndex].awards,980,Lang.LogTips.yyd0202)
+	ReqNewYearBossInfo(sysarg)
+end
+
+--请求某个奖项的伤害次数
+function GetNewYearBossHurtTimes(sysarg, index)
+	local htimes = 0
+	--需要的伤害值
+	local val = NewYearBossConfig.boss[index].hurtVal
+	--读取文件
+	for i=1,9 do
+		local ret = ReadNewYearBossData(sysarg, i)
+		if ret >= val then
+			htimes = htimes + 1
+		end
+	end
+	return htimes
+end
+
+--boss死亡调用
+function OnNewYearBossDieDie(monster, sysarg, monId)
+	local actorName = Actor.getName(sysarg)
+	System.broadcastTipmsg(string.format(Lang.Activity.yyd0215, actorName), 128+2)
+end
+	
+
+--boss被攻击时候调用
+function OnNewYearBossAttacked(sysarg, damage)
+	if System.isInDateRange(unpack(NewYearBossConfig.actTime)) == false then
+		return
+	end
+	local tem = NewYearBossConfig.actTime
+	if not tem then return end
+	local day = System.getActivityStartDay(tem[1],tem[2],tem[3],tem[4],tem[5],tem[6]) -1
+	if day <0 then return end
+	SaveNewYearBossData(sysarg, day, damage)
+end
+
+
+
+--[[
+0多余
+1~8 每天的伤害值 9备用
+10~12 已经领取标志位  13多余
+--]]
+--保存个人数据
+function SaveNewYearBossData(sysarg, subid, value)
+	local ranking = Ranking.getRanking(Lang.Rank.NewYearBossFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			local ret = tonumber(Ranking.getSub(itemPtr, subid)) or 0
+			Ranking.setSub(itemPtr, subid, ret+value)
+		else
+			itemPtr = Ranking.addItem(ranking, nActorId,0)
+			Ranking.setSub(itemPtr, subid, value)
+		end
+	end
+end
+
+--读取个人数据
+function ReadNewYearBossData(sysarg, subid)
+	local ranking = Ranking.getRanking(Lang.Rank.NewYearBossFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, subid)) or 0
+		end
+	end
+	return 0
+end
+
+
+--活动结束清数据
+function ClearNewYearBossDada()
+	local ranking = Ranking.getRanking(Lang.Rank.NewYearBossFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+
+
+
+

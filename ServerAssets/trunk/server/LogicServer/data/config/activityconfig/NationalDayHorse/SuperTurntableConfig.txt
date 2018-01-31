@@ -1,0 +1,431 @@
+--超级转盘配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+SuperTurntableConfig =  
+{
+	refreshYb = 10,  --刷新需要的元宝  
+	drawYb = 20,  --抽1次需要的元宝
+	drawAllYb = 200, --抽10次需要的元宝
+	ybToPoint = 1,			--1元宝对应的积分	 	
+	refreshInterval = 2*3600,
+	itemCount = 1000, --每个库的最大物品数量  
+	turntableCount = 12,	--转盘的数量 
+	itemLists =  
+	{
+		--isInit为true表示系统刷的，为false需要花元宝才能刷到; rate为刷刷出的概率，startYb为起始元宝，ybCircle为间隔元宝，isBrocast为true表示播报
+		--第1个物品库
+		{
+			rate = 500, startYb = 10000,  ybCircle = 5000,
+			itemList = 
+			{
+				{--1
+					idx =1, type = 0, id = 3043, count = 1, strong = 0, quality = 0, bind = 1, rate =5,  isBrocast = true,
+				},
+				{--2
+					idx =2, type = 0, id = 3054, count = 1, strong = 0, quality = 0, bind = 1, rate =5,  isBrocast = true,
+				},
+				{--3
+					idx =3, type = 0, id = 2662, count = 2, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = true,
+				},
+				{--4
+					idx =4, type = 0, id = 2673, count = 2, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = true,
+				},
+				{--5
+					idx =5, type = 0, id = 751, count = 1, strong = 0, quality = 0, bind = 1, rate =20, isBrocast = true,
+				},
+				{--6
+					idx =6, type = 0, id = 761, count = 1, strong = 0, quality = 0, bind = 1, rate =20,  isBrocast = true,
+				},
+				{--7
+					idx =7, type = 0, id = 771, count = 1, strong = 0, quality = 0, bind = 1, rate =20, isBrocast = true,
+				},
+			},
+		},
+	
+		--第二个物品库
+		{  
+			rate = 2000, startYb = 0,  ybCircle = 0,
+			itemList = 
+			{
+				{--1
+					idx =1, type = 0, id = 2986, count = 1, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+				{--2
+					idx =2, type = 0, id = 2895, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--3
+					idx =3, type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, rate =12,  isBrocast = false,
+				},
+				{--4
+					idx =4, type = 0, id = 2836, count = 1, strong = 0, quality = 0, bind = 1, rate =8,  isBrocast = false,
+				},
+				{--5
+					idx =5, type = 0, id = 1371, count = 1, strong = 0, quality = 0, bind = 1, rate =20, isBrocast = false,
+				},
+				{--6
+					idx =6, type = 0, id = 2558, count = 5, strong = 0, quality = 0, bind = 1, rate =20,  isBrocast = false,
+				},
+				{--7
+					idx =7, type = 0, id = 2295, count = 1, strong = 0, quality = 0, bind = 1, rate =15, isBrocast = false,
+				},
+			},
+		},
+		
+		--第三个物品库
+		{ 
+			rate = 600, startYb = 100,  ybCircle = 500,
+			itemList =
+			{
+				{--1
+					idx =1, type = 0, id = 2910, count = 1, strong = 0, quality = 0, bind = 1, rate =5,  isBrocast = true,
+				},
+				{--2
+					idx =2, type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, rate =8,  isBrocast = true,
+				},
+				{--3
+					idx =3, type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1, rate =18,  isBrocast = true,
+				},
+				{--4
+					idx =4, type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, rate =18,  isBrocast = true,
+				},
+				{--5
+					idx =5, type = 0, id = 1991, count = 1, strong = 0, quality = 0, bind = 1, rate =13, isBrocast = true,
+				},
+				{--6
+					idx =6, type = 0, id = 1175, count = 1, strong = 0, quality = 0, bind = 1, rate =18,  isBrocast = true,
+				},
+				{--7
+					idx =7, type = 0, id = 3099, count = 2, strong = 0, quality = 0, bind = 1, rate =12, isBrocast = true,
+				},
+				{--8
+					idx =8, type = 0, id = 3247, count = 1, strong = 0, quality = 0, bind = 1, rate =5, isBrocast = true,
+				},
+				{--9
+					idx =9, type = 0, id = 2916, count = 1, strong = 0, quality = 0, bind = 1, rate =3, isBrocast = true,
+				},
+			},
+		},
+		
+		--第四个物品库
+		{
+			rate = 300, startYb = 2000,  ybCircle = 2500,
+			itemList =
+			{
+				{--1
+					idx =1, type = 0, id = 982, count = 1, strong = 0, quality = 0, bind = 0, rate =22,  isBrocast = true,
+				},
+				{--2
+					idx =2, type = 0, id = 983, count = 1, strong = 0, quality = 0, bind = 0, rate =22,  isBrocast = true,
+				},
+				{--3
+					idx =3, type = 0, id = 984, count = 1, strong = 0, quality = 0, bind = 0, rate =22,  isBrocast = true,
+				},
+				{--4
+					idx =4, type = 0, id = 3078, count = 1, strong = 0, quality = 0, bind = 0, rate =13,  isBrocast = true,
+				},
+				{--5
+					idx =5, type = 0, id = 3079, count = 1, strong = 0, quality = 0, bind = 0, rate =13, isBrocast = true,
+				},
+				{--6
+					idx =6, type = 0, id = 3080, count = 1, strong = 0, quality = 0, bind = 0, rate =8,  isBrocast = true,
+				},
+			},
+		},
+		
+		--第五个物品库
+		{  
+			rate = 150, startYb = 35000,  ybCircle = 80000,
+			itemList =
+			{
+				{--1
+					idx =1, type = 0, id = 2198, count = 1, strong = 0, quality = 0, bind = 0, rate =4,  isBrocast = true,
+				},
+				{--2
+					idx =2, type = 0, id = 2199, count = 1, strong = 0, quality = 0, bind = 0, rate =8,  isBrocast = true,
+				},
+				{--3
+					idx =3, type = 0, id = 2200, count = 1, strong = 0, quality = 0, bind = 0, rate =22,  isBrocast = true,
+				},
+				{--4
+					idx =4, type = 0, id = 2201, count = 1, strong = 0, quality = 0, bind = 0, rate =22,  isBrocast = true,
+				},
+				{--5
+					idx =5, type = 0, id = 2202, count = 1, strong = 0, quality = 0, bind = 0, rate =22, isBrocast = true,
+				},
+				{--6
+					idx =6, type = 0, id = 2203, count = 1, strong = 0, quality = 0, bind = 0, rate =22,  isBrocast = true,
+				},
+			},
+		},
+		
+		--第六个物品库
+		{
+			rate = 900, startYb = 0,  ybCircle = 300,
+			itemList = 
+			{
+				{--1
+					idx =1, type = 0, id = 2982, count = 1, strong = 0, quality = 0, bind = 1, rate =12,  isBrocast = true,
+				},
+				{--2
+					idx =2, type = 0, id = 2949, count = 1, strong = 0, quality = 0, bind = 1, rate =8,  isBrocast = true,
+				},
+				{--3
+					idx =3, type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1, rate =20,  isBrocast = true,
+				},
+				{--4
+					idx =4, type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, rate =20,  isBrocast = true,
+				},
+				{--5
+					idx =5, type = 0, id = 1991, count = 1, strong = 0, quality = 0, bind = 1, rate =12, isBrocast = true,
+				},
+				{--6
+					idx =6, type = 0, id = 1175, count = 1, strong = 0, quality = 0, bind = 1, rate =20,  isBrocast = true,
+				},
+				{--7
+					idx =7, type = 0, id = 3099, count = 2, strong = 0, quality = 0, bind = 1, rate =8, isBrocast = true,
+				},
+			},
+		},
+	
+		--第七个物品库
+		{  
+			rate = 2000, startYb = 0,  ybCircle = 0,
+			itemList = 
+			{
+				{--1
+					idx =1, type = 0, id = 1046, count = 1, strong = 0, quality = 0, bind = 1, rate =3,  isBrocast = true,
+				},
+				{--2
+					idx =2, type = 0, id = 1021, count = 1, strong = 0, quality = 0, bind = 1, rate =3,  isBrocast = false,
+				},
+				{--3
+					idx =3, type = 0, id = 2872, count = 1, strong = 0, quality = 0, bind = 1, rate =8, isBrocast = true,
+				},
+				{--4
+					idx =4, type = 0, id = 2873, count = 1, strong = 0, quality = 0, bind = 1, rate =8,  isBrocast = true,
+				},
+				{--5
+					idx =5, type = 0, id = 1853, count = 1, strong = 0, quality = 0, bind = 1, rate =10, isBrocast = false,
+				},
+				{--6
+					idx =6, type = 0, id = 1854, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--7
+					idx =7, type = 0, id = 1855, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--8
+					idx =8, type = 0, id = 1022, count = 1, strong = 0, quality = 0, bind = 1, rate =1,  isBrocast = false,
+				},
+				{--9
+					idx =9, type = 0, id = 3182, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--10
+					idx =10, type = 0, id = 3183, count = 1, strong = 0, quality = 0, bind = 1, rate =8,  isBrocast = true,
+				},
+				{--11
+					idx =11, type = 0, id = 3185, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--12
+					idx =12, type = 0, id = 3186, count = 1, strong = 0, quality = 0, bind = 1, rate =8,  isBrocast = true,
+				},
+				{--13
+					idx =13, type = 0, id = 3188, count = 1, strong = 0, quality = 0, bind = 1, rate =8,  isBrocast = true,
+				},
+				{--14
+					idx =14, type = 0, id = 3189, count = 1, strong = 0, quality = 0, bind = 1, rate =3,  isBrocast = true,
+				},
+			},
+		},
+		
+		--第八个物品库
+		{ 
+			rate = 50, startYb = 50000,  ybCircle = 800000,
+			itemList =
+			{
+				{--1
+					idx =1, type = 0, id = 1724, count = 1, strong = 0, quality = 0, bind = 0, rate =4,  isBrocast = true,
+				},
+				{--2
+					idx =2, type = 0, id = 1725, count = 1, strong = 0, quality = 0, bind = 0, rate =8,  isBrocast = true,
+				},
+				{--3
+					idx =3, type = 0, id = 1726, count = 1, strong = 0, quality = 0, bind = 0, rate =20,  isBrocast = true,
+				},
+				{--4
+					idx =4, type = 0, id = 1727, count = 1, strong = 0, quality = 0, bind = 0, rate =20,  isBrocast = true,
+				},
+				{--5
+					idx =5, type = 0, id = 1728, count = 1, strong = 0, quality = 0, bind = 0, rate =20, isBrocast = true,
+				},
+				{--6
+					idx =6, type = 0, id = 1729, count = 1, strong = 0, quality = 0, bind = 0, rate =20,  isBrocast = true,
+				},
+				{--7
+					idx =7, type = 0, id = 1730, count = 1, strong = 0, quality = 0, bind = 0, rate =8, isBrocast = true,
+				},
+			},
+		},
+		
+		--第九个物品库
+		{
+			rate = 2000, startYb = 0,  ybCircle = 0,
+			itemList =
+			{
+				{--1
+					idx =1, type = 0, id = 2986, count = 1, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+				{--2
+					idx =2, type = 0, id = 2895, count = 1, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+				{--3
+					idx =3, type = 0, id = 2627, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--4
+					idx =4, type = 0, id = 2836, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--5
+					idx =5, type = 0, id = 1371, count = 1, strong = 0, quality = 0, bind = 1, rate =10, isBrocast = false,
+				},
+				{--6
+					idx =6, type = 0, id = 2558, count = 5, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+				{--7
+					idx =7, type = 0, id = 2295, count = 1, strong = 0, quality = 0, bind = 1, rate =15, isBrocast = false,
+				},
+				{--8
+					idx =8, type = 0, id = 3123, count = 3, strong = 0, quality = 0, bind = 1, rate =10, isBrocast = false,
+				},
+			},
+		},
+		
+		--第十个物品库
+		{  
+			rate = 2000, startYb = 0,  ybCircle = 0,
+			itemList =
+			{
+				{--1
+					idx =1, type = 0, id = 2659, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--2
+					idx =2, type = 0, id = 2670, count = 1, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--3
+					idx =3, type = 0, id = 2745, count = 1, strong = 0, quality = 0, bind = 1, rate =20,  isBrocast = false,
+				},
+				{--4
+					idx =4, type = 0, id = 797, count = 2, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--5
+					idx =5, type = 0, id = 747, count = 2, strong = 0, quality = 0, bind = 1, rate =10, isBrocast = false,
+				},
+				{--6
+					idx =6, type = 0, id = 757, count = 2, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--7
+					idx =7, type = 0, id = 767, count = 2, strong = 0, quality = 0, bind = 1, rate =10, isBrocast = false,
+				},
+				{--8
+					idx =8, type = 0, id = 777, count = 2, strong = 0, quality = 0, bind = 1, rate =10,  isBrocast = false,
+				},
+				{--9
+					idx =9, type = 0, id = 787, count = 2, strong = 0, quality = 0, bind = 1, rate =10, isBrocast = false,
+				},
+			},
+		},
+		
+		--第十一个物品库
+		{
+			rate = 100, startYb = 1000000,  ybCircle = 800000,
+			itemList =
+			{
+				{--1
+					idx =1, type = 0, id = 644, count = 1, strong = 0, quality = 0, bind = 1, rate =30,  isBrocast = true,
+				},
+				{--2
+					idx =2, type = 0, id = 3191, count = 1, strong = 0, quality = 0, bind = 1, rate =20,  isBrocast = true,
+				},
+				{--3
+					idx =4, type = 0, id = 3001, count = 1, strong = 0, quality = 0, bind = 1, rate =20,  isBrocast = true,
+				},
+				{--4
+					idx =5, type = 0, id = 2813, count = 1, strong = 0, quality = 0, bind = 1, rate =30,  isBrocast = true,
+				},
+			},
+		},
+		
+		--第十二个物品库
+		{  
+			rate = 1500, startYb = 0,  ybCircle = 200,
+			itemList =
+			{
+				{--1
+					idx =1, type = 0, id = 2603, count = 2, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+				{--2
+					idx =2, type = 0, id = 1402, count = 1, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+				{--3
+					idx =3, type = 0, id = 3099, count = 1, strong = 0, quality = 0, bind = 1, rate =5,  isBrocast = false,
+				},
+				{--4
+					idx =4, type = 0, id = 2276, count = 2, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+				{--5
+					idx =5, type = 0, id = 1990, count = 10, strong = 0, quality = 0, bind = 1, rate =15, isBrocast = false,
+				},
+				{--6
+					idx =6, type = 0, id = 2111, count = 10, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+				{--7
+					idx =7, type = 0, id = 2986, count = 5, strong = 0, quality = 0, bind = 1, rate =5,  isBrocast = false,
+				},
+				{--8
+					idx =8, type = 0, id = 3040, count = 10, strong = 0, quality = 0, bind = 1, rate =15,  isBrocast = false,
+				},
+			},
+		},
+	},
+	
+	--抽奖排行奖励
+	accConsume = 10000,		--累计积分大于10000 
+	accRank = 5,			--累计积分前5
+	accAwards = 
+	{
+		awardTips = Lang.Activity.mgq0200,
+		awardIndexs = --奖励序号
+		{
+			--beginVal 获取奖励的起始名次
+			--endVal 获取奖励的截止名次
+			[1] = {beginVal = 1, endVal = 1},  
+			[2] = {beginVal = 2, endVal = 2},
+			[3] = {beginVal = 3, endVal = 3}, 
+			[4] = {beginVal = 4, endVal = 4}, 
+			[5] = {beginVal = 5, endVal = 5},  
+		},
+		--第1名奖励
+		{
+			needBagCount = 1, type = 0, id = 3150, count = 1, strong = 0, quality = 0, bind = 1,
+		},
+		--第2名奖励
+		{
+			needBagCount = 1, type = 0, id = 3151, count = 1, strong = 0, quality = 0, bind = 1,
+			
+			
+		},
+		--第3名奖励
+		{
+			needBagCount = 1, type = 0, id = 3152, count = 1, strong = 0, quality = 0, bind = 1,
+			
+			
+		},
+		--第4名奖励
+		{
+			needBagCount = 1, type = 0, id = 3153, count = 1, strong = 0, quality = 0, bind = 1,
+
+		},
+		--第5名奖励
+		{
+			needBagCount = 1, type = 0, id = 3153, count = 1, strong = 0, quality = 0, bind = 1,
+		},
+	},
+}

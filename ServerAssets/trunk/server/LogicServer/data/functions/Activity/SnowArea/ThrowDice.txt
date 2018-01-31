@@ -1,0 +1,43 @@
+﻿--#include "data\config\activityconfig\SnowArea\SnowArea.txt" once
+
+function GetSnowCloseTime()
+	local dvar = System.getDyanmicVar()
+	local beginTime = dvar.SnowTeleportTime
+	if beginTime then
+		local nNowTime = System.getCurrMiniTime()
+		local leftTime = tonumber(beginTime) - nNowTime
+		if leftTime > 0 then
+			return leftTime
+		end
+	end
+	return 0
+end
+
+function OnThrowDice(sysarg)
+	local davar = Actor.getDyanmicVar(sysarg)
+	transFloor = davar.SnowFloor
+	
+	local dvar = System.getDyanmicVar()
+	local SnowTeleport = tonumber(dvar.SnowTeleport)
+	
+	if not SnowTeleport or SnowTeleport > table.getn(SnowAreaConfig.dest) then
+		return
+	end
+	
+	local config = SnowAreaConfig.dest[SnowTeleport]
+	
+	if (not config) then return end
+	
+	local sid = config.actScene[davar.SnowFloor]
+	
+	local pos = config.transPos
+	
+	if not sid then return end
+	
+	if Actor.enterScene(sysarg, sid, pos.x, pos.y, pos.width, pos.height) == true then
+	   Actor.initActivityWind(sysarg, config.actName, GetSnowCloseTime(), config.actTips, Lang.Activity.sa020, tonumber(dvar.SnowOnePiece))
+		--Actor.changeActivityProgress(sysarg, index+1, -2)
+	end
+end
+
+MiscsImplement.registerMsgHandler(78,OnThrowDice)

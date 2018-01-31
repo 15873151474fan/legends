@@ -1,0 +1,55 @@
+﻿--疾风令飞往任务目标地点的实现函数
+--#include "data\functions\config\ShuanSongFeeConfig\ChuanSongFeeConfig.txt"  
+--#include "data\functions\config\ShuanSongFeeConfig\ChuanSongSceneId.txt"
+--玩家点击传送按钮的函数[初始场景ID和目标场景ID] 
+moneyType = {
+  [0] = PROP_ACTOR_BIND_COIN,
+	[1] = PROP_ACTOR_COIN,
+	[2] = PROP_ACTOR_BIND_YUANBAO,
+	[3] = PROP_ACTOR_YUANBAO,
+}
+MiscsImplement.StageChuanSongHandler = function (sysarg, msgid, packet)
+	if packet == nil then return end
+  local sceneid = DataPack.readInt(packet)
+	local targetScene = DataPack.readInt(packet)
+	--print("sceneid : targetScene:"..sceneid.." "..targetScene)
+	local Asceneid = Actor.getSceneId(sysarg)
+	if sceneid ~= Asceneid then return end
+	if ChuanSongFeeConfig[sceneid] == nil then return end
+	local targetconfig = ChuanSongFeeConfig[sceneid][1]
+	--print("-----------"..table.getn(targetconfig))
+	if targetconfig == nil then return end
+  local fee = {}
+  table.foreachi( targetconfig, function( i, v )  if (v.sceneid == targetScene) then  fee = v end end ) 
+  local targetId = {}
+  table.foreachi( ChuanSongSceneId, function( i, v )  if (v.sceneid == targetScene) then  targetId = v end end )
+	if table.getn(fee) == {} then return end
+	if table.getn(targetId) == {} then return end
+	--print("fee.type:"..fee.type)
+	if Actor.getIntProperty(sysarg,moneyType[fee.type]) < fee.count then
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.n00012,ttDialog)
+  else
+   
+    --local str = string.format(Lang.ScriptTips.n00013,fee.count,targetId.scenename)
+    --Actor.messageBox(sysarg,0,0,str,""..Lang.ScriptTips.x00050.."/ChuanSongToTargetScene,"..targetScene..","..targetId.pos_x..","..targetId.pos_y..","..fee.type..","..fee.count.."",""..Lang.ScriptTips.x00051.."/cencelChuanSongFunc",NULL)
+	  ChuanSongToTargetScene(sysarg,targetScene,targetId.pos_x,targetId.pos_y,fee.type,fee.count);
+  end
+end  
+function cencelChuanSongFunc(sysarg)
+end                 
+function ChuanSongToTargetScene(sysarg,sceneid,x,y,type,count)
+	--print("ChuanSongToTargetScene:"..sceneid)
+  local sceneid = tonumber(sceneid)
+  local x = tonumber(x)
+  local y = tonumber(y)
+  local type = tonumber(type)
+  local count = tonumber(count)
+  if (sceneid == nil or x == nil or y == nil or type == nil or count == nil) then
+    return
+  end
+  --if Actor.enterFuBen(sysarg,0,sceneid, x, y) then
+    --Actor.consumeCoin(sysarg,count,101,"chuanSong",true,true)
+  --end
+end
+  
+MiscsImplement.registerMsgHandler(11, MiscsImplement.StageChuanSongHandler)

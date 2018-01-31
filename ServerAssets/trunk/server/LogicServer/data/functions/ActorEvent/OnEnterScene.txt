@@ -1,0 +1,41 @@
+﻿
+--#include "data\envir\FuBen.txt" once
+--#include "data\config\BossSystem\MapBossConfig.txt" once
+OnEnterSceneOpFuncList = {}
+
+EventCallDispatcher.OnEnterScene = function (sysarg, args)
+	local nSceneId = args[1]	--场景ID
+	local nFubenId = args[2]	--副本ID
+    --print("OnEnterSceneFubenId:"..nFubenId)
+	if nFubenId > 0 then--判断是否在副本中，如果有通关奖励则重新通知客户端
+       local fbdata = FuBen[nFubenId]
+       if not fbdata.MaxFubenProcessNumber then--无副本通关概念
+          return
+       end
+       local Var = Actor.getStaticVar( sysarg )
+       if not Var.FuBenTongGuan then
+          Var.FuBenTongGuan = {}
+       end
+       if not Var.FuBenTongGuan[nFubenId] then
+          Var.FuBenTongGuan[nFubenId] = {}
+          Var.FuBenTongGuan[nFubenId].AllKillNumber = 0
+		  Var.FuBenTongGuan[nFubenId].IsAward = 0
+       end
+       if Var.FuBenTongGuan[nFubenId].AllKillNumber >= fbdata.MaxFubenProcessNumber and Var.FuBenTongGuan[nFubenId].IsAward == 0 then
+       --print("OnEnterSceneFubenIdFuBenTongGuanStatus:")
+          local pack = DataPack.allocPacket(sysarg, 20, 12)
+	      DataPack.writeInt(pack, nFubenId)
+          DataPack.flush(pack)
+       end
+    end
+	local func = OnEnterSceneOpFuncList[args[1]]
+	if func ~= nil then
+		return func(sysarg, args)
+	end
+	if nSceneId == UnderGroundBossOtherConfig.MapId then
+	   System.runNpcFunction(System.getGlobalNpc(),"OnSendClientUnderGroundBossInfo",sysarg)
+    end 
+end
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeEnterScene, EventCallDispatcher.OnEnterScene)

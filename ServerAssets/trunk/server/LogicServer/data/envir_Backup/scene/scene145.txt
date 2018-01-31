@@ -1,0 +1,57 @@
+﻿--美女村 副本
+{
+	--场景1
+	scenceid = 145,						--这个id必须每次递增，比如第一个场景id是0，下一个一定是1，类推
+	scencename = Lang.SceneName.s00139,					--场景名称
+	mapfilename = "139meinvcun",								--场景对应的地图
+	minlevel = 1,						--限制等级
+	forbiddenitem = {1,2},		--限制物品
+	--forbiddenpet = {5,3},		--限制的坐骑（宠物）
+	forbiddenskill = {100,20},	--限制的技能
+	nopk = 0,								--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "shayuanchun.mp3",
+	musicInterval=60,
+
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 148,
+	sceneHeight = 144,
+	--posx = 48,
+	--posy = 90,
+	area =
+	{
+		{	name = Lang.SceneName.s00139, range = { 10,10,20,20,60,50}, center = { 79,54 },attri = {{type=18,value = {}},{ type=1, value={}},{type=19,value = {}},{type=87,value = {}},{type=34,value = {389,391,316,822,386}},{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },{type=46,value = {}},{type=80,value = {}},}},	--默认配置场景，世界安全区，可以穿怪,可以穿人
+		{ name = Lang.SceneName.s00139, range = { 85,74,87,74,87,83,85,83}, center = { 87,79},attri = {{ type = 86,  value = {} },{type=83,value = {}},{ type = 45,  value = {} },{ type = 33,  value = {15,21,27} },{ type = 85,  value = {} },{type=87,value = {}},}},	--游泳区域
+		{ name = Lang.SceneName.s00139, range = { 87,74,95,74,95,86,88,86}, center = { 92,81},attri = {{ type = 86,  value = {} },{type=83,value = {}},{ type = 45,  value = {} },{ type = 33,  value = {15,21,27} },{ type = 85,  value = {} },{type=87,value = {}},}},	--游泳区域
+		{ name = Lang.SceneName.s00139, range = { 94,72,114,72,113,85,95,85}, center = { 106,78},attri = {{ type = 86,  value = {} },{type=83,value = {}},{ type = 45,  value = {} },{ type = 33,  value = {15,21,27} },{ type = 85,  value = {} },{type=87,value = {}},}},	--游泳区域
+		{ name = Lang.SceneName.s00139, range = { 109,82,118,82,118,88,110,88}, center = { 113,85},attri = {{ type = 86,  value = {} },{type=83,value = {}},{ type = 45,  value = {} },{ type = 33,  value = {15,21,27} },{ type = 85,  value = {} },{type=87,value = {}},}},	--游泳区域
+		{ name = Lang.SceneName.s00139, range = { 98,85,107,85,107,94,99,94}, center = { 102,89},attri = {{ type = 86,  value = {} },{type=83,value = {}},{ type = 45,  value = {} },{ type = 33,  value = {15,21,27} },{ type = 85,  value = {} },{type=87,value = {}},}},	--游泳区域
+		{ name = Lang.SceneName.s00139, range = { 98,69,111,69,110,72,98,72}, center = { 103,72},attri = {{ type = 86,  value = {} },{type=83,value = {}},{ type = 45,  value = {} },{ type = 33,  value = {15,21,27} },{ type = 85,  value = {} },{type=87,value = {}},}},	--游泳区域
+	},
+	refresh =
+	  {
+----#include "refresh1.txt"
+	  },
+	magicPassPoints={1,2,56,32}, --可以魔法穿透的障碍点的列表，比如小的石头，是可以魔法穿透的，这里
+
+	npc =
+	{
+		--美女村
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+    {name = Lang.EntityName.n00203, posx = 69 , posy = 67,script= "data/script/MeiNvCun/XianJi.txt",modelid=147,icon = 11,funcId=0},
+    {name = Lang.EntityName.n00204, posx = 107 , posy = 75,script= "data/script/MeiNvCun/ZhaoFeiYan.txt",modelid=153,icon = 11,funcId=0},
+	{name = Lang.EntityName.n00209, posx = 115 , posy = 102,script= "data/script/MeiNvCun/XiShi.txt",modelid=150,icon = 150,funcId=0},
+	},
+
+
+  teleport =
+  {
+     --posx和posy表示传送门出现的位置
+     --toSceneid表示要传送的目的场景id
+     --toPosx和toPosy分别要传送的目的坐标，此坐标必须是位于toSceneid场景里的
+     --script是传送点关联的脚本文件，
+     --modelid表示外观模型的id
+     { posx = 123, posy = 90,toSceneid = 1,toPosx = 158, toPosy = 65,modelid = 50000,name = Lang.SceneName.s00001 },  --美女村→边界村
+  },
+
+},

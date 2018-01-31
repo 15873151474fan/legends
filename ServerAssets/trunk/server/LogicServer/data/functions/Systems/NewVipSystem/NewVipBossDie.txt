@@ -1,0 +1,26 @@
+﻿--#include "data\config\NewVip\NewVipConfig.txt" once --新Vip配置
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once           --用于处理副本的通用函数
+
+--Vipboss死亡事件 
+MonDieDispatcher.NewVipMonsterDie = function(monster, sysarg, monId)
+  local MonsterName = Actor.getName(monster)
+  --print("MonsterName:"..MonsterName)
+  if MonsterName then
+     System.broadcastTipmsg(string.format(Lang.NewVip.tip014, Actor.getName(sysarg), MonsterName), ttScreenCenter + ttChatWindow)
+  end
+end
+
+
+--注册怪刷出，死亡处理
+for ndx, BossInfo in pairs(NewVipConfig.VipInclude) do
+    --print("BossInfo:"..(BossInfo.FuBenBossInfo.BossId))
+    MonDieDispatcher.register(BossInfo.FuBenBossInfo.BossId, MonDieDispatcher.NewVipMonsterDie)
+end
+
+--加一个主线监狱的怪物死亡事件
+MonDieDispatcher.JianYuMonDie = function(monster, sysarg, monId)
+  
+  onExitFubenFunc(sysarg)
+end
+
+MonDieDispatcher.register(224, MonDieDispatcher.JianYuMonDie)

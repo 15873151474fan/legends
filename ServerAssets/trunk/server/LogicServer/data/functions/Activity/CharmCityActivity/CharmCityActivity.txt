@@ -1,0 +1,74 @@
+﻿--#include "data\config\activityconfig\CharmCity\CharmCityConfig.txt" once
+
+
+--预告
+function CharmNotice(nType)
+	local str
+	local nIndex = tonumber(nType)
+	if nIndex == 1 then
+		str = Lang.Activity.Charm00001
+	else
+		str = Lang.Activity.Charm00002
+	end
+
+	System.broadcastTipmsg(str,2+128)
+end
+
+--魑魅侵城活动开始 
+function StartCharmCityActivity()
+    --print("StartCharmCityActivity")
+	local dVal = System.getDyanmicVar()
+	if dVal.StartCharmCityFlag == nil then
+		dVal.StartCharmCityFlag = 0 --魑魅侵城开始标志
+	end
+
+	dVal.StartCharmCityFlag = 1
+
+	if dVal.FreshCharmCityTimes == nil then
+		dVal.FreshCharmCityTimes = 0  --刷怪波数
+	end
+	--if dVal.KillCharmCityNumber == nil then
+		--dVal.KillCharmCityNumber = 0  --杀怪个数
+	--end
+	if dVal.StartCharmCityTime == nil then
+		dVal.StartCharmCityTime = System.getCurrMiniTime()  --怪物攻城开始时间 
+	end
+
+	local hScene = Fuben.getSceneHandleById(CharmCityConfig.nSceenId, 0)
+	for i=1,table.getn(CharmCityConfig.Monster[1]) do
+	    --print("StartCharmCityActivity")
+		Fuben.createMonsters(hScene, CharmCityConfig.Monster[1][i].nMonsterID, CharmCityConfig.Monster[1][i].posX1, CharmCityConfig.Monster[1][i].posX2, CharmCityConfig.Monster[1][i].posY, CharmCityConfig.Monster[1][i].nCount, CharmCityConfig.Monster[1][i].nLiveTime)
+	end
+
+	dVal.FreshCharmCityTimes = 1
+	System.broadcastTipmsg(Lang.Activity.Charm00003,2+128)
+
+	--Actor.regScriptCallback(thisNPC, thisNPC, IdentifyActivityConfig.perTime * 1000, IdentifyActivityConfig.perTime * 1000, IdentifyActivityConfig.TotalTimes, "OnFreshNextIdentifyBoss")
+end 
+
+--魑魅侵城活动结束
+function CharmCityActvityOver()
+	local dVal = System.getDyanmicVar()
+	dVal.StartCharmCityFlag = nil --活动结束清零
+	dVal.FreshCharmCityTimes = nil
+	--dVal.KillCharmCityNumber = nil
+	dVal.StartCharmCityTime = nil
+
+	Actor.unregScriptCallback(thisNPC, "OnFreshNextCharmCityBoss")
+end
+
+--刷怪
+function OnFreshNextCharmCityBoss()
+  local dVal = System.getDyanmicVar()                                         
+  if dVal.FreshCharmCityTimes == nil then
+     dVal.FreshCharmCityTimes = 1  --刷怪波数
+  end
+  local FreshCharmCityTimes = dVal.FreshCharmCityTimes
+	System.broadcastTipmsg(Lang.Activity.Charm00004,2+128)
+	local hScene = Fuben.getSceneHandleById(CharmCityConfig.nSceenId, 0)
+	for i=1,table.getn(CharmCityConfig.Monster[FreshCharmCityTimes]) do
+		Fuben.createMonsters(hScene, CharmCityConfig.Monster[FreshCharmCityTimes][i].nMonsterID, CharmCityConfig.Monster[FreshCharmCityTimes][i].posX1, 
+        CharmCityConfig.Monster[FreshCharmCityTimes][i].posX2, CharmCityConfig.Monster[FreshCharmCityTimes][i].posY, CharmCityConfig.Monster[FreshCharmCityTimes][i].nCount,
+         CharmCityConfig.Monster[FreshCharmCityTimes][i].nLiveTime)
+	end
+end

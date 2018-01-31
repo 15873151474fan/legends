@@ -1,0 +1,66 @@
+﻿--lua script
+--  怪物的死亡脚本函数 
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+	--#include "data\config\TasksConfig.inc" once --活动开始配置
+	--#include "data\functions\Tasks\WuLinZhengBa\RankPointer.txt"   once --排行榜指针变量
+	--#include "data\config\task\WuLinZhengBaConstConfig.txt" once	--常量配置
+--[[
+    函数名称：WuLinZhengBaMonstersDie
+    函数描述：华山论剑怪物的死亡脚本函数 
+    参数 sysarg 的描述：
+]] 
+MonDieDispatcher.WuLinZhengBaMonstersDie = function (monster,sysarg,monId)
+	--print("WuLinZhengBaMonstersDie")
+	--判断活动是否开启
+	if TasksConfig ~= nil and TasksConfig.WuLinZhengBa ~= true then return false end
+	
+	--活动开始标志
+	local val = System.getDyanmicVar()
+	if val.WuLinZhengBaRiseActing ~= 1 then return end
+	local MonsterConfig = WuLinZhengBaMonPoint
+	local MonsteridIndex = 0
+	local MonsterName = ""
+	table.foreachi( MonsterConfig, function( i, v )  if (v.monsterId == monId) then  MonsteridIndex,MonsterName= i,v.monsterName end end )
+	if MonsteridIndex > 0 then 
+		---记录每次排行分
+		local userId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )    --获取角色ID
+		local userName = Actor.getName(sysarg)
+		local campId = Actor.getCampId(sysarg)
+		local JobId = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION )   
+		local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+		
+		local ranking = Ranking.getRanking(WuLinZhengBaRankPointer.RankName) --通过排行名称获取排行对象
+		if not ranking then return end
+		local item = Ranking.getItemPtrFromId(ranking,userId)
+		if item ~= nil then 
+			Ranking.updateItem(ranking,userId,MonsterConfig[MonsteridIndex].monsterPoint)        --如果存在名单则加分
+			--Ranking.setSub(item, 2, userName)                         --
+		else
+			item = Ranking.addItem(ranking,userId,WuLinZhengBaConst.InitPoint+MonsterConfig[MonsteridIndex].monsterPoint)         --如果不存在名单则初始化
+			if item then
+				Ranking.setSub(item, 0, userName)
+				Ranking.setSub(item, 1, campId)
+				Ranking.setSub(item, 2, JobId)
+				Ranking.setSub(item, 5, sex)
+			end
+		end
+		local Point = Ranking.getPoint(item)
+		local Rank = Ranking.getItemIndexFromId(ranking, userId)+1 
+		
+		--[[
+		local sceneId = Actor.getSceneId(sysarg)     --获取怪物场景ID
+		local sHandle = Fuben.getSceneHandleById(sceneId,0)      --获得场景Handle
+		local tipMsg = string.format(Lang.TaskTalk.t00760,userName,MonsterConfig[MonsteridIndex].monsterName,MonsterConfig[MonsteridIndex].monsterPoint,Point,Rank)
+		Fuben.sendMsgToScene(sHandle,tipMsg,ttScreenCenter)
+		--]]
+
+		---------------------------------
+		local str1 = string.format(Lang.TaskTalk.t00761,MonsterName,MonsterConfig[MonsteridIndex].monsterPoint, Point,Rank)
+		Actor.sendTipmsg(sysarg,str1,ttScreenCenter+ttTipmsgWindow)
+	end   
+end
+
+
+for i=1,#WuLinZhengBaMonPoint do
+  --MonDieDispatcher.register(WuLinZhengBaMonPoint[i].monsterId,MonDieDispatcher.WuLinZhengBaMonstersDie)
+end

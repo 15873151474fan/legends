@@ -1,0 +1,41 @@
+--新装过节配置文件
+NewClothesConfig = 
+{
+	actTime = {2014, 12, 29, 0, 0, 0,  2015, 1, 5, 23, 59, 59}, --活动时间范围
+	
+	--消耗道具id
+	consumeItem = {3355,3356},
+	--获得物品最大数量
+	horseNum = {100,100},--衣服，坐骑
+	
+	--兑换
+	change =
+	{
+		{--衣服
+			consumes = --消耗的物品id,数量
+			{
+				{type = 0, id = 3355, count = 50, yb = 100},--yb物品的单价
+				{type = 15, id = 0, count = 5000},--消耗元宝
+			},
+
+			awards = --兑换物品
+			{
+				{type = 0, id = 3357, count = 1, bind = 1, strong = 0, quality = 0, sex  = 0}, --男
+				{type = 0, id = 3358, count = 1, bind = 1, strong = 0, quality = 0, sex  = 1}, --女
+			},
+		},
+
+		{--坐骑
+			consumes = --消耗的物品id,数量
+			{
+				{type = 0, id = 3356, count = 50, yb = 80},--yb物品的单价
+				{type = 15, id = 0, count = 4000},--消耗元宝
+			},
+
+			awards = --兑换物品
+			{
+				{type = 0, id = 3360, count = 1, bind = 1, strong = 0, quality = 0},
+			},
+		},
+	},
+}

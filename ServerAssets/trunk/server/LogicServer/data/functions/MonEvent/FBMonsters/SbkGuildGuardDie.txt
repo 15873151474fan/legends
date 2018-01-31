@@ -1,0 +1,54 @@
+﻿--lua script
+
+--#include "data\functions\guildOperate\GuildOnTimeFuc.txt"  once  
+
+MonDieDispatcher.Mon115Die = function(monster,sysarg,monId)
+	local monPosX, monPosY = Actor.getEntityPosition(monster, 0, 0)
+	OnWallMonsterDie(monPosX,monPosY, monId)
+end
+
+MonDieDispatcher.Mon116Die = function(monster,sysarg,monId)
+	local monPosX, monPosY = Actor.getEntityPosition(monster, 0, 0)
+	OnWallMonsterDie(monPosX,monPosY, monId)
+end
+
+MonDieDispatcher.Mon261Die = function(monster,sysarg,monId)
+	local monPosX, monPosY = Actor.getEntityPosition(monster, 0, 0)
+	OnWallMonsterDie(monPosX,monPosY, monId)
+end
+
+MonDieDispatcher.Mon114Die = function(monster,sysarg,monId)
+	local monPosX, monPosY = Actor.getEntityPosition(monster, 0, 0)
+	OnSbkGuardDie(monPosX,monPosY,monId)
+end
+
+--守护之柱死亡
+MonDieDispatcher.Mon1042Die = function(monster,sysarg,monId)
+	OnTaxMonsterDie(monster,sysarg)
+end
+
+--箭塔死亡
+MonDieDispatcher.Mon1039Die = function(monster,sysarg,monId)
+	OnArrowDieOP(monster,sysarg,1)
+end
+
+--箭塔死亡
+MonDieDispatcher.Mon1040Die = function(monster,sysarg,monId)
+	OnArrowDieOP(monster,sysarg,2)
+end
+
+--箭塔死亡
+MonDieDispatcher.Mon1041Die = function(monster,sysarg,monId)
+	OnArrowDieOP(monster,sysarg,3)
+end
+
+MonDieDispatcher.register(252, MonDieDispatcher.Mon115Die )
+MonDieDispatcher.register(256, MonDieDispatcher.Mon116Die )
+MonDieDispatcher.register(260, MonDieDispatcher.Mon261Die )
+MonDieDispatcher.register(251, MonDieDispatcher.Mon114Die )
+
+--MonDieDispatcher.register(1042, MonDieDispatcher.Mon1042Die )
+
+--MonDieDispatcher.register(1039, MonDieDispatcher.Mon1039Die )
+--MonDieDispatcher.register(1040, MonDieDispatcher.Mon1040Die )
+--MonDieDispatcher.register(1041, MonDieDispatcher.Mon1041Die )

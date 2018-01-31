@@ -1,0 +1,65 @@
+--lua script
+
+
+FengCeReward = 
+{ 
+  --count	奖励数量 物品数量  
+  --itemid 物品的id; count 物品的数量; quality 品质; strong 强化; bind 是否绑定 
+	[1] = 
+	{ 
+		{ itemid = 1558, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1554, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1553, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1588, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1441, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1002, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1009, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1619, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1005, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1571, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1442, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1589, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1559, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 613, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1004, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1619, count=1, quality=0, strong=0, bind=1},
+	},
+	[2] = 
+	{
+		{ itemid = 1558, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1554, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1553, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1588, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1441, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1002, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1009, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1619, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1005, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1571, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1442, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1589, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1559, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 616, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1004, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1618, count=1, quality=0, strong=0, bind=1},
+	},
+	[3] = 
+	{
+		{ itemid = 1558, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1554, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1553, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1588, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1441, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1002, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1009, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1619, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1005, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1571, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1442, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1589, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1559, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 613, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1004, count=1, quality=0, strong=0, bind=1},
+		{ itemid = 1617, count=1, quality=0, strong=0, bind=1},
+	},
+}

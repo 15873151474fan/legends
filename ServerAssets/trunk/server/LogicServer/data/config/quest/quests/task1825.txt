@@ -1,0 +1,62 @@
+﻿{
+	id = 1825,
+	name = Lang.Quest.q03648,
+	parentid = 0,
+	type = 1,
+	level = 0,
+	cangiveup = true,
+	content = Lang.Quest.q03649,
+
+	prom =
+  {
+    type = 0,
+	scene = Lang.SceneName.s00049,
+	npc = Lang.EntityName.n00491,
+	},
+
+	comp =
+	{
+    type = 0,
+	scene = Lang.SceneName.s00049,
+	npc = Lang.EntityName.n00491,
+  },
+
+  target =
+  {
+    { type = 33, id = 40, count = 5,location = {sceneid=49,entityName=Lang.EntityName.n00150}},
+    { type = 33, id = 39, count = 5,location = {sceneid=49,entityName=Lang.EntityName.n00150}},
+  },
+  --奖励列表
+	awards =
+  {
+    { type = 0, id = 1924, count = 1, group = 0,quality= 2, bind = false, job = 0, sex = -1},
+},
+  --任务条件表
+  conds =
+  {
+
+    { type = 0, id = 49,count = 200 },  --1级可接
+    { type = 2, id = 7,count = 0 }, 
+    { type = 13, id = 1,count = 0 },
+  },
+  timelimit = 0,
+  interval = 0,
+  maxcount = 1,
+	excludetree = true,
+
+	PromCallBack = "OnPromSuitEquip",
+	PromCallBackArg = { 40,5,39,5}, 
+
+  PromMsTalks = {
+       Lang.Talk.t05466,
+  },
+  
+  CompMsTalks = {
+       Lang.Talk.t05467,
+  },
+  
+  CompMsTip = {
+       Lang.Talk.t05468,
+  }, 
+ 
+},

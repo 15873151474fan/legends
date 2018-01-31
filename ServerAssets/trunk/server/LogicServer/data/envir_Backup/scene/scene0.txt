@@ -1,0 +1,64 @@
+﻿--场景相关的配置 测试场景
+{
+	--场景1
+	--这个id必须每次递增，比如第一个场景id是0，下一个一定是1，类推
+	scenceid = 0,
+	--场景名称
+	scencename = Lang.SceneName.s00000,
+	--场景对应的地图,只需要填文件名，不需要写路径和后缀名，比如这个地图文件是map/demo.jxm，只需要写demo
+	mapfilename = "XinShouCun_1",
+	--限制等级,低于这个等级无法进入
+	minlevel = 1,
+	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenitem = {1,2},
+	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenpet = {5,3},
+	--限制的技能列表，有这些技能的玩家不能进入
+	--forbiddenskill = {100,20},
+	--0表示可以pk，1表示不可以，默认是0
+	nopk = 0,
+	progress = 0,
+	--在世界地图上的坐标x
+	worldmapPosx =0,
+	worldmapPosy =0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 80,
+	sceneHeight = 120,
+	--配置区域属性为46即复活区时，center的点必须要配置在range里面，复活区域为 多边形第1个点与第3个点所组成的矩形
+	area =
+	{
+		{ name = Lang.SceneName.s00000, range = { 10,10,20,20,60,50}, center = { 68,28 },attri = {{type=19,value = {}},}},
+		{ name = Lang.SceneName.s00000, range = { 90,33,85,32,88,27}, center = { 90,33 },attri = {{type=46,value = {}},}},
+		{ name = Lang.SceneName.s00000, range = { 74,27,76,31,68,39}, center = { 72,35 },attri = {{type=46,value = {}},}},
+
+	},
+	--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+
+
+refresh =
+{
+
+},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+npc =
+{
+	--name表示npc的名称，
+	--posx和posy分别表示出现的位置坐标
+	--script是对应的脚本名字，需要用相对路径
+	--modelid表示外观模型id
+			--camp表示是阵营的id，默认是0表示所有的阵营都能用，1 无忌 2逍遥  3日月，如果是0可以不配置
+
+	--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+
+	{name = Lang.EntityName.n00158, posx = 115 , posy = 40,script= "data/script/XinShouCun/TestNPC2.txt",modelid=141,icon = 1,funcId=3},
+
+
+ },
+
+  teleport =
+  {
+     { posx = 113, posy = 42,toSceneid = 2,toPosx = 208, toPosy = 218,modelid = 50000,name = Lang.SceneName.s00002 },  --测试场景→王城
+  },
+
+},

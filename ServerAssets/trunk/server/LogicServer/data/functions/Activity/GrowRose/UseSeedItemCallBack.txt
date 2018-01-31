@@ -1,0 +1,156 @@
+﻿--lua script
+
+--#include "data\config\activityconfig\GrowRose\Config.txt" once
+
+--[[
+    函数名称：UseSeedItemCallBack
+    函数描述：使用道具刷怪延时回调
+    参数 sysarg 的描述：
+    参数 arg 的描述：
+]]
+function UseSeedItemCallBack(sysarg,arg)
+	local index = tonumber(arg[2])
+	local doubleSeed = GrowRoseConfig.doubleSeed
+	local singleSeed  = GrowRoseConfig.singleSeed
+	if (not GrowRoseConfig) or (not UseSeedItem) then return end
+	if (not index) or (not UseSeedItem[index]) then return end
+	local ItemTable = UseSeedItem[index]
+	local config = GrowRoseConfig
+	if Actor.getItemCount(sysarg, ItemTable.item_id, -1, -1, -1) <= 0 then return end
+	
+	local areaIdx = GetGrowRoseIndex(sysarg)
+	local growScene = config.growScene
+	
+	if areaIdx == 0 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00123, ttFlyTip)
+		return 
+	end
+	
+	local username = Actor.getName(sysarg)
+	local scene = Actor.getScenePtr(sysarg)
+	local area = config.growArea[areaIdx]
+	local list = LuaHelp.getNearEntityListFromRange(scene, area.x, area.y, 0, 0, 12)
+	if list then
+		for k, v in ipairs(list) do
+			local entity_type = Actor.getEntityType(v)	
+			if entity_type == 12 then
+				Actor.sendTipmsg(sysarg, Lang.Activity.t00124, ttFlyTip)
+				return 
+			end
+		end
+	end
+	
+	local p1, p2, p0 = nil, nil, nil
+	
+	--组队判断
+	if ItemTable.isDouble ~= false then
+		if doubleSeed then
+			if Actor.isInTeam(sysarg) ~= true then
+				Actor.sendTipmsg(sysarg, Lang.Activity.t00108, ttFlyTip)
+				return
+			end
+			local teamMemb = LuaHelp.getTeamMemberList(sysarg)
+			if table.getn(teamMemb) ~= 2 then 
+				Actor.sendTipmsg(sysarg, Lang.Activity.t00109, ttFlyTip)
+				return
+			end
+			if Actor.getIntProperty(teamMemb[1], PROP_ACTOR_SEX) == Actor.getIntProperty(teamMemb[2], PROP_ACTOR_SEX) then
+				Actor.sendTipmsg(sysarg, Lang.Activity.t00110, ttFlyTip)
+				return
+			end
+			local userX, userY = Actor.getEntityPosition(sysarg, 0, 0)
+			local userSid = Actor.getSceneId(sysarg)
+			for k, v in ipairs(teamMemb) do
+				if v ~= sysarg then
+					local sid = Actor.getSceneId(v)
+					local x, y = Actor.getEntityPosition(v, 0, 0)
+					local name = Actor.getName(v)
+					if userSid ~= sid or math.abs(userX - x) > 7/2 or math.abs(userY - y) > 7/2 then
+						Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00113, name), ttFlyTip)
+						return 
+					end
+				end
+				if Actor.getIntProperty(v, PROP_ACTOR_SEX) == 0 then
+					p1 = Actor.getName(v)
+				else
+					p2 = Actor.getName(v)
+				end
+			end
+			
+		end
+	else
+		--是否有物品
+		if singleSeed ~= nil then
+			p0 = Actor.getName(sysarg)
+		end
+	end
+	
+	if Actor.removeItem(sysarg, ItemTable.item_id,1) ==0 then
+		return 
+	end
+	
+	if ItemTable.skill and table.getn(ItemTable.skill) > 0 then
+		for k, v in ipairs(ItemTable.skill) do 
+			Actor.useSkill(sysarg, v.id, 0, 0, false, v.level)
+		end 
+	end
+	
+	if ItemTable.monster then
+		local monster = ItemTable.monster
+		local area = config.growArea[areaIdx]
+		local monPtr = Actor.createMonster(sysarg, monster.id, area.x, area.y, monster.liveTime,true)
+		if monPtr then
+			--玩家总种植
+			local sVal = System.getStaticVar()
+			local growRose = sVal.growRose
+			if not growRose then
+				growRose = 0
+			end
+			growRose = growRose + 1
+			local tips = ""
+			if ItemTable.isDouble and ItemTable.isDouble ~= false then
+				--Actor.setMonsterOwnerName(monPtr, 0, p1)
+				--Actor.setMonsterOwnerName(monPtr, 1, p2)
+				tips = string.format(Lang.Activity.t00125, p1, p2, growRose)
+			else
+				--Actor.setMonsterOwnerName(monPtr, 0, p0)
+				tips = string.format(Lang.Activity.t00126, p0, growRose)
+			end
+			sVal.growRose = growRose
+			if growRose % 50 == 0 then
+				System.broadcastTipmsg(tips, ttScreenCenter)
+			end
+			Actor.triggerQuestEvent(sysarg, 127, 50098, 1)
+		end
+	end
+	Actor.sendTipmsg(sysarg, Lang.Activity.t00127, ttFlyTip)
+	
+end
+
+function GetGrowRoseIndex(sysarg)
+	local config = GrowRoseConfig
+	local userSid = Actor.getSceneId(sysarg)
+	local scene = Actor.getScenePtr(sysarg)
+	local growScene = config.growScene
+	local userX, userY = Actor.getEntityPosition(sysarg, 0, 0)
+	for k, v in ipairs(config.growArea) do
+		if userSid == growScene.sid and math.abs(userX - v.x) <= growScene.width/2 and math.abs(userY - v.y) <= growScene.height/2 then
+			local area = config.growArea[k]
+			local list = LuaHelp.getNearEntityListFromRange(scene, area.x, area.y, 0, 0, 12)
+			if list then
+				for k, v in ipairs(list) do
+					local entity_type = Actor.getEntityType(v)	
+					if entity_type ~= 12 then
+						return k
+					end
+				end
+			else
+				return k
+			end
+		end
+	end
+	
+	return 0
+end
+
+registerScriptCallBack(15,UseSeedItemCallBack)

@@ -1,0 +1,80 @@
+
+--#include "data\functions\GlobalDefine.txt" once
+--#include "PKChallengeCommon.txt" once
+
+function PKChallenge_Main( sysarg )
+	local dlgStr = ""
+	dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.w00035.."/@joinPKChallenge,1>"
+	dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.w00036.."/@viewActInfo>"
+	--dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.w00037.."/@leaveAct>"
+	return dlgStr
+end
+
+--flag值为1表示用金钱，3表示用元宝
+function joinPKChallenge( sysarg, flag )
+	flag = tonumber(flag)
+	local moneyId = PROP_ACTOR_COIN
+	local moneyType = mtCoin
+	local moneyVal = PKChallengeConfig.Coin
+	local moneyStr = Lang.Misc.m000455
+	if flag ~= mtCoin then
+		moneyVal = PKChallengeConfig.Gold
+		moneyId = PROP_ACTOR_YUANBAO
+		moneyType = mtYuanbao
+		moneyStr = Lang.Misc.m000464
+	end
+	local myMoney = Actor.getIntProperty( sysarg, moneyId )
+	if myMoney < moneyVal then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.pk00001, moneyVal, moneyStr), ttFlyTip)
+		return
+	end
+	if Actor.checkActorLevel(sysarg, PKChallengeConfig.MinLevel, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.pk00003, PKChallengeConfig.MinLevel), ttFlyTip)
+		return
+	end
+	local handleScene = Fuben.getSceneHandleById( PKChallengeConfig.ReadySceneId, 0)
+	if handleScene > 0 then
+		local sceneTime = Fuben.getSceneTime(handleScene)
+		if sceneTime > 0 and Actor.changeMoney(sysarg, moneyType, -moneyVal, 180, Lang.LogTips.yb009) then
+			local playerCount = Fuben.getScenePlayerCount(handleScene)
+			Actor.initActivityWind(sysarg, Lang.Activity.w00041, sceneTime, Lang.Activity.w00044, Lang.Activity.w00043, playerCount + 1)
+			local x = math.random(PKChallengeConfig.ReadyPos[1], PKChallengeConfig.ReadyPos[2])
+			local y = math.random(PKChallengeConfig.ReadyPos[3], PKChallengeConfig.ReadyPos[4])
+			System.telportScene(sysarg, PKChallengeConfig.ReadySceneId, x, y)
+			Fuben.broadSceneActProgress(PKChallengeConfig.ReadySceneId, 0, playerCount + 1)
+			AddEnterPlayerCount()
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.pk00012,moneyVal, moneyTypeName[moneyType]), ttFlyTip)
+		else
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.pk00002, ttFlyTip)
+		end
+	end
+end
+
+function viewActInfo( sysarg )
+	local strDlg = string.format("%s\\<#BL%s/@main>", Lang.Activity.w00066, Lang.Activity.a00101)
+	return strDlg
+end
+
+function leaveAct( sysarg )
+	
+end
+
+
+
+function ReadNotice()
+	System.broadcastTipmsg(Lang.Activity.w00038, ttScreenCenter+ttChatWindow)
+end
+
+
+function StartPKChallenge()
+	StartAcceptJoin()
+	System.broadcastTipmsg(Lang.Activity.w00039, ttScreenCenter+ttChatWindow)
+end
+
+
+function EndPKChallenge()
+	--System.broadcastTipmsg(Lang.Activity.w00040, ttScreenCenter+ttChatWindow)
+end
+
+
+table.insert(MainFnTable, PKChallenge_Main)

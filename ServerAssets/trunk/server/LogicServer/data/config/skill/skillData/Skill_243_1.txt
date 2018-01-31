@@ -1,0 +1,94 @@
+﻿--践踏
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+
+	desc=Lang.Skill.s14L1Desc,--技能的描述
+
+	iconID=14,--图标的ID
+
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-16,--相对于中心点x左边的相对坐标
+			xEnd=16,--相对于中心点x右边的相对坐标
+			yStart=-16,--相对于中心点y上边的相对坐标
+			yEnd=16,--相对于中心点y下边的相对坐标
+		rangeType=3,
+		rangeCenter=1,
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 6,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=200, rate=10000,value=1000},
+						{mj=0,timeParam=5,type=32,delay=200, buffType=1,id=36,rate=0,rateType=2,value=-3000,interval=1,colorPriority =4,color =65280},	
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=295,keepTime=5000,delay=0,always=false},
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-5,--相对于中心点x左边的相对坐标
+			xEnd=5,--相对于中心点x右边的相对坐标
+			yStart=-5,--相对于中心点y上边的相对坐标
+			yEnd=5,--相对于中心点y下边的相对坐标
+		rangeType=3,
+		rangeCenter=1,
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+						{cond = 6,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=29,ignoreTargetDis=1,delay=300,value=3},
+					},
+
+					specialEffects=
+					{
+						--{type=4,mj=0,id=295,keepTime=800,delay=0,always=false},
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		--{cond=1,value=30,consume=false},--表示等级要1级
+		--{cond=3,value=437,consume=true,exceptVip=true },--表示书本
+	},
+
+	spellConds=
+	{     
+        {cond=13,value=15,consume=false},
+		{cond=18,value=90,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,
+	cooldownTime=50000,
+
+},

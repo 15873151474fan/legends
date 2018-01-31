@@ -1,0 +1,9 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+MonsterIdInScene = {
+{monsterid = 241,monstername = "monster 1"},
+{monsterid = 242,monstername = "monster 2"},
+{monsterid = 243,monstername = "monster 3"},
+{monsterid = 244,monstername = "monster 4"},
+}

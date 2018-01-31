@@ -1,0 +1,68 @@
+﻿
+--#include "data\config\activityconfig\SnowArea\Islands.txt" once
+function SnowIslandTeleport(sysarg, args)
+	local nPassId = args[1]	--传送门ID
+	local pFuben = args[2]	--传送门所在副本指针
+	local nTelSid = args[3]	--传送门传送场景id
+	-- local nTelPosX = args[4]	--传送门传送场景id
+	-- local nTelPosY = args[5]	--传送门传送场景id
+
+	local hActorFuben = Actor.getFubenHandle(sysarg)
+	local hFuben = Fuben.getFubenHandle(pFuben)
+	if hActorFuben ~= hFuben then return end
+	
+	local islandIndex = 0
+	local pos
+
+	for i,v in ipairs(islands) do
+		for j,passId in ipairs(v.telId) do
+			if passId == nPassId then
+				pos = v.telPos[j][1] -- 此处报错策划配错数据
+				break
+			end
+		end
+	end
+
+	local sid = Actor.getSceneId(sysarg)
+	Actor.enterFuBen(sysarg, hFuben, sid, pos[1], pos[2], true)
+end
+
+-- function SnowIslandTeleport(sysarg, args)
+-- 	local nPassId = args[1]	--传送门ID
+-- 	local pFuben = args[2]	--传送门所在副本指针
+-- 	local nTelSid = args[3]	--传送门传送场景id
+-- 	local nTelPosX = args[4]	--传送门传送场景id
+-- 	local nTelPosY = args[5]	--传送门传送场景id
+
+-- 	local dvar = System.getDyanmicVar()
+-- 	if not dvar.islandsPos then return end
+	
+-- 	local islandIndex = 0
+-- 	local teleportIndex = 0
+-- 	for k, v in ipairs(islands) do
+-- 		for m, n in ipairs(v.telId) do
+-- 			if n == nPassId then
+-- 				islandIndex = k
+-- 				teleportIndex = m
+-- 				break
+-- 			end
+-- 		end
+-- 	end
+	
+-- 	local randIndex = dvar.islandsPos[islandIndex]
+-- 	if not randIndex then return end
+	
+-- 	local config = islands[islandIndex]
+-- 	local pos = config.telPos[randIndex][teleportIndex]
+	
+-- 	if not config or not pos then return end
+	
+-- 	local hActorFuben = Actor.getFubenHandle(sysarg)
+-- 	local hFuben = Fuben.getFubenHandle(pFuben)
+	
+-- 	if hActorFuben ~= hFuben then return end
+	
+-- 	local sid = Actor.getSceneId(sysarg)
+	
+-- 	Actor.enterFuBen(sysarg, hFuben, sid, pos[1], pos[2], true)
+-- end

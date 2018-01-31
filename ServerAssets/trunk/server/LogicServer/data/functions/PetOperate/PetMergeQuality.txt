@@ -1,0 +1,112 @@
+﻿--lua script
+
+--宠物附体品质的
+ 
+--#include "OperateFunctioins.txt" once --通用函数
+
+local function getPetMergeQualityonsumeConfig(sysarg,petRate )
+
+  --配置最大属性限制
+  local rateMax = table.getn(PetMergeQualityConsume)
+
+  --宠物是否属性满级
+  if (petRate >= rateMax) then return nil end
+
+  local level = (petRate+1)
+  if (not PetMergeQualityConsume[level]) then return nil end
+  return  PetMergeQualityConsume[level]
+end
+
+
+--玩家强化附体品质, args = [玩家指针，宠物的ID,是否使用保护]
+function onPetChangeMergeQuality( sysarg, args )
+  local petId = args[2] --宠物的ID
+  local totalMergeRate = Pet.getPetProperty(sysarg, petId, Pet.enPetTotalMergeRate) --获取宠物当前的总的附体资质
+  local maxMergeRate   = Pet.getPetProperty(sysarg, petId, Pet.enPetMaxMergeRate)   --最大的附体资质
+  if(totalMergeRate >= maxMergeRate) then
+    Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00187,ttDialog )
+    return false
+  end 
+  local washMergeRate = Pet.getPetProperty(sysarg, petId, Pet.enPetWashMergeRate) 
+  
+  --配置最大属性限制
+  local configMax = table.getn(PetMergeQualityConsume)
+  --宠物是否属性满级
+  if (washMergeRate >= configMax) then
+    --Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00119, tipMsg1),ttDialog )
+    return false
+  end
+
+  local config = getPetMergeQualityonsumeConfig(sysarg,washMergeRate)
+  if nil == config then return end
+  local canConsume, tipMsg1 = checkConsumes(sysarg, config.consume, args)
+  if canConsume == false then
+    Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00174, tipMsg1),ttDialog )
+    return false
+  end
+  local useProtect =    args[3] --是否使用保护
+  if useProtect ==1 then 
+	  if(config.protectConsume ~= nil ) then
+	    canConsume, tipMsg1 = checkConsumes(sysarg,config.protectConsume, args)
+	    if canConsume == false then
+	       if(tipMsg1 ~=nil) then
+	         Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00174, tipMsg1),ttDialog )
+         end
+	      return
+	    end
+	  end
+  end
+  
+  local hasConsume, tipMsg2 = getConsumes(sysarg, config.consume, 19)
+  if hasConsume == false then
+    if(tipMsg2 ~=nil) then
+      Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00174, tipMsg2),ttDialog )
+    end
+    return
+  end
+  
+  if useProtect==1 then
+    local hasConsume, tipMsg2 = getConsumes(sysarg, config.protectConsume, 19)
+	  if hasConsume == false then
+	    if(tipMsg2 ~= nil) then
+	       Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00174, tipMsg2),ttDialog )
+	    end
+	    return
+	  end
+  end
+  local  prob=  config.prob  --成功的概率 
+  if(prob ==nil )  then prob=0 end
+  --print("washMergeRate="..washMergeRate)
+  
+  local randValue = System.getRandomNumber(10000)   
+  if(randValue < prob ) then
+    Pet.setPetMergeRate(sysarg,petId,washMergeRate+1)
+    Pet.sendPetOpResult(sysarg, petId, 4, true)
+  else
+    --掉级了 
+    if(useProtect ~= 1) then
+	    local failLevel =     config.failLevel
+	    if   washMergeRate == nil or failLevel > washMergeRate  then
+	        failLevel =  washMergeRate
+	    end
+	    Pet.setPetMergeRate(sysarg,petId,failLevel)
+    end
+    Pet.sendPetOpResult(sysarg, petId, 4, false)   
+  end
+
+  Actor.triggerAchieveEvent(sysarg, 76) -- 触发成就事件
+ 
+end
+
+
+
+--获取宠物品质提升的消耗,args = [操作的类型,宠物的ID]
+function getPetMergeQualityConsume( sysarg, args )
+  local petId = args[2] --宠物的ID
+  if (not petId) or (not PetMergeQualityConsume) then return nil end
+  local petRate = Pet.getPetProperty(sysarg, petId, Pet.enPetWashMergeRate) --获取宠物当前的附体品质
+  local config= getPetMergeQualityonsumeConfig(sysarg,petRate)
+  if nil == config then return end
+  --发送宠物品质提升的消耗 
+  sendClientPetOperateMsg(sysarg, args, config.consume,config.showprop,config.protectConsume)
+end

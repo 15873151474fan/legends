@@ -1,0 +1,308 @@
+﻿--NPC修理系统实现 
+
+--#include "data\config\item\itemEnhance\RepairEquip.txt" once
+
+Repair_Request = 1  --请求维修消耗
+Repair_Do = 2		--处理维修
+
+Request_NormalSingle = 1
+Request_NormalAll = 2
+Request_SpecSingle = 3
+Request_SpecAll = 4
+
+Repair_NormalSingle = 1
+Repair_NormalAll = 2
+Repair_SpecSingle = 3
+Repair_SpecAll = 4
+
+POS_EQUIP = 1   --装备位置
+POS_BAG = 2		--背包位置
+
+--获取消耗最大持久值
+function GetConsumeMaxDura( maxDura )
+	for k, v in ipairs(RepairEquipConfig.consumeMaxDura) do
+		if maxDura >= v.min and (maxDura <= v.max or v.max == -1) then
+			local allWeight = 0
+			local weightTabLen = #v.rates
+			for i = 1, weightTabLen, 2 do
+				allWeight = allWeight + v.rates[i]
+			end
+			local randNum = System.getRandomNumber(allWeight*10000)+1
+			local curTotal = 0
+			for i = 1, weightTabLen, 2 do
+				curTotal = curTotal + v.rates[i] * 10000
+				if randNum <= curTotal then
+					return v.rates[i+1]
+				end
+			end
+		end
+	end
+	return 0
+end
+
+--处理修理装备
+function RepairEquip( sysarg, itemptr, isSpec )
+	local itemType = Item.getItemProperty( sysarg, itemptr, Item.ipItemType, 0 )
+	if itemType < Item.itWeapon or itemType > Item.itEquipMax then
+		return 0
+	end
+	local hardmax = Item.getItemProperty( sysarg, itemptr, Item.ipItemDuaMax, 0 )
+	--[[if not isSpec then
+		hardmax = hardmax - GetConsumeMaxDura(hardmax)
+		Item.setItemProperty( sysarg, itemptr, Item.ipItemDuaMax,hardmax)
+	end	]]	
+	Item.setItemProperty( sysarg, itemptr, Item.ipItemDua, hardmax )
+	return 1
+end
+
+--维修单件装备
+function repairSingleEquip( sysarg, itemGuid, repairPos, isSpec )
+	local itemptr = nil
+	if repairPos == POS_EQUIP then
+		itemptr = Item.getEquipPtrByGuid(sysarg, itemGuid)
+	elseif repairPos == POS_BAG then
+		itemptr = Item.getBagItemPtrByGuid( sysarg, itemGuid )
+	end
+	
+	if not itemptr then
+		return
+	end
+	local item_id =  Item.getItemProperty( sysarg, itemptr, Item.ipItemID ,0)
+	
+	if Item.isDenyRepair(item_id) ~= false then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.zf095, ttFlyTip)
+		return 
+	end
+	
+	local itemname = Item.getItemName(item_id)
+	local consum_money = GetRepairMoney(sysarg, itemptr, isSpec )
+	if consum_money <= 0 then
+		local itemName = string.format(Lang.ScriptTips.zf091, itemname)
+		Actor.sendTipmsg( sysarg, itemName, ttFlyTip)
+		return
+	end
+	consum_money = consum_money + Actor.getAddCultureRate(sysarg,3,consum_money,0)
+
+	local player_money = Actor.getIntProperty( sysarg, PROP_ACTOR_BIND_COIN )
+	if player_money < consum_money then
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.n00001, consum_money), ttFlyTip )     --输出你不够钱维修装备
+		return
+	end
+	if consum_money > 0 and Actor.changeMoney( sysarg, mtBindCoin, -consum_money ,104, Lang.LogTips.l00041) then
+		local result = RepairEquip( sysarg, itemptr, isSpec )
+		--136 NPC维修子系统 1
+		local npack = DataPack.allocPacket(sysarg,136,2)  --申请一个数据包
+		if npack then
+			DataPack.writeByte(npack, result)
+			DataPack.flush(npack)
+		end
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.n00016, consum_money), ttFlyTip)
+	end
+end
+
+
+--维修身上背包装备
+function RepairAllEquip( sysarg, packet, isSpec )
+	local bagCount = Item.getBagItemCount( sysarg )  --玩家背包装备数
+	local equipCount = Item.getEquipCount( sysarg )  --玩家穿着装备数
+	local needAllMoney = 0
+	local itemPtrList = {}
+	
+	for i = 1, equipCount do
+		local equipPtr = Item.getEquipBySortID( sysarg, i )
+		if equipPtr then
+			local item_id =  Item.getItemProperty( sysarg, equipPtr, Item.ipItemID ,0)
+			local itemType = Item.getItemProperty( sysarg, equipPtr, Item.ipItemType, 0 )
+			if Item.isDenyRepair(item_id) ~= true and itemType ~= Item.itShield then
+				needAllMoney = needAllMoney + GetRepairMoney(sysarg, equipPtr, isSpec )
+				table.insert(itemPtrList, equipPtr)
+			end
+		end
+	end
+	for i = 1, bagCount do
+		local bagEquipPtr = Item.getBagItemBySortID( sysarg, i )
+		if bagEquipPtr then
+			local itemType = Item.getItemProperty( sysarg, bagEquipPtr, Item.ipItemType, 0 )
+			if itemType >= Item.itWeapon and itemType < Item.itEquipMax and itemType ~= Item.itShield then
+				local item_id =  Item.getItemProperty( sysarg, bagEquipPtr, Item.ipItemID ,0)
+				if Item.isDenyRepair(item_id) ~= true then
+					needAllMoney = needAllMoney + GetRepairMoney(sysarg, bagEquipPtr, isSpec)
+					table.insert(itemPtrList, bagEquipPtr)
+				end
+			end			
+		end
+	end
+	if needAllMoney <= 0 then
+		return
+	end
+	needAllMoney = needAllMoney + Actor.getAddCultureRate(sysarg,4,needAllMoney,0)
+
+	local myCoin = Actor.getIntProperty( sysarg, PROP_ACTOR_BIND_COIN )
+	if myCoin < needAllMoney then
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.n00001, needAllMoney), ttFlyTip )
+		return
+	end
+	if Actor.changeMoney( sysarg, mtBindCoin, -needAllMoney ,104, Lang.LogTips.l00041) then		
+		local result = 0
+		for k, ptr in ipairs(itemPtrList) do
+			local item_id =  Item.getItemProperty( sysarg, ptr, Item.ipItemID ,0)
+			if Item.isDenyRepair(item_id) ~= true then
+				result = RepairEquip( sysarg, ptr, isSpec )
+				if result == 0 then
+					break
+				end
+			end
+		end
+		local npack = DataPack.allocPacket(sysarg,136,2)  --申请一个数据包
+		if npack then
+			DataPack.writeByte(npack, result)
+			DataPack.flush(npack)
+		end
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.n00016, needAllMoney), ttFlyTip)
+	end
+end
+
+
+--获取维修费用,装备指针，是否是特修
+function GetRepairMoney( sysarg, itemptr, isSpec )
+	local repairRate = nil
+	local isVip = Actor.isVip(sysarg)
+	if isVip then
+		repairRate = RepairEquipConfig.RepairRate[3]
+		if isSpec then
+			repairRate = RepairEquipConfig.RepairRate[4]
+		end
+	else
+		repairRate = RepairEquipConfig.RepairRate[1]
+		if isSpec then
+			repairRate = RepairEquipConfig.RepairRate[2]
+		end
+	end
+	local curDurable = Item.getItemProperty( sysarg, itemptr, Item.ipItemDua, 0 )
+	local maxDurable = Item.getItemProperty( sysarg, itemptr, Item.ipItemDuaMax, 0 )
+	if curDurable == maxDurable then
+		return 0
+	end
+	local itemPrice = Item.getItemProperty( sysarg, itemptr, Item.ipItemDealMoneyCount, 0)
+	return math.ceil((1-curDurable/maxDurable)*itemPrice*repairRate)
+end
+
+
+--维修单件需要的消耗
+function RepairSingleConsume( sysarg, itemguid, itemHost, repairType, isSpec )
+	local itemptr = nil
+	if itemHost == POS_EQUIP then
+		itemptr = Item.getEquipPtrByGuid(sysarg, itemguid)
+	elseif itemHost == POS_BAG then
+		itemptr = Item.getBagItemPtrByGuid( sysarg, itemguid)
+	end
+	if itemptr then
+		local consum_money = GetRepairMoney(sysarg, itemptr, isSpec )
+		local itemid = Item.getItemProperty(sysarg,itemptr,Item.ipItemID,0)
+		
+		if Item.isDenyRepair(itemid) ~= false then	 --该装备不能维修
+			Actor.sendTipmsg( sysarg, Lang.ScriptTips.zf095, ttFlyTip)
+			return 
+		end
+		
+		if consum_money <= 0 then
+			Actor.sendTipmsg( sysarg, Lang.ScriptTips.n00002,ttFlyTip )  --该装备不需要维修
+			return
+		end
+		
+		consum_money = consum_money + Actor.getAddCultureRate(sysarg,3,consum_money,0)
+		local npack = DataPack.allocPacket(sysarg,136,1)  --申请一个数据包
+		if npack then
+			DataPack.writeByte(npack,repairType)
+			DataPack.writeUInt(npack,consum_money)
+			DataPack.writeUInt(npack,itemid)
+			DataPack.writeUint64(npack,itemguid)
+			DataPack.writeByte(npack,itemHost)
+			DataPack.flush(npack)
+		end
+	end
+end
+
+--维修身上，背包装备的消耗
+function RepairAllConsume( sysarg, packet, repairType, isSpec )
+	local needAllMoney = 0
+	local equipCount = Item.getEquipCount( sysarg )  --玩家穿着装备数
+	local bagCount = Item.getBagItemCount( sysarg )  --玩家背包装备数
+	for i = 1, equipCount do
+		local equipPtr = Item.getEquipBySortID( sysarg, i )
+		if equipPtr then
+			local item_id =  Item.getItemProperty( sysarg, equipPtr, Item.ipItemID ,0)
+			if Item.isDenyRepair(item_id) ~= true then
+				needAllMoney = needAllMoney + GetRepairMoney(sysarg, equipPtr, isSpec)
+			end
+		end
+	end
+	for i = 1, bagCount do
+		local bagEquipPtr = Item.getBagItemBySortID( sysarg, i )
+		if bagEquipPtr then
+			local itemType = Item.getItemProperty( sysarg, bagEquipPtr, Item.ipItemType, 0 )
+			if itemType >= Item.itWeapon and itemType < Item.itEquipMax then
+				local item_id =  Item.getItemProperty( sysarg, bagEquipPtr, Item.ipItemID ,0)
+				if Item.isDenyRepair(item_id) ~= true then
+					needAllMoney = needAllMoney + GetRepairMoney(sysarg, bagEquipPtr, isSpec)
+				end
+			end
+		end
+	end
+
+	if needAllMoney <= 0 then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.n00003,ttFlyTip )  --你身上没有可维修的装备
+		return
+	end
+
+	needAllMoney = needAllMoney + Actor.getAddCultureRate(sysarg,4,needAllMoney,0)
+	local npack = DataPack.allocPacket(sysarg,136,1)  --申请一个数据包
+	if npack then
+		DataPack.writeByte(npack, repairType)
+		DataPack.writeUInt(npack, needAllMoney)
+		DataPack.flush(npack)
+	end
+end
+
+
+--NPC修理事件入口
+function NPCRepairImplement( sysarg, systemid, msgid, packet )
+	if ( msgid == Repair_Do ) then               --维修处理
+		local repairType = DataPack.readByte(packet)    --先获取修理的类型。
+		if repairType == Repair_NormalSingle then
+			local itemguid = DataPack.readUint64(packet)
+			local itemplace = DataPack.readByte(packet)
+			repairSingleEquip( sysarg, itemguid, itemplace )
+
+		elseif repairType == Repair_NormalAll then
+			RepairAllEquip( sysarg, packet )
+
+		elseif repairType == Repair_SpecSingle then
+			local itemguid = DataPack.readUint64(packet)
+			local itemplace = DataPack.readByte(packet)
+			repairSingleEquip( sysarg, itemguid, itemplace, true )
+		elseif repairType == Repair_SpecAll then
+			RepairAllEquip( sysarg, packet, true)
+		end
+	elseif ( msgid == Repair_Request ) then          --维修请求
+		local repairType = DataPack.readByte(packet)
+		if repairType == Request_NormalSingle then
+			local itemguid = DataPack.readUint64(packet)
+			local itemplace = DataPack.readByte(packet)
+			RepairSingleConsume( sysarg, itemguid, itemplace, repairType)
+
+		elseif repairType == Request_NormalAll then
+			RepairAllConsume( sysarg, packet, repairType )
+
+		elseif ( repairType == Request_SpecSingle ) then
+			local itemguid = DataPack.readUint64(packet)
+			local itemplace = DataPack.readByte(packet)
+			RepairSingleConsume( sysarg, itemguid, itemplace, repairType, true)
+
+		elseif repairType == Request_SpecAll then
+			RepairAllConsume( sysarg, packet, repairType, true )
+		end
+	end
+end
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.npcRepairSystem, NPCRepairImplement)

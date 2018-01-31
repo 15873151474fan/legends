@@ -1,0 +1,103 @@
+﻿--后台开启补偿NPC处理
+
+--#include "data\config\misc\BackCompensate.txt" once --配置文件
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "RankInit.txt" once --名单初始
+
+
+
+--[[
+    函数名称：
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function BackCompensate_Main(sysarg)
+	if (not BackCompensateConfig) then return "" end
+	local str = ""
+	
+	local config = GetCompensateData()
+	
+	if not config then 
+		
+		return "" 
+	end
+	
+	str = str.."\\<#BL"..config.title.."/@BackCompensate>"  --<详情>
+	
+	--str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<离开>
+	return str
+end
+
+function BackCompensate(sysarg)
+	local RankPt = BackCompensateRankPt
+	if not RankPt then return nil end
+	local pRank = Ranking.getRanking(RankPt.RankName)
+	if not pRank then return nil end
+	
+	local config = GetCompensateData()
+	if not config then 
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000170, ttFlyTip)
+		return 
+	end
+	
+	if Actor.checkActorLevel(sysarg, config.limitLevel, 0) ~= true  then 
+		local tips = string.format(Lang.ScriptTips.c000171, config.limitLevel)
+		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+		return false
+	end
+	
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	if pItem then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000172, ttFlyTip)
+		return
+	end
+	
+	--奖励
+	local awards = config.items
+	if Awards.CheckBagGridCount(sysarg,awards) ~= true then
+		return
+	end
+	
+	pItem = Ranking.addItem(pRank, userId, 0)
+	if pItem then
+		Awards.Give(sysarg, awards, 1, config.title)
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.c000173, ttFlyTip)
+	end
+	Actor.closeNPCDialog(sysarg)
+end
+
+
+--获取领取补偿数据
+function GetCompensateData()
+	local svar = System.getStaticVar()
+	local nCompensateId = tonumber(svar.nCompensateId)
+	
+	if not nCompensateId or nCompensateId <= 0 then
+		return nil
+	end
+	
+	for k, v in ipairs(BackCompensateConfig) do
+		if v.id == nCompensateId then
+			return v
+		end
+	end
+	
+	return nil
+end
+
+function SetCompensateVar(nId, nDelay, bClearRank)
+	if bClearRank then
+		local RankPt = BackCompensateRankPt
+		if not RankPt then return nil end
+		local pRank = Ranking.getRanking(RankPt.RankName)
+		Ranking.clearRanking(pRank)
+	end
+	local svar = System.getStaticVar()
+	svar.nCompensateId = nId
+	svar.nCompensateOverTime = System.getCurrMiniTime()+nDelay
+	
+	System.trace(string.format("Gm SetCompensateVar! id=%d, delay=%d, overtime=%d", svar.nCompensateId, nDelay, svar.nCompensateOverTime))
+end
+
+table.insert(MainFnTable, BackCompensate_Main)

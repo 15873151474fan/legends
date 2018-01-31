@@ -1,0 +1,86 @@
+﻿--夫妻副本
+{
+	scenceid = 202,
+	scencename = Lang.SceneName.s00202,
+	mapfilename = "202BiYiQueQiao",
+	minlevel = 60,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "mohuangxingkong.mp3",
+	musicInterval=60,
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 184,
+	sceneHeight = 184,
+	--posx = 17,
+	--posy = 85,
+	
+	sceneType=2, --场景类型,0表示普通场景，1表示活动场景，2表示副本场景,3挂机地图, 4温泉地图, 5九天冰宫, 6深渊烈域
+
+	area =
+	{
+		{ name = Lang.SceneName.s00202, range = { 10,10,20,20,60,50}, center = { 52,130 },
+			attri ={
+					{ type = 76,  value = {70,104} },
+					{ type = 34,  value = {316,317,318,386,392,394,822,823,2272,2273,2274} },	--禁止使用物品
+					{ type = 23,  value = {1,2,3,4} },{ type = 30,  value = {1,2,3,4} },	--禁止行会的召集，传送
+					{ type = 33,  value = {10} },
+					{ type = 50,  value = {1} },
+					{type=91,value = {}},
+					{ type = 80,  value = {} },　--不掉装备
+					
+				
+					
+					
+				},
+		},
+		{ name = Lang.SceneName.a00121, range = { 49,116,65,95,83,113,67,137}, center = { 63,121},attri = {{ type = 21,  value = {} },}},	--默认配置场景
+		{ name = Lang.SceneName.a00121, range = { 105,62,131,45,133,56,125,80}, center = { 117,66},attri = {{ type = 21,  value = {} },}},	--默认配置场景
+
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+----#include "refresh202.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		--{name = Lang.EntityName.n00286, posx = 85 , posy = 69,script = "data/script/FuBenScriptNpc/BingYuanShiZhe.txt",modelid = 110,icon = 1,funcId = 0},
+ 		{name = Lang.EntityName.n00138, posx =98 , posy =89,script = "data/script/FuBenScriptNpc/MengFei.txt",modelid = 110,icon = 1,funcId = 0}, 
+		{name = Lang.EntityName.n00293, posx = 132 , posy = 48,script = "data/script/FuBenScriptNpc/MengFei.txt",modelid = 110,icon = 1,funcId = 0},
+		{name = Lang.EntityName.n00294, posx = 56 , posy = 123,script = "data/script/FuBenScriptNpc/MengFei.txt",modelid = 110,icon = 1,funcId = 0},
+	},
+
+  teleport =
+  {
+		--传送点设置
+		--{ posx = 31, posy = 164,toSceneid = 122,toPosx = 136, toPosy = 26,modelid = 50000,name = Lang.SceneName.s00122 },  --海底世界三层→海底世界二层
+		--{ posx = 193, posy = 107,toSceneid = 124,toPosx = 53, toPosy = 195,modelid = 50000,name = Lang.SceneName.s00124 },  --海底世界三层→海底世界四层
+
+  },
+  landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+		 --路标
+    {posx1=47,posy1=138,posx2=47,posy2=138,modelid=18,xinterval=1,yinterval=1}, 
+    {posx1=54,posy1=131,posx2=54,posy2=131,modelid=18,xinterval=1,yinterval=1}, 
+    {posx1=61,posy1=124,posx2=61,posy2=124,modelid=18,xinterval=1,yinterval=1}, 
+    {posx1=78,posy1=107,posx2=78,posy2=107,modelid=18,xinterval=1,yinterval=1}, 
+    {posx1=86,posy1=99,posx2=86,posy2=99,modelid=18,xinterval=1,yinterval=1},
+    {posx1=143,posy1=41,posx2=143,posy2=41,modelid=22,xinterval=1,yinterval=1},
+    {posx1=131,posy1=51,posx2=131,posy2=51,modelid=22,xinterval=1,yinterval=1},
+    {posx1=111,posy1=71,posx2=111,posy2=71,modelid=22,xinterval=1,yinterval=1},
+    {posx1=101,posy1=81,posx2=101,posy2=81,modelid=22,xinterval=1,yinterval=1},
+   
+     },
+
+},

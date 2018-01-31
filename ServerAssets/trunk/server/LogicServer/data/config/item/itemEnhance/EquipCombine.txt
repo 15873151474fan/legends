@@ -1,0 +1,1423 @@
+--神兵熔合
+--#include "..\..\..\language\LangCode.txt"
+
+EquipCombieConfig = 
+{
+	combineName = "EquipCombine",		
+	combineFile = "EquipCombineFile.txt",
+
+	--显示职业的名字
+	sJobName = 
+	{
+		Lang.ScriptTips.rank0001,		--战士
+		Lang.ScriptTips.rank0002,		--法师
+		Lang.ScriptTips.rank0003,		--道士
+	},
+
+	combineList = 
+	{
+		--火龙套装
+		{
+			openDay = 3,			--开服第几天后才显示	没有限制可以不配	
+			
+			name = Lang.ScriptTips.ecom0087,
+			
+			maxTimes = 20,			--每天能合成的最大次数
+
+			strBroadCast = Lang.ScriptTips.ecom0081,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0093,
+					baseId = 98,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+
+					strMsgBox = Lang.ScriptTips.ecom0123,	--弹出框显示的语言
+
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 98, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 131,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0094,
+					baseId = 99,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					
+					strMsgBox = Lang.ScriptTips.ecom0124,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 99, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 132,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0095,
+					baseId = 100,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0125,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 100, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 133,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0096,
+					baseId = 101,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0126,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 101, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 134,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0097,
+					baseId = 102,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0127,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 102, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 135,nCircle = 0,},
+				},
+			},
+		},
+		--雷炎套装
+		{
+			openDay = 3,			--开服第几天后才显示	没有限制可以不配	
+			
+			name = Lang.ScriptTips.ecom0088,
+			
+			maxTimes = 20,			--每天能合成的最大次数
+
+			strBroadCast = Lang.ScriptTips.ecom0081,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0098,
+					baseId = 109,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+
+					strMsgBox = Lang.ScriptTips.ecom0128,	--弹出框显示的语言
+
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 109, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 142,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0099,
+					baseId = 110,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					
+					strMsgBox = Lang.ScriptTips.ecom0129,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 110, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 143,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0100,
+					baseId = 111,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0125,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 111, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 144,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0101,
+					baseId = 112,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0126,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 112, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 145,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0102,
+					baseId = 113,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0127,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 113, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 146,nCircle = 0,},
+				},
+			},
+		},
+		--乾坤套装40-45
+		{
+			openDay = 3,			--开服第几天后才显示	没有限制可以不配	
+			
+			name = Lang.ScriptTips.ecom0089,
+			
+			maxTimes = 20,			--每天能合成的最大次数
+
+			strBroadCast = Lang.ScriptTips.ecom0081,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0103,
+					baseId = 120,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+
+					strMsgBox = Lang.ScriptTips.ecom0133,	--弹出框显示的语言
+
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 120, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 153,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0104,
+					baseId = 121,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					
+					strMsgBox = Lang.ScriptTips.ecom0134,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 121, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 154,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0105,
+					baseId = 122,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0135,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 122, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 155,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0106,
+					baseId = 123,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0136,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 123, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 156,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0107,
+					baseId = 124,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0137,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 124, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 157,nCircle = 0,},
+				},
+			},
+		},
+		--圣灵套装45-50
+		{
+			openDay = 5,			--开服第几天后才显示	没有限制可以不配	
+			
+			name = Lang.ScriptTips.ecom0090,
+			
+			maxTimes = 15,			--每天能合成的最大次数
+
+			strBroadCast = Lang.ScriptTips.ecom0081,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0108,
+					baseId = 131,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+
+					strMsgBox = Lang.ScriptTips.ecom0138,	--弹出框显示的语言
+
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 131, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 164,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0109,
+					baseId = 132,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					
+					strMsgBox = Lang.ScriptTips.ecom0139,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 132, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 165,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0110,
+					baseId = 133,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0140,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 133, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 166,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0111,
+					baseId = 134,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0141,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 134, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 167,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0112,
+					baseId = 135,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0142,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 135, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 168,nCircle = 0,},
+				},
+			},
+		},
+		--雪域套装45-50
+		{
+			openDay = 5,			--开服第几天后才显示	没有限制可以不配	
+			
+			name = Lang.ScriptTips.ecom0091,
+			
+			maxTimes = 15,			--每天能合成的最大次数
+
+			strBroadCast = Lang.ScriptTips.ecom0081,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0113,
+					baseId = 142,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+
+					strMsgBox = Lang.ScriptTips.ecom0143,	--弹出框显示的语言
+
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 142, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 175,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0114,
+					baseId = 143,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					
+					strMsgBox = Lang.ScriptTips.ecom0144,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 143, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 176,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0115,
+					baseId = 144,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0145,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 144, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 177,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0116,
+					baseId = 145,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0146,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 145, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 178,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0117,
+					baseId = 146,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0147,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 146, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 179,nCircle = 0,},
+				},
+			},
+		},
+		--天罡套装45-50
+		{
+			openDay = 5,			--开服第几天后才显示	没有限制可以不配	
+			
+			name = Lang.ScriptTips.ecom0092,
+			
+			maxTimes = 15,			--每天能合成的最大次数
+
+			strBroadCast = Lang.ScriptTips.ecom0081,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0118,
+					baseId = 153,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+
+					strMsgBox = Lang.ScriptTips.ecom0148,	--弹出框显示的语言
+
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 153, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 186,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0119,
+					baseId = 154,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					
+					strMsgBox = Lang.ScriptTips.ecom0149,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 154, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 187,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0120,
+					baseId = 155,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0150,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 155, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 188,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0121,
+					baseId = 156,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0151,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 156, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 189,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0122,
+					baseId = 157,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0152,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 157, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 190,nCircle = 0,},
+				},
+			},
+		},
+		--金阳套装
+		{
+			openDay = 10,			--开服第几天后才显示	没有限制可以不配	
+			
+			name = Lang.ScriptTips.ecom0001,
+			
+			maxTimes = 10,			--每天能合成的最大次数
+
+			strBroadCast = Lang.ScriptTips.ecom0081,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0019,
+					baseId = 164,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+
+					strMsgBox = Lang.ScriptTips.ecom0049,	--弹出框显示的语言
+
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 164, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 197,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0020,
+					baseId = 165,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					
+					strMsgBox = Lang.ScriptTips.ecom0050,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 165, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 198,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0021,
+					baseId = 166,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0051,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 166, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 199,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0022,
+					baseId = 167,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0052,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 167, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 200,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0023,
+					baseId = 168,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0053,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 168, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 201,nCircle = 0,},
+				},
+			},
+		},
+
+		--审判套装
+		{
+			openDay = 10,			--开服第几天后才显示	没有限制可以不配	
+			name = Lang.ScriptTips.ecom0002,
+			maxTimes = 10,			--每天能合成的最大次数
+			strBroadCast = Lang.ScriptTips.ecom0082,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0024,
+					baseId = 175,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0054,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 175, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 208,nCircle = 0,},
+				},
+
+				{
+					comDesc = Lang.ScriptTips.ecom0025,
+					baseId = 176,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0055,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 176, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 209,nCircle = 0,},
+				},
+
+				{
+					comDesc = Lang.ScriptTips.ecom0026,
+					baseId = 177,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0056,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 177, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 210,nCircle = 0,},
+				},
+
+				{
+					comDesc = Lang.ScriptTips.ecom0027,
+					baseId = 178,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0057,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 178, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 211,nCircle = 0,},
+				},
+
+				{
+					comDesc = Lang.ScriptTips.ecom0028,
+					baseId = 179,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0058,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 179, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 212,nCircle = 0,},
+				},
+			},
+		},
+
+
+		--玄冥套装
+		{
+			openDay = 10,			--开服第几天后才显示	没有限制可以不配	
+			name = Lang.ScriptTips.ecom0003,
+			maxTimes = 10,			--每天能合成的最大次数
+			strBroadCast = Lang.ScriptTips.ecom0083,			--使用后播报
+
+			--合成
+			list=
+			{
+				
+				{
+					comDesc = Lang.ScriptTips.ecom0029,
+					baseId = 186,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0059,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 186, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 219,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0030,
+					baseId = 187,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0060,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 187, count = 2, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 220,nCircle = 0,},
+				},
+				{
+					comDesc = Lang.ScriptTips.ecom0031,
+					baseId = 188,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0061,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 188, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 221,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0032,
+					baseId = 189,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0062,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 189, count = 3, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 222,nCircle = 0,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0033,
+					baseId = 190,		--合成前装备在身上的装备
+					baseCircle = 0,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0063,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 190, count = 4, baseCircle = 0,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 223,nCircle = 0,},
+				},
+			},
+		},
+
+		--千钧套装
+		{
+			openDay = 20,			--开服第几天后才显示	没有限制可以不配	
+			name = Lang.ScriptTips.ecom0004,
+			maxTimes = 5,			--每天能合成的最大次数
+			strBroadCast = Lang.ScriptTips.ecom0084,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0034,
+					baseId = 197,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0064,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 197, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 230,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0035,
+					baseId = 198,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0065,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 198, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 231,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0036,
+					baseId = 199,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0066,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 199, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 232,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0037,
+					baseId = 200,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0067,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 200, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 233,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0038,
+					baseId = 201,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0068,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 201, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 234,nCircle = 3,},
+				},
+			},
+		},
+
+		--烈焰套装
+		{
+			openDay = 20,			--开服第几天后才显示	没有限制可以不配	
+			name = Lang.ScriptTips.ecom0005,
+			maxTimes = 5,			--每天能合成的最大次数
+			strBroadCast = Lang.ScriptTips.ecom0085,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0039,
+					baseId = 208,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0069,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 208, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 241,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0040,
+					baseId = 209,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0070,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 209, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 242,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0041,
+					baseId = 210,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0071,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 210, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 243,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0042,
+					baseId = 211,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0072,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 211, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 244,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0043,
+					baseId = 212,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0073,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 212, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 245,nCircle = 3,},
+				},
+			},
+		},
+
+		--冥魅套装
+		{
+			openDay = 20,			--开服第几天后才显示	没有限制可以不配	
+			name = Lang.ScriptTips.ecom0006,
+			maxTimes = 5,			--每天能合成的最大次数
+			strBroadCast = Lang.ScriptTips.ecom0086,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom0044,
+					baseId = 219,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0074,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 219, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 252,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0045,
+					baseId = 220,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0075,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 220, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 253,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0046,
+					baseId = 221,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0076,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 221, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 254,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0047,
+					baseId = 222,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0077,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 222, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 255,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom0048,
+					baseId = 223,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom0078,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 223, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 256,nCircle = 3,},
+				},
+			},
+		},
+
+
+--炼狱套装
+		{
+			openDay = 20,			--开服第几天后才显示	没有限制可以不配	
+			name = Lang.ScriptTips.ecom1772,
+			maxTimes = 5,			--每天能合成的最大次数
+			strBroadCast = Lang.ScriptTips.ecom0086,			--使用后播报
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom1775,
+					baseId = 230,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1790,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 230, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1198,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1776,
+					baseId = 231,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1791,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 231, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1199,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1777,
+					baseId = 232,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1792,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 232, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1200,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1778,
+					baseId = 233,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1793,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 233, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1201,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1779,
+					baseId = 234,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1794,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 234, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1202,nCircle = 3,},
+				},
+			},
+			
+		},
+
+		--辉煌套装
+		{
+			openDay = 20,			--开服第几天后才显示	没有限制可以不配	
+			name = Lang.ScriptTips.ecom1773,
+			maxTimes = 5,			--每天能合成的最大次数
+			strBroadCast = Lang.ScriptTips.ecom0085,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom1780,
+					baseId = 241,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1795,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 241, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1209,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1781,
+					baseId = 242,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1796,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 242, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1210,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1782,
+					baseId = 243,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1797,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 243, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1211,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1783,
+					baseId = 244,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1798,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 244, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1212,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1784,
+					baseId = 245,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1799,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 245, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1213,nCircle = 3,},
+				},
+			},
+		},
+
+	
+
+	--碧海套装
+		{
+			openDay = 20,			--开服第几天后才显示	没有限制可以不配	
+			name = Lang.ScriptTips.ecom1774,
+			maxTimes = 5,			--每天能合成的最大次数
+			strBroadCast = Lang.ScriptTips.ecom0086,			--使用后播报
+
+			--合成
+			list=
+			{
+				{
+					comDesc = Lang.ScriptTips.ecom1785,
+					baseId = 252,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1800,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 252, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1220,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1786,
+					baseId = 253,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1801,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 253, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1221,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1787,
+					baseId = 254,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1802,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 254, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1222,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1788,
+					baseId = 255,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1803,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 255, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1223,nCircle = 3,},
+				},
+{
+					comDesc = Lang.ScriptTips.ecom1789,
+					baseId = 256,		--合成前装备在身上的装备
+					baseCircle = 5,		--合成前的转数
+					strMsgBox = Lang.ScriptTips.ecom1804,	--弹出框显示的语言
+					--合成需要
+					consume = 
+					{
+						{type = 0, id = 256, count = 1, baseCircle = 5,tips = Lang.ScriptTips.ecom0013,},		--需要背包的物品
+						--{type = 0, id = 1175, count = 1, tips = Lang.ScriptTips.ecom0013,},	--需要额外道具
+						{type = 6, id = 0, count = 100000, tips = Lang.ScriptTips.ecom0014,},	--需要金币
+					},
+
+					--合成后的物品
+					result = {nItemId = 1224,nCircle = 3,},
+				},
+			},
+		},
+
+	},
+
+	--绝世套装
+	wellEquipList = 
+	{
+--#include "wellEquiplist\list1.txt"
+--#include "wellEquiplist\list2.txt"
+--#include "wellEquiplist\list3.txt"
+	},
+}

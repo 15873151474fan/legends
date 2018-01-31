@@ -1,0 +1,234 @@
+﻿--深渊烈域 土城：烈域使者
+--#include "data\config\activityconfig\HeavenAndHell\Hell.txt" once	--
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+
+
+
+--[[
+    函数名称：传送
+    函数描述：NPC交互入口
+    参数 sysarg 的描述：
+]]
+function Hell_Main(sysarg)	
+	
+	
+	local config = HellConfig
+	if (not config) then return "" end
+	local str = ""
+	local floors = config.Floors
+	local findex = GetFloorIndex(sysarg, floors)
+	if findex == 0 then
+		str = str.."\\<#BL"..Lang.Activity.t00230.."/@EnterHell, 1, 0>"  --<进入深渊烈域>
+		str = str.."\\<#BL"..Lang.Activity.a00031.."/@AboutHell>"  --<详情>
+	elseif (Actor.hasBuff(sysarg, config.buff.buffType, config.buff.groupId) == true) then
+		if floors[findex-1] then
+			local sName = Fuben.getSceneNameById(floors[findex-1].sid)
+			str = str.."\\<#BL"..string.format(Lang.Activity.t00231, sName).."/@TelportHell, "..(findex-1)..">"  --<下楼>
+		end
+		if floors[findex+1] then
+			local sName = Fuben.getSceneNameById(floors[findex+1].sid)
+			str = str.."\\<#BL"..string.format(Lang.Activity.t00231, sName).."/@EnterHell, "..(findex+1)..","..findex..">"  --<上楼>
+		end
+		str = str.."\\<#BL"..Lang.Activity.t00202.."/@AskExitHellMap>"  --<回到土城>
+	else
+		str = str.."\\<#BL"..Lang.Activity.t00202.."/@AskExitHellMap>"  --<回到土城>
+	end
+	
+	
+	str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<离开>
+	return str
+end
+
+--获取当前楼层索引
+function GetFloorIndex(sysarg, floors)
+	local sid = Actor.getSceneId(sysarg)
+	for k, v in ipairs(floors) do
+		if sid == v.sid then
+			return k
+		end
+	end
+	return 0
+end
+
+
+--直接传送 不检测
+function TelportHell(sysarg, findex)
+	local findex = tonumber(findex)
+	local config = HellConfig
+	local floor = config.Floors[findex]
+	if not floor then return end
+	if Actor.enterScene(sysarg, floor.sid, floor.x, floor.y, 1, 1) == true then
+		local buff = config.buff
+		local sceneName = Fuben.getSceneNameById(floor.sid)
+		local mapTime = Actor.getBuffRemainTime(sysarg, buff.buffType, buff.groupId)
+		Actor.initActivityWind(sysarg, sceneName, mapTime, Lang.Activity.t00232)
+	end
+end
+
+
+--进入深渊烈域
+function EnterHell(sysarg, findex, nowFloor)
+	local findex = tonumber(findex)
+	local nowFloor = tonumber(nowFloor)
+	local config = HellConfig
+	if not config then return end
+	
+	local floor = config.Floors[findex]
+	if not floor then return end
+	
+	local sceneName = Fuben.getSceneNameById(floor.sid)
+	
+	
+	local bp = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+	if floor.bp and bp < floor.bp then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00204,sceneName,floor.bp), ttFlyTip)
+		return
+	end
+	local svar = Actor.getStaticVar(sysarg)
+	local buff = config.buff
+	if svar.HellFlag and Actor.hasBuff(sysarg, buff.buffType, buff.groupId) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.t00233, ttFlyTip)
+		return 
+	end
+	
+	local teamList = LuaHelp.getTeamMemberList(sysarg)
+	if teamList then
+		for k, v in ipairs(teamList) do
+			if v ~= sysarg then
+				if floor.bp then
+					local bp = Actor.getIntProperty(v, PROP_ACTOR_BATTLE_POWER)
+					if bp < floor.bp then
+						Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00206,Actor.getName(v),sceneName,floor.bp), ttFlyTip)
+						return
+					end
+					
+					local svar = Actor.getStaticVar(v)
+					local HellFlag = svar.HellFlag
+					if HellFlag and Actor.hasBuff(v, buff.buffType, buff.groupId) ~= true then
+						Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00234,Actor.getName(v),sceneName), ttFlyTip)
+						return 
+					end
+				end
+				if Actor.isDeath(v) then
+					Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00224,Actor.getName(v)), ttFlyTip)
+					return 
+				end
+			end
+		end
+	end
+	
+	if floor.item then
+		local itemCount = Actor.getItemCount(sysarg, floor.item.id, 0, 0, -1)
+		if itemCount < floor.item.count then
+			local itemName = Item.getItemName(floor.item.id)
+			--Actor.sendTipmsg(sysarg, string.format(Lang.Activity.t00203,floor.item.count,itemName,sceneName), ttFlyTip)
+			local npcHandle = Actor.getHandle(thisNPC)
+			local sAskMsg = string.format(Lang.Activity.t00228, itemName, floor.item.count)
+			Actor.messageBox(sysarg,npcHandle,0,sAskMsg,Lang.ScriptTips.x00078.."/BuyMustItem,"..floor.item.id,Lang.ScriptTips.mt00005.."/Cancel",nil)
+			return
+		end
+	end
+	
+	--消耗
+	if floor.item and Actor.removeItem(sysarg, floor.item.id, floor.item.count) < floor.item.count then
+		return
+	end
+	
+	local masterScene, masterX, masterY = Actor.getSceneName(sysarg, 0, 0)
+	
+	EnterFloor(sysarg, floor, buff, sceneName, findex)
+	
+	local username = Actor.getName(sysarg)
+	local itemName = ""
+	if floor.item then
+		itemName = Item.getItemName(floor.item.id)
+	end
+	
+	if teamList then
+		for k, v in ipairs(teamList) do
+			if v ~= sysarg then
+				local memberScene, memberX, memberY = Actor.getSceneName(v, 0, 0)
+				if (masterScene == memberScene) and (math.abs(masterX - memberX) <= config.teleportRange) and (math.abs(masterY - memberY) <= config.teleportRange) then
+					EnterFloor(v, floor, buff, sceneName, findex)
+				end
+			end
+		end
+		
+		if nowFloor == 0 and itemName ~= "" then
+			System.broadcastTipmsg(string.format(Lang.Activity.t00235, username,itemName,sceneName), ttScreenCenter)
+		end
+	else
+		if nowFloor == 0 and itemName ~= "" then
+			System.broadcastTipmsg(string.format(Lang.Activity.t00236, username,itemName,sceneName), ttScreenCenter)
+		end
+	end
+	
+	
+end
+
+function EnterFloor(sysarg, floor, buff, sceneName, findex)
+	if Actor.enterScene(sysarg, floor.sid, floor.x, floor.y, 1, 1) == true then
+		local svar = Actor.getStaticVar(sysarg)
+		local HellFlag = svar.HellFlag
+		if not HellFlag then
+			svar.HellFlag = 1
+			Actor.addBuff( sysarg, buff.buffType, buff.groupId, buff.value, buff.times, buff.interval, buff.buffName, buff.timeOverlay)
+		end
+		local mapTime = Actor.getBuffRemainTime(sysarg, buff.buffType, buff.groupId)
+		Actor.initActivityWind(sysarg, sceneName, mapTime, Lang.Activity.t00232)
+	end
+end
+
+function BuyMustItem(sysarg, itemId)
+	Actor.openDialogs(sysarg,diBuyAnItem,tostring(itemId))
+end
+
+--详情
+function AboutHell(sysarg)
+	local str = ""
+	str = str..Lang.Activity.t00237
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"  --<返回>
+	return str
+end
+
+
+--询问是否离开地图
+function AskExitHellMap(sysarg)
+	local sAskMsg = Lang.Activity.t00238
+	local NPChandle = Actor.getHandle(thisNPC)
+	Actor.messageBox(sysarg,NPChandle,0,sAskMsg,Lang.ScriptTips.mt00004.."/ExitHellMap",Lang.ScriptTips.mt00005.."/Cancel",nil)
+end
+
+--离开场景
+function ExitHellMap(sysarg)
+	--直接把玩家传出来
+	--local Pos = LuaHelp.getReloadMapPos(sysarg) 
+	local retScene = HellConfig.returnArea
+	if Actor.enterScene(sysarg, retScene.sid, retScene.x, retScene.y, 2, 2) == true then
+		Actor.closeActivityWind(sysarg)
+	end
+	Actor.closeNPCDialog(sysarg) 
+end
+
+function Cancel(sysarg)
+
+end
+
+--创建钥匙怪
+function CreateHellKeyBoss()
+	local config = HellConfig.keyBoss
+	if not config then return end
+	
+	local hScene = Fuben.getSceneHandleById(config.sid, 0)
+	local pMonster = Fuben.createMonster(hScene, config.mid, config.x, config.y, config.liveTime)
+	if pMonster then
+		local scene = Fuben.getSceneNameById(config.sid)
+		System.broadcastTipmsg(string.format(Lang.Activity.t00239, Actor.getName(pMonster),scene,scene,config.x,config.y,config.x,config.y), ttScreenCenter+ttChatWindow)
+	end
+	
+end
+
+
+
+table.insert(MainFnTable, Hell_Main)

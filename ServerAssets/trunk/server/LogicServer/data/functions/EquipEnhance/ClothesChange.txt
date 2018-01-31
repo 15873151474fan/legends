@@ -1,0 +1,158 @@
+--#include "data\config\item\ClothesChange.txt" once --时装衣服转换
+
+--添加准备转换时装
+function ExchangeClothes( sysarg, packet, msgid )
+	local changeType = DataPack.readByte( packet )--读入消息类型
+	local clothesGuid = DataPack.readUint64( packet )  --读入待转换时装GUID
+	if changeType == 1 then --请求时装转换
+		RequestforClothesChange(sysarg,clothesGuid)
+	elseif changeType == 2 then --确认转换
+		CommitExchangeClothes(sysarg,clothesGuid )
+	else --消息定义错误
+		return 	
+	end
+end
+
+--处理客户端请求时装转换
+function RequestforClothesChange(sysarg,clothesGuid)
+	--是否转性
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- if svar.changeSexFlag == nil then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00054, ttFlyTip)
+	-- 	return				
+	-- end	
+	-- if svar.changeSexFlag == 0 then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00054, ttFlyTip)
+	-- 	return				
+	-- end	
+	-- local equipPtr = Item.getBagItemPtrByGuid( sysarg, clothesGuid)
+	-- if not equipPtr then
+	-- 	return
+	-- end
+	-- local clothesId =  Item.getItemId(equipPtr)
+	-- --取出新时装的ID和价钱
+	-- local nNewItemId, nNeedGold = GetNewClothesID(clothesId)
+	-- if nNewItemId == 0 then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00056, ttFlyTip)--查找不到对应时装
+	-- 	return
+	-- end
+	-- --返回新时装的ID
+	-- StartExchangeResult(sysarg,nNewItemId)	
+end
+
+--处理客户端请求确认时装转换
+function CommitExchangeClothes(sysarg,clothesGuid)
+	-- --是否转性
+	-- local svar = Actor.getStaticVar(sysarg)
+	-- if svar.changeSexFlag == nil then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00054, ttFlyTip)
+	-- 	ExchangeResult(sysarg,0)
+	-- 	return				
+	-- end	
+	-- if svar.changeSexFlag == 0 then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00054, ttFlyTip)
+	-- 	ExchangeResult(sysarg,0)
+	-- 	return				
+	-- end
+	-- local equipPtr = Item.getBagItemPtrByGuid( sysarg, clothesGuid)
+	-- if not equipPtr then
+	-- 	ExchangeResult(sysarg,0)
+	-- 	return 
+	-- end
+	-- local clothesId =  Item.getItemId(equipPtr)
+	-- local nNewItemId, nNeedGold = GetNewClothesID(clothesId)
+	-- if nNewItemId == 0 then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00056, ttFlyTip)--查找不到对应时装
+	-- 	return
+	-- end
+	-- local nItemType = Item.getItemProperty( sysarg, equipPtr, Item.ipItemType, 0)
+	-- if nItemType < Item.itWeapon or nItemType >= Item.itEquipMax then --投入时装有误
+	-- 	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00047, Item.getItemName(itemId)), ttFlyTip)		
+	-- 	return
+	-- end	
+	-- --判断元宝是否足够
+	-- local myGold = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+	-- if myGold < nNeedGold then
+	-- 	Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00055, ttFlyTip)
+	-- 	ExchangeResult(sysarg,0)
+	-- 	return
+	-- end
+	-- --获取其他附加属性
+	-- local propTab = {}
+	-- --鉴定属性,在装备鉴定属性那里定义
+	-- --[[
+	-- AuthValTab = {
+	-- 	Item.ipItemForgeProperty1Value,
+	-- 	Item.ipItemForgeProperty2Value,
+	-- 	Item.ipItemForgeProperty3Value,
+	-- 	Item.ipItemForgeProperty4Value,
+	-- }
+	-- --]]
+	-- local authTimes = Item.getItemProperty( sysarg, equipPtr, Item.ipItemForgeTimes, 0 )
+	-- propTab[Item.ipItemForgeTimes] = authTimes;
+	-- for authIdx, authVar in ipairs(AuthValTab) do
+	-- 	local tempVal = Item.getItemProperty( sysarg, equipPtr, authVar, 0)
+	-- 	propTab[authVar] = tempVal
+	-- end
+	-- local initSmith = Item.getItemProperty( sysarg, equipPtr, Item.ipItemSpecSmith, 0)				
+	-- local nStrong = Item.getItemProperty(sysarg, equipPtr, Item.ipItemStrong, 0)
+	-- if nStrong <= 0 then
+	-- 	nStrong = 0
+	-- end				
+	-- local nQuality = Item.getItemProperty( sysarg, equipPtr, Item.ipItemQuality, 0 )
+	-- local nLuck = Item.getItemProperty( sysarg, equipPtr, Item.ipItemLuck, 0 )
+	-- local nInsure = Item.getItemProperty( sysarg, equipPtr, Item.ipItemHole3Item, 0 )	--投保次数				
+
+	-- local newItemPtr = Item.createItem(nNewItemId, 1, nStrong, nQuality)
+	-- if not newItemPtr then
+	-- 	return 
+	-- end
+	-- --扣钱
+	-- if not Actor.changeMoney(sysarg, 3, -nNeedGold, 145, Lang.LogTips.l00193) then
+	-- 	ExchangeResult(sysarg,0)
+	-- 	return
+	-- end
+	-- --删除旧物品
+	-- local isItemInBag = true			
+	-- if Actor.removeItemByPtr(sysarg, equipPtr, 1, true, Lang.LogTips.l00194, 92) == 0 then
+	-- 	if Item.removeEquip(sysarg, equipPtr, Lang.LogTips.l00194, 92, true) == 0 then
+	-- 		return
+	-- 	end
+	-- 	isItemInBag = false
+	-- end
+	-- if newItemPtr then
+	-- 	Item.addItem(sysarg, newItemPtr, Lang.LogTips.l00194, 93,1)
+	-- 	if initSmith > 0 then
+	-- 		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, initSmith)
+	-- 	end
+	-- 	for propId, propVal in pairs(propTab) do
+	-- 		Item.setItemProperty( sysarg, newItemPtr, propId, propVal)
+	-- 	end
+	-- 	if nLuck > 0 then
+	-- 		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemLuck, nLuck)
+	-- 	end
+	-- 	local nInsureCount = Item.getItemPropertyById(nNewItemId, Item.ipItemInsure) --投保金额 >0可投保
+	-- 	if nInsure > 0 and nInsureCount > 0 then
+	-- 		Item.setItemProperty( sysarg, newItemPtr, Item.ipItemHole3Item, nInsure)
+	-- 	end
+	-- end
+	-- ExchangeResult(sysarg,1) --转换成功
+end
+
+--返回客户端时装目标ID
+function StartExchangeResult( sysarg,nclothesId )
+	local npack = DataPack.allocPacket(sysarg,145,24)
+	if npack ~= nil then
+		DataPack.writeUInt(npack, nclothesId)
+		DataPack.flush(npack)
+	end		
+end
+	
+--通知客户端转换成功与否
+function ExchangeResult(sysarg,nValue)
+	local npack = DataPack.allocPacket(sysarg,145,25)
+	if npack ~= nil then
+		DataPack.writeByte(npack, nValue)
+		DataPack.flush(npack)
+	end		
+end

@@ -1,0 +1,158 @@
+--lua script
+--使用经验玉
+
+--#include "data\config\item\ExpJade.txt" once --BUFF配置表
+--#include "data\functions\Activity\Common\Consumes.txt" once
+
+--[[
+--添加buff的物品
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+function UseJadeItem(sysarg,itemidx,itemPtr,ItemTable)
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return
+	end
+	
+	local nValue = 0
+	local nIndex = Item.getItemJadeIndex(sysarg,itemPtr)
+	local nDua = Item.getItemProperty(sysarg,itemPtr,19,nValue)
+	
+	local Val = Actor.getStaticVar(sysarg)
+	
+	local mIndex = 1
+	for i=1,table.getn(ExpJadeTable) do
+		if ExpJadeTable[i].item_id == ItemTable.item_id then
+			mIndex = i
+			break
+		end
+	end
+
+	if Val.ExpIncreamNum == nil then
+		Val.ExpIncreamNum = {}
+	end
+	
+	if Val.ExpIncreamNum[mIndex] == nil then
+		Val.ExpIncreamNum[mIndex] = 0
+	end
+	
+	if Val.ExpIncreamNum[mIndex] >= ItemTable.MaxUseTimes and ItemTable.MaxUseTimes > 0 then		--使用此时已达上限
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00204,ttFlyTip )
+		return 
+	end
+
+	local nCount = 0	--ItemTable.consumes[1].count + Val.ExpIncreamNum[mIndex] * ItemTable.IncrementNum
+	if ItemTable.IncrementNum > 0 and Val.ExpIncreamNum[mIndex] > 0 then
+		nCount = ItemTable.consumes[1].count
+		for j=1,Val.ExpIncreamNum[mIndex] do
+			nCount = math.ceil(nCount * ItemTable.IncrementNum / 100)
+		end
+	else
+		nCount = ItemTable.consumes[1].count
+	end
+	
+	if nDua > 0 then
+		if ItemTable.consumes[1].type == 15 then
+			local str = string.format(Lang.Activity.w00052,nCount,nDua)
+			Actor.messageBox(sysarg,0,0,str,Lang.Activity.w00053.."/GetExpByYuBao,"..nIndex,Lang.Activity.w00055.."/CanleGetExp",NULL)
+		elseif ItemTable.consumes[1].type == 7 then
+			local str = string.format(Lang.Activity.w00113,nCount,nDua)
+			Actor.messageBox(sysarg,0,0,str,Lang.Activity.w00054.."/GetExpByYuBao,"..nIndex,Lang.Activity.w00055.."/CanleGetExp",NULL)
+		end
+	else
+		Actor.sendTipmsg( sysarg,Lang.Activity.w00065,ttTipmsgWindow )
+	end
+end
+
+--元宝兑换
+function GetExpByYuBao(sysarg,args)
+	local nIndex = tonumber(args)
+
+	if nIndex >= 0 then 
+		local itemPtr = Item.getItemPtrByJadeIndex(sysarg,nIndex)
+		
+		if itemPtr ~= nil then
+			local mIndex = 0
+			local nValue = 0
+			local itemId = Item.getItemProperty(sysarg,itemPtr,0,nValue)
+			for i=1,table.getn(ExpJadeTable) do
+				if ExpJadeTable[i].item_id == itemId then
+					mIndex = i
+					break
+				end
+			end
+			
+			local nDua = Item.getItemProperty(sysarg,itemPtr,19,nValue)
+			
+			local Val = Actor.getStaticVar(sysarg)
+
+			if Val.ExpIncreamNum == nil then
+				Val.ExpIncreamNum = {}
+			end
+			
+			if Val.ExpIncreamNum[mIndex] == nil then
+				Val.ExpIncreamNum[mIndex] = 0
+			end
+
+			if nDua <= 0 then return end
+			
+			local ybCount = 0  --ExpJadeTable[mIndex].consumes[1].count + Val.ExpIncreamNum[mIndex] * ExpJadeTable[mIndex].IncrementNum
+			
+			if Val.ExpIncreamNum[mIndex] >= ExpJadeTable[mIndex].MaxUseTimes and ExpJadeTable[mIndex].MaxUseTimes > 0 then		--使用此时已达上限
+				Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00204,ttFlyTip )
+				return 
+			end
+
+			if ExpJadeTable[mIndex].IncrementNum > 0 and Val.ExpIncreamNum[mIndex] > 0 then
+				ybCount = ExpJadeTable[mIndex].consumes[1].count
+				for j=1,Val.ExpIncreamNum[mIndex] do
+					ybCount = math.ceil(ybCount * ExpJadeTable[mIndex].IncrementNum / 100)
+				end
+			else
+				ybCount = ExpJadeTable[mIndex].consumes[1].count
+			end
+
+			local nYb = 0
+			
+			if ExpJadeTable[mIndex].consumes[1].type == 15 then		--元宝
+				nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+				if nYb < ybCount then		--元宝不够
+					Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00205,ttFlyTip )
+					return
+				end
+			elseif ExpJadeTable[mIndex].consumes[1].type == 7 then		--礼卷
+				nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_BIND_YUANBAO)
+				if nYb < ybCount then		--礼卷不够
+					Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00206,ttFlyTip )
+					return
+				end
+			end
+
+			if Actor.giveAward(sysarg,ExpJadeTable[mIndex].consumes[1].type,0,-ybCount,0,0,0,0,91,Lang.Activity.w00056) == true then
+				Val.ExpIncreamNum[mIndex] = Val.ExpIncreamNum[mIndex] + 1
+				Actor.giveAward(sysarg,2,0,nDua,0,0,0,0,91,"JadeExp")
+				Item.changeHpPotValue(sysarg,itemPtr,0)
+				--Item.sendHpPotDataToClient(sysarg,itemPtr)
+				Actor.removeItemByPtr(sysarg,itemPtr,1,true,"JadeExp",5)
+			end
+		end
+	end
+end
+
+
+--取消
+function CanleGetExp(sysarg)
+	return nil
+end
+
+function UseJadeItemInit(sysarg)
+  for i = 1,table.getn(ExpJadeTable) do
+	local x = ExpJadeTable[i]
+	GlobalItemFn[x.item_id] = { func = UseJadeItem, params = x }
+  end
+end
+
+table.insert(InitFnTable,UseJadeItemInit)

@@ -1,0 +1,318 @@
+﻿--lua script
+
+ActorDB = {}  --玩家数据临存表
+
+DataTable ={}
+
+local FBDATA = 1							--副本次数
+local DEPUTYMAKEDATA = 2			
+local SYSTEMID = 127					--挂机系统
+local TIMEDATA = 3						--打坐时间
+local GUILDTIME = 4						--帮派在职时间
+local PKMODE = 5 							--PK模式数据
+local WARMTIPS = 6            --温馨提示语的索引值
+----------------------------------------------------------------------------------------
+--保存玩家的PK模式数据
+function savePKModeDataFunc(sysarg,actorid,datatable)
+	if datatable[PKMODE] == nil then 
+		datatable[PKMODE] = {}
+	end
+	ActorDB[actorid][PKMODE][1] = Actor.getPkMode(sysarg)
+	--print("PKMODE:"..ActorDB[actorid][PKMODE][1])
+end
+
+--载入玩家的PK模式数据
+function loadPKModeDataFunc(sysarg,actorid,datatable)
+	local PKMode = datatable[PKMODE]
+	if PKMode == nil then 
+		Actor.setPkMode(sysarg,fpPeaceful)
+	else
+		if PKMode == nil then 
+			Actor.setPkMode(sysarg,fpPeaceful)
+		elseif PKMode[1] == nil then 
+			Actor.setPkMode(sysarg,fpPeaceful)
+		else
+			Actor.setPkMode(sysarg,PKMode[1])
+		end
+	end
+		
+end
+--保存玩家的帮派在职时间
+function saveGuildZzTimeFunc(sysarg,actorid,datatable)
+	--print("set guild time !!")
+	local gZztime = Actor.getGuildZzTime(sysarg)
+	if datatable[GUILDTIME] == nil then
+		datatable[GUILDTIME] = {}
+	end
+	ActorDB[actorid][GUILDTIME][1] = gZztime
+	--print("guildZztime:"..ActorDB[actorid][GUILDTIME][1])
+end
+--载入玩家的帮派在职时间
+function laodGuildZzTimeFunc(sysarg,actorid,datatable)
+	
+	local GZzTime = datatable[GUILDTIME]	
+	if GZzTime == nil  then 
+		Actor.setGuildZzTime(sysarg,0)
+		return 
+	end
+	if GZzTime[1] == nil then
+	  Actor.setGuildZzTime(sysarg,0)
+	else
+	  Actor.setGuildZzTime(sysarg,GZzTime[1])
+	end
+
+end
+--设置玩家的跳跃距离和最大跳跃体力
+function setJumpPowerFunc(sysarg,arg)
+  --print("set Jump Proterty!") 
+  local isFirstLogin = arg[1]
+  local Alevel = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+  if ActorMaxJumpPower[Alevel] == nil then return end
+  if ActorJumpPowerRenewRate[Alevel] == nil then  return end
+  if not Actor.setUIntProperty(sysarg,PROP_ACTOR_MAX_JUMP_POWER,ActorMaxJumpPower[Alevel]) then return end
+  if not Actor.setUIntProperty(sysarg,PROP_ACTOR_JUMP_POWER_RENEW_RATE,ActorJumpPowerRenewRate[Alevel]) then return end
+  if isFirstLogin == 1 then 
+  	Actor.setUIntProperty(sysarg,PROP_ACTOR_JUMP_POWER,ActorMaxJumpPower[Alevel])
+  	--print("set jump power!")
+  end
+ --print("Jump:"..Actor.getIntProperty(sysarg,PROP_ACTOR_MAX_JUMP_POWER))
+end 
+--载入和处理打坐时间相关数据
+function loadDazuoDatas(sysarg,actorid,datatable)
+  --print("dazuo:"..Actor.getIntProperty(sysarg,PROP_ACTOR_ZAZEN_LEFTTIME))
+	local TimeData = datatable[TIMEDATA]	
+		if TimeData == nil  then 
+			TimeData = {}
+		end
+		if TimeData[1] == nil then
+	  	--Actor.resetMediTimes(sysarg)
+		else
+			--print("TimeData[1]:"..TimeData[1])
+	  	Actor.setUIntProperty(sysarg,PROP_ACTOR_ZAZEN_LEFTTIME,TimeData[1])
+	  end
+end
+
+--退出时保存剩下打坐时间相关数据
+function saveDazuoDatas(sysarg,actorid,datatable)
+ 
+	if datatable[TIMEDATA] == nil then
+		datatable[TIMEDATA] = {}
+	end
+	ActorDB[actorid][TIMEDATA][1] = Actor.getIntProperty(sysarg,PROP_ACTOR_ZAZEN_LEFTTIME)
+	--print("savedazuotime:"..ActorDB[actorid][TIMEDATA][1])
+end
+--载入和处理副本相关数据
+function loadFuBenDatas( sysarg, actorid, datatable )
+  --print(datatable[FBDATA][1])
+  local FbCount = datatable[FBDATA]
+  --print("FbCount:")
+  if FbCount == nil or FbCount[1] == nil then
+		--print("Fb Data empty.")
+		Actor.resetFubenTimes(sysarg)
+  else
+	  for i = 0,5 do
+		Actor.setDayFubenCount(sysarg,i,FbCount[i+1])
+	  end
+  end
+  --print(Actor.getDayFubenCount(sysarg,fmSingle))
+  return true
+end
+
+--退出时保存副本数据
+function saveOnLogoutFuBen( sysarg, actorid, datatable )
+  if ( datatable[FBDATA] == nil ) then
+	datatable[FBDATA] = {}
+  end
+  for i = 0 ,5 do
+	ActorDB[actorid][FBDATA][i+1] = Actor.getDayFubenCount(sysarg,i)		--将玩家进入副本的次数保存起来
+	--print(ActorDB[actorid][FBDATA][i+1])
+  end
+end
+
+----------------------------------------------------------------------------------------
+--玩家登陆时读取玩家的.[数据参数：玩家的ActorID；]
+function loadActorData(sysarg,actorid)
+  local txtname = tonumber(actorid%256)
+   
+  local nLast = Actor.getLastLogoutTime(sysarg)
+  --print("nLast:"..nLast)
+	if (nLast == 0) then
+	Actor.setGuildZzTime(sysarg,0)
+	Actor.resetFubenTimes(sysarg)
+	--Actor.resetMediTimes(sysarg)
+	Actor.setPkMode(sysarg,fpPeaceful)
+	end
+	
+  local path = "DB/"..txtname.."/"..actorid..".txt"
+  --print("actorid:"..actorid)
+  if ( System.fileExists(path) == false ) then		--判断是否存在玩家对应的文件
+	--print( "Search file not exist "..path )
+	Actor.resetFubenTimes(sysarg)
+	--Actor.resetMediTimes(sysarg)
+	return false
+  end
+  dofile(path)			--读取玩家对应的文件，把文件里的数据表复制给全局表ActorDB
+  --print("DataTable:"..table.getn(DataTable))
+  ActorDB[actorid] = DataTable
+  --print("no...nil:")
+  --各种处理
+  
+	if (nLast < System.getToday()) then  
+		Actor.resetFubenTimes(sysarg)
+		--Actor.resetMediTimes(sysarg)
+		--print("dazhoutime:"..Actor.getIntProperty(sysarg,PROP_ACTOR_ZAZEN_LEFTTIME))
+		--print("reset All Times!!")
+	else 
+	  loadFuBenDatas( sysarg, actorid, DataTable )     --副本
+	  loadDazuoDatas(sysarg,actorid,DataTable)         --读取玩家当天打坐剩下时间
+	  Actor.setFubenTimes(sysarg)
+		--Actor.setMediTimes(sysarg)
+  end
+  laodGuildZzTimeFunc(sysarg, actorid, DataTable)    --载入玩家帮派在职时间
+  loadPKModeDataFunc(sysarg,actorid,DataTable)				--载入玩家的PK模式
+  return true
+end
+
+--玩家退出时保存玩家的数据[参数：玩家的actorID；]
+function SaveData(sysarg,actorid)
+  local txtname = tonumber(actorid%256)
+  local actorid = tonumber(actorid)
+  local PATH = "DB/"..txtname.."/"..actorid..".txt"
+  --print("PATH:"..PATH)
+  if not System.fileExists(PATH) then		                --判断是否存在玩家对应的文件
+	System.deepCreateDirectory("DB/"..txtname.."/")	--没有的话则创建一个目录
+  end
+  if ActorDB[actorid] == nil then ActorDB[actorid] = {} end
+  
+  --各种处理
+         
+  saveOnLogoutFuBen( sysarg, actorid, ActorDB[actorid] )  --副本
+  saveDazuoDatas(sysarg,actorid,ActorDB[actorid])       --保存当天打坐剩下时间
+	saveGuildZzTimeFunc(sysarg,actorid,ActorDB[actorid])        --帮派在职时间
+	savePKModeDataFunc(sysarg,actorid,ActorDB[actorid])					--玩家的PK模式数据
+	
+  --print(ActorDB[actorid][systemid - SYSTEMID][1])
+  LuaHelp.saveTable(ActorDB[actorid],PATH,"DataTable") 
+  --print(".......nil")
+  ActorDB[actorid] =nil
+end
+
+--------------------------------------------------------------------------------------------------------------------
+--返回玩家需要的数据给客户端[参数列表：子系统ID,消息号ID,数据指针]
+function loadActorDataFunc(sysarg,systemid,megid,pack)
+  local actorid = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+  --print("read:"..systemid)
+  if systemid <= 128 then 
+	return
+  end
+  local actorData = ActorDB[actorid]
+  if (actorData == nil) then
+	--print("actorid..nil:")
+	return
+  end
+  local actorGameData = actorData[systemid - SYSTEMID]
+  if actorGameData == nil then 
+	--print("systemid...nil:")
+	return
+  end
+  if actorGameData == {} then 
+  --print("actorGameData:"..actorGameData)
+  local npack = DataPack.allocPacket(sysarg,systemid,megid)  --申请一个数据包
+  if npack == nil then
+	--print("npack:nil")
+	return
+  end
+  DataPack.writeInt(npack,0)
+  DataPack.flush(npack)
+  return
+  end
+  local npack = DataPack.allocPacket(sysarg,systemid,megid)  --申请一个数据包
+  if npack == nil then
+	--print("npack:nil")
+	return
+  end
+  local ncount = table.getn(actorGameData)/2
+  --print("ncount:"..ncount)
+  DataPack.writeInt(npack,ncount)
+  for i = 1 ,ncount*2 do 
+	DataPack.writeInt(npack,actorGameData[i])
+	--print("actorGameData:"..i)
+  end
+  DataPack.flush(npack)
+end
+
+--保存玩家数据的函数，[参数1：数据ID；参数2：玩家的ActorID；参数3：需要保存到玩家文件的数据表]
+function saveActorDataFunc(sysarg,systemid,megid,pack)
+  local actorid = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+  local actorData = ActorDB[actorid]
+  if actorData == nil then
+	actorData = {}
+	actorData[systemid - SYSTEMID]={}
+	--print("--------nil:")
+  end
+  for i = 1, (systemid - SYSTEMID) do
+	if  actorData[i]==nil then
+		table.insert(actorData,i,{})
+		--print("SYSTEMID...nil:")
+	end
+  end
+  if ( systemid <= 128 or pack==nil ) then
+	ActorDB[actorid] = actorData
+	return
+  end
+  local nCount = DataPack.readInt(pack)
+  --print("nCount:"..nCount)
+  --print("systemid:"..systemid)
+  for i = 1,nCount*2 do
+	--print("actorid:")
+	actorData[systemid - SYSTEMID][i] = DataPack.readInt(pack)
+	--print(actorData[systemid - SYSTEMID][i])
+  end
+  ActorDB[actorid] = actorData
+end
+
+--服务器本地 获得玩家数据 [玩家指针 数据分类ID]
+function getActorData( sysarg, actordataid )
+  --print( "Get actor date: "..actordataid )
+  local actorid = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+  local actorData = ActorDB[actorid]
+  --print("order:"..actorData[actordataid][1])
+  --print("actorid:"..actorid)
+  if ( actorData == nil or actorData[actordataid] == nil ) then
+  print("Get nil data:")
+	return {}
+  end
+  return actorData[actordataid]
+end
+
+function getActorDataByID( actorid, actordataid )
+  --print( "Get actor date: "..actordataid )
+  local actorData = ActorDB[actorid]
+  if ( actorData == nil or actorData[actordataid] == nil ) then
+	return {}
+  end
+  return actorData[actordataid]
+end
+
+function getActorAllData( actorid )
+  return ActorDB[actorid]
+end
+
+--服务器本地 设置玩家数据 [玩家指针 数据分类ID 数据表]
+function setActorData( sysarg, actordataid, datatable )
+  --print( "Set actor date: "..actordataid )
+  local actorid = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+  local actorData = ActorDB[actorid]
+  if actorData == nil then
+	actorData = {}
+	--print("--------nil:")
+  end
+  for i = 1, actordataid do
+	if  actorData[i]==nil then
+		table.insert(actorData,i,{})
+		--print("SYSTEMID...nil: "..i)
+	end
+  end
+  actorData[actordataid] = datatable
+  ActorDB[actorid] = actorData
+end

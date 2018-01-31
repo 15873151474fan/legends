@@ -1,0 +1,99 @@
+--2015 元旦折扣祈福
+{
+	ldIdx = 3, --祈福活动序号   
+	--paramFile = "NysDisWishParam.txt", 
+	infoFile = "NysDisWishInfo.txt",    
+	
+	--isSaveName = 1, --是否保存名字,一般积分排名需要用到    
+	
+	--isMultAward = 1, --是否抽到相同的有多倍奖励
+	--multAward = {1,1,3}, --奖励倍率，一个单倍，两个3倍，3个5倍 
+	
+	isShowLog = 1, --需要显示抽奖记录 
+	isAllLog = 1, --是否需要全服抽奖记录
+	--isPerLog = 1, --是否需要个人抽奖记录 
+	maxLogCount = 50, --最大记录数 
+
+	actTime = {2014, 12, 29, 0, 0, 0,  2015, 1, 5, 23, 59, 59},	--活动时间范围     
+	circle = 0, --转数 
+	level = 50, --等级
+
+	isFree = 1, --是否可以每天免费   
+	freeCount = 3, --每天免费次数  
+	--isShowFreeUse = 1, --需要显示免费使用进度
+	
+	isFreshDiscount = 1, --是否可以刷新折扣
+	refreshYb = 10,  --刷新折扣1次需要的元宝 
+	isBuyDisItem = 1, --是否需要购买物品，购买的物品配buyDisItemLists 
+
+	itemCount = 1000, --每个库的最大物品数量   
+	turntableCount = 1,	--转盘的数量  
+	itemLists =  
+	{
+		--discount为折扣，rate为刷出的概率，limitfresh最少刷新次数,    
+		--第1个物品库
+		{
+			itemList = 
+			{
+				{--1  
+					idx =1, discount = 8, limit = 0, rate = 70, totalrate = 100, limitFresh = 2, 
+				},
+				{--2
+					idx =2, discount = 6, limit = 10, rate = 60, totalrate = 100, limitFresh = 3,
+				},
+				{--3
+					idx =3, discount = 4, limit = 5, rate = 50, totalrate = 100, limitFresh = 5,
+				},
+				{--4
+					idx =4, discount = 2, limit = 2, rate = 40, totalrate = 100, limitFresh = 0, 
+				}, 
+			},
+		},	
+	},
+	
+	--购买的物品列表
+	buyDisItemLists =  
+	{
+		{--1
+			idx =1, type = 0, id = 2630, count = 1, strong = 0, quality = 0, bind = 1,  isBrocast = true, price = 3500,
+		},
+		{--2
+			idx =2, type = 0, id = 2258, count = 1, strong = 0, quality = 0, bind = 1,  isBrocast = true, price = 500,
+		},
+		{--3
+			idx =3, type = 0, id = 2136, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true, price = 500,
+		},
+		{--4
+			idx =4, type = 0, id = 1991, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true, price = 500,
+		}, 
+		{--5
+			idx =5, type = 0, id = 3303, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true, price = 243,
+		}, 
+
+		{--6
+			idx =6, type = 0, id = 1022, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true, price = 200,
+		}, 
+
+		{--7
+			idx =7, type = 0, id = 2872, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true, price = 200,
+		}, 
+
+		{--8
+			idx =8, type = 0, id = 2873, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true, price = 200,
+		}, 
+		{--9
+			idx =9, type = 0, id = 1402, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = true, price = 200,
+		}, 
+		{--10
+			idx =10, type = 0, id = 2986, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = false, price = 50,
+		}, 
+		{--11
+			idx =11, type = 0, id = 1990, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = false, price = 18,
+		}, 
+		{--12
+			idx =12, type = 0, id = 2111, count = 1, strong = 0, quality = 0, bind = 1, isBrocast = false, price = 18,
+		}, 
+	},
+	
+	
+},

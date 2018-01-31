@@ -1,0 +1,353 @@
+--#include "data\config\vip\vip.txt" once
+--#include "data\config\vip\vipLevel.txt" once
+--#include "data\config\godWealth\WealthEventConfig.txt" once 
+
+--领取每天vip等级小礼包
+function GetVipGiftBag(sysarg)
+	local result = false
+	
+	if not Actor.isVip(sysarg) then	
+		return result
+	end 
+	
+	local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+	if vipLevel <= 0 then
+		return result
+	end
+	
+	local config = VIPLevelConfig[vipLevel]
+	if not config then
+		return result
+	end
+	
+	local actorVar = Actor.getStaticVar(sysarg)  
+	if not actorVar then
+		return result
+	end
+	if not actorVar.lastVipLvlGiftTime then
+		actorVar.lastVipLvlGiftTime = 0 
+	end
+	local lastGetGiftTime = actorVar.lastVipLvlGiftTime
+	local currTime = System.getCurrMiniTime() 
+	if System.isSameDay(currTime, lastGetGiftTime) ~= true and currTime > lastGetGiftTime then
+		local needGrids = 0
+		for k, giftInfo in ipairs(config.giftBag or {}) do
+			needGrids = needGrids + Item.getAddItemNeedGridCount( sysarg, giftInfo.id, giftInfo.count, giftInfo.quality, giftInfo.strong, giftInfo.bind)
+		end
+		
+		local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+		if needGrids > bagEmptyGrids then
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gq0009,  needGrids-bagEmptyGrids), ttFlyTip) 
+			return
+		end
+
+		for k, giftInfo in ipairs(config.giftBag or {}) do
+			Actor.giveAward(sysarg, giftInfo.type, giftInfo.id, giftInfo.count, giftInfo.quality, giftInfo.strong, giftInfo.bind, 0, 953, Lang.LogTips.l00205)  --需修改
+		end
+		actorVar.lastVipLvlGiftTime = currTime
+		result = true
+	end
+	return result
+end
+
+
+
+--增加财神闯关免费次数
+function AddGodWealthTimes(sysarg, isUseCard) 
+	if not Actor.isVip(sysarg) then	
+		return  
+	end
+
+	local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+	if vipLevel <= 0 then
+		return 
+	end
+	--[[
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar.lastAddRollTimes then
+		actorVar.lastAddRollTimes = 0  --上次增加的次数
+	end
+	--]]
+	local config = VIPLevelConfig[vipLevel]  
+	if config then
+		if config.addGodWealthTimes and config.addGodWealthTimes > 0 then 
+			Actor.setVipAddTimes(sysarg, config.addGodWealthTimes)
+			--[[
+			local addTimes = 0
+			local currTimes = Actor.getRollMaxTimes(sysarg)
+			
+			if config.addGodWealthTimes > actorVar.lastAddRollTimes then
+				local addVal = config.addGodWealthTimes - actorVar.lastAddRollTimes
+				if currTimes + addVal <= WealthEventConfig.maxRollTimes then 
+					addTimes = addVal
+				else
+					addTimes = WealthEventConfig.maxRollTimes - currTimes
+				end
+			end
+
+			if addTimes > 0 then
+				Actor.addRollTimes(sysarg, addTimes)
+				actorVar.lastAddRollTimes = config.addGodWealthTimes
+			end
+			--]]
+		end
+	end
+	
+end
+
+--增加天书任务的次数
+function AddBookTaskTimes(sysarg)
+	if not Actor.isVip(sysarg) then	
+		return
+	end
+
+	local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+	if vipLevel <= 0 then
+		return 
+	end
+	
+	local config = VIPLevelConfig[vipLevel]  
+	if config then
+		if config.addBookTaskTimes and config.addBookTaskTimes > 0 then
+			Actor.setMiscData(sysarg, 5, config.addBookTaskTimes)
+		end
+	end
+end
+
+
+--更新vip等级信息
+--isUseCard 是否使用vip卡提升了等级
+function UpdateVipLevelInfo(sysarg, isUseCard)
+	if true then
+		return
+	end
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar then
+		return
+	end
+	
+	if not actorVar.lastGiveGrowValueTime then --上次给vip成长值时间
+		actorVar.lastGiveGrowValueTime = 0
+	end
+	local lastTime = actorVar.lastGiveGrowValueTime
+	local currTime = System.getCurrMiniTime() 
+	
+	local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+	if vipLevel > table.getn(VIPLevelConfig) then
+		return 
+	end 
+	
+	local newVipLevel = vipLevel
+	
+	if System.isSameDay(currTime, lastTime) ~= true and currTime > lastTime then
+		if not isUseCard then
+			local vipType = Actor.getVipType(sysarg)	
+			if vipType > 0 and vipType <= table.getn(VIPConfig) then
+				local growValue = VIPConfig[vipType].growValue
+				if VIPConfig[vipType].vipLevel > vipLevel then
+					vipLevel = VIPConfig[vipType].vipLevel
+				end
+				newVipLevel = AddVipGrowValue(sysarg, vipLevel, growValue)  --增加成长值
+			--[[
+			else 
+				DeductVipGrowValue(sysarg, vipLevel, VIPLevelConfig.deductValue) --扣除成长值,不减等级  
+			--]]
+			end	
+
+			actorVar.lastGiveGrowValueTime = currTime
+			updateVipLevelBuff(sysarg, vipLevel, newVipLevel) --更新buff
+		end 
+	end
+	
+	if isUseCard then
+		updateVipLevelBuff(sysarg, vipLevel, newVipLevel) --更新buff
+	end
+	
+	autoSignIn(sysarg) --自动签到
+	AddBookTaskTimes(sysarg) --增加天书任务的次数 
+	AddGodWealthTimes(sysarg, isUseCard) --增加财神闯关免费次数
+	
+end
+
+--增加vip成长值
+function AddVipGrowValue(sysarg, vipLevel, growValue)
+	local result = vipLevel
+	local actorVar = Actor.getStaticVar(sysarg) 
+	if not actorVar then
+		return result
+	end
+	
+	if growValue <= 0 then
+		return result
+	end
+	
+	if not actorVar.vipGrowValue then
+		actorVar.vipGrowValue = 0
+	end
+	
+	if vipLevel + 1 > table.getn(VIPLevelConfig) then
+		return result
+	end
+	
+	local tmpGrowValue = actorVar.vipGrowValue
+	local config = VIPLevelConfig[vipLevel + 1] 
+	
+	local needGrowValue = config.growValue
+	
+	if needGrowValue - tmpGrowValue > growValue then
+		actorVar.vipGrowValue = actorVar.vipGrowValue + growValue  
+	else
+		actorVar.vipGrowValue =  growValue - (needGrowValue - tmpGrowValue)
+		Actor.setUIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL, vipLevel + 1)
+		result = vipLevel + 1
+		if result >= table.getn(VIPLevelConfig) then
+			actorVar.vipGrowValue = 0
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 139, 79)
+	if (pack ~= nil) then	
+		DataPack.writeWord(pack, actorVar.vipGrowValue) --vip会员成长值 
+		DataPack.writeByte(pack, 2) --领取状态不需要改变
+		DataPack.flush(pack)  			
+	end
+	
+	return result
+end
+
+--扣除vip成长值
+function DeductVipGrowValue(sysarg, vipLevel, growValue)
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar then
+		return
+	end
+	
+	if growValue <= 0 then
+		return
+	end
+	
+	if not actorVar.vipGrowValue then
+		actorVar.vipGrowValue = 0
+		return
+	end
+	
+	local tmpGrowValue = actorVar.vipGrowValue
+	
+	if tmpGrowValue > 0 then
+		if tmpGrowValue > growValue then
+			actorVar.vipGrowValue = tmpGrowValue - growValue
+		else
+			actorVar.vipGrowValue = 0
+		end
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 139, 79)
+	if (pack ~= nil) then	
+		DataPack.writeWord(pack, actorVar.vipGrowValue) --vip会员成长值 
+		DataPack.writeByte(pack, 2) --领取状态不需要改变
+		DataPack.flush(pack)  			
+	end
+end
+
+--自动签到
+function autoSignIn(sysarg)
+	if not Actor.isVip(sysarg) then	
+		return 
+	end
+
+	local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+	if vipLevel > 0 then
+		local config = VIPLevelConfig[vipLevel]
+		if config.isAutoSignIn and config.isAutoSignIn == 1 then --是否符合自动签到
+			if not Actor.isAchieveFinished(sysarg, 147) then  --每日签到是否完成
+				local nValue = Actor.getIntProperty(sysarg, PROP_ACTOR_CHECKINS)
+				Actor.setUIntProperty(sysarg, PROP_ACTOR_CHECKINS, nValue + 1)
+				Actor.triggerAchieveEvent(sysarg, 83, nValue + 1)
+			end
+			Actor.triggerMiscEvent(sysarg, 1, 0)  --当天签到
+		end
+	end	
+end
+
+--更新vip等级buff  
+function updateVipLevelBuff(sysarg, oldLevel, currLevel) 
+    --屏蔽vipbuff
+	if true then return end
+	if not Actor.isVip(sysarg) then	
+		return 
+	end
+	
+	if currLevel > 0 and currLevel >= oldLevel then
+		if currLevel > table.getn(VIPLevelConfig) then
+			return 
+		end
+		
+		if oldLevel > 0 then
+			local oldConfig = VIPLevelConfig[oldLevel] 
+			if oldConfig then
+				if oldConfig.teamLeaderBuff then
+					for k, v in ipairs(oldConfig.teamLeaderBuff or {}) do
+						Actor.delBuff(sysarg, v.buffType, v.buffGroup)
+					end
+				end
+				if oldConfig.killMonExpBuff then
+					for k, v in ipairs(oldConfig.killMonExpBuff or {}) do
+						Actor.delBuff(sysarg, v.buffType, v.buffGroup) 
+					end
+				end
+			end
+		end
+		
+		local tempLevel = ((currLevel > oldLevel) and currLevel) or oldLevel
+		local currConfig = VIPLevelConfig[tempLevel] 
+		if currConfig then
+			if currConfig.teamLeaderBuff then  --队长光环buff
+				for k, v in ipairs(currConfig.teamLeaderBuff or {}) do
+					Actor.addBuff(sysarg, v.buffType, v.buffGroup, v.value, v.times, v.interval, v.buffName)
+				end
+			end
+			
+			if currConfig.killMonExpBuff then  --杀怪加成buff
+				for k, v in ipairs(currConfig.killMonExpBuff or {}) do
+					Actor.addBuff(sysarg, v.buffType, v.buffGroup, v.value, v.times, v.interval, v.buffName)
+				end
+			end
+			
+		end
+		
+	end
+end
+
+
+function VipLvlExpiry(sysarg) 
+	local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+	local config = VIPLevelConfig[vipLevel] 
+	if config then
+		--清除队长光环buff
+		if config.teamLeaderBuff then
+			for k, v in ipairs(config.teamLeaderBuff or {}) do
+				Actor.delBuff(sysarg, v.buffType, v.buffGroup)
+			end
+		end
+		--清除杀怪buff
+		if config.killMonExpBuff then
+			for k, v in ipairs(config.killMonExpBuff or {}) do
+				Actor.delBuff(sysarg, v.buffType, v.buffGroup) 
+			end
+		end
+		
+		--减少财神闯关次数
+		Actor.setVipAddTimes(sysarg, 0)		
+		--[[
+		local actorVar = Actor.getStaticVar(sysarg)
+		if not actorVar then
+			return
+		end
+
+		if config.addGodWealthTimes and config.addGodWealthTimes > 0 then 
+			Actor.addRollTimes(sysarg, -config.addGodWealthTimes)
+			actorVar.lastAddRollTimes = 0
+		end
+		--]]
+	end
+end

@@ -1,0 +1,16 @@
+--战队配置
+WarTeamConfig = 
+{
+	minLevel = 42,		--能加入战队的最低等级
+	MaxNum = 5,		--战队的最大人数
+	needCoin = 100000,		--结拜需要的金币
+
+	delRelationCoin = 1000000,		--割袍断义需要的金币
+
+	changeNamCoin = 5000000,		--修改名称需要的金币
+
+	recruitNeedCoin = 10000,		--招募需要的金币
+	recruitNextTime = 20,			--招募的间隔时间 单位秒
+
+	minlevel = 42,				--招募能收到的最低等级
+}

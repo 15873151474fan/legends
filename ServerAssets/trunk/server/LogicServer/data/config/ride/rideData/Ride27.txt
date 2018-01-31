@@ -1,0 +1,35 @@
+--坐骑27 时效坐骑 雷光麒麟
+{
+	id = 27,		--坐骑的id
+	icon = 8,	--面板上显示的图标id
+	showId = 8,	--展示的动画id
+
+	rideEffect = 0,		--附加特效
+
+	name = Lang.Gem.name008,	--此处从语言包配置  坐骑名称
+	desc = Lang.Gem.desc025,	--坐骑描述
+	needDesc = Lang.Gem.needDesc017,				--如果是时效坐骑，激活的描述 ,没有可以不用配置
+
+	shape = 8,		--坐骑的外观
+	quality = 2,	--坐骑的品质
+
+	offsetX = 105,
+	offsetY = 200,
+
+	nScore = 10,					--坐骑积点，没有可以不用配置，默认为0
+	needYb = 8,					--激活时效坐骑需要元宝，没有可以不用配置,默认为0
+	addTime = 86400,		--激活的时间 单位秒 没有可以不用配置 默认为0
+	disappear = 432000,		--连续5天不激活，则会消失
+
+	--达到阶级或时效坐骑装配即添加的属性
+	basePropConfig = 
+	{
+		--{type=5,value=600,addmode=0,},		--属性配置参照bufftype设定  addmode 为1表示骑上坐骑才添加的属性 默认为0
+
+{type= 11,value=80,addmode=0,},  --物攻上限
+{type= 15,value=80,addmode=0,},  --魔攻上限
+{type= 19,value=80,addmode=0,},  --道攻上限
+{type= 23,value=35,addmode=0,},  --物防上限
+{type= 27,value=35,addmode=0,},  --魔防上限
+	},
+},

@@ -1,0 +1,328 @@
+--lua script
+--烟花盛典 
+
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryHorseAct.txt" once
+--#include "data\config\activityconfig\AnniversaryHorse\FireworksFeastCfg.txt" once 
+--#include "data\functions\Activity\Common\Awards.txt" once 
+--#include "data\functions\Activity\Common\Misc.txt" once
+
+--[[
+	FireworksPointFile = "FireworksPoint.txt",
+	FireworksAccPointFile = "FireworksAccPoint.txt",
+--]]
+
+--请求烟花盛宴信息
+function ReqFireworksFeastInfo(sysarg, packet)  
+	local activityTime = {}
+	for k, v in ipairs(AnniversaryHorActConfig.actTime) do 
+		table.insert(activityTime, v)
+	end
+	activityTime[9] = activityTime[9] + 1
+	
+	if System.isInDateRange(unpack(activityTime)) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0207, ttFlyTip)
+		return 
+	end
+	SendFireworksFeastInfo(sysarg)
+end 
+
+--使用烟花
+function PlayAnniverFireworks(sysarg) 
+
+	local actorName = Actor.getName(sysarg)
+	local awardIdx = getAnniverFwRandomAward(FireworksFeastCfg.fireworksAward)
+	if awardIdx > 0 and awardIdx <= table.getn(FireworksFeastCfg.fireworksAward) then 
+		for k, v in ipairs(FireworksFeastCfg.fireworksAward[awardIdx].awards) do 
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 197, Lang.LogTips.mzn206)
+			if v.isBrocast and v.isBrocast == true then
+				local itemName = Item.getAwardDesc(v.type, v.id)
+				System.broadcastTipmsg(string.format(Lang.Activity.mzn0208, actorName, itemName), ttScreenCenter+ttChatWindow)
+			end
+		end 	
+	end
+	
+	if System.isInDateRange(unpack(AnniversaryHorActConfig.actTime)) == true then 
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		UpdateFireworksPoint(1, 1, FireworksFeastCfg.addPoint)
+		UpdateFireworksPoint(2, actorId, FireworksFeastCfg.addPoint, sysarg)
+		SendFireworksFeastInfo(sysarg)
+		SendFireworksFeastAward() 
+	end
+		
+end
+
+--下金钱雨，发元宝
+function SendFireworksFeastAward() 
+	local flag = false
+	local accPoint = GetFireworksPoint(1, 1)
+	local pointIdx = 0
+	for i = table.getn(FireworksFeastCfg.pointList or {}), 1, -1 do
+		if accPoint == FireworksFeastCfg.pointList[i] then 
+			flag = true
+			pointIdx = i
+			break
+		end
+	end 
+	
+	if flag == true then
+		System.broadcastTipmsg(string.format(Lang.Activity.mzn0210,accPoint), ttChatWindow+ttScreenCenter)
+		System.playScrEffectCode(FireworksFeastCfg.effectId, FireworksFeastCfg.effectSecs)	--全服 
+		local config = FireworksFeastCfg.ybAwardList
+		if config then
+			local idx = GetCfgRandomInfo(FireworksFeastCfg.ybAwardList, nil) 
+			if idx <= 0 then
+				idx = table.getn(FireworksFeastCfg.ybAwardList)
+			end
+			local ybAward = 0
+			if idx > 0 and idx <= table.getn(FireworksFeastCfg.ybAwardList) then
+				ybAward = FireworksFeastCfg.ybAwardList[idx].yb
+			end
+
+			local actorCount = 0
+			if pointIdx > 0 and pointIdx <= table.getn(FireworksFeastCfg.ybAwardCountList) then
+				actorCount = FireworksFeastCfg.ybAwardCountList[pointIdx].count
+			end
+
+			if actorCount <= 0 then
+				return 
+			end
+			
+			local playerList = LuaHelp.getAllActorList()  
+			for k, actorPtr in ipairs(playerList or {}) do
+				if actorCount > 0 then
+					if Actor.checkActorLevel(actorPtr, FireworksFeastCfg.level, FireworksFeastCfg.circle) == true then
+						Actor.changeMoney(actorPtr, 3 ,ybAward , 197, Lang.LogTips.mzn208) 
+						actorCount = actorCount - 1
+					end 
+				else
+					break
+				end
+			end
+			
+		end
+	end
+end
+
+--[[
+--获取随机在线玩家的序号 
+function GetRandomPlayerIdx(playerCount, needCount, playerList)
+	local resultTab = {}
+	for i = needCount, 1, -1 do
+		for j = 1, 10000 do
+			local randomIdx = System.getRandomNumber(playerCount)
+			if Actor.checkActorLevel(playerList[randomIdx], FireworksFeastCfg.level, FireworksFeastCfg.circle) == true then
+				if CheckPlayerIdx(resultTab, randomIdx) == true then
+					table.insert(resultTab, randomIdx)
+					break
+				end
+			end
+			
+		end
+	end
+	return resultTab
+end
+
+function CheckPlayerIdx(infoTab, val)
+	for k, v in ipairs(infoTab) do 
+		if val == v then
+			return false
+		end
+	end
+	return true
+end
+--]]
+
+
+--给喜庆排名奖励
+function GiveFireworksRankAward()
+	local rankPtr = Ranking.getRanking(Lang.Rank.FireworksPointFile)
+	if not rankPtr then
+		return 
+	end
+	
+	local rankCount = Ranking.getRankItemCount(rankPtr)
+	if rankCount > 0 then
+		for i = 1, rankCount do 
+			local itemPtr = Ranking.getItemPtrByIndex(rankPtr, i-1)
+			if itemPtr then
+				local actorId = Ranking.getId(itemPtr)
+				local point = Ranking.getPoint(itemPtr)
+				if point >= FireworksFeastCfg.attendPoint then  --发参与奖励
+					local awardIdx, needBagCount = GetFireworksRankAwardIdx(0, false) 
+					if awardIdx > 0 then
+						local str = Lang.Activity.mzn0211
+						System.addOfflineMsg(actorId, 70, str, 0, 3, awardIdx, needBagCount)  
+					end
+				end
+				
+				if point >= FireworksFeastCfg.limitPoint then --发排名奖励
+					local awardIdx, needBagCount = GetFireworksRankAwardIdx(i, true)
+					if awardIdx > 0 then
+						local str = string.format(Lang.Activity.mzn0205, i)
+						System.addOfflineMsg(actorId, 70, str, 0, 2, awardIdx, needBagCount)
+						local name = Ranking.getSub(itemPtr, 0)
+						System.sendCommonLog(197, actorId, name, i, 0, 0, Lang.LogTips.mzn211)
+					end
+				end
+			end
+		end
+	end
+	
+	--ClearFireworksFeast() 
+end
+
+--获取奖励序号
+function getAnniverFwRandomAward(infoTable)
+	local result = 0 
+	local totalVal = 0
+	for k, v in ipairs(infoTable or {}) do 
+		totalVal = totalVal + v.rate
+	end
+	
+	local randVal = System.getRandomNumber(totalVal)
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = i
+			break
+		end
+	end
+	
+	return result
+end
+
+
+--发送烟花盛宴信息
+function SendFireworksFeastInfo(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local accPoint = GetFireworksPoint(1, 1)
+	local curPoint = GetFireworksPoint(2, actorId)
+	local curRank = GetFireworksRank(2, actorId)
+
+	local pack = DataPack.allocPacket(sysarg, 145, 96)
+	if not pack then
+		return
+	end
+
+	DataPack.writeUInt(pack, accPoint)
+	DataPack.writeUInt(pack, curPoint)
+	DataPack.writeByte(pack, curRank) 
+	DataPack.flush(pack)
+end
+
+--更新喜庆值 
+function UpdateFireworksPoint(rankType, id, point, param)
+	local rankPtr = nil
+	if rankType == 1 then
+		rankPtr = Ranking.getRanking(Lang.Rank.FireworksAccPointFile)
+	elseif rankType == 2 then
+		rankPtr = Ranking.getRanking(Lang.Rank.FireworksPointFile)
+	end
+	
+	if not rankPtr then
+		return 
+	end
+	
+	local itemPtr = Ranking.getItemPtrFromId(rankPtr, id)
+	if not itemPtr then
+		itemPtr = Ranking.addItem(rankPtr, id, 0)
+		if itemPtr then
+			if rankType == 1 then
+				local actorName = Actor.getName(param)
+				Ranking.setSub(itemPtr, 0, actorName)
+			end
+		end
+	end
+	
+	if itemPtr then
+		Ranking.updateItem(rankPtr, id, point) 
+	end
+
+end 
+
+--获取喜庆值
+function GetFireworksPoint(rankType, id)
+	local point = 0
+	local rankIdx = -1
+	local rankPtr = nil
+	if rankType == 1 then
+		rankPtr = Ranking.getRanking(Lang.Rank.FireworksAccPointFile)
+	elseif rankType == 2 then
+		rankPtr = Ranking.getRanking(Lang.Rank.FireworksPointFile)
+	end
+	
+	if not rankPtr then
+		return point
+	end
+
+	local itemPtr = Ranking.getItemPtrFromId(rankPtr, id)
+	if itemPtr then
+		point = Ranking.getPoint(itemPtr)
+	end
+	
+	rankIdx = Ranking.getItemIndexFromId(rankPtr, id)
+	
+	return point, rankIdx
+end
+
+--获取当前排名
+function GetFireworksRank(rankType, id)
+	local rankIdx = 0
+	local curPoint, idx = GetFireworksPoint(rankType, id)
+	if curPoint >= FireworksFeastCfg.limitPoint then
+		if idx < FireworksFeastCfg.limitRank then
+			rankIdx = idx + 1
+		end
+	end
+	
+	return rankIdx
+end
+
+--获取喜庆排名奖励序号
+function GetFireworksRankAwardIdx(rankIdx, isRankAward)
+	local awardIdx = 0
+	local needBagCount = 0
+	local awards = FireworksFeastCfg.accAwards
+	
+	if awards then
+		if isRankAward == true then
+			if rankIdx > 0 and rankIdx <= FireworksFeastCfg.limitRank then
+				for k, v in ipairs(awards.awardIndexs or {}) do
+					if rankIdx >= v.beginVal and (rankIdx <= v.endVal or v.endVal == -1) then
+						awardIdx = k
+						break
+					end
+				end
+			else
+				rankIdx = 0
+			end
+		else
+			rankIdx = table.getn(awards)
+			awardIdx = rankIdx
+		end
+	end
+	
+	local needBagCount = 0
+	if rankIdx > 0 and rankIdx <= table.getn(awards) then
+		needBagCount = awards[rankIdx].needBagCount
+	end
+	
+	return awardIdx, needBagCount
+	
+end
+
+
+	
+--清除烟花盛宴数据
+function ClearFireworksFeast()
+	local fireworksPointPtr = Ranking.getRanking(Lang.Rank.FireworksPointFile) 
+	if fireworksPointPtr then
+		Ranking.clearRanking(fireworksPointPtr) 
+	end
+	
+	local fireworksAccPointPtr = Ranking.getRanking(Lang.Rank.FireworksAccPointFile) 
+	if fireworksAccPointPtr then
+		Ranking.clearRanking(fireworksAccPointPtr) 
+	end
+end

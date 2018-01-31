@@ -1,0 +1,13 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "LaborDayCommon.txt" once
+
+--五一活动
+function LaborDay_main(sysarg)
+	local str = ""
+	str = string.format(Lang.Activity.wy0001)
+	str = string.format("%s<#BL%s/@GetLaborDayGift>", str, Lang.Activity.wy0002)  --<领取五一礼包>
+	str = string.format("%s<#BL%s/@AboutLaborDay>", str, Lang.Activity.wy0007)  --<五一活动介绍>
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end

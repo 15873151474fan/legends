@@ -1,0 +1,706 @@
+
+--lua script
+
+--#include "data\config\activity\WorldCup.txt" once
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once
+
+--世界杯
+
+--登陆处理
+function WorldCupLoginHandle(sysarg)
+	if System.isInDateRange(unpack(WorldCupConfig.actTime)) == true then
+		SendOpenFlag(sysarg, 1)
+	end
+	
+	if Actor.hasBuff(sysarg, 80, 89) == true then
+		SetFunModel(sysarg, 1, 0)
+	end
+	
+	
+end
+
+--新的一天处理
+function WorldCupNewDayArrive(sysarg)
+	if System.isInDateRange(unpack(WorldCupConfig.actTime)) == true then
+		local activityTime = {}
+		for k, v in ipairs(WorldCupConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[9] = activityTime[3] + 1
+		
+		--如果是开启第一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendOpenFlag(sysarg, 1)
+			
+		end
+	else
+		local activityTime = {}
+		for k, v in ipairs(WorldCupConfig.actTime) do 
+			table.insert(activityTime, v)
+		end
+		activityTime[3] = activityTime[9]
+		activityTime[9] = activityTime[9] + 1
+		
+		--如果是结束后一天
+		if System.isInDateRange(unpack(activityTime)) == true then
+			SendOpenFlag(sysarg, 0)
+		
+		end
+	end
+
+end
+
+function SendOpenFlag(sysarg, flag)
+	local pack = DataPack.allocPacket(sysarg, 145, 48)
+	if pack ~= nil then
+		DataPack.writeByte(pack, flag)
+		DataPack.flush(pack)
+	end
+end
+
+--设置世界杯球迷模型
+function SetFunModel(sysarg, nType, value)
+	if Actor.hasBuff(sysarg, 80, 89) ~= true then
+		return
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local wcModelPtr = Ranking.getRanking( Lang.Rank.WcModelFile )	--世界杯
+	if wcModelPtr then
+		local wcModelItemPtr = Ranking.getItemPtrFromId(wcModelPtr, actorId)
+		if wcModelItemPtr == nil then
+			if nType == 2 then
+				wcModelItemPtr = Ranking.addItem(wcModelPtr, actorId, 0)
+			end
+		end
+		local idx = 0
+		if wcModelItemPtr then
+			if nType == 1 then  --登陆
+				idx = Ranking.getPoint(wcModelItemPtr)
+			else  --变身
+				idx = value
+				Ranking.setItem(wcModelPtr, actorId, idx)	
+			end
+			
+			local config = WorldCupConfig.worldCupFanConfig
+			if idx > table.getn(config.fanList) then
+				return 
+			end
+	
+			local fanConfig = config.fanList[idx]
+			if not fanConfig then
+				return
+			end
+				
+			local modelId = 0 
+			local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+			if sex == 0 then
+				modelId = fanConfig.modelIds[1]
+			elseif sex == 1 then
+				modelId = fanConfig.modelIds[2]
+			end
+			if modelId > 0 then
+				Actor.setUIntProperty(sysarg, PROP_ACTOR_WCMODELID, modelId)
+			end 
+		end
+	end
+	
+end
+
+
+--请求竞猜面板信息
+function ReqWCGuessInfo(sysarg, packet)
+	if System.isCommonServer() == true then
+		return 
+	end
+	
+	SendWCGuessInfo(sysarg)
+end 
+
+--发送竞猜面板信息
+function SendWCGuessInfo(sysarg)
+
+	local pack = DataPack.allocPacket(sysarg, 145, 46)
+	if pack == nil then
+		return 
+	end
+	
+	local accAward = 0
+	local lukyPlayer = "-"
+	local wcSupportPtr = Ranking.getRanking( Lang.Rank.WcSupportFile )	--世界杯支持榜
+	if wcSupportPtr then
+		local wcSupportItemPtr = Ranking.getItemPtrFromId(wcSupportPtr, 33)
+		if wcSupportItemPtr then
+			accAward = tonumber(Ranking.getSub(wcSupportItemPtr, 0)) or 0
+			accAward = accAward > 0 and accAward or WorldCupConfig.initAward
+			lukyPlayer = Ranking.getSub(wcSupportItemPtr, 1)
+		end
+		
+	end
+	
+	DataPack.writeInt(pack, accAward) 
+	DataPack.writeString(pack, lukyPlayer)
+	
+	local actTime = WorldCupConfig.guessActTime
+	local openDay = System.getActivityStartDay(actTime[1],actTime[2],actTime[3],actTime[4],actTime[5],actTime[6])-1 
+	DataPack.writeByte(pack, openDay)
+		
+	local supportCount = 0
+	local wcGuessPtr = Ranking.getRanking( Lang.Rank.WcGuessFile )
+	if wcGuessPtr then
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local wcGuessItemPtr = Ranking.getItemPtrFromId(wcGuessPtr, actorId)
+		if wcGuessItemPtr then
+			supportCount = Ranking.getPoint(wcGuessItemPtr)
+		end
+		
+		--DataPack.writeByte(pack, supportCount)
+		local tempTable = {}
+		if supportCount > 0 then
+			for i = 1, supportCount do 
+				local teamIdx = tonumber(Ranking.getSub(wcGuessItemPtr, 2*(i-1)+1))
+				local guessCount = tonumber(Ranking.getSub(wcGuessItemPtr, 2*(i-1)+2))
+				table.insert(tempTable, {idx = teamIdx, gCount = guessCount})
+			end
+		end
+		
+		supportCount = table.getn(tempTable)
+		DataPack.writeByte(pack, supportCount)
+		if table.getn(tempTable) > 0 then
+			table.sort(tempTable, SortGuessInfo)
+			for k, v in ipairs(tempTable) do 
+				DataPack.writeByte(pack, v.idx)
+				DataPack.writeInt(pack, v.gCount)
+				
+				local flag = false
+				if wcSupportPtr then
+					local supperItemptr = Ranking.getItemPtrFromId(wcSupportPtr, v.idx)
+					if supperItemptr then
+						local spCount = Ranking.getPoint(supperItemptr)
+						DataPack.writeInt(pack, math.floor(accAward / spCount))
+						flag = true
+					end
+				end
+				if flag == false then
+					DataPack.writeInt(pack, math.floor(accAward / v.gCount))
+				end
+				
+			end
+			
+		end
+	else
+		DataPack.writeByte(pack, supportCount)
+	end
+	
+	local count = 0
+	if wcSupportPtr then
+		count = Ranking.getRankItemCount(wcSupportPtr)
+		if count > WorldCupConfig.maxShow then
+			count = WorldCupConfig.maxShow
+		else
+			count = count - 1
+		end
+		
+		DataPack.writeByte(pack, count)
+		
+		for i = 1, count do 
+			local teamIdx = 0
+			local spCount = 0 
+			local supperItemptr = Ranking.getItemPtrByIndex(wcSupportPtr, i-1)
+			if supperItemptr then
+				teamIdx = Ranking.getId(supperItemptr)
+				spCount = Ranking.getPoint(supperItemptr)
+			end
+			
+			DataPack.writeByte(pack, teamIdx)
+			DataPack.writeInt(pack, spCount)
+			DataPack.writeInt(pack, math.floor(accAward / spCount))
+		
+		end
+	
+	else
+		DataPack.writeByte(pack, count)
+	end
+
+	DataPack.flush(pack)
+end 
+
+--排序
+function SortGuessInfo(table1, table2)
+	return table1.gCount > table2.gCount
+end
+
+--请求竞猜
+function ReqWCGuess(sysarg, packet)
+	if System.isCommonServer() == true then
+		return 
+	end
+
+	if System.isInDateRange(unpack(WorldCupConfig.guessActTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.wc0022, ttFlyTip)
+		return
+	end
+	
+	local teamIdx = DataPack.readByte(packet)
+	if teamIdx > table.getn(WorldCupConfig.teamList) then
+		return 
+	end
+	
+	local wcGuessPtr = Ranking.getRanking( Lang.Rank.WcGuessFile ) --竞猜榜
+	if not wcGuessPtr then
+		return 
+	end
+	
+	local wcSupportPtr = Ranking.getRanking( Lang.Rank.WcSupportFile )	--世界杯支持榜
+	if not wcSupportPtr then
+		return 
+	end
+	
+	local isFirst = false
+	local needYb = 0
+	local accAward = 0 
+	local idx = 1 --默认竞猜的序号保存位置
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local wcGuessItemPtr = Ranking.getItemPtrFromId(wcGuessPtr, actorId)
+
+	if not wcGuessItemPtr then
+		wcGuessItemPtr = Ranking.addItem(wcGuessPtr, actorId, 0)
+	end
+	
+	if wcGuessItemPtr then
+		local name = Actor.getName(sysarg)
+		Ranking.setSub(wcGuessItemPtr, 0, name)
+		local curServerIdx = System.getServerId()
+		Ranking.setSub(wcGuessItemPtr, 2*(WorldCupConfig.maxSupport)+1, curServerIdx)
+		
+		local teamCount = Ranking.getPoint(wcGuessItemPtr)
+		local flag = false  --是否已竞猜过
+		for i = 1, teamCount do
+			local tempTeamIdx = tonumber(Ranking.getSub(wcGuessItemPtr, 2*(i-1)+1)) or 0
+			if teamIdx == tempTeamIdx then
+				flag = true
+				idx = i
+				break
+			end
+		end
+		
+		if flag == false then
+			teamCount = teamCount + 1
+			if teamCount > WorldCupConfig.maxSupport then
+				Actor.sendTipmsg(sysarg, Lang.Activity.wc0001, ttFlyTip)
+				return 
+			end
+			
+			idx = teamCount
+		end
+		
+		
+		local actTime = WorldCupConfig.guessActTime
+		local openDay = System.getActivityStartDay(actTime[1],actTime[2],actTime[3],actTime[4],actTime[5],actTime[6])-1 
+		
+		
+		if openDay > table.getn(WorldCupConfig.guessCostList) then
+			openDay = table.getn(WorldCupConfig.guessCostList) 
+		end
+		needYb = WorldCupConfig.guessCostList[openDay].costYB
+		if needYb <= 0 then
+			return
+		end
+		
+		if Actor.changeMoney(sysarg, 3, -needYb, 965, Lang.LogTips.wc0001) == false then
+			Actor.sendTipmsg(sysarg, Lang.Activity.wc0002, ttFlyTip)
+			return 
+		end
+		
+		if flag == false then
+			wcGuessItemPtr = Ranking.setItem(wcGuessPtr, actorId, teamCount)
+		end 
+		
+		if wcGuessItemPtr then
+			Ranking.setSub(wcGuessItemPtr, 2*(idx-1)+1, teamIdx)
+			local guessCount = tonumber(Ranking.getSub(wcGuessItemPtr, 2*(idx-1)+2)) or 0
+			Ranking.setSub(wcGuessItemPtr, 2*(idx-1)+2, guessCount+1)
+		end
+
+	end
+	
+	local wcSupportItemPtr = Ranking.getItemPtrFromId(wcSupportPtr, teamIdx)
+	if not wcSupportItemPtr then
+		wcSupportItemPtr = Ranking.addItem(wcSupportPtr, teamIdx, 0)
+	end	
+	
+	if wcSupportItemPtr then
+		local count = Ranking.getPoint(wcSupportItemPtr)
+		
+		Ranking.setItem(wcSupportPtr, teamIdx, count + 1)
+
+		local awardItemPtr = Ranking.getItemPtrFromId(wcSupportPtr, 33)
+		if awardItemPtr then
+			accAward = tonumber(Ranking.getSub(awardItemPtr, 0)) or 0
+			accAward = accAward > 0 and accAward or WorldCupConfig.initAward
+			accAward = accAward + needYb / 2
+			Ranking.setSub(awardItemPtr, 0, accAward)
+		end
+	else
+		accAward = accAward > 0 and accAward or WorldCupConfig.initAward
+		accAward = accAward + needYb / 2
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 47)
+	if pack ~= nil then
+		DataPack.writeInt(pack, accAward)
+		DataPack.flush(pack)
+	end
+
+	SendWCGuessInfo(sysarg)  --发送面板信息
+	
+	System.sendWcGuessRankToAll(sysarg)  --发送竞猜榜到全平台
+	System.sendWcSupportRankToAll(teamIdx, 0, 0, 0) --发送支持榜到全平台
+	
+	ProduceOneGuessAward(sysarg)
+
+end
+
+--产生单次竞猜奖励
+function ProduceOneGuessAward(sysarg)
+	local config = WorldCupConfig.guessAwardConfig
+	local randVal = math.random(config.getTotalRate)
+	if config.getRate >= randVal then
+		local totalRate = 0
+		local actTime = WorldCupConfig.guessActTime
+		local dayIdx = System.getActivityStartDay(actTime[1],actTime[2],actTime[3],actTime[4],actTime[5],actTime[6])-1 
+		if dayIdx > table.getn(WorldCupConfig.guessAwardConfig.awards) then
+			dayIdx = table.getn(WorldCupConfig.guessAwardConfig.awards)
+		end
+		
+		local awardIdx = 0
+		local awardList = config.awards[dayIdx]
+		if not awardList then
+			return 
+		end
+		for k, v in ipairs(awardList) do 
+			totalRate = totalRate + v.rate
+		end
+		
+		local curRandVal = math.random(totalRate)
+		local curRate = 0
+		for k, v in ipairs(awardList) do 
+			curRate = curRate + v.rate
+			if curRate >= curRandVal then
+				awardIdx = k
+				break
+			end
+		end
+		
+		if dayIdx == 0 or awardIdx == 0 then
+			return 
+		end
+		
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		System.addOfflineMsg(actorId, 59, Lang.Activity.wc0024, 0, 3, dayIdx, awardIdx)  -- 3单次竞猜奖励类型，dayIdx, awardIdx 表示配置索引
+		
+		
+	end
+	
+end
+
+
+--发送每日幸运奖励
+function OnSendWcLukyAward()
+	local activityTime = {}
+	for k, v in ipairs(WorldCupConfig.guessActTime) do 
+		table.insert(activityTime, v)
+	end
+	activityTime[9] = activityTime[9] + 1
+	
+	if System.isInDateRange(unpack(activityTime)) ~= true then
+		return
+	end
+	
+	if WorldCupConfig.severIdx ~= System.getServerId() then
+		return 
+	end
+	
+	local wcGuessPtr = Ranking.getRanking( Lang.Rank.WcGuessFile )
+	if not wcGuessPtr then
+		return 
+	end
+	
+	local totalCount = Ranking.getRankItemCount( wcGuessPtr )
+	if totalCount <= 0 then
+		return
+	end
+	
+	local luckyIdx = math.random(totalCount)
+	local wcGuessItemPtr = Ranking.getItemPtrByIndex( wcGuessPtr, luckyIdx-1)
+	
+	local actorId = 0
+	local actorName = "-"
+	if wcGuessItemPtr then
+		actorId = Ranking.getId(wcGuessItemPtr)
+		actorName = Ranking.getSub(wcGuessItemPtr, 0)
+	end
+	
+	if actorId <= 0 then
+		return 
+	end
+	
+	local lukyAward = 0
+	local lukyServerIdx = System.getServerId()
+	local wcSupportPtr = Ranking.getRanking( Lang.Rank.WcSupportFile )
+	if wcSupportPtr then
+		local wcSupportItemPtr = Ranking.getItemPtrFromId(wcSupportPtr, 33)
+		if wcSupportItemPtr then
+			local totalAward = tonumber(Ranking.getSub(wcSupportItemPtr, 0))
+			lukyAward = WorldCupConfig.lukyAward * totalAward
+			Ranking.setSub(wcSupportItemPtr, 0, math.floor(totalAward-lukyAward))
+			Ranking.setSub(wcSupportItemPtr, 1, actorName)
+			Ranking.setSub(wcSupportItemPtr, 2, lukyServerIdx)
+		end
+	end
+	
+	System.sendWcSupportRankToAll(teamIdx, actorId, lukyAward, lukyServerIdx)
+end
+
+--发幸运奖励公告
+function SendWcAwardTip(serverIdx, tipType, award, actorName)
+	
+	local str = ""
+	if tipType == 1 then
+		str = string.format(Lang.Activity.wc0003, serverIdx, actorName, award)
+	elseif tipType == 2 then
+		local awardDesc = Item.getAwardDesc(0, award)
+		str = string.format(Lang.Activity.wc0023, serverIdx, actorName, awardDesc)
+	end 
+	
+	System.broadcastTipmsg(str, ttScreenCenter+ttChatWindow) 
+end
+
+--领取世界杯单次竞猜奖励
+function OnGetWcGuessAward(sysarg, args)
+	local dayIdx = args[2]
+	local awardIdx = args[3]
+	
+	if dayIdx <= 0 or awardIdx <= 0 then
+		return 
+	end
+	
+	if dayIdx > table.getn(WorldCupConfig.guessAwardConfig.awards) then
+		dayIdx = table.getn(WorldCupConfig.guessAwardConfig.awards)
+	end
+	
+	local awardList = WorldCupConfig.guessAwardConfig.awards[dayIdx]
+	if not awardList then
+		return 
+	end
+	
+	if awardIdx > table.getn(awardList) then
+		awardIdx = table.getn(awardList)
+	end
+
+	local awardConfig = awardList[awardIdx]
+	if not awardConfig then
+		return 
+	end 
+	
+	Actor.giveAward(sysarg,	awardConfig.type, awardConfig.id, awardConfig.count, awardConfig.quality, awardConfig.strong, awardConfig.bind, 0, 965, Lang.LogTips.wc0004)
+	
+	if awardConfig.isBroadcast == 1 then
+		local actorName = Actor.getName(sysarg)
+		System.sendWorldCupAwardTip(2, awardConfig.id, actorName)
+	end
+	
+	
+end
+
+
+--发送世界杯竞猜结果奖励
+function SendWorldCupAward(teamIdx)
+	
+	if teamIdx <= 0 or teamIdx > table.getn(WorldCupConfig.teamList) then
+		return
+	end 
+	
+	local wcGuessPtr = Ranking.getRanking( Lang.Rank.WcGuessFile )
+	if not wcGuessPtr then
+		return 
+	end 
+	
+	local wcSupportPtr = Ranking.getRanking( Lang.Rank.WcSupportFile )
+	if not wcSupportPtr then
+		return
+	end
+	
+	local totalAward = 0
+	local wcAwardItemPtr = Ranking.getItemPtrFromId(wcSupportPtr, 33)
+	if wcAwardItemPtr then
+		totalAward = tonumber(Ranking.getSub(wcAwardItemPtr, 0)) or 0
+	end
+	
+	local spCount = 0
+	local wcSupportItemPtr = Ranking.getItemPtrFromId(wcSupportPtr, tonumber(teamIdx))
+	if wcSupportItemPtr then
+		spCount = Ranking.getPoint(wcSupportItemPtr)
+	end
+	
+	if totalAward == 0 or spCount == 0 then
+		return 
+	end
+	
+	local perAward = math.floor(totalAward / spCount)  --单注奖金 
+	
+	local count = Ranking.getRankItemCount(wcGuessPtr)
+	if count <= 0 then
+		return 
+	end
+	
+	local serverId = System.getServerId() 
+	for i = 1, count do 
+		local wcGuessItemPtr = Ranking.getItemPtrByIndex(wcGuessPtr, i-1)
+		if wcGuessItemPtr then
+			local curServerId = tonumber(Ranking.getSub(wcGuessItemPtr, 2*(WorldCupConfig.maxSupport)+1))
+			if curServerId == serverId then
+				local actorId = Ranking.getId(wcGuessItemPtr)
+				local guessCount = Ranking.getPoint(wcGuessItemPtr)
+				for i = 1, guessCount do
+					local curGuessIdx = tonumber(Ranking.getSub(wcGuessItemPtr, 2*(i-1)+1))
+					if curGuessIdx == teamIdx then
+						local gsCount = tonumber(Ranking.getSub(wcGuessItemPtr, 2*(i-1)+2))
+						if gsCount > 0 then
+							local teamConfig = WorldCupConfig.teamList[teamIdx]
+							local teamName = ""
+							if teamConfig then
+								teamName = teamConfig.name
+							end
+						
+							local str = string.format(Lang.Activity.wc0005, teamName, gsCount, perAward, gsCount*perAward)
+						
+							System.addOfflineMsg(actorId, 59, str, 0, 0, 2, gsCount*perAward)  -- 第2个0表示id, 2竞猜奖励类型，perAward 获得的单注元宝
+						end
+						break
+					end
+				end
+			end
+		end
+		
+	end
+	
+end
+
+--请求球迷变身
+function ReqChangeBody(sysarg, packet)
+	if System.isCommonServer() == true then
+		return 
+	end
+	
+	
+	if System.isInDateRange(unpack(WorldCupConfig.worldCupFanConfig.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.wc0025, ttFlyTip)
+		return
+	end
+	
+
+	local idx = DataPack.readByte(packet)
+	local config = WorldCupConfig.worldCupFanConfig
+	if idx > table.getn(config.fanList) then
+		return 
+	end
+	
+	local fanConfig = config.fanList[idx]
+	if not fanConfig then
+		return
+	end
+	
+	if Actor.changeMoney(sysarg, 3, -fanConfig.needYb, 965, Lang.LogTips.wc0002) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.wc0006, ttFlyTip)
+		return 
+	end
+	
+	ChangeBodyExt(sysarg, fanConfig)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 49)
+	if pack == nil then
+		return 
+	end
+	DataPack.writeChar(pack, 0)
+	DataPack.flush(pack)
+end
+
+--球迷变身
+function ChangeBodyExt(sysarg, fanConfig)
+
+	Actor.delBuff(sysarg, fanConfig.buffs[1].buffType, fanConfig.buffs[1].groupId)
+	for k, buff in ipairs(fanConfig.buffs) do 
+		Actor.addBuff(sysarg, buff.buffType, buff.buffGroup, buff.value, buff.times, buff.interval, buff.buffName, buff.timeOverlay)
+	end
+	
+	local modelId = 0 
+	local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+	if sex == 0 then
+		modelId = fanConfig.modelIds[1]
+	elseif sex == 1 then
+		modelId = fanConfig.modelIds[2]
+	end
+	
+	Actor.changeEntityModel(sysarg, 30, modelId)
+	SetFunModel(sysarg, 2, fanConfig.id)
+end
+
+--球迷变身变性处理
+function WcFunHandleByChangeSex(sysarg, sex)
+	if Actor.hasBuff(sysarg, 80, 89) ~= true then
+		return
+	end
+
+	local wcModelPtr = Ranking.getRanking( Lang.Rank.WcModelFile )	--世界杯
+	if wcModelPtr then
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local wcModelItemPtr = Ranking.getItemPtrFromId(wcModelPtr, actorId)
+		if wcModelItemPtr then
+			local idx = Ranking.getPoint(wcModelItemPtr)
+			local config = WorldCupConfig.worldCupFanConfig
+			if idx > table.getn(config.fanList) then
+				return 
+			end
+	
+			local fanConfig = config.fanList[idx]
+			if not fanConfig then
+				return
+			end
+				
+			local modelId = 0 
+			--local sex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+			if sex == 0 then
+				modelId = fanConfig.modelIds[1]
+			elseif sex == 1 then
+				modelId = fanConfig.modelIds[2]
+			end
+			
+			if modelId > 0 then
+				Ranking.setItem(wcModelPtr, actorId, idx)
+				Actor.setUIntProperty(sysarg, PROP_ACTOR_WCMODELID, modelId)
+				Actor.changeEntityModel(sysarg, 30, modelId)
+			end 
+			
+		end
+	end
+	
+end
+
+--清除世界杯排行榜数据
+function OnClearWcRankData()
+	--[[
+	local wcGuessPtr = Ranking.getRanking( Lang.Rank.WcGuessFile )		
+	if wcGuessPtr then
+		Ranking.clearRanking(wcGuessPtr)
+	end
+	
+	local wcSupportPtr = Ranking.getRanking( Lang.Rank.WcSupportFile )		
+	if wcSupportPtr then
+		Ranking.clearRanking(wcSupportPtr)
+	end
+	--]]
+	ClearRechargeCommonActivityRank(7)
+	ClearRechargeCommonActivityRank(8)
+	ClearRechargeCommonActivityRank(9)
+end

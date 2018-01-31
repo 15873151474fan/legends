@@ -1,0 +1,56 @@
+﻿
+--#include "data\functions\GlobalDefine.txt" once 
+
+Rank =
+{
+	--排行榜初始化函数
+	--sRankName:排行榜的名称
+	--sRankFile:排行榜保存文件
+	--tbColumn:排行榜列 表 tbColumn = {{column0,0}, {column1,0}, {column2,0}, {标题, 是否客户端显示}...} 
+	--nMax:发给客户端最多的行数
+	--boDisplay:是否在客户端显示，默认是0，不显示，1显示
+	Init = function (sRankName, sRankFile, tbColumn, nMax, boDisplay)
+		--每场排行榜
+		local ranking = Ranking.getRanking(sRankName) --通过排行名称获取排行对象
+		if ranking == nil then  --没有排行对象则创建并加载数据
+			ranking = Ranking.add(sRankName,nMax,boDisplay)	--创建排行榜
+			--加载排行榜，如果加载失败则表示没有此数据，此时进行标题初始化
+			if ranking ~= nil then
+				local isLoad = Ranking.load(ranking,sRankFile)                --读取文件内容
+				if isLoad == false then
+					for i=1, table.getn(tbColumn) do
+						Ranking.addColumn(ranking,tbColumn[i][1]) --添加一个标题列  
+					end
+				end
+			end
+		end
+		--设置列显示
+		if boDisplay == 1 then
+			for i=0, (table.getn(tbColumn)-1) do
+				if tbColumn[i+1][2] == 0 then
+					Ranking.setColumnDisplay(ranking,i,0)   --设置某列是否显示在客户端
+				end
+			end
+		end
+		Ranking.addRef(ranking) --增加对此排行对象的引用计数
+	end,
+
+
+	--排行榜销毁函数
+	--sRankName:排行榜的名称
+	--sRankFile:排行榜保存文件
+	Fina = function (sRankName, sRankFile)
+		--每场排行榜
+		local ranking = Ranking.getRanking(sRankName) --通过排行名称获取排行对象
+		if ranking ~= nil then
+		Ranking.save(ranking,sRankFile)       --保存排行榜进文件
+			if Ranking.getRef(ranking) == 1 then
+				Ranking.removeRanking(sRankName) 	      --如果引用计数减少至0，则对象自动被销毁
+			else
+				Ranking.release(ranking)			      --减少引用计数
+			end
+		end
+		ranking = nil
+	end,
+}
+

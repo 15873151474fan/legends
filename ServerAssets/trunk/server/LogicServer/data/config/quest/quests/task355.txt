@@ -1,0 +1,52 @@
+﻿--lua script
+{
+	id = 355,			-- 屠龙传说
+	parentid = 333,type = 0,level = 0,circle = 0,entrust = 2,speedYb = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = false,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name355,
+	content = Lang.Quest.desc355,
+
+	prom = { type = 0, scene = Lang.SceneName.s00008, npc = Lang.EntityName.n00022 },
+	comp = { type = 0, scene = Lang.SceneName.s00008, npc = Lang.EntityName.n00022 },
+	target = {
+		{
+			type = 19, id = 109, count = 1, rewardId = 0,useList = false, data = Lang.Quest.data3550,
+			location = {
+				sceneid = 8, x= 0,y = 0,entityName = Lang.EntityName.n00022,hideFastTransfer = true,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+		{ type = 3, id = 1, count = 450 },
+		{ type = 3, id = 453, count = 0 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 5323, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 949, count = 1, group = 0,strong = 0,quality = 0,job = 1,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 950, count = 1, group = 0,strong = 0,quality = 0,job = 2,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 951, count = 1, group = 0,strong = 0,quality = 0,job = 3,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk3551,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk3551,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip3551,
+	},
+	PassMsTip = {
+	},
+	PromCallBack = "OnPromEnterFuben",
+	PromCallBackArg = {
+		 32,
+	},
+},

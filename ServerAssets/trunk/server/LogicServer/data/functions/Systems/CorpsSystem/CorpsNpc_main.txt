@@ -1,0 +1,208 @@
+--lua script
+--战队指挥官
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\friend\WarTeamConfig.txt" once
+--#include "data\config\activityconfig\corpsBattle\corpsBattle.txt" once
+--#include "Corps_Common.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "data\functions\Activity\CorpsBattle\CorpsBattleCommon.txt" once
+
+--指挥官对话
+function CorpsNpcDialog_Main(sysarg)
+	local str = ""
+	
+	str = str.."\\<#BL"..Lang.GuildLang.f00018.."/@OnMakeBrother>"					--结交战友
+	str = str.."\\<#BL"..Lang.GuildLang.f00019.."/@RecruitCorpsMember>"				--招募成员
+	str = str.."\\<#BL"..Lang.GuildLang.f00020.."/@UpdateCorpsName>"				--战队称号
+	str = str.."\\<#BL"..Lang.GuildLang.f00021.."/@DeleteCorpsRelation>"			--割袍断义
+
+	str = str.."\\<#BL"..Lang.Activity.c00001.."/@JoinCorpBattle>"					--参加战队竞技
+	--str = str.."\\<#BL"..Lang.Activity.c00004.."/@GetCorpsBattleAwards>"			--领取战队竞技活动奖励
+	str = str.."\\<#BL"..Lang.Activity.c00037.."/@LastCorpsRank>"					--查看上次获胜战队排行
+	str = str.."\\<#BL"..Lang.Activity.c00007.."/@CorpsActivityMiaoShu>"			--活动描述
+
+	return str
+end
+
+--结交战友
+function OnMakeBrother(sysarg)
+	local str = Lang.GuildLang.f00024
+
+	str = str.."\\<#BL"..Lang.GuildLang.f00022.."/@OnMakeDefinite>"			--结交
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"				--返回
+	
+	return str
+end
+
+
+--招募成员
+function RecruitCorpsMember(sysarg)
+	local str = Lang.GuildLang.f00026
+
+	str = str.."\\<#BL"..Lang.GuildLang.f00025.."/@OnSendRecruit>"				--发出招募
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"					--返回
+	
+	return str
+end
+
+
+--战队称号
+function UpdateCorpsName(sysarg)
+	local corpId = Actor.getCorpsId(sysarg)
+	local sName
+	if corpId <= 0 then
+		sName = Lang.GuildLang.f00056
+	else
+		sName = System.getCorpsNameById(corpId)
+	end
+
+	local str = string.format(Lang.GuildLang.f00027,sName)
+
+	str = str.."\\<#BL"..Lang.GuildLang.f00047.."/@OnUpdateCorpsName>"			--修改称号
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"					--返回
+	
+	return str
+end
+
+
+--割袍断义
+function DeleteCorpsRelation(sysarg)
+	local str = Lang.GuildLang.f00041
+
+	str = str.."\\<#BL"..Lang.GuildLang.f00042.."/@OnDelCorpsRelation>"			--确定
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"					--返回
+	
+	return str
+end
+
+--参加战队竞技
+function JoinCorpBattle(sysarg)
+	local str = Lang.Activity.c00002
+
+	str = str.."\\<#BL"..Lang.Activity.c00003.."/@EnterCorpsBattle>"			--进入活动
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"						--返回
+
+	return str
+end
+
+--领取战队竞技活动奖励
+function GetCorpsBattleAwards(sysarg)
+	local str = Lang.Activity.c00006
+
+	str = str.."\\<#BL"..Lang.Activity.c00005.."/@GetCorpsActivityAwards>"			--领取战队奖励
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"							--返回
+
+	return str
+end
+
+--活动描述
+function CorpsActivityMiaoShu(sysarg)
+	local str = Lang.Activity.c00008
+
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"							--返回
+
+	return str
+end
+
+--预告战队竞技活动
+function PreStartCorpsBattle(sysarg)
+	System.broadcastTipmsg(Lang.Activity.c00033,2+128)
+end
+
+--开始战队竞技活动
+function StartCorpsBattle(sysarg)
+	local dvar = System.getDyanmicVar()
+
+	if dvar.StartCorpsBattleFlag == nil then
+		dvar.StartCorpsBattleFlag = 0
+	end
+	
+	dvar.StartCorpsBattleFlag = 1
+	
+	local sVar = System.getStaticVar()
+	
+	if sVar.CorpsBattleWinId ~= nil then
+		if sVar.CorpsBattleWinId > 0 then
+			System.setCorpsTitle(sVar.CorpsBattleWinId,corpsBattleConfig.corpsTitleId,false)
+		end
+	end
+
+	sVar.CorpsBattleWinId = nil
+
+	local hScene = Fuben.getSceneHandleById(corpsBattleConfig.nSceneId, 0)
+	Fuben.setSceneTime(hScene,corpsBattleConfig.nTime)
+
+	Fuben.clearMonster(hScene,corpsBattleConfig.Monsters[1].nMonsterID)
+	local nMonster = Fuben.createOneMonsters(hScene, corpsBattleConfig.Monsters[1].nMonsterID, corpsBattleConfig.Monsters[1].posX1, corpsBattleConfig.Monsters[1].posX2, corpsBattleConfig.Monsters[1].posY, corpsBattleConfig.Monsters[1].nCount, corpsBattleConfig.Monsters[1].nLiveTime)
+
+	System.setCorpsOwnId(0)
+	System.broadcastTipmsg(Lang.Activity.c00009,2)
+	System.broadcastTipmsg(Lang.Activity.c00032,128)
+
+	--Actor.regScriptCallback(thisNPC, thisNPC, corpsBattleConfig.perTime * 1000, corpsBattleConfig.perTime * 1000, -1, "GiveCorpsExpOnTime")
+end
+
+--战队竞技活动结束
+function EndCorpsBattle(sysarg)	
+	Actor.unregScriptCallback(thisNPC,"GiveCorpsExpOnTime")
+	OnOverCorpsBattle()
+end
+
+--定时给经验
+function GiveCorpsExpOnTime()	
+	local nCorpsId = 0
+
+	local nActorId = System.getCorpsOwnId()
+	if nActorId > 0 then
+		local pActor = System.getEntityPtrByActorID(nActorId)
+		if pActor then
+			nCorpsId = Actor.getCorpsId(pActor)
+		end
+	end
+	
+	local playerList = LuaHelp.getSceneActorListById(corpsBattleConfig.nSceneId)
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player and Actor.isDeath(player) == false then
+				local myCorpsid = Actor.getCorpsId(player)
+
+				if nCorpsId > 0 and myCorpsid == nCorpsId then
+					Awards.Give(player,corpsBattleConfig.giveBollExp,61,Lang.Activity.c00036)
+				else
+					Awards.Give(player,corpsBattleConfig.givePerExp,61,Lang.Activity.c00036)
+				end
+			end
+		end
+	end
+end
+
+--查看上次获胜战队排行
+function LastCorpsRank(sysarg)
+	local dvar = System.getStaticVar()
+
+	if dvar.CorpsBattleWinId == nil then
+		dvar.CorpsBattleWinId = 0
+	end
+	
+	local sname = ""
+	if dvar.CorpsBattleWinId > 0 then
+		local nCount = System.getCorpsMemCount(dvar.CorpsBattleWinId)
+		if nCount > 0 then
+			for i=1,nCount do
+				local memName = System.getCorpsMemNameByIndex(dvar.CorpsBattleWinId,i)
+				if memName then
+					sname = sname.."\\"..memName
+				end
+			end
+		end
+	end
+	
+	local str = string.format(Lang.Activity.c00038,sname)
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"							--返回
+
+	return str
+end
+
+table.insert(MainFnTable, CorpsNpcDialog_Main)

@@ -1,0 +1,82 @@
+--第3阶
+{
+	id = 3237,					--心法图标ID
+
+	skillId = 254,			--技能ID
+	skillRate = 900,		--技能触发概率，一点表示万分之一
+
+	allLevel = 2,			--共有1级
+	
+	--每级的具体数值
+	allLevelData = 
+	{
+		{
+			nlev = 1,			--第0级
+			needValue = 239400,		--升级到本级需要的神力值
+			needGodArmJie = 7,		--需要神臂的阶
+
+			--需要身上穿戴装备才给属性
+			--[[
+			itWeapon = 1,				//武器
+			itDress = 2,				//衣服
+			itHelmet = 3,				//头盔
+			itNecklace = 4,				//项链
+			itDecoration =5,			//勋章
+			itBracelet  = 6,			//手镯
+			itRing = 7,				//戒指
+			itGirdle = 8,				//腰带
+			itShoes = 9,				//鞋子
+			itEquipDiamond=10,			//宝石
+			itMeterial =11,				//材料
+			itFashionDress=12,			//时装
+			itSwing=13,				//翅膀
+			itWeaponExtend=14,			//武器扩展 幻武
+			itFootPrint=15,				//足迹
+			itShield = 16,				//护盾
+			itSeal = 17,				//玉玺
+			]]
+			needEquips =
+			{
+				{itemType = 1, strong = 5, quality = 0},
+				{itemType = 2, strong = 5, quality = 0},
+				{itemType = 3, strong = 5, quality = 0},
+			},
+
+			--添加的属性
+			Props = 
+			{
+				{ type = 11, addmode=0, value = 644, },
+				{ type = 15, addmode=0, value = 644, },
+				{ type = 19, addmode=0, value = 644, },
+				{ type = 23, addmode=0, value = 510, },
+				{ type = 27, addmode=0, value = 510, },
+				{ type = 21, addmode=0, value = 375, },
+				{ type = 25, addmode=0, value = 375, },
+				{ type = 31, addmode=0, value = 3, },
+                { type = 29, addmode=0, value = 3, }, 
+			},
+		},
+	},
+
+	--升阶
+	upgradeData =
+	{
+		{
+			addValue = 15,			--升阶未成功一次获得祝福值
+			maxBlessing = 500,		--本阶最大的祝福值
+			upRate = 
+			{
+				--nvalue 祝福值在0到20之间 成功的概率是10% ，万分比
+				{nValue = {0,30},nRate = 581,},
+				{nValue = {30,300},nRate = 872,},
+				{nValue = {300,500},nRate = 1418,},
+			},
+
+			consume = 
+			{
+				{type = 0, id = 3233, count = 3,},
+				{type = 6, id = 0, count = 10000,},
+			},
+		},
+	},
+},

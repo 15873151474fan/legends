@@ -1,0 +1,17 @@
+﻿--#include "RankPointer.txt" once
+
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function ProgrammerRanking_Init(npcobj)
+	local config = ProgrammerRankPt
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function ProgrammerRanking_Fina(npcobj)
+	local config = ProgrammerRankPt
+	Rank.Fina(config.RankName, config.RankFile)
+end
+
+table.insert(InitFnTable,ProgrammerRanking_Init)
+table.insert(FinaFnTable,ProgrammerRanking_Fina)

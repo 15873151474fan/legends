@@ -1,0 +1,58 @@
+﻿--[[File:AddBuffEffectItem.txt]]
+--for item add buffs add effect 
+
+--#include "data\config\item\NormalItemDatas.txt" once
+--#include "data\functions\Activity\Festival\BlessTreeCommon.txt" once
+
+--[[
+--添加buff和特效的物品
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+function AddItemBufferEffect(sysarg,itemidx,itemPtr,ItemTable)
+
+	if(Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+	 Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+	 return
+    end
+ --添加buff 
+  if(ItemTable.buffs ~= nil) then
+	  for i=1, table.getn(ItemTable.buffs )   do
+		   local buff =ItemTable.buffs[i]
+		   Actor.addBuff(sysarg,buff.buffType,buff.buffGroup, buff.value, buff.times, buff.interval, Item.getItemName(itemidx), buff.timeOverlay) --添加buff
+	  end
+  end
+  
+	--添加实体特效
+	if(ItemTable.entityEffects ~= nil) then
+	  for i=1, table.getn(ItemTable.entityEffects)   do
+		   local effect = ItemTable.entityEffects[i]
+		   Actor.addEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime) --添加特效 
+	  end
+	end
+	
+	--添加场景特效
+	if(ItemTable.sceneEffects ~= nil) then
+	  for i=1, table.getn(ItemTable.sceneEffects)   do
+		   local effect = ItemTable.sceneEffects[i]
+		   Actor.addSceneEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime,effect.x,effect.y) --添加特效 
+	  end
+	end
+	
+	Actor.removeItemByPtr(sysarg,itemPtr,1,true,"buffEffect",5) 
+	OnFlyFirework(sysarg, itemidx)
+end
+
+
+
+
+function AddItemBufferEffectInit(sysarg)
+  for i = 1,table.getn(EffectItemFuncItem) do
+	local x = EffectItemFuncItem[i]
+	GlobalItemFn[x.item_id] = { func = AddItemBufferEffect, params = x }
+  end
+end
+
+table.insert(InitFnTable,AddItemBufferEffectInit)

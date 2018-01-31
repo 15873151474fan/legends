@@ -1,0 +1,58 @@
+1、如果是简单的函数，那么就把函数写到ScriptDelayCallBack.txt里
+
+比如：
+--离开活动场景的回调,需要定时回调
+function LeaveActivitySceneCallback(sysarg,arg)
+	local Pos = LuaHelp.getReloadMapPos(sysarg) 
+	Actor.enterScene(sysarg,Pos[1],Pos[2],Pos[3])
+end
+
+直接吧函数写到这个表里
+LocalDT.ScriptDelayConfig =
+{
+	[1] = {},	--回城传送
+	[2] = {},	--阵营传送
+	[3] = {}, --放置炸药包
+	[4] = {}, --某地方放置物品
+	[5] = {},	--使用疾风令
+	[6] = {},	--使用修为封存宝盒
+	[7] = {},	--使用经验封存宝盒
+	[8] = {},	--使用道具刷怪延时
+	[9] = {}, --使用开启宠物道具 
+	[10] = {}, -- 宝物骑乘
+	[11] = {}, --使用圣火素材
+	[12] = {},	--使用阵营召集令
+	[13] = {ActivityTransmitCallback},	--活动速传
+	[14] = {LeaveActivitySceneCallback},	--离开活动场景
+}
+
+
+
+2、如果回调函数比较复杂，可以新加一个文件include进去，并在初始化的时候注册一下回调
+   registerScriptCallBack(5,RapidMoveItemCallback)
+
+
+
+
+3、调用回调的地方直接使用 
+
+     这里的id在LocalDT.ScriptDelayConfig 里，保证不冲突，具体的延迟时间根据策划配置写入就行，不需要搞局部变量定义
+
+	/*
+	* Comments:开始一个读条的窗口
+	* Param void * pEntity:玩家的指针
+	* Param int callbackId:回调脚本处理的id
+	* Param int nDelayTime: 延迟时间，单位ms
+	* Param char * title: 显示的标题
+	* Param bool isModal:是否是模态的
+	* Param bool canCancel:是否能够取消
+	* Param  bool bForceCallWhenDestroy 是否实体销毁时强制执行。实体可能在某些消息还没执行就被销毁，此标记用于决定是否实体销毁前强制执行此消息
+	* @Return int: 返回消息编号唯一标识（采用GetTickCount）
+	* Param int param1: 回调参数1
+	* Param int param2: 回调参数2
+	* Param int param3: 回调参数3
+	* Param int param4: 回调参数4
+	* @Return bool:成功返回true，否则返回false
+	*/
+	bool startSingWnd(void *pEntity,int callbackId,int nDelayTime,char * title, bool isModal =true,bool canCancel=true, bool bForceCallWhenDestroy=false,
+int param1=0,int param2=0,int param3=0,int param4=0);

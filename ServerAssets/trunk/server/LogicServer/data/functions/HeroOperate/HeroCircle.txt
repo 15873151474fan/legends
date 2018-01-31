@@ -1,0 +1,113 @@
+﻿--lua script
+
+
+local INITSKILLSLOT = 3	--技能槽位偏移位置
+
+local function getHeroCircleConsumeConfig(sysarg, args)
+	local heroId = args[2] --宠物的ID
+	if (not heroId) or (not HeroCircleConsume) then 
+		-- print("111");
+		return nil 
+	end
+	--宠物属性
+	local heroCircle = Hero.getHeroProperty(sysarg, heroId, 3) --获取宠物的转数
+
+	--配置最大属性限制
+	local CircleMax = table.getn(HeroCircleConsume)
+
+	--宠物是否属性满级
+	if (heroCircle >= CircleMax) then 
+		-- print("2222");
+		return nil 
+	end
+
+	local CircleLev = (heroCircle+1)
+		if (not HeroCircleConsume[CircleLev]) then 
+		-- print("3333");
+		return nil 
+	end
+	return  HeroCircleConsume[CircleLev].consume
+end
+
+
+--玩家开始转生宠物, args = [操作的类型,宠物的ID,消耗的宠物的ID]
+function onHeroCircle( sysarg, args )
+	local heroId = args[2] --宠物的ID
+	local heroCircle = Hero.getHeroProperty(sysarg, heroId, 3) --获取宠物的转数
+
+	local actorCircle = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+	if heroCircle >= actorCircle then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00215, ttFlyTip ) 
+		return nil 
+	end
+	
+	--配置最大属性限制
+	local CircleMax = table.getn(HeroCircleConsume)
+	--print("max="..CircleMax)
+	--宠物是否属性满级
+	if (heroCircle >= CircleMax) then
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00119, tipMsg1),ttDialog ) 
+		return nil 
+	end
+
+	--70级的英雄才能转生
+	local level  =Hero.getHeroProperty(sysarg, heroId, 1) --获取等级
+	if (level <70 ) then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.x00202,ttDialog ) 
+		return nil 
+	end
+	
+	local nowMaxLvl = System.getPlayerMaxLevel(heroCircle)
+	if level < nowMaxLvl then --满级才能转生
+		return nil
+	end
+
+
+	local consumes = getHeroCircleConsumeConfig(sysarg,args)
+	if nil == consumes then return end 
+	local canConsume, tipMsg1 = checkConsumes(sysarg, consumes, args)
+	if canConsume == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00120, tipMsg1),ttDialog )
+		return
+	end
+	--包含有出战等无法消耗方式 因此放到最先检测 
+	local heroConsume = args[3]
+	if Hero.delHero(sysarg, heroConsume) == false then
+		--Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00121, tipMsg1),ttDialog )
+		return    
+	end  
+	local hasConsume, tipMsg2 = getConsumes(sysarg, consumes, 13)
+	if hasConsume == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00122, tipMsg2),ttDialog )
+		return
+	end 
+	local heroCircle = Hero.getHeroProperty(sysarg, heroId, 3) --获取宠物的转数
+
+	if heroCircle+1 > 0 then
+		local proMaxLev = System.getPlayerMaxLevel(heroCircle)
+		local nowMaxLev = System.getPlayerMaxLevel(heroCircle+1)
+		if proMaxLev < nowMaxLev then
+			Actor.messageBox(sysarg,0,0,string.format(Lang.ScriptTips.c0000142, nowMaxLev),Lang.ScriptTips.x00050.."/Cancel",nil,nil)
+		end
+	end
+
+	--宠物转生 
+	Hero.setCircle(sysarg, heroId,heroCircle +1)
+	Hero.sendHeroOpResult(sysarg, heroId, 3, true)	--发送结果
+
+	--学习技能
+	--灵兽1转对应的是第5个槽位 
+	--learnSkill(sysarg, args, heroCircle +4)
+	
+end
+
+function Cancel()
+
+end
+
+--获取宠物转生的消耗,args = [操作的类型,宠物的ID]
+function getHeroCircleConsume( sysarg, args )
+  local consumes = getHeroCircleConsumeConfig(sysarg,args)
+  if nil == consumes then return end    
+  sendClientHeroOperateMsg(sysarg, args, consumes)
+end

@@ -1,0 +1,63 @@
+﻿--lua script
+{
+	id = 1716,
+	parentid = 1712,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = true,
+	autoRun = true,
+	excludetree = true,
+	randomTarget = false,
+	name = Lang.Quest.q03414,
+	content = Lang.Quest.q03415,
+
+	prom = { type = 0, scene = Lang.SceneName.s00120, npc = Lang.EntityName.n00397 },
+	comp = { type = 0, scene = Lang.SceneName.s00120, npc = Lang.EntityName.n00390 },
+	target = {
+		{
+			type = 1, id = 1670, count = 1, rewardId = 0,useList = false,
+			location = {
+				sceneid = 120, x= 0,y = 0,entityName = Lang.EntityName.n00390,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+		{ type = 4, id = 1, count = 0 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 5290, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+			{ type = 5, id = 0, count = 690, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,},
+			{ type = 12, id = 0, count = 20, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,},
+		},
+	},
+	PromMsTalks = {
+		Lang.Talk.t05112,
+	},
+	CompMsTalks = {
+		Lang.Talk.t05122,
+	},
+	CompMsTip = {
+		Lang.Talk.t05123,
+	},
+	PassMsTip = {
+	},
+	PromCheck = "OnAddItem",
+	PromCheckArg = {
+		 1670,
+		 1,
+	},
+	PromCallBack = "OnPromAddItem",
+	PromCallBackArg = {
+		 1670,
+		 0,
+		 0,
+		 1,
+		 1,
+	},
+	CompCallBack = "OnFinRemItem",
+	CompCallbackArg = {
+		 1670,
+		 1,
+	},
+},

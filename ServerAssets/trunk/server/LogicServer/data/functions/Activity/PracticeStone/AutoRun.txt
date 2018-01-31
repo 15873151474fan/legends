@@ -1,0 +1,18 @@
+﻿
+--#include "data\functions\Activity\Common\Scene.txt" once --活动通用 场景
+
+--开始活动
+function FiveExpPracticeStart()
+	local dvar = System.getDyanmicVar()
+	dvar.fiveExpPracticeStart = 1
+	
+	System.broadcastTipmsg(Lang.Activity.a00216, ttScreenCenter+ttChatWindow)
+end
+
+--结束活动
+function FiveExpPracticeOver()
+	local dvar = System.getDyanmicVar()
+	dvar.fiveExpPracticeStart = nil
+	
+	System.broadcastTipmsg(Lang.Activity.a00217, ttScreenCenter+ttChatWindow)
+end	

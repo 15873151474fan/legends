@@ -1,0 +1,42 @@
+--lua script
+--衣柜系统
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\wordrobe\WordrobeConfig.txt" once 
+
+--#include "WordrobeCommon.txt" once
+
+--[[
+	cOpeWordrobeOp = 1,			--操作衣柜
+	cSetWordrobeShapeOp = 2,		--设置外观
+	cWordrobeExpireOp = 3,			--时装过期
+]]
+
+WordrobeOpFuncList = {}
+
+EventCallDispatcher.HandlerWordrobeOp = function (sysarg, args)
+ --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = WordrobeOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--操作衣柜
+WordrobeOpFuncList[1] = function (sysarg,args)
+	OnOpeWordrobe(sysarg, args)
+end
+
+--设置外观
+WordrobeOpFuncList[2] = function (sysarg,args)
+	SetWordrobeShape(sysarg, args)
+end
+
+--时装过期
+WordrobeOpFuncList[3] = function (sysarg,args)
+	WordrobeExpire(sysarg, args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeWordrobe, EventCallDispatcher.HandlerWordrobeOp)
+

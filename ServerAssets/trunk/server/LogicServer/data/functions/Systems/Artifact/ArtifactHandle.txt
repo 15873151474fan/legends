@@ -1,0 +1,76 @@
+--lua script
+--神器系统
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\activityconfig\Artifact\ArtifactUpLevel.txt" once 
+--#include "data\config\activityconfig\Artifact\GodPowerItem.txt" once
+--#include "data\config\activityconfig\Artifact\ArtifactConfig.txt" once 
+
+--#include "ArtifactCommon.txt" once
+
+--[[
+	cOnStartUpLevelOp = 1,			--开始升阶
+	cOnUpArtifactLevelOp = 2,		--开始升级
+	cAddMethodExpOp = 3,			--使用道具增加经验
+	cArtifactScabbardOp = 4,		--神器出鞘
+]]
+
+ArtifactOpFuncList = {}
+
+EventCallDispatcher.HandlerArtifactOp = function (sysarg, args)
+ --print("参数："..args[1])
+  if args[1] == nil then return end   
+  local func = ArtifactOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--开始升阶--等级必须是10 并且经验是 下一阶 的最高值
+ArtifactOpFuncList[1] = function (sysarg,args)
+	local nGrade = Actor.getArtifactLev(sysarg)   --当前等级
+	local nExpVal = Actor.getArtifactValue(sysarg)--当前经验
+	local nLevel = args[2] --当前阶
+	if nLevel == 0 then
+		if nGrade >= 10 then
+			if  nExpVal >=	ArtifactConfig.artifacts[nLevel+1].allData[11].needValue then
+				OnStartUpArtifact(sysarg,args)
+			end
+		end
+	else
+		if nGrade >= 10 then
+			if  nExpVal >=	ArtifactConfig.artifacts[nLevel+1].allData[10].needValue then
+				OnStartUpArtifact(sysarg,args)
+			end
+		end
+	end
+end
+
+--开始升级 必须祝福是0并且经验值小于 下一阶 的最高值
+ArtifactOpFuncList[2] = function (sysarg,args)
+	local nBless = Actor.getArtifactBlessValue(sysarg)--当前祝福
+	local nExpVal = Actor.getArtifactValue(sysarg    )--当前经验
+	local nLevel = Actor.getArtifactRide(sysarg)      --当前阶
+	if nLevel == 0 then
+		if nBless == 0 and nExpVal < ArtifactConfig.artifacts[nLevel+1].allData[11].needValue then
+			OnUpArtifactLevel(sysarg,args)
+		end
+	else
+		if nBless == 0 and nExpVal < ArtifactConfig.artifacts[nLevel+1].allData[10].needValue then
+			OnUpArtifactLevel(sysarg,args)
+		end
+	end
+end
+
+--使用道具增加经验
+ArtifactOpFuncList[3] = function (sysarg,args)
+	OnAddMethodExpByItem(sysarg,args)
+end
+
+--神器出鞘
+ArtifactOpFuncList[4] = function (sysarg,args)
+	OnArtifactScabbardOp(sysarg,args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeArtifact, EventCallDispatcher.HandlerArtifactOp)
+

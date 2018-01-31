@@ -1,0 +1,83 @@
+﻿
+--#include "data\functions\Activity\Common\Consumes.txt" once
+--#include "data\config\vehicle\KuaFuNpcTeleport.txt" once
+
+
+function NpcTeleport_Main(sysarg)
+	local str = Lang.ScriptTips.mt00031
+	local config = NpcTeleport
+	if not config then return "" end
+	str = str.."<(idecoLine#260)>\\\\"
+	local sid = Actor.getSceneId(sysarg)
+	local npcName = Actor.getName(thisNPC)
+	for k, v in ipairs(config) do
+		if v.npcName then
+			if npcName == v.npcName and sid == v.dest.sid then
+				str = str.."  <(c0xFF00FF00)"..v.title..">"
+			else
+				str = str.."  <#B"..v.title.."/@OnNpcTeleport,"..k..">"  --<传送>
+			end
+		else
+			if sid == v.dest.sid then
+				str = str.."  <(c0xFF00FF00)"..v.title..">"
+			else
+				str = str.."  <#B"..v.title.."/@OnNpcTeleport,"..k..">"  --<传送>
+			end
+		end
+
+		if k % 3 == 0 then
+			str = str.."\\\\"
+		else
+			str = str..getStrBackNopStr(v.title, 18)
+		end
+	end
+	return str
+end
+
+function OnNpcTeleport(sysarg, idx)
+	local idx = tonumber(idx)
+	local config = NpcTeleport[idx]
+	if not config then return end
+	
+	--等级
+	if config.level and Actor.checkActorLevel(sysarg, config.level, 0) ~= true  then 
+		local tips = string.format(Lang.ScriptTips.mt00032, config.level)
+		Actor.sendTipmsg(sysarg, tips, ttFlyTip)
+		return
+	end
+	
+	if not Actor.canTelport(sysarg, config.dest.sid) then
+		return
+	end
+	local consume = config.consume
+	if consume then
+		local consumes = {consume}
+		if Consumes.Check(sysarg, consumes) ~= true then
+			return
+		end
+		if Consumes.Remove(sysarg, consumes, 101, Lang.LogTips.l00093) ~= true then
+			return
+		end
+	end
+	
+	local dest = config.dest
+	-- System.telportSceneByName(sysarg,dest.name,dest.x,dest.y)
+	Actor.enterScene(sysarg, dest.sid, dest.x, dest.y)
+	Actor.closeNPCDialog(sysarg)
+end
+
+function getStrBackNopStr(Str, nLen)
+	local i
+	local nopstr = ""
+	
+	for i = 1, nLen - string.len(Str) do
+		if i % 3 == 0 then
+			nopstr = nopstr .. "  "
+		end
+	end
+
+	return nopstr
+end
+
+
+table.insert(MainFnTable, NpcTeleport_Main)

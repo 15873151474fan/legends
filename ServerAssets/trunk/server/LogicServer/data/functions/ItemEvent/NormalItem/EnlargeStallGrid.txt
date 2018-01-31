@@ -1,0 +1,30 @@
+--lua script
+
+STALLMINGRID = 5
+STALLMAXGRID = 30
+
+function enlargeStallGridFunc(sysarg,itemidx,itemPtr,ItemTable)
+	local curGrid = Actor.getIntProperty(sysarg, PROP_ACTOR_STALL_GRID_COUNT)
+	if curGrid < STALLMINGRID then
+		curGrid = STALLMINGRID
+	end
+	local newGrid = curGrid + ItemTable.enlargeGrid
+	if newGrid > STALLMAXGRID then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf037, ttDialog)
+		return
+	end
+	if Actor.removeItem(sysarg,ItemTable.item_id, 1,-1,-1,-1,"",5) > 0 then
+		Actor.setUIntProperty(sysarg, PROP_ACTOR_STALL_GRID_COUNT, newGrid)
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf040, newGrid), ttDialog)
+	end
+end
+
+function enlargStallGrid_Init(sysarg)
+	for i = 1, table.getn(EnlargeStallGridItem) do
+		local x = EnlargeStallGridItem[i]
+		GlobalItemFn[x.item_id] = {func = enlargeStallGridFunc,params = x}
+	end
+end
+
+
+table.insert(InitFnTable,enlargStallGrid_Init)

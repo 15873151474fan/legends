@@ -1,0 +1,53 @@
+﻿--皇后镖车被劫
+--lua script
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\guild\SbkBiaoChe.txt" once
+--#include "data\functions\Activity\Common\Awards.txt"
+
+--皇后镖车被劫
+function SbkBiaoCheDie(sysarg,monster)
+	local nGuildId = Actor.getNpcGuildId(monster)
+	
+	local nActorId =Actor.getIntProperty( sysarg, PROP_ENTITY_ID )  
+
+	local playerList = LuaHelp.getVisiActorList(monster)		--给劫镖的奖励
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local gId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				
+				if gId ~= nGuildId then
+					local aId =Actor.getIntProperty( player, PROP_ENTITY_ID ) 
+					
+					if aId == nActorId then		--击杀着给的奖励倍率
+						for k=1,table.getn(SbkDartConfig.onLootAwards) do
+							SbkDartConfig.onLootAwards[k].count = SbkDartConfig.onLootAwards[k].count * SbkDartConfig.awardJieBiaoRate
+						end
+					end
+
+					if Awards.CheckBagGridCount(player,SbkDartConfig.onLootAwards) then
+						Awards.Give(player,SbkDartConfig.onLootAwards,822,"sbk DartRobed")
+					end
+				end
+			end
+		end
+	end
+
+	local gName = Actor.getName(monster)
+	local kName = Actor.getName(sysarg)
+
+	System.broadcastTipmsg(string.format(Lang.Activity.g00035, kName,gName), ttScreenCenter)
+	System.broadcastTipmsg(string.format(Lang.Activity.g00036, kName,gName,kName), 128)
+
+	local dVar = System.getDyanmicVar()
+	dVar.startSbkDartFlag = 0
+	dVar.sbkMonster = nil
+end
+
+MonDieDispatcher.Mon310Die = function(monster,sysarg,monId)
+	SbkBiaoCheDie(sysarg,monster)
+end
+
+--MonDieDispatcher.register(310, MonDieDispatcher.Mon310Die )

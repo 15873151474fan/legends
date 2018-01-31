@@ -1,0 +1,96 @@
+﻿--lua script
+--for item add buffs
+
+--#include "data\config\item\BuffItemDatas.txt" once --BUFF配置表
+
+--[[
+--添加buff的物品
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+--修为丹 功能实现
+function AddXiuWeiItemBuffer(sysarg,itemidx,itemPtr,ItemTable)
+
+	if (Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return false
+  end
+  
+	if ItemTable.item_id == itemidx then
+		--判断是否有 同类型不同组的BUFF
+		local bHasItemBuff = 0
+		for i = 1, table.getn(AddXiuWeiBuffItems) do
+			local AddXiuWeiBuffItem = AddXiuWeiBuffItems[i]
+			if AddXiuWeiBuffItem.item_id ~= ItemTable.item_id then
+				if Actor.hasBuff(sysarg,ItemTable.buffType,AddXiuWeiBuffItem.buffGroup)==true then
+					bHasItemBuff = i
+					break
+				end
+			end
+		end
+		local bHasAtvBuff = 0
+		for i = 1, table.getn(AtvXiuWeiBuffGroups) do
+			local AtvBuffGroup = AtvXiuWeiBuffGroups[i]
+			if Actor.hasBuff(sysarg,ItemTable.buffType,AtvBuffGroup)==true then
+				bHasAtvBuff = i
+				break
+			end
+		end
+		
+		if bHasItemBuff > 0 or bHasAtvBuff > 0 then
+			local npcHandle = Actor.getHandle(thisNPC)
+			Actor.messageBox(sysarg,npcHandle,0,Lang.TaskTalk.t00081,Lang.ScriptTips.x00068.."/OnOverXiuWeiBuff,"..ItemTable.item_id,Lang.ScriptTips.x00069.."/cancelOnOverBuff",nil)
+	    return 
+		else
+			if (ItemTable.needDelete) then --需要删除
+				Actor.removeItemByPtr(sysarg,itemPtr,1,true,"AddXiuWeiItemBuffer",5)      --删除一个物品
+			end
+			Actor.addBuff(sysarg,ItemTable.buffType,ItemTable.buffGroup, ItemTable.value, ItemTable.times, ItemTable.interval, Item.getItemName(itemidx), ItemTable.timeOverlay) --添加buff
+		  return
+		end
+		
+	end
+end
+
+function OnOverXiuWeiBuff( sysarg, itemid ,group1, group2)
+  local itemid = tonumber(itemid)
+  local x = {}
+  table.foreachi( AddXiuWeiBuffItems, function( i, v )  if (v.item_id == itemid )  then x = v end end )
+	
+	
+	--清除同类型不同组的BUFF
+	for i = 1, table.getn(AddXiuWeiBuffItems) do
+		local AddXiuWeiBuffItem = AddXiuWeiBuffItems[i]
+		if AddXiuWeiBuffItem.item_id ~= x.item_id then
+			if Actor.hasBuff(sysarg,x.buffType,AddXiuWeiBuffItem.buffGroup)==true then
+				Actor.delBuff(sysarg,x.buffType,AddXiuWeiBuffItem.buffGroup)
+			end
+		end
+	end
+	for i = 1, table.getn(AtvXiuWeiBuffGroups) do
+		local AtvBuffGroup = AtvXiuWeiBuffGroups[i]
+		if Actor.hasBuff(sysarg,x.buffType,AtvBuffGroup)==true then
+			Actor.delBuff(sysarg,x.buffType,AtvBuffGroup)
+		end
+	end
+	if(x.needDelete) then --需要删除
+    Actor.removeItem(sysarg,itemid,1,-1,-1,-1,"AddXiuWeiItemBuffer",5)      --删除一个物品
+  end
+	Actor.addBuff(sysarg,x.buffType,x.buffGroup, x.value, x.times, x.interval, Item.getItemName(itemid), x.timeOverlay) --添加buff 
+end
+
+function cancelOnOverBuff(sysarg)
+end
+
+
+function AddXiuWeiItemBufferInit(sysarg)
+  for i = 1,table.getn(AddXiuWeiBuffItems) do
+		local x = AddXiuWeiBuffItems[i]
+		GlobalItemFn[x.item_id] = { func = AddXiuWeiItemBuffer, params = x }
+  end
+end
+
+table.insert(InitFnTable,AddXiuWeiItemBufferInit)

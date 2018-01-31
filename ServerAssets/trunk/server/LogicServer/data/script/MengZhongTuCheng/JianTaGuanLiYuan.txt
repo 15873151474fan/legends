@@ -1,0 +1,68 @@
+﻿--lua script
+--箭塔管理员 
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+  thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+ 
+---#include "data\language\LangCode.txt" once          
+---#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once           --用于处理副本的通用函数 
+--#include "data\functions\NormalFuncForQuest.txt" once --任务内容
+----#include "data\config\vehicle\transmit\Transmit1.txt" once	--传送
+--#include "data\functions\guildOperate\GuildArrowOp.txt" once
+
+--[[此NPC中标准任务发行表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = Lang.NormalTalk.h00132, },
+
+}
+
+--[[此NPC中标准任务发行表]]
+PromMs =
+{
+  --键入mp+分号，根据模板生成发行任务脚本模板
+
+}
+
+--[[此NPC中标准任务受理表]]
+CompMs =
+{
+
+}
+
+--[[此NPC中标准任务过程表]]
+PassMs =
+{
+
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+	local str,f = commonQuestNpcMain(sysarg)
+	if f then
+		return str
+	end
+	return str
+end
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

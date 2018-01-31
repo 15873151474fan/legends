@@ -1,0 +1,97 @@
+--lua script
+
+--马年双11活动盛世龙腾配置
+DragonConfig = 
+{
+	totalNeedYb = {50000,100000,300000,500000,1000000,}, --开启5个龙珠分别对应全服消费元宝
+	actorNeedYb = {200, 1000, 3000, 10000, 50000, }, --个人领取5份奖励对应消费元宝
+	
+	
+	accAwards = --消费奖励
+	{
+		--award1
+		{
+			needBagCount = 3,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 3303, count = 1,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2603, count = 2,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2627, count = 5,  strong = 0, quality = 0, bind = 1,},
+			},
+		},
+		--award2
+		{
+			needBagCount = 4,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 2607, count = 1,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 3303, count = 2,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2603, count = 5,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2627, count = 10,  strong = 0, quality = 0, bind = 1,},
+			},
+		},
+		--award3
+		{
+			needBagCount = 5,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 2662, count = 1,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2673, count = 1,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 3247, count = 2,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2982, count = 3,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2984, count = 10,  strong = 0, quality = 0, bind = 1,},
+			},
+		},
+		--award4
+		{
+			needBagCount = 6,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 3191, count = 2,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2662, count = 2,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2673, count = 2,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 3247, count = 3,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2982, count = 5,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2984, count = 20,  strong = 0, quality = 0, bind = 1,},
+			},
+		},
+		--award5
+		{
+			needBagCount = 6,--需要的空格数
+			awardList = 
+			{
+				{type = 0, id = 3191, count = 3,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2662, count = 4,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2673, count = 4,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 3247, count = 5,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2982, count = 10,  strong = 0, quality = 0, bind = 1,},
+				{type = 0, id = 2984, count = 30,  strong = 0, quality = 0, bind = 1,},
+			},
+		},
+	},
+	
+	--发放礼券
+	sendbindYb =
+	{
+		level = 50, --要求等级
+		awardIndexs = --奖励序号
+		{
+			--beginVal 起始人数
+			--endVal 终止人数
+			[1] = {beginVal = 0,  endVal = 20},  
+			[2] = {beginVal = 21, endVal = 50},
+			[3] = {beginVal = 51, endVal = 100}, 
+			[4] = {beginVal = 101, endVal = 200}, 
+			[5] = {beginVal = 201,}, 
+		},
+		award =
+		{
+			{bindYbNum = 1000, getYbNum = 0, beginYb = 0, endYb = 0,}, --礼券总数,得元宝人数,最小元宝,最大元宝
+			{bindYbNum = 3000, getYbNum = 0, beginYb = 0, endYb = 0,}, --礼券总数,得元宝人数,最小元宝,最大元宝
+			{bindYbNum = 8000, getYbNum = 1, beginYb = 50, endYb = 80,}, --礼券总数,得元宝人数,最小元宝,最大元宝
+			{bindYbNum = 10000, getYbNum = 3, beginYb = 80, endYb = 120,}, --礼券总数,得元宝人数,最小元宝,最大元宝
+			{bindYbNum = 30000, getYbNum = 3, beginYb = 120, endYb = 150,}, --礼券总数,得元宝人数,最小元宝,最大元宝
+		},
+	},
+}
+

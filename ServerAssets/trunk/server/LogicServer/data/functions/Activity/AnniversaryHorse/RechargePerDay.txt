@@ -1,0 +1,223 @@
+
+--lua script 
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryHorseAct.txt" once
+--#include "data\config\activityconfig\AnniversaryHorse\RechargePerDayConfig.txt" once
+--#include "RankPointer.txt" once
+
+--加载每日一充数据
+function LoadRechargePerDay(sysarg)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	if (not AnniversaryHorRankPt.RechargePerDayPt) then
+		return tmpTable
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(AnniversaryHorRankPt.RechargePerDayPt.File)
+	if not ranking then
+		ranking = Ranking.add(AnniversaryHorRankPt.RechargePerDayPt.File, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, AnniversaryHorRankPt.RechargePerDayPt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if pItem then
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存每日一充数据
+function SaveRechargePerDay(sysarg, tmpTable)
+	if not AnniversaryHorRankPt.RechargePerDayPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(AnniversaryHorRankPt.RechargePerDayPt.File)
+	if not ranking then
+		ranking = Ranking.add(AnniversaryHorRankPt.RechargePerDayPt.File, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, AnniversaryHorRankPt.RechargePerDayPt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {})-1 do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--请求每日一充
+function GetRechargePerDayOp(sysarg, args)
+	local config = RechargePerDayConfig
+	local actConfig = AnniversaryHorActConfig
+	if (not config) or (not actConfig) then
+		return
+	end
+
+	if System.isInDateRange(unpack(actConfig.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzn0207, ttFlyTip)
+	end
+
+	local actTime = actConfig.actTime
+	local nBeginTime = System.encodeNumTime(actTime[1],actTime[2],actTime[3],actTime[4],actTime[5],actTime[6])
+	local nCurrTime = System.getCurrMiniTime()
+
+	local nNowDay = 0
+	if nCurrTime > nBeginTime then
+		nNowDay = math.ceil((nCurrTime - nBeginTime) / (3600*24))
+	end
+
+	if (nNowDay <= 0) or (nNowDay > table.getn(config.target or {}) + 1) then
+		return
+	end
+
+	local nTargetCount = table.getn(config.target or {})
+
+	local tmpTable = LoadRechargePerDay(sysarg)
+
+	local nRechargeDay = tmpTable[1]
+
+	local pack = DataPack.allocPacket(sysarg, 52, 45)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nRechargeDay)
+		DataPack.writeChar(pack, nNowDay)
+		DataPack.writeChar(pack, nTargetCount)
+
+		DataPack.flush(pack)
+	end
+end
+
+--单笔充值
+function OnAddRechargePerDay(sysarg, nMoneyValue)
+	local config = RechargePerDayConfig
+	local actConfig = AnniversaryHorActConfig
+	if (not config) or (not actConfig) then
+		return
+	end
+
+	if System.isInDateRange(unpack(actConfig.actTime)) ~= true then
+		return
+	end
+
+	local actTime = actConfig.actTime
+	local nBeginTime = System.encodeNumTime(actTime[1],actTime[2],actTime[3],actTime[4],actTime[5],actTime[6])
+	local nCurrTime = System.getCurrMiniTime()
+
+	local nNowDay = 0
+	if nCurrTime > nBeginTime then
+		nNowDay = math.ceil((nCurrTime - nBeginTime) / (3600*24))
+	end
+
+	if (nNowDay <= 0) or (nNowDay > table.getn(config.target or {})) then
+		return
+	end
+
+	local tmpTable = LoadRechargePerDay(sysarg)
+
+	local nRechargeDay = tmpTable[1]
+
+	if nRechargeDay >= nNowDay then
+		return
+	end
+
+	local target = config.target[nRechargeDay+1]
+
+	if nMoneyValue >= target.needYB then
+		local actorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		--print("++++++++++++++++",target.offlineNeedBagCount, 0, nRechargeDay+1)
+		System.addOfflineMsg(actorId, 69, string.format(target.offlineMsg, nRechargeDay+1), 0, target.offlineNeedBagCount, 0, nRechargeDay+1)
+
+		nRechargeDay = nRechargeDay + 1
+		tmpTable[1] = nRechargeDay
+
+		SaveRechargePerDay(sysarg, tmpTable)
+	end
+end
+
+--请求每日一充领奖
+function GetRechargePerDayGetAwardsOp(sysarg, args)
+	local nType = args[2]
+	local nIndex = args[3]
+	
+	local config = RechargePerDayConfig
+	local actConfig = AnniversaryHorActConfig
+	if (not config) or (not actConfig) then
+		return
+	end
+
+	if nType == 0 then	--目标
+		local target = config.target[nIndex]
+
+		local awards = target.awards
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+			end
+		else
+			return
+		end
+	elseif nType == 1 then	--终极
+		local awards = config.finalAwards.awards
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+			end
+		else
+			return
+		end
+	end
+end
+
+--每日一充发放终极奖励
+function GiveAwardRechargePerDay()
+	--每日一充
+	local ranking = Ranking.getRanking(AnniversaryHorRankPt.RechargePerDayPt.File)
+	if ranking then
+		--先发放终极奖励
+		local nRankCount = Ranking.getRankItemCount(ranking)
+
+		for i=1,nRankCount do
+			local pItem = Ranking.getItemPtrByIndex(ranking, i-1)
+
+			if pItem then
+				local nRechargeDay = tonumber(Ranking.getSub(pItem,0)) or 0
+				if nRechargeDay == table.getn(RechargePerDayConfig.target or {}) then
+					local actorId = Ranking.getId(pItem)
+					System.addOfflineMsg(actorId, 69, RechargePerDayConfig.finalAwards.offlineMsg, 0, RechargePerDayConfig.target.offlineNeedBagCount, 1, 0)
+				end
+			end
+
+		end
+	end
+end
+

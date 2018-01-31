@@ -1,0 +1,129 @@
+﻿--#ifndef _ACTOR_EVENT_DISPATCHER_
+--#define _ACTOR_EVENT_DISPATCHER_
+--[[ActorEventDispatcher.txt]]
+--延时回调类型表
+LocalDT.ScriptDelayConfig = {}
+--延时回调类型
+----############实现ActorEvent的注册与卸载##############
+--#include "AEDispatcherImplement.txt" once
+
+--#include "ScriptDelayCallBackItem\ScriptDelayCallBack.txt" once	--脚本延迟回调
+
+	---#include "ItemEventHandler.txt" once	--屏蔽 转移到ItemFunction.txt
+
+--#include "EquipEnhanceHandler.txt" once
+
+--#include "FBOPHandler.txt" once
+--#include "LeaveTeamHandler.txt" once
+--#include "ActorDieHandler.txt" once
+--#include "ActorLoginHandler.txt" once
+--#include "ActorLogoutHandler.txt" once
+--#include "GuildCallHandler.txt" once
+--#include "DefPracticeHandler.txt" once
+--#include "LevelUPFriendCongHandler.txt" once
+	--#include "ChallengeHandler.txt" once
+--#include "..\Systems\TimeReward\TimeReward_Event.txt" once
+   --#include "..\SpaceCopys\ChallengeLogOut.txt" once
+--#include "ActorFinishAchieveHandler.txt" once
+--#include "ActorExchangeAchiBadge.txt" once
+--#include "LogOutExpHandler.txt" once
+--#include "ActorGetExpOverUpperLmt.txt" once
+--#include "FirstLoginLearnSkill.txt" once
+--#include "NewDayArriveHandler.txt" once
+--#include "OnAsyncOpResultHandler.txt" once --异步事件回调
+--#include "OnFubenTimeoutHandler.txt" once
+--#include "OnLearnSkill.txt" once
+--#include "GuardActionHandler.txt" once
+--#include "OnBeKilledByActorInclude.txt" once
+	--#include "..\Systems\TimeReward\TimeMoneyReward_Event.txt" once
+--#include "PlantYuanbaoHandler.txt" once
+	--#include "CampDartHandler.txt" once
+--#include "VIPHandler.txt" once
+--#include "BrotherHandle.txt" once
+--#include "HeroHandle.txt" once
+--#include "GemHandle.txt" once
+--#include "StoreHandle.txt" once
+--#include "DmkjHandle.txt" once
+--#include "LevelUpHandler.txt" once
+--#include "guildHandler.txt" once
+--#include "RelationHandle.txt" once
+----#include "guildDateHandler.txt" once
+--#include "AddToTeam.txt" once
+--#include "CombatHandler.txt" once
+--#include "FriendHandler.txt" once
+--#include "LootDropItemHandle.txt" once
+--#include "data/functions/Systems/RideSystem/RideEventHandle.txt" once
+--#include "DiamondHandler.txt" once
+--#include "PictureGuildOver.txt" once
+--#include "data/functions/Activity/OpenTenDaysActivity/WholeActivityAward.txt" once
+--#include "WithDrawYuanBao.txt" once
+--#include "data/functions/Activity/CombineActivity/CombineActivityHandler.txt" once
+--#include "HundredServer.txt" once  --百服活动
+--#include "data/functions/Activity/CrossBoss/CrossHandle.txt" once
+--财神闯关（梁凡)
+--#include "data/functions/Activity/GodWealth/GodWealthHandle.txt" once
+--爬塔副本排行榜添加
+--#include "data/functions/Activity/Answer/Answer_Main.txt" once
+----#include "MagicItemHandle.txt" once //屏蔽法宝系统 
+--#include "EquipOpHandle.txt" once
+--#include "data\functions\Activity\DartAdv\DartAdvActionHandler.txt" once	--高级运镖处理
+--收集系统梁凡)
+--#include "data\functions\Systems\CollectSystem\CollectHandle.txt" once
+--#include "data\functions\Systems\Artifact\ArtifactHandle.txt" once	--神器
+--#include "data\functions\Systems\AnniversarySystem\AnniversaryHandle.txt" once
+--宝石消除（梁凡)
+--#include "data\functions\Systems\BejeweledDeluxeSystem\BejeweledDeluxeHandle.txt" once	--宝石消除
+--英雄远征(梁凡）
+--#include "data\functions\Systems\KingSystem\KingHandle.txt" once	--爵位系统
+--#include "data\functions\Systems\BeastSoulSystem\BeastSoulHandle.txt" once	--兽魂系统
+--#include "data\functions\Systems\GodArm\GodArmHandle.txt" once	--神臂
+--屏蔽衣柜系统
+----#include "data\functions\Systems\WordrobeSystem\WordrobeHandle.txt" once	--衣柜
+--#include "WithConsumeYuanBao.txt" once --消费元宝
+--#include "OnTelePort.txt" once --传送门特殊处理
+--#include "OnEnterScene.txt" once		--进入场景处理
+--#include "OnPreExitScene.txt" once	--离开场景处理
+--#include "MiscSystemOpHandler.txt" once --26号Misc子系统脚本处理
+--#include "BuildMonsterOpHandler.txt" once	--建筑怪操作
+--#include "data\functions\Systems\RuneSystem\RuneHandle.txt" once	--神器
+--#include "OnFuBenFirstMiniHandler.txt" once --副本开始一分钟处理
+--#include "data\functions\Systems\CardsSystem\CardsHandle.txt" once
+--#include "CharmChange.txt" once
+--#include "NpcCheckIn.txt" once
+--#include "ChangeSceneHandler.txt" once --切换场景处理
+--#include "data\functions\Systems\WingSystem\WingSystemMain.txt" once --翅膀系统
+--#include "data\functions\Systems\YuanSoulSystem\YuanSoulMain.txt" once --元魄系统
+--#include "data\functions\Systems\BloodSystem\BloodMain.txt" once --血脉系统
+--#include "data\functions\Systems\BossSystem\BossEvent.txt" once --BOSS系统 狩猎点 
+--#include "data\functions\QuestFailTipsFunction.txt" once
+--#include "data\functions\ActorEvent\TeHuiLibaoBuyRecord.txt" once
+--#include "data\functions\GmCommand.txt" once
+
+
+
+--调用对应的事件函数，处理不同的事件，如角色升级等
+--param sysarg:角色指针
+--param eventId:事件id
+--param args:对应的参数列表
+function OnActorEvent(sysarg, eventId, ...)
+  --print("eventID:"..eventId)
+  local ret = false
+  local fnTable = EventCallDispatcher[eventId]
+  if fnTable then
+	  for i = 1, #fnTable do
+	    ret = fnTable[i](sysarg, arg)
+	  end
+  end
+  return ret
+end
+
+--角色跨服登录限制
+function OnCsActorLoginLmt()
+--#ifdef _COMMON_SERVER_
+	return true
+--#else
+	return false
+--#endif
+end
+
+--#endif  //end of _ACTOR_EVENT_DISPATCHER_

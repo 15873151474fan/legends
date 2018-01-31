@@ -1,0 +1,351 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\HundredServerHorse\HundredServerHorse.txt" once
+--#include "data\functions\Activity\HundredServerHorse\RankPointer.txt" once
+
+--保存登录奖励时间
+function SetLoginAwardTimeByLogin(sysarg)
+	local config = HundredServerHorseConfig
+	if (not config) or (not config.LoginAward) then
+		return 
+	end
+	
+	if (System.isOpenHorseActById(12) ~= true) then
+		return
+	end
+
+	local LoginAward = config.LoginAward
+
+	local accLoginAwardTime = 0
+	local loginAwardLoginTime = 0
+	local awardStatus = 0
+	--加载登录奖励数据
+	accLoginAwardTime, loginAwardLoginTime, awardStatus = LoadLoginAward(sysarg)
+
+	local nDay = 0
+	nDay = System.getHorseHundredServerDays()
+
+	--已达到条件的不再累积时间
+	if System.getIntBit(awardStatus, 16+nDay-1) == 1 then
+		return
+	end
+
+	local currTime = System.getCurrMiniTime()
+	local lastTime = loginAwardLoginTime
+
+	if (System.isSameDay(currTime, lastTime) ~= true) and (currTime > lastTime) then
+		accLoginAwardTime = 0	--累积时间
+	end
+
+	loginAwardLoginTime = currTime
+
+	local beginTime = 0
+	if LoginAward.accTime >= accLoginAwardTime then
+		beginTime = LoginAward.accTime - accLoginAwardTime
+	end
+
+	--保存登录奖励数据
+	SaveLoginAward(sysarg, accLoginAwardTime, loginAwardLoginTime, awardStatus)
+
+	Actor.regScriptCallback(sysarg, nil, beginTime * 1000, 0, 1, "GiveLoginAward")
+end
+
+--获得登录奖励
+function GiveLoginAward(sysarg)
+	local config = HundredServerHorseConfig
+	if (not config) or (not config.LoginAward) then
+		return 
+	end
+
+	if (System.isOpenHorseActById(12) ~= true) then
+		return
+	end
+
+	local LoginAward = config.LoginAward
+
+	local accLoginAwardTime = 0
+	local loginAwardLoginTime = 0
+	local awardStatus = 0
+	--加载登录奖励数据
+	accLoginAwardTime, loginAwardLoginTime, awardStatus = LoadLoginAward(sysarg)
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+
+	local days = System.getHorseHundredServerDays()
+
+	if (System.getIntBit(awardStatus, days+16-1) == 0) then
+		awardStatus = System.setIntBit(awardStatus, days+16-1, 1)
+	end
+
+	--保存登录奖励数据
+	SaveLoginAward(sysarg, accLoginAwardTime, loginAwardLoginTime, awardStatus)
+end
+
+--设置登录奖励时间
+function SetLoginAwardTimeByLogout(sysarg)
+	local config = HundredServerHorseConfig
+	if (not config) or (not config.LoginAward) then
+		return 
+	end
+
+	if (System.isOpenHorseActById(12) ~= true) then
+		return
+	end
+
+	local LoginAward = config.LoginAward
+
+	local accLoginAwardTime = 0
+	local loginAwardLoginTime = 0
+	local awardStatus = 0
+	--加载登录奖励数据
+	accLoginAwardTime, loginAwardLoginTime, awardStatus = LoadLoginAward(sysarg)
+
+	local currTime = System.getCurrMiniTime()
+
+	if currTime - loginAwardLoginTime > 0 then
+		accLoginAwardTime = accLoginAwardTime + currTime - loginAwardLoginTime
+	end
+
+	--保存登录奖励数据
+	SaveLoginAward(sysarg, accLoginAwardTime, loginAwardLoginTime, awardStatus)
+end
+
+--加载登录奖励数据
+function LoadLoginAward(sysarg)
+	if not HorseHundredServerRankPt then return end
+
+	local accLoginAwardTime = 0
+	local loginAwardLoginTime = 0
+	local awardStatus = 0
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(HorseHundredServerRankPt.LoginAwardFile)
+	if not ranking then
+		ranking = Ranking.add(HorseHundredServerRankPt.LoginAwardFile, 1000, 1, 10)
+		if not ranking then
+			return accLoginAwardTime, loginAwardLoginTime, awardStatus
+		end
+
+		if not Ranking.load(ranking, HorseHundredServerRankPt.LoginAwardFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		if pItem then
+			Ranking.setSub(pItem,0,"0")
+			Ranking.setSub(pItem,1,"0")
+			Ranking.setSub(pItem,2,"0")
+		end
+	else
+		accLoginAwardTime = tonumber(Ranking.getSub(pItem,0))
+		loginAwardLoginTime = tonumber(Ranking.getSub(pItem,1))
+		awardStatus = tonumber(Ranking.getSub(pItem,2))
+	end
+
+	return accLoginAwardTime, loginAwardLoginTime, awardStatus
+end
+
+--保存登录奖励数据
+function SaveLoginAward(sysarg, accLoginAwardTime, loginAwardLoginTime, awardStatus)
+	if not HorseHundredServerRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(HorseHundredServerRankPt.LoginAwardFile)
+	if not ranking then
+		ranking = Ranking.add(HorseHundredServerRankPt.LoginAwardFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, HorseHundredServerRankPt.LoginAwardFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		Ranking.setSub(pItem,0,tostring(accLoginAwardTime))
+		Ranking.setSub(pItem,1,tostring(loginAwardLoginTime))
+		Ranking.setSub(pItem,2,tostring(awardStatus))
+	end
+end
+
+--重置登录奖励每天领取时间
+function ResetLoginAwardTime(sysarg)
+	local config = HundredServerHorseConfig
+	if (not config) or (not config.LoginAward) then
+		return 
+	end
+
+	if (System.isOpenHorseActById(12) ~= true) then
+		return
+	end
+
+	local LoginAward = config.LoginAward
+
+	local accLoginAwardTime = 0
+	local loginAwardLoginTime = 0
+	local awardStatus = 0
+	--加载登录奖励数据
+	accLoginAwardTime, loginAwardLoginTime, awardStatus = LoadLoginAward(sysarg)
+
+	local accLoginAwardTime = 0
+	local loginAwardLoginTime = System.getCurrMiniTime()
+
+	local beginTime = 0
+	if LoginAward.accTime >= accLoginAwardTime then
+		beginTime = LoginAward.accTime - accLoginAwardTime
+	end
+
+	--保存登录奖励数据
+	SaveLoginAward(sysarg, accLoginAwardTime, loginAwardLoginTime, awardStatus)
+
+	Actor.regScriptCallback(sysarg, nil, beginTime * 1000, 0, 1, "GiveLoginAward")
+end
+
+--下发登录奖励领取状态
+function OnGetLoginAwardStatus(sysarg, args)
+	local config = HundredServerHorseConfig
+	if (not config) or (not config.LoginAward) then
+		return 
+	end
+
+	if (System.isOpenHorseActById(12) ~= true) then
+		return
+	end
+
+	local accLoginAwardTime = 0
+	local loginAwardLoginTime = 0
+	local awardStatus = 0
+	--加载登录奖励数据
+	accLoginAwardTime, loginAwardLoginTime, awardStatus = LoadLoginAward(sysarg)
+
+	local DailyAwards = config.LoginAward.DailyAwards
+	if not DailyAwards then return end
+
+	local nLen = table.getn(DailyAwards or {})
+	
+	local pack = DataPack.allocPacket(sysarg, 8, 38)
+	if (pack ~= nil) then
+		local nDay = 0
+		nDay = System.getHorseHundredServerDays()
+		DataPack.writeInt(pack, nDay)
+		DataPack.writeChar(pack, nLen)
+
+		for i=1, nLen do
+			DataPack.writeChar(pack, i)
+			DataPack.writeChar(pack, GetLoginAwardStatus(awardStatus, i))
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--获取领奖状态
+function GetLoginAwardStatus(nValue, nIndex)
+	local canGetFlag = System.getIntBit(nValue, 16+nIndex-1)
+	local getFlag = System.getIntBit(nValue, nIndex-1)
+--[[
+	if canGetFlag == 0 then
+		canGetFlag = 1
+	else
+		canGetFlag = 0
+	end
+
+	return ((canGetFlag == 0) and (getFlag == 0) and 0 or 1)
+]]
+	if (canGetFlag == 0) then
+		return 2
+	elseif (canGetFlag == 1) and (getFlag == 0) then
+		return 0
+	else
+		return 1
+	end
+end
+
+--领取登录奖励
+function OnGetLoginAward(sysarg, args)
+	local nIndex = args[2]
+	
+	local config = HundredServerHorseConfig
+	if (not config) or (not config.LoginAward) then
+		return
+	end
+
+	if (not nIndex) or (nIndex <= 0) or (nIndex > table.getn(config.LoginAward.DailyAwards or {})) then
+		return
+	end
+
+	if (System.isOpenHorseActById(12) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hhs0022, ttFlyTip)
+		return
+	end
+		
+	local LoginAward = config.LoginAward
+	if Actor.checkActorLevel(sysarg, LoginAward.limitLevel, LoginAward.limitCircle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.hhs0014, LoginAward.limitCircle, LoginAward.limitLevel), ttFlyTip)
+		return
+	end
+	
+	local accLoginAwardTime = 0
+	local loginAwardLoginTime = 0
+	local awardStatus = 0
+	--加载登录奖励数据
+	accLoginAwardTime, loginAwardLoginTime, awardStatus = LoadLoginAward(sysarg)
+
+	if System.getIntBit(awardStatus, 16+nIndex-1) == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hhs0012, ttFlyTip)
+		return
+	end
+	
+	if System.getIntBit(awardStatus, nIndex-1) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.hhs0013, ttFlyTip)
+		return
+	end
+		
+	local awards = config.LoginAward.DailyAwards[nIndex].awards
+	if not awards then return end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,956,Lang.LogTips.l00218, -1, awards[i].expireTime)
+			end
+		end
+		awardStatus = System.setIntBit(awardStatus, nIndex-1, 1)
+
+		--保存登录奖励数据
+		SaveLoginAward(sysarg, accLoginAwardTime, loginAwardLoginTime, awardStatus)
+
+		SendGetLoginAward(sysarg, nIndex, 1)
+	end	
+end
+
+--下发领取登录奖励
+function SendGetLoginAward(sysarg, nIndex, status)
+	local pack = DataPack.allocPacket(sysarg, 8, 37)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nIndex)
+		DataPack.writeChar(pack, status)
+
+		DataPack.flush(pack)
+	end
+end

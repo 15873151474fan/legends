@@ -1,0 +1,61 @@
+--lua script
+
+--#include "data\functions\guildOperate\CallGuildBossEnvent.txt" once
+
+function ClearGuildBossFlagOp(sysarg)
+	--print("À¿Õˆ")
+	local pActor = Actor.getMonsterOwner(sysarg)
+	CleanGuildBossOp(pActor)
+end
+
+MonDieDispatcher.Mon614Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon615Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon616Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon617Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon618Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon629Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon630Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon631Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon632Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+MonDieDispatcher.Mon633Die = function(monster,sysarg,monId)
+	ClearGuildBossFlagOp(monster)
+end
+
+--MonDieDispatcher.register(614, MonDieDispatcher.Mon614Die )
+--MonDieDispatcher.register(615, MonDieDispatcher.Mon615Die )  
+--MonDieDispatcher.register(616, MonDieDispatcher.Mon616Die )
+--MonDieDispatcher.register(617, MonDieDispatcher.Mon617Die )
+--MonDieDispatcher.register(618, MonDieDispatcher.Mon618Die )
+
+--MonDieDispatcher.register(629, MonDieDispatcher.Mon629Die )
+--MonDieDispatcher.register(630, MonDieDispatcher.Mon630Die )
+--MonDieDispatcher.register(631, MonDieDispatcher.Mon631Die )
+--MonDieDispatcher.register(632, MonDieDispatcher.Mon632Die )
+--MonDieDispatcher.register(633, MonDieDispatcher.Mon633Die )

@@ -1,0 +1,29 @@
+--子系统：Misc(139)  消息号：25
+--客户端点击领取老虎机领奖按钮
+
+	--#include "data\config\task\specialMeetingConf.txt" once --奇遇系统 相关的常量定义
+--奇遇系统_财神 领取奖励 
+SpecialMeetingGetWealth = function (sysarg,msgid, packet)
+	if wealthConf == nil then return end
+	local conf = wealthConf
+  --获取角色整形变量 用于获取领取的奖励 
+  local wealth = Actor.getRTIntValue(sysarg, conf.WEALTHNUMBER)
+  if not wealth then return end
+  if Actor.giveAward(sysarg, conf.awardType, 0, wealth, 0, 0, 1, 0, 100, "SpecialMeetingGetWealth" ) == true then
+    local username = Actor.getName(sysarg)
+    local tip = string.format(Lang.TaskTalk.t00523, username, wealth)
+    System.broadcastTipmsg(tip, ttScreenCenter+ttTipmsgWindow)   
+  end
+  --清除角色整形变量 
+  Actor.setRTIntValue(sysarg, conf.WEALTHNUMBER, 0) 
+end
+
+MiscsImplement.SlotMachineGetWealth = function (sysarg,msgid, packet)
+  local id = DataPack.readByte(packet)
+  --通过ID区分窗口 
+  if id == wealthConf.WEALTHWINDOWID then
+    SpecialMeetingGetWealth(sysarg,msgid, packet)  
+  end
+end
+
+MiscsImplement.registerMsgHandler(25, MiscsImplement.SlotMachineGetWealth)

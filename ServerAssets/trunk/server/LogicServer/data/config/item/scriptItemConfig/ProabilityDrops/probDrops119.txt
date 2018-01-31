@@ -1,0 +1,8 @@
+﻿	-- = 119，金刚强化石
+drops=
+{
+	{ id=866,count=1, propability=1, strong=10,bind=0,group=0,job=1},
+	{ id=867,count=1, propability=1, strong=10,bind=0,group=0,job=2},
+	{ id=868,count=1, propability=1, strong=10,bind=0,group=0,job=3}, 
+
+}

@@ -1,0 +1,201 @@
+﻿--脚本用到的定时执行的一些逻辑的配置
+--比如定时发公告，定时执行脚本
+--month表示月份，{}表示匹配所有,其他有效范围是[1,12],比如1月3月执行用{1,3}
+--day表示一个月的哪天有效，{}表示匹配所有,其他有效范围是[1,31]，1日和3日用{1,3}
+--week就是一个星期的哪几天有效，{}表示匹配所有，其他有效范围是[0,6]注意周日是0，1表示周1,比如周1和周日执行就是{1,0}
+--hour 表示那个时间点,{}表示匹配所有，其他有效范围是[0,23]，比如1点和3点,5点执行就是{1,3,5}
+--minute 表示是哪个分钟，{}空表示所有，那么每分钟都将执行,{0,1,2}表示0,1,2分执行，有效范围[0,59]
+--npcScene表示npc所在的场景，全局NPC或者全局的怪物 使用sys
+--npcName 表示npc的名字,全局的npc使用function ，全局的怪物使用monster，其他的话填写NPC的名字
+--npcFunc表示在该npc身上执行的函数，支持带参数的，单数一,分隔，比如TestBroadCast,1,2,"ss"之类的
+--openserverdays 开服的第几天可用
+--notopenserverdays ={1,2,3}表示开服的第1 ，2,3天不能用，其他时间都可以用
+--combineserverdays 合服第几天可用
+--notcombineserverdays 表示合服第几天不可用
+--beforeCombineday 合服前第几天可用
+--notBeforeCombineday 表示合服前第几天不可用
+
+--！！Note1 本功能不要在副本的npc身上执行，因为副本NPC会有很多
+--！！Note2 因为实现方式的限制，一个括号里只能最多容纳8个，如果有特殊情况超过8个，请分2个来配置
+
+--[[
+	--自动执行公告函数
+	tipsType: 公告类型 (1世界公告，2场景公告，3阵营公告)
+	nLocation:
+		显示的位置：如果是右侧提示栏是1，屏幕中央是2，如果2个地方都要显示就填3
+		ttTipmsgWindow =1, //只在右侧提示栏显示
+		ttScreenCenter=2, //屏幕中央，用于xxx把xxx强化到6级之类的全服公告
+		ttDialog =4,      //弹出框
+		ttBroadcast =8,  //公告栏，用于GM发通知
+		ttMessage = 16,	//短消息，在屏幕中央悬挂，点击后查看内容，
+		ttWarmTip  =32,   //温馨提示
+		ttGmTip = 64,	// Gm提示信息
+		ttChatWindow =128, //左侧聊天栏里，用于一些系统公告在聊天栏显示 
+
+	nTargetParam:	 目标参数 (例如：阵营公告时填入阵营ID，场景公告时填入场景ID) 无用则置-1
+	nLevel:          接收这个消息的最低等级
+	noticeIndex:	 为表 NoticeMsg中的项号
+	...：提示参数
+	NoticeAutoRun(tipsType,nLocation,nTargetParam,nLevel,noticeIndex,...)
+
+	------------------
+	--自动刷怪函数
+	index为表 CreateMonster中的组号 data\config\misc\scriptTimerConfig\CreateMonsterConfig.txt
+	CreateMonsters(index)
+
+	--活动开启提示公告函数
+	--configId 配置的ID
+	--index    活动的第几场，0表示第1场，1表示第2场
+	OnActivityTipsFunc(configId,index)
+	--活动开启提示公告函数（跨服版） 需放到--跨服服务器配置下
+	--configId 配置的ID
+	--index    活动的第几场，默认0，表示按名字去查找配置，如果有多场，1表示第1场，2表示第2场
+	OnActivityTipsFuncCs(configId,index)
+--]]
+TimerConfig = {
+	--开启公告提示框配置 
+    { month={},day={},week={},hour={14},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,5,0"},		--十二圣宫
+    { month={},day={},week={},hour={13},minute ={30},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,6,0"},		--暮影争霸
+    { month={},day={},week={},hour={10},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,8,0"},		--抗魔护城 
+    { month={},day={},week={},hour={16},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,9,0"},		--马王争霸 
+    { month={},day={},week={},hour={17},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,11,1"},		--双倍护送1
+    { month={},day={},week={},hour={22},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,11,2"},		--双倍护送1
+    { month={},day={},week={0,1,2,3,5,6},hour={20},minute ={0},notopenserverdays ={1,2},notcombineserverdays = {1,2},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,12,0"},--攻城战
+    { month={},day={},week={0},hour={11},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,15,0"},	--双倍膜拜
+    { month={},day={},week={5,6},hour={15,21},minute ={30},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,24,0"},		--天火降临 
+    { month={},day={},week={},hour={11},minute ={30},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,1,1"},       --都郡夺火1
+    { month={},day={},week={},hour={17},minute ={30},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,1,2"},       --都郡夺火2 
+    { month={},day={},week={},hour={12},minute ={30},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,2,1"},       --三倍经验1
+    { month={},day={},week={},hour={19},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,2,2"},       --三倍经验2
+    --{ month={},day={},week={},hour={19},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,2,3"},       --三倍经验3 
+    { month={},day={},week={},hour={21},minute ={10},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,3,0"},       --世界BOSS 
+    { month={},day={},week={2,4,6},hour={14,16,18,20,22},minute ={45},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,4,0"},       --时空交错
+    { month={},day={},week={},hour={15},minute ={0},npcScene="sys",npcName="function",npcFunc= "OnActivityTipsFunc,10,0"},		--金龟散财 
+    
+    --Vip数据重置
+	{ month={},day={},week={},hour={23},minute ={59},npcScene="sys",npcName="function",npcFunc= "ResetVipData"},	--重置Vip特权记录
+	{month={},day={},week={},hour={0},minute={0},openserverdays={},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "FreshToxicFlags"}, --重置龙潭影和劫狱副本次数 
+	
+    --抗魔护城 
+	{ month={},day={},week={},hour={9},minute ={50},notopenserverdays = {},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00174,npcFunc= "IdentifyNotice,1"},  --开启前10分钟预告
+	{ month={},day={},week={},hour={9},minute ={55},notopenserverdays = {},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00174,npcFunc= "IdentifyNotice,2"},  --开启前5分钟预告
+	{ month={},day={},week={},hour={10},minute ={0},notopenserverdays = {},npcScene="sys",npcName="function",npcFunc= "StartIdentifyActivity"},		--活动开始
+	{ month={},day={},week={},hour={10},minute ={45},notopenserverdays = {},npcScene="sys",npcName="function",npcFunc= "IdentifyActvityOver"},		--活动结束
+	
+    --[[魅魔侵城 
+	{ month={},day={},week={},hour={14},minute ={50},notopenserverdays = {},npcScene="sys",npcName="function",npcFunc= "CharmNotice,1"},   --开启前10分钟预告
+	{ month={},day={},week={},hour={14},minute ={55},notopenserverdays = {},npcScene="sys",npcName="function",npcFunc= "CharmNotice,2"},   --开启前5分钟预告
+	{ month={},day={},week={},hour={15},minute ={0},notopenserverdays = {},npcScene="sys",npcName="function",npcFunc= "StartCharmCityActivity"},		--活动开始
+	{ month={},day={},week={},hour={15},minute ={30},notopenserverdays = {},npcScene="sys",npcName="function",npcFunc= "CharmCityActvityOver"},		--活动结束]]
+	
+    --重置雕像数据
+	{ month={},day={},week={},hour={21},minute ={59},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00084,npcFunc= "ResetWorshipData"},		--重置数据
+	{ month={},day={},week={},hour={10},minute ={55},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00084,npcFunc= "BroadWorshipTips"},			--双倍膜拜提前5分钟公告
+	{ month={},day={},week={},hour={11},minute ={0},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00084,npcFunc= "StartDoubleWorship"},	--双倍膜拜开启
+	
+    --三倍经验开启
+    { month={},day={},week={},hour={12},minute ={25},npcScene="sys",npcName="function",npcFunc= "NoticeAutoRun,1,130,-1,60,3"},	--开始前的预告
+	{ month={},day={},week={},hour={12},minute ={30},npcScene="sys",npcName="function",npcFunc= "OpenAcriptRate"},			--开启定时杀怪倍率奖励
+	{ month={},day={},week={},hour={13},minute ={25},npcScene="sys",npcName="function",npcFunc= "NoticeAutoRun,1,130,-1,60,4"},	--关闭前的预告
+	{ month={},day={},week={},hour={13},minute ={30},npcScene="sys",npcName="function",npcFunc= "CloseAcriptRate"},			--关闭定时杀怪倍率奖励 
+	
+	{ month={},day={},week={},hour={18},minute ={55},npcScene="sys",npcName="function",npcFunc= "NoticeAutoRun,1,130,-1,60,3"},	--开始前的预告
+	{ month={},day={},week={},hour={19},minute ={0},npcScene="sys",npcName="function",npcFunc= "OpenAcriptRate"},			--开启定时杀怪倍率奖励
+	{ month={},day={},week={},hour={19},minute ={55},npcScene="sys",npcName="function",npcFunc= "NoticeAutoRun,1,130,-1,60,4"},	--关闭前的预告
+	{ month={},day={},week={},hour={19},minute ={59},npcScene="sys",npcName="function",npcFunc= "CloseAcriptRate"},			--关闭定时杀怪倍率奖励
+	
+    --都郡城篝火
+	{ month={},day={},week={},hour={11,17},minute ={30},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00063,npcFunc= "burnUpFire"},
+	{ month={},day={},week={},hour={12,18},minute ={30},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00063,npcFunc= "burnOutFire"}, 
+	
+    --熔岩宝藏元宝收购
+	{ month={},day={},week={},hour={09,17},minute ={50},npcScene="sys",npcName="function",npcFunc= "ForcastOpenYbSell,2,10"},	--开启元宝出售十分钟预告 
+	{ month={},day={},week={},hour={09,17},minute ={55},npcScene="sys",npcName="function",npcFunc= "ForcastOpenYbSell,2,5"},	--开启元宝出售五分钟预告
+	{ month={},day={},week={},hour={10,18},minute ={0},npcScene="sys",npcName="function",npcFunc= "ForcastOpenYbSell,1,0"},	--开启元宝出售
+	{ month={},day={},week={},hour={10,18},minute ={0},npcScene="sys",npcName="function",npcFunc= "SetOpenYbSell"},	--开启元宝出售
+	
+    --十二圣宫 
+	{ month={},day={},week={},hour={13},minute ={55},npcScene="sys",npcName="function",npcFunc= "NoticeAutoRun,1,130,-1,1,1"},	--开始前的预告
+	{ month={},day={},week={},hour={14},minute ={0},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00050,npcFunc= "StartMagicSky"},	--活动开始
+	{ month={},day={},week={},hour={14},minute ={59},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00050,npcFunc= "OverMagicSky"},	--活动结束
+	
+    --空间传送阵活动
+	{ month={},day={},week={2,4,6},hour={14,16,18,20,22},minute ={45},npcScene=Lang.SceneName.s00027,npcName=Lang.EntityName.n00067,npcFunc= "BeginSnowTeleporter"},	--开始
+	{ month={},day={},week={2,4,6},hour={15,17,19,21,23},minute ={05},npcScene=Lang.SceneName.s00027,npcName=Lang.EntityName.n00067,npcFunc= "CloseSnowTeleporter"},	--关闭
+	
+    --赛马
+	{month={},day={},week={},hour={15},minute={55},openserverdays={},notopenserverdays={},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00049,npcFunc= "ForcastNotice,1,5"},	--赛区预告 type: 1开启前公告 2 预备是公告 time:时间
+	{month={},day={},week={},hour={16},minute={0},openserverdays={},notopenserverdays={},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00049,npcFunc= "StartHorseRace"},
+	{month={},day={},week={},hour={16},minute={2},openserverdays={},notopenserverdays={},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00049,npcFunc= "ForcastNotice,2,1"},	--赛区预告 type: 1开启前公告 2 预备是公告 time:时间
+	{month={},day={},week={},hour={16},minute={30},openserverdays={},notopenserverdays={},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00049,npcFunc= "OverHorseRace"},
+	
+    --暮影争霸
+	{ month={},day={},week={},hour={13},minute ={25},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00054,npcFunc= "WuLinZhengBaNotice"}, --开始前5分钟预告
+	{ month={},day={},week={},hour={13},minute ={30},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00054,npcFunc= "StartWuLinZhengBa"}, --活动开始
+	{ month={},day={},week={},hour={13},minute ={40},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00054,npcFunc= "OnWuLinZhengBaTenMin"}, --开始10分钟不能进入
+	{ month={},day={},week={},hour={13},minute ={50},npcScene=Lang.SceneName.s00004,npcName=Lang.EntityName.n00054,npcFunc= "EndWuLinZhengBa"},	--活动结束
+	
+    --行会资金减少
+	{ month={},day={},week={6},hour={23},minute ={59},npcScene="sys",npcName="function",npcFunc= "GuildFrPerDayRefresh"},
+    
+    --攻城战
+	{ month={},day={},week={0,1,2,3,4,5,6},hour={19},minute ={50},notopenserverdays ={1,2},notcombineserverdays ={1,2},npcScene="sys",npcName="function",npcFunc= "SbkGuildWarNotice"},	--沙巴克战预告
+	{ month={},day={},week={0,1,2,3,4,5,6},hour={20},minute ={0},notopenserverdays ={1,2},notcombineserverdays ={1,2},npcScene="sys",npcName="function",npcFunc= "StartSbkGuildWar"},	--沙巴克战开始
+	{ month={},day={},week={0,1,2,3,4,5,6},hour={20},minute ={50},notopenserverdays ={1,2},notcombineserverdays ={1,2},npcScene="sys",npcName="function",npcFunc= "EndSbkGuildWarNotice"},	--沙巴克战结束预告
+	{ month={},day={},week={0,1,2,3,4,5,6},hour={21},minute ={0},notopenserverdays ={1,2},notcombineserverdays ={1,2},npcScene="sys",npcName="function",npcFunc= "EndSbkGuildWarOp"},	--沙巴克结束
+	{ month={},day={},week={0,1,2,3,4,5,6},hour={0},minute ={0},notopenserverdays ={1,2},notcombineserverdays ={1,2},npcScene="sys",npcName="function",npcFunc= "SbkGuildStateFresh"},
+	{ month={},day={},week={0,1,2,3,4,5,6},hour={20},minute ={10},notopenserverdays ={1,2},notcombineserverdays ={1,2},npcScene="sys",npcName="function",npcFunc= "SkbStartTenMins"},			--沙巴克开始10分钟的处理
+	{ month={},day={},week={4},hour={1,2,10,11,12,13,14,15,16,17,18,19,20,21,22},minute ={15},npcScene="sys",npcName="function",npcFunc= "BroadSbkReturnToAll"}, --周四回收播报
+	
+    --天火降临 
+	{ month={},day={},week={5,6},hour={15,21},minute ={25},npcScene="sys",npcName="function",npcFunc= "NoticeAutoRun,1,130,-1,70,2"},	--开始前的预告
+	{ month={},day={},week={5,6},hour={15,21},minute ={30},npcScene="sys",npcName="function",npcFunc= "CreateMonsters,2"},	--天火降临开启 
+	
+	--金龟散财 
+	{ month={},day={},week={},hour={14},minute ={55},npcScene="sys",npcName="function",npcFunc= "NoticeAutoRun,1,130,-1,40,19"},	--开始前的预告
+	{ month={},day={},week={},hour={15},minute ={0},npcScene="sys",npcName="function",npcFunc= "CreateMonsters,1"},	--金龟散财开启
+	{ month={},day={},week={},hour={15},minute ={30},npcScene="sys",npcName="function",npcFunc= "NoticeAutoRun,1,130,-1,40,20"},	--结束的预告
+	
+    --排行榜（策划不需要管) 
+	{ month={},day={},week={},hour={},minute ={56},npcScene="sys",npcName="function",npcFunc= "UpdateRankData"},	--刷新普通排行榜
+	--{ month={},day={},week={},hour={},minute ={57},npcScene="sys",npcName="function",npcFunc= "SaveCsRank"},		--保存跨服排行榜
+	--{ month={},day={},week={},hour={},minute ={59},npcScene="sys",npcName="function",npcFunc= "LoadCsRank"},		--加载跨服排行榜
+	
+    --定时领取战力竞技的奖励
+	{month={},day={},week={},hour={23},minute={0},openserverdays={},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "CombatAwardPerDayRefresh"},
+	{month={},day={},week={},hour={},minute={30},openserverdays={},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "GiveCombatExpOnTime"},  --给战力竞技前10名的玩家奖励
+	 
+     --清空每日提取的元宝 
+	{month={},day={},week={},hour={0},minute={0},openserverdays={},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "ClearWithDrawYuanBaoRank"},
+	
+    --每天刷新商城
+	{ month={},day={},week={},hour={12},minute ={0},openserverdays={},notopenserverdays ={},npcScene="sys",npcName="function",npcFunc= "refreshStore,2"},	--0元抢购
+	{ month={},day={},week={},hour={12},minute ={0},npcScene="sys",npcName="function",npcFunc= "refreshStore,3"},	--1元抢购
+	--{ month={},day={},week={},hour={0},minute ={1},npcScene="sys",npcName="function",npcFunc= "refreshStore,1"},     --限时抢购
+	{ month={},day={},week={},hour={0},minute ={1},notBeforeCombineday={1,2,3,4,5,6,7,8,9,10},npcScene="sys",npcName="function",npcFunc= "refreshStore,1"},     --限时抢购
+	{ month={},day={},week={},hour={0,2,4,6,8,10,12,14,16,18,20,22},minute ={1},beforeCombineday={1,2,3,4,5,6,7,8,9,10},npcScene="sys",npcName="function",npcFunc= "refreshStore,1"},     --限时抢购
+	{ month={},day={},week={},hour={0},minute ={1},npcScene="sys",npcName="function",npcFunc= "refreshStore,4"},	--超值抢购
+	{ month={},day={},week={},hour={0},minute ={1},npcScene="sys",npcName="function",npcFunc= "refreshStore,5"},	--稀世珍宝
+	{ month={},day={},week={},hour={0},minute ={1},npcScene="sys",npcName="function",npcFunc= "refreshStore,8"},	--爵位特权商城
+	{ month={},day={},week={},hour={0},minute ={1},npcScene="sys",npcName="function",npcFunc= "refreshStore,9"},	--购物狂欢商城
+	{ month={},day={},week={},hour={0},minute ={1},npcScene="sys",npcName="function",npcFunc= "refreshStore,10"},	--每天限制抢购
+
+    --刷新盗梦库
+	{month={},day={},week={},hour={0},minute={0},openserverdays={},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "RefreshDmkjLib"},
+
+    --封测活动数据重置
+	{ month={},day={},week={},hour={23},minute ={59},npcScene="sys",npcName="function",npcFunc= "ClearBeatTestOnSecRanking"},	--重置封测在线记录
+	{ month={},day={},week={0,1,2,3,4,5,6},hour={22},minute ={0},notopenserverdays ={1,2},notcombineserverdays ={1,2},npcScene="sys",npcName="function",npcFunc= "ClearBeatTestShaChengRanking"},	--重置封沙巴克城战结束记录 
+	
+	--开服活动
+	{ month={},day={},week={},hour={23},minute ={59}, openserverdays={7}, npcScene="sys",npcName="function",npcFunc= "StopStartActCharge"},--设置开服充值活动停止 
+	--{ month={},day={},week={},hour={23},minute ={59}, openserverdays={17}, npcScene="sys",npcName="function",npcFunc= "StartStartActCharge"},--设置开服充值活动继续开始，切记。这个只是给测试用的。不能够在正常时间使用	
+	{ month={},day={},week={},hour={0},minute ={1},openserverdays={8} ,npcScene="sys",npcName="function",npcFunc= "SendStartActMail"}, --发送给玩家开服活动的充值排行奖励 
+	{ month={},day={},week={},hour={23},minute ={59},openserverdays={1,2,3,4,5,6,7} ,npcScene="sys",npcName="function",npcFunc= "SendMiniToManyActOrder"}, --发送给聚沙成塔玩家奖励 
+	
+	{month={},day={},week={},hour={1},minute={45},openserverdays={},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "CountMonsterDeadToLog"},   --发送怪的死亡次数到后台
+	{month={},day={},week={},hour={2},minute={45},openserverdays={},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "CountItemOutPutToLog"},	--发送物品产出统计
+	
+	--{month={},day={},week={},hour={},minute={15,45},openserverdays={},notopenserverdays={},npcScene="sys",npcName="function",npcFunc= "MapBossProtect"},	--地图BOSS的刷新检测机制，不过暂不开启(功能是可以的) 
+     
+}

@@ -1,0 +1,351 @@
+﻿--全局的配置，一些零散的配置放在这里读取
+
+GlobalConfig=
+{
+  	monsterItemRefreshTime =120000, --怪物掉落物品的刷新时间，单位毫秒
+	transferDistanceSquare = 1,      --实体和传送门的距离，如果是0格填0，1格就填1,2就填2,3就填3 沙巴克皇宫的传送点需为0
+	teamLootMaxDistanceSquare = 400,--队伍杀怪拾取的共享的最大的距离的平分
+	sceneRefreshMonsterTime = 4,	--场景中刷怪的时间限制，单位：毫秒
+	entityRunTime = 4,				--每次逻辑循环非玩家实体执行runone的限制总时间，单位：毫秒
+
+	initSceneId = 2,		--初始化场景ID，当地图销毁或者改变，这默认登陆到比奇城
+	initScenePosX = 200,		--场景坐标x
+	initScenePosY = 214,		--场景坐标y
+	
+	nOnlineCountBase = 1000,		--在线人数超过nOnlineCountBase人 怪物翻倍
+
+	--副本系统相关
+	daySingleCount = 4, 	--玩家每天可进入单人副本的次数
+	dayTeamCount = 4,		--玩家每天可进入队伍副本的次数
+	dayTeamHeroCount = 4,	--玩家每天可进入英雄队伍副本的次数        
+	dayGroupCount = 4,		--玩家每天可进入团队副本的次数
+	dayGroupHeroCount = 4,	--玩家每天可进入英雄团队副本的次数  
+	fubenDestoryTime = 5,	--当副本没有人，则过一段时间会删除这个副本（释放内存），单位：分钟
+	maxEnergy  =600,        --玩家每天最大的活力的值
+	energyRfreshRate = 120, --每分钟恢复多少点活力
+	energyConsumeRate =10,  --挂机的时候每分钟消耗的活力点数   
+    
+	baseMaxJumpPower = 300,   --玩家的基础轻功
+	maxJumpLength =7,         --玩家的最大跳跃距离
+	baseJumpPowerRenew = 20, --每5秒恢复多少点轻功
+	
+	fCriticalStrikesDamage =1.5, --默认的暴击的伤害比例
+  
+	baseMaxXiuwei  = 60000,            --玩家不学习经脉需要的修为
+	baseXiuweiRenew  =0,          --基础的修为的回复速度，24秒回复多少点
+	openFcm  =true,               --是否开启防沉迷
+	fcmHalfExpMoneyTime = 180,  --防沉迷开始经验、金钱减半的时间(单位分)
+	fcmZeroExpMoneyTime = 300,  --防沉迷开始经验、金钱没有的时间(单位分)
+
+	challengeLevelLimit = 3,		--擂台系统中可挑战的等级差距，等级差距过大不允许做对手，默认是3
+	worldChatItemItem =614,      --世界喊话大喇叭的物品ID
+	gatherbasevalue	= 100,			-- 采集体力基础值
+	durKillCdTime =5000,           --连斩的CD冷却的时间,这个读取，暂时写死
+	durKillAwardTimes = 100,       --每满多少个连击给玩家奖励(加buff) 
+	maxPlayerLevel = {70,5,5},		-- 玩家最大等级 {基数, 间隔, 加成数} 公式=基数+(转数/间隔*加成数)
+	hpSourceDelayTime = 10000,		-- pk中加血源泉生效延迟时间（单位秒）
+	mpSourceDelayTime = 10000,		-- pk中加蓝源泉生效延迟时间（单位秒）
+	maxZhanhunvalGetEveryDay = 19000,		-- 玩家每天可获得的战魂值上限
+	maxZhanHunVal = 250000,					-- 玩家可获得的最大战魂值上限
+	nearChannelChatCD = 5,				-- 附近频道聊天CD（秒为单位）
+	hornChannelChatCD = 0,				-- 传音频道聊天CD（秒为单位）
+	guideChannelChatCD = 0,				-- 公会(帮派)频道聊天CD（秒为单位）
+	localMapChannelChatCD = 5,		-- 本地图聊天CD	（秒为单位）
+	occupationChannelChatCD = 5,	-- 门派频道聊天CD（秒为单位）
+	worldChannelChatCD = 10,         -- 世界频道聊天CD （秒为单位）
+	sellChannelChatCD = 15,				--出售频道聊天（秒为单位）
+	worldChanChatCDOfKungFuMaster = 5, -- 武林盟主世界聊天频道CD（秒为单位）
+	bigSmileMoneyType	= 1,		--发大表情需要的金钱类型
+	bigSmileMoneyCount	= 1000,		-- 发大表情需要的金钱数量
+
+
+	--耐久减少 计算 
+	--武器为攻击一次时触发，衣服与其他防具为角色每受到一次攻击时触发
+	--如武器耐久计算为：每攻击weaponEndureConsTotalCnt次，绝对命中weaponEndureConsRandCnt次，具体在哪次命中，这个具有一定的随机性
+	--耐久减少值为weaponEndureConsLowerLimit到weaponEndureConsUpperLimit随机一个值
+	weaponEndureConsTotalCnt = 1,    --武器耐久消耗：一个周期总次数
+	weaponEndureConsRandCnt  =1,     --武器耐久消耗：一个周期命中次数	
+	weaponEndureConsLowerLimit =1,   --武器耐久每次消耗下限
+	weaponEndureConsUpperLimit =6,   --武器耐久每次消耗上限
+	
+	WuLingKong1ConsumeDuraValue = 1, --武灵空1消耗的耐久值 
+ 	WuLingKong2ConsumeDuraValue = 1, --武灵空2消耗的耐久值
+	WuLingKong3ConsumeDuraValue = 1, --武灵空3消耗的耐久值
+
+
+	dressEndureConsTotalCnt =2,      --衣服耐久消耗：一个周期总次数
+	dressEndureConsRandCnt =1,      --衣服耐久消耗：一个周期命中次数
+	dressEndureConsLowerLimit =5,   --衣服耐久每次消耗下限
+	dressEndureConsUpperLimit =10,   --衣服耐久每次消耗上限	
+	
+	armorEndureConsTotalCnt =3,      --衣服外的其它防具耐久消耗：一个周期总次数
+	armorEndureConsRandCnt =1,        -- 服外的其它防具耐久消耗：一个周期命中次数
+	armorEndureConsLowerLimit =1,   --衣服外的其它防具耐久每次消耗下限
+	armorEndureConsUpperLimit =10,   -- 衣服外的其它防具耐久每次消耗上限
+	
+	endureConsRateOnDeath =5,       --死亡时扣除耐久的比例(百分比）
+
+	equipInsureGold = 200000,		--装备投保一次需要的手续费金币数
+	equipInsureCount = 10,			--装备最大投保次数
+
+	maxConsecutiveKillLvlDiff =100,    --连斩玩家和怪物最大等级差
+
+	-- 各个聊天频道发言最低等级限制 
+	--分别对应于：私聊、附近频道、传音、帮派、队伍、团队、地图、系统提示、阵营频道、系统频道、世界频道、呼救频道、出售频道
+	chatLevelLmt = {60, 60, 60, 53, 60, 60, 60, 60, 60, 60,60,60,60},
+	friendChatLmt = 45,
+	leaveBattleTime = 4,					-- 玩家空闲状态后到脱离战斗所需要的时间（秒为单位）
+	
+	minStoreBuyYuanbaoCount =500,         --一次消费多少元宝将全服播报
+
+
+	maxSmithCount = 65535,            --最大的精锻度，策划配置这个数值控制精锻度	
+	stopServerNoticeTime = 15,		--停服前每隔多少时间发布一次公告，单位是秒
+	guiderTitleId =50,                  --新手管理员的称号的ID
+	bindYuanbaoLimit = 1000000,		--绑定元宝上限
+	maxPetAptitude= 1200,                 --最大的宠物资质的上限
+
+	freeWorldChannel = 0,                --世界频道聊天所需费用
+	fcmCloseHourSinceOpen =72,             --服务器开服的多少小时关闭防沉迷
+
+	minPetSlotCount =3,                   --最少的宠物槽的个数
+	maxPetSlotCount =6,                   --自大的宠物的槽的个数
+	petMergePropertyRate= 1.0,            --宠物合体的时候百分比的装备和精锻的属性合并到玩家身上
+	petLevelAboveOwner =5,                --宠物最多等级高出玩家的等级
+
+	maxPetLoyalty=6000,                    --最大的宠物忠诚度
+	petBattleMinLoyalty = 570,            --宠物出战要求的最小忠诚度
+	petMergeMinLoyalty = 570,              --宠物合体要求的最小的忠诚度
+	petDeathDropLoyalty =300,              --宠物每次死亡掉的忠诚度
+	petMergeLoyaltyDropPerMinite =-6,      --宠物合体状态每分钟的忠诚度改变的值
+	petNormalLoyaltyDropPerMinite =-6,     --宠物放出状态每分钟的忠诚度改变的值  
+	petMaxSmithCount =1900,                 --宠物的最大的精锻度
+	petDeathHpRate = 0.2,                  --宠物复活的时候恢复多少血
+	teacherGiftMinGridCount =1,            --领取师徒的奖励需要至少留出多少个空格 
+  	petMaxSkillSlotCount =8 ,              --宠物最大的技能槽位数目
+  	commonServerEntrSceneId=147,			-- 跨服服务器入口场景ID  
+	logoutReserverTime=300,					-- 玩家在跨服下线后保持时间（秒为单位），超过这个时间下次再上线就回到原始服务器 
+  	commonServerMsgFilter={			-- 跨服角色消息过滤	屏蔽上行消息
+		--格式：sys子系统号和msg消息号表。消息号表为{}表明是屏蔽子系统的所有消息
+  		{ sys=10, msg={}, },	
+  		{ sys=13, msg={}, },
+		{ sys=20, msg={}, },
+  		{ sys=21, msg={}, },
+  		{ sys=25, msg={}, },
+  		{ sys=27, msg={}, },
+		{ sys=29, msg={}, },
+  		{ sys=31, msg={}, },
+  		{ sys=32, msg={}, },
+  		{ sys=37, msg={}, },
+  		{ sys=38, msg={}, },
+		{ sys=41, msg={}, },
+		{ sys=131, msg={}, },
+		{ sys=138, msg={}, },
+  		{ sys=139, msg={1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,
+		29,30,31,32,33,34,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,60,61,62,63,64,65,66}, },
+		{ sys=142, msg={}, },
+  	},	
+	mainQuestPetExpMaxLevel = 70,				--主线任务中，等级内宠物可以得到经验
+	fQuestDoubleAwardRate = 0.3,				--双倍奖励计算系数
+	fQuestAcceptAgainRate = 0.4,				--再次接任务的系数
+	fQuestSpeedFinishRate = 0,				--快速完成任务系数
+
+    nMaxCalLuckValue =9,    --计算中最大的幸运的值，超过这个就取最大攻击
+    nMaxCalCurseValue =9,    --计算中最大的诅咒的值，超过这个就取最小攻击
+
+	
+    fHpRenewRate =0.013,     --HP恢复的时候，基础的点数= maxhp * fHpRenewRate + nHpRenewAdd
+	
+	nHpRenewAdd =1,         --HP恢复的时候，基础的点数= maxhp * fHpRenewRate + nHpRenewAdd
+	
+	fMpRenewRate =0.0555,     --MP恢复的时候，基础的点数= maxMp * fMpRenewRate + nMpRenewAdd
+	 
+    nMpRenewAdd =1,   	    --MP恢复的时候，基础的点数= maxMp * fMpRenewRate + nMpRenewAdd
+
+	nDropItemExpireTime =90,  --掉落在地上的物品的存活时间,单位秒
+
+	nDropItemMasterProtectTime =30,  --掉落在地上的物品属于他的主人的时间,单位秒
+
+	dropCoinCounts={1,30,60,100,300,1000}, --掉落在地上的金币，在各范围里图标不同，这里标记不同范围的金币的范围,分别表示1，30，60,100,300,1000以上的图标
+	dropCoinIcons ={559,560,561,562,563,563},          --掉落在地上的道具，在dropCoinCount范围里的图标的id
+	dropYuanBaoCounts={1,12}, --掉落在地上的元宝，在各范围里图标不同，这里标记不同范围的元宝的范围,分别表示1，30，60,100,300,1000以上的图标
+	dropYuanBaoIcons ={564,565},          --掉落在地上的元宝，在dropYuanBaoCounts范围里的图标的id
+
+	monsterMaxCoinOneDrop  = 1000, --怪物掉落的金币，每堆的最大值
+	monsterVectResetInterval = 5000,	--怪物归属重置间隔(单位ms)(5s没有打怪，清除怪物原来归属)
+
+	nPetMaxLevel = 7, --宠物最大的等级
+	nFireMaxTime = 60000, --火墙的最大时间，单位ms
+
+	nPkWeaponDownLuckRate = 1200,	--武器幸运值下降
+	nRedNamePkValue = 200,			--红名pk值
+	fWriteNameBagDropRate = 0.67,		--白名背包掉落系数
+	fWriteNameEquipDropRate = 18,	--白名装备掉落系数
+	fRedNameBagDropRate = 0.1,		--红名背包掉落系数
+	fRedNameEquipDropRate = 5,		--红名装备掉落系数
+	nWriteNameBagDropNum = 3,		--白名背包掉落最大数量
+	nRedNameBagDropNum = -1,			--红名背包掉落最大数量，-1表示全部掉出
+	nWriteNameEquipDropNum = 1,		--白名装备掉落最大数量
+	nRedNameEquipDropNum = 2,		--红包装备掉落最大数量
+
+	nDropAnySceneRate = 40,			--在任何场景爆的概率
+
+	--分别表示武器,衣服,头盔,项链,勋章,左边手镯,右边手镯,左边戒指,右边戒指,腰带,鞋子,宝石,材料,时装,翅膀 的掉落的概率
+	equipDropPartRates = {2,10,15,75,30,100,100,50,50,35,35,35,0,0,0},
+
+	fHeroWriteNameEquipDropRate = 150,	--英雄白名装备掉落系数
+	fHeroRedNameEquipDropRate = 2,		--英雄红名装备掉落系数
+	nHeroWriteNameEquipDropNum = 1,		--英雄白名装备掉落最大数量
+	nHeroRedNameEquipDropNum = 2,		--英雄红包装备掉落最大数量
+	--分别表示武器,衣服,头盔,项链,勋章,左边手镯,右边手镯,左边戒指,右边戒指,腰带,鞋子,宝石,材料,时装,翅膀 的掉落的概率
+	heroEquipDropRates = {2,10,15,50,30,100,100,75,75,35,35,35,0,0,0},
+
+
+	nStallModelId = 110,				--摊位模型id
+	nStallSendAdCoin = 10000,			--发送摊位广告需要的金币
+
+
+
+	showAppearSuit = 16,				--显示套装光效的套装ID
+	suitAppears = {5001,5001,5002,5002,5002,5003,5003,5003,5004,5004},	--套装件数对应显示的套装光效ID {1件套装, 2件套装, .......} 
+
+	nDamageDropShieldBuffTime =3,  --每次伤害降低法师的魔法盾buff的时间,单位秒
+
+	nAppendPhysicalDamageEffectId =1,  --战士的攻杀剑术触发附加伤害时候播放的特效id
+	nAppendPhysicalDamageEffectKeepTime = 1000, --战士的攻杀剑术触发附加伤害时候播放的特效的播放时间
+
+	nDamage2SelfHpEffectType =4,   --翅膀效果，给对方伤害，自己加血播放的特效类型
+	nMinDealLevel =20,           --最低的交易等级，低于这个无法交易
+	
+	nMinFeatherStrongLev = 15,		--翅膀出现残影的最低等级
+
+	nDamage2SelfHpEffectId =37,  --翅膀效果，给对方伤害，自己加血播放的特效id
+	nDamage2SelfHpEffectKeepTime = 400, --翅膀效果，给对方伤害，自己加血播放的特效持续时间
+	nMaxDamage2SelfHp = 1000, --翅膀效果，给对方伤害，自己加血的最大值
+	
+	nDamageDecEffectType =4,   --百分比伤害减免特效类型
+	nDamageDecEffectId =206,  --百分比伤害减免特效id
+	nDamageDecEffectKeepTime = 400, --百分比伤害减免特效持续时间
+	
+	nShieldEffectType =4,   		--护盾特效类型
+	nShieldEffectId =206,  			--护盾特效id
+	nShieldEffectKeepTime = 400, 	--护盾特效持续时间
+
+	nDamageReduceEffectId =127,             --法宝的伤害减免播放的特效id
+	nDamageReduceEffectKeepTime = 700,     --法宝的伤害减免特效持续时间
+
+	nDamageAddEffectId =128,                --法宝的伤害追加播放的特效id
+	nDamageAddEffectKeepTime = 700,        --法宝的伤害追加特效持续时间
+
+	nIgnorDefenceEffectId =129,             --法宝的无视防御播放的特效id
+	nIgnorDefenceEffectKeepTime = 700,     --法宝的无视防御特效持续时间
+
+	nReliveRingId =551,    --复活戒指的id
+	nReliveRingCd =60000,  --复活戒指的cd
+	nReliveRingDura=100,    --每次使用复活戒指降低的耐久
+	nReliveEffectId =37,  --复活戒指复活的效果id
+	nReliveEffectKeepTime =800,  --复活戒指复活特效的持续时间
+	nReliveEffectType =4,   --复活戒指加的特效的类型
+	
+	-- 暴击几率3次函数参数abcd
+	fCritA = 0.0,
+	fCritB = 0.0,
+	fCritC = 1.0,
+	fCritD = 0.0,
+
+
+	nStallMinGrids = 30,			--摆摊中最少格子数量
+	nStallMaxGrids = 30,			--摆摊中格子最高数量
+
+	nDizzyBuffGroupId =81,     --麻痹添加的buff的组id
+	nDizzyBuffTime =5,  --麻痹buff的时间，单位秒
+	nDizzyBuffColorPriority =10,  --麻痹buff的颜色优先级
+	nDizzyBuffColor =12303291,  --麻痹buff的颜色
+	
+	nCurseMarkSkillId = 170,		--诅咒印记技能id
+	
+	nBreakGuardRate = 1000,		--破防率，1表示万分之1 结算了所有伤害加成之后，无论目标有多少防御，都能至少造成攻击伤害*nBreakGuardRate的伤害；
+
+	nTransmitProtectTime = 2,	--传送保护buff持续时间(秒)
+
+
+	nMaxAngerValue = 2000,	--最大怒气值
+
+	nBuyItemGetPointRate = 1, --购买商城物品得到的积分	
+
+	nHeroExpItemYbCount=88,    --英雄增加熟练度的道具卖的元宝的数目
+	nHeroExpItemId = 832,      --英雄增加熟练度的道具的id
+	nMaxHeroCount =8,          --只能最多拥有英雄的个数
+	nHeroOpenDay = 5,			--开服第X天 开启英雄系统
+	--nHeroMaxLevel = 70,			--英雄最高等级(取消 使用玩家等级)
+	nHeroNameColor = 65535,			--英雄名字颜色
+
+	nDiamondpointRate = 3,			--魂石评分的基数
+
+	nMonsterAttackMusicRate =10,     --普通怪物攻击发出声音的概率,1表示百分之1
+	nMonsterDieMusicRate =10,        --普通怪物死亡发出声音的概率,1表示百分之1
+	nMonsterTargetMusicRate =10,     --普通怪物发现目标发出声音的概率,1表示百分之1
+	nMonsterDamageMusicRate =10,     --普通伤害声音的概率,1表示百分之1\
+
+	nUpdateMonsterDeadMins = 45,		--每小时中，第几分钟去统计怪死亡次数
+
+	PetColors = {
+		{0,255,255,255},    --一级宠物颜色
+		{0,0,255,255},		--二级宠物颜色
+		{0,138,215,245},    --三级宠物颜色
+		{0,60,180,240},		--四级宠物颜色
+		{0,120,140,250},	--五级宠物颜色
+		{0,0,120,215},		--六级宠物颜色
+		{0,20,70,220},		--七级宠物颜色
+	},
+	quickTimeKick=30,                 --加速了几次就麻痹
+	quickRate=0.32,                   --判断加速的阈值
+	quickSoftNoticeLv = 40,			 --外挂在使用时，该等级以上的玩家才提示
+
+	nSpeedFinItemId = 1124,			--加速完成任务扣的物品id
+
+	nChatSaveLogFlag		= 0,		--聊天内容是否存盘，默认是不存，大于0表示存
+
+	nGoldEggItemId = 1362,			--金蛋物品ID
+
+	nMaxAgainQuest = 10,				--最大重复任务次数
+
+	n2StepSkillHitRate =5000,                    --技能攻击的时候，距离2格命中的概率，1表示万分之1
+	n3StepSkillHitRate =3000,                    --技能攻击的时候，距离3格命中的概率，1表示万分之1	
+	n4StepSkillHitRate =1000,                    --技能攻击的时候，距离4格命中的概率，1表示万分之1
+
+	nYbLuckAwardCount = 20,			--幸运大抽奖需要元宝
+	nYestodayMinPoint = 1000,		--昨天消费排行最小消费值
+	nAllConsumeMinPoint = 10000,		--累积消费排行最小消费值
+
+	nYbHorseLuckAwardCount = 20,		--马年幸运大抽奖需要元宝
+	nScoreHorseLuckAwardCount = 20,		--马年幸运大抽奖获得积分
+
+	nGmTitleId = 15,					--gm的头衔id
+
+	nHuntWeaponId = 14,				--周末活动统一玩家武器id
+	nGmFlagLevel = 4,					--Gm在这个等级及以下就显示高级客服系统按钮
+	nTeamCallerItemId = 912,			--队伍中召唤令物品ID
+	nTeamCallerBindItemId = 912,		--队伍中召唤令限时物品ID
+
+
+	n8RedPacketItemId = 1547,		--8元宝红包
+	n88RedPacketItemId = 1548,		--8元宝红包
+	n888RedPacketItemId = 1549,		--8元宝红包
+	nAutoSilencing = 10,			-- 自动禁言，玩家连续发多少次相同内容就禁言
+	nAutoSilencingSecond = 2 * 60 * 60; -- -- 自动禁言时长，单位是秒
+	
+	nMagicPowerMax = 100000000,		--灵力上限
+
+	nSpeedCheck = 58, --加速检查值
+	nTimeRate = 100, --时间比例
+	BossDeadRemDig = 300,	--boss死亡后，出现可挖尸体的时间
+
+	nTumulusTreasureCircle = 0,		--古墓探宝最低转数
+	nTumulusTreasureLevel = 50,		--古墓探宝最低等级
+	
+	specPropSuitIds = {53,62,66,70}, --特殊属性套装id，套装增加的属性不叠加，高属性的会覆盖低属性的，越后的属性越高
+	MaxTakeOnTitleCount = 5,--最多佩戴称号个数 
+	EquitLevelNumnberQuestId = 134, --穿戴装备等级数量任务ID 
+	
+}

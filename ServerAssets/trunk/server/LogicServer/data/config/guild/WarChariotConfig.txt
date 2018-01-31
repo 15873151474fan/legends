@@ -1,0 +1,126 @@
+--lua script
+
+--#include "..\..\language\LangCode.txt"
+
+--行会战车配置
+WarChariotConfig =
+{
+	getMin = 1,		--战车被归还后30min才可以领用
+	maxMember = 3,		--最多邀请3人
+	minLev = 50,		--被邀请玩家需50级以上
+
+	openDay = 7,		--第7天开放
+
+   	--战车 1
+	WarChariots=
+	{
+		{
+			nModeId = 4,				--战车模型id
+			nName = Lang.EntityName.n00277,   --战车名字（策划配置到语言包）
+			nWarChariotIndex = 1, --战车编号
+			nIcon = 1,						--战车图片编号		
+			nAttack = 109000,				--战车攻击			
+			nBlood = 2000000,				--战车血量
+			nPhysicalDefense = 20000, --物理防御
+			nMagicDefense  = 20000,   --魔法防御
+
+			nDamageDecRate = 10000,		--百分比降低伤害几率 1点表示万分之1
+			nDamageDecRateValue = 7500,	--百分比降低伤害值	1点表示万分之1
+
+			nSkill = 180,   					--战车技能ID
+			nGold  = 100000,           --打造次战车需要消耗的金币
+
+			nNeedMaterials =        --打造战车需要的材料
+			{				
+					{type = 0, id = 2219, count = 20, strong = 0, quality = 0,},		--消耗的物品
+					{type = 0, id = 2220, count = 10, strong = 0, quality = 0,},		--消耗的物品			
+			},
+		  nSkillId = 						--战车技能ID   此战车拥有的技能ID  下车，邀请，普通也配在里面
+		  {
+			177,178,180,179,
+		  },
+		},
+
+		--战车 2
+		{
+			nModeId = 6,				--战车模型id
+			nName = Lang.EntityName.n00278,   --战车名字（策划配置到语言包）
+			nWarChariotIndex = 2, --战车编号
+			nIcon = 1,						--战车图片编号		
+			nAttack = 148000,				--战车攻击			
+			nBlood = 2800000,				--战车血量
+			nPhysicalDefense = 27700, --物理防御
+			nMagicDefense  = 27700,   --魔法防御
+			
+			nDamageDecRate = 10000,		--百分比降低伤害几率 1点表示万分之1
+			nDamageDecRateValue = 7500,	--百分比降低伤害值	1点表示万分之1
+			
+			nSkill = 181,   					--战车技能ID
+			nGold  = 500000,           --打造次战车需要消耗的金币
+			nNeedMaterials =        --打造战车需要的材料
+			{				
+					{type = 0, id = 2219, count = 50, strong = 0, quality = 0,},		--消耗的物品
+					{type = 0, id = 2220, count = 30, strong = 0, quality = 0,},		--消耗的物品
+					{type = 0, id = 2221, count = 10, strong = 0, quality = 0,},		--消耗的物品				
+			},
+		  nSkillId = 						--战车技能ID   此战车拥有的技能ID  下车，邀请，普通也配在里面
+		  {
+			177,178,181,179,
+		  },
+		},
+				--战车 3
+		{
+			nModeId = 3,				--战车模型id
+			nName = Lang.EntityName.n00279,   --战车名字（策划配置到语言包）
+			nWarChariotIndex = 3, --战车编号
+			nIcon = 1,						--战车图片编号		
+			nAttack = 193000,				--战车攻击			
+			nBlood = 3900000,				--战车血量
+			nPhysicalDefense = 39000, --物理防御
+			nMagicDefense  = 39000,   --魔法防御
+			
+			nDamageDecRate = 10000,		--百分比降低伤害几率 1点表示万分之1
+			nDamageDecRateValue = 7500,	--百分比降低伤害值	1点表示万分之1
+			
+			nSkill = 182,   					--战车技能ID
+			nGold  = 3000000,           --打造次战车需要消耗的金币
+			nNeedMaterials =        --打造战车需要的材料
+			{				
+					{type = 0, id = 2219, count = 120, strong = 0, quality = 0,},		--消耗的物品
+					{type = 0, id = 2220, count = 60, strong = 0, quality = 0,},		--消耗的物品
+					{type = 0, id = 2221, count = 20, strong = 0, quality = 0,},		--消耗的物品	
+					{type = 0, id = 2222, count = 5, strong = 0, quality = 0,},		--消耗的物品
+			},
+		  nSkillId = 						--战车技能ID   此战车拥有的技能ID  下车，邀请，普通也配在里面
+		  {
+			177,178,182,179,
+		  },
+		},
+				--战车 4
+		{
+			nModeId = 5,				--战车模型id
+			nName = Lang.EntityName.n00280,   --战车名字（策划配置到语言包）
+			nWarChariotIndex = 4, --战车编号
+			nIcon = 1,						--战车图片编号		
+			nAttack = 223000,				--战车攻击			
+			nBlood = 5600000,				--战车血量
+			nPhysicalDefense = 56200, --物理防御
+			nMagicDefense  = 56200,   --魔法防御
+			nDamageDecRate = 10000,		--百分比降低伤害几率 1点表示万分之1
+			nDamageDecRateValue = 7500,	--百分比降低伤害值	1点表示万分之1
+			nSkill = 183,   					--战车技能ID
+			nGold  = 10000000,           --打造次战车需要消耗的金币
+			nNeedMaterials =        --打造战车需要的材料
+			{				
+					{type = 0, id = 2219, count = 200, strong = 0, quality = 0,},		--消耗的物品
+					{type = 0, id = 2220, count = 100, strong = 0, quality = 0,},		--消耗的物品
+					{type = 0, id = 2221, count = 50, strong = 0, quality = 0,},		--消耗的物品	
+					{type = 0, id = 2222, count = 20, strong = 0, quality = 0,},		--消耗的物品
+			},
+		  nSkillId = 						--战车技能ID   此战车拥有的技能ID  下车，邀请，普通也配在里面
+		  {
+			177,178,183,179, 
+		  },
+		},
+	},
+}

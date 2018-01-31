@@ -1,0 +1,48 @@
+﻿-- 阵营盟主NPC改名脚本处理逻辑
+
+-- 阵营盟主NPC配置表
+local campNpcTbl = {
+	[1] = {sceneid=49, name=Lang.EntityName.n00472, color="0xFFE400",},
+	[2] = {sceneid=49, name=Lang.EntityName.n00473, color="0xFF99FF",},
+	[3] = {sceneid=49, name=Lang.EntityName.n00474, color="0x00FF00",},
+};
+
+-- 根据阵营Id找到对应的阵营盟主NPC对象
+local function getCampNpc(campId)
+	local info = campNpcTbl[campId]
+	if (not info) then		
+		return nil;
+	end
+	local scene = Fuben.getSceneHandleById(info.sceneid, 0)
+	if (not scene) then		
+		return nil;
+	end	
+	return Fuben.getNpcPtrByName(scene, info.name)
+end
+
+-- 生成阵营NPC的显示名称
+-- @param campName: 阵营名称
+-- @param kingName: 盟主名称
+local function genKingNpcNameStr(campId, campName, kingName)
+	-- 由于客户端会将npc名字显示为绿色，这里再嵌套一个阵营名称颜色的话，客户端显示不正常。
+	--return string.format(Lang.ScriptTips.c00046, campNpcTbl[campId].color, campName, kingName)
+	return string.format("%s·%s", campName, kingName)
+end
+
+-- 阵营盟主改变事件处理函数
+function OnCampKingChanged(campId)
+	local camp = Camp.getCampById(campId)
+	if (camp) then
+		local npc = getCampNpc(campId)				
+		if (npc ~= nil) then			
+			local name = Camp.getKingInfo(camp, 0, 0)
+			if (name ~= nil) then
+				local campName = Camp.getCampName(camp);
+				if (campName ~= nil) then
+					name = genKingNpcNameStr(campId, campName, name)
+				end
+			end						
+			Camp.changeKingNPCName(npc, name)
+		end
+	end
+end

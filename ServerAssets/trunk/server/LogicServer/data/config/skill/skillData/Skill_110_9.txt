@@ -1,0 +1,92 @@
+--红色年兽 弹开目标，加血
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s7L1Desc,--技能的描述
+	
+	iconID=7,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-10,--相对于中心点x左边的相对坐标
+			xEnd=10,--相对于中心点x右边的相对坐标
+			yStart=-10,--相对于中心点y上边的相对坐标
+			yEnd=10,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+				--targetType=1,
+					conds=
+					{
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=203},--技能说话	
+						{mj=0,timeParam=1,type=3,delay=100,rate=10000,value=0},
+						{mj=0,timeParam=1,type=29,ignoreTargetDis=1,delay=100,value=3},	
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=85,keepTime=400,delay=100,always=false},				
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-5,--相对于中心点x左边的相对坐标
+			xEnd=5,--相对于中心点x右边的相对坐标
+			yStart=-5,--相对于中心点y上边的相对坐标
+			yEnd=5,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+				--targetType=1,
+					conds=
+					{
+						{cond = 3,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=10,type=1,buffType=1,id=51,rate=0,value=10000,delay=0, interval=1,vt=0,effectType=6,effectId=243},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=85,keepTime=400,delay=100,always=false},				
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=10,consume=false},
+		{cond=18,value=30,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=180000,
+
+},

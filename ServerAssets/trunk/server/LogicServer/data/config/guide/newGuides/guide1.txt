@@ -1,0 +1,146 @@
+﻿--接受任务后（威吓逼迫），引导玩家使用物品
+{
+  maxLevel = 45,
+  --触发条件
+  triggerList =
+  {
+        { type = 1, valueList = {1472,}},      --有这个任务
+        { type = 4, valueList = {733,}},       --有这个物品
+  } ,
+  
+
+  --引导的步骤 
+  steps = 
+  {
+
+    --第1步 指向导航标签
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 50, dataList = {0,} },       --任务追踪面板可见
+	 { type = 15,  helpId = 51, dataList = {1,} },      --任务追踪面板没有选中第一项
+      },
+
+      action = { type = 2, helpId = 51, data = 1, desc = Lang.GuideLang.desc1 },  --指向任务追踪面板第一项
+    },
+
+
+    --第2步 指任务连接
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 50, dataList = {0,} },     --任务追踪面板可见
+	 { type = 3,  helpId = 51, dataList = {1,} },     --任务追踪面板选中第一项
+	 { type = 18,  helpId = 51, dataList = {1472,} }, --没有到达指定的位置
+      },
+      
+      --指向任务寻路连接
+      action = { type = 5, helpId = 1472, data = Lang.Talk.t10035, desc = Lang.GuideLang.desc2 },
+    },
+
+    --第3步 指背包
+    {
+      condList = 
+      {
+	 { type = 2,  helpId = 20, dataList = {0,} },      --背包没打开
+	 { type = 6,  helpId = 22, dataList = {733,} },    --有这个物品
+	 { type = 8,  helpId = 0, dataList = {1472,} },    --到达了指定位置
+	 { type = 16,  helpId = 22, dataList = {1472,} },  --存在这个任务
+      },
+
+      --指向底部背包按钮
+      action = { type = 1, helpId = 2, data = 733, desc = Lang.GuideLang.desc3 },
+    },
+
+    --第4步 指物品
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 20, dataList = {0,} },       --背包打开
+	 { type = 6,  helpId = 22, dataList = {733,} },     --有物品
+	 { type = 16,  helpId = 22, dataList = {1472,} },   --存在这个任务
+	 { type = 8,  helpId = 0, dataList = {1472,} },     --到达了指定位置
+      },
+
+      --指向相关物品
+      action = { type = 6, helpId = 22, data = 733, desc = Lang.GuideLang.desc4 },
+    },
+	
+    --第5步 指背包关闭按钮
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 20, dataList = {0,} },       --背包打开
+	 { type = 10,  helpId = 22, dataList = {733,} },    --没有这个物品
+	 { type = 16,  helpId = 22, dataList = {1472,} },   --存在这个任务
+      },
+
+      --点击关闭按钮
+      action = { type = 4, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+ }
+},
+
+--5级成长礼包的引导
+{
+  maxLevel = 5,
+  --触发条件
+  triggerList =
+  {
+		{ type = 6, valueList = {5,}},      --达到5级
+		{ type = 4, valueList = {1445,},},   --有5级成长礼包
+  },
+
+
+  --引导的步骤
+  steps =
+  {
+
+    --第1步 指向导航背包按钮
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 20, dataList = {0,} },    --背包不可见
+      },
+
+      action = { type = 1, helpId = 2, data = 0, desc = Lang.GuideLang.desc3 },
+    },
+
+
+    --第2步 双击使用道具
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 20, dataList = {0,} },       --背包可见
+				{ type = 6,  helpId = 22, dataList = {1445,} },    --有物品:5级成长礼包
+      },
+
+      action = { type = 6, helpId = 22, data = 1445, desc = Lang.GuideLang.desc4 },
+    },
+
+    --第3步 关闭窗口
+    {
+      condList =
+      {
+				{ type = 1,  helpId = 20, dataList = {0,} },    --背包窗口可见
+				{ type = 10,  helpId = 20, dataList = {1445,} },   --没有5级成长礼包
+      },
+
+      --引导玩家关闭窗口
+      action = { type = 4, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+
+     --第4步 结束占位
+    {
+      condList =
+      {
+				{ type = 10,  helpId = 20, dataList = {1445,} },   --没有5级成长礼包
+      },
+
+      --指向 接受任务按钮
+      action = { type = 1, helpId = 0, data = 0, desc = 0 },
+    },
+
+  }
+},
+

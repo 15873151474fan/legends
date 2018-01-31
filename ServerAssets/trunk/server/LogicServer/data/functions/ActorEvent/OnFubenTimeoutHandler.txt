@@ -1,0 +1,19 @@
+﻿--lua script
+--#include "data\functions\Activity\Toxic\ToxicMain.txt" once  
+--#include "data\functions\Activity\GuildSos\GuildSos_Main.txt" once--劫狱副本
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+--#include "data\functions\Activity\CrossMatches\CrossMatchesCommon.txt" once
+
+EventCallDispatcher.OnFubenTimeout = function (sysarg,arg)
+	--print("--------OnFubenTimeout")
+	--sysarg是副本指针,获取副本所有玩家的指针，并让其退出副本
+	local actorList = LuaHelp.getFbActorList(sysarg)
+	exitToxicBossFuben(sysarg)
+	exitSosFuben(sysarg)--劫狱副本
+	SelectMatchesEnd(sysarg) --跨服联赛海选赛结束  
+	for k, ptr in ipairs(actorList or {}) do
+		onExitFubenFunc(ptr)
+	end
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeFubenTimeOut, EventCallDispatcher.OnFubenTimeout)

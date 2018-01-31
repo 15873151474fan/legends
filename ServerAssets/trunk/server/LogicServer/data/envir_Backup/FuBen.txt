@@ -1,0 +1,161 @@
+﻿--[[File:FuBen.txt]]
+--#include "..\language\LangCode.txt"
+
+FuBen =
+{
+	--fbid为副本的id,这里需要连续的数字
+	--fbname为副本的名字，具体名字在语言包里包含。
+	--fbDesc副本描述,这个也是要语言包里面定义。--名称和描述的文字主要用于客户端显示
+	--minLevel是进入副本的最低等级要求。
+	--minPlayCount和maxPlayCount这个变量是进入队伍副本的最少人数和最多人数，如果是单人副本就都为1。
+	--type是副本类型，0表示普通副本，1表示英雄副本，如果以后再有其他类型，也是在这里配置
+	--hardLevel 和maxPoint都用于副本通关分计算,maxExp用于计算给用户的经验,maxSw表示奖励的声望
+	--fbtype:普通副本还是特殊副本，针对vip蓝钻只针对副本副本用增加的变量
+	--itemId:通过物品可以再进一次副本
+	--itemNum:物品数量
+	--enterTimes:每天通过物品能进入的次数，目前次数不能超过9
+	--quests={1111,1112},	这个副本关联的任务列表
+	--noaward = true		--默认是有奖励，配置这个不会出现奖励
+	--needConsume={type=0,id=100,count=2,all=true}, 进入副本需要的额外消耗 all:true队长与队员都要消耗 false只有队长消耗
+	--isInGuild 是否参加了行会
+	--isSameGuild 是否在相同行会
+
+	{fbid = 1 ,fbname = Lang.FubenName.fname0001,fbDesc = Lang.FubenName.fdesc0001,minLevel = 35,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 1,fbTime = 1800,itemId=815,itemNum=1,enterTimes=1,noaward = true,},	--勇闯龙坛
+
+	{fbid = 2 ,fbname = Lang.FubenName.fname0002,fbDesc = Lang.FubenName.fdesc0002,minLevel = 30,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 2,fbTime = 3600, quests={86}, itemId=815,itemNum=1,enterTimes=1},	--妖月峡谷
+	
+	{fbid = 3 ,fbname = Lang.FubenName.fname0003,fbDesc = Lang.FubenName.fdesc0003,minLevel = 40,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 3,fbTime = 3600,quests={340},itemId=815,itemNum=2,enterTimes=1 },	--万年古墓
+
+
+	{fbid = 4 ,fbname = Lang.FubenName.fname0004,fbDesc = Lang.FubenName.fdesc0004,minLevel = 45,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 4,fbTime = 900,quests={206},itemId=815,itemNum=2,enterTimes=1 },	--天地宝窟
+
+	{fbid = 5 ,fbname = Lang.FubenName.fname0005,fbDesc = Lang.FubenName.fdesc0005,minLevel = 50,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 5,fbTime = 1800,quests={360},itemId=815,itemNum=3,enterTimes=1},	--魔龙神殿
+
+	{fbid = 6 ,fbname = Lang.FubenName.fname0006,fbDesc = Lang.FubenName.fdesc0006,minLevel = 42,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 6,fbTime = 900, quests={180}, itemId=815,itemNum=2,enterTimes=1},	--矿石副本
+
+	{fbid = 7 ,fbname = Lang.FubenName.fname0007,fbDesc = Lang.FubenName.fdesc0007,minLevel = 60,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 7,fbTime = 1800, itemId=815,itemNum=4,enterTimes=1},	--转生副本
+
+
+	{fbid = 8 ,fbname = Lang.FubenName.fname0008,fbDesc = Lang.FubenName.fdesc0008,minLevel = 40,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 8,fbTime = 1800, quests={166}, itemId=815,itemNum=2,enterTimes=1},	--赤月天魔
+
+
+	{fbid = 9 ,fbname = Lang.FubenName.fname0009,fbDesc = Lang.FubenName.fdesc0009,minLevel = 50,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 9,fbTime = 3600, quests={248},itemId=815,itemNum=3,enterTimes=1},	--神灯传奇
+
+	{fbid = 10 ,fbname = Lang.FubenName.fname0010,fbDesc = Lang.FubenName.fdesc0010,minLevel = 45,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 10,fbTime = 3600, quests={359},itemId=815,itemNum=3,enterTimes=1},	--水域龙都
+
+	{fbid = 11 ,fbname = Lang.FubenName.fname0011,fbDesc = Lang.FubenName.fdesc0011,minLevel = 60,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 11,fbTime = 3600, quests={367},itemId=815,itemNum=4,enterTimes=1},	--魔剑封印
+
+	{fbid = 12 ,fbname = Lang.FubenName.fname0012,fbDesc = Lang.FubenName.fdesc0012,minLevel = 65,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 12,fbTime = 1800,quests={409}, itemId=815,itemNum=5,enterTimes=1},	--地狱结界
+
+	{fbid = 13 ,fbname = Lang.FubenName.fname0013,fbDesc = Lang.FubenName.fdesc0013,minLevel = 40,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 13,fbTime = 1200, itemId=815,itemNum=5,enterTimes=1},	--水域龙都
+
+	{fbid = 14 ,fbname = Lang.FubenName.fname0014,fbDesc = Lang.FubenName.fdesc0014,minLevel = 45,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true, },	--雪域魔宫
+
+	{fbid = 15 ,fbname = Lang.FubenName.fname0015,fbDesc = Lang.FubenName.fdesc0015,minLevel = 45,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--炽焰神殿
+
+	{fbid = 16 ,fbname = Lang.FubenName.fname0016,fbDesc = Lang.FubenName.fdesc0016,minLevel = 46,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--幻月迷宫
+
+	{fbid = 17 ,fbname = Lang.FubenName.fname0017,fbDesc = Lang.FubenName.fdesc0017,minLevel = 47,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--祖码之神
+
+	{fbid = 18 ,fbname = Lang.FubenName.fname0018,fbDesc = Lang.FubenName.fdesc0018,minLevel = 48,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true, },	--暗影虫洞
+
+	{fbid = 19 ,fbname = Lang.FubenName.fname0019,fbDesc = Lang.FubenName.fdesc0019,minLevel = 49,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--战鼓擂台
+
+	{fbid = 20 ,fbname = Lang.FubenName.fname0020,fbDesc = Lang.FubenName.fdesc0020,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true, },	--土城秘室
+
+	{fbid = 21 ,fbname = Lang.FubenName.fname0021,fbDesc = Lang.FubenName.fdesc0021,minLevel = 52,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--骷髅逆袭
+
+	{fbid = 22 ,fbname = Lang.FubenName.fname0022,fbDesc = Lang.FubenName.fdesc0022,minLevel = 54,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--新月龙岛
+
+	{fbid = 23 ,fbname = Lang.FubenName.fname0023,fbDesc = Lang.FubenName.fdesc0023,minLevel = 56,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--熔岩绝地
+
+	{fbid = 24 ,fbname = Lang.FubenName.fname0024,fbDesc = Lang.FubenName.fdesc0024,minLevel = 58,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--天山之巅	
+
+	{fbid = 25 ,fbname = Lang.FubenName.fname0025,fbDesc = Lang.FubenName.fdesc0025,minLevel = 60,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--妖影禁地	
+
+	{fbid = 26 ,fbname = Lang.FubenName.fname0026,fbDesc = Lang.FubenName.fdesc0026,minLevel = 62,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--火龙魔宫	
+
+	{fbid = 27 ,fbname = Lang.FubenName.fname0027,fbDesc = Lang.FubenName.fdesc0027,minLevel = 64,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--亘古神庙	
+
+	{fbid = 28 ,fbname = Lang.FubenName.fname0028,fbDesc = Lang.FubenName.fdesc0028,minLevel = 66,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--幽灵鬼境	
+
+	{fbid = 29 ,fbname = Lang.FubenName.fname0029,fbDesc = Lang.FubenName.fdesc0029,minLevel = 68,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300, noaward = true,},	--蛮荒古堡	
+
+	{fbid = 30 ,fbname = Lang.FubenName.fname0030,fbDesc = Lang.FubenName.fdesc0030,minLevel = 70,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true, },	--烛龙神殿	
+
+	{fbid = 31 ,fbname = Lang.FubenName.fname0031,fbDesc = Lang.FubenName.fdesc0031,minLevel = 70,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,},	--战神决地	
+
+	{fbid = 32 ,fbname = Lang.FubenName.fname0032,fbDesc = Lang.FubenName.fdesc0032,minLevel = 15,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 15,fbTime = 1800,quests={355}, noaward = true,},	--屠龙传说
+	
+	{fbid = 33 ,fbname = Lang.FubenName.fname0033,fbDesc = Lang.FubenName.fdesc0033,minLevel = 15,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 16,fbTime = 1800, noaward = true,},	--蜜月	
+
+	{fbid = 34 ,fbname = Lang.FubenName.fname0034,fbDesc = Lang.FubenName.fdesc0034,minLevel = 50,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 17,fbTime = 600,},	--试炼副本	
+
+	{fbid = 35 ,fbname = Lang.FubenName.fname0035,fbDesc = Lang.FubenName.fdesc0035,minLevel = 15,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 18,fbTime = 1800,quests={349}, noaward = true,},	--攻城副本
+
+	{fbid = 36 ,fbname = Lang.FubenName.fname0036,fbDesc = Lang.FubenName.fdesc0036,minLevel = 40,minPlayCount = 1,maxPlayCount = 100,type = 0,fbtype=0,groupId = 19,fbTime = 1800,},	--荣誉神殿
+
+	{fbid = 37 ,fbname = Lang.FubenName.fname0037,fbDesc = Lang.FubenName.fdesc0037,minLevel = 1,minPlayCount = 1,maxPlayCount = 1000,type = 0,fbtype=0,groupId = 20,fbTime = 0, noaward = true,},	--边界村 副本
+
+	{fbid = 38 ,fbname = Lang.FubenName.fname0038,fbDesc = Lang.FubenName.fdesc0038,minLevel = 1,minPlayCount = 1,maxPlayCount = 1000,type = 0,fbtype=0,groupId = 21,fbTime = 0, noaward = true,},	--美女村 副本
+
+	{fbid = 39 ,fbname = Lang.FubenName.fname0039,fbDesc = Lang.FubenName.fdesc0039,minLevel = 1,minPlayCount = 1,maxPlayCount = 1000,type = 0,fbtype=0,groupId = 22,fbTime = 0, noaward = true,},	--仙侠村 副本
+
+    {fbid = 40 ,fbname = Lang.FubenName.fname0040,fbDesc = Lang.FubenName.fdesc0040,minLevel = 70,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,},	--深渊之门
+
+	{fbid = 41 ,fbname = Lang.FubenName.fname0041,fbDesc = Lang.FubenName.fdesc0041,minLevel = 70,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,},	--深渊魔宫
+
+    {fbid = 42 ,fbname = Lang.FubenName.fname0042,fbDesc = Lang.FubenName.fdesc0042,minLevel = 70,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,},	--深渊峡谷
+
+    {fbid = 43 ,fbname = Lang.FubenName.fname0043,fbDesc = Lang.FubenName.fdesc0043,minLevel = 70,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,},	--深渊幽境
+
+    {fbid = 44 ,fbname = Lang.FubenName.fname0044,fbDesc = Lang.FubenName.fdesc0044,minLevel = 70,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,},	--深渊禁地
+
+    {fbid = 45 ,fbname = Lang.FubenName.fname0045,fbDesc = Lang.FubenName.fdesc0045,minLevel = 70,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,},	--深渊之巅
+
+    {fbid = 46 ,fbname = Lang.FubenName.fname0046,fbDesc = Lang.FubenName.fdesc0046,minLevel = 50,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 23,fbTime = 7200,noaward = true, circle = 1},	--降魔副本
+    
+  {fbid = 47 ,fbname = Lang.FubenName.fname0047,fbDesc = Lang.FubenName.fdesc0047,minLevel = 15,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 24,fbTime = 1800,quests={477}, noaward = true,},	--云栈洞副本
+  
+  {fbid = 48 ,fbname = Lang.FubenName.fname0048,fbDesc = Lang.FubenName.fdesc0048,minLevel = 15,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 25,fbTime = 1800,quests={505}, noaward = true,},	--掌中佛狱 
+  
+  {fbid = 49 ,fbname = Lang.FubenName.fname0049,fbDesc = Lang.FubenName.fdesc0049,minLevel = 1,minPlayCount = 1,maxPlayCount = 1000,type = 0,fbtype=0,groupId = 26,fbTime = 0, noaward = true,},	--云烟水村 副本
+
+	{fbid = 50 ,fbname = Lang.FubenName.fname0050,fbDesc = Lang.FubenName.fdesc0050,minLevel = 40,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 27,fbTime = 1800,noaward = true,},	--神兽试炼副本 个人
+
+	{fbid = 51 ,fbname = Lang.FubenName.fname0051,fbDesc = Lang.FubenName.fdesc0051,minLevel = 40,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 28,fbTime = 1800,noaward = true,},	--神兽试炼副本 行会
+
+	{fbid = 52 ,fbname = Lang.FubenName.fname0052,fbDesc = Lang.FubenName.fdesc0052,minLevel = 40,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 28,fbTime = 1260,noaward = true,},	--降魔战场
+
+	{fbid = 53 ,fbname = Lang.FubenName.fname0053,fbDesc = Lang.FubenName.fdesc0053,minLevel = 55,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 29,fbTime = 2*3600,noaward = true},	--用来测试灵符宫的经验战神闯关
+	{fbid = 54 ,fbname = Lang.FubenName.fname0054,fbDesc = Lang.FubenName.fdesc0054,minLevel = 55,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 30,fbTime = 1800,noaward = true,circle = 5},	--用来测试灵符宫的装备战神闯关
+
+	{fbid = 55 ,fbname = Lang.FubenName.fname0055,fbDesc = Lang.FubenName.fdesc0055,minLevel = 70,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 31,fbTime = 1800,noaward = true,needConsume={type=0,id=2218,count=10,all=true}},	--镇魔塔
+	{fbid = 56 ,fbname = Lang.FubenName.fname0056,fbDesc = Lang.FubenName.fdesc0056,minLevel = 70,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 32,fbTime = 1800,noaward = true,needConsume={type=0,id=2218,count=12,all=true}},	--镇妖塔
+	{fbid = 57 ,fbname = Lang.FubenName.fname0057,fbDesc = Lang.FubenName.fdesc0057,minLevel = 70,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 33,fbTime = 1800,noaward = true,needConsume={type=0,id=2218,count=15,all=true}},	--镇地塔
+	{fbid = 58 ,fbname = Lang.FubenName.fname0058,fbDesc = Lang.FubenName.fdesc0058,minLevel = 70,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 34,fbTime = 1800,noaward = true,needConsume={type=0,id=2218,count=20,all=true}},	--镇天塔
+	--{fbid = 59 ,fbname = Lang.FubenName.fname0059,fbDesc = Lang.FubenName.fdesc0059,minLevel = 30,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 35,fbTime = 3600,noaward = true, needConsume={type=0,id=815,count=5,all=true},circle = 1,isInGuild = true, isSameGuild = true},	--保卫萝卜
+	{fbid = 59 ,fbname = Lang.FubenName.fname0059,fbDesc = Lang.FubenName.fdesc0059,minLevel = 35,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 35,fbTime = 3600,noaward = true, itemId=815,itemNum=10,enterTimes=1,circle = 1,isInGuild = true, isSameGuild = true},	--保卫萝卜
+	{fbid = 60 ,fbname = Lang.FubenName.fname0060,fbDesc = Lang.FubenName.fdesc0060,minLevel = 60,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 36,fbTime = 5400,noaward = true, circle = 5 },	--魔神封印
+	{fbid = 61 ,fbname = Lang.FubenName.fname0061,fbDesc = Lang.FubenName.fdesc0061,minLevel = 60,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 37,fbTime = 1800,noaward = true, circle = 7 },	--神灯密室
+	{fbid = 62 ,fbname = Lang.FubenName.fname0062,fbDesc = Lang.FubenName.fdesc0062,minLevel = 60,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 38,fbTime = 3600,noaward = true, circle = 3, itemId=815, itemNum=15, enterTimes=1 },	--五行炼狱
+	{fbid = 63 ,fbname = Lang.FubenName.fname0063,fbDesc = Lang.FubenName.fdesc0063,minLevel = 60,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 39,fbTime = 1800,noaward = true, circle = 9 },	--冰原结界
+	{fbid = 64 ,fbname = Lang.FubenName.fname0064,fbDesc = Lang.FubenName.fdesc0064,minLevel = 35,minPlayCount = 2,maxPlayCount = 2,type = 0,fbtype=0,groupId = 40,fbTime = 1800,noaward = true, circle = 1 },	--夫妻副本
+
+	{fbid = 65 ,fbname = Lang.FubenName.fname0065,fbDesc = Lang.FubenName.fdesc0065,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,circle = 7 },	--降魔之门
+    {fbid = 66 ,fbname = Lang.FubenName.fname0066,fbDesc = Lang.FubenName.fdesc0066,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,circle = 8 },	--玄冰之界
+	{fbid = 67 ,fbname = Lang.FubenName.fname0067,fbDesc = Lang.FubenName.fdesc0067,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,circle = 9 },	--七星峡谷
+    {fbid = 68 ,fbname = Lang.FubenName.fname0068,fbDesc = Lang.FubenName.fdesc0068,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,circle = 10 },	--魔龙幽境
+    
+    {fbid = 69 ,fbname = Lang.FubenName.fname0069,fbDesc = Lang.FubenName.fdesc0069,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,circle = 11 },	--黑风禁地
+
+    {fbid = 70 ,fbname = Lang.FubenName.fname0070,fbDesc = Lang.FubenName.fdesc0070,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 14,fbTime = 300,noaward = true,circle = 12 },	--降魔之巅
+	{fbid = 71 ,fbname = Lang.FubenName.fname0071,fbDesc = Lang.FubenName.fdesc0071,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 41,fbTime = 7200,noaward = true,circle = 0 },	--VIP等级BOSS
+	{fbid = 72 ,fbname = Lang.FubenName.fname0072,fbDesc = Lang.FubenName.fdesc0072,minLevel = 35,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 42,fbTime = 300,noaward = true,circle = 0 },	--海选擂台
+	{fbid = 73 ,fbname = Lang.FubenName.fname0073,fbDesc = Lang.FubenName.fdesc0073,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 43,fbTime = 1800,noaward = true,circle = 4 },	--闯天关
+	{fbid = 74 ,fbname = Lang.FubenName.fname0074,fbDesc = Lang.FubenName.fdesc0074,minLevel = 50,minPlayCount = 1,maxPlayCount = 1,type = 0,fbtype=0,groupId = 44,fbTime = 1800,noaward = true,circle = 6,needConsume={type=0,id=2914,count=2,all=true},itemId=2914,itemNum=5,enterTimes=1},	--隐龙地宫
+    {fbid = 75 ,fbname = Lang.FubenName.fname0075,fbDesc = Lang.FubenName.fdesc0075,minLevel = 60,minPlayCount = 1,maxPlayCount = 5,type = 0,fbtype=0,groupId = 45,fbTime = 3600,noaward = true,circle = 8},	--神印八卦
+
+   
+
+}

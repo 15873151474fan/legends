@@ -1,0 +1,50 @@
+--部分功能物品的延迟效果处理 
+
+--#include "data\config\item\xiuweiBox.txt" once
+
+--使用宝盒的回调函数
+function use_XiuweiBox( sysarg, arg)
+	-- local itemId = arg[2]
+
+	-- if Actor.getItemCount(sysarg,itemId) < 1 then
+	-- 	Actor.sendTipmsgWithId(sysarg,Lang.ScriptTips.i00007,ttDialog)
+	-- 	return
+	-- end
+	-- --检查有没有 古木
+	-- if Actor.getItemCount(sysarg,xiuweiBoxTable[1].param.extentItem.itemId) < 1 then
+	-- 	Actor.sendTipmsgWithId(sysarg,Lang.ScriptTips.i00006,ttDialog)
+	-- 	return
+	-- end
+	
+	-- local xw = Actor.getIntProperty(sysarg,PROP_ACTOR_XIUWEI)
+	-- local maxxw = Actor.getIntProperty(sysarg,PROP_ACTOR_MAX_XIUWEI)
+	-- if xw + xiuweiBoxCount > maxxw  then
+	-- 	local str = string.format(Lang.ScriptTips.i00012,xw,maxxw-xiuweiBoxCount)
+	-- 	Actor.sendTipmsg(sysarg,str,ttDialog)
+	-- 	return
+	-- end
+	
+	-- --检查次数够了没有
+	-- local var = Actor.getStaticVar(sysarg)
+	-- if var.xiuweiBoxTime ~= nil and var.xiuweiBoxTime >= 10 then
+	-- 	Actor.sendTipmsg(sysarg,Lang.ScriptTips.i00008,ttDialog)
+	-- 	return
+	-- else
+	-- 	if var.xiuweiBoxTime == nil then
+	-- 		var.xiuweiBoxTime = 1
+	-- 	else
+	-- 		var.xiuweiBoxTime = var.xiuweiBoxTime + 1
+	-- 	end
+	-- end
+	
+	-- --删除对应物品后增加修为
+	-- Actor.removeItem(sysarg,itemId,1)
+	-- Actor.removeItem(sysarg,xiuweiBoxTable[1].param.extentItem.itemId,xiuweiBoxTable[1].param.extentItem.count)
+	-- Actor.changeXiuwei(sysarg,xiuweiBoxTable[1].param.xiuwei)
+	
+end
+
+
+
+table.insert(LocalDT.ScriptDelayConfig[6],use_XiuweiBox)			--6对应ScriptDelayConfig的定义
+

@@ -1,0 +1,40 @@
+﻿--lua script
+
+--传回隐侠村
+function ReturnHome(sysarg)
+ 
+  System.telportSceneByName(sysarg,Lang.SceneName.s00002,195,21)
+  Actor.closeNPCDialog( sysarg )
+    
+end
+
+--传送到华山派
+function ReturnHuaShan(sysarg)
+
+  System.telportSceneByName(sysarg,Lang.SceneName.s00001,13,48)
+  Actor.closeNPCDialog( sysarg )
+
+end
+
+--传送到水月宫
+function ReturnShuiYueGon(sysarg)
+ 
+   System.telportSceneByName(sysarg,Lang.SceneName.s00014,19,41)
+   Actor.closeNPCDialog( sysarg )
+end
+
+--传送到少林寺
+function ReturnShaoLinPai(sysarg)
+  
+   System.telportSceneByName(sysarg,Lang.SceneName.s00012,17,38)
+   Actor.closeNPCDialog( sysarg )
+end
+
+--传送到御神流
+function ReturnYushenliu(sysarg)
+
+   System.telportSceneByName(sysarg,Lang.SceneName.s00019,17,33)
+   Actor.closeNPCDialog( sysarg )
+end
+
+

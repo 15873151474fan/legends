@@ -1,0 +1,707 @@
+
+--lua script 
+--#include "data\config\activityconfig\NationalDayHorse\ZillionaireConfig.txt" once
+--#include "RankPointer.txt" once
+--#include "data\functions\Activity\SpringFestivalSheep\LuckyGuess.txt" once
+
+--加载烈火大亨数据
+function LoadZillionaire(sysarg)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	if (not NationalDayHorRankPt.ZillionairePt) then
+		return tmpTable
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(NationalDayHorRankPt.ZillionairePt.File)
+	if not ranking then
+		ranking = Ranking.add(NationalDayHorRankPt.ZillionairePt.File, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, NationalDayHorRankPt.ZillionairePt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if pItem then
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	else
+		tmpTable[1] = 1
+		tmpTable[2] = ZillionaireConfig.addTimesEveryDay
+		tmpTable[3] = System.getCurrMiniTime()
+
+		tmpTable = ResetZillionaire(tmpTable)
+	end
+
+	return tmpTable
+end
+
+--保存烈火大亨数据
+function SaveZillionaire(sysarg, tmpTable)
+	if not NationalDayHorRankPt.ZillionairePt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(NationalDayHorRankPt.ZillionairePt.File)
+	if not ranking then
+		ranking = Ranking.add(NationalDayHorRankPt.ZillionairePt.File, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, NationalDayHorRankPt.ZillionairePt.File) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		--tmpTable[2] = ZillionaireConfig.addTimesEveryDay
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {})-1 do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--请求烈火大亨
+function GetZillionaireOp(sysarg, args)
+	local nType = args[2]
+
+	local config = ZillionaireConfig
+
+	if not config then return end
+
+	if System.isInDateRange(unpack(config.actTime)) ~= true 
+		and (System.getDoubleElevenActFlag(4) ~= 1) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0005, ttFlyTip)
+		return
+	end
+
+	if (Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0006, ttFlyTip)
+		return
+	end
+
+	if nType == 0 then	--请求烈火大亨信息
+		local nCurrTime = System.getCurrMiniTime()
+
+		local tmpTable = LoadZillionaire(sysarg)
+
+		if tmpTable[3] == 0 then
+			tmpTable[3] = nCurrTime
+		end
+
+		local nLastTimes = tmpTable[2]
+		local accTime = tmpTable[4] + nCurrTime - tmpTable[3]
+
+		for i=1,1000 do
+			if accTime <= 15 * 24 * 3600 then
+				break
+			end
+			accTime = accTime - 15 * 24 * 3600
+		end
+		
+		for i=1,1000 do
+			if accTime < config.accTime then
+				break
+			end
+			accTime = accTime - config.accTime
+			nLastTimes = nLastTimes + config.addTimes
+		end
+
+		tmpTable[2] = nLastTimes
+		tmpTable[3] = nCurrTime	--上一次开始时间
+		tmpTable[4] = accTime	--累计时间
+
+		SaveZillionaire(sysarg, tmpTable)
+		
+		SendZillionaireInfo(sysarg)
+	elseif nType == 1 then	--请求烈火大亨摇骰子
+		ZillionaireRole(sysarg)
+	elseif nType == 2 then	--请求烈火大亨重置
+		local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+		--先检查是否足够
+		for k, awards in ipairs(config.resetConsume or {}) do
+			if awards.type == 15 then
+				if nYb < awards.count then
+					Actor.sendTipmsg(sysarg, Lang.Activity.mgq0012, ttFlyTip)
+					return
+				end
+			end
+		end
+
+		for k, awards in ipairs(config.resetConsume or {}) do
+			if awards.type == 15 then
+				Actor.changeMoney(sysarg,3,-awards.count,973,Lang.Activity.mgq0013)
+			end
+		end
+
+		local tmpTable = LoadZillionaire(sysarg)
+		
+		tmpTable = ResetZillionaire(tmpTable)
+
+		SaveZillionaire(sysarg, tmpTable)
+		
+		SendZillionaireInfo(sysarg)
+	elseif nType == 3 then	--请求烈火大亨购买
+		local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+		local dvar = Actor.getDyanmicVar(sysarg)
+
+		if dvar.ZillionaireBusinessman == nil then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mgq0015, ttFlyTip)
+			return
+		end
+
+		local nId = dvar.ZillionaireBusinessman
+
+		local event = config.event[9]	--1为空，依次类推
+		
+		--先检查是否足够
+		for k, award in ipairs(event.awards[nId].consume or {}) do
+			if award.type == 15 then
+				if nYb < award.count then
+					Actor.sendTipmsg(sysarg, Lang.Activity.mgq0012, ttFlyTip)
+					return
+				end
+			end
+		end
+		
+		local awards = event.awards[nId].value
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+				end
+			end
+		else
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Dmkj.addItem(sysarg,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong, awards[i].bind,false,0,973,Lang.Activity.mgq0008)
+				end
+			end
+			Actor.sendTipmsg(sysarg, Lang.Activity.mgq0016, ttFlyTip)
+		end
+
+		for k, award in ipairs(event.awards[nId].consume or {}) do
+			if award.type == 15 then
+				Actor.changeMoney(sysarg,3,-award.count,973,Lang.Activity.mgq0013)
+			end
+		end
+
+		dvar.ZillionaireBusinessman = nil
+	elseif nType == 4 then	--请求烈火大亨拒绝
+		local dvar = Actor.getDyanmicVar(sysarg)
+
+		dvar.ZillionaireBusinessman = nil
+	elseif nType == 5 then	--请求购买次数
+		local nYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+		--先检查是否足够
+		for k, awards in ipairs(config.addTimesConsume or {}) do
+			if awards.type == 15 then
+				if nYb < awards.count then
+					Actor.sendTipmsg(sysarg, Lang.Activity.mgq0013, ttFlyTip)
+					return
+				end
+			end
+		end
+
+		for k, awards in ipairs(config.addTimesConsume or {}) do
+			if awards.type == 15 then
+				Actor.changeMoney(sysarg,3,-awards.count,973,Lang.Activity.mgq0013)
+			end
+		end
+
+		local tmpTable = LoadZillionaire(sysarg)
+		
+		local nLastTimes = tmpTable[2]
+
+		nLastTimes = nLastTimes + 1
+
+		tmpTable[2] = nLastTimes
+
+		SaveZillionaire(sysarg, tmpTable)
+		
+		SendZillionaireInfo(sysarg)
+		
+		ZillionaireRole(sysarg)
+--[[
+	elseif nType == 6 then	--请求烈火大亨移动
+		local tmpTable = LoadZillionaire(sysarg)
+
+		local nLastTimes = tmpTable[2]
+
+		if nLastTimes <= 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mgq0007, ttFlyTip)
+			return
+		end
+
+		nLastTimes = nLastTimes - 1
+
+		tmpTable[2] = nLastTimes
+
+		SaveZillionaire(sysarg, tmpTable)
+
+		local dvar = Actor.getDyanmicVar(sysarg)
+		local nMovePos = dvar.ZillionairePoint
+
+		if (nMovePos == nil) or (nMovePos <= 0) or (nMovePos > 6) then
+			return
+		end
+
+		OnZillionaireMove(sysarg, nMovePos)
+]]
+	end
+end
+
+--重置棋盘
+function ResetZillionaire(tmpTable)
+	local config = ZillionaireConfig
+
+	if not config then return end
+
+	SetZillionaireEvent(tmpTable, 1, 0)
+	for i=2, config.maxBoardCount do
+		local result = GetZillionaireInfo(config.event)
+--print("result.id="..result.id)
+		SetZillionaireEvent(tmpTable, i, result.id)
+	end
+
+	return tmpTable
+end
+
+--根据概率获取值
+function GetZillionaireInfo(infoTable)
+	local maxVal = 0
+	for k, v in ipairs(infoTable or {}) do
+		maxVal = maxVal + v.rate
+	end
+	local randVal = math.random(1, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i]
+			break
+		end
+	end
+	return result
+end
+
+--下发烈火大亨信息
+function SendZillionaireInfo(sysarg)
+	local config = ZillionaireConfig
+
+	if not config then return end
+
+	local tmpTable = LoadZillionaire(sysarg)
+
+	local pack = DataPack.allocPacket(sysarg, 52, 39)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, tmpTable[1])
+		DataPack.writeInt(pack, tmpTable[2])
+		DataPack.writeChar(pack, config.maxBoardCount)
+		
+		for i=1, config.maxBoardCount do
+			local eventId = GetZillionaireEvent(tmpTable, i)
+			--print("eventId="..eventId)
+			DataPack.writeChar(pack, eventId)
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--烈火大亨摇骰子
+function ZillionaireRole(sysarg)
+	local config = ZillionaireConfig
+
+	if not config then return end
+
+	local tmpTable = LoadZillionaire(sysarg)
+
+	--local nCurrPos = tmpTable[1]
+	local nLastTimes = tmpTable[2]
+
+	if nLastTimes <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0007, ttFlyTip)
+		return
+	end
+
+	nLastTimes = nLastTimes - 1
+
+	tmpTable[2] = nLastTimes
+
+	SaveZillionaire(sysarg, tmpTable)
+
+	local nMovePos = math.random(1, 6)
+--[[
+	local dvar = Actor.getDyanmicVar(sysarg)
+	dvar.ZillionairePoint = nMovePos
+]]
+	SendRollResult(sysarg, nMovePos, nLastTimes)
+
+	OnZillionaireMove(sysarg, nMovePos)
+end
+
+--领取烈火大亨礼包
+function GetZillionaireAwardOp(sysarg, args)
+	local nType = args[2]
+	local nParam1 = args[3]
+
+	if nType == 0 then	--烈火大亨
+		local config = ZillionaireConfig
+
+		if not config then return end
+
+		--发奖励
+		local awards = config.extraAwards.awards
+		if not awards then return end
+
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+				end
+			end
+		end
+	elseif nType == 1 then	--幸运竞猜
+		GetLuckyGuessAwards(sysarg, nParam1)
+	end
+end
+
+--触发事件
+function OnZillionaireEvent(sysarg)
+	local config = ZillionaireConfig
+
+	if not config then return end
+
+	local tmpTable = LoadZillionaire(sysarg)
+	
+	local nCurrPos = tmpTable[1]
+	local nLastTimes = tmpTable[2]
+
+	local nEventId = GetZillionaireEvent(tmpTable, nCurrPos)
+
+	if nEventId == 1 then		--快马加鞭
+		local event = config.event[nEventId+1]
+		local nMovePos = math.random(event.pointRange[1], event.pointRange[2])
+
+		OnZillionaireMove(sysarg, nMovePos)
+	elseif nEventId == 2 then	--打道回府
+		local event = config.event[nEventId+1]
+		local nMovePos = math.random(event.pointRange[1], event.pointRange[2])
+
+		OnZillionaireMove(sysarg, -nMovePos)
+	elseif nEventId == 3 then	--财神降临
+		local event = config.event[nEventId+1]
+		
+		--发奖励
+		local awards = GetZillionaireInfo(event.awards).value
+		if not awards then return end
+
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+				end
+			end
+		else
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Dmkj.addItem(sysarg,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong, awards[i].bind,false,0,973,Lang.Activity.mgq0008)
+				end
+			end
+			Actor.sendTipmsg(sysarg, Lang.Activity.mgq0016, ttFlyTip)
+		end
+	elseif nEventId == 4 then	--翻天覆地
+		tmpTable = ResetZillionaire(tmpTable)
+
+		SaveZillionaire(sysarg, tmpTable)
+		
+		SendZillionaireInfo(sysarg)
+	elseif nEventId == 5 then	--强身健体
+		local event = config.event[nEventId+1]
+
+		--发奖励
+		local buffs = GetZillionaireInfo(event.awards).value
+		if not buffs then return end
+
+		--给奖励
+		for k, buff in ipairs(buffs or {}) do
+			Actor.addBuff(sysarg, buff.buffType, buff.groupId, buff.value, buff.times, buff.interval, buff.buffName, buff.timeOverlay)
+		end
+	elseif nEventId == 6 then	--千王之手
+		local event = config.event[nEventId+1]
+
+		nLastTimes = nLastTimes + event.addTimes
+
+		tmpTable[2] = nLastTimes
+
+		SaveZillionaire(sysarg, tmpTable)
+		
+		SendRollResult(sysarg, 0, nLastTimes)
+	elseif nEventId == 7 then	--大亨福袋
+		local event = config.event[nEventId+1]
+		
+		--发奖励
+		local awards = GetZillionaireInfo(event.awards).value
+		if not awards then return end
+
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+				end
+			end
+		else
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Dmkj.addItem(sysarg,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong, awards[i].bind,false,0,973,Lang.Activity.mgq0008)
+				end
+			end
+			Actor.sendTipmsg(sysarg, Lang.Activity.mgq0016, ttFlyTip)
+		end
+	elseif nEventId == 8 then	--珍宝商人
+		local event = config.event[nEventId+1]
+
+		local nId = GetZillionaireInfo(event.awards).id
+
+		local dvar = Actor.getDyanmicVar(sysarg)
+
+		dvar.ZillionaireBusinessman = nId
+
+		local nItemId = event.awards[nId].value[1].id
+		local nYB = event.awards[nId].consume[1].count
+
+		SendBusinessman(sysarg, nItemId, nYB)
+	end
+end
+
+--设置事件
+function SetZillionaireEvent(tmpTable, pos, eventId)
+	local mask = 0xFF
+	mask = System.bitOper(System.shiftInt(mask, math.floor((pos-1)%4)*8), 2, mask)
+
+	local tmpVal = tmpTable[7+math.floor((pos-1)/4)]
+
+	tmpVal = System.bitOper(tmpVal, 0, mask)
+
+	tmpVal = System.bitOper(tmpVal, 1, System.shiftInt(eventId, math.floor((pos-1)%4)*8))
+
+	tmpTable[7+math.floor((pos-1)/4)] = tmpVal
+
+	return tmpTable
+end
+
+--获取事件
+function GetZillionaireEvent(tmpTable, pos)
+	return System.bitOper(System.shiftInt(tmpTable[7+math.floor((pos-1)/4)], math.floor((pos-1)%4)*(-8)), 0, 0xFF)
+end
+
+--移动
+function OnZillionaireMove(sysarg, nMovePos)
+	local config = ZillionaireConfig
+
+	if not config then return end
+	
+	local tmpTable = LoadZillionaire(sysarg)
+
+	local nCurrPos = tmpTable[1]
+
+	if nCurrPos <= 0 then
+		nCurrPos = 1
+	end
+	if nCurrPos > config.maxBoardCount then
+		nCurrPos = config.maxBoardCount
+	end
+	
+	nCurrPos = nCurrPos + nMovePos
+
+	if nCurrPos <= 0 then
+		nMovePos = 1 - (nCurrPos - nMovePos)
+		nCurrPos = 1
+	elseif nCurrPos > config.maxBoardCount then
+		--发奖励
+		local awards = config.extraAwards.awards
+		if not awards then return end
+
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,973,Lang.Activity.mgq0008, -1)
+				end
+			end
+			Actor.sendTipmsg(sysarg, Lang.Activity.mgq0009, ttFlyTip)
+		else
+			local actorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+			System.addOfflineMsg(actorId, 66, Lang.Activity.mgq0011, 0, config.extraAwards.offlineNeedBagCount)
+			Actor.sendTipmsg(sysarg, Lang.Activity.mgq0010, ttFlyTip)
+		end
+
+		nMovePos = config.maxBoardCount - (nCurrPos - nMovePos) + 1
+
+		nCurrPos = 1
+
+		tmpTable = ResetZillionaire(tmpTable)
+
+		SendZillionaireInfo(sysarg)
+	end
+
+	tmpTable[1] = nCurrPos
+
+	SaveZillionaire(sysarg, tmpTable)
+
+	--SendZillionaireInfo(sysarg)
+
+	SendZillionaireMove(sysarg, nMovePos)
+
+	OnZillionaireEvent(sysarg)
+end
+
+--下发烈火大亨摇骰子结果
+function SendRollResult(sysarg, nPoint, nLastTimes)
+	local pack = DataPack.allocPacket(sysarg, 52, 40)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nPoint)
+		DataPack.writeInt(pack, nLastTimes)
+
+		DataPack.flush(pack)
+	end
+end
+
+--下发烈火大亨珍宝商人
+function SendBusinessman(sysarg, nItemId, nYB)
+	local pack = DataPack.allocPacket(sysarg, 52, 41)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, nItemId)
+		DataPack.writeInt(pack, nYB)
+
+		DataPack.flush(pack)
+	end
+end
+
+--下发烈火大亨移动
+function SendZillionaireMove(sysarg, nStep)
+	local pack = DataPack.allocPacket(sysarg, 52, 42)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nStep)
+--print("nStep="..nStep)
+		DataPack.flush(pack)
+	end
+end
+
+--0点重置烈火大亨
+function ResetZillionaireGame()
+	local config = ZillionaireConfig
+
+	if not config then return end
+
+	local ranking = Ranking.getRanking(NationalDayHorRankPt.ZillionairePt.File)
+	if ranking then
+		local nRankCount = Ranking.getRankItemCount(ranking)
+
+		for i=1,nRankCount do
+			local tmpTable = {}
+			for i=0,15 do
+				table.insert(tmpTable, 0)
+			end
+
+			local pItem = Ranking.getItemPtrByIndex(ranking, i-1)
+
+			if pItem then
+				for j=0,15 do
+					tmpVal = tonumber(Ranking.getSub(pItem,j)) or 0
+					tmpTable[j+1] = tmpVal
+				end
+
+				tmpTable[1] = 1				--当前所在位置
+				tmpTable[2] = config.addTimesEveryDay	--剩余次数
+				tmpTable[3] = System.getCurrMiniTime()	--上一次开始时间
+				tmpTable[4] = 0				--累计时间
+
+				tmpTable = ResetZillionaire(tmpTable)
+				
+				for i=0,table.getn(tmpTable or {})-1 do
+					Ranking.setSub(pItem,i,tmpTable[i+1])
+				end
+			end
+
+		end
+	end
+end
+
+function CorrectZillionaire()
+	local ranking = Ranking.getRanking(NationalDayHorRankPt.ZillionairePt.File)
+	if ranking then
+		local nRankCount = Ranking.getRankItemCount(ranking)
+
+		for i=1,nRankCount do
+			local tmpTable = {}
+			for i=0,15 do
+				table.insert(tmpTable, 0)
+			end
+
+			local pItem = Ranking.getItemPtrByIndex(ranking, i-1)
+
+			if pItem then
+				for j=0,15 do
+					tmpVal = tonumber(Ranking.getSub(pItem,j)) or 0
+					tmpTable[j+1] = tmpVal
+				end
+		
+				if tmpTable[2] > 14 + 3 then
+					tmpTable[2] = 14 + 3
+				end
+
+				if tmpTable[4] > 14 * 3600 then
+					tmpTable[4] = 14 * 3600
+				end
+				
+				for i=0,table.getn(tmpTable or {})-1 do
+					Ranking.setSub(pItem,i,tmpTable[i+1])
+				end
+			end
+
+		end
+	end
+end
+

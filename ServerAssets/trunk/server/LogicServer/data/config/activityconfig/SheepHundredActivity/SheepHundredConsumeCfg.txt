@@ -1,0 +1,150 @@
+--羊年百服消费排名
+{
+	idx = 1, --活动序号  
+	dayConsumeFile = "ShConsume.txt",  
+	accConsumeFile = "ShAccConsume.txt", 
+	
+	--actTime = {2014, 12, 23, 0, 0, 0,  2014, 12, 27, 23, 59, 59},	--活动时间范围    
+	
+	isBackOpen = 1, --是否后台开启，1为后台开启， actStartTime开启时间，actDay持续时间, actTime为默认开启的时间
+	--actStartTime = "2014-12-23-00:00:00", --活动开始时间
+	--actDay = 5,	--活动持续时间
+	
+	--circle = 0, 
+	--level = 50,
+	
+	dayConsume = 5000,  --当日消费不低于5000元宝
+	accConsume = 50000,  --累计消费元宝不低于50000元宝 
+
+	--今日排行
+	dayAwards = 
+	{
+		awardTips = Lang.Activity.shs0101,
+		logTips = Lang.LogTips.shs0101,
+		
+		awardIndexs = --奖励序号 
+		{
+			--beginVal 获取奖励的起始名次
+			--endVal 获取奖励的截止名次
+			[1] = {beginVal = 1, endVal = 1}, 
+			[2] = {beginVal = 2, endVal = 2},
+			[3] = {beginVal = 3, endVal = 3}, 
+			[4] = {beginVal = 4, endVal = 5}, 
+		},
+		
+		--第1名奖励
+		{
+			needBagCount = 4,
+			awardList = 
+			{
+				{type = 0, id = 3343, count = 1 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 3247, count = 5 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 2982, count = 10, strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 2984, count = 25, strong = 0, quality = 0, bind = 1},
+			},
+		},
+		--第2名奖励
+		{
+			needBagCount = 4,
+			awardList = 
+			{
+				{type = 0, id = 3343, count = 1 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 3247, count = 3 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 2982, count = 8 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 2984, count = 20, strong = 0, quality = 0, bind = 1},
+			},
+				
+		},
+		--第3名奖励
+		{
+			needBagCount = 4,
+			awardList = 
+			{
+				{type = 0, id = 3343, count = 1 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 3247, count = 3 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 2982, count = 5 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 2984, count = 20, strong = 0, quality = 0, bind = 1},
+			},		
+		},
+			--第4-5名奖励
+		{
+			needBagCount = 4,
+			awardList = 
+			{
+				{type = 0, id = 3302, count = 1 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 3247, count = 2 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 2982, count = 3 , strong = 0, quality = 0, bind = 1},
+				{type = 0, id = 2984, count = 10, strong = 0, quality = 0, bind = 1},
+			},
+		},
+		
+	},
+	--累计排行
+	accAwards =  
+	{
+		awardTips = Lang.Activity.shs0102, 
+		logTips = Lang.LogTips.shs0102,
+		awardIndexs = --奖励序号
+		{
+			--beginVal 获取奖励的起始名次
+			--endVal 获取奖励的截止名次
+			[1] = {beginVal = 1, endVal = 1}, 
+			[2] = {beginVal = 2, endVal = 2},
+			[3] = {beginVal = 3, endVal = 3}, 
+			[4] = {beginVal = 4, endVal = 5},  
+		},
+		--第1名奖励
+		{
+			needBagCount = 5,
+			awardList = 
+			{
+				{type = 0, id = 2828, count = 1 , quality = 6, strong = 0 , bind = 1},
+				{type = 0, id = 3045, count = 1 , quality = 0, strong = 0 , bind = 1},
+				{type = 0, id = 2631, count = 1 , quality = 0, strong = 15, bind = 1},
+				{type = 0, id = 3450, count = 10, quality = 0, strong = 0 , bind = 1},
+				{type = 0, id = 2916, count = 20, quality = 0, strong = 0 , bind = 1},
+			},
+			
+		},
+		--第2名奖励
+		{
+			needBagCount = 5,
+			awardList = 
+			{
+				{type = 0, id = 2828, count = 1 , quality = 5, strong = 0 , bind = 1},
+				{type = 0, id = 3044, count = 1 , quality = 0, strong = 0 , bind = 1},
+				{type = 0, id = 2630, count = 1 , quality = 0, strong = 15, bind = 1},
+				{type = 0, id = 3450, count = 8 , quality = 0, strong = 0 , bind = 1},
+				{type = 0, id = 2916, count = 10, quality = 0, strong = 0 , bind = 1},
+			},
+		},
+
+		--第3名奖励
+		{
+			needBagCount = 5,
+			awardList = 
+			{
+				{type = 0, id = 2828, count = 1 , quality = 5, strong = 0 , bind = 1},
+				{type = 0, id = 3044, count = 1 , quality = 0, strong = 0 , bind = 1},
+				{type = 0, id = 2630, count = 1 , quality = 0, strong = 15, bind = 1},
+				{type = 0, id = 3450, count = 8 , quality = 0, strong = 0 , bind = 1},
+				{type = 0, id = 2916, count = 10, quality = 0, strong = 0 , bind = 1},
+			},
+		},
+
+			
+		--第4-5名奖励
+		{
+			needBagCount = 4,
+			awardList = 
+			{
+				{type = 0, id = 2828, count = 1 , quality = 4, strong = 0 , bind = 1},
+				{type = 0, id = 3043, count = 1 , quality = 0, strong = 0 , bind = 0},
+				{type = 0, id = 3450, count = 5 , quality = 0, strong = 0 , bind = 1},
+				{type = 0, id = 2916, count = 8 , quality = 0, strong = 0 , bind = 1},
+			},
+			
+		},
+	},
+	
+},

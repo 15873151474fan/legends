@@ -1,0 +1,372 @@
+--lua script 
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasSnowmanConfig.txt" once
+
+--请求全民堆雪
+function ReqXmasSnowman(sysarg)
+	if System.isInDateRange(unpack(ChristmasSnowmanConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0108, ttFlyTip)
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, ChristmasSnowmanConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0109, ttFlyTip)
+		return
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 106)
+	if not pack then return end
+	DataPack.writeByte(pack, 3)
+	for i=1,3 do
+		local ret = ReadXmasBuyItemData(sysarg, i)
+		DataPack.writeByte(pack, ret)
+	end
+	DataPack.flush(pack)
+end
+
+--请求领取物品
+function ReqXmasGetItem(sysarg, index)
+	if System.isInDateRange(unpack(ChristmasSnowmanConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0108, ttFlyTip)
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, ChristmasSnowmanConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0109, ttFlyTip)
+		return
+	end
+	
+	--读取可领否
+	local nowNum = ReadXmasBuyItemData(sysarg, index)
+	if nowNum >= ChristmasSnowmanConfig.times[index] then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0107, ttFlyTip)
+		return
+	end
+	
+	local tab = ChristmasSnowmanConfig[1].actiList[index]
+	if not tab then return end
+	local consumetype = tab.costAwards[1].type
+	local count = tab.costAwards[1].count
+	local needCount = tab.needCount
+
+	--判断空格
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	local nDmkCount= Dmkj.getStoreRestCount(sysarg) --获得仓库有多少个格子
+	if nBagCount < needCount and  nDmkCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0123, ttFlyTip)
+		return
+	end
+
+	--扣材料
+	if consumetype == 15 then --元宝
+        if Actor.changeMoney(sysarg, mtYuanbao, -count, 979, Lang.LogTips.msd0101) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0214, ttFlyTip)
+			return
+		end
+	elseif consumetype == 6 then --金币
+	   	if Actor.changeMoney(sysarg, mtCoin, -count, 979, Lang.LogTips.msd0101) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0215, ttFlyTip)
+			return
+		end
+	elseif consumetype == 7 then --绑定元宝（礼券）
+		if Actor.changeMoney(sysarg, mtBindYuanbao, -count, 979, Lang.LogTips.msd0101) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.mzn0216, ttFlyTip)
+			return
+		end
+    end
+	
+	--保存领取次数
+	SaveXmasBuyItemData(sysarg, index, 1)
+	
+	--发放物品
+	for k,v in ipairs(tab.awards) do
+		local newItem = Item.createItem(v.id, v.count, 0, 0, v.bind, 0)
+		if not newItem then
+			return false
+		end
+		local num = Item.addItem(sysarg, newItem, Lang.LogTips.msd0102, 979, v.count)
+
+		if num ~= v.count then
+			Actor.sendTipmsg(sysarg, Lang.Activity.msd0124, ttFlyTip)
+			--放入仓库
+			Dmkj.addItem(sysarg, v.id, v.count, 0, 0,v.bind,false,0,979,Lang.LogTips.msd0102)
+		end
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 107)
+	if not pack then return end
+	DataPack.writeByte(pack, index)
+	DataPack.writeByte(pack, nowNum+1)
+	DataPack.flush(pack)
+end
+
+--请求提交雪球
+function ReqXmasGiveSnowball(sysarg, manId, flag) --第三个参数为true表示满了还继续提交
+	if System.isInDateRange(unpack(ChristmasSnowmanConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0108, ttFlyTip)
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, ChristmasSnowmanConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0109, ttFlyTip)
+		return
+	end
+
+	manId = tonumber(manId)
+	local snowBallId = ChristmasSnowmanConfig.snowBallId
+	local snowCount = Actor.getItemCount(sysarg, snowBallId, -1, -1) or 0  	--雪球
+	if snowCount == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0130, ttFlyTip)
+		return 
+	end
+	
+	if flag == false then
+		local maxNum = ChristmasSnowmanConfig.snowman[4].num 
+		local total	= ReadXmasData(manId, 1)
+		
+		if snowCount > maxNum - total then
+			snowCount = maxNum - total
+		end
+	end
+
+	--扣材料
+	if Actor.removeItem(sysarg, snowBallId, snowCount, -1,-1,-1, Lang.LogTips.msd0103, 979) ~= snowCount then
+		return
+	end
+
+	--保存数据
+	SaveXmasData(manId, snowCount)
+
+	--奖励经验
+	local type =  ChristmasSnowmanConfig.expNum.type
+	local id = ChristmasSnowmanConfig.expNum.id
+	local count = ChristmasSnowmanConfig.expNum.count * snowCount
+	Actor.giveAward(sysarg, type, id, count , 0,0,0,0,979,Lang.LogTips.msd0105)
+	
+	Actor.sendTipmsg(sysarg, Lang.Activity.msd0111, ttFlyTip)
+end
+
+
+--读取全服进度和雪人模型
+function ReadXmasData(manId, index)
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanFile)
+	if ranking then
+		local itemPtr = Ranking.getItemPtrFromId(ranking, manId)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, index)) or 0 --1当前数量，2雪人模型, 3 已刷过boss
+		end
+	end
+	return 0
+end
+
+--雪人完成当晚20点刷BOSS或者最后一天完成刷出
+function SnowmanCreateBoss()
+	local ret = ReadXmasData(1, 3) or 0
+	if ret == 1 then return	end  --已经刷过，不能再刷。
+
+	for i=1, 5 do
+		local ret = ReadXmasData(i, 2) or 0
+		if ret ~= 4 then
+			return
+		end
+	end
+	XmasCreateBoss()
+
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanFile)
+	if ranking then
+		local item = Ranking.getItemPtrFromId(ranking, 1)
+		if item then
+			Ranking.setSub(item, 3, 1) --3已经刷过怪
+		end
+	end
+end
+	
+
+--开始刷boss
+function XmasCreateBoss()
+	local hScene = Fuben.getSceneHandleById(8, 0)
+	if not hScene then return end
+	local pos = ChristmasSnowmanConfig.bossPos
+	local bossId = ChristmasSnowmanConfig.bossId
+	local liveTime = ChristmasSnowmanConfig.liveTime
+	local  pMonster = Fuben.createMonster(hScene, bossId, pos.x,pos.y,liveTime)
+
+	
+	local _,_,nowDate = System.getDate()
+	local lastdate = ChristmasSnowmanConfig.actTime[9] --最后一天
+	local hour = System.getTime()
+	if nowDate >= lastdate and hour >= ChristmasSnowmanConfig.broadcastTimes then
+		System.broadcastTipmsg(Lang.Activity.msd0138, 128+2)
+	else
+		System.broadcastTipmsg(Lang.Activity.msd0122, 128+2)
+	end
+end
+
+--保存全服数据
+function SaveXmasData(manId, num) --雪人序号1-5
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanFile)
+	if ranking then
+		local total = 0
+		local grade = 0
+		local item = Ranking.getItemPtrFromId(ranking, manId)
+		if item then
+			local result = tonumber(Ranking.getSub(item, 1)) or 0
+			total = result + num
+			Ranking.setSub(item, 1, total)
+		else
+			item = Ranking.addItem(ranking, manId, 0)
+			Ranking.setSub(item, 1, num)
+			total = num
+		end
+		local nowGrade = tonumber(Ranking.getSub(item, 2)) or 0
+		if total > 0 then
+			if total >= ChristmasSnowmanConfig.snowman[1].num and total < ChristmasSnowmanConfig.snowman[2].num then
+				grade = 1
+			elseif total >= ChristmasSnowmanConfig.snowman[2].num and total < ChristmasSnowmanConfig.snowman[3].num then
+				grade = 2
+			elseif total >= ChristmasSnowmanConfig.snowman[3].num and total < ChristmasSnowmanConfig.snowman[4].num then 
+				grade = 3
+			elseif total >= ChristmasSnowmanConfig.snowman[4].num then
+				grade = 4
+			end	
+		end
+		if grade > 0 then
+			if grade > nowGrade then
+				XamsChangeSnowman(manId, grade)
+			end
+		end
+	end
+end
+
+--改变雪人形状
+function XamsChangeSnowman(manId, index)
+	SetSnowManId(manId, index)
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanFile)
+	if ranking then
+		local item = Ranking.getItemPtrFromId(ranking, manId)
+		if item then
+			Ranking.setSub(item, 2, index) --2雪人模型
+		end
+	end
+	if index == 4 then
+		for i=1, 5 do
+			local ret = ReadXmasData(i, 2) or 0
+			if ret ~= 4 then
+				return
+			end
+		end
+		local hour = System.getTime()
+		if hour < ChristmasSnowmanConfig.broadcastTimes then
+			System.broadcastTipmsg(Lang.Activity.msd0134, ttScreenCenter+ttChatWindow)
+			return
+		end
+		
+		local _,_,nowDate = System.getDate()
+		local lastdate = ChristmasSnowmanConfig.actTime[9] --最后一天
+		if nowDate < lastdate then
+			System.broadcastTipmsg(Lang.Activity.msd0137, ttScreenCenter+ttChatWindow)
+		else
+			SnowmanCreateBoss()
+		end
+	end
+end
+
+--读取个人数据
+function ReadXmasBuyItemData(sysarg, subid)
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanBuyItemFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, subid)) or 0 --1,2,3分别表示物品1,2,3
+		end
+	end
+	return 0
+end
+
+--保存个人数据累计
+function SaveXmasBuyItemData(sysarg, subid, value)
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanBuyItemFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			local ret = tonumber(Ranking.getSub(itemPtr, subid)) or 0
+			Ranking.setSub(itemPtr, subid, ret+value)--1,2,3分别表示物品1,2,3
+		else
+			itemPtr = Ranking.addItem(ranking, nActorId,0)
+			Ranking.setSub(itemPtr, subid, value)
+		end
+	end
+end
+
+--清除全服数据
+function ClearXMasData()
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+--每天0点清除个人数据
+function ClearXMasBuyItemData()
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanBuyItemFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+--登录的时候读取配置判断雪人的模型
+function LoginSetSnowManID()
+	local modleId = 0
+	local ranking = Ranking.getRanking(Lang.Rank.SnowmanFile) --1总数，2模型
+	if ranking then
+		local num = Ranking.getRankItemCount(ranking)
+		for i=1, num do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				local id = Ranking.getId(item)
+				local result = Ranking.getSub(item, 2)
+				result = tonumber(result)
+				if result then
+					modleId = result
+					if modleId > 0 then
+						SetSnowManId(id, modleId)
+					end
+				end
+			end
+		end
+	end
+end
+
+--设置雪人模型
+function SetSnowManId(manId, modleId) --人物id，模型下标
+	local npcPtr = SnowManGetNpcPtr(manId)
+	if not npcPtr then return end
+	local snowmanid = ChristmasSnowmanConfig.snowman[modleId].snowmanid
+	local modleName = ChristmasSnowmanConfig.snowman[modleId].modleName
+	Actor.changeEntityModel(npcPtr, 30, snowmanid)
+	Actor.changeShowName(npcPtr,30, modleName)
+end
+
+--通过manId获取NPC指针
+function SnowManGetNpcPtr(manId)
+	local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+	local npcPtr = nil
+	if manId ==1 then
+		npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00329) --  NPC名字 周
+	elseif manId == 2 then
+		npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00330) --  NPC名字 周大福
+	elseif manId == 3 then
+		npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00331) --  NPC名字 周杰
+	elseif manId == 4 then
+		npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00332) --  NPC名字 周杰伦
+	elseif manId == 5 then
+		npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00333) --  NPC名字 周敏
+	end
+	return npcPtr
+end
+
+
+
+
+

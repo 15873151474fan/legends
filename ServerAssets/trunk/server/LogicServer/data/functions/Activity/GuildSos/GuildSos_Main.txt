@@ -1,0 +1,219 @@
+﻿--#include "data\config\activityconfig\RushToxic\ToxicRankFile.txt" once--两个行会副本使用同一个名单存取，这样可以 
+--#include "data\config\activityconfig\GuildSos\GuildSosConfig.txt" once --劫狱副本配置 
+
+--开启劫狱副本 
+function OpenSosFuben(sysarg)
+	local nPos = Actor.getGuildPos(sysarg)
+    --print("OpenSosFuben:"..nPos)
+	if nPos ~= 2 and nPos ~= 3 then
+		return Lang.Activity.w00156
+	end
+
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+
+	if System.getSosFubenFreshTimes(nGuildId) > 0 then
+		return Lang.Activity.w00157
+	end
+    
+	local nTimes = 0
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+		if pItem then
+			nTimes = tonumber(Ranking.getSub(pItem,2))
+		end
+	end
+
+	if nTimes == nil then
+		nTimes = 0
+	end
+
+	if nTimes >= GuildSosConfig.IntoAllTimes then
+		Actor.sendTipmsg(sysarg,Lang.Activity.w00114,ttFlyTip)
+		return
+	end
+
+	--免费次数已用完
+	if nTimes >= GuildSosConfig.freeTimes then
+		local NeedMoney = GuildSosConfig.NeedMoney
+		local str2 = string.format(Lang.Activity.w00159,NeedMoney)
+		str2 = str2.."\\<#BL"..Lang.Activity.w00100.."/@OpenSosFubenNeedcoin>"
+		str2 = str2..Lang.Activity.w00110
+
+		return str2
+	end
+
+	local fhadle = Fuben.createFuBen(GuildSosConfig.FubId)
+
+	if fhadle > 0 then
+		Actor.setGuildSosFuBenHandle(sysarg,fhadle)
+		System.setSosFubenFreshTimes(nGuildId,1)
+
+		local aName = Actor.getName(sysarg)
+		local gStr = string.format(Lang.Activity.w00160, aName)
+		Actor.sendGuildMsg(sysarg,smGuildCommon,gStr,2+128)	--发帮派广播
+
+		if RankNameList then
+			nTimes = nTimes + 1
+			local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+			if pItem then
+				Ranking.setSub(pItem,1,tostring(nTimes))
+			else
+				local mItem = Ranking.addItem(RankNameList,nGuildId,0)
+
+				if mItem then
+					local gName = System.getGuildName(nGuildId)
+					Ranking.setSub(mItem,0,gName)
+					Ranking.setSub(mItem,2,tostring(nTimes))
+				end
+			end
+		end
+
+		local str = ""
+		str = str.."\\<#BL"..Lang.Activity.w00161.."/@EnterSosFuben>"
+
+		return str
+	end
+end
+
+--开启劫狱副本需要行会资金
+function OpenSosFubenNeedcoin(sysarg)
+	local nTimes = 0
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+		if pItem then
+			nTimes = tonumber(Ranking.getSub(pItem,2))
+		end
+	end
+
+	if nTimes == nil then
+		nTimes = 0
+	end
+
+	local needCoin = 0
+	--免费次数已用完
+	if nTimes >= GuildSosConfig.freeTimes then
+		needCoin = GuildSosConfig.NeedMoney 
+	end
+
+	local gCoin = Actor.getGuildCoin(sysarg)
+
+	if gCoin < needCoin then
+		--return Lang.Activity.w00162
+	end
+
+	local fhadle = Fuben.createFuBen(GuildSosConfig.FubId)
+
+	if fhadle > 0 then
+		Actor.setGuildSosFuBenHandle(sysarg,fhadle)
+		Actor.setGuildCoin(sysarg,-needCoin)
+		System.setSosFubenFreshTimes(nGuildId,1)
+
+		local aName = Actor.getName(sysarg)
+		local gStr = string.format(Lang.Activity.w00160, aName)
+		Actor.sendGuildMsg(sysarg,smGuildCommon,gStr,2+128)	--发帮派广播
+
+		if RankNameList then
+			nTimes = nTimes + 1
+			local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+			if pItem then
+				Ranking.setSub(pItem,2,tostring(nTimes))
+			else
+				local mItem = Ranking.addItem(RankNameList,nGuildId,0)
+
+				if mItem then
+					local gName = System.getGuildName(nGuildId)
+					Ranking.setSub(mItem,0,gName)
+					Ranking.setSub(mItem,2,tostring(nTimes))
+				end
+			end
+		end
+
+		local str = ""
+		str = str.."\\<#BL"..Lang.Activity.w00161.."/@EnterSosFuben>"
+
+		return str
+	end
+end
+
+--进入副本
+function EnterSosFuben(sysarg)
+	local fhadle = Actor.getGuildSosFuBenHandle(sysarg)
+
+	if fhadle == nil then
+		return Lang.Activity.w00097
+	end
+
+	if fhadle == 0 then
+		return Lang.Activity.w00097
+	end
+
+	local nLevel = GuildSosConfig.limitLev
+
+	if Actor.checkActorLevel(sysarg,nLevel) == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00069,nLevel),ttFlyTip)
+		return
+	end
+    
+	Actor.enterFuBen(sysarg,fhadle,GuildSosConfig.nEnterScreen[1],GuildSosConfig.nMapX,GuildSosConfig.nMapY)
+    --Actor.enterFuBen(sysarg,fhadle,-1,-1,-1)
+	UpdateSosActivityForm(sysarg) 
+end
+
+--退出副本
+function exitSosFuben(FbPtr)
+	local fhadle = Fuben.getFubenHandle(FbPtr)
+	if fhadle<= 0 then
+		return
+	end
+
+	local gId = System.getGuildIdBySosFuben(fhadle)
+
+	if gId > 0 then
+		System.setSosFubenFreshTimes(gId,0)
+		System.setGuildSosFuBenHandle(gId,0)
+		--SaveToxicRank()
+	end
+end
+
+--更新活动面板信息 1 表示进入 2 表示在场景内更新
+function UpdateSosActivityForm(sysarg)
+    local Scene = Actor.getSceneId( sysarg)
+    local Tb = GuildSosConfig.nEnterScreen
+    local ndx = 0 
+    for i = 1, #Tb do
+        if Scene == Tb[i] then
+           ndx = i
+           break
+        end
+    end
+	Actor.changeActivityProgress(sysarg,ndx)
+end
+
+function GuildSosFuben_Main(sysarg)
+	local str = ""
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	local fhadle = Actor.getGuildSosFuBenHandle(sysarg)
+	local sname = Fuben.getFubenName(fhadle)
+	--print("GuildBattle_Main:"..System.getSosFubenFreshTimes( nGuildId))
+ 	local nTimes = 0
+	local RankNameList = Ranking.getRanking(ToxicRankConfig.dayRankName)		--通过排行名称获取排行对象
+	if RankNameList ~= nil then
+		local pItem = Ranking.getItemPtrFromId(RankNameList,nGuildId)
+		if pItem then
+			nTimes = tonumber(Ranking.getSub(pItem,2))
+		end
+	end
+
+	if nTimes == nil then
+		nTimes = 0
+	end
+	if System.getSosFubenFreshTimes( nGuildId) <= 0  then	--还没开启
+		str = str.."\\<#BL"..string.format(Lang.Activity.w00154, nTimes, GuildSosConfig.IntoAllTimes).."/@OpenSosFuben>"
+	else
+		str = str.."\\<#BL"..Lang.Activity.w00155.."/@EnterSosFuben>"
+	end    
+	return str
+end

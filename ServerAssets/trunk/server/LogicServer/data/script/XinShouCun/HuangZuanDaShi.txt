@@ -1,0 +1,51 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+--[[当前脚本内的全局变量]]--
+thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+--[[如果此NPC包含标准任务，请将下面一行的最前面的'-'去掉！]]
+--#include "data\language\LangCode.txt" once          -- 语言表  once
+--#include "data\functions\Tasks\VIP\VIPFashionDress.txt" onece
+
+--[[此处为NPC对白]]
+NpcDialogue = {  --如果NPC随机对白数多与三个或少于三个，可适当增加或减少此表内的子表 
+   { say = Lang.NormalTalk.n00485 }, --在"="后填写NPC对白内容(内容在语言表内)
+
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+  --如果NPC具备过程任务，则请在此处使用pm进行自动完成
+
+  local rand = System.getRandomNumber( table.getn(NpcDialogue) )
+  local str = NpcDialogue[rand +1].say
+
+  for i = 1, table.getn(MainFnTable) do
+    str = str .. MainFnTable[i](sysarg)
+  end
+
+  return str
+end
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  --SPID = TSystem.getGlobalVariant( "spid" )  
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

@@ -1,0 +1,24 @@
+
+--#include "data\language\LangCode.txt" once
+
+function CrossServerSbkMap_Main(sysarg)
+	local str = ""
+	str = str.."<#BL"..Lang.Activity.ku0001.."/@OnenterCrossSbkMap>"
+	return str
+end
+
+function OnenterCrossSbkMap(sysarg)
+	--print("OnenterCrossSbkMap1")
+	local sVar = System.getStaticVar()
+	if sVar.CenEnterCrossFlag == nil or sVar.CenEnterCrossFlag == 0 then		--跨服沙巴克没开启入口
+		--Actor.sendTipmsg(sysarg, Lang.GuildLang.k00002, ttFlyTip)
+		--return
+	end
+	
+	--print("OnenterCrossSbkMap1")
+	Actor.reqTransmitToCommonServer(sysarg)	
+	Actor.closeNPCDialog(sysarg)
+end
+
+table.insert(MainFnTable,CrossServerSbkMap_Main)
+

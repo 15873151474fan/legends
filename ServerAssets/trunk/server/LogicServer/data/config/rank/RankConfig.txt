@@ -1,0 +1,2686 @@
+﻿--#include "..\..\language\LangCode.txt"
+
+RankConfig=
+{
+	-- 战力排行
+	{
+		typeName = Lang.Rank.r3,    --第一级按钮的名字
+
+		subList =
+		{
+		    --战士战力排行
+			{
+				subName = Lang.Rank.r5,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 1,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i9,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i9,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i26,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i26,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i21,
+								value = "data.order.title",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i32,
+								localdata=
+								{
+					        			{min=1, max=1, desc=Lang.Rank.topRankDesc14,},
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--法师战力排行
+			{
+				subName = Lang.Rank.r6,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 2,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i9,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i9,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i26,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i26,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i21,
+								value = "data.order.title",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i32,
+								localdata=
+								{
+					        			{min=1, max=1, desc=Lang.Rank.topRankDesc15,},
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--道士战力排行
+			{
+				subName = Lang.Rank.r7,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 3,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i9,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i9,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i26,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i26,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i21,
+								value = "data.order.title",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i32,
+								localdata=
+								{
+					        			{min=1, max=1, desc=Lang.Rank.topRankDesc16,},
+								}
+							},
+
+						},
+					},
+				},
+			},
+		},
+	},
+
+	-- 等级排行
+	{
+		typeName = Lang.Rank.r4,    --第一级按钮的名字
+
+		subList =
+		{
+			--等级排行
+			{
+				subName = Lang.Rank.r4,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 4,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								colWidth = 107, --列宽 默认为90
+								useld=false,
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i9,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i9,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.desc2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--战士等级排行
+			{
+				subName = Lang.Rank.r8,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 5,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								colWidth = 107, --列宽 默认为90
+								useld=false,
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i9,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i9,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.desc2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--法师等级排行
+			{
+				subName = Lang.Rank.r9,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 6,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								colWidth = 107, --列宽 默认为90
+								useld=false,
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i9,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i9,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.desc2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--道士等级排行
+			{
+				subName = Lang.Rank.r10,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 7,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								colWidth = 107, --列宽 默认为90
+								useld=false,
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i9,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i9,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.desc2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+
+						},
+					},
+				},
+			},
+		},
+	},
+
+
+	-- 坐骑排行
+	{
+		typeName = Lang.Rank.r23,    --第一级按钮的名字
+
+		subList =
+		{
+			--坐骑排行
+			{
+				subName = Lang.Rank.r24,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 11,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i39,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 7,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i39,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i40,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 4,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i40,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i41,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 6,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i41,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i42,
+								value = "data.order.val2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i42,
+								localdata=
+								{
+								}
+							},
+
+
+						},
+					},
+				},
+
+			},
+		},
+	},
+
+	-- 法宝排行
+	--[[{
+		typeName = Lang.Rank.r34,    --第一级按钮的名字
+
+		subList =
+		{
+			--法宝排行
+			{
+				subName = Lang.Rank.r34,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 19,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 11,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i51,
+								value = "data.order.val2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 12,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i51,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i52,
+								value = "data.order.val2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 13,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i52,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i53,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i53,
+								localdata=
+								{
+								}
+							},
+
+
+						},
+					},
+				},
+
+			},
+		},
+	},]]
+
+		-- 神器排行
+	--[[{
+		typeName = Lang.Rank.r35,    --第一级按钮的名字
+
+		subList =
+		{
+			--神器排行
+			{
+				subName = Lang.Rank.r35,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 20,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级 14是神器id
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i54,
+								value = "data.order.val2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 14,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级 14是神器id
+								toolTip = Lang.Rank.i54,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i55,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 16,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级  16是神器阶和级
+								toolTip = Lang.Rank.i55,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i56,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 15,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级  15是神器战力
+								toolTip = Lang.Rank.i56,
+								localdata=
+								{
+								}
+							},
+
+
+						},
+					},
+				},
+
+			},
+		},
+	},]]
+
+	-- 天赋排行
+	--[[{
+		typeName = Lang.Rank.r36,    --第一级按钮的名字
+
+		subList =
+		{
+			--天赋排行
+			{
+				subName = Lang.Rank.r36,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 21,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 --7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级 14是神器战力
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 --7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 --7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 --7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i57,
+								value = "data.order.val2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 17,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 --7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级 17 天赋等级
+								toolTip = Lang.Rank.i57,
+								localdata=
+								{
+								}
+							},
+
+
+						},
+					},
+				},
+
+			},
+		},
+	},]]
+
+	-- 神臂排行
+	--[[{
+		typeName = Lang.Rank.r37,    --第一级按钮的名字
+
+		subList =
+		{
+			--神臂排行
+			{
+				subName = Lang.Rank.r37,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 22,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级 14是神器id
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i58,
+								value = "data.order.val2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 18,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级 14是神器id 18神臂id
+								toolTip = Lang.Rank.i58,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i59,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 20,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级  16是神器阶和级 20神臂阶和级
+								toolTip = Lang.Rank.i59,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i60,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 19,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级  15是神器战力 19神臂战力
+								toolTip = Lang.Rank.i60,
+								localdata=
+								{
+								}
+							},
+
+
+						},
+					},
+				},
+
+			},
+		},
+	},]]
+
+
+	-- 英雄排行
+	--[[{
+		typeName = Lang.Rank.r25,    --第一级按钮的名字
+
+		subList =
+		{
+		    --英雄等级排行
+			{
+				subName = Lang.Rank.r26,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 12,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 10,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i43,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i43,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i44,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i44,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i45,
+								value = "data.order.val2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i45,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i46,
+								value = "data.order.desc1",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i46,
+								localdata=
+								{
+
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--战士英雄等级排行
+			{
+				subName = Lang.Rank.r27,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 13,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 10,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i43,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i43,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i44,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i44,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i45,
+								value = "data.order.val2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i45,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i46,
+								value = "data.order.desc1",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i46,
+								localdata=
+								{
+
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--法师英雄等级排行
+			{
+				subName = Lang.Rank.r28,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 14,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 10,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i43,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i43,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i44,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i44,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i45,
+								value = "data.order.val2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i45,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i46,
+								value = "data.order.desc1",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i46,
+								localdata=
+								{
+
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--道士英雄等级排行
+			{
+				subName = Lang.Rank.r29,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 15,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 10,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i43,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i43,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i44,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i44,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i45,
+								value = "data.order.val2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i45,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i46,
+								value = "data.order.desc1",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i46,
+								localdata=
+								{
+
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--战士英雄战力排行
+			{
+				subName = Lang.Rank.r30,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 16,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 10,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i43,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i43,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i44,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i44,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i46,
+								value = "data.order.desc1",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i46,
+								localdata=
+								{
+
+								}
+							},
+
+							{
+								name = Lang.Rank.i47,
+								value = "data.order.val2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i47,
+								localdata=
+								{
+								}
+							},
+
+						},
+					},
+				},
+			},
+
+			--法师英雄战力排行
+			{
+				subName = Lang.Rank.r31,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 17,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 10,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i43,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i43,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i44,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i44,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i46,
+								value = "data.order.desc1",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i46,
+								localdata=
+								{
+
+								}
+							},
+							{
+								name = Lang.Rank.i47,
+								value = "data.order.val2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i47,
+								localdata=
+								{
+								}
+							},
+
+
+						},
+					},
+				},
+			},
+
+			--道士英雄战力排行
+			{
+				subName = Lang.Rank.r32,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 18,
+						--dynFile = "11",   --动态排行榜的文件名
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.val",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 10,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i43,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i43,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i44,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能 否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i44,
+								isVisible = true,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i46,
+								value = "data.order.desc1",
+								useld=true,
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i46,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i47,
+								value = "data.order.val2",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i47,
+								localdata=
+								{
+								}
+							},
+
+
+						},
+					},
+				},
+			},
+
+		},
+	},]]
+		-- 鲜花排行
+	--[[{
+		typeName = Lang.Rank.r17,    --第一级按钮的名字
+
+		subList =
+		{
+			--魅力值
+			{
+				subName = Lang.Rank.r12,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 9,
+						--dynFile = "charming.txt",
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i28,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i28,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+
+
+								}
+							},
+						},
+					},
+				},
+
+			},
+
+			--帅气值
+			{
+				subName = Lang.Rank.r13,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 10,
+						--dynFile = "handsome.txt",
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i29,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i29,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+
+								}
+							},
+						},
+					},
+				},
+
+			},
+
+			--周魅力排行
+			{
+				subName = Lang.Rank.r15,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 0,
+						dynFile = "weekCharming.txt",
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i28,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i28,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i37,
+								value = "data.order.title",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i38,
+								localdata=
+								{
+					       				{min=1, max=1, desc=Lang.Rank.topRankDesc8,},
+									{min=2, max=2, desc=Lang.Rank.topRankDesc9,},
+									{min=3, max=3, desc=Lang.Rank.topRankDesc10,},
+
+								}
+							},
+						},
+					},
+				},
+
+			},
+
+			-- 周帅气排行
+			{
+				subName = Lang.Rank.r14,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 0,
+						dynFile = "weekHandsome.txt",
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i29,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i29,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i37,
+								value = "data.order.title",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i38,
+								localdata=
+								{
+					        			{min=1, max=1, desc=Lang.Rank.topRankDesc11,},
+									{min=2, max=2, desc=Lang.Rank.topRankDesc12,},
+									{min=3, max=3, desc=Lang.Rank.topRankDesc13,},
+
+								}
+							},
+						},
+					},
+				},
+
+			},
+
+		},
+
+	},]]
+
+	-- 行会排行
+	--[[{
+		typeName = Lang.Rank.r16,    --第一级按钮的名字
+
+		subList =
+		{
+			--龙影坛击杀排行
+			{
+				subName = Lang.Rank.r18,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 0,
+						dynFile = "WeekToxicRank.txt",
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i9,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i9,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i12,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i34,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i11,
+								value = "data.order.job",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i11,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i33,
+								value = "data.order.level",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i33,
+								localdata=
+								{
+								}
+							},
+
+
+
+						},
+					},
+				},
+
+			},
+		},
+	},]]
+
+	-- 活动排行
+	--[[{
+		typeName = Lang.Rank.r19,    --第一级按钮的名字
+
+		subList =
+		{
+			{
+				subName = Lang.Rank.r20,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 0,
+						dynFile = "answerRanking.txt",
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 83, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 83, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i35,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 83, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i35,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 83, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.level",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 83, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i21,
+								value = "data.order.title",
+								useld=true,
+								colWidth = 86, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i36,
+								localdata=
+								{
+					        		{min=1, max=1, desc=Lang.ScriptTips.ans013,},
+								}
+							},
+						},
+					},
+				},
+
+			},
+			{
+				subName = Lang.Rank.r21,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 0,
+						dynFile = "fubenRanking.txt",
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 1,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i30,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i35,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.level",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+						},
+					},
+				},
+
+			},
+
+			{
+				subName = Lang.Rank.r33,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 0,	--动态帮设置类型为0
+						dynFile = "CorpsBattleScore",
+						mapping =
+						{
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i48,
+								value = "name",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i48,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i50,
+								value = "score",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i50,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i49,
+								value = "members",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i49,
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i21,
+								value = "title",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i21,
+								localdata=
+								{
+									{min=1, max=1, desc=Lang.Rank.topRankDesc17,},
+								}
+							},
+						},
+					},
+				},
+
+			},
+
+		},
+	},]]
+    --[[
+	-- 元魄排行榜
+	{
+		typeName = Lang.Rank.r38,    --第一级按钮的名字
+
+		subList =
+		{
+			--元魄排行榜
+			{
+				subName = Lang.Rank.r38,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 23,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.level",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 83, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								colWidth = 107, --列宽 默认为90
+								useld=false,
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i61,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 21,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i61,
+								localdata=
+								{
+								}
+							},
+
+						},
+					},
+				},
+
+			},
+		},
+	},
+
+	-- 血脉排行榜
+	{
+		typeName = Lang.Rank.r39,    --第一级按钮的名字
+
+		subList =
+		{
+			--血脉排行榜
+			{
+				subName = Lang.Rank.r39,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 24,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.level",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 83, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								colWidth = 107, --列宽 默认为90
+								useld=false,
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i62,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 22,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i62,
+								localdata=
+								{
+								}
+							},
+
+						},
+					},
+				},
+
+			},
+		},
+	},
+     --]]
+	-- 翅膀排行榜
+	{
+		typeName = Lang.Rank.r40,    --第一级按钮的名字
+
+		subList =
+		{
+			--翅膀排行榜
+			{
+				subName = Lang.Rank.r40,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 25,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.level",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 83, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								colWidth = 107, --列宽 默认为90
+								useld=false,
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i63,
+								value = "data.order.desc1",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 23,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i63,
+								localdata=
+								{
+								}
+							},
+
+						},
+					},
+				},
+
+			},
+		},
+	},
+	
+	
+    	-- 财富排行
+	{
+		typeName = Lang.Rank.r11,    --第一级按钮的名字
+
+		subList =
+		{
+			--财富排行
+			{
+				subName = Lang.Rank.r11,       --二级目录的名字
+				rankConfig =
+				{
+					{
+						desc = Lang.Rank.r1,   --顶部要显示的排行
+						type = 8,
+						mapping =
+						{
+
+							{
+								name = Lang.Rank.i27,
+								value = "data.order.actorid",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 5,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i27,
+								isVisible = false,   --是否要显示这列
+								localdata=
+								{
+								}
+							},
+
+							{
+								name = Lang.Rank.i1,
+								value = "data.order.actorname",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i1,
+								localdata=
+								{
+								}
+							},
+
+
+							{
+								name = Lang.Rank.i3,
+								value = "data.order.job",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 9,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i3,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i4,
+								value = "data.order.desc2",
+								useld=false,
+								canSort=false,  --能否根据此字段排序,默认为false
+								colWidth = 107, --列宽 默认为90
+								linkType = 8,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i4,
+								localdata=
+								{
+								}
+							},
+							{
+								name = Lang.Rank.i5,
+								value = "data.order.val",
+								useld=false,
+								colWidth = 107, --列宽 默认为90
+								linkType = 0,  --连接类型 默认0    0是不能连接 1是人名 2是物品  3是宠物  4是坐骑名字  5是角色id 6是坐骑星阶 7是坐骑数据(星阶+战力+时效坐骑ID) 8是转数+等级 9是职业 10是英雄ID 11是法宝的角色id 12是法宝名称 13是法宝等级
+								toolTip = Lang.Rank.i5,
+								localdata=
+								{
+								}
+							},
+
+
+						},
+					},
+				},
+
+			},
+		},
+	},
+
+
+}

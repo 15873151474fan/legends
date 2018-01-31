@@ -1,0 +1,31 @@
+--lua script
+
+--#include "data\config\misc\UpdateListConfig.txt" once
+
+function getSPString()
+	local spid = System.getSystemDef("SPID")
+	return SPUpdateLists[spid] or SPUpdateLists["*"] or ""
+end
+
+MiscsImplement.getSPUpdateInfo = function( sysarg, msgid, packet ) 
+	local netPack = DataPack.allocPacket(sysarg, 139, LogicCmd.miscSys.sub.sSendUpdateList )
+	if netPack then
+		DataPack.writeString( netPack, getSPString() )
+		DataPack.flush( netPack )
+	end	
+end
+
+local isFirstLogin = function (sysarg,arg)
+	local isFirst = arg[1]
+
+	if (isFirst == 1) then
+		local netPack = DataPack.allocPacket(sysarg, 139, LogicCmd.miscSys.sub.sIsFirstLogin )
+		if netPack then
+			DataPack.writeByte( netPack, isFirst )
+			DataPack.flush( netPack )
+		end	
+	end
+end
+
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cGetUpdateList, MiscsImplement.getSPUpdateInfo)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, isFirstLogin)

@@ -1,0 +1,149 @@
+--#include "..\..\language\LangCode.txt"
+--卡牌升级
+CardUpgradeConfig=
+{
+
+	--卡牌最大升星
+	maxStar = 6,
+	--升星消耗道具
+	upStarconsumes =
+	{
+		{type = 0, id = 3077, count = 1},
+	},
+
+	--卡牌最大等级
+	maxLevel = 60,
+
+	--exp=expParam1+expParam2*level+expParam3*level^2+expParam4*level^3
+	expParam1 = 12.588,
+	expParam2 = -0.650,
+	expParam3 = 0.265,
+	expParam4 = -0.002,
+
+	--增加1点经验消耗
+	upLevelconsumes =
+	{
+		{type = 43, id = 0, count = 2},
+		{type = 6, id = 0, count = 10000},
+	},
+
+	limitStar =
+	{
+		--star: 星
+		--level: 星级限定最大能升的等级
+		{star = 1, level = 10,},
+		{star = 2, level = 20,},
+		{star = 3, level = 30,},
+		{star = 4, level = 40,},
+		{star = 5, level = 50,},
+		{star = 6, level = 60,},
+	},
+
+	--出战卡牌类型
+	--fightCardTypes={1,2,3,4,5,6,7},
+
+	--卡牌前端显示属性配置
+	cardAttrs=
+	{
+		--type:类型  1:新年贺岁卡 2:倾世群芳 3:八骏天马册  4：上古异兽志  5：绿茵巨星图  6：域外幻武图
+		--id:卡牌Id 
+		--propNameId:道具名称Id 
+		--imgCode:图片编码 
+		--serIndex:服务器索引
+		--nAttackCode:普通攻击特效资源Id(资源帧数要相同固定,动画播放开始索引和结束索引固定)
+		--nHurtCode:普通伤害特效资源Id(资源帧数要相同固定,动画播放开始索引和结束索引固定)
+
+		--新年贺岁卡
+		{type=1,id=101,propNameId=2887,nAttackSkillId=12002,imgCode=2887,serIndex=1},
+		{type=1,id=102,propNameId=2888,nAttackSkillId=12002,imgCode=2888,serIndex=2},
+		{type=1,id=103,propNameId=2889,nAttackSkillId=12002,imgCode=2889,serIndex=3},
+		{type=1,id=104,propNameId=2890,nAttackSkillId=12002,imgCode=2890,serIndex=4},
+		{type=1,id=105,propNameId=2891,nAttackSkillId=12002,imgCode=2891,serIndex=5},
+		{type=1,id=106,propNameId=2892,nAttackSkillId=12002,imgCode=2892,serIndex=6},
+		{type=1,id=107,propNameId=2893,nAttackSkillId=12002,imgCode=2893,serIndex=7},
+		{type=1,id=108,propNameId=2894,nAttackSkillId=12002,imgCode=2894,serIndex=8},
+
+		--类型 --卡牌Id --道具名称Id --图片编码
+		--倾世群芳
+		{type=2,id=201,propNameId=2886,nAttackSkillId=12002,imgCode=2886,serIndex=1},
+		{type=2,id=202,propNameId=2885,nAttackSkillId=12002,imgCode=2885,serIndex=2},
+		{type=2,id=203,propNameId=2884,nAttackSkillId=12002,imgCode=2884,serIndex=3},
+		{type=2,id=204,propNameId=2883,nAttackSkillId=12002,imgCode=2883,serIndex=4},
+		{type=2,id=205,propNameId=2882,nAttackSkillId=12002,imgCode=2882,serIndex=5},
+		{type=2,id=206,propNameId=2881,nAttackSkillId=12002,imgCode=2881,serIndex=6},
+		{type=2,id=207,propNameId=2880,nAttackSkillId=12002,imgCode=2880,serIndex=7},
+		{type=2,id=208,propNameId=2879,nAttackSkillId=12002,imgCode=2879,serIndex=8},
+
+		--八骏天马册
+		{type=3,id=301,propNameId=2918,nAttackSkillId=12002,imgCode=2918,serIndex=1},
+		{type=3,id=302,propNameId=2919,nAttackSkillId=12002,imgCode=2919,serIndex=2},
+		{type=3,id=303,propNameId=2920,nAttackSkillId=12002,imgCode=2920,serIndex=3},
+		{type=3,id=304,propNameId=2921,nAttackSkillId=12002,imgCode=2921,serIndex=4},
+		{type=3,id=305,propNameId=2922,nAttackSkillId=12002,imgCode=2922,serIndex=5},
+		{type=3,id=306,propNameId=2923,nAttackSkillId=12002,imgCode=2923,serIndex=6},
+		{type=3,id=307,propNameId=2924,nAttackSkillId=12002,imgCode=2924,serIndex=7},
+		{type=3,id=308,propNameId=2925,nAttackSkillId=12002,imgCode=2925,serIndex=8},
+
+		--上古异兽志
+		{type=4,id=401,propNameId=2967,nAttackSkillId=12002,imgCode=2967,serIndex=1},
+		{type=4,id=402,propNameId=2968,nAttackSkillId=12002,imgCode=2968,serIndex=2},
+		{type=4,id=403,propNameId=2969,nAttackSkillId=12002,imgCode=2969,serIndex=3},
+		{type=4,id=404,propNameId=2970,nAttackSkillId=12002,imgCode=2970,serIndex=4},
+		{type=4,id=405,propNameId=2971,nAttackSkillId=12002,imgCode=2971,serIndex=5},
+		{type=4,id=406,propNameId=2972,nAttackSkillId=12002,imgCode=2972,serIndex=6},
+		{type=4,id=407,propNameId=2973,nAttackSkillId=12002,imgCode=2973,serIndex=7},
+		{type=4,id=408,propNameId=2974,nAttackSkillId=12002,imgCode=2974,serIndex=8},
+
+		--绿茵巨星图
+		{type=5,id=501,propNameId=3019,nAttackSkillId=12002,imgCode=3019,serIndex=1},
+		{type=5,id=502,propNameId=3020,nAttackSkillId=12002,imgCode=3020,serIndex=2},
+		{type=5,id=503,propNameId=3021,nAttackSkillId=12002,imgCode=3021,serIndex=3},
+		{type=5,id=504,propNameId=3022,nAttackSkillId=12002,imgCode=3022,serIndex=4},
+		{type=5,id=505,propNameId=3023,nAttackSkillId=12002,imgCode=3023,serIndex=5},
+		{type=5,id=506,propNameId=3024,nAttackSkillId=12002,imgCode=3024,serIndex=6},
+		{type=5,id=507,propNameId=3025,nAttackSkillId=12002,imgCode=3025,serIndex=7},
+		{type=5,id=508,propNameId=3026,nAttackSkillId=12002,imgCode=3026,serIndex=8},
+
+		--域外幻武图
+		{type=6,id=601,propNameId=3030,nAttackSkillId=12002,imgCode=3030,serIndex=1},
+		{type=6,id=602,propNameId=3031,nAttackSkillId=12002,imgCode=3031,serIndex=2},
+		{type=6,id=603,propNameId=3032,nAttackSkillId=12002,imgCode=3032,serIndex=3},
+		{type=6,id=604,propNameId=3033,nAttackSkillId=12002,imgCode=3033,serIndex=4},
+		{type=6,id=605,propNameId=3034,nAttackSkillId=12002,imgCode=3034,serIndex=5},
+		{type=6,id=606,propNameId=3035,nAttackSkillId=12002,imgCode=3035,serIndex=6},
+		{type=6,id=607,propNameId=3036,nAttackSkillId=12002,imgCode=3036,serIndex=7},
+		{type=6,id=608,propNameId=3037,nAttackSkillId=12002,imgCode=3037,serIndex=8},
+
+		--类型 --卡牌Id --道具名称Id --图片编码
+		--八仙过海传
+		{type=7,id=701,propNameId=3114,nAttackSkillId=12002,imgCode=3114,serIndex=1},
+		{type=7,id=702,propNameId=3115,nAttackSkillId=12002,imgCode=3115,serIndex=2},
+		{type=7,id=703,propNameId=3116,nAttackSkillId=12002,imgCode=3116,serIndex=3},
+		{type=7,id=704,propNameId=3117,nAttackSkillId=12002,imgCode=3117,serIndex=4},
+		{type=7,id=705,propNameId=3118,nAttackSkillId=12002,imgCode=3118,serIndex=5},
+		{type=7,id=706,propNameId=3119,nAttackSkillId=12002,imgCode=3119,serIndex=6},
+		{type=7,id=707,propNameId=3120,nAttackSkillId=12002,imgCode=3120,serIndex=7},
+		{type=7,id=708,propNameId=3121,nAttackSkillId=12002,imgCode=3121,serIndex=8},
+		
+		
+		--狂欢圣诞册 -不出战
+		--{type=8,id=801,propNameId=3318,nAttackSkillId=12002,imgCode=3318,serIndex=1},
+		--{type=8,id=802,propNameId=3319,nAttackSkillId=12002,imgCode=3319,serIndex=2},
+		--{type=8,id=803,propNameId=3320,nAttackSkillId=12002,imgCode=3320,serIndex=3},
+		--{type=8,id=804,propNameId=3321,nAttackSkillId=12002,imgCode=3321,serIndex=4},
+		--{type=8,id=805,propNameId=3322,nAttackSkillId=12002,imgCode=3322,serIndex=5},
+		--{type=8,id=806,propNameId=3323,nAttackSkillId=12002,imgCode=3323,serIndex=6},
+		--{type=8,id=807,propNameId=3324,nAttackSkillId=12002,imgCode=3324,serIndex=7},
+		--{type=8,id=808,propNameId=3325,nAttackSkillId=12002,imgCode=3325,serIndex=8},
+		
+		--喜气羊羊卡 -不出战
+		--{type=9,id=901,propNameId=3371,nAttackSkillId=12002,imgCode=3371,serIndex=1},
+		--{type=9,id=902,propNameId=3372,nAttackSkillId=12002,imgCode=3372,serIndex=2},
+		--{type=9,id=903,propNameId=3373,nAttackSkillId=12002,imgCode=3373,serIndex=3},
+		--{type=9,id=904,propNameId=3374,nAttackSkillId=12002,imgCode=3374,serIndex=4},
+		--{type=9,id=905,propNameId=3375,nAttackSkillId=12002,imgCode=3375,serIndex=5},
+		--{type=9,id=906,propNameId=3376,nAttackSkillId=12002,imgCode=3376,serIndex=6},
+		--{type=9,id=907,propNameId=3377,nAttackSkillId=12002,imgCode=3377,serIndex=7},
+		--{type=9,id=908,propNameId=3378,nAttackSkillId=12002,imgCode=3378,serIndex=8},
+	},
+}

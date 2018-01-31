@@ -1,0 +1,10 @@
+--Ï¡ÓĞbossËÀÍö
+--lua script
+
+--#include "data\language\LangCode.txt" once   --ÓïÑÔ°ü
+
+MonDieDispatcher.Mon193Die = function(monster,sysarg,monId)
+	System.broadcastTipmsg(Lang.Activity.t00063,2+128)
+end
+
+--MonDieDispatcher.register(193, MonDieDispatcher.Mon193Die )

@@ -1,0 +1,440 @@
+
+--lua script 
+--#include "data\config\activityconfig\SheepLaborDay\SheepLaborDayAct.txt" once
+--#include "data\config\activityconfig\SheepLaborDay\LaborConfig.txt" once
+--#include "RankPointer.txt" once
+
+ltUnstart = 1	--未开始
+ltUnfinish = 2	--未完成
+ltFinished = 3	--已完成
+
+--加载天道酬勤
+function LoadLabor(sysarg)
+	local tmpTable = {}
+	for i=0,15 do
+		table.insert(tmpTable, 0)
+	end
+
+	local fileName = SheepLaborDayRankPt.SheepLoborPt.SheepLaborFile
+
+	if not fileName then
+		return tmpTable
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return tmpTable
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+	
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		
+		if pItem then			
+			local config = LaborConfig 
+
+			if (not config) or (not config.works) or (config.maxWorkCount > 5) then
+				return tmpTable
+			end
+
+			local currTime = System.getCurrMiniTime()
+
+			for i=1,config.maxWorkCount do
+				local nWorkTab = GetRandomLaborInfo(config.works, 1)
+				Ranking.setSub(pItem,3*i-2,nWorkTab.id)
+				Ranking.setSub(pItem,3*i-1,ltUnstart)
+				Ranking.setSub(pItem,3*i,currTime+nWorkTab.workTime)
+			end
+		end
+	end	
+
+
+	if pItem then
+		for i=0,15 do
+			tmpVal = tonumber(Ranking.getSub(pItem,i)) or 0
+			tmpTable[i+1] = tmpVal
+		end
+	end
+
+	return tmpTable
+end
+
+--保存天道酬勤
+function SaveLabor(sysarg, tmpTable)
+	local fileName = SheepLaborDayRankPt.SheepLoborPt.SheepLaborFile
+
+	if not fileName then
+		return
+	end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(fileName)
+	if not ranking then
+		ranking = Ranking.add(fileName, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, fileName) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		for i=0,table.getn(tmpTable or {})-1 do
+			Ranking.setSub(pItem,i,tmpTable[i+1])
+		end
+	end
+end
+
+--请求天道酬勤
+function GetLaborOp(sysarg,args)
+	local nType = args[2]
+	local nLaborId = args[3]
+
+	if System.isInDateRange(unpack(SheepLaborDayActCfg.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0005, ttFlyTip)
+		return
+	end
+
+	if nType == 0 then
+		OnGetLabor(sysarg)
+	elseif nType == 1 then
+		OnRefreshLabor(sysarg, nLaborId)
+	elseif nType == 2 then
+		OnFastFinishLabor(sysarg, nLaborId)
+	elseif nType == 3 then
+		OnGetLaborAward(sysarg, nLaborId)
+	elseif nType == 4 then
+		OnStartLaobr(sysarg, nLaborId)
+	end
+end
+
+--请求天道酬勤信息
+function OnGetLabor(sysarg)
+	local config = LaborConfig
+
+	if not config then return end
+
+	local maxWorkCount = config.maxWorkCount
+	
+	local currTime = System.getCurrMiniTime()
+
+	local tmpTable = LoadLabor(sysarg)
+
+	--先判断是否有已经完成的
+	local nFlag = 0
+	for i = 1, maxWorkCount do
+		local nStatus = tmpTable[3 * i - 1]
+		local nFinishTime = tmpTable[3 * i]
+
+		if (nStatus == ltUnfinish) and (nFinishTime <= currTime) then
+			nStatus = ltFinished
+			tmpTable[3 * i - 1] = nStatus
+			nFlag = 1
+		end
+	end
+	if nFlag == 1 then
+		SaveLabor(sysarg, tmpTable)
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 52, 47)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, maxWorkCount)
+
+		for i = 1, maxWorkCount do
+			DataPack.writeChar(pack, i)
+			DataPack.writeChar(pack, tmpTable[3 * i - 2])
+			DataPack.writeChar(pack, tmpTable[3 * i - 1])
+			local nLastTime = tmpTable[3 * i] - currTime
+			if nLastTime < 0 then
+				nLastTime = 0
+			end
+			DataPack.writeInt(pack, nLastTime)	
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--下发刷新劳动
+function SendRefreshLabor(sysarg, nLaborId)
+	local config = LaborConfig
+
+	if not config then return end
+
+	local maxWorkCount = config.maxWorkCount
+
+	if (nLaborId <= 0) or (nLaborId > maxWorkCount) then
+		return
+	end
+
+	local currTime = System.getCurrMiniTime()
+
+	local tmpTable = LoadLabor(sysarg)
+
+	local pack = DataPack.allocPacket(sysarg, 52, 48)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nLaborId)
+		DataPack.writeChar(pack, tmpTable[3 * nLaborId - 2])
+		DataPack.writeChar(pack, tmpTable[3 * nLaborId - 1])
+		local nLastTime = tmpTable[3 * nLaborId] - currTime
+		if nLastTime < 0 then
+			nLastTime = 0
+		end
+		DataPack.writeInt(pack, nLastTime)
+
+		DataPack.flush(pack)
+	end
+end
+
+--请求刷新
+function OnRefreshLabor(sysarg, nLaborId)
+	local config = LaborConfig
+
+	if not config then return end
+	
+	local maxWorkCount = config.maxWorkCount
+
+	if (nLaborId <= 0) or (nLaborId > maxWorkCount) then
+		return
+	end
+	
+	local tmpTable = LoadLabor(sysarg)
+	local nWorkId = tmpTable[3 * nLaborId - 2]
+	local nStatus = tmpTable[3 * nLaborId - 1]
+	local nFinishTime = tmpTable[3 * nLaborId]
+
+	if nStatus == ltUnfinish then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0007, ttFlyTip)
+		return
+	elseif nStatus == ltFinished then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0008, ttFlyTip)
+		return
+	end
+
+	local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+
+	for k, v in ipairs(config.refreshConsumes or {}) do
+		if (v.type == 15) and (nGold < v.count) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ywy0009, ttFlyTip)
+			return
+		end
+	end
+	
+	for k, v in ipairs(config.refreshConsumes or {}) do
+		if (v.type == 15) and (nGold >= v.count) then
+			Actor.changeMoney(sysarg,3,-v.count,987,Lang.Activity.ywy0010)
+		end
+	end
+
+	local currTime = System.getCurrMiniTime()
+
+	local nWorkTab = GetRandomLaborInfo(config.works, 1)
+	nWorkId = nWorkTab.id
+	nFinishTime = currTime+nWorkTab.workTime
+
+	tmpTable[3 * nLaborId - 2] = nWorkId
+	--tmpTable[3 * nLaborId] = nFinishTime
+
+	SaveLabor(sysarg, tmpTable)
+
+	SendRefreshLabor(sysarg, nLaborId)
+end
+
+--请求立即完成
+function OnFastFinishLabor(sysarg, nLaborId)
+	local config = LaborConfig
+
+	if not config then return end
+	
+	local maxWorkCount = config.maxWorkCount
+
+	if (nLaborId <= 0) or (nLaborId > maxWorkCount) then
+		return
+	end
+	
+	local tmpTable = LoadLabor(sysarg)
+	local nWorkId = tmpTable[3 * nLaborId - 2]
+	local nStatus = tmpTable[3 * nLaborId - 1]
+	local nFinishTime = tmpTable[3 * nLaborId]
+
+	if nStatus == ltUnstart then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0006, ttFlyTip)
+		return
+	elseif nStatus == ltFinished then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0008, ttFlyTip)
+		return
+	end
+	
+	local currTime = System.getCurrMiniTime()
+	local nLastMinute = math.ceil((nFinishTime - currTime) / 60)
+	local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+
+	for k, v in ipairs(config.fastFinishConsumes or {}) do
+		if (v.type == 15) and (nGold < nLastMinute * v.count) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.ywy0009, ttFlyTip)
+			return
+		end
+	end
+	
+	for k, v in ipairs(config.fastFinishConsumes or {}) do
+		if (v.type == 15) and (nGold >= nLastMinute * v.count) then
+			Actor.changeMoney(sysarg,3,-nLastMinute * v.count,987,Lang.Activity.ywy0010)
+		end
+	end
+
+	nStatus = ltFinished
+	nFinishTime = currTime
+
+	tmpTable[3 * nLaborId - 1] = nStatus
+	tmpTable[3 * nLaborId] = nFinishTime
+
+	SaveLabor(sysarg, tmpTable)
+
+	SendRefreshLabor(sysarg, nLaborId)
+end
+
+--领取奖励
+function OnGetLaborAward(sysarg, nLaborId)
+	local config = LaborConfig
+
+	if not config then return end
+
+	if Actor.checkActorLevel(sysarg, config.limitLevel, config.limitCircle) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ywy0014, config.limitCircle, config.limitLevel), ttFlyTip)
+		return
+	end
+	
+	local maxWorkCount = config.maxWorkCount
+
+	if (nLaborId <= 0) or (nLaborId > maxWorkCount) then
+		return
+	end
+	
+	local tmpTable = LoadLabor(sysarg)
+	local nWorkId = tmpTable[3 * nLaborId - 2]
+	local nStatus = tmpTable[3 * nLaborId - 1]
+	local nFinishTime = tmpTable[3 * nLaborId]
+
+	if nStatus == ltUnstart then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0006, ttFlyTip)
+		return
+	elseif nStatus == ltUnfinish then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0007, ttFlyTip)
+		return
+	end
+
+	local nWorkTab = config.works[nLaborId]
+
+	local awardTab = nWorkTab.finishAwards
+	local oneAwards = GetRandomLaborInfo(awardTab, 1)
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+	
+	local awards = oneAwards.awards
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		--给奖励
+		for i=1,table.getn(awards) do
+			if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,987,Lang.Activity.ywy0012)
+
+				if (awards[i].isRarity) and (awards[i].isRarity == true) and (awards[i].type == 0) then
+					System.broadcastTipmsg(string.format(Lang.Activity.ywy0013, Actor.getName(sysarg), Item.getItemName(awards[i].id)), ttScreenCenter+ttChatWindow)
+				end
+			end
+		end
+
+		local currTime = System.getCurrMiniTime()
+
+		nWorkTab = GetRandomLaborInfo(config.works, 1)
+		nWorkId = nWorkTab.id
+		nFinishTime = currTime+nWorkTab.workTime
+
+		tmpTable[3 * nLaborId - 2] = nWorkId
+		tmpTable[3 * nLaborId - 1] = ltUnstart
+		tmpTable[3 * nLaborId] = nFinishTime
+
+		SaveLabor(sysarg, tmpTable)
+
+		SendRefreshLabor(sysarg, nLaborId)
+	end
+end
+
+--请求开始劳动
+function OnStartLaobr(sysarg, nLaborId)
+	local config = LaborConfig
+
+	if not config then return end
+	
+	local maxWorkCount = config.maxWorkCount
+
+	if (nLaborId <= 0) or (nLaborId > maxWorkCount) then
+		return
+	end
+
+	local tmpTable = LoadLabor(sysarg)
+	local nWorkId = tmpTable[3 * nLaborId - 2]
+	local nStatus = tmpTable[3 * nLaborId - 1]
+	local nFinishTime = tmpTable[3 * nLaborId]
+
+	if nStatus == ltUnfinish then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0007, ttFlyTip)
+		return
+	elseif nStatus == ltFinished then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ywy0008, ttFlyTip)
+		return
+	end
+
+	local nWorkTab = config.works[nLaborId]
+	nStatus = ltUnfinish
+	local currTime = System.getCurrMiniTime()
+	nFinishTime = currTime+nWorkTab.workTime
+	
+	tmpTable[3 * nLaborId - 1] = nStatus
+	tmpTable[3 * nLaborId] = nFinishTime
+
+	SaveLabor(sysarg, tmpTable)
+
+	SendRefreshLabor(sysarg, nLaborId)
+end
+
+--根据概率获取值
+function GetRandomLaborInfo(infoTable, minVal)
+	local maxVal = 0
+	for k, v in ipairs(infoTable or {}) do
+		maxVal = maxVal + v.rate
+	end
+
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for k, v in ipairs(infoTable or {}) do
+		tmpValue = tmpValue + v.rate
+		if tmpValue >= randVal then
+			result = v
+			break
+		end
+	end
+	return result
+end

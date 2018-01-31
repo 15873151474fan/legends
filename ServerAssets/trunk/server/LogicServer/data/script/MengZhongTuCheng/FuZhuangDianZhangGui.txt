@@ -1,0 +1,155 @@
+﻿--lua script
+--盟重防具商 
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+  thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+ 
+---#include "data\language\LangCode.txt" once          
+---#include "data\functions\FuBenNpcFunc\NormalFubenNpcFunc.txt" once           --用于处理副本的通用函数 
+--#include "data\functions\NormalFuncForQuest.txt" once --任务内容
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+--[[此NPC中标准任务发行表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = Lang.NormalTalk.h00033, },
+
+}
+
+--[[此NPC中标准任务发行表]]
+PromMs =
+{
+  --键入mp+分号，根据模板生成发行任务脚本模板
+----#include "data\config\quest\quests\task109.txt"
+}
+
+--[[此NPC中标准任务受理表]]
+CompMs =
+{
+----#include "data\config\quest\quests\task108.txt"
+}
+
+--[[此NPC中标准任务过程表]]
+PassMs =
+{
+--#include "data\config\quest\quests\task8003.txt"
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+    local str,f = commonQuestNpcMain(sysarg)
+	if f then
+		return str
+	end
+    str = str .. OnQuestTalk(sysarg, 8003,50025)
+	return str..Lang.Talk.t00003
+end
+
+
+--[[
+function SetKungFuMaster(sysarg)
+	if not WuLinZhengBaConst then return end
+	local config = WuLinZhengBaConst
+	local winnerPtr = sysarg
+	local winName = Actor.getName(sysarg)
+	local winId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	
+	local sval = System.getStaticVar()
+	
+
+	local FinalOne = sval.WuLinZhengBaFinalOne			-- 取出两强数据
+	local LastFinalOne = sval.WuLinZhengBaLastFinalOne	-- 取出上轮冠军数据
+	
+	--保存本届冠军信息
+	local iconId = Actor.getIntProperty(winnerPtr, PROP_ENTITY_ICON)
+	local campId = Actor.getCampId(winnerPtr)
+	local camp1 = Actor.getCamp(winnerPtr)
+	local campName1 = Camp.getCampName(camp1)
+	local level = Actor.getIntProperty(winnerPtr, PROP_CREATURE_LEVEL)
+	local JobId = Actor.getIntProperty(winnerPtr, PROP_ACTOR_VOCATION)
+	local sex = Actor.getIntProperty(winnerPtr, PROP_ACTOR_SEX)
+	local val = Actor.getStaticVar(winnerPtr)
+	local WinCount = val.WuLinZhengBaWinCount
+	if not WinCount then WinCount = 0 end
+	WinCount = WinCount + 1
+	val.WuLinZhengBaWinCount = WinCount
+	FinalOne[1] = winName	--姓名
+	FinalOne[2] = iconId	--头像ID
+	FinalOne[3] = campId	--阵营ID
+	FinalOne[4] = level		--等级
+	FinalOne[5] = JobId		--职位ID
+	FinalOne[6]	= WinCount	--冠军次数
+	FinalOne[7] = sex		--性别
+	FinalOne[8] = winId		--角色ID
+
+	if LastFinalOne and LastFinalOne[8] == winId then
+		LastFinalOne[6] = WinCount
+	end
+
+	if LastFinalOne and LastFinalOne[1] ~= "" then
+		local lastPtr = Actor.getActorPtrByName(LastFinalOne[1])
+		if lastPtr then
+			--去除旧盟主头衔
+			Actor.setTopTitle(lastPtr, config.LeaderTopTitleId, false)
+			--删除旧的武林盟主
+			Actor.setSocialMask(lastPtr, smIsWulinMaster, false)
+			--删除旧的称号
+			if Actor.HasTitle(lastPtr, config.LeaderTitleId) == true then
+				Actor.GiveupTitle(lastPtr, config.LeaderTitleId)
+			end
+		end
+	end
+	
+	--设置武林盟主头衔
+	if config.LeaderTopTitleId then
+		Actor.setTopTitle(winnerPtr, config.LeaderTopTitleId)
+	end
+	--设置武林盟主称号
+	if config.LeaderTitleId then
+		if Actor.HasTitle(winnerPtr, config.LeaderTitleId) == true then
+			Actor.GiveupTitle(winnerPtr, config.LeaderTitleId)
+		end
+		print(config.LeaderTitleId)
+		Actor.GiveTitle(winnerPtr, config.LeaderTitleId)
+	end
+	
+	--设置社会关系为武林盟主
+	Actor.setSocialMask(winnerPtr, smIsWulinMaster, true)
+	--设置武林盟主指针
+	System.setKungFuMasterEntityPtr(winId,true)
+	
+end
+
+function FunctionTest(sysarg)
+	local ranking = Ranking.getRanking("WuLinZhengBaRankName")
+	if not ranking then return "111" end
+	Ranking.clearRanking(ranking)
+	Ranking.save(ranking, "WuLinZhengBaRankFile.txt")
+end
+--]]
+
+--[[注销任务的系统回调函数]]
+
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

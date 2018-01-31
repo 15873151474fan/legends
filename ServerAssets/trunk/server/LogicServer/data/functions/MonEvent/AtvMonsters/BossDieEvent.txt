@@ -1,0 +1,80 @@
+﻿
+
+--#include "data\config\BossSystem\WorldBossConfig.txt" once
+
+--#include "data\config\BossSystem\RandomBossConfig.txt"
+
+--#include "data\config\BossSystem\MapBossConfig.txt"
+
+--#include "data\config\BossSystem\RandomBossGetPtr.txt"
+
+
+--世界BOSS
+MonDieDispatcher.WorldBossDie = function(monster,sysarg,monId)
+    System.runNpcFunction(System.getGlobalNpc(),"OnWorldBossDie",monster,sysarg,monId)
+end
+
+--狩猎BOSS
+MonDieDispatcher.RandomBossDie = function(monster,sysarg,monId)
+	System.runNpcFunction(System.getGlobalNpc(),"OnRandomBossDie",monster,sysarg,monId)
+end
+
+--地图BOSS
+MonDieDispatcher.MapBossDie = function(monster,sysarg,monId)
+  System.runNpcFunction(System.getGlobalNpc(),"OnMapBossDie",monster,sysarg,monId)
+end
+
+--狩猎BOSS小怪给予积分
+MonDieDispatcher.RandomBossPetDie = function(monster,sysarg,monId)
+  if true then return end -- 16-6-1屏蔽该功能
+  local Set = RandomBossDieMobMonsterGiveRandomBossPtr[monId]
+  local AddPtr = System.getRandomNumber(Set[2] - Set[1]) + Set[1]
+  
+  --获取队伍玩家列表 
+  local Members = {}
+  if Actor.isInTeam( sysarg) == true then
+     local List = LuaHelp.getTeamMemberList( sysarg )
+     if List then
+       for k,v in pairs(List) do
+       
+         table.insert(Members,v)
+     
+       end     
+     end
+  else
+    table.insert(Members,sysarg)
+  end
+  
+  --给队伍玩家列表加积分 
+  for i = 1 , #Members do
+      local Player = Members[i] 
+      local Ptr = Actor.getIntProperty(Player,PROP_ACTOR_RandomBossPtr)
+      Ptr = Ptr + AddPtr
+      Actor.setUIntProperty(Player,PROP_ACTOR_RandomBossPtr,Ptr)
+      Actor.sendTipmsg(Player,string.format(Lang.ScriptTips.RandomBossPtrTips,AddPtr),ttTipmsgWindow)
+  end       
+end   
+
+
+--注册BOSS 死亡回调函数
+for i = 1 , #WorldBossConfig do
+  local Boss = WorldBossConfig[i]
+  MonDieDispatcher.register(Boss.MonID, MonDieDispatcher.WorldBossDie)
+end
+
+--注册BOSS 死亡回调函数
+for i = 1 , #RandomBossConfig do
+  local Boss = RandomBossConfig[i]
+  MonDieDispatcher.register(Boss.MonID, MonDieDispatcher.RandomBossDie)
+  local MonID = Boss.DieMobMonID
+  if MonID ~= nil then
+    MonDieDispatcher.register(MonID, MonDieDispatcher.RandomBossPetDie)
+  end
+end
+
+--注册BOSS 死亡回调函数
+for i = 1 , #MapBossConfig do
+  local Boss = MapBossConfig[i]
+  --print("MapBossConfigMonID:"..(Boss.MonID))
+  MonDieDispatcher.register(Boss.MonID, MonDieDispatcher.MapBossDie)
+end

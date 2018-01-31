@@ -1,0 +1,31 @@
+--lua script
+
+--#include "data\config\activityconfig\SbkKillRank\SbkKillRank.txt" once
+
+--连斩排行榜初始化
+function SbkContinuousKillInit()
+	local RankNameList = Ranking.getRanking(SbkKillRankConfig.SbkLianXuKillNum)		--通过排行名称获取排行对象
+	if RankNameList == nil then										--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(SbkKillRankConfig.SbkLianXuKillNum,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,SbkKillRankConfig.SbkLianXuKillNumFile)
+			
+			if isLoad == false then
+				for i=1,7 do										-- id,斩敌,姓名，连斩, 职业，是否领取奖励
+					Ranking.addColumn(RankNameList,"value"..i)
+				end
+			end
+		end
+	end
+end
+
+--保存连斩排行榜
+function SbkContinuousKillFinality()
+	local ranking = Ranking.getRanking(SbkKillRankConfig.SbkLianXuKillNum)
+	if ranking then
+		Ranking.save(ranking,SbkKillRankConfig.SbkLianXuKillNumFile)
+	end
+end
+
+table.insert(InitFnTable,SbkContinuousKillInit)
+table.insert(FinaFnTable,SbkContinuousKillFinality)

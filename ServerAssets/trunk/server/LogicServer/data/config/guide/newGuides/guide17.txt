@@ -1,0 +1,74 @@
+--江湖宝典指引
+{
+  maxLevel = 38,
+  --触发条件
+  triggerList =
+  {
+		{ type = 1, valueList = {2008,}},      --有这个任务
+  } ,
+  
+
+  --引导的步骤 
+  steps = 
+  {
+
+    --第1步 指向江湖宝典页
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 6, dataList = {0,} },       --按钮可见
+				{ type = 2,  helpId = 140, dataList = {0,} },     --宝典窗口不可见
+				{ type = 29,  helpId = 40, dataList = {2008,} },     --任务未完成
+      },
+
+      action = { type = 1, helpId = 6, data = 1, desc = Lang.GuideLang.desc58 },
+    },
+
+
+    --第2步 指向我要升级按钮
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 140, dataList = {0,} },     --宝典窗口可见
+				{ type = 2,  helpId = 143, dataList = {0,} },     --宝典列表窗口不可见
+				{ type = 29,  helpId = 40, dataList = {2008,} },     --任务未完成
+      },
+      
+      action = { type = 1, helpId = 141, data = Lang.GuideLang.name34, desc = Lang.GuideLang.desc59 },
+    },
+
+    --第3步 指向第二项(剑冢崖副本)
+    {
+      condList = 
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },     --NPC窗口不可见
+				{ type = 1,  helpId = 143, dataList = {0,} },     --宝典列表窗口可见
+				{ type = 29,  helpId = 40, dataList = {2008,} },     --任务未完成
+      },
+
+      action = { type = 13, helpId = 142, data = 2, desc = Lang.GuideLang.desc60 },
+    },
+
+     --第4步 指向关闭
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 140, dataList = {0,} },     --宝典列表窗口可见
+      },
+      
+      --无内容
+      action = { type = 4, helpId = 143, data = 3, desc = Lang.GuideLang.desc5 },
+    },
+
+    --第5步 结束
+    {
+      condList = 
+      {
+      },
+      
+      --无内容
+      action = { type = 0, helpId = 0, data = 3, desc = 0},
+    },
+
+ }
+}

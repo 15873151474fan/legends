@@ -1,0 +1,250 @@
+--lua script
+--羊年春节 除夕夺宝
+--#include "data\config\activityconfig\SpringFestivalSheep\EveBossConfig.txt" once
+
+--请求面板信息
+function ReqEveBossInfo(sysarg)
+	--判断活动
+	if System.isInDateRange(unpack(EveBossConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj001, ttFlyTip)
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, EveBossConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj002, ttFlyTip)
+		return
+	end
+	
+	--判断BOSS是否死
+	local hScene = Actor.getSceneHandle(sysarg)
+	if not hScene then return end
+	local flag = Fuben.isKillAllMonster(hScene, EveBossConfig.bossId)
+	if not flag then return end --还没死呢！
+	local nModeId, nWeaponApper, nWingAppear, nSex, name
+	local pack = DataPack.allocPacket(sysarg, 145, 121)
+	if not pack then return end
+
+	local ranking = Ranking.getRanking(Lang.Rank.EveBossRankFile)
+	if ranking then
+		local item = Ranking.getItemPtrByIndex(ranking,0) --第一名
+		if item then
+			local maxVal = tonumber(Ranking.getPoint(item)) or 0
+			if maxVal < EveBossConfig.needMaxVal then return end  --大于10万才上榜
+			name = Ranking.getSub(item, 0)
+			nModeId = Ranking.getSub(item, 1)
+			nWeaponApper = Ranking.getSub(item, 2)
+			nWingAppear = Ranking.getSub(item, 3)
+			nSex = Ranking.getSub(item, 4)
+		else
+			DataPack.writeInt(pack, 0)
+			DataPack.flush(pack)
+			return --不存在第一名
+		end
+	end
+	DataPack.writeInt(pack, nModeId)
+	DataPack.writeInt(pack, nWeaponApper)
+	DataPack.writeInt(pack, nWingAppear)
+	DataPack.writeInt(pack, nSex)
+	DataPack.writeString(pack, name)
+	DataPack.flush(pack)
+end
+
+--查看前8名玩家与奖励
+function ReqEveBossRankInfo(sysarg)
+	--判断活动
+	if System.isInDateRange(unpack(EveBossConfig.actTime)) == false then
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, EveBossConfig.level) == false then
+		return
+	end
+
+	local ranking = Ranking.getRanking(Lang.Rank.EveBossRankFile)
+	if ranking then
+		local name = {}
+		local point = {}
+		for i=1, 8 do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				local maxVal = tonumber(Ranking.getPoint(item)) or 0
+				if maxVal >= EveBossConfig.needMaxVal then --大于10万才上榜
+					name[i] = Ranking.getSub(item, 0)
+					point[i]= Ranking.getPoint(item)
+				end
+			end
+		end
+
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local myitem = Ranking.getItemPtrFromId(ranking, nActorId)
+		local mypoint = Ranking.getPoint(myitem)
+
+		--发送给前端显示
+		local pack = DataPack.allocPacket(sysarg, 145, 122)
+		if not pack then return end
+		DataPack.writeByte(pack, #name)
+		for i=1, #name do
+			DataPack.writeString(pack, name[i])
+			DataPack.writeInt(pack, point[i])
+		end
+		DataPack.writeInt(pack, mypoint)
+		DataPack.flush(pack)
+	end
+end
+
+--定时处理 清排行榜
+function ClearEveRank()
+	local ranking = Ranking.getRanking(Lang.Rank.EveBossRankFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+--切换场景处理
+function EveBossSceneHandle(sysarg)
+	if System.isInDateRange(unpack(EveBossConfig.actTime)) == false then
+		return
+	end
+
+	local scenceId = Actor.getSceneId(sysarg) 
+	if scenceId == 8 then 
+		local pack = DataPack.allocPacket(sysarg, 145, 125)
+		if not pack then return end
+		DataPack.writeByte(pack, 0)
+		DataPack.flush(pack)
+		local dVar = Actor.getDyanmicVar(sysarg)
+		dVar.EveBossFlag = nil
+	end
+end
+
+--攻击BOSS
+function OnEveBossAttacked(monster, sysarg, monId, damage)
+	--判断活动
+	if System.isInDateRange(unpack(EveBossConfig.actTime)) == false then
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, EveBossConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj002, ttFlyTip)
+		return
+	end
+	
+	--判断场景
+	local sceneId  = Actor.getSceneId(sysarg)
+	if sceneId ~= 8 then return end
+	
+	--判断标记
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if not dVar.EveBossFlag then
+		local pack = DataPack.allocPacket(sysarg, 145, 125)
+		if not pack then return end
+		DataPack.writeByte(pack, 1)
+		DataPack.flush(pack)
+		dVar.EveBossFlag = true
+	end
+	
+	--记录伤害
+	SaveEveBossInfo(sysarg, damage)
+end
+
+--boss死亡处理
+function OnEveBossDie(monster, sysarg, monId)
+	local sceneId = Actor.getSceneId(sysarg)
+	if sceneId ~= 8 then return end
+	
+	--判断活动
+	if System.isInDateRange(unpack(EveBossConfig.actTime)) == false then
+		return
+	end
+	
+	--发送给前端显示
+	local playerList = LuaHelp.getAllActorList()
+	for k, actorPtr in ipairs(playerList or {}) do
+		local pack = DataPack.allocPacket(actorPtr, 145, 125)
+		if not pack then return end
+		DataPack.writeByte(pack, 0)
+		DataPack.flush(pack)
+		local dVar = Actor.getDyanmicVar(actorPtr)
+		dVar.EveBossFlag = nil
+	end
+
+	--发奖
+	SendEveBossAward()
+end
+
+--邮件发放奖励
+function SendEveBossAward()
+	local ranking = Ranking.getRanking(Lang.Rank.EveBossRankFile)
+	if ranking then
+		local num = Ranking.getRankItemCount(ranking)
+		if num >= EveBossConfig.awardNum then 
+			num = EveBossConfig.awardNum  
+		end
+		for i=1, num do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				local maxVal = tonumber(Ranking.getPoint(item)) or 0
+				if maxVal < EveBossConfig.needMaxVal then --小于N万则后面都是小于这个数
+					return
+				end
+				local nActorId = Ranking.getId(item)
+				local needBagCount = EveBossConfig.accAwards[i].needBagCount
+				local msg = string.format(Lang.Activity.yncj014,i)
+				System.addOfflineMsg(nActorId, 70, msg, 0, 6, i, needBagCount)--分别表示：玩家id，类型，消息内容，发送者（系统），6除夕夺宝，i奖项编号，需要空格
+			end
+		end
+	end
+end
+
+--玩家死亡处理
+function EveBossActorDie(sysarg)
+	--判断活动
+	if System.isInDateRange(unpack(EveBossConfig.actTime)) == false then
+		return
+	end
+
+	local ranking = Ranking.getRanking(Lang.Rank.EveBossRankFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		Ranking.removeId(ranking, nActorId)
+	end
+	
+	local dVar = Actor.getDyanmicVar(sysarg)
+	dVar.EveBossFlag = nil	
+end
+
+
+--保存伤害数据
+function SaveEveBossInfo(sysarg, value)
+	local ranking = Ranking.getRanking(Lang.Rank.EveBossRankFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			Ranking.updateItem(ranking, nActorId, value)--增加并累加
+		else
+			local myName = Actor.getName(sysarg)
+			item = Ranking.addItem(ranking, nActorId, value)
+			Ranking.setSub(item, 0, myName)--0名字  1 nModeId, 2 nWeaponApper, 3 nWingAppear 4性别，5名字
+			local nModeId, nWeaponApper, nWingAppear = Actor.getAppear(sysarg)
+			local nSex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+			Ranking.setSub(item, 1, nModeId)
+			Ranking.setSub(item, 2, nWeaponApper)
+			Ranking.setSub(item, 3, nWingAppear)
+			Ranking.setSub(item, 4, nSex)
+		end
+	end
+end
+
+--活动结束清数据
+function ClearEveData()
+	local ranking = Ranking.getRanking(Lang.Rank.EveBossRankFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+

@@ -1,0 +1,165 @@
+--投资计划的处理
+
+--返回投资计划的信息
+function OnGetInvestDataOp(sysarg,args)
+	local nOpenDay = System.getDaysSinceOpenServer()
+	local nFlag = Actor.getOpenInvestedFlag(sysarg)
+
+	if nOpenDay > MoneyInvestedConfig.openDay and nFlag == 0 then return end		--前3天没开启投资消失
+	if Actor.isAllGetAwardFlag(sysarg,MoneyInvestedConfig.returnDay) == 1 then		--全部领取了奖励
+		return
+	end
+	local pack = DataPack.allocPacket(sysarg, 50, 3)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nFlag)
+		DataPack.writeInt(pack, MoneyInvestedConfig.InvestValue)
+
+		local nLeftTime = 0
+		
+		local nHour,nMin,nSec = System.getTime(0,0,0)
+		if nOpenDay <= MoneyInvestedConfig.openDay then
+			nLeftTime = (MoneyInvestedConfig.openDay - nOpenDay) * 24 * 60 * 60 + (24 - nHour) * 60 * 60
+			nLeftTime = nLeftTime - nMin * 60 - nSec
+		end
+		DataPack.writeInt(pack, nLeftTime)
+
+		DataPack.writeInt(pack, table.getn(MoneyInvestedConfig.awards))
+		for i=1,table.getn(MoneyInvestedConfig.awards) do
+			DataPack.writeChar(pack, i)
+			DataPack.writeChar(pack, Actor.isGetAwardFlag(sysarg,i))
+
+			local nConfig = MoneyInvestedConfig.awards[i]
+			DataPack.writeInt(pack, table.getn(nConfig))
+			for j=1,table.getn(nConfig) do
+				DataPack.writeInt(pack, nConfig[j].type)
+				DataPack.writeInt(pack, nConfig[j].id)
+				DataPack.writeInt(pack, nConfig[j].count)
+			end
+		end
+
+		DataPack.flush(pack)
+	end
+end
+
+--领取奖励
+function OnGetInvestAwardOp(sysarg,args)
+	local nDay = args[2]
+	if nDay < 1 or nDay > table.getn(MoneyInvestedConfig.awards) then return end
+
+	local nFlag = Actor.getOpenInvestedFlag(sysarg)
+	if nFlag == 0 then		--没开启投资
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0056, ttFlyTip)
+		return
+	end
+
+	local nOpenDay = System.getDaysSinceOpenServer()
+	if nDay > nOpenDay then		--领取的开服天数未到
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.ly0057,nDay), ttFlyTip)
+		return
+	end
+
+	if Actor.isGetAwardFlag(sysarg,nDay) == 1 then			--已领取奖励
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0058, ttFlyTip)
+		return
+	end
+	
+	local nConfig = MoneyInvestedConfig.awards[nDay]
+	if nConfig == nil then return end
+
+	if Awards.CheckBagGridCount(sysarg,nConfig) then		--背包不够
+		for i=1,table.getn(nConfig) do
+			Actor.giveAward(sysarg,nConfig[i].type,nConfig[i].id,nConfig[i].count,nConfig[i].quality,nConfig[i].strong,nConfig[i].bind,0,923,Lang.Activity.ly0059)
+		end
+
+		Actor.setAwardFlag(sysarg,nDay,1)
+		
+		local pack = DataPack.allocPacket(sysarg, 50, 4)
+		if (pack ~= nil) then
+			DataPack.writeInt(pack, nDay)
+			DataPack.writeChar(pack, 1)
+			DataPack.flush(pack)
+		end
+	end
+end
+
+--开启投资计划
+function OnOpenMoneyInvestedOp(sysarg,args)
+	local nOpenDay = System.getDaysSinceOpenServer()
+	if nOpenDay > MoneyInvestedConfig.openDay then	--过了3天不能开启
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0060, ttFlyTip)
+		return
+	end
+
+	local nFlag = Actor.getOpenInvestedFlag(sysarg)
+	if nFlag == 1 then		--已开启投资
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0061, ttFlyTip)
+		return
+	end
+
+	local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	if myYb < MoneyInvestedConfig.InvestValue then
+		Actor.sendTipmsg(sysarg, Lang.Activity.ly0063, ttFlyTip)
+		return
+	end
+
+	if Actor.changeMoney(sysarg,3,-MoneyInvestedConfig.InvestValue,923,Lang.Activity.ly0062) then
+		local pack = DataPack.allocPacket(sysarg, 50, 5)
+		if (pack ~= nil) then
+			DataPack.writeChar(pack, 1)
+			DataPack.flush(pack)
+		end
+
+		Actor.setOpenInvestedFlag(sysarg,1)
+		System.broadcastTipmsg(string.format(Lang.Activity.ly0069,Actor.getName(sysarg)),2+128)
+	end
+end
+
+
+--领取惠民消费活动的奖励
+function OnGetThanksConsumeAward(sysarg,args)
+	local nId = args[2]
+	local nIndex = args[3]
+
+	if System.getOpenThanksConsumeState(nId) == 0 then return end
+
+	if Actor.getThanksConsumeFlag(sysarg,nId,nIndex-1) == 1 then		--已领取奖励
+		Actor.sendTipmsg(sysarg, Lang.Activity.hm0007, ttFlyTip)
+		return
+	end
+	
+	local nPoint = Actor.getThanksPointById(sysarg,nId)
+	local nConfig = ThanksConsumeConfig.ativitys[nId]
+	if nConfig == nil then return end
+
+	local nThaConfig = nConfig.allGrades[nIndex]
+	if nThaConfig == nil then return end
+
+	if nPoint < nThaConfig.needTimes then		--条件没达到不能领取
+		Actor.sendTipmsg(sysarg, Lang.Activity.hm0008, ttFlyTip)
+		return
+	end
+
+	if Awards.CheckBagGridCount(sysarg,nThaConfig.awards) then		--背包不够
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		for i=1,table.getn(nThaConfig.awards) do
+			if nThaConfig.awards[i].job == nil then
+				nThaConfig.awards[i].job = -1
+			end
+			if nThaConfig.awards[i].job == -1 or myJob == nThaConfig.awards[i].job then
+				Actor.giveAward(sysarg,nThaConfig.awards[i].type,nThaConfig.awards[i].id,nThaConfig.awards[i].count,nThaConfig.awards[i].quality,
+				nThaConfig.awards[i].strong,nThaConfig.awards[i].bind,0,923,Lang.Activity.hm0009)
+			end
+		end
+
+		Actor.setThanksConsumeFlag(sysarg,nId,nIndex-1)
+
+		local pack = DataPack.allocPacket(sysarg, 50, 8)
+		if (pack ~= nil) then
+			DataPack.writeInt(pack, nId)
+			DataPack.writeChar(pack, nIndex-1)
+			DataPack.writeChar(pack, 1)
+			DataPack.flush(pack)
+		end
+	end
+end
+

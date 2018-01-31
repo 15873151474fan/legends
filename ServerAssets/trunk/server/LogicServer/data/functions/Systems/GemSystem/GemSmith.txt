@@ -1,0 +1,84 @@
+﻿--lua script
+-- 宝物开光
+--#include "GemCommon.txt" once
+
+
+local function CanGemSmith(sysarg, gemItemPtr)
+	local level = GemItem.getGemItemLevel(gemItemPtr)
+	local smithLmtCfg = GemGlobalConfig.gemSmithLevel
+	if (smithLmtCfg == nil) then  return false end
+	if (table.getn(smithLmtCfg) < 1) then return false end
+	
+	local minLvlLmt = smithLmtCfg[1]
+	if (level < minLvlLmt) then		
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00022, ttTipmsgWindow)
+		return false
+	end
+	
+	return true
+end
+
+local function GetSmithConsumeConfig(smithCount)
+	local smithConsumeCfg = GemGlobalConfig.gemSmithConsume.info
+	local cfg = nil
+	for i=1, table.getn(smithConsumeCfg) do		
+		if (smithCount <  smithConsumeCfg[i].smithCount) then
+			cfg = smithConsumeCfg[i]
+			break
+		end
+	end
+	return cfg
+end
+
+GemSystemImpl.GemSmithHandler = function (sysarg, msgid, packet)	
+	local gemSlotIdx 				= DataPack.readInt(packet)		-- 宝物槽位号	
+	local gemItemPtr 				= Actor.getGemItemBySlot(sysarg, gemSlotIdx)
+	
+	if (not gemItemPtr) then	return	end
+	
+	--检测是否为限时宝物
+	if GemItem.isLimitTimeGem(gemItemPtr) then return end
+	
+	-- 检测和消耗
+	if (not CanGemSmith(sysarg, gemItemPtr)) then return end
+	local smithCount = GemItem.getGemItemSmithCount(gemItemPtr)
+	local consumeCfg = GetSmithConsumeConfig(smithCount)
+	if (not consumeCfg) then
+		return
+	end
+	
+	local reqItemId = GemGlobalConfig.gemSmithConsume.reqItemId
+	local reqItemCount 	= consumeCfg.reqCount
+	local reqMoneyType 	= consumeCfg.moneyType
+	local reqMoneyCount = consumeCfg.moneyCount
+	--print("reqItemcnt=" ..reqItemCount .. " mt=" .. reqMoneyType) 
+	if (reqItemCount > 0) then
+		if (not CheckItemReq(sysarg, reqItemId, reqItemCount)) then
+			return 
+		end
+	end
+	
+	if (reqMoneyCount > 0) then
+		if (not CheckMoneyReq(sysarg, reqMoneyType, reqMoneyCount)) then
+			return
+		end
+		
+		local bindFrist = false
+		if (reqMoneyType == 0) then
+			bindFrist = true
+		end	
+		if (false == Actor.consumeCoin(sysarg, reqMoneyCount, 149, "gem smith", true, bindFrist)) then		
+			print("consume money failed")
+			return
+		end
+	end
+
+	if (reqItemCount ~= Actor.removeItem(sysarg, reqItemId, reqItemCount, -1, -1, -1, "gem smith", 77)) then
+		print("gem smith failed. remove consume item failed")
+		return
+	end
+		
+	GemItem.smithGemItem(gemItemPtr)
+end
+
+GemSystemImpl.registerMsgHandler(7, GemSystemImpl.GemSmithHandler)

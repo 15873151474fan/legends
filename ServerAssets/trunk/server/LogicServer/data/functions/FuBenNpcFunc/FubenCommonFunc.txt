@@ -1,0 +1,1021 @@
+﻿--[[File:FubenCommonFunc.txt]]
+
+--#include "data\language\LangCode.txt" once
+--#include "data\envir\FuBen.txt" once
+--#include "data\envir\FubenCountConfig.txt" once
+--#include "OnEnterFubenFunc.txt" once
+--#include "data\envir\specialFb\FubenQuestMap.txt" once
+--#include "data\envir\FuBenTongGuan.txt" once
+--#include "data\config\NewVip\NewVipConfig.txt" once --新Vip配置
+
+EnterWaitSecs = 10
+nReloadMap  = 6
+
+--Vip副本次数加成
+function VipAddFubenTimes(sysarg)
+   local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+   local Tb = NewVipConfig.VipInclude
+   if (VipLevel <= 0) or (VipLevel > #Tb) then 
+      return 0
+   else
+      return Tb[VipLevel].nAddFuBeTimes
+   end 
+end
+
+ 
+--返回fubenId在当天购买过几次
+function getTodayFBItemTimes( sysarg, fubenId )
+	local times = 0
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar.fubenItems then
+		actorVar.fubenItems = {}
+	end
+	return actorVar.fubenItems[fubenId] or 0
+end
+
+--设置itemId在今天使用过几次
+function setTodayFBItemTimes( sysarg, fubenId, times )
+	local actorVar = Actor.getStaticVar(sysarg)
+	if not actorVar.fubenItems then	
+		actorVar.fubenItems = {}
+	end
+	actorVar.fubenItems[fubenId] = times
+end
+
+function GetFuBenName( fbId )
+	for _, info in ipairs(FuBen) do
+		if info.fbid == fbId then
+			return info.fbname
+		end
+	end
+	return ""
+end
+
+function CanEnterFuben( memPtr, leaderPtr )
+	local sVar = Actor.getStaticVar(memPtr)
+	if sVar.ActorDartStatus == 1 then	--正在押送镖车
+		if memPtr == leaderPtr then
+			Actor.sendTipmsg(leaderPtr,Lang.ScriptTips.fuben022, ttFlyTip)
+		else
+			Actor.sendTipmsg(leaderPtr, string.format(Lang.ScriptTips.fuben023,Actor.getName(memPtr)), ttFlyTip)
+		end
+		return false
+	end	
+	if Actor.hasState(memPtr, esStateStall) then
+		if memPtr == leaderPtr then
+			Actor.sendTipmsg(leaderPtr,Lang.ScriptTips.fuben036, ttFlyTip)
+		else
+			Actor.sendTipmsg(leaderPtr, string.format(Lang.ScriptTips.fuben037,Actor.getName(memPtr)), ttFlyTip)
+		end
+		return false
+	end
+	if Actor.getSocialMask(memPtr, smPwdLock) then
+		Actor.sendTipmsg(leaderPtr,Lang.Activity.af0010, ttFlyTip)
+		return false
+	end
+	if (Actor.hasMapAreaAttri(memPtr, nReloadMap) == true) then 
+	    Actor.sendTipmsg(leaderPtr,Lang.Activity.af0014, ttFlyTip)
+		return false
+    end
+    if (Actor.getSceneId(memPtr) == 6) then--监狱里面不能打副本 
+	    Actor.sendTipmsg(leaderPtr,Lang.Activity.af0015, ttFlyTip)
+		return false    
+    end
+    
+	return true
+end
+---[[
+function checkIsInGuild(sysarg)
+  local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	if nGuildId <= 0 then
+	   return false
+  end
+  return true
+end
+---]]
+function checkEnterFbTimes( sysarg, fubenId )
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return false
+	end
+	local fbcount = GetEnterFubenTimes(sysarg, fubenId)
+	if fbcount < 1 then
+		local questResult = false
+		for k, qid in ipairs(fubenCfg.quests or {}) do
+			if Actor.hasQuest(sysarg, qid) and not Actor.isFinishQuest(sysarg, qid) and not Actor.canFinishQuest(sysarg, qid) then
+				questResult = true
+			end
+		end
+		if not questResult then
+			return false
+		end
+	end
+	return true
+end
+
+function NoticeNoTimeToFb( sysarg, fubenId )
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return
+	end
+	local times = getTodayFBItemTimes(sysarg, fubenId)
+	local enterTimesCfg = fubenCfg.enterTimes or 0
+	if times >= enterTimesCfg then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben033, ttFlyTip)
+		OpenGuideUi(sysarg)
+		return
+	end
+	Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00015, ttFlyTip)
+end
+
+--点击进入副本按钮执行的函数，对玩家进入判断，成功则将玩家传到副本场景里
+function StartEnterFb(sysarg, FbID )
+    --print("StartEnterFb")
+	FbID = tonumber(FbID)
+	local curFBId = Actor.getFubenId( sysarg )
+	if curFBId > 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.tf00040,ttDialog)		
+		return
+	end
+	local challengeid = Actor.getChallenge(sysarg)
+	if challengeid ~= 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00019,ttDialog) 
+		return
+	end
+	local fbdata = FuBen[FbID]
+	if ( fbdata == nil ) then
+		return
+	end
+	local groupid = fbdata.groupId
+	local circleVal = fbdata.circle or 0
+	--进入单人副本模式
+	if fbdata.minPlayCount == 1 and fbdata.maxPlayCount == 1 then
+		if Actor.checkActorLevel(sysarg, fbdata.minLevel, circleVal) then
+			if not checkEnterFbTimes(sysarg, FbID, circleVal) then
+				NoticeNoTimeToFb(sysarg, FbID)
+				return
+			end
+			if not CanEnterFuben(sysarg, sysarg) then
+				return
+			end
+			if not CheckExtraConsume(sysarg, FbID, sysarg) then
+				return
+			end
+			if not ExtraConsume(sysarg, FbID, sysarg) then
+				return
+			end
+			Hfuben = Fuben.createFuBen(FbID)		 
+			if Actor.enterFuBen(sysarg,Hfuben,-1,-1,-1) then	 --进入副本，其中场景坐标按需要更改
+				Actor.clearKillMonsterCount(sysarg)
+				if fbdata.groupId ~= 14 then
+					DeductFubenTimes(sysarg, FbID) 
+				end				
+				if OnEnterCopyMap[FbID] then
+					OnEnterCopyMap[FbID].OnEnterFubenFunc(sysarg,Hfuben, FbID)
+				end
+				Actor.closeDialogs(sysarg,diFubenTeam)
+				Actor.triggerQuestEvent(sysarg, 39, FbID, 1)
+				GetQuestStrByFubenId(sysarg, FbID)
+				SetEnterFuben(sysarg)
+			end
+		else 
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00011, ttFlyTip)                   --输出提示由于等级不够进入不了副本
+		end
+	else
+		local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+		if TeamMemb == nil then 
+			return
+		end
+		local captainPtr = TeamFun.getTeamCaptain( Actor.getTeamId(sysarg))
+		---[[
+		local guildId = 0
+		if fbdata.isInGuild then
+		  guildId = Actor.getIntProperty(captainPtr,PROP_ACTOR_GUILD_ID) --获取队长的行会id
+		end
+		---]]
+		local useItemsEnter = {}
+		local capSceneName, capX, capY = Actor.getSceneName( captainPtr, 0, 0 )
+		for k, memPtr in ipairs(TeamMemb) do
+			if Actor.hasState(memPtr,esStateCarrier) == true or Actor.hasState(memPtr,esStatePassengger) == true then return end
+
+			if not Actor.checkActorLevel(memPtr, fbdata.minLevel, circleVal) then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.tf00068, Actor.getName(memPtr)),ttFlyTip)
+				return false
+			end
+		---[[	
+		if fbdata.isSameGuild then  --判断是否在同一行会
+			if Actor.getIntProperty(memPtr,PROP_ACTOR_GUILD_ID) ~= guildId then
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.w00129, Actor.getName(memPtr)),ttFlyTip)
+				return false
+			end
+		end
+		---]]  
+			
+			if not checkEnterFbTimes(memPtr, FbID) then
+				if memPtr == sysarg then
+					NoticeNoTimeToFb(sysarg, FbID)
+				else
+					Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.tf00069, Actor.getName(memPtr)), ttFlyTip)
+				end				
+				return false
+			end
+			if not CanEnterFuben(memPtr, captainPtr) then
+				return
+			end
+			if not CheckExtraConsume(memPtr, FbID, captainPtr) then
+				return
+			end
+			if memPtr ~= captainPtr then
+				local memSceneName, memX, memY = Actor.getSceneName( memPtr, 0, 0 )
+				if capSceneName ~= memSceneName or (math.abs(capX - memX) > 10 and math.abs(capY - memY) > 10) then
+					Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben004, Actor.getName(memPtr)), ttFlyTip)
+					return false
+				end
+			end
+		end
+
+		if table.getn(TeamMemb) < fbdata.minPlayCount then		--判断队伍的人数是否满足条件
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00001, ttFlyTip)
+			return false
+		end
+		if table.getn(TeamMemb) > fbdata.maxPlayCount then
+			--Actor.sendTipmsgWithId(sysarg,tpTeamMemberFull) 		--队伍人数超过最多人数，不能进入副本
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00002,ttFlyTip)
+			return false
+		end
+		Hfuben = Fuben.createFuBen(FbID)
+		for k, memPtr in ipairs(TeamMemb) do		--如果满足条件将队伍的成员逐个传送到副本场景
+			if not ExtraConsume(memPtr, FbID, captainPtr) then
+				return
+			end
+			Actor.enterFuBen(memPtr,Hfuben,-1,-1,-1)
+			Actor.clearKillMonsterCount(memPtr)
+			local itemTimes = useItemsEnter[memPtr]
+			if itemTimes then
+				Actor.removeItem( sysarg, fbdata.itemId, fbdata.itemNum, -1, -1, -1, "enter fuben items", 5 )
+				setTodayFBItemTimes( sysarg, FbID, itemTimes + 1 )
+			else
+				DeductFubenTimes(memPtr, FbID)
+			end			
+			Actor.closeDialogs(TeamMemb[i],diFubenTeam)	
+			Actor.triggerQuestEvent(TeamMemb[i], 39, FbID, 1)
+			GetQuestStrByFubenId(TeamMemb[i], FbID)
+			SetEnterFuben(memPtr)
+		end
+		if OnEnterCopyMap[FbID] then
+			OnEnterCopyMap[FbID].OnEnterFubenFunc(sysarg,Hfuben, FbID)
+		end
+	end
+end
+
+function CheckExtraConsume(sysarg, nFid, pLeader)
+	local fbdata = FuBen[nFid]
+	local needConsume = fbdata.needConsume
+	if needConsume then
+		if pLeader == sysarg then
+			if Actor.checkConsume(sysarg,needConsume.type,needConsume.id,needConsume.count) ~= true then
+				local awardDesc = Item.getAwardDesc(needConsume.type,needConsume.id)
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben047,awardDesc,needConsume.count), ttFlyTip)
+				return false
+			end
+		elseif pLeader and needConsume.all then
+			local name = Actor.getName(sysarg)
+			if Actor.checkConsume(sysarg,needConsume.type,needConsume.id,needConsume.count) ~= true then
+				local awardDesc = Item.getAwardDesc(needConsume.type,needConsume.id)
+				Actor.sendTipmsg(pLeader, string.format(Lang.ScriptTips.fuben048,name,awardDesc,needConsume.count), ttFlyTip)
+				return false
+			end
+		end
+	end
+	
+	return true
+end
+
+function ExtraConsume(sysarg, nFid, pLeader)
+	local fbdata = FuBen[nFid]
+	local needConsume = fbdata.needConsume
+	if needConsume then
+		if pLeader == sysarg then
+			if Actor.removeConsume(sysarg,needConsume.type,needConsume.id,needConsume.count) < needConsume.count then
+				System.trace(string.format("Enter Fuben RemoveConsume Error Fid=%d",FbID))
+				return false
+			end
+		elseif pLeader and needConsume.all then
+			if Actor.removeConsume(sysarg,needConsume.type,needConsume.id,needConsume.count) < needConsume.count then
+				System.trace(string.format("Enter Fuben RemoveConsume Error Fid=%d",FbID))
+				return false
+			end
+		end
+	end
+	
+	return true
+end
+
+--设置玩家进入副本
+function SetEnterFuben( sysarg )
+	local fubenPtr = Actor.getFubenPrt( sysarg )
+	if fubenPtr then
+		local fbVar = Fuben.getDyanmicVar( fubenPtr )
+		local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+		if not fbVar.enterMems then
+			fbVar.enterMems = {}
+		end
+		fbVar.enterMems[myId] = true
+	end
+	ClearFubenTongGuan(sysarg)
+end
+
+--组队副本，再次进入的队员杀怪数量要做一个置换
+function ChangKillNumber(sysarg, MemPtr)
+  local curFbId = Actor.getFubenId(MemPtr)
+  --print("ChangKillNumbercurFbId"..curFbId)
+  local Vars = Actor.getStaticVar( MemPtr )
+  if not Vars.FuBenTongGuan then
+  --print("ChangKillNumbercurFbId"..curFbId)
+     Vars.FuBenTongGuan = {}
+  end   
+  --print("ChangKillNumbercurFbId"..curFbId)
+  if not Vars.FuBenTongGuan[curFbId] then
+     Vars.FuBenTongGuan[curFbId] = {}
+     Vars.FuBenTongGuan[curFbId].AllKillNumber = 0
+  end
+  
+  local Var = Actor.getStaticVar( sysarg )
+  if not Var.FuBenTongGuan then
+     Var.FuBenTongGuan = {}
+  end
+  if not Var.FuBenTongGuan[curFbId] then
+     Var.FuBenTongGuan[curFbId] = {}
+     Var.FuBenTongGuan[curFbId].AllKillNumber = 0
+  end
+  --前面是排错判断 
+  Var.FuBenTongGuan[curFbId].AllKillNumber = Vars.FuBenTongGuan[curFbId].AllKillNumber
+
+end
+ 
+function EnterFubenAgain(sysarg, fubenId)
+    --print("EnterFubenAgain1")
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return false
+	end
+	local teamFubenPtr = nil
+	local hasTeamEnterFB = false
+	local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+	for k, memPtr in ipairs(TeamMemb) do
+		local fubenPtr = Actor.getFubenPrt( memPtr ) 
+		if fubenPtr and Fuben.getFubenNameByPtr(fubenPtr) == fubenCfg.fbname then
+			hasTeamEnterFB = true
+			teamFubenPtr = fubenPtr
+			local fbVar = Fuben.getDyanmicVar( fubenPtr )
+			if fbVar.enterMems and fbVar.enterMems[myId] then
+				local fubenHandle = Fuben.getFubenHandle(fubenPtr)
+				    --print("EnterFubenAgain2")
+                ChangKillNumber(sysarg, memPtr)   
+				Actor.enterFuBen(sysarg,fubenHandle,-1,-1,-1)
+				
+				if fubenId == 59 then
+					getActorInfo(sysarg)
+				end
+				
+				return true
+			end
+		end
+	end
+	if hasTeamEnterFB then --需要扣次数
+		local circleVal = fubenCfg.circle or 0
+		if Actor.checkActorLevel(sysarg, fubenCfg.minLevel) then
+			if checkEnterFbTimes(sysarg, fubenId) then
+				if fubenCfg.needConsume and fubenCfg.needConsume.all ==true then
+					if not CheckExtraConsume(sysarg, fubenId, sysarg) then
+						return true
+					end
+					if not ExtraConsume(sysarg, fubenId, sysarg) then
+						return true
+					end
+				end
+				DeductFubenTimes(sysarg, fubenId)
+                --print("EnterFubenAgain3")
+				local fubenHandle = Fuben.getFubenHandle(teamFubenPtr)
+				Actor.enterFuBen(sysarg,fubenHandle,-1,-1,-1)
+				SetEnterFuben( sysarg )
+				return true
+			else
+				NoticeNoTimeToFb(sysarg, fubenId)
+			end
+		end
+	end
+	return false
+end
+
+function readyEnterFB( sysarg, fubenId )
+    --print("readyEnterFB")
+	fubenId = tonumber(fubenId)
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return
+	end
+    --local pFb = Actor.getFubenPrt(sysarg)   
+    --if pFb then
+      -- Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben060, 130)
+       --return
+    --end
+	local teamId = Actor.getTeamId( sysarg )
+
+	if teamId > 0 then
+		if fubenCfg.minPlayCount == 1 and  fubenCfg.maxPlayCount == 1 then
+			if fubenCfg.needConsume then
+				local awardDesc = Item.getAwardDesc(fubenCfg.needConsume.type,fubenCfg.needConsume.id)
+				local enterNotice = string.format(Lang.ScriptTips.fuben044, awardDesc, fubenCfg.needConsume.count)
+				local capEnsureBtn = string.format("%s/StartEnterFb,%d", Lang.ScriptTips.tf00063, fubenId)
+				local cancelBtn = string.format("%s/Cancel,%d", Lang.ScriptTips.tf00064, fubenId)
+				Actor.messageBox(sysarg, 0, 0, enterNotice, capEnsureBtn, cancelBtn, nil)
+			else
+				StartEnterFb( sysarg, fubenId )
+			end
+			return
+		end
+		if EnterFubenAgain(sysarg, fubenId) then
+			return
+		end
+		local captainPtr = TeamFun.getTeamCaptain( teamId )
+		if captainPtr ~= sysarg then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben003, ttFlyTip)
+			return
+		end
+		local circleStr = ""
+		if fubenCfg.circle then
+			circleStr = string.format(Lang.ScriptTips.fuben042, fubenCfg.circle)
+		end
+		local enterNotice = string.format(Lang.ScriptTips.fuben002, fubenCfg.fbname, circleStr, fubenCfg.minLevel)
+		if fubenCfg.needConsume then
+			local awardDesc = Item.getAwardDesc(fubenCfg.needConsume.type,fubenCfg.needConsume.id)
+			if fubenCfg.needConsume.all then
+				enterNotice = enterNotice..string.format(Lang.ScriptTips.fuben045, awardDesc, fubenCfg.needConsume.count)
+			else
+				enterNotice = enterNotice..string.format(Lang.ScriptTips.fuben046, awardDesc, fubenCfg.needConsume.count)
+			end
+		end 
+		local capEnsureBtn = string.format("%s/enterTeamFbByLeader,%d", Lang.ScriptTips.tf00063, fubenId)
+		local cancelBtn = string.format("%s/cancelTeamFbByLeader,%d", Lang.ScriptTips.tf00064, fubenId)
+		Actor.messageBox( sysarg, 0, 0, enterNotice, capEnsureBtn, cancelBtn, NULL)
+	else
+		if fubenCfg.minPlayCount == 1 and  fubenCfg.maxPlayCount > 1 then
+		---[[
+			if fubenCfg.isInGuild then
+				if not checkIsInGuild(sysarg) then
+					Actor.sendTipmsg(sysarg,Lang.Activity.w00126, ttFlyTip)
+					return
+				end
+			end
+		---]]  
+			if checkEnterFbTimes(sysarg, fubenId) then
+				local enterNotice = Lang.ScriptTips.fuben001
+				if fubenCfg.needConsume then
+					local awardDesc = Item.getAwardDesc(fubenCfg.needConsume.type,fubenCfg.needConsume.id)
+					enterNotice = enterNotice..string.format("\\"..Lang.ScriptTips.fuben044, awardDesc, fubenCfg.needConsume.count)
+				end
+				local ensureFuncStr = string.format("%s/CreateSingleTeam,%d", Lang.ScriptTips.tf00063, fubenId)
+				local capCancelBtn = string.format("%s/CancelCreateTeam", Lang.ScriptTips.tf00064)
+				Actor.messageBox( sysarg, 0, 0, enterNotice, ensureFuncStr, capCancelBtn, NULL )
+			else
+				NoticeNoTimeToFb(sysarg, fubenId)
+			end			
+			return
+		end
+		
+		if fubenCfg.needConsume then
+			local awardDesc = Item.getAwardDesc(fubenCfg.needConsume.type,fubenCfg.needConsume.id)
+			local enterNotice = string.format(Lang.ScriptTips.fuben044, awardDesc, fubenCfg.needConsume.count)
+			local capEnsureBtn = string.format("%s/StartEnterFb,%d", Lang.ScriptTips.tf00063, fubenId)
+			local cancelBtn = string.format("%s/Cancel,%d", Lang.ScriptTips.tf00064, fubenId)
+			Actor.messageBox(sysarg, 0, 0, enterNotice, capEnsureBtn, cancelBtn, nil)
+		else
+			StartEnterFb( sysarg, fubenId )
+		end
+	end
+end
+
+function CancelCreateTeam( sysarg )
+
+end
+
+function CreateSingleTeam( sysarg, fubenId )
+	fubenId = tonumber(fubenId)
+	Actor.createTeam(sysarg)
+	StartEnterFb( sysarg, fubenId )
+end
+
+function enterTeamFbByLeader( sysarg, fbId )
+	fbId = tonumber(fbId)
+	local teamId = Actor.getTeamId( sysarg )
+	if teamId > 0 then
+		local captainPtr = TeamFun.getTeamCaptain( teamId )
+		if captainPtr ~= sysarg then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben003, ttFlyTip)
+			return
+		end
+		StartEnterFb( sysarg, fbId )
+	end
+end
+
+function cancelTeamFbByLeader( sysarg, fbId )
+end
+
+function GetExtBuyTimes( sysarg, groupId )
+	local sVar = Actor.getStaticVar(sysarg)		
+	return sVar.fbenter and sVar.fbenter[groupId] or 0
+end
+
+function ResetDayFubenTimes( sysarg )
+	local sVar = Actor.getStaticVar(sysarg)
+	sVar.fb = {}
+	for idx, times in ipairs(FubenCountConfig) do
+		sVar.fb[idx] = times -- 可进入副本次数
+	end
+	sVar.fbenter = {}     --副本进入次数
+	sVar.fubenItems = nil
+end
+
+function IncExtBuyTimes( sysarg, groupId ) 
+	local sVar = Actor.getStaticVar(sysarg)	
+	if not sVar.fbenter then
+		sVar.fbenter = {}
+	end
+	sVar.fbenter[groupId] = (sVar.fbenter[groupId] or 0) + 1
+end
+
+--扣除进入副本次数
+function DeductFubenTimes( sysarg, fubenId )
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return
+	end
+	local groupId = fubenCfg.groupId
+	local sVar = Actor.getStaticVar(sysarg)	
+	if not sVar.fb then
+		sVar.fb = {}
+	end
+	local fbTab = sVar.fb
+	fbTab[groupId] = fbTab[groupId] - 1
+end
+
+--获取总共可以进入副本的次数
+function GetEnterFubenTimes( sysarg, fubenId )
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return -1
+	end
+	local groupid = fubenCfg.groupId
+	local sVar = Actor.getStaticVar(sysarg)	
+	if not sVar.fb then
+		sVar.fb = {}
+	end
+	local fbTab = sVar.fb
+	local groupTimes = fbTab[groupid]
+	if (not groupTimes) or (groupTimes and groupTimes > (FubenCountConfig[groupid] or 0x7fffffff) ) then
+		groupTimes = FubenCountConfig[groupid] or 0x7fffffff; -- 没配置，给个很大的
+		fbTab[groupid] = groupTimes
+	end
+	local count = groupTimes + GetExtBuyTimes(sysarg, groupid) 
+	if not fubenCfg.NoNeedVipAdd then
+	   count = count + VipAddFubenTimes(sysarg)
+    end 
+	return count >= 0 and count or 0
+end
+
+-- 获取副本额外进入次数
+function getFBAddCount(sysarg)
+	local var = Actor.getDyanmicVar(sysarg)
+ 	local fb = var.fb
+ 	if fb == nil then 
+    var.fb = {}
+    fb = var.fb
+  end
+  
+  local fbAddCount = 0
+  if (fb.addFbCount ~= nil) then
+  	fbAddCount = fb.addFbCount
+  end  
+  --print("fbAddCount = " .. fbAddCount)
+  return fbAddCount                                          
+end
+
+function IsQuestLeavel(sysarg)
+	for _, data in ipairs(FubenQuestMap) do
+		if Actor.hasQuest(sysarg, data.taskId) then
+			print("IsQuestLeavel taskId:" .. data.taskId .. ":" .. data.mapName)
+			System.telportSceneByName(sysarg, data.mapName, data.x, data.y, 1)
+			Actor.closeActivityWind( sysarg )
+			return true
+		end
+	end
+  	return false
+end
+
+--副本通关清除函数(进入副本，离开副本都给清除掉) 
+function ClearFubenTongGuan(sysarg)
+	local Var = Actor.getStaticVar( sysarg )  --通关奖励置空
+	--print("SetEnterFuben")
+	--Var.FuBenTongGuan = nil
+	local curFbId = Actor.getFubenId(sysarg)
+	--print("ClearFubenTongGuancurFbId"..curFbId)
+	if curFbId > 0 then 
+       if not Var.FuBenTongGuan then
+          Var.FuBenTongGuan = {}
+       end
+       if not Var.FuBenTongGuan[curFbId] then
+          Var.FuBenTongGuan[curFbId] = {}
+          Var.FuBenTongGuan[curFbId].AllKillNumber = 0
+       end
+       Var.FuBenTongGuan[curFbId].AllKillNumber = 0
+       Var.FuBenTongGuan[curFbId].IsAward = 0--是否领取到奖励
+    end
+end
+ 
+--退出副本的函数
+function onExitFubenFunc(sysarg)
+    --ClearFubenTongGuan(sysarg)--清除副本通关状态 
+	--Var.FuBenTongGuan = nil
+    if IsQuestLeavel(sysarg) then --有一部分主线任务退出来直接到npc处打开面板，不进行下一步操作 
+       return
+    end     
+	local FbID = Actor.getFubenId(sysarg)
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	if FbID == 0 then 
+		Actor.exitFuben(sysarg)
+		return
+	end
+	local fbdata = FuBen[FbID]
+ 
+	if fbdata == nil then return end
+	if not Actor.isInTeam(sysarg) then 			--如果是单人副本，直接退出副本
+		Actor.exitFuben(sysarg)
+	else
+		if Fuben.getFubenProgress(fbPtr) == FB_FS_GETAWARD then
+			local teamid = Actor.getTeamId(sysarg)
+			TeamFun.setTeamFubenId(teamid,0)
+		end
+         Actor.exitFuben(sysarg)
+	end
+	    --print("onExitFubenFunc")
+	OnExitFubenFunc(sysarg, FbID)
+	--local pack = DataPack.allocPacket(sysarg, 20, 10)
+	--DataPack.writeInt(pack, FbID)		
+	--DataPack.flush(pack)
+	--if fbdata.groupId == 14 then
+		--DeductFubenTimes(sysarg, FbID) 
+	--end	
+	--[[if fbdata.noaward then		--没有奖励
+		return
+	end
+	local myId = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+	local fbVar = Fuben.getDyanmicVar( fbPtr )
+	if not fbVar.PassReward then
+		fbVar.PassReward = {}
+	end
+	if fbVar.PassReward[myId] then
+		return
+	end
+	fbVar.PassReward[myId] = 1
+
+	  
+	local netPack = DataPack.allocPacket(sysarg,139, 16)  --申请一个数据包
+	if netPack then
+		DataPack.writeByte(netPack, 1)
+		DataPack.writeString(netPack, Lang.ScriptTips.fuben035)
+		DataPack.writeInt( netPack, FbID)
+		DataPack.writeByte(netPack, #FubenPassReward)
+		for k, v in ipairs(FubenPassReward) do
+			DataPack.writeByte(netPack, v.type)
+			DataPack.writeInt(netPack, v.id)
+			DataPack.writeInt(netPack, v.count)
+		end
+		local dVar = Actor.getDyanmicVar(sysarg)
+		if not dVar.MarkPassRewardList then
+			dVar.MarkPassRewardList = {}
+		end
+		local randIdx = math.random(1, #FubenPassReward)
+		dVar.MarkPassRewardList[FbID] = randIdx
+		DataPack.writeByte(netPack, randIdx)
+		DataPack.flush(netPack)
+	end]]	
+	
+	
+	--local btnStr = string.format("%s/GetPassAward", Lang.ScriptTips.fuben019)
+	--Actor.messageBox(sysarg, 0,0,Lang.ScriptTips.fuben018,btnStr,NULL,NULL,0,1)
+end
+
+--领取通关奖励
+function GetPassAward( sysarg, fubenId )
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if dVar.MarkPassRewardList then
+		local curIdx = dVar.MarkPassRewardList[fubenId]
+		if curIdx then
+			local v = FubenPassReward[curIdx]
+			if v then
+				Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 55, "GetPassAward")
+			end
+			dVar.MarkPassRewardList[fubenId] = nil
+		end
+	end
+end
+
+function ensureFunc(sysarg)
+end
+
+function closeAUi(sysarg)
+
+end
+
+function acceptQuest( sysarg, qid )
+	qid = tonumber(qid)
+	if Actor.addQuest(sysarg, qid) then
+		local questTitle = System.getQuestTitle(qid) or ""
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.zf013, questTitle), ttTipmsgWindow)
+	end
+end
+
+--招募队友
+function RecruitTeamer(sysarg, fubenId)
+	fubenId = tonumber(fubenId)
+	local teamId = Actor.getTeamId(sysarg)
+	if teamId == 0 or TeamFun.getTeamCaptain(teamId) ~= sysarg then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben013, ttFlyTip)
+		return
+	end
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return
+	end
+	local dVar = Actor.getDyanmicVar(sysarg)
+	local nNowDt = System.getCurrMiniTime()
+	if dVar and dVar.RecruitTeamerDt and dVar.RecruitTeamerDt > nNowDt then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben008, dVar.RecruitTeamerDt - nNowDt), ttFlyTip)
+		return
+	end
+	dVar.RecruitTeamerDt = nNowDt + 10
+	local myName = Actor.getName(sysarg)
+	local noticeStr = string.format(Lang.ScriptTips.fuben005, fubenCfg.fbname, fubenCfg.minLevel, myName, myName)
+	System.broadcastTipmsgLimitLev(noticeStr, ttChatWindow, fubenCfg.minLevel)
+end
+
+
+--购买次数
+function BuyEnterTimes( sysarg, fubenId )
+	fubenId = tonumber(fubenId)
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return
+	end
+	local times = getTodayFBItemTimes(sysarg, fubenId)
+	if times >= fubenCfg.enterTimes then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben028, ttFlyTip)
+		return
+	end          
+	local allCount = GetFubenAllTimes(sysarg, fubenId)
+	if allCount >= fubenCfg.FubenenterAllTimes then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben059, ttFlyTip)
+		return
+	end
+	if fubenCfg.itemId and Actor.getItemCount( sysarg, fubenCfg.itemId) >= fubenCfg.itemNum then
+	   local itemName = Item.getItemLinkMsg(fubenCfg.itemId )
+	   local noticeStr = string.format(Lang.ScriptTips.fuben020, fubenCfg.fbname, itemName, fubenCfg.itemNum )
+	   local ensureStr = string.format("%s/ensureBuyEnterTimes,%d", Lang.ScriptTips.x00076, fubenId)
+	   local canelFunc = string.format("%s/CanelFunc,%d", Lang.ScriptTips.x00077, fubenId)
+ 	   Actor.messageBox(sysarg, Actor.getHandle(thisNPC),0, noticeStr, ensureStr, canelFunc,NULL)
+	else
+	   local UseGoldNumber = fubenCfg.UseGold 
+	   local noticeStr = string.format(Lang.ScriptTips.fuben049, fubenCfg.fbname, UseGoldNumber)
+	   local ensureStr = string.format("%s/ensureBuyEnterTimesByGold,%d", Lang.ScriptTips.x00076, fubenId)
+	   local canelFunc = string.format("%s/CanelFunc,%d", Lang.ScriptTips.x00077, fubenId)
+ 	   Actor.messageBox(sysarg, Actor.getHandle(thisNPC),0, noticeStr, ensureStr, canelFunc,NULL)
+    end  
+end
+
+function CanelFunc( sysarg, fubenId )
+
+end
+
+function ensureBuyEnterTimes( sysarg, fubenId )
+	fubenId = tonumber(fubenId)
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return
+	end
+	
+	local times = getTodayFBItemTimes(sysarg, fubenId)
+	if times >= fubenCfg.enterTimes then
+		return
+	end
+	if fubenCfg.itemId and Actor.getItemCount( sysarg, fubenCfg.itemId) >= fubenCfg.itemNum then
+		Actor.removeItem( sysarg, fubenCfg.itemId, fubenCfg.itemNum, -1, -1, -1, "enter fuben items", 5 )
+		setTodayFBItemTimes( sysarg, fubenId, times + 1 )
+		IncExtBuyTimes( sysarg, fubenCfg.groupId)
+		return OnEnterFubenFunc(sysarg, fubenId)
+	else
+		Actor.openDialogs(sysarg,diBuyAnItem,tostring(fubenCfg.itemId)) --购买类型框 
+		
+		--local itemName = Item.getItemLinkMsg(fubenCfg.itemId)
+		--Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben021, fubenCfg.itemNum, itemName), ttFlyTip)
+	end	
+end
+
+--元宝购买副本次数 
+function ensureBuyEnterTimesByGold( sysarg, fubenId )
+	fubenId = tonumber(fubenId)
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return
+	end
+
+	local times = getTodayFBItemTimes(sysarg, fubenId)
+	if times >= fubenCfg.enterTimes then
+		return
+	end
+	local myGold = Actor.getIntProperty( sysarg, PROP_ACTOR_YUANBAO)
+    --勾选元宝代替
+    if myGold >= fubenCfg.UseGold then
+        if not Actor.changeMoney(sysarg, mtYuanbao, -fubenCfg.UseGold, 992, "Gold enter fuben ") then
+           return 
+        end
+		setTodayFBItemTimes( sysarg, fubenId, times + 1 )
+		IncExtBuyTimes( sysarg, fubenCfg.groupId)
+		return OnEnterFubenFunc(sysarg, fubenId)
+    else
+        Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben050, fubenCfg.UseGold), ttFlyTip)
+    end
+end
+
+--队伍集结
+function TeamerMass( sysarg, fubenId )
+	fubenId = tonumber(fubenId)
+	local teamId = Actor.getTeamId(sysarg)
+	if teamId == 0 or TeamFun.getTeamCaptain(teamId) ~= sysarg then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben014, ttFlyTip)
+		return
+	end
+	local fubenCfg = FuBen[fubenId]
+	if not fubenCfg then
+		return
+	end
+	local dVar = Actor.getDyanmicVar(sysarg)
+	local nNowDt = System.getCurrMiniTime()
+	if dVar and dVar.TeamerMassDt and dVar.TeamerMassDt > nNowDt then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.fuben008, dVar.TeamerMassDt - nNowDt), ttFlyTip)
+		return
+	end
+	dVar.TeamerMassDt = nNowDt + 10
+	local npcName = Actor.getName(thisNPC)
+	local npcSceneId = Actor.getSceneId(thisNPC)
+	local messageStr = string.format(Lang.ScriptTips.fuben009, fubenCfg.fbname, npcName)
+	local pathFinding = string.format("%s/AutoPathFinding,%d,%s", Lang.ScriptTips.fuben011, npcSceneId, npcName)
+	local npcSceName,npcX,npcY = Actor.getSceneName(thisNPC, 0, 0)
+	local freeMove = string.format("%s/MoveToFbNpc,%s,%d,%d", Lang.ScriptTips.fuben012, npcSceName,npcX,npcY)
+	local canelFunc = string.format("%s/CanelFunc,%d", Lang.ScriptTips.x00077, 0)
+	local TeamMemb = LuaHelp.getTeamMemberList(sysarg)
+	local massNoticeStr = Lang.ScriptTips.fuben016
+	for k, v in ipairs(TeamMemb) do
+		if v ~= sysarg then
+			local memSceName, memX, memY = Actor.getSceneName(v, 0, 0)
+			if npcSceName ~= memSceName or (math.abs(memX - npcX) > 10 and math.abs(memY - npcY) > 10) then
+				Actor.messageBox( v, 0, 0, messageStr, pathFinding, freeMove, canelFunc, 0, 2)
+				massNoticeStr = Lang.ScriptTips.fuben015
+			end
+		end
+	end
+	Actor.sendTipmsg(sysarg, massNoticeStr, ttFlyTip)
+end
+
+function AutoPathFinding( sysarg, sceneId, npcName )
+	Actor.autoFindPathToNpc(sysarg, tonumber(sceneId), npcName)
+end
+
+--免费传送
+function MoveToFbNpc( sysarg, sceneName, x, y )
+	x = tonumber(x)
+	y = tonumber(y)
+	if Actor.getFubenId(sysarg) > 0 then
+		onExitFubenFunc(sysarg)
+	else
+		if Actor.hasMapAreaAttriValue(sysarg,aaNotBeTran,4) == true then
+			Actor.sendTipmsg( sysarg, Lang.ScriptTips.pataNotice022,ttFlyTip )
+			return
+		end
+
+		if Actor.canTelport(sysarg, 0, sceneName) then
+			System.telportSceneByName(sysarg, sceneName, x, y)
+		end		
+	end
+	
+end
+
+function StayInTeam( sysarg )
+
+end
+
+function DestroyTeam( sysarg )
+	Actor.exitTeam(sysarg)
+end
+
+function GetQuestStrByFubenId( sysarg, fubenId )
+	
+end
+
+function GetFubenAllTimes( sysarg, fubenId )
+    --print("GetFubenAllTimes:"..fubenId)
+	local fubenCfg = FuBen[fubenId]
+	if fubenCfg then
+	    if not fubenCfg.NoNeedVipAdd then
+		   return FubenCountConfig[fubenCfg.groupId] + getTodayFBItemTimes(sysarg, fubenCfg.fbid) + VipAddFubenTimes(sysarg)
+        else
+     	   return FubenCountConfig[fubenCfg.groupId] + getTodayFBItemTimes(sysarg, fubenCfg.fbid) 
+        end
+	end
+	return -1
+end
+
+function SendEnterFbTimes(sysarg)
+	local netPack = DataPack.allocPacket(sysarg, 20, 11)
+	if not netPack then
+		return
+	end
+	local size = #FuBen
+	DataPack.writeByte(netPack, size)	
+	for _, fubenCfg in ipairs(FuBen) do	
+		local count = GetEnterFubenTimes(sysarg, fubenCfg.fbid)
+		local allCount = GetFubenAllTimes(sysarg, fubenCfg.fbid)
+		DataPack.writeInt(netPack, fubenCfg.fbid)
+		DataPack.writeByte(netPack, allCount - count)	
+		DataPack.writeByte(netPack, allCount)	
+	end
+	DataPack.flush(netPack)
+end
+
+function OpenGuideUi( sysarg )
+	local netPack = DataPack.allocPacket(sysarg, 139, 53)
+	if netPack then
+		DataPack.flush(netPack)
+	end
+end
+
+function OnGetStoryFbItem( sysarg )
+	local fubenId = Actor.getFubenId(sysarg)
+	local itemTab = StoryEquipMap[fubenId]
+	if itemTab then
+		local weaponPtr = Item.getEquipByType(sysarg, Item.itWeapon)
+		if weaponPtr and Item.getItemId(weaponPtr) == itemTab.id then
+			return
+		end
+		local bagItCount = Actor.getItemCount(sysarg, itemTab.id)
+		if bagItCount > 0 then
+			return
+		end
+		local newItemPtr = 	Item.createItem(itemTab.id, itemTab.count, itemTab.strong, itemTab.quality, itemTab.bind)
+		if Item.addItem(sysarg,newItemPtr, "renown buy item", 63,1) then
+			Item.equipItem(sysarg, newItemPtr)
+		end
+	end
+end
+
+--检查背包格子数是否够
+function checkPaTaBagGrids( sysarg, awardComCfg )
+	local count = 0
+	if not awardComCfg then
+		return false
+	end
+	for k, v in ipairs( awardComCfg ) do
+		if v.type == 0 then
+			count = count + Item.getAddItemNeedGridCount( sysarg, v.id, v.count, v.quality, v.strong, v.bind)
+		end
+	end
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count),ttFlyTip )
+		return false
+	end
+	return true
+end
+
+function checkOneBagItem( sysarg, oneCfg )
+	if not oneCfg or oneCfg.type > 0 then
+		return true
+	end
+	local count = Item.getAddItemNeedGridCount( sysarg, oneCfg.id, oneCfg.count, oneCfg.quality, oneCfg.strong, oneCfg.bind)
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count),ttFlyTip )
+		return false
+	end
+	return true
+end
+
+--获取玩家信息，用于面板显示
+function getActorInfo( sysarg )
+	local actorVar = Actor.getStaticVar(sysarg)
+	if (not actorVar.nSoul) or (not actorVar.nRadishRank) or (actorVar.nRadishRank < 0) then
+		return 
+	end
+	Actor.changeActivityProgress(sysarg, -2, actorVar.nSoul, -2, actorVar.nRadishRank)
+end

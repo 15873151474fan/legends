@@ -1,0 +1,144 @@
+--#include "data\config\item\EquipChange.txt" once --套装装备转换
+
+--装备转换
+function ExchangeEquip( sysarg, packet, msgid )
+	local nIdx = DataPack.readByte( packet )
+	local equipCount = DataPack.readByte( packet )
+	--这个可以单独配置
+	if equipCount == 0 or equipCount > 20 then
+		return
+	end
+
+	local svar = Actor.getStaticVar(sysarg)
+	if svar.changeVocationFlag == nil then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00049, ttFlyTip)
+		return				
+	end
+	
+	if svar.changeVocationFlag == 0 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.mt00049, ttFlyTip)
+		return				
+	end
+
+	if svar.changeEquipCount == nil then
+		svar.changeEquipCount = 0
+	end
+
+	if svar.changeEquipCount + equipCount > ChangeVocationEquipTable.MaxCount then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00048, ChangeVocationEquipTable.MaxCount-svar.changeEquipCount), ttFlyTip)
+		return		
+	end
+	
+	local npack = nil
+	if msgid== cExchangeEquip then
+		npack = DataPack.allocPacket(sysarg,145,15)
+		DataPack.writeByte(npack, equipCount)
+	end	
+
+	local equipPtrTab = {}
+	for i = 1, equipCount do
+		local equipGuid = DataPack.readUint64( packet )
+		local equipPtr = Item.getBagItemPtrByGuid( sysarg, equipGuid)
+		if equipPtr then
+			local cfgTab = nil
+			local itemId = Item.getItemId(equipPtr)
+			local nItemType = Item.getItemProperty( sysarg, equipPtr, Item.ipItemType, 0)
+			if nItemType < Item.itWeapon or nItemType >= Item.itEquipMax then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00047, Item.getItemName(itemId)), ttFlyTip)
+				return
+			end
+			
+			--取出新装备和价钱
+			local nNewItemId, nNeedGold = GetNewEquipID(nIdx, itemId)
+			
+			--发送新提示
+			if msgid== cExchangeEquip then
+				DataPack.writeUInt(npack, itemId)
+				DataPack.writeUInt(npack, nNewItemId)
+				DataPack.writeUInt(npack, nNeedGold)
+			elseif nNewItemId ~=0 then
+				--判断钱够不够
+				local GoldType= PROP_ACTOR_YUANBAO
+				local GoldTypeChange= mtYuanbao
+	
+				local myGold = Actor.getIntProperty(sysarg,GoldType)
+				if myGold < nNeedGold then
+					Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.zf400, nNeedGold - myGold), ttFlyTip )
+					return
+				end
+				
+				--获取其他附加属性
+				local propTab = {}
+				--鉴定属性,在装备鉴定那里定义
+				--[[
+				AuthValTab = {
+					Item.ipItemForgeProperty1Value,
+					Item.ipItemForgeProperty2Value,
+					Item.ipItemForgeProperty3Value,
+					Item.ipItemForgeProperty4Value,
+				}
+				--]]
+				local authTimes = Item.getItemProperty( sysarg, equipPtr, Item.ipItemForgeTimes, 0 )
+				propTab[Item.ipItemForgeTimes] = authTimes;
+				for authIdx, authVar in ipairs(AuthValTab) do
+					local tempVal = Item.getItemProperty( sysarg, equipPtr, authVar, 0)
+					propTab[authVar] = tempVal
+				end
+				local initSmith = Item.getItemProperty( sysarg, equipPtr, Item.ipItemSpecSmith, 0)
+				
+				local nStrong = Item.getItemProperty(sysarg, equipPtr, Item.ipItemStrong, 0)
+				if nStrong <= 0 then
+					nStrong = 0
+				end
+				
+				local nQuality = Item.getItemProperty( sysarg, equipPtr, Item.ipItemQuality, 0 )
+				local nLuck = Item.getItemProperty( sysarg, equipPtr, Item.ipItemLuck, 0 )
+				local nInsure = Item.getItemProperty( sysarg, equipPtr, Item.ipItemHole3Item, 0 )	--投保次数
+				
+				--扣钱
+				if not Actor.changeMoney(sysarg, GoldTypeChange, -nNeedGold, 145, Lang.LogTips.l00160) then
+					return
+				end
+				
+				--删除旧物品
+				local isItemInBag = true
+				if Actor.removeItemByPtr(sysarg, equipPtr, 1, true, Lang.LogTips.l00161, 92) == 0 then
+					if Item.removeEquip(sysarg, equipPtr, Lang.LogTips.l00161, 92, true) == 0 then
+						return
+					end
+					isItemInBag = false
+				end
+	
+				--创建新装备
+				local newItemPtr = Item.createItem(nNewItemId, 1, nStrong, nQuality);
+				if newItemPtr then
+					Item.addItem(sysarg, newItemPtr, Lang.LogTips.l00070, 93)
+					if initSmith > 0 then
+						Item.setItemProperty( sysarg, newItemPtr, Item.ipItemSpecSmith, initSmith)
+					end
+					for propId, propVal in pairs(propTab) do
+						Item.setItemProperty( sysarg, newItemPtr, propId, propVal)
+					end
+					if nLuck > 0 then
+						Item.setItemProperty( sysarg, newItemPtr, Item.ipItemLuck, nLuck)
+					end
+					local nInsureCount = Item.getItemPropertyById(nNewItemId, Item.ipItemInsure) --投保金额 >0可投保
+					if nInsure > 0 and nInsureCount > 0 then
+						Item.setItemProperty( sysarg, newItemPtr, Item.ipItemHole3Item, nInsure)
+					end
+					svar.changeEquipCount = svar.changeEquipCount+1
+				end
+			end --end if
+		else --取不到物品指针
+			if msgid== cExchangeEquip then
+				DataPack.writeUInt(npack, itemId)
+				DataPack.writeUInt(npack, 0)
+				DataPack.writeUInt(npack, 0)
+			end
+		end --end if
+	end --end for
+	
+	if msgid== cExchangeEquip then
+		DataPack.flush(npack)
+	end
+end

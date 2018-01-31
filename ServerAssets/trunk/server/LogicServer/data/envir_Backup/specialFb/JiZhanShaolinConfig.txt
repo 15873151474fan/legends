@@ -1,0 +1,1085 @@
+--激战少林配置表
+
+--#include "..\..\language\LangCode.txt"
+JiZhanShaoLinConfig =
+{
+	pointStep =
+	{
+		20,50,100,200,500,800,1100,2000,3000,5000,
+	},
+	pointReward =	--积分奖励
+	{
+		{			--第一阶段
+			{type = 2, count = 600000,present=100,},
+ 			{type = 0, count = 1, id = 2211, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 2207, quality=0, strong=0, bind=1,present=100,},			
+			--{type = 0, count = 1, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--第二阶段
+			{type = 2, count = 600000,present=100,},
+ 			{type = 0, count = 2, id = 2211, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 2, id = 2207, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 2, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--第三阶段
+			{type = 2, count = 600000,present=100,},
+			{type = 0, count = 3, id = 2211, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 3, id = 2207, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 3, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--第四阶段
+			{type = 2, count = 600000,present=100,},
+			{type = 0, count = 1, id = 2212, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 2208, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--第五阶段
+			{type = 2, count = 600000,present=100,},
+			{type = 0, count = 2, id = 2212, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 2, id = 2208, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 2, id = 1916, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--第六阶段
+			{type = 2, count = 600000,present=100,},
+			{type = 0, count = 2, id = 2212, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 3, id = 2208, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 3, id = 1916, quality=0, strong=0, bind=1,present=100,},
+		},		
+		{			--第七阶段
+			{type = 2, count = 600000,present=100,},
+			{type = 0, count = 1, id = 2213, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 2209, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 3, id = 1916, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--第八阶段
+			{type = 2, count = 600000,present=100,},
+			{type = 0, count = 2, id = 2213, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 2, id = 2209, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 3, id = 1916, quality=0, strong=0, bind=1,present=100,},
+	},		
+		{			--第九阶段
+			{type = 2, count = 600000,present=100,},
+			{type = 0, count = 3, id = 2213, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 3, id = 2209, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 3, id = 1916, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--第十阶段
+			{type = 2, count = 600000,present=100,},
+			{type = 0, count = 4, id = 2213, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 4, id = 2209, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 3, id = 1916, quality=0, strong=0, bind=1,present=100,},
+		},
+	},
+	pointTop =
+	{
+		{			--积分第一名
+			{type = 2, count = 10000000,present=100,},
+			{type = 0, count = 50, id = 2210, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 50, id = 2214, quality=0, strong=0, bind=1,present=100,},			
+		},
+		{			--积分第二名
+			{type = 2, count = 8000000,present=100,},
+			{type = 0, count = 40, id = 2210, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 40, id = 2214, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--积分第三名
+			{type = 2, count = 7000000,present=100,},
+			{type = 0, count = 30, id = 2210, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 30, id = 2214, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--积分第四名
+			{type = 2, count = 6000000,present=100,},
+			{type = 0, count = 20, id = 2210, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 20, id = 2214, quality=0, strong=0, bind=1,present=100,},
+		},
+		{			--积分第五名
+			{type = 2, count = 5000000,present=100,},
+			{type = 0, count = 10, id = 2210, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 10, id = 2214, quality=0, strong=0, bind=1,present=100,},
+		},
+	},
+	enterPoint = 10,	--进入副本积分
+	levels =			--各层信息配置
+	{
+	  -- 第一层
+	  {
+		sceneId = 149,
+		level = 1,
+		name = Lang.ScriptTips.jzsl028,  -- 名字
+		item =   -- 进入该层所需道具
+		{
+			{id = 2160, num = 0,},  --aId物品Id   num所需物品数量
+		},
+		minLv = 42, --最低进入等级
+		achieveId = 136,	--成就ID
+		point = 10,		--本层所得积分
+		topPoint = 50,	--领取楼主奖励时的积分
+		reward =
+		{
+			{type = 2, count = 200000,present=100,},
+			{type = 0, count = 1, id = 2093, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 1002, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 1, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 1, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞			
+			{type = 0, count = 1, id = 2207, quality=0, strong=0, bind=1,present=100,}, --传说利刃
+			--{type = 0, count = 1, id = 2211, quality=0, strong=0, bind=1,present=100,}, --传说之护
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 2000000,present=100,},
+			{type = 6, count = 20000,present=100,},			
+			{type = 0, count = 4, id = 2207, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 4, id = 2211, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 50000, --冲关成功后所得经验
+		rush =  --冲关
+		{
+			{
+			{id = 2159, num = 1, odds = 50,},
+			},
+			-- 第二关冲到第三关
+			{
+			{id = 2159, num = 1, odds = 40,},
+			},
+			-- 第三关冲到第四关
+			{
+			{id = 2159, num = 1, odds = 30,},
+			},
+			-- 第四关冲到第五关
+			{
+			{id = 2159, num = 1, odds = 20,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 160, x = 35, x1 =46, y = 16, num = 20, },	--盗宝贼40级
+		},
+		monsters =  --刷怪
+		{
+			{-- 一关
+				{mid = 446, x = 30, x1 = 35, y = 21, num = 5,}, -- 5只普通怪,第1层
+				{mid = 447, x = 30, x1 = 35, y = 21, num = 1,}, -- 1只精英怪,第1层
+				{mid = 446, x = 37, x1 = 43, y = 16, num = 5,}, -- 5只普通怪,第1层
+				{mid = 447, x = 37, x1 = 43, y = 16, num = 1,}, -- 1只精英怪,第1层
+			},
+
+			--二关
+			{
+				{mid = 446, x = 17, x1 = 22, y = 21, num = 7,}, -- 7只普通怪,第1层
+				{mid = 447, x = 17, x1 = 22, y = 21, num = 2,}, -- 2只精英怪,第1层
+				{mid = 446, x = 35, x1 = 42, y = 21, num = 7,}, -- 7只普通怪,第1层
+				{mid = 447, x = 35, x1 = 42, y = 21, num = 2,}, -- 2只精英怪,第1层
+			},
+
+			--三关
+			{
+				{mid = 446, x = 35, x1 =46, y = 16, num = 20,}, -- 20只普通怪,第1层
+				{mid = 447, x = 35, x1 =46, y = 16, num = 3, }, -- 3只精英怪,第1层
+			},
+
+			--四关
+			{
+				{mid = 446, x = 22, x1 =38, y = 21, num = 30,}, -- 30只普通怪,第1层
+				{mid = 447, x = 22, x1 =38, y = 21, num = 5, }, -- 5只精英怪,第1层
+			},
+
+			--五关
+			{
+				{mid = 446, x = 23, x1 = 34, y = 21, num = 20,}, -- 20只普通怪,第1层
+				{boss = true,mid = 448, x = 28, x1 = 30, y = 21, num = 1,}, -- 1只BOSS,第1层
+			},
+		},
+	  },
+	  --第二层
+	  {
+		sceneId = 150,
+		level = 2,
+		name = Lang.ScriptTips.jzsl029,  -- 名字
+		x = 4,   -- 进入下层x、y坐标
+		y = 8,
+		item =   -- 进入该层所需道具
+		{
+
+			{id = 2160, num = 2, } --aId物品Id   num所需物品数量
+
+		},
+		reward =
+		{
+			{type = 2, count = 220000,present=100,},
+			{type = 0, count = 2, id = 2093, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 1646, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1918, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 2, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 2, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 1, id = 2207, quality=0, strong=0, bind=1,present=100,}, --传说利刃
+			--{type = 0, count = 1, id = 2211, quality=0, strong=0, bind=1,present=100,}, --传说之护
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 2200000,present=100,},
+			{type = 6, count = 25000,present=100,},			
+			{type = 0, count = 8, id = 2207, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 8, id = 2211, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 50000, --冲关成功后所得经验
+		rush =  --冲关
+		{
+			{
+			{id = 2159, num = 1, odds = 50,},
+			},
+			-- 第二关冲到第三关
+			{
+			{id = 2159, num = 1, odds = 40,},
+			},
+			-- 第三关冲到第四关
+			{
+			{id = 2159, num = 1, odds = 30,},
+			},
+			-- 第四关冲到第五关
+			{
+			{id = 2159, num = 1, odds = 20,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 160, x = 35, x1 =46, y = 16, num = 20, },	--盗宝贼40级
+		},
+		monsters =
+		{
+			{
+				{mid = 449, x = 30, x1 = 35, y = 21, num = 5,}, -- 5只普通怪,第2层
+				{mid = 450, x = 30, x1 = 35, y = 21, num = 1,}, -- 1只精英怪,第2层
+				{mid = 449, x = 37, x1 = 43, y = 16, num = 5,}, -- 5只普通怪,第2层
+				{mid = 450, x = 37, x1 = 43, y = 16, num = 1,}, -- 1只精英怪,第2层
+			},
+			-- 二关
+			{
+				{mid = 449, x = 17, x1 =22, y = 21, num = 7, }, -- 7只普通怪,第2层
+				{mid = 450, x = 17, x1 =22, y = 21, num = 2, }, -- 2只精英怪,第2层
+				{mid = 449, x = 35, x1 = 42, y = 21, num = 7, }, -- 7只普通怪,第2层
+				{mid = 450, x = 35, x1 = 42, y = 21, num = 2, }, -- 2只精英怪,第2层
+			},
+			-- 三关
+			{
+				{mid = 449, x = 35, x1 =46, y = 16, num = 20, }, -- 20只普通怪,第2层
+				{mid = 450, x = 35, x1 =46, y = 16, num = 3, }, -- 3只精英怪,第2层},
+			},
+			-- 四关
+			{
+				{mid = 449, x = 22, x1 =38, y = 21, num = 30, }, -- 30只普通怪,第2层
+				{mid = 450, x = 22, x1 =38, y = 21, num = 5, }, -- 5只精英怪,第2层
+			},
+			-- 五关
+			{
+				{mid = 449, x = 23, x1 = 34, y = 21, num = 20, }, -- 20只普通怪,第2层
+				{boss = true,mid = 451, x = 28, x1 = 30, y = 21, num = 1, }, -- 1只BOSS,第2层},
+			},
+		},
+		minLv = 42, --最低进入等级
+		achieveId = 137,	--成就ID
+		point = 15,		--本层所得积分
+		topPoint = 75,	--领取楼主奖励时的积分
+	  },
+	  --第三层
+	  {
+		sceneId = 151,
+		level = 3,
+		name = Lang.ScriptTips.jzsl030,  -- 名字
+		x = 4,   -- 进入下层x、y坐标
+		y = 8,
+		item =   -- 进入该层所需道具
+		{
+
+			{id = 2160, num = 3,},  --aId物品Id   num所需物品数量
+
+		},
+		minLv = 42, --最低进入等级
+		achieveId = 138,	--成就ID
+		point = 20,		--本层所得积分
+		topPoint = 100,	--领取楼主奖励时的积分
+		reward =
+		{
+			{type = 2, count = 230000,present=100,},
+			{type = 0, count = 3, id = 2093, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 1646, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1918, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 3, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 3, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 1, id = 2207, quality=0, strong=0, bind=1,present=100,}, --传说利刃
+ --删除掉落     {type = 0, count = 1, id = 2211, quality=0, strong=0, bind=1,present=100,}, --传说之护
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 2500000,present=100,},
+			{type = 6, count = 30000,present=100,},			
+			{type = 0, count = 12, id = 2207, quality=0, strong=0, bind=1,present=100,},
+	--删除掉落		{type = 0, count = 12, id = 2211, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 50000, --冲关成功后所得经验
+		rush =  --冲关
+		{
+			{
+			{id = 2159, num = 1, odds = 50,},
+			},
+			-- 第二关冲到第三关
+			{
+			{id = 2159, num = 1, odds = 40,},
+			},
+			-- 第三关冲到第四关
+			{
+			{id = 2159, num = 1, odds = 30,},
+			},
+			-- 第四关冲到第五关
+			{
+			{id = 2159, num = 1, odds = 20,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 160, x = 35, x1 =46, y = 16, num = 20, },	--盗宝贼40级
+		},
+		monsters =
+		{
+			 -- 一关
+			{
+				{ mid = 452, x = 30, x1 = 35, y = 21, num = 5, }, -- 5只普通怪,第3层
+				{ mid = 453, x = 30, x1 = 35, y = 21, num = 1,}, -- 1只精英怪,第3层
+				{ mid = 452, x = 37, x1 = 43, y = 16, num = 5, }, -- 5只普通怪,第3层
+				{ mid = 453, x = 37, x1 = 43, y = 16, num = 1, }, -- 1只精英怪,第3层
+			},
+			-- 二关
+			{
+				{mid = 452, x = 17, x1 =22, y = 21, num = 7, }, -- 7只普通怪,第3层
+				{mid = 453, x = 17, x1 =22, y = 21, num = 2, }, -- 2只精英怪,第3层
+				{mid = 452, x = 35, x1 = 42, y = 21, num = 7, }, -- 7只普通怪,第3层
+				{mid = 453, x = 35, x1 = 42, y = 21, num = 2, }, -- 2只精英怪,第3层
+			},
+			-- 三关
+			{
+				{mid = 452, x = 35, x1 =46, y = 16, num = 20, }, -- 20只普通怪,第3层
+				{mid = 453, x = 35, x1 =46, y = 16, num = 3, }, -- 3只精英怪,第3层
+			},
+			-- 四关
+			{
+				{mid = 452, x = 22, x1 =38, y = 21, num = 30, }, -- 30只普通怪,第3层
+				{mid = 453, x = 22, x1 =38, y = 21, num = 5, }, -- 5只精英怪,第3层
+			},
+			-- 五关
+			{
+				{mid = 452, x = 23, x1 = 34, y = 21, num = 20, }, -- 20只普通怪,第3层
+				{boss = true,mid = 454, x = 28, x1 = 30, y = 21, num = 1, }, -- 1只BOSS,第3层
+			},
+		},
+	  },
+	  --第四层
+	  {
+		sceneId = 152,
+		level = 4,
+		name = Lang.ScriptTips.jzsl031,  -- 名字
+		x = 5,   -- 进入下层x、y坐标
+		y = 12,
+		item =   -- 进入该层所需道具
+		{
+
+			{id = 2160, num = 4,},  --aId物品Id   num所需物品数量
+
+		},
+		minLv = 42, --最低进入等级
+		achieveId = 139,	--成就ID
+		point = 25,		--本层所得积分
+		topPoint = 125,	--领取楼主奖励时的积分
+		reward =
+		{
+			{type = 2, count = 240000,present=100,},
+			{type = 0, count = 1, id = 2094, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 1646, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1918, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 5, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 5, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 1, id = 2207, quality=0, strong=0, bind=1,present=100,}, --传说利刃
+   --删除掉落   {type = 0, count = 1, id = 2211, quality=0, strong=0, bind=1,present=100,}, --传说之护
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 3000000,present=100,},
+			{type = 6, count = 35000,present=100,},
+			{type = 0, count = 15, id = 2207, quality=0, strong=0, bind=1,present=100,},
+	--删除掉落		{type = 0, count = 15, id = 2211, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 70000, --冲关成功后所得经验
+		rush =  --冲关
+		{
+			{
+			{id = 2159, num = 1, odds = 50,},
+			},
+			-- 第二关冲到第三关
+			{
+			{id = 2159, num = 1, odds = 40,},
+			},
+			-- 第三关冲到第四关
+			{
+			{id = 2159, num = 1, odds = 30,},
+			},
+			-- 第四关冲到第五关
+			{
+			{id = 2159, num = 1, odds = 20,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 161, x = 21, x1 =36, y = 11, num = 20, },	--盗宝贼50级
+		},
+		monsters =
+		{
+			 -- 一关
+			{
+				{mid = 455, x = 25, x1 =31, y = 11, num = 5, }, -- 5只普通怪,第4层
+				{mid = 456, x = 25, x1 =31, y = 11, num =1, }, -- 1只精英怪,第4层
+				{mid = 455, x = 35, x1 =41, y = 16, num = 5, }, -- 5只普通怪,第4层
+				{mid = 456, x = 35, x1 =41, y = 16, num = 1, }, -- 1只精英怪,第4层
+			},
+			-- 二关
+			{
+				{mid = 455, x = 35, x1 =41, y = 16, num = 7, }, -- 7只普通怪,第4层
+				{mid = 456, x = 35, x1 =41, y = 16, num = 2, }, -- 2只精英怪,第4层
+				{mid = 455, x = 33, x1 =40, y = 21, num = 7, }, -- 7只普通怪,第4层
+				{mid = 456, x = 33, x1 =40, y = 21, num = 2, }, -- 2只精英怪,第4层
+			},
+			-- 三关
+			{
+				{mid = 455, x = 21, x1 =36, y = 11, num = 20, }, -- 20只普通怪,第4层
+				{mid = 456, x = 21, x1 =36, y = 11, num = 3, }, -- 3只精英怪,第4层
+			},
+			-- 四关
+			{
+			   {mid = 455, x = 24, x1 =37, y = 21, num = 30, }, -- 30只普通怪,第4层
+				{mid = 456, x = 24, x1 =37, y = 21, num = 5, }, -- 5只精英怪,第4层
+			},
+			-- 五关
+			{
+				{mid = 455, x = 35, x1 =45, y = 16, num = 20, }, -- 20只普通怪,第4层
+				{boss = true,mid = 457, x = 45, x1 =45, y = 16, num = 1, }, -- 1只BOSS,第4层3
+			},
+		},
+	  },
+	  --第五层
+	  {
+		sceneId = 153,
+		level = 5,
+		name = Lang.ScriptTips.jzsl032,  -- 名字
+		x = 5,   -- 进入下层x、y坐标
+		y = 12,
+		item =   -- 进入该层所需道具
+		{
+
+			{id = 2160, num = 6,},  --aId物品Id   num所需物品数量
+
+		},
+		minLv = 42, --最低进入等级
+		achieveId = 140,	--成就ID
+		point = 30,		--本层所得积分
+		topPoint = 150,	--领取楼主奖励时的积分
+		reward =
+		{
+			{type = 2, count = 250000,present=100,},
+			{type = 0, count = 2, id = 2094, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 1646, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1918, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 6, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 6, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 1, id = 2208, quality=0, strong=0, bind=1,present=100,}, --传说水晶
+			{type = 0, count = 1, id = 2207, quality=0, strong=0, bind=1,present=100,}, --传说利刃	  
+   --删除掉落   {type = 0, count = 1, id = 2212, quality=0, strong=0, bind=1,present=100,}, --传说之石 
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 3500000,present=100,},
+			{type = 6, count = 40000,present=100,},			
+			{type = 0, count = 19, id = 2207, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 19, id = 2211, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 70000, --冲关成功后所得经验
+		rush =
+		{
+			-- 第一关冲到第二关
+			{
+				{id = 2159, num = 1, odds = 50,},
+			},
+			-- 第二关冲到第三关
+			{
+				{id = 2159, num = 1, odds = 40,},
+			},
+			-- 第三关冲到第四关
+			{
+				{id = 2159, num = 1, odds = 30,},
+			},
+			-- 第四关冲到第五关
+			{
+				{id = 2159, num = 1, odds = 20,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 161, x = 21, x1 =36, y = 11, num = 20, },	--盗宝贼50级
+		},
+		monsters =
+		{
+			-- 一关
+			{
+				{mid = 458, x = 25, x1 =31, y = 11, num = 5, }, -- 5只普通怪,第5层
+				{mid = 459, x = 25, x1 =31, y = 11, num =1, }, -- 1只精英怪,第5层
+				{mid = 458, x = 35, x1 =41, y = 16, num = 5, }, -- 5只普通怪,第5层
+				{mid = 459, x = 35, x1 =41, y = 16, num = 1, }, -- 1只精英怪,第5层
+			},
+			-- 二关
+			{
+				{mid = 458, x = 35, x1 =41, y = 16, num = 7, }, -- 7只普通怪,第5层
+				{mid = 459, x = 35, x1 =41, y = 16, num = 2, }, -- 2只精英怪,第5层
+				{mid = 458, x = 33, x1 =40, y = 21, num = 7, }, -- 7只普通怪,第5层
+				{mid = 459, x = 33, x1 =40, y = 21, num = 2, }, -- 2只精英怪,第5层
+			},
+			-- 三关
+			{
+				{mid = 458, x = 21, x1 =36, y = 11, num = 20, }, -- 20只普通怪,第5层
+				{mid = 459, x = 21, x1 =36, y = 11, num = 3, }, -- 3只精英怪,第5层
+			},
+			--四关
+			{
+				{mid = 458, x = 24, x1 =37, y = 21, num = 30, }, -- 30只普通怪,第5层
+				{mid = 459, x = 24, x1 =37, y = 21, num = 5, }, -- 5只精英怪,第5层
+			},
+			--五关
+			{
+				{mid = 458, x = 35, x1 =44, y = 16, num = 20, }, -- 20只普通怪,第5层
+				{boss = true,mid = 460, x = 45, x1 =45, y = 16, num = 1,}, -- 1只BOSS,第5层
+			},
+		},
+	  },
+	  --第六层
+	  {
+		sceneId = 154,
+		level = 6,
+		name = Lang.ScriptTips.jzsl033,  -- 名字
+		x = 5,   -- 进入下层x、y坐标
+		y = 12,
+		item =   -- 进入该层所需道具
+		{
+
+			{id = 2160, num = 8,},  --aId物品Id   num所需物品数量
+
+		},
+		minLv = 42, --最低进入等级
+		achieveId = 141,	--成就ID
+		point = 35,		--本层所得积分
+		topPoint = 175,	--领取楼主奖励时的积分
+		reward =
+		{
+			{type = 2, count = 270000,present=100,},
+			{type = 0, count = 3, id = 2094, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 1647, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 2, id = 1918, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 8, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 8, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 1, id = 2208, quality=0, strong=0, bind=1,present=100,}, --传说水晶
+   --删除掉落   {type = 0, count = 1, id = 2212, quality=0, strong=0, bind=1,present=100,}, --传说之石
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 4200000,present=100,},
+			{type = 6, count = 45000,present=100,},
+			{type = 0, count = 8, id = 2208, quality=0, strong=0, bind=1,present=100,},
+		--删除掉落	{type = 0, count = 8, id = 2212, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 70000, --冲关成功后所得经验
+		rush =
+		{
+			-- 第一关冲到第二关
+			{
+				{id = 2159, num = 1, odds = 50,},
+			},
+			-- 第二关冲到第三关
+			{
+				{id = 2159, num = 1, odds = 40,},
+			},
+			-- 第三关冲到第四关
+			{
+				{id = 2159, num = 1, odds = 30,},
+			},
+			-- 第四关冲到第五关
+			{
+				{id = 2159, num = 1, odds = 20,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 161, x = 21, x1 =36, y = 11, num = 20, },	--盗宝贼50级
+		},
+		monsters =
+		{
+			--一关
+			{
+				{mid = 461, x = 25, x1 =31, y = 11, num = 5, }, -- 5只普通怪,第6层
+				{mid = 462, x = 25, x1 =31, y = 11, num =1,}, -- 1只精英怪,第6层
+				{mid = 461, x = 35, x1 =41, y = 16, num = 5, }, -- 5只普通怪,第6层
+				{mid = 462, x = 35, x1 =41, y = 16, num = 1, }, -- 1只精英怪,第6层
+			},
+			-- 二关
+			{
+				{mid = 461, x = 35, x1 =41, y = 16, num = 7, }, -- 7只普通怪,第6层
+				{mid = 462, x = 35, x1 =41, y = 16, num = 2, }, -- 2只精英怪,第6层
+				{mid = 461, x = 33, x1 =40, y = 21, num = 7, }, -- 7只普通怪,第6层
+				{mid = 462, x = 33, x1 =40, y = 21, num = 2, }, -- 2只精英怪,第6层
+			},
+			-- 三关
+			{
+				{mid = 461, x = 21, x1 =36, y = 11, num = 20, }, -- 20只普通怪,第6层
+				{mid = 462, x = 21, x1 =36, y = 11, num = 3, }, -- 3只精英怪,第6层
+			},
+			-- 四关
+			{
+				{mid = 461, x = 24, x1 =37, y = 21, num = 30, }, -- 30只普通怪,第6层
+				{mid = 462, x = 24, x1 =37, y = 21, num = 5, }, -- 5只精英怪,第6层
+			},
+			-- 五关
+			{
+			   {mid = 461, x = 35, x1 =44, y = 16, num = 20, }, -- 20只普通怪,第6层
+			   {boss = true,mid = 463, x = 45, x1 =45, y = 16, num = 1, }, -- 1只BOSS,第6层
+			},
+		},
+	  },
+	  --第七层
+	  {
+		sceneId = 155,
+		level = 7,
+		name = Lang.ScriptTips.jzsl034,  -- 名字
+		x = 7,   -- 进入下层x、y坐标
+		y = 7,
+		item =   -- 进入该层所需道具
+		{
+
+			{id = 2160, num = 10,},  --aId物品Id   num所需物品数量
+
+		},
+		minLv = 42,
+		achieveId = 142,	--成就ID
+		point = 40,		--本层所得积分
+		topPoint = 200,	--领取楼主奖励时的积分
+		reward =
+		{
+			{type = 2, count = 290000,present=100,},
+			{type = 0, count = 1, id = 2095, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 1, id = 1647, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 2, id = 1918, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 10, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 10, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 1, id = 2209, quality=0, strong=0, bind=1,present=100,}, --传说之魂
+			--删除掉落 {type = 0, count = 1, id = 2213, quality=0, strong=0, bind=1,present=100,}, --传说之石
+			{type = 0, count = 1, id = 1794, quality=0, strong=0, bind=1,present=100,}, --秘籍 
+			{type = 0, count = 1, id = 1811, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1848, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1862, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 4800000,present=100,},
+			{type = 6, count = 50000,present=100,},
+			{type = 0, count = 15, id = 2208, quality=0, strong=0, bind=1,present=100,},
+		--删除掉落	{type = 0, count = 15, id = 2212, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 100000, --冲关成功后所得经验
+		rush =
+		{
+			-- 第一关冲到第二关
+			{
+				{id = 2159, num = 1, odds = 50,},
+			},
+			-- 第二关冲到第三关
+			{
+				{id = 2159, num = 1, odds = 40,},
+			},
+			-- 第三关冲到第四关
+			{
+				{id = 2159, num = 1, odds = 30,},
+			},
+			-- 第四关冲到第五关
+			{
+				{id = 2159, num = 1, odds = 20,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 161, x = 27, x1 =44, y = 15, num = 20, },	--盗宝贼50级
+		},
+		monsters =
+		{
+			-- 一关
+			{
+				{mid = 464, x = 18, x1 =25, y = 11, num = 5, }, -- 5只普通怪,第7层
+				{mid = 465, x = 18, x1 =25, y = 11, num =1, }, -- 1只精英怪,第7层
+				{mid = 464, x = 49, x1 =54, y = 11, num = 5, }, -- 5只普通怪,第7层
+				{mid = 465, x = 49, x1 =54, y = 11, num = 1, }, -- 1只精英怪,第7层
+			},
+			-- 二关
+			{
+				{mid = 464, x = 27, x1 =44, y = 15, num = 15, }, -- 15只普通怪,第7层
+				{mid = 465, x = 27, x1 =44, y = 15, num = 4, }, -- 4只精英怪,第7层
+			},
+			--三关
+			{
+				{mid = 464, x = 18, x1 =25, y = 11, num = 10, }, -- 10只普通怪,第7层
+				{mid = 465, x = 18, x1 =25, y = 11, num = 2, }, -- 2只精英怪,第7层
+				{mid = 464, x = 23, x1 =32, y = 15, num = 10, }, -- 10只普通怪,第7层
+				{mid = 465, x = 23, x1 =32, y = 15, num = 2, }, -- 2只精英怪,第7层
+			},
+			--四关
+			{
+				{mid = 464, x = 49, x1 =54, y = 11, num = 10, }, -- 10只普通怪,第7层
+				{mid = 465, x = 49, x1 =54, y = 11, num = 2, }, -- 2只精英怪,第7层
+				{mid = 464, x = 40, x1 =49, y = 15, num = 10, }, -- 10只普通怪,第7层
+				{mid = 465, x = 40, x1 =49, y = 15, num = 2, }, -- 2只精英怪,第7层
+			},
+			--五关
+			{
+				{mid = 464, x = 47, x1 =55, y = 11, num = 20, }, -- 20只普通怪,第7层
+				{boss = true,mid = 466, x = 55, x1 =55, y = 11, num = 1, }, -- 1只BOSS,第7层
+			},
+		},
+	  },
+	  --第八层
+	  {
+		sceneId = 156,
+		level = 8,
+		name = Lang.ScriptTips.jzsl035,  -- 名字
+		x = 7,   -- 进入下层x、y坐标
+		y = 7,
+		item =   -- 进入该层所需道具
+		{
+
+			{id = 2160, num = 12,},  --aId物品Id   num所需物品数量
+
+		},
+		minLv = 42,
+		achieveId = 143,	--成就ID
+		point = 45,		--本层所得积分
+		topPoint = 225,	--领取楼主奖励时的积分
+		reward =
+		{
+			{type = 2, count = 310000,present=100,},
+			{type = 0, count = 1, id = 2095, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 2, id = 1647, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 2, id = 1918, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 15, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 15, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 1, id = 2209, quality=0, strong=0, bind=1,present=100,}, --传说之魂
+			--删除掉落     {type = 0, count = 1, id = 2213, quality=0, strong=0, bind=1,present=100,}, --传说之盾
+			{type = 0, count = 1, id = 1871, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1817, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1791, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1833, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 6000000,present=100,},
+			{type = 6, count = 55000,present=100,},
+			{type = 0, count = 23, id = 2208, quality=0, strong=0, bind=1,present=100,},
+	--删除掉落		{type = 0, count = 23, id = 2212, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 100000, --冲关成功后所得经验
+		rush =
+		{
+			-- 第一关冲到第二关
+			{
+				{id = 2159, num = 1, odds = 45,},
+			},
+			-- 第二关冲到第三关
+			{
+				{id = 2159, num = 1, odds = 35,},
+			},
+			-- 第三关冲到第四关
+			{
+				{id = 2159, num = 1, odds = 25,},
+			},
+			-- 第四关冲到第五关
+			{
+				{id = 2159, num = 1, odds = 15,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 161, x = 27, x1 =44, y = 15, num = 20, },	--盗宝贼50级
+		},
+		monsters ={
+			-- 一关
+			{
+				{mid = 467, x = 18, x1 =25, y = 11, num = 5, }, -- 5只普通怪,第8层
+				{mid = 468, x = 18, x1 =25, y = 11, num = 1, }, -- 1只精英怪,第8层
+				{mid = 467, x = 49, x1 =54, y = 11, num = 5, }, -- 5只普通怪,第8层
+				{mid = 468, x = 49, x1 =54, y = 11, num = 1, }, -- 1只精英怪,第8层
+			},
+			-- 二关
+			{
+				{mid = 467, x = 27, x1 =44, y = 15, num = 15, }, -- 15只普通怪,第8层
+				{mid = 468, x = 27, x1 =44, y = 15, num = 4, }, -- 4只精英怪,第8层
+			},
+			-- 三关
+			{
+				{mid = 467, x = 18, x1 =25, y = 11, num = 15, }, -- 15只普通怪,第8层
+				{mid = 468, x = 18, x1 =25, y = 11, num = 3, }, -- 3只精英怪,第8层
+				{mid = 467, x = 23, x1 =32, y = 15, num = 15, }, -- 15只普通怪,第8层
+				{mid = 468, x = 21, x1 =32, y = 15, num = 3, }, -- 3只精英怪,第8层
+			},
+			-- 四关
+			{
+				{mid = 467, x = 49, x1 =54, y = 11, num = 15, }, -- 15只普通怪,第8层
+				{mid = 468, x = 49, x1 =54, y = 11, num = 3, }, -- 3只精英怪,第8层
+				{mid = 467, x = 40, x1 =49, y = 15, num = 15,}, -- 15只普通怪,第8层
+				{mid = 468, x = 40, x1 =49, y = 15, num = 3, }, -- 3只精英怪,第8层
+			},
+			-- 五关
+			{
+				{mid = 467, x = 47, x1 =55, y = 11, num = 20, }, -- 20只普通怪,第8层
+				{boss = true,mid = 469, x = 55, x1 =55, y = 11, num = 1, }, -- 1只BOSS,第8层
+			},
+		},
+	  },
+	  --第九层
+	  {
+		sceneId = 157,
+		level = 9,
+		name = Lang.ScriptTips.jzsl036,  -- 名字
+		x = 5,   -- 进入下层x、y坐标
+		y = 11,
+		item =   -- 进入该层所需道具
+		{
+
+			{id = 2160, num = 15,},  --aId物品Id   num所需物品数量
+
+		},
+		minLv = 42,
+		achieveId = 144,	--成就ID
+		point = 50,		--本层所得积分
+		topPoint = 250,	--领取楼主奖励时的积分
+		reward =
+		{
+			{type = 2, count = 330000,present=100,},
+			{type = 0, count = 2, id = 2095, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 2, id = 1647, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 3, id = 1918, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 1, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 20, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 20, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 4, id = 2209, quality=0, strong=0, bind=1,present=100,}, --传说之魂
+			--{type = 0, count = 4, id = 2213, quality=0, strong=0, bind=1,present=100,}, --传说之盾
+			{type = 0, count = 1, id = 1851, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1782, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1805, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1855, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 7500000,present=100,},
+			{type = 6, count = 60000,present=100,},
+			{type = 0, count = 12, id = 2209, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 12, id = 2213, quality=0, strong=0, bind=1,present=100,},
+		},
+		rushExp = 100000, --冲关成功后所得经验
+		rush =
+		{
+			-- 第一关冲到第二关
+			{
+				{id = 2159, num = 1, odds = 45,},
+			},
+			-- 第二关冲到第三关
+			{
+				{id = 2159, num = 1, odds = 35,},
+			},
+			-- 第三关冲到第四关
+			{
+				{id = 2159, num = 1, odds = 25,},
+			},
+			-- 第四关冲到第五关
+			{
+				{id = 2159, num = 1, odds = 15,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 161, x = 33, x1 =47, y = 9, num = 20, },
+		},
+		monsters =
+		{
+			-- 一关
+			{
+				{mid = 470, x = 37, x1 =44, y = 9, num = 5, }, -- 5只普通怪,第9层
+				{mid = 471, x = 37, x1 =44, y = 9, num = 1, }, -- 1只精英怪,第9层
+				{mid = 470, x = 12, x1 =19, y = 15, num = 5, }, -- 5只普通怪,第9层
+				{mid = 471, x = 12, x1 =19, y = 15, num = 1, }, -- 1只精英怪,第9层
+			},
+			-- 二关
+			{
+				{mid = 470, x = 37, x1 =44, y = 9, num = 7, }, -- 5只普通怪,第9层
+				{mid = 471, x = 37, x1 =44, y = 9, num = 2, }, -- 1只精英怪,第9层
+				{mid = 470, x = 52, x1 =57, y = 11, num = 7, }, -- 5只普通怪,第9层
+				{mid = 471, x = 52, x1 =57, y = 11, num = 2, }, -- 1只精英怪,第9层
+			},
+			-- 三关
+			{
+				{mid = 470, x = 33, x1 =47, y = 9, num = 20, }, -- 20只普通怪,第9层
+				{mid = 471, x = 33, x1 =47, y = 9, num = 3, }, -- 3只精英怪,第9层
+			},
+			-- 四关
+			{
+				{mid = 470, x = 49, x1 =57, y = 11, num = 30, }, -- 30只普通怪,第9层
+				{mid = 471, x = 49, x1 =57, y = 11, num = 5, }, -- 5只精英怪,第9层
+			},
+			-- 五关
+			{
+				{mid = 470, x = 33, x1 =47, y = 9, num = 20, }, -- 20只普通怪,第9层
+				{boss = true,mid = 472, x = 33, x1 =47, y = 9, num = 1, }, -- 3只BOSS,第9层
+			},
+		},
+	  },
+	  --第十层
+	  {
+		sceneId = 158,
+		level = 10,
+		name = Lang.ScriptTips.jzsl037,  -- 名字
+		x = 5,   -- 进入下层x、y坐标
+		y = 11,
+		item =   -- 进入该层所需道具
+		{
+			{id = 2160, num = 17,},  --aId物品Id   num所需物品数量
+
+		},
+		reward =
+		{
+			{type = 2, count = 360000,present=100,},
+			{type = 0, count = 2, id = 2095, quality=0, strong=0, bind=1,present=100,},
+			{type = 0, count = 3, id = 1647, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 3, id = 1918, quality=0, strong=0, bind=1,present=100,},
+			--{type = 0, count = 2, id = 1921, quality=0, strong=0, bind=1,present=100,},
+		},
+		monsDrop = 
+		{
+			{type = 0, count = 25, id = 2210, quality=0, strong=0, bind=1,present=100,}, --陨铁
+			{type = 0, count = 25, id = 2214, quality=0, strong=0, bind=1,present=100,}, --兽鳞
+			{type = 0, count = 8, id = 2209, quality=0, strong=0, bind=1,present=100,}, --传说之魂
+			--删除掉落   {type = 0, count = 8, id = 2213, quality=0, strong=0, bind=1,present=100,}, --传说之盾
+			{type = 0, count = 1, id = 1823, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1785, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1858, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			{type = 0, count = 1, id = 1845, quality=0, strong=0, bind=1,present=100,}, --秘籍
+			--{type = 0, count = 1, id = 1916, quality=0, strong=0, bind=1,present=100,}, --进阶符			
+		},
+		top =  --配置按reward相同
+		{
+			{type = 2, count = 10000000,present=100,},
+			{type = 6, count = 65000,present=100,},
+			{type = 0, count = 15, id = 2209, quality=0, strong=0, bind=0,present=100,},
+		--删除掉落	{type = 0, count = 15, id = 2213, quality=0, strong=0, bind=0,present=100,},
+		},
+		rushExp = 100000, --冲关成功后所得经验
+		rush =
+		{
+			-- 第一关冲到第二关
+			{
+				{id = 2159, num = 1, odds = 40,},
+			},
+			-- 第二关冲到第三关
+			{
+				{id = 2159, num = 1, odds = 30,},
+			},
+			-- 第三关冲到第四关
+			{
+				{id = 2159, num = 1, odds = 20,},
+			},
+			-- 第四关冲到第五关
+			{
+				{id = 2159, num = 1, odds = 10,},
+			},
+		},
+		randEvent =		--随机事件配置
+		{
+			{mid = 161, x = 33, x1 =47, y = 9, num = 20, },
+		},
+		monsters =
+		{
+			 -- 一关
+			{
+				{ mid = 473, x = 37, x1 =44, y = 9, num = 5, }, -- 5只普通怪,第10层
+				{ mid = 474, x = 37, x1 =44, y = 9, num = 1, }, -- 1只精英怪,第10层
+				{ mid = 473, x = 12, x1 =19, y = 15, num = 5, }, -- 5只普通怪,第10层
+				{ mid = 474, x = 12, x1 =19, y = 15, num = 1, }, -- 1只精英怪,第10层
+			},
+			-- 二关
+			{
+				{ mid = 473, x = 37, x1 =44, y = 9, num = 7, }, -- 7只普通怪,第10层
+				{ mid = 474, x = 37, x1 =44, y = 9, num = 2, }, -- 2只精英怪,第10层
+				{ mid = 473, x = 52, x1 =57, y = 11, num = 7, }, -- 7只普通怪,第10层
+				{ mid = 474, x = 52, x1 =57, y = 11, num = 2, }, -- 2只精英怪,第10层
+			},
+			-- 三关
+			{
+				{mid = 473, x = 33, x1 =47, y = 9, num = 20, }, -- 20只普通怪,第10层
+				{mid = 474, x = 33, x1 =47, y = 9, num = 3, }, -- 3只精英怪,第10层
+			},
+			-- 四关
+			{
+				{mid = 473, x = 49, x1 =57, y = 11, num = 30, }, -- 30只普通怪,第10层
+				{mid = 474, x = 49, x1 =57, y = 11, num = 5, }, -- 5只精英怪,第10层
+			},
+			-- 五关
+			{
+				{mid = 473, x = 33, x1 =47, y = 9, num = 20, }, -- 20只普通怪,第10层
+				{boss = true,mid = 475, x = 33, x1 =47, y = 9, num = 1, }, -- 1只BOSS,第10层
+			},
+		},
+		minLv = 42,
+		achieveId = 145,	--成就ID
+		point = 55,		--本层所得积分
+		topPoint = 275,	--领取楼主奖励时的积分
+	  },
+	},
+}

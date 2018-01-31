@@ -1,0 +1,60 @@
+﻿--玄冰逆境
+{
+	scenceid = 195,
+	scencename = Lang.SceneName.s00195,
+	mapfilename = "195XuanBinNiJing",
+	minlevel = 30,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	music = "bianjiechun.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 128,
+	sceneHeight = 168,
+	sceneType=2,
+	
+	seckillId = 12,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+
+	area =
+	{
+		
+		{ name = Lang.SceneName.s00195, range = {  10,10,20,20,60,50}, center = { 46,108},attri = {{type=18,value = {}},{type=21,value = {}},{type=23,value = {1,2,3,4}},{type=30,value = {1,2,3,4}},{type=33,value = {10,6,9,19,20,161,56,57,58}},{type=34,value = {316,317,318,386,387,388,389,391,392,394,822,823,2272,2273,2274}},{type=45,value = {}},{type=80,value = {}},{type=85,value = {}},{type=52,value = {}},{type=83,value = {}},}},
+		
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh195.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00275, posx = 52 , posy = 109,script = "data/script/XuanBinNiJing/FuBenShiZhe1.txt",modelid = 1,icon = 1,funcId = 0},
+		
+
+	},
+
+  teleport =
+  {
+     --{ posx = 64, posy =  57,toSceneid =  160,toPosx =  38,toPosy = 60,modelid = 50000,name = Lang.SceneName.s00160 },  --高家店→五指山下 
+	
+	},
+	landscape=
+ {
+--posx1,posy1 表示左上角坐标,posx1,posy2 表示右下角坐标,xInterval表示横向间隔多远一个点，yInterval表示纵向多远打一个点
+     --路标
+		--{posx1=34,posy1=43,posx2=60,posy2=111,modelid=17,xinterval=1,yinterval=1},
+		{posx1=39,posy1=106,posx2=39,posy2=109,modelid=17,xinterval=1,yinterval=1}, 
+
+
+ },
+},

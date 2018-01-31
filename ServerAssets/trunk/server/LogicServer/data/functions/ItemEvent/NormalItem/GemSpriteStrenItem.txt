@@ -1,0 +1,58 @@
+--宝物灵力补充道具，使用后补充当前正在装配的宝物灵力
+
+--#include "data\config\gem\GemConfig.txt" once
+
+--[[
+--宝物灵力补充道具使用处理函数
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表
+--]]
+function GemSpriteStrenItemUseHandler(sysarg, itemIdx, itemPtr, conf)
+	if (conf == nil) then return end
+	if (conf.val <= 0) then return end	
+	local equipedGemPtr = Actor.getCurrEquipedGem(sysarg)
+	if (equipedGemPtr == nil) then
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00003, ttDialog)
+		return
+	end
+	
+	local gemId = GemItem.getGemItemId(equipedGemPtr)
+	local gemLevel = GemItem.getGemItemLevel(equipedGemPtr)
+	local upLevelConfig = GemGlobalConfig.gemUpLevelExpConfig[gemLevel+1]
+	if (not upLevelConfig) then
+		print(string.format("can't find gemLevel[%d] config", gemLevel))
+		return
+	end
+	local ssUpLmt = upLevelConfig.ssUpLmt
+	--local gemGrade = GemItem.getGemItemGrade(equipedGemPtr)
+	--local ssUpLmt = GemConfig[gemId].gemGradeConfig[gemGrade].spritcharuplmt	
+	local curSpriteStren = GemItem.getGemItemSpriteStren(equipedGemPtr)
+	if (curSpriteStren == ssUpLmt) then
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00004, ttDialog)
+		return
+	end 
+	
+	local resultSS = curSpriteStren + conf.val
+	if (resultSS > ssUpLmt) then
+		resultSS = ssUpLmt
+	end
+	if (Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "add gem sprite stren", 70) ~= 1) then
+		return
+	end
+	local updateVal = resultSS - curSpriteStren	
+	GemItem.changeGemItemSpriteStren(equipedGemPtr, updateVal, 662, "use ss item")
+	local str = string.format(Lang.Gem.t00021, updateVal)
+	Actor.sendTipmsg(sysart, str, ttTipmsgWindow)		
+end
+
+-- @brief: 注册宝物灵力道具使用Handler
+function GemSpriteStrenItemInit(sysarg)
+	for i = 1, table.getn(GemSpriteStrenItem) do
+		local conf = GemSpriteStrenItem[i]
+		GlobalItemFn[conf.item_id] = { func = GemSpriteStrenItemUseHandler, params = conf, }
+	end
+end
+
+table.insert(InitFnTable, GemSpriteStrenItemInit)

@@ -1,0 +1,70 @@
+--lua script
+--鸿蒙元气配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+HongMengVigourConfig = 
+{
+--[[
+	qatEquipment=0,             //物品或者装备 id:物品ID count:物品数量 quality:物品品质 strong:强化等级 bind:绑定状态 param:物品指针 
+	qatXiuwei = 1,	            //修为	count:修为值
+	qatExp = 2,                	//角色经验值 count:经验值 param:如果是任务，这个就填写任务的ID，其他的话填关键的有意义的参数，如果没有就填写0
+	qatGuildContribution = 3,	//帮派贡献值 count:帮派贡献值
+	qatZYContribution = 4,		//阵营贡献 count:阵营贡献值
+	qatBindMoney = 5,           //绑定银两 count:绑定银两值
+	qatMoney = 6,	            //银两	count:银两
+	qatBindYb = 7,	            //绑定元宝 count:绑定元宝
+	qatTitle = 8,	            //称谓 count:称谓ID
+	qatSkill = 9,	            //技能 count:技能ID param:技能等级
+	qatZhanhun = 10,	        //战魂 count:战魂值
+	qatAchievePoint =11,        //成就点 count:成就点
+	qatRenown=12,                //声望  count:声望值
+	qatPet =13,                  //奖励宠物 
+	qatActivity = 14,			//奖励活跃度 count:奖励活跃度
+	qatYuanbao =15,              //元宝 count:元宝
+	qatGuildFr = 16,			//繁荣度 count:奖励繁荣度值
+	qatGuildYs = 17,			//玥石 count:帮派玥石值
+	qatXPVal=18,				// XP值	 count:XP值
+	qatCombatScore = 19,		//竞技积分 count:竞技积分值
+	qatAddExp = 20,				//按经验配置表加经验 id:奖励库ID count:普通加成率 quality:vip加成率 加成率使用以1000为基数的整形 即n/1000
+	qatHonor = 21,				//荣誉
+	qatCircleSoul = 22,			//转生灵魄
+	qatAnger = 23,				//怒气
+	qatBoss =24,                //boss
+	qatUpgrade = 25,			//玩家升级
+	qatPetUpgrade = 26,			//宝宝升级
+	qatGuildCoin = 27,			//行会资金
+	qatIntimacy = 28,			//师徒亲密度
+	qatAwardCharm = 29,			// 魅力/帅气
+	qatAwardHeroExp= 30,		//增加英雄的经验
+	qatHeroUpgrade = 31,		//增加出战英雄等级
+	qatRideStarIndex = 32,		//增加坐骑星级
+	qatMagicBead = 33,			//魔珠
+	qatMagicPower = 34,			//灵力
+	qatZhanXun = 35,			//战勋
+	qatUseSkill = 36,			//使用技能 id:技能id,count:技能等级,quality:目标x,strong:目标y,bind:是否需要学习>0true,time:是否需要CD>0true
+	qatGameGird = 37,			//烈火令
+	qatReversedLuck = 38,		//倒福
+	qatLuckAwardScore = 39,		//幸运抽奖兑换积分
+	qatHongMengRealm = 40,		//鸿蒙元气
+]]
+
+	--怪物顺序影响收集鸿蒙元气道具优先收集哪个怪
+	[1408] =	--鸿蒙元气1
+	{
+		--奖励
+		awards=
+		{
+			--鸿蒙元气
+			{ type = 40, id = 0, count = 5, strong = 0, quality = 0, bind = 1 },
+		},
+	},
+	[1393] =	--鸿蒙元气
+	{
+		--奖励
+		awards=
+		{
+			--鸿蒙元气
+			{ type = 40, id = 0, count = 5, strong = 0, quality = 0, bind = 1 },
+		},
+	},
+}

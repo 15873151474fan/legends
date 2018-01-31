@@ -1,0 +1,40 @@
+--lua script
+--#include "data\config\activity\king.txt" once 
+--#include "KingCommon.txt" once
+
+--[[
+	cDonateOp = 1,				//请求捐献
+	cGetRemainKing = 2,			//获取剩余爵位
+	cGetKingRank = 3,			//获取爵位排行
+--]]
+
+KingOpFuncList = {}
+
+EventCallDispatcher.HandlerKingOp = function (sysarg, args) 
+	--print("参数："..args[1])
+	if args[1] == nil then return end
+	local func = KingOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args) 
+	end
+end
+
+--捐献
+KingOpFuncList[1] = function (sysarg,args)
+	DonateOp(sysarg,args)
+end
+
+--查询剩余爵位
+KingOpFuncList[2] = function (sysarg,args)
+	GetRemainKing(sysarg,args)
+end
+
+--查询爵位排名
+KingOpFuncList[3] = function (sysarg,args)
+	GetKingRank(sysarg,args)
+end
+
+
+
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeKingOp, EventCallDispatcher.HandlerKingOp)

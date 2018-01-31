@@ -1,0 +1,70 @@
+--lua script
+--#include "data\language\LangCode.txt" once
+--#include "data\config\misc\RelationConfig.txt" once
+Call_Invite = 3
+Call_Ensure = 6
+
+EventCallDispatcher.OnTeacherCall = function(sysarg, arg )
+	local callType = arg[1]
+	local targetActor = arg[2]
+	if not targetActor then
+		return
+	end
+	if callType == Call_Invite then		--—˚«Î’ŸªΩ
+		local itemNum = Actor.getItemCount(sysarg, CallItemId)
+		if itemNum <= 0 then
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.tf00042, ttDialog)
+			return
+		end
+		local netPack = DataPack.allocPacket(targetActor, 37, 2)
+		if netPack then
+			DataPack.writeByte( netPack, 3)
+			DataPack.writeString( netPack, Actor.getName(sysarg))
+			DataPack.flush(netPack)
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.jb027, ttTipmsgWindow)
+		end
+	elseif callType == Call_Ensure then
+		local itemNum = Actor.getItemCount(targetActor, CallItemId)
+		if itemNum <= 0 then
+			Actor.sendTipmsg(targetActor, Lang.ScriptTips.tf00042, ttDialog)
+			return
+		end
+		if Actor.removeItem(targetActor, CallItemId, CallItemCount) then
+			Actor.moveToEntity(sysarg, targetActor)
+		end
+	end
+end
+
+EventCallDispatcher.OnFetchGift = function( sysarg, arg )
+	local giftType = arg[1]
+	local giftLevel = arg[2]
+	local giftInfo
+	if giftType == 0 then
+		giftInfo = MasterGift[giftLevel]
+	elseif giftType == 1 then
+		giftInfo = PupilGift[giftLevel]
+	end
+	local count = 0
+	for k, v in ipairs(giftInfo or {}) do
+		if v.type == 0 then
+			count = count + Item.getAddItemNeedGridCount( sysarg, v.id, v.count, v.quality, v.strong)
+		end
+	end
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00044, count),ttDialog )
+		return false
+	end
+
+	for idx, info in ipairs(giftInfo or {}) do
+		if info.type == 0 then			
+			Actor.addItem( sysarg, info.id, info.quality, info.strong, info.count, info.bind)						
+		else
+			Actor.giveAward( sysarg, info.type, 0,info.count,0, 0, 1, 0,205,"teahcerGift")
+		end
+	end
+	return true
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeTeacherCall, EventCallDispatcher.OnTeacherCall)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeTeacherGift, EventCallDispatcher.OnFetchGift)

@@ -1,0 +1,337 @@
+
+
+{
+	--开服OpenDays或者合服CombineDay  如果两项都配置了则先判断开服天数再判断合服天数
+	--OpenDays或者CombineDay配置为0 代表 当作常规库 
+	--如果两项都配置为nil则为首次盗梦库 此位置索引要与FirstDmIndex对应
+	--配置 {1, 2} 代表 开服第 1 2天库
+	OpenDays = 0,	
+	CombineDay = 0,
+	
+	--每档的物品库,刷新的时候会从以下各档抽取物品
+	--[[
+		--yb:全局元宝消耗判断  服务器每盗梦yb元宝,产出一次,如果再使用yb元宝才能再次命中
+		--mjPoint:个人梦阶值限制，当前梦阶值大于等于mjPoint才能命中
+		--useItem：使用道具是否能可以开出来true为可开出，false为不可开出，默认为true
+	--]]
+	MjLibList=
+	{
+		--梦境级
+		{
+			--档次级(格子级)
+			--右翼4排3位
+			{
+				Persent = 2340,
+				ItemList =
+				{
+					{ type=0,itemid=1,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=true,job=1,sex=0},
+					{ type=0,itemid=2,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=true,job=1},
+					{ type=0,itemid=3,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=true,sex=0},
+					{ type=0,itemid=3,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=true,sex=1},
+					
+				}
+			},
+			--右翼4排2位
+			{	
+				Persent = 1500,
+				ItemList =
+				{
+					{ type=0,itemid=642,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},
+			--右翼4排1位
+			{	
+				Persent = 609,
+				ItemList =
+				{
+					{ type=0,itemid=635,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},
+			--左翼4排3位
+			{	
+				Persent = 213,
+				ItemList =
+				{
+					{ type=0,itemid=634,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},	
+			--左翼4排2位
+			{	
+				Persent = 150,
+				ItemList =
+				{
+					{ type=0,itemid=559,count=2,quality=0,strongMin=0,strongMax=0,bind=0,persent=3,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=false },
+				}
+			},	
+			--左翼4排1位
+			{	
+				Persent = 60,
+				ItemList =
+				{
+					{ type=0,itemid=798,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=808,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=778,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=788,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=748,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=758,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=768,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+				}
+			},	
+			--右翼3排3位
+			{	
+				Persent = 1000,
+				ItemList =
+				{
+					{ type=0,itemid=626,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=24,mjpoint=0,yb=60,broadcast=0,autoUse=false,useItem=true },
+					{ type=0,itemid=682,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=26,mjpoint=0,yb=100,broadcast=0,autoUse=false,useItem=true },
+					{ type=0,itemid=628,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=23,mjpoint=0,yb=140,broadcast=1,autoUse=false,useItem=true },
+					{ type=0,itemid=1118,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=5,mjpoint=0,yb=200,broadcast=1,autoUse=false,useItem=true },
+					{ type=0,itemid=1120,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=2,mjpoint=0,yb=300,broadcast=1,autoUse=false,useItem=true },
+					{ type=0,itemid=1122,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=400,broadcast=1,autoUse=false,useItem=true },
+				}
+			},	
+			--右翼3排2位
+			{	
+				Persent = 1500,
+				ItemList =
+				{
+					{ type=0,itemid=830,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=true },
+				}
+			},	
+			--右翼3排1位
+			{	
+				Persent = 500,
+				ItemList =
+				{
+					{ type=0,itemid=704,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=true },
+				}
+			},	
+			--左翼3排3位
+			{	
+				Persent = 15,
+				ItemList =
+				{
+					{ type=0,itemid=164,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=165,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=168,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=169,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=175,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=176,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=179,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=180,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=186,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=187,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=190,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=191,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+				}
+			},	
+			--左翼3排2位
+			{	
+				Persent = 10,
+				ItemList =
+				{
+					{ type=0,itemid=163,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=166,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=167,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=174,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=177,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=178,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=185,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=188,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=189,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=192,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=4,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+				}
+			},	
+			--左翼3排1位
+			{	
+				Persent = 5,
+				ItemList =
+				{
+					{ type=0,itemid=160,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=161,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=162,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=171,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=172,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=173,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=182,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=1,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=183,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=184,count=1,quality=0,strongMin=5,strongMax=8,bind=0,persent=2,mjpoint=0,yb=1000,broadcast=1,autoUse=false,useItem=false },
+				}
+			},	
+			--右翼2排3位
+			{	
+				Persent = 225,
+				ItemList =
+				{
+					{ type=0,itemid=1074,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=true },
+				}
+			},	
+			--右翼2排2位
+			{	
+				Persent = 225,
+				ItemList =
+				{
+					{ type=0,itemid=1072,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=true },
+				}
+			},	
+			--右翼2排1位
+			{	
+				Persent = 400,
+				ItemList =
+				{
+					{ type=0,itemid=1021,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=1,autoUse=false,useItem=true },
+				}
+			},	
+			--左翼2排3位
+			{	
+				Persent = 4,
+				ItemList =
+				{
+					{ type=0,itemid=198,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=199,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=200,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=201,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=202,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=209,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=210,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=211,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=212,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=213,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=220,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=221,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=222,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=223,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=224,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+				}
+			},	
+			--左翼2排2位
+			{	
+				Persent = 2,
+				ItemList =
+				{
+					{ type=0,itemid=193,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=194,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=195,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=196,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=197,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=204,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=205,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=206,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=207,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=208,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=215,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=216,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=217,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=218,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=219,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=695,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=5,mjpoint=0,yb=2000,broadcast=1,autoUse=false,useItem=false },
+				}
+			},	
+			--左翼2排1位
+			{	
+				Persent = 1,
+				ItemList =
+				{
+					{ type=0,itemid=226,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=227,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=228,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=229,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=230,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=4,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=231,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=6,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=232,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=5,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=233,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=5,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=234,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=4,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=235,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=6,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=237,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=238,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=239,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=240,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=241,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=4,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=242,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=6,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=243,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=5,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=244,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=5,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=245,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=4,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=246,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=6,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=248,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=1,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=249,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=250,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=2,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=251,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=3,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=252,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=4,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=253,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=6,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=254,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=5,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=255,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=5,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=256,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=4,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=257,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=6,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=696,count=1,quality=0,strongMin=3,strongMax=8,bind=0,persent=8,mjpoint=0,yb=20000,broadcast=1,autoUse=false,useItem=false },
+				}
+			},	
+			--右翼1排3位
+			{	
+				Persent = 400,
+				ItemList =
+				{
+					{ type=0,itemid=635,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},	
+			--右翼1排2位
+			{	
+				Persent = 80,
+				ItemList =
+				{
+					{ type=0,itemid=635,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},	
+			--右翼1排1位
+			{	
+				Persent = 10,
+				ItemList =
+				{
+					{ type=0,itemid=635,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},	
+			--左翼1排3位
+			{	
+				Persent = 250,
+				ItemList =
+				{
+					{ type=0,itemid=635,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},	
+			--左翼1排2位
+			{	
+				Persent = 250,
+				ItemList =
+				{
+					{ type=0,itemid=635,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},	
+			--左翼1排1位
+			{	
+				Persent = 250,
+				ItemList =
+				{
+					{ type=0,itemid=635,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=true,useItem=true },
+				}
+			},	
+			--中间
+			{	
+				Persent = 1,
+				ItemList =
+				{
+					{ type=0,itemid=644,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=50,yb=100000,broadcast=1,autoUse=false,useItem=false },
+					{ type=0,itemid=1051,count=1,quality=0,strongMin=0,strongMax=0,bind=0,persent=1,mjpoint=50,yb=100000,broadcast=1,autoUse=false,useItem=false },
+				}
+			},	
+		},
+	}
+},
+
+
+{ Persent = 1000, ItemList =
+{	
+	{ type=0,itemid=636,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=false },
+},	},
+	{ Persent = 1000, ItemList =
+{	
+	{ type=0,itemid=638,count=1,quality=0,strongMin=0,strongMax=0,bind=1,persent=1,mjpoint=0,yb=0,broadcast=0,autoUse=false,useItem=false },
+},	},

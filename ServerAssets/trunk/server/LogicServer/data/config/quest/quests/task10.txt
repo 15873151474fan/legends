@@ -1,0 +1,45 @@
+﻿--lua script
+{
+	id = 10,			-- 击退魔鼠
+	parentid = 9,type = 0,level = 0,circle = 0,entrust = 0,star = 0,guideId = 0,timelimit = 0,interval = 0,maxcount = 1,
+	cangiveup = false,
+	automount = false,
+	autoRun = true,
+	excludetree = true,
+	showTimerBox = false,
+	randomTarget = false,
+	name = Lang.Quest.name10,
+	content = Lang.Quest.desc10,
+
+	prom = { type = 0, scene = Lang.SceneName.s00002, npc = Lang.EntityName.n00017 },
+	comp = { type = 0, scene = Lang.SceneName.s00002, npc = Lang.EntityName.n00017 },
+	target = {
+		{
+			type = 0, id = 15, count = 3, rewardId = 0,useList = false,
+			location = {
+				sceneid = 2, x= 103,y = 261,entityName = Lang.EntityName.m15,hideFastTransfer = false,
+			},
+		},
+	},
+	conds = {
+		{ type = 0, id = 0, count = 1 },
+	},
+	awards = {
+		{
+			{ type = 2, id = 0, count = 410, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 5, id = 0, count = 2800, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},
+			{ type = 0, id = 234, count = 1, group = 0,strong = 0,quality = 0,job = 0,sex = -1,bind = true,levelRate = 0.00, ringRate = 0.00},--平纹项链 
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk101,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk101,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip101,
+	},
+	PassMsTip = {
+	},
+},

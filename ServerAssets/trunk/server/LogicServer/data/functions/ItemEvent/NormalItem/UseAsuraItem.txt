@@ -1,0 +1,37 @@
+
+--#include "data\config\activityconfig\AsuraField\AsuraFieldConfig.txt" once	--
+
+function AsuraFunc(sysarg, itemIdx, itemPtr, itemConfig)
+	if Actor.isDealing(sysarg) == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0011, ttFlyTip)
+		return 
+	end
+	
+	local config = AsuraFieldConfig
+	if (not config) then
+		return
+	end
+
+	local buff = config.buff
+	if not buff then return end
+
+	if Actor.hasBuff(sysarg, buff.buffType, buff.groupId) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.xl0034, ttFlyTip)
+		return
+	end
+
+	Actor.delBuff(sysarg, buff.buffType, buff.groupId)
+	
+	Actor.onAutoHeadNumber(sysarg, 0)
+
+	Actor.removeItemByPtr(sysarg,itemPtr,1,true,"use asura",5)
+	Actor.sendTipmsg(sysarg, Lang.Activity.xl0035, ttFlyTip)
+end
+
+function AsuraInit(sysarg)
+	for k, v in ipairs(AsuraTab) do
+		GlobalItemFn[v.item_id] = { func = AsuraFunc, params = v }
+	end
+end
+
+table.insert( InitFnTable, AsuraInit)

@@ -1,0 +1,193 @@
+--lua script 
+--#include "data\config\activityconfig\SheepHundredActivity\BaiFuItemFurnaceConfig.txt" once
+
+--请求熔炉信息
+function ReqBaiFuFurnaceInfo(sysarg)
+	if System.getSheepHundredActFlag(4) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 128)
+	if not pack then return end
+
+	local ret = ReadFuranceData(sysarg)
+	DataPack.writeUInt(pack, ret)
+	local needVal = BaiFuItemFurnaceConfig.maxvalue
+	DataPack.writeUInt(pack, needVal)
+	DataPack.flush(pack)
+end
+
+
+--请求提交装备
+function ReqFurnaceGiveItem(sysarg, itemMap)
+	if System.getSheepHundredActFlag(4) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+	
+	if System.isShowSheepHundredAct() == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+
+	--摆摊不可操作
+	if Actor.hasState(sysarg, esStateStall) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0012, ttFlyTip)
+		return false
+	end
+	
+	--判断等级
+	if Actor.checkActorLevel(sysarg, BaiFuItemFurnaceConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0018, ttFlyTip)--等级不足
+		return
+	end
+	
+	--保存装备信息
+	local id = {}
+	local guid = {}
+	local item = {}
+	local num = {}
+	
+	--保存消耗的材料
+	local dataLen = DataPack.readUInt(itemMap)
+	for i=1, dataLen do
+		guid[i] = DataPack.readUint64(itemMap)
+		num[i] = DataPack.readUInt(itemMap)
+		item[i] = Item.getBagItemPtrByGuid(sysarg, guid[i])
+		id[i] = Item.getItemId(item[i])
+	end
+
+	--扣材料并保存进度值
+	if not id then return end
+	for i=1, dataLen do
+		local nowNum = Actor.removeItem(sysarg, id[i], num[i], -1,-1,-1, Lang.LogTips.shs0001, 985)
+		if nowNum ~= num[i] then
+			num[i]= nowNum
+		end
+		local tem = BaiFuItemFurnaceConfig.itemMap
+		if not tem then return end
+		for k,v in ipairs(tem) do
+			if v.id == id[i] then
+				--根据转数获取积分
+				local zhuang = Item.getItemProperty( sysarg, item[i], Item.ipItemQuality, 0)
+				--投保金额 >0可投保
+				local nInsureCount = Item.getItemPropertyById(id[i], Item.ipItemInsure)
+				--投保次数
+				local nInsure = Item.getItemProperty( sysarg, item[i], Item.ipItemHole3Item, 0)
+				if nInsureCount > 0 then
+					--退保金
+					local numYb = nInsureCount* nInsure
+					Actor.changeMoney(sysarg, mtYuanbao, numYb, 985, Lang.LogTips.shs0008)
+				end
+				SaveFuranceData(sysarg, num[i]*v.value*2^zhuang)
+				break
+			end
+		end
+	end
+	ReqBaiFuFurnaceInfo(sysarg)
+end
+
+--请求开始熔炼
+function ReqBaiFuItemFurnace(sysarg)
+	if System.getSheepHundredActFlag(4) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+	
+	if System.isShowSheepHundredAct() == true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0009, ttFlyTip)
+		return
+	end
+	
+	--摆摊不可操作衣柜
+	if Actor.hasState(sysarg, esStateStall) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0012, ttFlyTip)
+		return false
+	end
+	
+	--判断等级
+	if Actor.checkActorLevel(sysarg, BaiFuItemFurnaceConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0018, ttFlyTip)--等级不足
+		return
+	end
+
+	--判断空格
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	if nBagCount < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0006, ttFlyTip)
+		return
+	end
+	
+	local val = ReadFuranceData(sysarg)
+	if val < BaiFuItemFurnaceConfig.maxvalue then
+		Actor.sendTipmsg(sysarg, Lang.Activity.shs0007, ttFlyTip)
+		return
+	end
+
+	--扣进度值
+	 SaveFuranceData(sysarg, -BaiFuItemFurnaceConfig.maxvalue)
+
+	--发放物品
+	local RandRate = math.random(10000)
+	local rate = 0
+	local awardid = 0
+	local bind = 0
+	for k, v in ipairs(BaiFuItemFurnaceConfig.awards) do
+		rate = rate + v.rate
+		if rate >= RandRate then
+			awardid = v.awardid
+			bind = v.bind
+			break
+		end
+	end
+	
+	if awardid == 0 then return end
+	
+	local newItem = Item.createItem(awardid, 1, 0, 0, bind, 0)
+	if not newItem then
+		return false
+	end
+
+	Item.addItem(sysarg, newItem, Lang.LogTips.shs0002, 985, 1)
+	ReqBaiFuFurnaceInfo(sysarg)
+end
+
+
+--读取个人数据
+function ReadFuranceData(sysarg)
+	local ranking = Ranking.getRanking(Lang.Rank.FuranceDataFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, 1)) or 0 --1 当前熔炼进度值
+		end
+	end
+	return 0
+end
+
+--保存个人数据累计
+function SaveFuranceData(sysarg, value)
+	local ranking = Ranking.getRanking(Lang.Rank.FuranceDataFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			local ret = tonumber(Ranking.getSub(itemPtr, 1)) or 0
+			Ranking.setSub(itemPtr, 1, ret+value)--1 保存进度值
+		else
+			itemPtr = Ranking.addItem(ranking, nActorId,0)
+			Ranking.setSub(itemPtr, 1, value)
+		end
+	end
+end
+
+--活动结束清除全服数据
+function ClearBaiFuFurnaceData()
+	local ranking = Ranking.getRanking(Lang.Rank.FuranceDataFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+

@@ -1,0 +1,136 @@
+ --lua script
+--处理结拜流程，当玩家选择“结拜”按钮时
+
+jlpItemId = 1878	--金兰普物品id
+function addBrotherGroupConfirm(sysarg)
+	local NPChandle = Actor.getNpc(sysarg)
+	Actor.messageBox(sysarg,NPChandle,0,Lang.ScriptTips.jb010,Lang.ScriptTips.x00050.."/addBrotherGroup",Lang.ScriptTips.x00051.."/cancelFunction",NULL)
+end
+
+function addBrotherGroup(sysarg)
+	--判断是否队长
+	local teamid = Actor.getTeamId(sysarg)
+	if teamid == 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb004,ttDialog)
+		Actor.closeNPCDialog(sysarg)
+		return
+	end
+	
+	if TeamFun.getTeamCaptain(teamid) ~= sysarg then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb003,ttDialog)
+		Actor.closeNPCDialog(sysarg)
+		return
+	end
+	
+	--判断是否已经结拜
+	local actList = LuaHelp.getTeamMemberList(sysarg)
+	if actList == nil then
+		Actor.closeNPCDialog(sysarg)
+		return
+	end
+	
+	if table.getn(actList) < 2 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb016,ttDialog)
+		Actor.closeNPCDialog(sysarg)
+		return
+	end
+	
+	local zy = Actor.getIntProperty(sysarg,PROP_ACTOR_ZY)
+	local str = Lang.ScriptTips.jb011
+	local mem1, mem2
+	for i = 1, #actList do
+		--判断阵营，等级，结拜情况，是否在npc旁边
+		local ptr = actList[i]
+		if ptr ~= nil then
+			if Actor.getBrotherGroupHandle(ptr) ~= 0 then
+				Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb005,ttDialog)
+				Actor.closeNPCDialog(sysarg)
+				return
+			end
+			if Actor.getIntProperty(ptr,PROP_ACTOR_ZY) ~= zy then
+				Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb006,ttDialog)
+				Actor.closeNPCDialog(sysarg)
+				return
+			end
+			if Actor.getIntProperty(ptr,PROP_CREATURE_LEVEL) < 30 then
+				Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb007,ttDialog)
+				Actor.closeNPCDialog(sysarg)
+				return
+			end
+			if not Actor.isInSameScreen(sysarg,ptr) then
+				Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb008,ttDialog)
+				Actor.closeNPCDialog(sysarg)
+				return
+			end
+			if not mem1 then
+				mem1 = ptr
+			else
+				if not mem2 then
+					mem2 = ptr
+				else
+					mem1 = mem2
+					mem2 = ptr
+				end
+			end
+			if Actor.isTeacherRalation(mem1, mem2) > 0 then
+				local notice = string.format(Lang.ScriptTips.tf00043, Actor.getName(mem1), Actor.getName(mem2))
+				Actor.sendTipmsg(sysarg, notice, ttDialog)
+				return
+			end
+			str = str .. " ".. Actor.getName(ptr)
+		end
+	end
+	if Actor.getItemCount(sysarg,jlpItemId) <= 0 then
+		Actor.messageBox(sysarg,0,0,Lang.ScriptTips.jb009,Lang.ScriptTips.x00078.."/buyThisItem,"..jlpItemId,Lang.ScriptTips.x00069.."/cancelFunction",NULL)
+		Actor.closeNPCDialog(sysarg)
+		return
+	end
+	
+	--扣除物品
+	if( Actor.removeItem(sysarg,jlpItemId,1) ==1 ) then
+		Actor.addBrotherGroup(sysarg,Lang.ScriptTips.jb013)
+		--所有条件成立，结拜
+		System.broadcastTipmsg(str..Lang.ScriptTips.jb012,ttScreenCenter)
+	end
+	Actor.closeNPCDialog(sysarg)
+end
+
+--确认退出
+function leftBrotherConfirm(sysarg)
+	local NPChandle = Actor.getNpc(sysarg)
+	Actor.messageBox(sysarg,NPChandle,0,Lang.ScriptTips.jb014,Lang.ScriptTips.x00050.."/leftBrother",Lang.ScriptTips.x00051.."/cancelFunction",NULL)
+end
+
+function leftBrother(sysarg)
+	local handle = Actor.getBrotherGroupHandle(sysarg)
+	if handle == 0 then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb015,ttDialog)
+		Actor.closeNPCDialog(sysarg)
+		return
+	end
+	
+	Actor.leftBrother(sysarg)
+	Actor.sendTipmsg(sysarg,Lang.ScriptTips.jb017,ttTipmsgWindow+ttScreenCenter)
+	
+	--获取剩余的人数，如果只剩下1个人，则解散
+	local idList = System.getBrotherList(handle)
+
+	local str = nil
+	if idList == nil or table.getn(idList) <= 1 then
+		--要解散
+		str = Actor.getName(sysarg) .. Lang.ScriptTips.jb019
+		System.deleteBrotherGroup(handle)
+	else
+		str = Actor.getName(sysarg) .. Lang.ScriptTips.jb018
+	end
+	if idList ~= nil then
+		for i = 1, #idList do
+			System.sendOfflineMsg(idList[i],str,0)
+			--Actor.sendTipmsg(idList[i],str,ttTipmsgWindow+ttScreenCenter)
+		end
+	end
+	Actor.closeNPCDialog(sysarg)
+end
+
+function cancelFunction(sysarg)
+end

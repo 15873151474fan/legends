@@ -1,0 +1,28 @@
+﻿--[[RankInit.txt]]
+--活动 排行榜名单初始化
+
+--#include "RankPointer.txt" once
+
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function SRetRanking_Init(npcobj)
+	local config = SurpriseRetRankPt	--惊喜回馈
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+	
+	local config = GroupOnRankPt		--团购
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+end
+
+function SRetRanking_Fina(npcobj)
+	local config = SurpriseRetRankPt	--惊喜回馈
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+	
+	local config = GroupOnRankPt		--团购
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+end
+
+table.insert(InitFnTable,SRetRanking_Init)
+table.insert(FinaFnTable,SRetRanking_Fina)

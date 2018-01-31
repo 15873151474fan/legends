@@ -1,0 +1,298 @@
+﻿--财神事件的配置
+
+--lua script
+--#include "..\..\language\LangCode.txt"
+
+WealthEventConfig =
+{	
+	wealthRankName = "GodWealthRank",
+	wealthRankFile = "GodWealthRank.txt",
+
+	maxRollTimes = 999,			--最大的投骰子次数
+
+	--每一关对应有事件的格子数量   {1,5} 对应 {第几关,格子数}
+	haveEvents = 
+	{
+		{1,22},
+		{2,28},
+		{3,32},
+	},
+	
+	--每一关的事件最大数  {1,4}表示事件ID=1 ,最多个数为4+1 
+	maxCount = 
+	{
+		{{1,4},{2,2},{3,4},{4,4},{5,3},{6,2},{7,0},{8,2},{9,0},{10,0},{11,1},},
+		{{1,6},{2,2},{3,5},{4,5},{5,4},{6,2},{7,0},{8,2},{9,0},{10,0},{11,2},},
+		{{1,7},{2,3},{3,6},{4,6},{5,5},{6,2},{7,0},{8,2},{9,0},{10,0},{11,2},},
+	},
+	
+	--登陆时固定的财富事件
+	loginEvent = 
+	{
+		--{2,3}对应为{格子数，事件id}
+		{2,3},
+		{3,1},
+		{4,4},
+		{6,1},
+		{8,2},
+		{9,1},
+		{10,8},
+		{11,6},
+		{13,5},
+		{14,1},
+		{15,1},
+		{16,4},
+		{17,1},
+		{18,1},
+		{19,11},
+		{21,1},
+		{22,3},
+		{23,6},
+		{25,2},
+		{26,5},
+		{28,8},
+		{29,1},
+		{31,2},
+		{33,4},
+		{34,3},
+
+	},
+
+	--普通事件随机的概率 {1,2} 对应 {事件id，权重}
+	nomalRate = {{1,5},{2,2},{3,5},{4,5},{5,3},{6,3},{8,3},{11,3},},
+	
+	--惊喜事件随机的概率  ｛7，10｝ 表示事件ID= ,有10%出现 
+	surprisedRate = {{7,10},{10,15},}, --这里可以一直这么加下去,可以不止一个惊喜事件 
+
+	
+	--每关通关的奖励
+	finishAwards =
+	{
+		--第一关
+		{
+
+			index = 1,			--关卡的id
+			awards = 
+			{
+				{ type = 0, id = 1151, count = 1, strong = 0, quality = 0, bind = 1, rate = 100,},
+			},
+		},
+
+		--第二关
+		{
+	
+			index = 2,			--关卡的id
+			awards = 
+			{
+				{ type = 0, id = 1152, count = 1, strong = 0, quality = 0, bind = 1, rate = 100,},
+			},
+		},
+
+		--第三关
+		{
+	
+			index = 3,			--关卡的id
+			awards = 
+			{
+				{ type = 0, id = 1153, count = 1, strong = 0, quality = 0, bind = 1, rate = 100,},
+			},
+		},
+	},
+
+	--所有事件
+	events =
+	{
+		--恭喜发财
+		{
+			id = 1,									--事件id
+
+			--	(随机获得如下奖励)  rate=20表示随机到的概率为20%
+			awards = 
+			{
+				{ type = 7, id = 0, count = 8, strong = 0, quality = 0, bind = 0, rate = 11,},
+				{ type = 7, id = 0, count = 88, strong = 0, quality = 0, bind = 0, rate = 20,},
+				{ type = 7, id = 0, count = 888, strong = 0, quality = 0, bind = 0, rate = 2,},
+				{ type = 5, id = 0, count = 8888, strong = 0, quality = 0, bind = 0, rate = 30,},
+				{ type = 5, id = 0, count = 88888, strong = 0, quality = 0, bind = 0, rate = 16,},
+				{ type = 5, id = 0, count = 888888, strong = 0, quality = 0, bind = 0, rate = 2,},
+				{ type = 6, id = 0, count = 5000, strong = 0, quality = 0, bind = 0, rate = 11,},
+				{ type = 6, id = 0, count = 50000, strong = 0, quality = 0, bind = 0, rate = 7,},
+				{ type = 6, id = 0, count = 500000, strong = 0, quality = 0, bind = 0, rate = 1,},
+			},
+		},
+
+		--财神福袋
+		{
+			id = 2,									--事件id
+
+			--  (随机获得如下物品奖励)
+			awards = 
+			{
+				{ type = 0, id = 499, count = 1, strong = 0, quality = 0, bind = 1,rate = 10,},
+				{ type = 0, id = 500, count = 1, strong = 0, quality = 0, bind = 1,rate = 10,},
+				{ type = 0, id = 501, count = 1, strong = 0, quality = 0, bind = 1,rate = 10,},
+				{ type = 0, id = 502, count = 1, strong = 0, quality = 0, bind = 1,rate = 13,},
+				{ type = 0, id = 503, count = 1, strong = 0, quality = 0, bind = 1,rate = 13,},
+				{ type = 0, id = 504, count = 1, strong = 0, quality = 0, bind = 1,rate = 12,},
+				{ type = 0, id = 505, count = 1, strong = 0, quality = 0, bind = 1,rate = 12,},
+				{ type = 0, id = 473, count = 1, strong = 0, quality = 0, bind = 1,rate = 5,},
+				{ type = 0, id = 1146, count = 1, strong = 0, quality = 0, bind = 1,rate = 1, },
+				{ type = 0, id = 1147, count = 1, strong = 0, quality = 0, bind = 1,rate = 1, },
+				{ type = 0, id = 918, count = 1, strong = 0, quality = 0, bind = 1,rate = 2, },
+				{ type = 0, id = 921, count = 1, strong = 0, quality = 0, bind = 1,rate = 2, },
+				{ type = 0, id = 485, count = 1, strong = 0, quality = 0, bind = 1,rate = 3, },
+				{ type = 0, id = 727, count = 1, strong = 0, quality = 0, bind = 1,rate = 3, },
+				{ type = 0, id = 752, count = 1, strong = 0, quality = 0, bind = 1,rate = 3, },
+			},
+		},
+
+		--天罡霸体
+		{
+			id = 3,									--事件id
+
+			--事件奖励
+			awards = 
+			{
+				--{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+			
+			-- 随机获得如下BUFF奖励
+			AddBuff = 
+			{
+				{buffType= 11, value=100, buffGroup= 106,times =1,interval= 600,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00096,rate = 15,}, 
+				{buffType= 15, value=100, buffGroup= 106,times =1,interval= 600,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00096,rate = 15,}, 
+				{buffType= 19, value=100, buffGroup= 106,times =1,interval= 600,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00096,rate = 15,}, 
+				{buffType= 23, value=80, buffGroup= 106,times =1,interval= 600,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00097,rate = 11,}, 
+				{buffType= 27, value=80, buffGroup= 106,times =1,interval= 600,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00097,rate = 11,}, 
+				{buffType= 64, value=0.5, buffGroup= 106,times =1,interval= 1800,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00095,rate = 8,},
+				{buffType= 80, value=0.01, buffGroup= 106,times =1,interval= 600,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00098,rate = 5,},
+				{buffType= 6, value=0.1, buffGroup= 106,times =1,interval= 600,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00099,rate = 10,},
+				{buffType= 8, value=0.1, buffGroup= 106,times =1,interval= 600,needDelete = true,timeOverlay = true,buffName = Lang.Activity.t00099,rate = 10,},
+			},
+		},
+
+		--财神降临
+		{
+			id = 4,									--事件id
+
+			--随机获得奖励： 
+			awards = 
+			{
+				{ type = 0, id = 492, count = 1, strong = 0, quality = 0, bind = 1,rate = 7, },
+				{ type = 0, id = 493, count = 1, strong = 0, quality = 0, bind = 1,rate = 7, },
+				{ type = 0, id = 494, count = 1, strong = 0, quality = 0, bind = 1,rate = 7, },
+				{ type = 0, id = 495, count = 1, strong = 0, quality = 0, bind = 1,rate = 9, },
+				{ type = 0, id = 496, count = 1, strong = 0, quality = 0, bind = 1,rate = 9, },
+				{ type = 0, id = 497, count = 1, strong = 0, quality = 0, bind = 1,rate = 7,},
+				{ type = 0, id = 498, count = 1, strong = 0, quality = 0, bind = 1,rate = 7,},
+				{ type = 0, id = 463, count = 1, strong = 0, quality = 0, bind = 1,rate = 7,},
+				{ type = 0, id = 473, count = 1, strong = 0, quality = 0, bind = 1,rate = 7,},
+				{ type = 0, id = 656, count = 1, strong = 0, quality = 0, bind = 1,rate = 5,},
+				{ type = 0, id = 657, count = 1, strong = 0, quality = 0, bind = 1,rate = 3,},
+				{ type = 0, id = 915, count = 1, strong = 0, quality = 0, bind = 1,rate = 2,},
+				{ type = 0, id = 688, count = 20, strong = 0, quality = 0, bind = 1,rate = 4,},
+				{ type = 0, id = 688, count = 20, strong = 0, quality = 0, bind = 1,rate = 4,},
+				{ type = 0, id = 484, count = 1, strong = 0, quality = 0, bind = 1,rate = 6,},
+				{ type = 0, id = 485, count = 1, strong = 0, quality = 0, bind = 1,rate = 3,},
+				{ type = 0, id = 726, count = 1, strong = 0, quality = 0, bind = 1,rate = 4,},
+			},
+		},
+
+		--财神拦路
+		{
+			id = 5,									--事件id
+
+			--
+			awards = 
+			{
+				--{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+
+		--筋斗云
+		{
+			id = 6,									--事件id
+			
+			addNum = 3,								--向前飞的最大格数
+
+			--事件奖励
+			awards = 
+			{
+				--{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+
+		--财神宝藏
+		{
+			id = 7,									--事件id
+			
+		
+			--事件奖励
+			awards = 
+			{
+				{ type = 0, id = 1146, count = 1, strong = 0, quality = 0, bind = 1,rate = 4, },
+				{ type = 0, id = 1147, count = 1, strong = 0, quality = 0, bind = 1,rate = 4, },
+				{ type = 0, id = 920, count = 1, strong = 0, quality = 0, bind = 1,rate = 1, },
+				{ type = 0, id = 923, count = 1, strong = 0, quality = 0, bind = 1,rate = 2, },
+				{ type = 0, id = 797, count = 1, strong = 0, quality = 0, bind = 1,rate = 0.1, },
+				{ type = 0, id = 657, count = 1, strong = 0, quality = 0, bind = 1,rate = 25,},
+				{ type = 0, id = 656, count = 1, strong = 0, quality = 0, bind = 1,rate = 38,},
+				{ type = 0, id = 640, count = 1, strong = 0, quality = 0, bind = 1,rate = 24.9,},
+				{ type = 0, id = 464, count = 1, strong = 0, quality = 0, bind = 1,rate = 1,},
+				
+			},
+		},
+
+		--打道回府
+		{
+			id = 8,									--事件id
+
+			--随机后退的最大格数
+			rebackNum = 5,
+
+			--事件奖励
+			awards = 
+			{
+				--{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+
+		--财神任务
+		{
+			id = 9,									--事件id
+			
+			--随机获得的任务id,为任务id
+			nQuestId = {8065},
+
+			--事件奖励
+			awards = 
+			{
+				--{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+
+		--天降元宝
+		{
+			id = 10,									--事件id
+			
+			--事件奖励
+			awards = 
+			{
+				{ type = 15, id = 0, count = 88, strong = 0, quality = 0, bind = 0, rate = 40, },
+				{ type = 15, id = 0, count = 288, strong = 0, quality = 0, bind = 0, rate = 56, },
+				{ type = 15, id = 0, count = 888, strong = 0, quality = 0, bind = 0, rate = 4, },
+			},
+		},
+
+		--翻天覆地
+		{
+			id = 11,								--事件id
+
+			--事件奖励
+			awards = 
+			{
+				--{ type = 0, id = 575, count = 1, strong = 0, quality = 0, bind = 0 },
+			},
+		},
+	},
+}

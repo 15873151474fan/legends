@@ -1,0 +1,21 @@
+--#include "data\functions\Activity\NewYearSheep\NewYearBoss.txt" once  
+--#include "data\config\activityconfig\NewYearSheep\NewYearBossConfig.txt" once
+
+--boss死亡调用
+MonDieDispatcher.NewYearBossDie = function (monster,sysarg,monId)
+	OnNewYearBossDieDie(monster, sysarg, monId)
+end
+
+--boss被攻击的时候调用
+MonAttackedDispatcher.NewYearBossAttacked = function (monster, sysarg, monId, damage)
+	OnNewYearBossAttacked(sysarg, damage)
+end
+
+
+--注册boss被攻击
+local bossId = NewYearBossConfig.bossId
+--MonDieDispatcher.register(bossId, MonDieDispatcher.NewYearBossDie)
+--MonAttackedDispatcher.register(bossId, MonAttackedDispatcher.NewYearBossAttacked)
+
+
+

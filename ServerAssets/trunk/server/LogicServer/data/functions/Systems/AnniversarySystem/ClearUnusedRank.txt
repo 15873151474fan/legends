@@ -1,0 +1,146 @@
+--清理无用的排行 通用处理
+--#include "data\config\anniversary\anniversaryconfig.txt" once
+--#include "data\config\activityconfig\Festival\SpringFestivalHorseActive.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\RankPointer.txt" once
+--#include "data\functions\Activity\Tumulus\TumulusTreasure.txt" once
+--#include "data\functions\Activity\HundredServerHorse\RankPointer.txt" once
+--#include "data\functions\Activity\MidAutumn\MidAutumnLogin.txt" once
+--#include "data\config\rechargerank\RechargeRankConfig.txt" once
+--#include "data\functions\Activity\MidAutumn\AutumnConsume.txt" once 
+
+--清理无用的排行
+function ClearUnusedRank() 
+	local ranking = nil
+	--周年庆典
+	if (System.isInDateRange(unpack(AnniversaryData.actTime)) ~= true) then
+		ranking = Ranking.getRanking("AnniversaryCelebration.txt")
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+
+		ranking = Ranking.getRanking("AnniversaryExtractYuBaoRank.txt")
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+	end
+
+	--特惠推送
+	ClearUnusedRankItem("Preference.txt", 16)
+	ClearUnusedRankItem("PreferenceExtractYuBaoRank.txt", 16)
+
+	--充值套餐
+	if System.isOpenRechargePackage() ~= true then
+		ranking = Ranking.getRanking("RechargePackage.txt")
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+
+		ranking = Ranking.getRanking("RechargePackageRank.txt")
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+	end
+
+	--宝石消除
+	ClearUnusedRankItem("BejeweledDeluxeInfo.txt", 16)
+
+	--马年春节活动
+	if (System.isInDateRange(unpack(SpringFestivalHorseActiveConfig.actTime)) ~= true) then
+		--[[
+		if (System.isInDateRange(unpack(SpringFestivalHorseActiveConfig.reversedLuck.actTime)) ~= true) then
+			ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ReversedLuckFile)
+			if ranking then
+				Ranking.clearRanking(ranking)
+			end
+		end
+		]]
+		--[[
+		ranking = Ranking.getRanking(SpringFestivalHorseRankPt.GoldSilverTreeFile)
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+		]]
+		ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ConsumePackageFile)
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+
+		--[[
+		ranking = Ranking.getRanking(SpringFestivalHorseRankPt.RedEnvelopeFile)
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+		--]]
+	end
+
+	--充值排行
+	ClearUnusedRankItem("RechargeRankAward.txt", 16)
+	ClearUnusedRankItem("RechargeRankDay.txt", 16)
+
+	--古墓探宝
+	if System.isOpenTumulus() ~= true then
+		ClearTumulusAllRank()
+	end
+
+	if (System.isOpenHorseActById(12) ~= true) then
+		ranking = Ranking.getRanking(HorseHundredServerRankPt.LoginAwardFile)
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+	end
+	
+	--中秋人月团圆
+	ranking = Ranking.getRanking(MidAutumnRankPt.LoginRankPt.FileOld)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	
+	--清除2014七夕充值, 2015情人节要开
+	if RechargeRankConfig[1] and RechargeRankConfig[1].activity[10] and RechargeRankConfig[1].activity[10].actTime then
+		local tempActTime = {}
+		for k, v in ipairs(RechargeRankConfig[1].activity[10].actTime) do
+			table.insert(tempActTime, v)
+		end
+		tempActTime[9] = tempActTime[9] + 1
+		if System.isInDateRange(unpack(tempActTime)) ~= true then
+			ClearRechargeCommonActivityRank(10)
+		end
+	end
+	
+	--清除2014中秋活动数据/2015元宵活动数据
+	if MidAutumnActConfig.actTime then
+		local tempActTime = {}
+		for k, v in ipairs(MidAutumnActConfig.actTime) do
+			table.insert(tempActTime, v)
+		end
+		tempActTime[9] = tempActTime[9] + 1
+		if System.isInDateRange(unpack(tempActTime)) ~= true then 
+			ClearMidAutumnData()
+		end
+	end
+
+end
+
+--清理无用的行
+function ClearUnusedRankItem(fileName, columnCount)
+	local ranking = Ranking.getRanking(fileName)
+	if ranking then
+		local nCount = Ranking.getRankItemCount(ranking)
+		for i=nCount-1, 0, -1 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+			if pItem then
+				local delFlag = 1
+				for j=0, columnCount do
+					if (Ranking.getPoint(pItem) == 0) and (Ranking.getSub(pItem,j) ~= "0") and (Ranking.getSub(pItem,j) ~= "-") then
+						delFlag = 0
+						break
+					end
+				end
+				if delFlag == 1 then
+					local actorId = Ranking.getId(pItem)
+					Ranking.removeId(ranking, actorId)
+				end
+			end
+		end
+	end
+end

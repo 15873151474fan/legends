@@ -1,0 +1,202 @@
+﻿--lua script
+
+--进入副本的个性化处理
+--#include "data\envir\FubenBossSelect.txt" once
+--#include "data\functions\Systems\PaTaSystem\PaTaCommon.txt" once
+--#include "data\config\activityconfig\Festival\Demons.txt" once
+--#include "FiveTreasure\TreasureCommon.txt" once
+--#include "MagicLight\MagicLightCommon.txt" once
+--#include "FuQiQueQiao\FuQiCommon.txt" once
+--#include "data\functions\FuBenOperate\OldDemon\OpenRefreshOldDemon.txt" once
+--#include "data\functions\Activity\SaveRadish\SaveRadishFunc.txt" once
+--#include "data\functions\FuBenOperate\IceWorld\EnterFuben.txt" once
+--#include "data\functions\Activity\CrossMatches\EnterCrossMatchesCommon.txt" once
+--#include "data\functions\Activity\RushSkyMars\RushSkyCommon.txt" once
+--#include "data\functions\Activity\Festival\LanternFestivalCommon.txt" once 
+--#include "data\functions\Activity\HiddenDragon\HiddenDragonCommon.txt" once
+--#include "data\functions\Activity\ShenYinBaGua\ShenYinBaGua.txt" once
+--#include "data\functions\FuBenNpcFunc\JinBiFuben\JinBiFuben_Main.txt" once--金币副本 
+
+
+function OnEnterPaTaFb( sysarg, Fbhandle, fubenId)
+	SendPaTaFubenPack(sysarg, SendOpt_CloseUI)
+	local myJobId = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+	local fubenBossCfg = FubenBossSelect[fubenId]
+	if fubenBossCfg then
+		local bossCfg = fubenBossCfg[myJobId]
+		local sceneId = Actor.getSceneId(sysarg)
+		local hScene = Fuben.getSceneHandleById( sceneId, Fbhandle)
+		for k, boss in ipairs(bossCfg or {}) do
+			local monPrt = Fuben.createMonster( hScene, boss.entityid, boss.x, boss.y,0 )
+		end
+	end	
+end
+
+function OnEnterDrogonFb( sysarg, fbHandle, fubenId )
+	Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben029, ttFlyTip)
+end
+
+function OnEnterHellFb( sysarg, fbHandle, fubenId )
+	Actor.sendTipmsg(sysarg, Lang.ScriptTips.fuben030, ttFlyTip)
+end
+
+function OnEnterTryBattleFb( sysarg, fbHandle, fubenId )
+	local sysDVar = System.getDyanmicVar()
+	if sysDVar.TryBattleFlag then
+		sysDVar.TryBattleFlag = nil
+		local NpcPtr = Fuben.getNpcPtrFromAllScenes(Lang.EntityName.n00164)
+		Actor.setEntityVisibleFlag( NpcPtr, false)
+		Actor.unregScriptCallback(NpcPtr, "OnTryBattleFbOver")
+		local teamLeaderName = Actor.getName(sysarg)
+		local teamId = Actor.getTeamId(sysarg)
+		if teamId > 0 then
+			local leaderPtr = TeamFun.getTeamCaptain(teamId)
+			if leaderPtr and leaderPtr ~= sysarg then
+				teamLeaderName = Actor.getName(leaderPtr)
+			end
+		end
+		local noticeStr = string.format(Lang.ScriptTips.meeting008, teamLeaderName)
+		System.broadcastTipmsg(noticeStr, ttScreenCenter + ttChatWindow)
+	end
+end
+
+function OnEnterDemonsFb(sysarg, fbHandle, fubenId)
+	for sceneId, pos in pairs(DemonsConfig.BossDiedOpenTel) do
+		local hFbScene = Fuben.getSceneHandleById(sceneId, fbHandle)
+		Fuben.setTelportVisible(hFbScene, pos[1], pos[2], false)
+	end
+end
+
+function OnExitFubenFunc(sysarg, fubenId )
+	local cfg = OnExitCopyMap[fubenId]
+	if cfg then
+		cfg.OnExitFbFunc(sysarg, fubenId)
+	end
+	Actor.closeActivityWind(sysarg) --无论出哪个副本都应该关掉面板 
+end
+
+function OnExitDemonsFb(sysarg, fubenId)
+	Pet.delPetById(sysarg, DemonsConfig.DuanPet.PetId)
+	Pet.delPetById(sysarg, DemonsConfig.TreasurePet.PetId)
+end
+
+--五行宝库
+function OnEnterFiveTreasure(sysarg, fbHandle, fubenId)
+	OnEnterInitTreasure(sysarg, fbHandle, fubenId)
+end
+
+-- 神灯密室
+function OnEnterMagicLight(sysarg, fbHandle, fubenId)
+	OnEnterInitMagicLight(sysarg, fbHandle, fubenId)
+end
+
+--夫妻副本
+function OnEnterFuQiFuben(sysarg, fbHandle, fubenId)
+	OnEnterInitFuQiFuBen(sysarg, fbHandle, fubenId)
+end
+
+--上古魔神
+function OnEnterOldDemon(sysarg, fbHandle, fubenId)
+	local nTeamId = Actor.getTeamId(sysarg)
+	local pLeader = TeamFun.getTeamCaptain(nTeamId)
+	
+	if pLeader ~= sysarg then
+		return
+	end
+	OpenRefreshOldDemon(pLeader)
+end
+
+--隐龙地宫
+function OnEnterHiddenDragon(sysarg, fbHandle, fubenId)
+	OnEnterInitHiddenDragon(sysarg, fbHandle, fubenId)
+end
+
+
+--恶灵府邸
+function OnEnterWaneFudi(sysarg, fbHandle, fubenId)
+  local bFb = Actor.getFubenPrt(sysarg)
+  local FbPtr = Fuben.getDyanmicVar( bFb )
+  if not FbPtr then
+     return
+  end
+  if not FbPtr.WaneFuDiLimit then --恶灵府邸取当前时间 
+     FbPtr.WaneFuDiLimit  = System.getCurrMiniTime()
+  end
+end
+  
+OnEnterCopyMap = {
+    [16] = {OnEnterFubenFunc = OnEnterJinBiFuben},
+	[17] = { OnEnterFubenFunc = OnEnterSaveRadishFb },
+	[21] = { OnEnterFubenFunc = OnEnterWaneFudi },
+	[23] = { OnEnterFubenFunc = OnEnterFiveTreasure },
+	[34] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[35] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[36] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[37] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[38] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[39] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[40] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[41] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[42] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[43] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[44] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[45] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	--[[[5] =  { OnEnterFubenFunc = OnEnterDrogonFb},
+	[12] = { OnEnterFubenFunc = OnEnterHellFb},
+	[14] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[15] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[16] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[17] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[18] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[19] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[20] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[21] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[22] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[23] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[24] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[25] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[26] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[27] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[28] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[29] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[30] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[31] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[34] = { OnEnterFubenFunc = OnEnterTryBattleFb },
+	[40] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[41] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[42] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[43] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[44] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[45] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[59] = { OnEnterFubenFunc = OnEnterSaveRadishFb },
+	[60] = { OnEnterFubenFunc = OnEnterOldDemon },
+	[61] = { OnEnterFubenFunc = OnEnterMagicLight },		--神灯密室
+	[62] = { OnEnterFubenFunc = OnEnterFiveTreasure },		--五行宝库	         
+	--[46] = { OnEnterFubenFunc = OnEnterDemonsFb },
+	[63] = { OnEnterFubenFunc = OnEnterIceWorldFuben },
+ 	[64] = { OnEnterFubenFunc = OnEnterFuQiFuben },
+
+	[65] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[66] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[67] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[68] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[69] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[70] = { OnEnterFubenFunc = OnEnterPaTaFb },
+	[73] = { OnEnterFubenFunc = OnEnterRushSkyFb },  --闯天关副本
+ 	[74] = { OnEnterFubenFunc = OnEnterHiddenDragon },		--隐龙地宫]]
+	
+ }
+
+ OnExitCopyMap = {
+	[17] = {OnExitFbFunc = OnExitSaveRadishFb },
+	--[[[46] = {OnExitFbFunc = OnExitDemonsFb},
+	[17] = {OnExitFbFunc = OnExitSaveRadishFb }, 
+	[72] = {OnExitFbFunc = OnExitSelectMatchesFb},
+	[73] = {OnExitFbFunc = OnExitRushSkyFb},
+	[75] = {OnExitFbFunc = OnExitShenYinBaGuaFb},]]
+ }
+ 
+ OnEnterConditionMap = {
+	--[73] = {OnEnterConditionFunc = OnEnterRushSkyFbCondition},
+	--[64] = {OnEnterConditionFunc = OnEnterHongNiangFbCondition},
+ }

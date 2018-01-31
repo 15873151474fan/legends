@@ -1,0 +1,83 @@
+﻿
+--#include "data\config\misc\scriptTimerConfig\activityTips.txt" once 
+
+--活动开启提示公告函数
+--configId 配置的ID
+--index    活动的第几场，0表示第1场，1表示第2场
+function OnActivityTipsFunc(configId,index)
+	if not configId then return end
+	local configId = tonumber(configId)
+	if index == nil then
+		index =0
+	end
+	if(configId <1 or configId > table.getn(activityTips) ) then
+		return
+	end
+	
+	
+	
+	local config = activityTips[configId]
+	local limitTime = config.moveLimit
+	if not limitTime or limitTime == 0 then
+		limitTime = 0
+	else
+		local curTime = System.getCurrMiniTime()
+		limitTime = curTime + limitTime
+	end
+	
+	--如果没有开启跨服并且配置了需要跨服，则不提示
+	if(config.crossServer ==1 and System.isStartCommonServer()==false) then return end
+	
+	
+	--发送客户端请求打开弹窗
+	local npack = DataPack.allocPacketEx()
+	if (npack ~= nil) then
+		DataPack.writeByte(npack, 139)
+		DataPack.writeByte(npack, 39)
+		DataPack.writeString(npack, config.name)  --活动开启提示公告表ID
+		DataPack.writeWord(npack, config.delay)  --停留时间
+		DataPack.writeByte(npack, index)
+		DataPack.writeUInt(npack, limitTime)
+		Actor.worldBroadCastMsg(npack, config.level, config.circle)
+		DataPack.freePacketEx(npack)
+	end
+	
+end
+
+
+--活动开启提示公告函数（跨服版） 需放到--跨服服务器配置下
+--configId 配置的ID
+--index    活动的第几场，0表示第1场，1表示第2场   101 表示跨服的
+function OnActivityTipsFuncCs(configId,index)
+	if not configId then return end
+	local configId = tonumber(configId)
+	if index == nil then
+		index =0
+	end
+	if(configId <1 or configId > table.getn(activityTips) ) then
+		return
+	end
+	local config = activityTips[configId]
+	local limitTime = config.moveLimit
+	if not limitTime or limitTime == 0 then
+		limitTime = 0
+	else
+		local curTime = System.getCurrMiniTime()
+		limitTime = curTime + limitTime
+	end
+	
+	
+	--发送客户端请求打开弹窗
+	local npack = DataPack.allocPacketEx()
+	if (npack ~= nil) then
+		DataPack.writeByte(npack, 139)
+		DataPack.writeByte(npack, 39)
+		DataPack.writeString(npack, config.name)  --活动开启提示公告表ID
+		DataPack.writeWord(npack, config.delay)  --停留时间
+		DataPack.writeByte(npack, index)
+		DataPack.writeUInt(npack, limitTime)
+		Actor.battleGroupBroadCastMsgCs(npack, config.level, config.circle)
+		DataPack.freePacketEx(npack)
+	end
+	
+end

@@ -1,0 +1,76 @@
+--部分功能物品的延迟效果处理 
+
+--每个回调对应一个id,根据id查找对应的回调函数
+--#include "data\functions\Activity\PKChallenge\PKChallengeCommon.txt" once  --处理pk挑战退出
+--#include "data\functions\Activity\CampBattle\CampBattleCommon.txt" once
+--#include ""data\functions\FuBenNpcFunc\exitFubenFunc.txt"  once
+--#include "data\functions\Activity\WeekEnd\HuntingCommon.txt" once
+
+LocalDT.ScriptDelayConfig =
+{
+	[1] = {},	--回城传送
+	[2] = {},	--阵营传送
+	[3] = {}, --放置炸药包
+	[4] = {}, --某地方放置物品
+	[5] = {},	--使用疾风令
+	[6] = {},	--使用修为封存宝盒
+	[7] = {},	--使用经验封存宝盒
+	[8] = {},	--使用道具刷怪延时
+	[9] = {}, --使用开启宠物道具 
+	[10] = {}, -- 宝物骑乘
+	[11] = {}, --使用圣火素材
+	[12] = {},	--使用阵营召集令
+	[13] = {},	--活动速传
+	[14] = {},	--离开活动场景
+	[15] = {},	--玫瑰种植
+}
+
+--#include "data\language\LangCode.txt" once --语言包
+
+
+-----------------------------------------------如果是小的回调函数就写这里
+
+
+--进入活动的召唤
+function ActivityTransmitCallback(sysarg,arg)
+	local sceneId = arg[2]
+	local pos_x = arg[3]
+	local pos_y = arg[4]
+	Actor.enterScene(sysarg,sceneId,pos_x,pos_y)
+end
+
+
+
+
+-------------------------------------------------------------------------通用的函数
+--注册回调一个脚本延期回调的函数
+function registerScriptCallBack( callbackId,func)
+   if(callbackId ==nil or func ==nil) then return end
+   table.insert(LocalDT.ScriptDelayConfig[callbackId],func)
+end
+
+EventCallDispatcher.ScriptDelayCallback = function (sysarg,arg)
+  if arg == nil then return print("arg is null!") end
+  local type = arg[1]
+  if LocalDT.ScriptDelayConfig[type] ~= nil then 
+     --print("-------------")
+     local fnTable = LocalDT.ScriptDelayConfig[type]
+	 --print(#fnTable)
+     for i=1,#fnTable do
+      fnTable[i](sysarg,arg)
+     end
+  end
+end
+
+
+--如果函数比较麻烦，就在这里
+--#include "RapidMoveItem.txt" once  --疾风令
+--#include "data\functions\Activity\GrowRose\UseSeedItemCallBack.txt" once --玫瑰种植
+--#include "data\functions\ActorEvent\ScriptDelayCallBackItem\LeaveActivitySceneCallback.txt" once	--离开活动场景
+--#include "ItemCreateMonster.txt" once --使用道具刷怪延时
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeScriptDelayCallback, EventCallDispatcher.ScriptDelayCallback)
+
+
+registerScriptCallBack(13,ActivityTransmitCallback)
+registerScriptCallBack(8,ItemCreateMonster)

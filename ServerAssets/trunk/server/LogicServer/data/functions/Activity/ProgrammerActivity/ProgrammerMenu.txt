@@ -1,0 +1,25 @@
+﻿
+--#include "ProgrammerCommon.txt" once
+
+function ProgrammerMenu(sysarg)	
+	local str = ""
+	local config = ProgrammerActivityConfig
+	if (not config) then
+		return str
+	end
+	
+	local sceneId = Actor.getSceneId(sysarg)
+	--如果在迷雾之城
+	if sceneId == config.enterScene.sid then
+		str = str.."\\<#BL"..Lang.Activity.cx0006.."/@HandUpSeriousBug>"  --<提交严重的bug>
+		str = str.."\\<#BL"..Lang.Activity.cx0021.."/@HandUpCode>"  --<提交修复的代码>
+		str = str.."\\<#BL"..Lang.Activity.cx0007.."/@BuyProgrammerItem>"  --<购买道具>
+		str = str..Lang.Activity.a00004  --<购买药品>
+		str = str.."\\<#BL"..Lang.Activity.cx0028.."/@AboutProgrammer>"  --<活动详情>
+		str = str.."\\<#BL"..Lang.Activity.a00039.."/@ExitProgrammerMap>"  --<离开活动>
+		str = str.."\\<#BL"..Lang.Activity.t00166.."/@exit>"  --<关闭>
+	end
+	return str
+end
+
+table.insert(MainFnTable, ProgrammerMenu)

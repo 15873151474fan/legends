@@ -1,0 +1,110 @@
+﻿--战力竞技排行
+CombatRanking =
+{
+	RankName = "CombatRanking",
+	RankFile = "CombatRanking.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+		{columnName = Lang.ScriptTips.combat00001, ShowFlag = 1}, 	--{标题, 是否客户端显示}
+		{columnName = Lang.ScriptTips.combat00002, ShowFlag = 1},	--阵营
+		{columnName = Lang.ScriptTips.combat00003, ShowFlag = 0},	--职业
+		{columnName = Lang.ScriptTips.combat00004, ShowFlag = 0},	--等级
+		{columnName = Lang.ScriptTips.combat00005, ShowFlag = 0},	--性别
+		{columnName = Lang.ScriptTips.combat00006, ShowFlag = 0},	--模型
+		{columnName = Lang.ScriptTips.combat00007, ShowFlag = 0},	--武器
+		{columnName = Lang.ScriptTips.combat00008, ShowFlag = 0},	--头像id
+	},
+	ClinetShowCount = 8,
+	ClientShow = 0,
+	MaxRankNum = 1000,		--计入排名数量
+	LevLimit = 45,			--计入排行榜的最低等级
+
+	MaxChallengeNum = 4,		--挑战人数上限
+
+	MaxChallangeRecord  =20,	--保存的竞技日志数
+
+	AddChanllangeNeedYb = 100,	--增加挑战次数需要的元宝
+	CanChanllangeTimes = 20,	--每天可挑战的最大次数
+	challangeRefreshTime = 10,	--挑战的间隔时间 单位分钟
+
+	--不同级别
+	RankGroup = 
+	{
+		--StartRank  排名的起始位 EndRank  排名的最终位
+		--gNum 分组数   RankNum 每组容量
+		{StartRank = 1,EndRank = 20,gNum = 1,RankNum = 20,},
+		{StartRank = 21,EndRank = 58,gNum = 2,RankNum = 19,},
+		{StartRank = 59,EndRank = 112,gNum = 3,RankNum = 18,},
+		{StartRank = 113,EndRank = 180,gNum = 4,RankNum = 17,},
+		{StartRank = 181,EndRank = 260,gNum = 4,RankNum = 16,},
+		{StartRank = 261,EndRank = 350,gNum = 4,RankNum = 15,},
+		{StartRank = 351,EndRank = 448,gNum = 4,RankNum = 14,},
+		{StartRank = 449,EndRank = 552,gNum = 4,RankNum = 13,},
+		{StartRank = 553,EndRank = 648,gNum = 4,RankNum = 12,},
+		{StartRank = 649,EndRank = 736,gNum = 4,RankNum = 11,},
+		{StartRank = 737,EndRank = 824,gNum = 4,RankNum = 11,},
+		{StartRank = 825,EndRank = 912,gNum = 4,RankNum = 11,},
+		{StartRank = 913,EndRank = 1000,gNum = 4,RankNum = 11,},
+	},
+
+	RefreshChanageTimeNeedYb = 300000,	--刷新挑战的剩余时间所需要的绑金
+
+	--刷新的类型 战力加成的百分比
+	RefreshType = {1,2,3,5,10,20,},		
+	--银两刷新的概率 5,55,25,15,0,0
+	CoinRandRate = {5,60,85,100,0,0,},
+	--元宝刷新的概率 1,9,30,40,15,5
+	YbRandRate = {1,10,40,80,95,100,},
+	needMoney = 50000,		--刷新战力需要的绑金
+	needYuBao = 20,			--刷新战力需要的元宝
+	MaxRefreshTimes = 20,		--银两刷新的最大次数
+	OneKeyFreshNeedYB = 300,		--一剑无敌所需的元宝
+	MaxAddChaganeTimes = 20,	--最大增加的挑战次数
+
+	OneDayTime = 1* 24 * 60 * 60,	--1天	
+	DifferentBuff = {--五个段位的buff 
+	 {--权重配置 
+       Rate = 1,
+	   Buff = 
+       {
+         --{buffType = 64,buffGroup=79,value=2, times=1, interval=7200,timeOverlay =true,buffName=Lang.NewVip.BuffName03}, --可配置多条 
+       }, 
+	 },
+ 	 {
+       Rate = 6,
+	   Buff =
+       {
+         --{buffType = 64,buffGroup=79,value=2, times=1, interval=7200,timeOverlay =true,buffName=Lang.NewVip.BuffName03}, --可配置多条
+       },
+	 },
+  	 {
+       Rate = 21,
+	   Buff =
+       {
+        -- {buffType = 64,buffGroup=79,value=2, times=1, interval=7200,timeOverlay =true,buffName=Lang.NewVip.BuffName03}, --可配置多条
+       },
+	 },
+   	 {
+       Rate = 41,
+	   Buff =
+       {
+         --{buffType = 64,buffGroup=79,value=2, times=1, interval=7200,timeOverlay =true,buffName=Lang.NewVip.BuffName03}, --可配置多条
+       },
+	 },
+   	 {
+       Rate = 71,
+	   Buff =
+       {
+         --{buffType = 64,buffGroup=79,value=2, times=1, interval=7200,timeOverlay =true,buffName=Lang.NewVip.BuffName03}, --可配置多条
+       },
+	 },
+	 {
+       Rate = 3000,--最后一条程序作为权重填充（策划不需要管) 
+	   Buff =
+       {
+         --{buffType = 64,buffGroup=79,value=2, times=1, interval=7200,timeOverlay =true,buffName=Lang.NewVip.BuffName03}, --可配置多条
+       },
+	 },
+	
+	},
+}

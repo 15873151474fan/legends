@@ -1,0 +1,588 @@
+﻿--lua script
+--Do something about copy Challenge
+
+--#include "data\envir\FuBen.txt" once
+
+
+local ChallengeDB = {}  --擂台战排名数据
+local ChallengeTable = {}
+local ChallengeSingleDB = {}
+local ChallengeMutiDB = {}
+--ChallengeTable = { playerid, time, name, level, job, tong, wintotal, win-continue-max, being-challenge, challenge-type}
+
+--擂台类型
+local CHALLENGESINGLE = 1
+local CHALLENGEMULTI = 2
+local ChallengTypeTable = {
+	[CHALLENGESINGLE] = 7,
+	[CHALLENGEMULTI] = 8,
+}
+
+local ChallengeCopyTable = {
+	[CHALLENGESINGLE] = {},
+	[CHALLENGEMULTI] = {},
+}  --擂台副本临时存储数据
+
+----------------------------------------------------------------------------------------
+
+--创建擂台相关信息
+function loadChallengeData(sysarg)
+  local path = "DB/Challenge.txt"
+  --判断是否存在玩家对应的文件
+  if ( System.fileExists(path) == false ) then
+	--print( "Search file not exist "..path )
+	return false
+  end
+  --读取玩家对应的文件，把文件里的数据表复制给全局表ChallengeDB
+  dofile(path)
+  --print("ChallengeTable:")
+  ChallengeDB = ChallengeTable
+  return true
+end
+
+--保存擂台相关信息
+function saveChallengeData(sysarg)
+  local path = "DB/Challenge.txt"
+  --创建/保存
+  LuaHelp.saveTable( ChallengeDB, path, "ChallengeTable")
+end
+
+--增加一个玩家擂台消息
+function addChallengeData( sysarg, challengeType, challengable ,challengestate)
+  local actorid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  --限定一个玩家一种擂台类型只有一个记录
+  local isIn = false
+  table.foreachi( ChallengeDB, function( i, v ) if (v.playerid == actorid and challengeType == v.challengetype) then isIn = true end end )
+  if (isIn) then return false end
+  local tb = {
+	playerid = actorid,
+	time = System.getCurrMiniTime(),
+	name = Actor.getName( sysarg ),
+	level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL ),
+	job = Actor.getIntProperty( sysarg, PROP_ACTOR_VOCATION ),
+	tong = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID ),
+	win = 0,
+	wincontinue = 0,
+	winmaxcontinue = 0,
+	beingchallenge = challengable,
+	challengetype = challengeType,
+	challengestate = challengestate,              --判断是摆擂台者还是挑战擂台者
+  }
+  table.insert( ChallengeDB, tb )
+  return true
+end
+--增加单人擂台数据（用于返回给客户端显示当前摆擂台的情况） 
+function addSingleChallengeData( sysarg, challengeType, challengable ,challengestate)
+  local actorid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  --限定一个玩家一种擂台类型只有一个记录
+  local isIn = false
+  table.foreachi( ChallengeSingleDB, function( i, v ) if (v.playerid == actorid ) then isIn = true end end )
+  if (isIn) then return false end
+  local tb = {
+	playerid = actorid,
+	playicon = Actor.getIntProperty(sysarg,PROP_ENTITY_ICON)
+  }
+  table.insert(ChallengeSingleDB, tb )
+  return true
+end
+--增加一个队伍擂台消息 (用于返回给客户显示队伍擂台数)
+function addMutiChallengeData (sysarg,challengeType,challengable,challengestate,aveglevel )       
+  local actorid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local teamMember = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+  if teamMember == nil then return end 
+  local isIn = false
+  table.foreachi( ChallengeMutiDB, function( i, v ) if (v.teamid == teamid ) then isIn = true end end )
+  if (isIn) then return false end
+  --限定一个玩家一种擂台类型只有一个记录
+  local mtb = {
+        teamid = Actor.getTeamId(sysarg),                --队伍ID 
+    aveglevel = aveglevel,      --队伍的平均等级 
+    teamnumb = table.getn(teamMember),    --队伍的人数 
+  }
+  for i = 1,table.getn(teamMember) do
+  local argid = Actor.getIntProperty( teamMember[i], PROP_ENTITY_ID )
+  local tb = {
+      playerid = argid,
+     	playicon = Actor.getIntProperty(sysarg,PROP_ENTITY_ICON),
+      name = Actor.getName( teamMember[i] ),		
+  }
+  table.insert(mtb,tb)
+  end
+  table.insert(ChallengeMutiDB,mtb)
+end 
+--检测是否已有擂台
+function isChallenging( sysarg, challengeType )
+  local actorid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  --限定一个玩家一种擂台类型只有一个记录
+  local isIn = false
+  if challengeType == 1 then  
+  table.foreachi( ChallengeSingleDB, function( i, v ) if (v.playerid == actorid ) then isIn = true end end )
+  return isIn
+  else
+  local teamid = Actor.getTeamId(sysarg)
+    table.foreachi( ChallengeMutiDB, function( i, v ) if (v.teamid == teamid ) then isIn = true end end )
+  end
+end
+
+--清除擂台记录
+function clearChallengeData( sysarg )
+  ChallengeDB = {}
+  saveChallengeData( sysarg )
+end
+
+--更新胜败
+function updateChallengeResult( sysarg, challengeType, result )
+  local actorid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local index = 0
+  local challengeData = {}
+  table.foreachi( ChallengeDB, function( i, v ) if (v.playerid == actorid and challengeType == v.challengetype) then index,challengeData = i, v end end )
+  if ( index == 0 ) then
+	--print("---Player "..actorid.." has no challenge data for update win lost result.")
+	return false
+  end
+  if result then
+	challengeData.win = challengeData.win + 1
+	challengeData.wincontinue = challengeData.wincontinue + 1
+  else
+	challengeData.wincontinue = 0
+  end
+  ChallengeDB[index] = challengeData
+  return true
+end
+
+--更新可挑战状态
+function updateChallengeAble( sysarg, challengeType, challengable )
+  local actorid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local index = 0
+  local challengeData = {}
+  table.foreachi( ChallengeDB, function( i, v ) if ( v.playerid == actorid and challengeType == v.challengetype) then index,challengeData = i, v end end )
+  if ( index == 0 ) then
+	--print("---Player "..actorid.." has no challenge data for update challengable.")
+	return false
+  end
+  challengeData.beingchallenge = challengable
+  ChallengeDB[index] = challengeData
+  return true
+end
+
+
+----------------------------------------------------------------------------------------
+--获取一定等级范围内单人擂台数据并返回给客户端
+function getChallengeLevelRangeToClient( sysarg, challengeType )
+  --local upperOrLower = args[3]  --高级还是低级 1 高级 2 低级 3 上下
+  local levelRange = 3
+  local actorlevel = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  local c_pack = {}
+  table.foreachi(ChallengeSingleDB, function(i,v) if ( v.beingchallenge and challengeType==v.challengetype and (math.abs(v.level - actorlevel)<levelRange)) then table.insert(c_pack,v) end end)
+  local len_c_pack = table.getn(c_pack)
+  if ( len_c_pack <= 0 ) then
+	--print( "No challenge level data for send."..levelRange )
+	return
+  end
+
+  --132 擂台子系统 3
+  local npack = DataPack.allocPacket(sysarg,132,3)  --申请一个数据包
+  if (npack == nil) then
+	--print("npack:nil")
+	return
+  end
+  DataPack.writeInt(npack,len_c_pack)
+  for i = 1, len_c_pack do
+	local p = c_pack[i]
+	DataPack.writeUInt(npack,p.playerid)
+  DataPack.writeUInt(npack.p.playericon)
+	DataPack.writeString(npack,p.name)
+  end
+  DataPack.flush(npack)
+end
+ --获取一定等级内的队伍擂台数据返回给客户端
+  function getChallengeLevelRangeToClient( sysarg, challengeType,aveglevel )
+  --local upperOrLower = args[3]  --高级还是低级 1 高级 2 低级 3 上下
+  local levelRange = 3
+  local actorlevel = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  local c_pack = {}
+  table.foreachi(ChallengeMutiDB, function(i,v) if ( (math.abs(v.aveglevel - aveglevel)<levelRange)) then table.insert(c_pack,v) end end)
+  local len_c_pack = table.getn(c_pack)
+  if ( len_c_pack <= 0 ) then
+	--print( "No challenge level data for send."..levelRange )
+	return
+  end
+
+  --132 擂台子系统 3
+  local npack = DataPack.allocPacket(sysarg,132,5)  --申请一个数据包
+  if (npack == nil) then
+	--print("npack:nil")
+	return
+  end
+  DataPack.writeByte(npack,len_c_pack)
+  for i = 1, len_c_pack do
+		local p = c_pack[i]
+		DataPack.writeUInt(npack,p.teamid)
+		DataPack.writeByte(npack,p.aveglevel)
+	  DataPack.writeByte(npack,p.teamnumb)
+    for j = 1,teamnumb do
+	    local q = p[i]
+			DataPack.writeUInt(npack,q.actorid)
+			DataPack.writeUInt(npack,q.playicon)
+			DataPack.writeString(npack,q.name)
+		end
+  end
+  DataPack.flush(npack)
+end
+--排名排序
+function sortChallenge(a, b)
+  if (a.win == b.win) then
+	if (a.wincontinue == b.wincontinue) then
+		return a.name > b.name
+	else
+		return a.wincontinue > b.wincontinue
+	end
+  else
+	return a.win > b.win
+  end
+end
+
+--获取前几位擂台数据并返回给客户端
+function getChallengeArrayToClient( sysarg, challengeType, numbers )
+  local c_pack = {}
+  table.sort( ChallengeDB, sortChallenge )
+  for i = 1, numbers do
+	if ( ChallengeDB[i] ~= nil ) then table.insert( c_pack, ChallengeDB[i] ) end
+  end
+  local len_c_pack = table.getn(c_pack)
+  if ( len_c_pack <= 0 ) then
+	--print( "No challenge level data for send."..levelRange )
+	return
+  end
+
+  --132 擂台子系统 4
+  local npack = DataPack.allocPacket(sysarg,132,4)  --申请一个数据包
+  if (npack == nil) then
+	--print("npack:nil")
+	return
+  end
+  DataPack.writeInt(npack,len_c_pack)
+  for i = 1, len_c_pack do
+	local p = c_pack[i]
+	DataPack.writeInt(npack,p.playerid)
+	DataPack.writeUint64(npack,p.time)
+	DataPack.writeString(npack,p.name)
+	DataPack.writeInt(npack,p.level)
+	DataPack.writeInt(npack,p.job)
+	DataPack.writeInt(npack,p.tong)
+	DataPack.writeInt(npack,p.win)
+	DataPack.writeInt(npack,p.wincontinue)
+	DataPack.writeInt(npack,p.beingchallenge)
+	DataPack.writeInt(npack,p.challengeType)
+
+  end
+  DataPack.flush(npack)
+end
+
+----------------------------------------------------------------------------------------
+--申请摆擂台 该接口可由客户端通过 event 调用
+function OnSingleChallengeOn( sysarg )
+
+  --前置条件
+  if not ( System.isInTimeRange(12,00,00,23,00,00) or System.isInTimeRange(19,00,00,23,00,00)) then
+    --print("time not ture")
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00013,ttDialog)
+    return
+  end
+  if ( isChallenging( sysarg, 1 ) ) then
+	--print("---You are challenging now."..ct)
+	Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00003,ttDialog)
+	return
+  end
+  
+  --组队状态
+  local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  local actorid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )               --aptr在哪里来的？
+	if (Actor.isInTeam( sysarg )) then
+		--print("---Challenge single do not need team.")         --抱歉，您已有队伍无法申请单人擂台战。请脱离队伍后再申请摆擂台。
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00001,ttDialog)
+		return
+	end
+	if ( level < 25 ) then
+		--print("---Level not that."..level)                    --抱歉，擂台战只接受25级及以上玩家申请。
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00002,ttDialog)
+		return
+	end
+	--注册擂台信息
+	if ( addChallengeData( sysarg, 1,true ) == true ) then
+		--print("---Updata player challenge Info."..actorid)
+		updateChallengeAble( sysarg, ct, true )
+	
+	end
+
+end
+
+--摆队伍擂台
+function OnMultiChallengeOn(sysarg)
+ --判断是否为擂台开放时间 
+  if not (( System.isInTimeRange(12,00,00,14,00,00)) or (System.isInTimeRange(18,00,00,23,00,00))) then
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00013,ttDialog)
+    return
+  end
+	if ( Actor.getIntProperty( sysarg, PROP_ACTOR_SOCIALMASK ) ~= smTeamCaptin ) then      --判断是否为队长
+		--print("---Challenge not team Leader.")
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00005,ttDialog)
+		return
+ 	end
+	local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+	local t_len = table.getn(TeamNumb)
+	if ( t_len < 2 ) then
+		--print("---Challenge team member lack.")
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00006,ttDialog)
+		return
+	end
+	local levelTable = {}	--队伍成员等级表 方便高低等级比较
+	for i = 1, t_len do
+		local cost = moneytotal
+		local aptr = TeamMemb[i]
+		local aid = Actor.getIntProperty( aptr, PROP_ENTITY_ID )
+		local memberlevel = Actor.getIntProperty( aptr, PROP_CREATURE_LEVEL )
+		
+		if memberlevel < 25 then 													 --等级不够
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00007,ttDialog)
+		return 
+		end
+		
+		if math.abs( memberlevel - level ) > 3  then     
+			--print("---Member level not that."..level)                        
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00008,ttDialog)
+			return
+	  end
+		tabel.insert( levelTable, memberlevel )
+	end
+	table.sort( levelTable )
+	if ( levelTable[t_len] - levelTable[1] > 3 ) then
+		--print("---Challenge team level max over.")                 --玩家之间等级相差不在3级内
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00008,ttDialog)
+		return
+	end
+	
+	--注册擂台信息
+	for i = 1, t_len do
+		local aptr = TeamMemb[i]
+		local aid = Actor.getIntProperty( aptr, PROP_ENTITY_ID )
+		if ( addChallengeData( aptr, CHALLENGEMULTI, (aid == actorid) ) == true ) then
+			updateChallengeAble( aptr, CHALLENGEMULTI, true )
+		end
+	end
+end
+--申请打单人擂台 该接口可由客户端通过 event 调用
+function OnSingleChallenge( sysarg )
+--判断是否为擂台开放时间
+  if not ( System.isInTimeRange(12,00,00,14,00,00) or System.isInTimeRange(18,00,00,23,00,00)) then
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00014,ttDialog)
+    return
+  end
+  --local challengedid = args[4] --要挑战的擂台主的ID
+  --还有否擂台剩下
+  local actorid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  --OnChallengeOn( sysarg, args )
+  local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL )
+  if level < 25 then 
+	  Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00002,ttDialog)
+	  return
+  end
+  local TeamId = Actor.getTeamId(sysarg)
+  if TeamId ~= 0 then 
+  	Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00011,ttDialog)
+  	return 
+  end
+  --判断是否已有擂台
+  if ( isChallenging( sysarg, 1 ) ) then
+	--print("---You are challenging now."..ct)
+	Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00012,ttDialog)
+	return
+  end
+  --加入擂台，弹出擂台列表
+	getChallengeLevelRangeToClient(sysarg,CHALLENGESINGLE)
+
+	
+end
+
+--申请打队伍擂台
+function OnMultiChallenge(sysarg)
+--判断是否为擂台开放时间
+  if not ( System.isInTimeRange(12,00,00,14,00,00) or System.isInTimeRange(18,00,00,23,00,00)) then
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00014,ttDialog)
+    return
+  end
+  
+	if ( Actor.getIntProperty( sysarg, PROP_ACTOR_SOCIALMASK ) ~= smTeamCaptin ) then      --判断是否为队长
+		--print("---Challenge not team Leader.")
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00005,ttDialog)
+		return
+ 	end
+	local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+	local t_len = table.getn(TeamNumb)
+	if ( t_len < 2 ) then
+		--print("---Challenge team member lack.")
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00006,ttDialog)
+		return
+	end
+	local levelTable = {}	--队伍成员等级表 方便高低等级比较
+	for i = 1, t_len do
+		local cost = moneytotal
+		local aptr = TeamMemb[i]
+		local aid = Actor.getIntProperty( aptr, PROP_ENTITY_ID )
+		local memberlevel = Actor.getIntProperty( aptr, PROP_CREATURE_LEVEL )
+		
+		if memberlevel < 25 then 													 --等级不够
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00007,ttDialog)
+		return 
+		end
+		
+		if math.abs( memberlevel - level ) > 3  then     
+			--print("---Member level not that."..level)                        
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00008,ttDialog)
+			return
+	  end
+		tabel.insert( levelTable, memberlevel )
+	end
+	table.sort( levelTable )
+	if ( levelTable[t_len] - levelTable[1] > 3 ) then
+		--print("---Challenge team level max over.")                 --玩家之间等级相差不在3级内
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00008,ttDialog)
+		return
+	end
+	--判断是否已有擂台
+  if ( isChallenging( sysarg, 1 ) ) then
+		--print("---You are challenging now."..ct)
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.t00012,ttDialog)
+		return
+  end
+  --弹出可挑战的擂台列表
+  
+end
+
+--退出擂台
+function OnChallengeExit( sysarg, args )
+  if args == CHALLENGESINGLE then 
+  	updateChallengeAble(sysarg,args, false)
+  elseif args == CHALLENGEMULTI then 
+  	local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+  	if ( TeamMemb == nil ) then
+		updateChallengeAble( sysarg, ct, false )
+		--print("---Challenge Exit."..rcm)
+		return
+ 		end
+	  for i = 1, table.getn( TeamMemb ) do
+		local actorptr = TeamMemb[i]
+		updateChallengeAble( actorptr, CHALLENGEMULTI, false )
+		--print("---Challenge Team Exit.")
+	  end
+	end
+end
+
+
+----------------------------------------------------------------------------------------
+--擂台的场所是大地图中的区域，不是完全的副本，所以进入擂台属于传送行为
+--进入单人挑战
+function OnEnterSigleChallengeCopy( sysarg,challengerid,challengeType )
+  --前置条件
+  updateChallengeAble( sysarg, CHALLENGESINGLE, false )
+  local nPosX = 0
+  local nPosY = 0
+  local eid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local telresult = telportSceneByName( sysarg, scenename, nPosX, nPosY)
+end
+
+
+--进入多人挑战
+function OnEnterMultiChallengeCopy( sysarg,challengerid,challengeType )
+  --前置条件
+  updateChallengeAble( sysarg, CHALLENGEMULTI, false )
+  local nPosX = 0
+  local nPosY = 0
+  local actorptr = System.getEntityPtrByActorID( challengerid )
+  local tid = Actor.getIntProperty( sysarg, PROP_ACTOR_TEAM_ID )
+  local actorcid = Actor.getIntProperty( actorptr, PROP_ACTOR_TEAM_ID )
+ 
+  local telresult = telportSceneByName( sysarg,scenename, nPosX, nPosY)
+end
+
+--进入挑战
+function OnEnterChallengeCopy( sysarg, args )
+  local challengerid = tonumber(args[1])
+  local challengeType = tonumber(args[2])
+  if ( challengeType == CHALLENGESINGLE ) then
+	OnEnterSigleChallengeCopy( sysarg, challengerid, challengeType )
+  else
+	OnEnterMultiChallengeCopy( sysarg, challengerid, challengeType )
+  end
+end
+
+----------------------------------------------------------------------------------------
+--擂台的场所是大地图中的区域，不是完全的副本，所以进入擂台属于传送行为
+--孤独地退出擂台
+function OnLeaveChallenge( sysarg, args, challengeType )
+  local space_id = ChallengTypeTable[challengeType]
+  local telresult = telportSceneDefaultPoint( sysarg, scenename )
+end
+
+--用于队伍处理
+function OnLeaveChallengeTeam( sysarg, args, space_id )
+  --Actor.sendTipmsgWithId( sysarg, t )
+  OnChallengeExit( sysarg, args )
+  local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+  if ( TeamMemb == nil ) then return end
+  for i = 1, talbe.getn( TeamMemb ) do
+	OnLeaveChallenge( TeamMemb[i], args, space_id )
+  end
+end
+
+----------------------------------------------------------------------------------------
+--擂台中杀死玩家[杀死玩家的指针，死亡玩家的指针，擂台的类型]
+function OnKillPlayerChallenge( sysarg, args, space_id )
+	local diePtr = args[1] 
+	if args[2] == 1 then 
+		updateChallengeResult(sysarg,args[2],ture)
+		updateChallengeResult(diePtr,args[2],false)
+	else
+	  local TeamMembers = LuaHelp.getTeamMemberList( diePtr )
+	  if ( TeamMembers ~= nil ) then
+		--print("Challenge single over.")
+	  local t_len = table.getn( TeamMembers )
+	  local leavemember = 0
+	  for i = 1, #TeamMembers do
+		local actorptr = TeamMembers[i]
+		if ( Actor.getIntProperty( actorptr, PROP_CREATURE_HP ) > 0 ) then leavemember = leavemember + 1 end
+	  end
+	  if ( leavemember <= 0 ) then
+			--print("Challenge over.")
+			local killTeamMember = LuaHelp.getTeamMemberList( sysarg )
+			for i = 1,#killTeamMember do
+				updateChallengeResult(killTeamMember[i],args[2],ture)
+				OnLeaveChallenge( killTeamMember[i])
+			end
+			for i = 1,#TeamMembers do
+				updateChallengeResult(TeamMembers[i],args[2],false)
+				OnLeaveChallenge( TeamMembers[i])
+			end
+		end
+		end
+	end
+end
+
+
+
+----------------------------------------------------------------------------------------
+--进入各种副本的个性化处理
+
+--玩家死亡的各种个性化处理
+PlayerDieCopyMap = {
+	[7] = OnKillPlayerChallenge,
+	[8] = OnKillPlayerChallenge,
+	[9] = OnKillPlayerChallenge,
+}
+
+--副本队伍的各种个性化处理
+TeamCopyMap = {
+	[7] = { add = OnLeaveChallengeTeam, leave = OnLeaveChallengeTeam },
+	[8] = { add = OnLeaveChallengeTeam, leave = OnLeaveChallengeTeam },
+	[9] = { add = OnLeaveChallengeTeam, leave = OnLeaveChallengeTeam },
+}

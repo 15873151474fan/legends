@@ -1,0 +1,122 @@
+--lua script
+--#include "data\language\LangCode.txt" once			--语言包
+--#include "data\config\activityconfig\CrossGuildSbk\CrossWorldNumOne.txt" once	
+
+--天下第一通用处理
+
+--定时给奖励
+function GiveAwardToCrossWorld(nIndex)
+	--print("GiveAwardToCrossWorld:"..nIndex)
+
+	local nConfig = CrossWorldOneConfig.LTSceneConfig[nIndex]
+	if nConfig == nil then return end
+
+	local playerList = LuaHelp.getSceneActorListById(nConfig.nSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		local nCount = #playerList
+		local nRate = 0
+		local nAwardNum = 0
+		for i=1,table.getn(nConfig.nRate) do
+			if nCount <= nConfig.nRate[i][1] then
+				nAwardNum = nConfig.nRate[i][2]
+				break
+			end
+		end
+	
+		--if nRate > 0 then
+			--nAwardNum = math.floor(nConfig.nBindYb * nRate / 100)
+		--end
+
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				for k=1,table.getn(nConfig.Awards) do
+					Actor.giveAward(player,nConfig.Awards[k].type,nConfig.Awards[k].id,nConfig.Awards[k].count,nConfig.Awards[k].quality,nConfig.Awards[k].strong,nConfig.Awards[k].bind,0,205,Lang.Activity.ku0029)
+				end
+
+				if nAwardNum > 0 then
+					Actor.changeMoney(player,2,nAwardNum,205,Lang.Activity.ku0029)
+				end
+			end
+		end
+	end
+end
+
+--结束给予第一擂台奖励
+function GiveCrossWorldResult()
+	local nConfig = CrossWorldOneConfig.LTSceneConfig[1]
+	if nConfig == nil then return end
+
+	local playerList = LuaHelp.getSceneActorListById(nConfig.nSceneId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		local nCount = #playerList
+		
+		--print("GiveCrossWorldResult:"..nCount)
+		if nCount == 1 then				--为天下第一战神
+			local player = playerList[1]
+			if player then
+				Actor.changeMoney(player,3,CrossWorldOneConfig.AwardYb,186,Lang.Activity.ku0035)
+				Actor.sendCrossWorldOneWinToAll(player)
+				Actor.setTopTitle(player,CrossWorldOneConfig.nTitleId,true)
+			end
+		elseif nCount > 0 then
+			local nRate = 0
+			for i=1,table.getn(CrossWorldOneConfig.nYbRate) do
+				if nCount <= CrossWorldOneConfig.nYbRate[i][1] then
+					nRate = CrossWorldOneConfig.nYbRate[i][2]
+					break
+				end
+			end
+
+			local nAwardNum = 0
+			--print("GiveCrossWorldResult:"..nRate)
+			if nRate > 0 then
+				nAwardNum = math.floor(CrossWorldOneConfig.AwardYb * nRate / 100)
+			end
+			
+			nAwardNum = nAwardNum / nCount
+
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					if nAwardNum > 0 and j < CrossWorldOneConfig.AwardYb then
+						Actor.changeMoney(player,3,nAwardNum,186,Lang.Activity.ku0035)
+					end
+				end
+			end
+		end
+	end
+end
+
+function OnInitCrossWorldForm(sysarg,nIndex)
+	if nIndex < 1 or nIndex > 5 then return end
+	
+	local sVar = System.getStaticVar()
+	
+	local nLeftTime
+	if sVar.CrossWorldStartTime == nil then
+		sVar.CrossWorldStartTime = 0
+	end
+	
+	if sVar.CrossWorldStartTime > 0 then
+		nLeftTime = sVar.CrossWorldStartTime - System.getCurrMiniTime()
+	else
+		nLeftTime = CrossWorldOneConfig.allTime
+	end
+	
+	if nLeftTime < 0 then
+		nLeftTime = CrossWorldOneConfig.allTime
+	end
+
+	if nIndex == 1 then
+		Actor.initActivityWind(sysarg,Lang.Activity.ku0058,nLeftTime,Lang.Activity.ku0063,Lang.Activity.ku0068,0)
+	elseif nIndex == 2 then
+		Actor.initActivityWind(sysarg,Lang.Activity.ku0059,nLeftTime,Lang.Activity.ku0064,Lang.Activity.ku0068,0)
+	elseif nIndex == 3 then
+		Actor.initActivityWind(sysarg,Lang.Activity.ku0060,nLeftTime,Lang.Activity.ku0065,Lang.Activity.ku0068,0)
+	elseif nIndex == 4 then
+		Actor.initActivityWind(sysarg,Lang.Activity.ku0061,nLeftTime,Lang.Activity.ku0066,Lang.Activity.ku0068,0)
+	elseif nIndex == 5 then
+		Actor.initActivityWind(sysarg,Lang.Activity.ku0062,nLeftTime,Lang.Activity.ku0067,Lang.Activity.ku0068,0)
+	end
+end

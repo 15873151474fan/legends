@@ -1,0 +1,29 @@
+﻿--[[玩家接受任务 或者完成任务失败 的提示功能]]
+--#include "data\language\LangCode.txt" once
+
+EventCallDispatcher.QuestFailHandler = function(sysarg , Param) 
+  local OP = Param[1]  --操作 1，接受任务 2，完成任务 
+  local QID = Param[2] --任务ID 
+  local ErrorCode = Param[3] --错误代码 
+  local sMsg = ""
+  if OP == 1 then
+    
+  
+  
+  
+  else
+  
+  
+  
+  
+  end
+  
+  local sMsg = Lang.QuestFailTips[ErrorCode] 
+  
+  if sMsg then
+    --print("XXXX")
+    Actor.sendTipmsg (sysarg ,sMsg, ttScreenCenter)
+  end
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeQuestFail, EventCallDispatcher.QuestFailHandler)

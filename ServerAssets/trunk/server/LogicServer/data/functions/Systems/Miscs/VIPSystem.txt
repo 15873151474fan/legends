@@ -1,0 +1,51 @@
+--VIP系统脚本
+
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\vip\vip.txt" once
+--#include "VIPLevelSystem.txt" once --vip等级 
+
+LocalDT.VIPFreeTelCountCfg = 
+{
+	0,
+	0,
+	0,
+}
+
+
+LocalDT.InitVIPSystem = function()
+	for i=1, table.getn(VIPConfig) do
+		local curVipCfg = VIPConfig[i]
+		for j=1, table.getn(curVipCfg) do
+			if (curVipCfg[j].tp == 13) then
+				LocalDT.VIPFreeTelCountCfg[i] = curVipCfg[j].param1
+			end
+		end
+	end	
+end
+
+-- 下发剩余免费速传次数给客户端
+LocalDT.SyncLeftFreeTelCount = function (sysarg)
+	local isVip = Actor.isVip(sysarg)			
+	if isVip then
+		local vipType = Actor.getVipType(sysarg)
+		local svar = Actor.getStaticVar(sysarg)
+		if (svar.VipFreeTelCnt == nil) then svar.VipFreeTelCnt = 0 end
+		local maxTimes = LocalDT.VIPFreeTelCountCfg[vipType]	or 0
+		local leftTimes = 0
+		if (maxTimes == -1) then
+			leftTimes = -1;
+		else
+			leftTimes = maxTimes - svar.VipFreeTelCnt
+			if (leftTimes < 0) then
+				leftTimes = 0
+			end
+		end
+		local npack = DataPack.allocPacket(sysarg,139,32)  --申请一个数据包
+		DataPack.writeInt(npack,leftTimes)
+		DataPack.flush(npack)		
+		--print("send vipFreeTelCount to Client:"..leftTimes)
+	end
+end
+
+LocalDT.InitVIPSystem()

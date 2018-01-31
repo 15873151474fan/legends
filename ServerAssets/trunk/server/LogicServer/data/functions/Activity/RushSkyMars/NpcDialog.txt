@@ -1,0 +1,92 @@
+
+--lua script
+
+--#include "RushSkyCommon.txt" once
+
+function RushSkyDialog(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.tg0006.."/@OpenChallenge>"
+	str = str.."\\<#BL"..Lang.Activity.tg0007.."/@ChangePassNum>"
+	return str
+end
+
+--开始挑战
+function OpenChallenge(sysarg)
+	if CheckAllMonsterDie(sysarg) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tg0008, ttFlyTip) 
+		return 
+	end
+	
+	local passNum = GetCurPassNum(sysarg)
+	if passNum < 0 or passNum >= table.getn(RushSkyMarsConfig.passLists) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tg0030, ttFlyTip)
+		return 
+	end
+	
+	CreatRushSkyMonsters(sysarg, passNum+1)
+end
+
+--跳转波数
+function ChangePassNum(sysarg)
+	if CheckAllMonsterDie(sysarg) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tg0010, ttFlyTip) 
+		return 
+	end
+	local maxPassNum = GetMaxPassNum(sysarg)
+
+	local challengePass = RushSkyMarsConfig.challengePass
+
+	if maxPassNum < challengePass then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.tg0031, challengePass), ttFlyTip)
+		return 
+	end
+	
+	local count = maxPassNum / challengePass
+	local str = ""
+	for i = 1, count do 
+		local passNum = challengePass*i
+		
+		if i >= table.getn(RushSkyMarsConfig.jumpCost) then
+			i = table.getn(RushSkyMarsConfig.jumpCost)
+		end
+		
+		local gold = RushSkyMarsConfig.jumpCost[i].gold
+		
+		str = str.."\\<#BL"..(string.format(Lang.Activity.tg0009, passNum, gold)).."/@JumpPass,"..passNum..","..i..">"
+	end
+	str = str..Lang.Activity.tg0029
+	return str
+	
+end
+
+--跳转波数
+function JumpPass(sysarg, passNum, index)
+	if CheckAllMonsterDie(sysarg) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tg0010, ttFlyTip) 
+		return 
+	end
+	
+	local JumpPassNum = tonumber(passNum)
+	local JumpIndex = tonumber(index)
+	local curPassNum = GetCurPassNum(sysarg)
+	if curPassNum >= JumpPassNum then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.tg0032,JumpPassNum), ttFlyTip)
+		return 
+	end
+	
+	if JumpIndex > table.getn(RushSkyMarsConfig.jumpCost) then
+		return	
+	end
+	
+	local CostConfig = RushSkyMarsConfig.jumpCost[JumpIndex]
+	
+	if Actor.checkConsume(sysarg, 15, 0, CostConfig.gold) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.tg0024, ttFlyTip)
+	end
+	
+	if Actor.changeMoney(sysarg, 3, -CostConfig.gold, 943, Lang.LogTips.tg003) == true then
+		CreatRushSkyMonsters(sysarg, JumpPassNum)
+	end
+end
+
+--table.insert(MainFnTable, RushSkyDialog)

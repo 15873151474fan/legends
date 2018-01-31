@@ -1,0 +1,95 @@
+﻿--刺杀长击
+{
+
+	actions=
+	{
+		{act=0,effect=4,},
+	},
+
+	desc=Lang.Skill.s13L1Desc,--技能的描述
+
+	iconID=13,--图标的ID
+
+	--作用范围表
+	actRange=
+	{
+
+		{
+
+			xStart=-2,--相对于中心点x左边的相对坐标
+			xEnd=2,--相对于中心点x右边的相对坐标
+			yStart=-6,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=2,
+		rangeCenter=1,
+
+		acts=
+			{
+				{
+					targetType=1,
+					conds=
+					{
+						--{cond = 13,value =1},
+					},
+					results=
+					{
+					--	{mj=0,timeParam=1,type=4,delay=0, rate=10000,value=1,interval=2},
+					},
+
+					specialEffects=
+					{
+					{type=4,mj=0,id=51,keepTime=400,delay=400,always=false},
+					},
+				},
+			},
+		},
+
+
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-6,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=2,
+		rangeCenter=1,
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=1,buffType=49,id=47,rate=0,value=500,delay=500, interval=3,vt=0,effectType=6,effectId=53},
+						{mj=0,timeParam=1,type=3,delay=400, rate=10000,value=700},
+					},
+
+					specialEffects=
+					{
+					--{type=4,mj=0,id=2,keepTime=400,delay=200,always=false},
+					},
+				},
+			},
+		},
+
+	},
+
+	trainConds=
+	{
+		--{cond=1,value=26,consume=false},--表示等级要1级
+		--{cond=3,value=436,consume=true,exceptVip=true },--表示书本
+	},
+
+	spellConds=
+	{
+		{cond=13,value=5,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,
+	cooldownTime=1000,
+
+},

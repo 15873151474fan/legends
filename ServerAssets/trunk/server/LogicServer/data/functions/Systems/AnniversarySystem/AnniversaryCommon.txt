@@ -1,0 +1,249 @@
+--周年庆典 通用处理
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--初始化事件
+function InitAnniversaryData()
+	local nMaxTab = table.getn(AnniversaryData.pagedata)
+
+	System.setAnniversaryMaxTab(nMaxTab)
+	--设置活动开启时间
+	System.setAnniversaryStartTime(AnniversaryData.actTime[1], AnniversaryData.actTime[2],
+					AnniversaryData.actTime[3], AnniversaryData.actTime[4],
+					AnniversaryData.actTime[5], AnniversaryData.actTime[6])
+	--设置活动结束时间
+	System.setAnniversaryOverTime(AnniversaryData.actTime[7], AnniversaryData.actTime[8],
+					AnniversaryData.actTime[9], AnniversaryData.actTime[10],
+					AnniversaryData.actTime[11], AnniversaryData.actTime[12])
+
+	local pagedata = AnniversaryData.pagedata
+
+	for i = 1, nMaxTab do
+		local nAwardCount = 0
+		if pagedata[i].anniversaryAward then
+			nAwardCount = table.getn(pagedata[i].anniversaryAward)
+		end
+		System.setAnniversaryBaseData(pagedata[i].id, pagedata[i].pageType, nAwardCount)
+		--设置初始赞数
+		if pagedata[i].pageType == 1 then
+			local nPraiseCount = System.getRandomNumber(pagedata[i].praiseCountInterval[2] - pagedata[i].praiseCountInterval[1])
+						+ pagedata[i].praiseCountInterval[1]
+			System.setAnniversaryPraiseCount(nPraiseCount)
+		--设置充值排行上榜需要的元宝数
+		elseif pagedata[i].pageType == 3 then
+			local nRankCount = table.getn(pagedata[i].rankAward)
+			System.setAnniversaryRankInfo(pagedata[i].onRankNeedYB, nRankCount)
+		end
+	end
+end
+
+--点赞
+function OnGetPraiseAward(sysarg, args)
+	local nTab = args[2]
+	local nIndex = args[3]
+	
+	local page = AnniversaryData.pagedata[nTab]
+	if page == nil then return end
+
+	if Actor.getAnniversaryAwardFlag(sysarg, nTab, nIndex) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0003, ttFlyTip)
+		return
+	end
+
+	local nPraiseCount = System.getAnniversaryPraiseCount()
+	nPraiseCount = nPraiseCount + 1
+
+	local nAwardIndex = 1
+	for k, storeyAward in ipairs(page.anniversaryAward[1].storeyAward or {}) do
+		if storeyAward.storey == nPraiseCount then
+			nAwardIndex = k
+		end
+	end
+
+	local awards = page.anniversaryAward[1].storeyAward[nAwardIndex].awards
+	if not awards then return end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		for i=1,table.getn(awards) do
+			if (awards[i].job == -1 or awards[i].job == myJob) and (awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,954,Lang.Activity.zn0001)
+			end
+		end
+		Actor.setAnniversaryAwardFlag(sysarg,nTab,nIndex)	--设置完成
+		System.setAnniversaryPraiseCount(nPraiseCount)		--设置赞数
+		SendGetAnniversaryResult(sysarg,nTab,nIndex)
+	end
+end
+
+--领取充值奖励
+function OnGetWithdrawAward(sysarg, args)
+	local nTab = args[2]
+	local nIndex = args[3]
+	
+	local page = AnniversaryData.pagedata[nTab]
+	if page == nil then return end
+
+	if Actor.getAnniversaryAwardFlag(sysarg, nTab, nIndex) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0004, ttFlyTip)
+		return
+	end
+
+	local nAwardIndex = nIndex - nTab * 1000
+	if not page.anniversaryAward[nAwardIndex] then return end
+
+	local myExtractYB = Actor.getAnniversaryExtractYB(sysarg)
+	if myExtractYB < page.anniversaryAward[nAwardIndex].needYB then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0006, ttFlyTip)
+		return
+	end
+
+	local awards = page.anniversaryAward[nAwardIndex].awards
+	if not awards then return end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		for i=1,table.getn(awards) do
+			if (awards[i].job == -1 or awards[i].job == myJob) and (awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,954,Lang.Activity.zn0001)
+			end
+		end
+		Actor.setAnniversaryAwardFlag(sysarg,nTab,nIndex)	--设置完成
+		SendGetAnniversaryResult(sysarg,nTab,nIndex)
+	end
+end
+
+--领取vip奖励
+function OnGetVipAward(sysarg, args)
+	local nTab = args[2]
+	local nIndex = args[3]
+	
+	local page = AnniversaryData.pagedata[nTab]
+	if page == nil then return end
+
+	if Actor.getAnniversaryAwardFlag(sysarg, nTab, nIndex) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0004, ttFlyTip)
+		return
+	end
+
+	local nAwardIndex = nIndex - nTab * 1000
+	if not page.anniversaryAward[nAwardIndex] then return end
+
+	local vipType = page.anniversaryAward[nAwardIndex].vipType
+	local vipLevel = page.anniversaryAward[nAwardIndex].vipLevel
+
+	local vip = Actor.getVipType(sysarg)
+	if vip < vipType then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0007, ttFlyTip)
+		return
+	end
+
+	if Actor.checkVipLevel(sysarg, vipLevel) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0008, ttFlyTip)
+		return
+	end
+
+	local awards = page.anniversaryAward[nAwardIndex].awards
+	if not awards then return end
+
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		for i=1,table.getn(awards) do
+			if (awards[i].job == -1 or awards[i].job == myJob) and (awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,954,Lang.Activity.zn0001)
+			end
+		end
+		Actor.setAnniversaryAwardFlag(sysarg,nTab,nIndex)	--设置完成
+		SendGetAnniversaryResult(sysarg,nTab,nIndex)
+	end
+end
+
+--领取等级奖励
+function OnGetLevelAward(sysarg, args)
+	local nTab = args[2]
+	local nIndex = args[3]
+	
+	local page = AnniversaryData.pagedata[nTab]
+	if page == nil then return end
+
+	if Actor.getAnniversaryAwardFlag(sysarg, nTab, nIndex) == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0004, ttFlyTip)
+		return
+	end
+
+	local nAwardIndex = nIndex - nTab * 1000
+	local level = page.anniversaryAward[nAwardIndex].level
+	local circle = page.anniversaryAward[nAwardIndex].circle
+	if Actor.checkActorLevel(sysarg, level, circle) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.zn0009, ttFlyTip)
+		return
+	end
+
+	local awards = page.anniversaryAward[nAwardIndex].awards
+	if not awards then return end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		for i=1,table.getn(awards) do
+			if (awards[i].job == -1 or awards[i].job == myJob) and (awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,954,Lang.Activity.zn0001)
+			end
+		end
+		Actor.setAnniversaryAwardFlag(sysarg,nTab,nIndex)	--设置完成
+		SendGetAnniversaryResult(sysarg,nTab,nIndex)
+	end
+end
+
+--领取充值排行奖励
+function OnGetExtractYBRankAward(sysarg,args)
+	local nTab = args[2]
+	local nIndex = args[3]
+
+	local page = AnniversaryData.pagedata[nTab]
+	if page == nil then return end
+
+	if not page.rankAward[nIndex] then return end
+
+	local awards = page.rankAward[nIndex].awards
+	if not awards then return end
+	
+	local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+	if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+		for i=1,table.getn(awards) do
+			if (awards[i].job == -1 or awards[i].job == myJob) and (awards[i].sex == -1 or awards[i].sex == mySex) then
+				Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,954,Lang.Activity.zn0001)
+			end
+		end
+	end
+end
+
+--返回领取奖励成功
+function SendGetAnniversaryResult(sysarg,nTab,nIndex)
+	local pack = DataPack.allocPacket(sysarg, 52, 2)
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, nTab)
+		DataPack.writeInt(pack, nIndex)
+		DataPack.writeChar(pack, 1)
+		DataPack.flush(pack)
+	end
+end
+
+--0点更新赞数
+function UpdatePraise()
+	local pagedata = AnniversaryData.pagedata
+	if not pagedata then return end
+
+	local nPraiseCount = System.getAnniversaryPraiseCount()
+	nPraiseCount = nPraiseCount * (1 + pagedata[1].addPraisePerDay)
+
+	System.setAnniversaryPraiseCount(nPraiseCount)
+end

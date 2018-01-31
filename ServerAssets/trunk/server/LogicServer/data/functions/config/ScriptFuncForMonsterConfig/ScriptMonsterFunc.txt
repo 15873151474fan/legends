@@ -1,0 +1,47 @@
+﻿--lua script
+
+--特殊BOSS的特殊处理函数
+ScriptMonsterFuncConfig = {
+[399] = {                                        --任我行2 
+          ScriptMonsterFunc = function (monster,sysarg,monId)
+                              --print("--------------")
+                              if Actor.isKillAllMonster(sysarg,398) then
+                                --print("real monster is die!")
+                                return 0
+                              end
+                              local sceneid = Actor.getSceneId(sysarg)
+                              local Fhandle = Actor.getFubenHandle(sysarg)
+                              local hscene = Fuben.getSceneHandleById(sceneid,Fhandle)
+                              Fuben.clearMonster(hscene,398)
+                              local x = Actor.getIntProperty(sysarg,PROP_ENTITY_POSX)
+                              local y = Actor.getIntProperty(sysarg,PROP_ENTITY_POSY)
+                              --让怪物ID398立即消失的接口
+                              --print("x:y"..x.." "..y)
+                              local monPtr = Actor.createMonster(sysarg,417,x,y,0)
+                              --通过接口播放跟随AI
+                              if monPtr ~= nil then  
+                                Actor.followActor(monPtr,sysarg)
+                              end
+                              return 0
+                             end,
+        },
+[415] = {                                         --火药包怪物 
+           ScriptMonsterFunc = function (monster,sysarg,monId)
+                                  --print("power is die !")
+	                               local pors = {0.3,0.4,0.5,0.6,0.7}
+	                               local ptrList = LuaHelp.getNearEntityList(monster,5)   --获取周围固定半径内的生物指针 
+	                               if ptrList == nil then  return 0 end
+	                               for i=1,#ptrList do
+	                                 if ptrList[i] ~= nil then 
+		                                 local rand = System.getRandomNumber(table.getn(pors)) + 1
+		                                 local count = pors[rand]
+		                                 local hp = Actor.getIntProperty(ptrList[i],PROP_CREATURE_HP)
+		                                 Actor.changeHp(ptrList[i],-hp*count)
+	                                 end
+	                               end    
+                                 return 0
+                               end,
+        },
+
+
+}

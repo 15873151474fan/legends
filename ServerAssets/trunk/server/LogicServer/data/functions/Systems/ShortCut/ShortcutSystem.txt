@@ -1,0 +1,77 @@
+--快捷键系统的通信处理实现 
+                   
+--快捷键数量
+LocalDT.MaxShortCutCount = 20     
+
+local ShortCutSystemImplement = 
+{  
+  --客户端查询快捷键数据 
+  quetyShortCutData = function (sysarg)    
+    if(Actor.isFirstLogin(sysarg) ) then return end --第1次登陆不发
+	
+    local shortCut = Actor.getStaticVar( sysarg ).shortCut 
+    if shortCut then
+      local count = #shortCut 
+      if count > 0 then 
+	      local pack = DataPack.allocPacket(sysarg, BaseTypes.SystemId.shortCutSystem, 2) 
+        DataPack.writeByte(pack, count)
+	      local i           
+        local scValue  
+        --快捷键key从0开始！！！ 
+	      for i = 0, LocalDT.MaxShortCutCount - 1 do     
+          scValue = shortCut[i]
+          if scValue then              
+            --0x000000FF = 键位, 0xFFFFFF00 = 键数据            
+            scValue = math.floor(scValue * 256) 
+            scValue = scValue + i
+            DataPack.writeInt(pack, scValue)
+          end 
+        end 
+        DataPack.flush(pack)
+      end
+    else
+    	--print(" shorcut is nil......");
+    end 
+  end,
+  
+  --客户端设置快捷键数据，[ 
+  setShortCutData = function (sysarg, packet)   
+    local var = Actor.getStaticVar( sysarg )  
+    local shortCut = var.shortCut
+    if not shortCut then
+      var.shortCut = {}
+      shortCut = var.shortCut 
+    end
+    local scValue = DataPack.readInt( packet )
+    local key = math.floor(scValue % 256) 
+    if key < LocalDT.MaxShortCutCount then 
+      --0x000000FF = 键位, 0xFFFFFF00 = 键数据 
+      scValue = math.floor(scValue / 256)     
+      --0x0000FF00=键类型，0xFFFF00表示键值 
+      --如果类型或值为0则删除快捷键记录 
+      if scValue == 0 or math.floor(scValue % 256) == 0 or math.floor(scValue / 256) == 0 then
+        shortCut[key] = nil
+      else       	
+        shortCut[key] = scValue
+      end   
+    else
+      key = nil
+    end 
+    --返回客户端设置成功否 
+    local pack = DataPack.allocPacket(sysarg, BaseTypes.SystemId.shortCutSystem, 1) 
+    if key then key = 1 else key = 0 end
+    DataPack.writeByte(pack, key) 
+    DataPack.flush(pack)
+  end,   
+}   
+
+ShortCutSystemImplement.main = function (sysarg, systemid, msgid, packet)
+  if msgid == 1 then
+    ShortCutSystemImplement.setShortCutData(sysarg, packet)
+  elseif msgid == 2 then
+    ShortCutSystemImplement.quetyShortCutData(sysarg)
+  end
+end
+
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.shortCutSystem, ShortCutSystemImplement.main)

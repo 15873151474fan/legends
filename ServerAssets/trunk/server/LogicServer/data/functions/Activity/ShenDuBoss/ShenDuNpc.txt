@@ -1,0 +1,392 @@
+--神都海域大使
+--#include "data\config\activityconfig\ShenBoss\ShenBossConfig.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+function ShenDuNpc_Main(sysarg)	
+	local str = ""
+	str = str.."\\<#BL"..Lang.Activity.sd0001.."/@EnterShenDuMap>"  --<进入神都海域地图>
+	str = str.."\\<#BL"..Lang.Activity.sd0002.."/@ViewThisWeekLongPoint>"  --<上交龙王的精魄>
+	--str = str.."\\<#BL"..Lang.Activity.sd0003.."/@ViewThisWeekLongPoint>"  --<查看本周上交龙王的精魄数量>
+	str = str.."\\<#BL"..Lang.Activity.sd0004.."/@GetLastWeekLongAward>"  --<领取上周上交的龙王精魄排行奖励>
+	str = str.."\\<#BL"..Lang.Activity.a00032.."/@exit>"  --<离开>
+	return str
+end
+
+--进入神都海域地图
+function EnterShenDuMap(sysarg)
+	local svar = System.getDyanmicVar()
+	if svar.CanNotHandedItem == nil then
+		svar.CanNotHandedItem = 0
+	end
+
+	if svar.OpenShenDuBossFlag == nil or svar.OpenShenDuBossFlag ==0 then		--还没开启
+		if svar.CanNotHandedItem == 1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.sd0025, ttFlyTip)
+		else
+			Actor.sendTipmsg(sysarg, Lang.Activity.sd0016, ttFlyTip)
+		end
+		return
+	end
+
+	local nCircle = Actor.getIntProperty(sysarg,PROP_ACTOR_CIRCLE)
+	if nCircle < ShenBossConfig.nCircle then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sd0005, ttFlyTip)
+		return
+	end
+		
+	local nScore = 0
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local pRank = Ranking.getRanking(ShenBossConfig.ShenDuThisWeek)
+	if pRank then
+		local mItem = Ranking.getItemPtrFromId(pRank,nActorId)
+		if mItem then
+			nScore = Ranking.getPoint(mItem)
+		end
+	end
+	
+	if nScore < ShenBossConfig.needNum then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.sd0018,ShenBossConfig.needNum), ttFlyTip)
+		return
+	end
+
+	Actor.enterScene(sysarg, ShenBossConfig.nSceneid, unpack(ShenBossConfig.range))
+
+	local nHandle = Fuben.getSceneHandleById(ShenBossConfig.nSceneid, 0)
+	local nTime = Fuben.getSceneTime(nHandle)
+	Actor.initActivityWind(sysarg,Lang.Activity.sd0024,nTime,Lang.Activity.sd0023)
+
+end
+
+--上交龙王的精魄
+function HandedLongItem(sysarg)
+	local svar = System.getDyanmicVar()
+	if svar.CanNotHandedItem == nil then
+		svar.CanNotHandedItem = 0
+	end
+
+	if svar.CanNotHandedItem == 1 then		--活动已开启
+		Actor.sendTipmsg(sysarg, Lang.Activity.sd0022, ttFlyTip)
+		return
+	end
+
+	local nCount = Actor.getItemCount(sysarg,ShenBossConfig.nItemId)
+	if nCount <= 0 then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.sd0019, ttFlyTip)
+		return 
+	end
+	
+	if nCount > ShenBossConfig.maxNum then
+		nCount = ShenBossConfig.maxNum
+	end
+
+	if Actor.removeItem(sysarg,ShenBossConfig.nItemId,nCount) then
+		Actor.giveAward(sysarg,ShenBossConfig.AwardExp.type,ShenBossConfig.AwardExp.id,
+				nCount*ShenBossConfig.AwardExp.count,ShenBossConfig.AwardExp.quality,ShenBossConfig.AwardExp.strong,0,0,822,Lang.Activity.sd0002)
+
+		local ranking = Ranking.getRanking(ShenBossConfig.ShenDuScoreFile)
+		if ranking then
+			local pItem = Ranking.getItemPtrByIndex(ranking,0)
+			if pItem then
+				Ranking.updateItem(ranking,1,nCount)
+			else
+				Ranking.addItem(ranking,1,nCount)
+			end
+		end
+
+		local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+		local pRank = Ranking.getRanking(ShenBossConfig.ShenDuThisWeek)
+		if pRank then
+			local mItem = Ranking.getItemPtrFromId(pRank,nActorId)
+			if mItem then
+				Ranking.updateItem(pRank,nActorId,nCount)
+			else
+				mItem = Ranking.addItem(pRank,nActorId,nCount)
+			end
+
+			if mItem then
+				Ranking.setSub(mItem,0,Actor.getName(sysarg))
+			end
+		end
+	end
+
+	return ViewThisWeekLongPoint(sysarg)
+end
+
+--查看本周上交龙王的精魄数量
+function ViewThisWeekLongPoint(sysarg)
+	local nValue = 0
+	local ranking = Ranking.getRanking(ShenBossConfig.ShenDuScoreFile)
+	if ranking then
+		local pItem = Ranking.getItemPtrByIndex(ranking,0)
+		if pItem then
+			nValue = Ranking.getPoint(pItem)
+		end
+	end
+
+	local myValue = 0
+	local pRank = Ranking.getRanking(ShenBossConfig.ShenDuThisWeek)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	if pRank then
+		local mItem = Ranking.getItemPtrFromId(pRank,nActorId)
+		if mItem then
+			myValue = Ranking.getPoint(mItem)
+		end
+	end
+
+	local str = string.format(Lang.Activity.sd0006,nValue,myValue)
+	
+	str = str.."\\<#BL"..Lang.Activity.sd0002.."/@HandedLongItem>"  --<上交龙王的精魄>
+	str = str.."\\<#BL"..Lang.Activity.g00008.."/@main>" 
+
+	return str
+end
+
+--领取上周上交的龙王精魄排行奖励
+function GetLastWeekLongAward(sysarg)	
+	local pRank = Ranking.getRanking(ShenBossConfig.ShenDuLastWeek)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local nIndex = 0
+	if pRank then
+		nIndex = Ranking.getItemIndexFromId(pRank,nActorId) + 1
+	end
+	
+	local str = string.format(Lang.Activity.sd0020,nIndex)
+	if pRank then
+		local nCount = Ranking.getRankItemCount(pRank)
+		for i=1,nCount do
+			local pItem = Ranking.getItemFromIndex(pRank,i-1)
+			if pItem then
+				local strname = Ranking.getSub(pItem,0) or ""
+				str = str..string.format(Lang.Activity.sd0021,i,strname,Ranking.getPoint(pItem))
+			else
+				break
+			end
+		end
+	end
+
+	str = str.."\\<#BL"..Lang.Activity.sd0010.."/@GetLastAwardOP>"  --<领取上周奖励>
+	str = str.."\\<#BL"..Lang.Activity.g00008.."/@main>"  
+
+	return str
+end
+
+--领取上周奖励
+function GetLastAwardOP(sysarg)
+	local pRank = Ranking.getRanking(ShenBossConfig.ShenDuLastWeek)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local nIndex = 0
+	if pRank then
+		nIndex = Ranking.getItemIndexFromId(pRank,nActorId) + 1
+	end
+
+	if nIndex <= 0 or nIndex > ShenBossConfig.awardRank then		--排名前100才有奖励
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.sd0011,ShenBossConfig.awardRank), ttFlyTip)
+		return
+	end
+	
+	if pRank then
+		local mItem = Ranking.getItemPtrFromId(pRank,nActorId)
+		if mItem then
+			if tonumber(Ranking.getSub(mItem,1)) == 1 then		--已领取奖励
+				Actor.sendTipmsg(sysarg, Lang.Activity.sd0012, ttFlyTip)
+				return
+			end	
+			
+			local AwardIndex = 0
+			for j=1,table.getn(ShenBossConfig.AllAwards) do
+				if nIndex >= ShenBossConfig.AllAwards[j].rank[1] and nIndex <= ShenBossConfig.AllAwards[j].rank[2] then
+					AwardIndex = j
+					break
+				end
+			end
+			
+			--print("GetLastAwardOP:"..AwardIndex)
+			local nConfig = ShenBossConfig.AllAwards[AwardIndex]
+			if nConfig == nil then 
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.sd0011,ShenBossConfig.awardRank), ttFlyTip)
+				return 
+			end
+			
+			if Awards.CheckBagGridCount(sysarg,nConfig.awards) == true then		--背包不够
+				for i=1,table.getn(nConfig.awards) do
+					Actor.giveAward(sysarg,nConfig.awards[i].type,nConfig.awards[i].id,nConfig.awards[i].count,
+					nConfig.awards[i].quality,nConfig.awards[i].strong,nConfig.awards[i].bind,0,822,Lang.Activity.sd0002)
+				end
+				Ranking.setSub(mItem,1,"1")
+			end
+		else
+			Actor.sendTipmsg(sysarg, string.format(Lang.Activity.sd0011,ShenBossConfig.awardRank), ttFlyTip)
+		end
+	end
+end
+
+--开启神都boss活动
+function OpenShenDuBoss(sysarg)
+	local svar = System.getDyanmicVar()
+	svar.CanNotHandedItem = 1
+	
+	ChangeShenDuScore()
+
+	local ranking = Ranking.getRanking(ShenBossConfig.ShenDuScoreFile)
+	local nValue = 0
+	if ranking then
+		local pItem = Ranking.getItemPtrByIndex(ranking,0)
+		if pItem then
+			nValue = Ranking.getPoint(pItem)
+		end
+	end
+	
+	if nValue < ShenBossConfig.CallBoss[1].needSorce then		--不能开启
+		return
+	end
+	
+	local nIndex = 1
+	for i=1,table.getn(ShenBossConfig.CallBoss) do
+		if nValue >= ShenBossConfig.CallBoss[i].needSorce then
+			nIndex = i
+		end
+	end
+	
+	local nConfig = ShenBossConfig.CallBoss[nIndex]
+	if nConfig == nil then return end
+
+	System.broadcastTipmsg(Lang.Activity.sd0013,2+128)
+	svar.OpenShenDuBossFlag = 1
+	
+	local hScene = Fuben.getSceneHandleById(ShenBossConfig.nSceneid, 0)
+	for i=1,table.getn(nConfig.monsters) do
+		Fuben.createMonsters(hScene, nConfig.monsters[i].nMonsterID, nConfig.monsters[i].posX1, nConfig.monsters[i].posX2,nConfig.monsters[i].posY, 
+		nConfig.monsters[i].nCount,nConfig.monsters[i].nLiveTime)
+	end
+
+	for i=1,table.getn(ShenBossConfig.smallBoss) do
+		Fuben.createMonsters(hScene, ShenBossConfig.smallBoss[i].nMonsterID, ShenBossConfig.smallBoss[i].posX1, ShenBossConfig.smallBoss[i].posX2,
+		ShenBossConfig.smallBoss[i].posY, ShenBossConfig.smallBoss[i].nCount,ShenBossConfig.smallBoss[i].nLiveTime)
+	end
+
+	Fuben.setSceneTime(hScene,ShenBossConfig.nTime)
+
+end
+
+--转换上周和本周的数据
+function ChangeShenDuScore()
+	local ranking = Ranking.getRanking(ShenBossConfig.ShenDuLastWeek)
+	if ranking then
+		Ranking.clearRanking(ranking)
+
+		local ThisRank = Ranking.getRanking(ShenBossConfig.ShenDuThisWeek)
+		if ThisRank then
+			local nCount = Ranking.getRankItemCount(ThisRank)
+			
+			for i=1,nCount do
+				local pItem = Ranking.getItemFromIndex(ThisRank,i-1)
+				if pItem then
+					local mItem = Ranking.addItem(ranking,Ranking.getId(pItem),Ranking.getPoint(pItem))
+					if mItem then
+						Ranking.setSub(mItem,0,Ranking.getSub(pItem,0))			--玩家的名字
+						Ranking.setSub(mItem,1,"0")
+					end
+				end
+			end
+		end
+	end
+end
+
+--关闭神都boss活动
+function CloseShenDuBoss(sysarg)	
+	local ranking = Ranking.getRanking(ShenBossConfig.ShenDuScoreFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+	
+	local ThisRank = Ranking.getRanking(ShenBossConfig.ShenDuThisWeek)
+	if ThisRank then
+		Ranking.clearRanking(ThisRank)
+	end
+	local svar = System.getDyanmicVar()
+	svar.CanNotHandedItem = nil
+	if svar.OpenShenDuBossFlag == nil or svar.OpenShenDuBossFlag == 0 then return end
+	
+	svar.OpenShenDuBossFlag = nil
+	
+	System.broadcastTipmsg(Lang.Activity.sd0017,2+128)
+
+	local playerList = LuaHelp.getSceneActorListById(ShenBossConfig.nSceneid)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then				
+				Actor.enterScene(player, ShenBossConfig.outseneId, unpack(ShenBossConfig.outRang))
+			end
+		end
+	end
+end
+
+--积分排行榜初始化
+function ShenDuRankInit()
+	local RankNameList = Ranking.getRanking(ShenBossConfig.ShenDuScoreFile)		--通过排行名称获取排行对象
+	if RankNameList == nil then							--没有排行对象则创建并加载数据
+		RankNameList = Ranking.add(ShenBossConfig.ShenDuScoreFile,1000,0)		--创建排行榜
+		if RankNameList ~= nil then
+			local isLoad = Ranking.load(RankNameList,ShenBossConfig.ShenDuScoreFile)
+			
+			if isLoad == false then
+				Ranking.addColumn(RankNameList,"value1")
+				Ranking.addColumn(RankNameList,"value2")
+			end
+		end
+	end
+
+	local ThisRank = Ranking.getRanking(ShenBossConfig.ShenDuThisWeek)		--通过排行名称获取排行对象
+	if ThisRank == nil then							--没有排行对象则创建并加载数据
+		ThisRank = Ranking.add(ShenBossConfig.ShenDuThisWeek,1000,0)		--创建排行榜
+		if ThisRank ~= nil then
+			local isLoad = Ranking.load(ThisRank,ShenBossConfig.ShenDuThisWeek)
+			
+			if isLoad == false then
+				for i=1,6 do
+					Ranking.addColumn(ThisRank,"value"..i)
+				end
+			end
+		end
+	end
+
+	local LastRank = Ranking.getRanking(ShenBossConfig.ShenDuLastWeek)		--通过排行名称获取排行对象
+	if LastRank == nil then							--没有排行对象则创建并加载数据
+		LastRank = Ranking.add(ShenBossConfig.ShenDuLastWeek,1000,0)		--创建排行榜
+		if LastRank ~= nil then
+			local isLoad = Ranking.load(LastRank,ShenBossConfig.ShenDuLastWeek)
+			
+			if isLoad == false then
+				for i=1,6 do
+					Ranking.addColumn(LastRank,"value"..i)
+				end
+			end
+		end
+	end
+
+end
+
+--保存积分排行榜
+function ShenDuRankFinality()
+	local ranking = Ranking.getRanking(ShenBossConfig.ShenDuScoreFile)
+	if ranking then
+		Ranking.save(ranking,ShenBossConfig.ShenDuScoreFile)
+	end
+
+	local Thisranking = Ranking.getRanking(ShenBossConfig.ShenDuThisWeek)
+	if Thisranking then
+		Ranking.save(Thisranking,ShenBossConfig.ShenDuThisWeek)
+	end
+
+	local Lastranking = Ranking.getRanking(ShenBossConfig.ShenDuLastWeek)
+	if Lastranking then
+		Ranking.save(Lastranking,ShenBossConfig.ShenDuLastWeek)
+	end
+end
+
+table.insert(InitFnTable,ShenDuRankInit)
+table.insert(MainFnTable, ShenDuNpc_Main)
+table.insert(FinaFnTable,ShenDuRankFinality)
+
+

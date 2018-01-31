@@ -1,0 +1,73 @@
+--跨服BOSS死后刷公告
+{
+
+	actions=
+	{
+	--	{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s19L1Desc,--技能的描述
+	
+	iconID=19,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+				    --targetType=1,--没有目标筛选也可以施放，如果有always 
+					conds=
+					{
+						{cond = 3,value=1},
+						{cond = 21,value =9},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=21,value=9,vt=1,delay=0},							
+						{mj=0,timeParam=1,type=24,buffType=4,id=60,value=2,delay=10000},	
+						{mj=0,timeParam=1,type=24,buffType=4,id=61,value=2,delay=20000},
+						{mj=0,timeParam=1,type=24,buffType=4,id=62,value=2,delay=30000},
+						{mj=0,timeParam=1,type=24,buffType=4,id=63,value=2,delay=40000},
+						{mj=0,timeParam=1,type=24,buffType=4,id=64,value=2,delay=50000},
+						{mj=0,timeParam=1,type=24,buffType=4,id=65,value=2,delay=55000},
+												
+						{mj=0,timeParam=1,type=21,value=9,vt=1,delay=0},						
+						  
+					},
+
+					specialEffects=
+					{
+					--	{type=4,mj=0,id=105,keepTime=400,delay=200,always=false},						
+					},
+				},
+			},
+		},		
+	
+		
+	},
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+		--{cond=13,value=11,consume=false},
+		--{cond=18,value=50,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

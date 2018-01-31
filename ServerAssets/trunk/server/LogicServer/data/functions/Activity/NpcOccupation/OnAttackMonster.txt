@@ -1,0 +1,23 @@
+﻿
+--#include "data\config\activityconfig\NpcOccupation\NpcOccupationConfig.txt" once
+
+function MonAttackedDispatcher.OnAttackNpcOccCrystal(pMonster, pKiller, monId, damage)
+	OnAttackNpcOccCrystal(pMonster, pKiller, monId)
+end
+
+--注册NPC占领怪物
+function RegisterAttackCrystalMonsters()
+	local config = NpcOccupationConfig
+	if (not config) then
+		return
+	end
+
+	for k, city in ipairs(config.city or {}) do
+		--注册水晶怪
+		for j, monster in ipairs(city.crystalMonsters or {}) do
+			MonAttackedDispatcher.register(monster.nMonsterID, MonAttackedDispatcher.OnAttackNpcOccCrystal)
+		end
+	end
+end
+
+RegisterAttackCrystalMonsters()

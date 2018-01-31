@@ -1,0 +1,259 @@
+﻿--#include "..\..\language\LangCode.txt" once
+WuLingSystemConfig = {
+   OpenLevel = 30, --武灵开启等级
+    Equits = {
+		
+		    {--第一把武灵
+		       ApperId = 156,--武灵外观
+			   linnerId = 1,--武灵内观
+			   NeedType = 0,--获取的条件类型前端用到（0在线、1登录、2充值....）
+		       NeedValue = {60,},--获取条件值(人物等级) 
+		       Attr = {{ type = 11, value = 54, },{ type = 15, value = 54, },{ type = 19, value = 54, },}, --属性配置
+			   Name = Lang.Other.name1,--武灵名字
+			   battle = 489,--战力
+			   condition = Lang.Other.condition1,--条件语句
+			   offsetX = -60,--坐标X偏移量
+			   offsetY = -170,--坐标Y偏移量
+			   effectID = 50116;--只在线的时候才配
+			   skillID = 275,--被动技能 
+			   skillLevel = 1,
+		    },
+		    {--第二把武灵
+		       ApperId = 157,--武灵外观
+			   linnerId = 2,--武灵内观
+			   NeedType = 1,--获取的条件类型
+		       NeedValue = {3, 3,},--获取条件值(人物登录天数和vip等级)
+		       Attr = {{ type = 11, value = 113, },{ type = 15, value = 113, },{ type = 19, value = 113, },{ type = 70, value = 50, },}, --属性配置
+			   Name = Lang.Other.name2,--武灵名字
+			   battle = 1032,--战力
+			   offsetX = 50,--坐标X偏移量
+			   offsetY = 10,--坐标Y偏移量
+			   condition = Lang.Other.condition2,--条件语句
+			   skillID = 281,--被动技能
+			   skillLevel = 1,
+		    },
+		    {--第三把武灵
+		       ApperId = 158,--武灵外观
+			   linnerId = 3,--武灵内观
+			   NeedType = 1,--获取的条件类型
+		       NeedValue = {7, 5,},--获取条件值(人物登录天数和vip等级)
+		       Attr = {{ type = 11, value = 156, },{ type = 15, value = 156, },{ type = 19, value = 156, },{ type = 29, value = 1, },}, --属性配置
+			   Name = Lang.Other.name3,--武灵名字
+			   battle = 1454,--战力
+			   offsetX = 60,--坐标X偏移量
+			   offsetY = 0,--坐标Y偏移量
+			   condition = Lang.Other.condition3,--条件语句
+			   skillID = 280,--被动技能
+			   skillLevel = 1,
+		    },
+		    {--第四把武灵
+		       ApperId = 159,--武灵外观
+			   linnerId = 4,--武灵内观
+			   NeedType = 3,--获取的条件类型
+		       NeedValue = {8, 6666,},--获取条件值(全身装备强化等级和激活所需元宝)
+		       Attr = {{ type = 11, value = 281, },{ type = 15, value = 281, },{ type = 19, value = 281, },{ type = 136, value = 200, },{ type = 137, value = 800, },}, --属性配置
+			   Name = Lang.Other.name4,--武灵名字
+			   battle = 3105,--战力
+			   offsetX = 0,--坐标X偏移量
+			   offsetY = -15,--坐标Y偏移量
+			   condition = Lang.Other.condition4,--条件语句
+  			   skillID = 274,--被动技能
+			   ybReplace = 1,
+			   skillLevel = 1,
+		    },
+		    {--第五把武灵
+		       ApperId = 160,--武灵外观
+			   linnerId = 5,--武灵内观
+			   NeedType = 4,--获取的条件类型
+		       NeedValue = {30, 8888,}, --获取条件值(登录天数和激活所需元宝)
+		       Attr = {{ type = 11, value = 479, },{ type = 15, value = 479, },{ type = 19, value = 479, },{ type = 6, value = 0.05, },{ type = 80, value = 0.02, },}, --属性配置
+			   Name = Lang.Other.name5,--武灵名字
+			   battle = 4640,--战力
+			   offsetX = 5,--坐标X偏移量
+			   offsetY = -50,--坐标Y偏移量
+			   condition = Lang.Other.condition5,--条件语句
+  			   skillID = 283,--被动技能
+			   			   ybReplace = 1,
+  			   skillLevel = 1,
+		    },
+    
+    }, 
+    
+    --灵石颜色对应等级
+    --红色1、黄色2、蓝色3、绿色4、橙色5、黑色6、紫色7（棕色8、青色9、粉色10，为主线体验晶石） 
+     
+    WuLingSkillConfig = {
+    
+    
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 3,
+      nKong3Level = 4,
+      SkillId = 276,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 0,--0普通1特殊
+	  job = {1, 1, 1,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 0,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 3,
+      nKong3Level = 3,
+      SkillId = 277,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 0,--0普通1特殊
+	  job = {0, 1, 0,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 1,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 1,
+      nKong3Level = 2,
+      SkillId = 278,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 0,--0普通1特殊
+	  job = {1, 0, 0,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 2,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    
+    {
+      nKong1Level = 3, --孔对应灵石等级
+      nKong2Level = 4,
+      nKong3Level = 4,
+      SkillId = 279,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 0,--0普通1特殊
+	  job = {0, 0, 1,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 3,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    
+    
+    
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 2,
+      nKong3Level = 2,
+      SkillId = 282,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 0,--0普通1特殊
+	  job = {1, 1, 1,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 4,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    
+    
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 2,
+      nKong3Level = 4,
+      SkillId = 284,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 0,--0普通1特殊
+	  job = {1, 1, 1,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 5,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    
+    {
+      nKong1Level = 4, --孔对应灵石等级
+      nKong2Level = 4,
+      nKong3Level = 4,
+      SkillId = 285,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {0, 0, 1,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 6,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 1,
+      nKong3Level = 3,
+      SkillId = 286,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {1, 0, 0,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 7,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 3, --孔对应灵石等级
+      nKong2Level = 3,
+      nKong3Level = 4,
+      SkillId = 287,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {0, 1, 0,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 8,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 1,
+      nKong3Level = 4,
+      SkillId = 288,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {1, 0, 0,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 9,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 2, --孔对应灵石等级
+      nKong2Level = 3,
+      nKong3Level = 3,
+      SkillId = 289,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {0, 1, 0,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 10,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 4,
+      nKong3Level = 4,
+      SkillId = 290,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {0, 0, 1,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 11,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 2,
+      nKong3Level = 3,
+      SkillId = 291,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {1, 1, 1,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 12,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 2, --孔对应灵石等级
+      nKong2Level = 4,
+      nKong3Level = 4,
+      SkillId = 292,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {0, 0, 1,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 13,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 3, --孔对应灵石等级
+      nKong2Level = 3,
+      nKong3Level = 3,
+      SkillId = 293,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {0, 1, 0,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 14,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+    {
+      nKong1Level = 1, --孔对应灵石等级
+      nKong2Level = 1,
+      nKong3Level = 1,
+      SkillId = 294,   --释放技能ID
+      SkillLevel = 1,  --释放技能等级
+	  type = 1,--0普通1特殊
+	  job = {1, 0, 0,},--战、法、道(0是关闭，1是打开),不多不少一定三个数据
+	  index = 15,--列表所在位置后面的+1！！！别乱一个个对好
+    },
+
+    },
+}

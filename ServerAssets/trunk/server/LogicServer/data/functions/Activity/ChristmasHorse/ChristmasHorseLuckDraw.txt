@@ -1,0 +1,1256 @@
+--lua script
+--圣诞老虎机
+
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasHorseAct.txt" once  
+--#include "data\config\activityconfig\ChristmasHorse\LuckDrawFileConfig.txt" once   
+--#include "data\functions\Activity\Common\Misc.txt" once 
+--#include "data\functions\Activity\ChristmasHorse\DrawAwardCommon.txt" once 
+
+
+chrPersonLuckDrawLog = {}   
+chrAllLuckDrawLog = {}  
+
+--根据序号获取配置，从1开始  
+function GetLuckDrawConfig(idx)  
+	--[[
+	if idx > 0 and idx <= table.getn(LuckDrawFileConfig or {}) then  
+		return LuckDrawFileConfig[idx]
+	end
+	--]]
+	
+	for k, config in ipairs(LuckDrawFileConfig or {}) do 
+		if config.ldIdx == idx then
+			return config
+		end
+	end
+	return nil
+end		
+		
+--请求转盘信息
+function ReqLuckDrawInfo(sysarg, packet)  
+	local ldIdx = DataPack.readByte(packet)
+
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	if System.isInDateRange(unpack(config.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0005, ttFlyTip)
+		return 
+	end
+	
+	if Actor.checkActorLevel(sysarg, config.level, config.circle) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0014, ttFlyTip)
+		return 
+	end
+	
+	InitLuckDraw(config)
+		
+	local infoRankPtr = Ranking.getRanking(config.infoFile)   
+	if not infoRankPtr then
+		return 
+	end
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local infoItemPtr = Ranking.getItemPtrFromId(infoRankPtr, actorId) 
+	
+	if not config.isDirectDraw or config.isDirectDraw ~= 1 then 
+		if not infoItemPtr then
+			SendLuckDrawInfo(sysarg, false, config, nil)   
+		else
+			SendLuckDrawInfo(sysarg, true,  config, nil)   
+		end
+	end
+	
+	if config.isShowLog and config.isShowLog == 1 then   
+		if config.isPerLog and config.isPerLog == 1 then
+			SendPersonDrawLog(sysarg, config, 1, perDrawLogTab, chrPersonLuckDrawLog, 145, 117)
+		end
+		if config.isAllLog and config.isAllLog == 1 then
+			SendAllDrawLog(sysarg, config, 1, allDrawLogTab, chrAllLuckDrawLog, 145, 116)
+		end
+	end
+	
+end 
+
+--请求转盘操作 
+function ReqLuckDrawOp(sysarg, packet)   
+	local ldIdx = DataPack.readByte(packet)
+
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	local paramFile = config.paramFile
+	local infoFile = config.infoFile
+	
+	if System.isInDateRange(unpack(config.actTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0005, ttFlyTip)
+		return 
+	end
+	
+	if Actor.checkActorLevel(sysarg, config.level, config.circle) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.msd0014, ttFlyTip)
+		return 
+	end
+	
+	local opType = DataPack.readByte(packet)
+
+	if opType ~= 1 and opType ~= 2 and opType ~= 3 and opType ~= 4 and opType ~= 5 and opType ~= 6 then
+		return 
+	end
+	
+	if ldIdx == 5 then
+		InitLuckDraw(config)
+	end
+	
+
+	
+	if opType == 1 then
+		StartLuckDraw(sysarg, ldIdx)
+	elseif opType == 2 then
+		GetLuckDrawAward(sysarg, ldIdx)
+	elseif opType == 3 or opType == 6 then
+		DirectLuckDraw(sysarg, ldIdx, packet) 
+	elseif opType == 4 then
+		RefreshLuckDrawDiscount(sysarg, ldIdx, packet)
+	elseif opType == 5 then
+		BuyLuckDrawDisItem(sysarg, ldIdx, packet) 
+	end
+
+end
+
+
+--老虎机抽奖，抽完需要发消息领取
+function StartLuckDraw(sysarg, ldIdx) 
+	
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	local consumeYb = config.drawYb
+	local needBagCount = 3
+	
+	if Dmkj.getStoreRestCount(sysarg) < needBagCount then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.msd0007, needBagCount), ttFlyTip)
+		return 
+	end
+
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	if CanDraw(actorId, config) == false then 
+		return  
+	end
+
+	local isFreeFlag = false
+	if config.isFree and config.isFree == 1 then--是否可以每天免费 
+		isFreeFlag = CanFreeDraw(actorId, config)
+	end
+
+	
+	if isFreeFlag == true then
+		consumeYb = 0
+	else
+		if Actor.changeMoney(sysarg, 3, -consumeYb, 979, Lang.LogTips.msd0005) ~= true then 
+			Actor.sendTipmsg(sysarg, Lang.Activity.msd0006, ttFlyTip)
+			return 
+		end
+	end
+	
+	
+	local turntableItemPtr = AddPersonLuckDrawInfo(sysarg, ldIdx) --增加玩家转盘数据   
+	if not turntableItemPtr then
+		return 
+	end
+	
+	local awardTab = {}
+	local paramTab = nil 
+
+	local awardIdTab = {}
+	local itemId = 0
+	for i = 1, config.turntableCount do 
+		itemId = ProduceLuckDrawAward(awardTab, paramTab, actorId, config, i) 
+		table.insert(awardIdTab, itemId)
+	end
+	
+
+	local awardRatio = 1 
+	if config.isMultAward and config.isMultAward == 1 then
+		local sameCount = 1 
+		for i = 1, table.getn(awardIdTab) do
+			local tempCount = 1
+			for j = i+1, table.getn(awardIdTab) do 
+				if awardIdTab[i] == awardIdTab[j] then
+					tempCount = tempCount + 1 
+				end
+			end
+			if tempCount > sameCount then
+				sameCount = tempCount
+			end
+		end
+		
+		if config.multAward and table.getn(config.multAward) > 0 then
+			awardRatio = config.multAward[sameCount]
+		end
+	end
+	
+
+	UpdateLuckDrawInfoData(actorId, consumeYb, config, awardTab, isFreeFlag)	--更新玩家数据  
+	UpdateLuckDrawData(config.paramFile, config.turntableCount+1, 0, consumeYb, 1) --更新全服消费元宝
+	
+
+	SendLuckDrawInfo(sysarg, true, config, awardRatio) 
+end 
+
+--请求领取奖励
+function GetLuckDrawAward(sysarg, ldIdx)
+
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+
+	if not config.isPullBa or (config.isPullBa and config.isPullBa ~= 1) then
+		return
+	end
+		
+	local perDrawLogTab = {} --用来给前端发送的个人记录
+	local allDrawLogTab = {} --用来给前端发送的全服记录
+	
+	local awardTab = {}
+	local paramTab = {} 
+	local awardIdTab = {} 
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	if CanDraw(actorId, config) == true then
+		return  
+	end
+
+	awardTab = GetLuckDrawDataExt(config.infoFile, actorId, config.turntableCount, 1) 
+
+	local itemLists = config.itemLists
+	local count = 0
+    if table.getn(awardTab)/2 > 0 then
+		count = table.getn(awardTab)/2
+	end
+	
+	for j = 1, count do 
+		local idx = awardTab[2*(j-1)+1]
+		local storeConfig = itemLists[idx] 
+		local itemIdx = awardTab[2*(j-1)+2] 
+		local itemConfig = storeConfig.itemList[itemIdx] 
+		table.insert(awardIdTab, itemConfig.id)
+	end
+
+	
+	local awardRatio = 1 
+	if config.isMultAward and config.isMultAward == 1 then 
+		local sameCount = 1 
+		for i = 1, table.getn(awardIdTab) do
+			local tempCount = 1
+			for j = i+1, table.getn(awardIdTab) do 
+				if awardIdTab[i] == awardIdTab[j] then
+					tempCount = tempCount + 1 
+				end
+			end
+			if tempCount > sameCount then
+				sameCount = tempCount
+			end
+		end
+		
+		if config.multAward and table.getn(config.multAward) > 0 then
+			awardRatio = config.multAward[sameCount]
+		end
+	end
+	
+	local actorName = Actor.getName(sysarg)  
+	local itemName = ""
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx] 
+			local itemIdx = awardTab[2*(j-1)+2] 
+			local itemConfig = storeConfig.itemList[itemIdx]  
+
+			Dmkj.addItem(sysarg, itemConfig.id, itemConfig.count * awardRatio, itemConfig.quality, itemConfig.strong, itemConfig.bind, false, 0, 979, Lang.LogTips.msd0006)  	
+			
+			itemName = Item.getAwardDesc(itemConfig.type, itemConfig.id)  
+			if itemConfig.isBrocast and itemConfig.isBrocast == true then
+				local tipStr = ""
+				if config.isBroadCastTip and config.isBroadCastTip == 1 then
+					tipStr = config.awardTip
+				else
+					tipStr = Lang.Activity.msd0013
+				end
+				System.broadcastTipmsg(string.format(tipStr, actorName, itemName), ttScreenCenter+ttChatWindow)
+			end 
+		end
+	end
+	
+	if awardRatio > 1 then 
+		local tipStr = ""
+		if awardRatio == 2 then
+			if config.isBroadCastTip and config.isBroadCastTip == 1 then 
+				tipStr = config.doubAwardTip
+			else	
+				tipStr = Lang.Activity.msd0016
+			end
+			
+			System.broadcastTipmsg(string.format(tipStr, actorName, awardRatio), ttScreenCenter+ttChatWindow)
+		elseif awardRatio >= 3 then
+			if config.isBroadCastTip and config.isBroadCastTip == 1 then
+				tipStr = config.multAwardTip
+			else
+				tipStr = Lang.Activity.msd0012
+			end
+			System.broadcastTipmsg(string.format(tipStr, actorName, awardRatio, itemName), ttScreenCenter+ttChatWindow)
+		end
+	end 
+	
+	--UpdateDrawFlag(actorId, config, 0) --更新领奖状态
+	UpdateLuckDrawData(config.infoFile, actorId, config.turntableCount+3, 0, 2) --更新领奖状态
+	--SendLuckDrawInfo(sysarg, true, config) 
+	
+end
+
+
+--直接抽奖，抽完直接发
+function DirectLuckDraw(sysarg, ldIdx, packet) 
+	local opTye = DataPack.readByte(packet)
+
+	if opTye ~= 1 and opTye ~= 2 then 
+		return
+	end
+	
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	if not config.isDirectDraw or config.isDirectDraw ~= 1 then
+		return 
+	end
+	
+	local consumeYb = 0
+	local drawCount = 0
+	local needBagCount = 0
+	
+	if opTye > table.getn(config.drawCountTab) or opTye > table.getn(config.drawYbTab) then
+		return 
+	end
+	
+	drawCount = config.drawCountTab[opTye]
+	needBagCount = config.drawCountTab[opTye]
+	consumeYb = config.drawYbTab[opTye]
+	
+	local betTab = {} 
+	if config.isBetTurntable and config.isBetTurntable == 1 then 
+		local betCounts = DataPack.readByte(packet)
+		if betCounts < 0 or betCounts > config.betLimitNumber then
+			return 
+		end
+		
+		for i = 1, betCounts do 
+			local oneBetNum = DataPack.readByte(packet)
+			--print("oneBetNum ",oneBetNum)
+			local oneBetCount = DataPack.readByte(packet)
+			--print("oneBetCount ",oneBetCount)
+
+			if (oneBetNum > 0 and oneBetNum <= config.betLimitNumber) and oneBetCount > 0 then
+				for j = 1, oneBetCount do 
+					consumeYb = consumeYb + (config.betYbTab[1] + config.betYbTab[2] * (j - 1))*drawCount
+					needBagCount = needBagCount + 1
+				end
+				
+				table.insert(betTab, oneBetNum)
+				table.insert(betTab, oneBetCount)
+				
+			end
+			
+		end
+
+	end
+
+	if Dmkj.getStoreRestCount(sysarg) < needBagCount then 
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.msd0004, needBagCount), ttFlyTip)
+		return 
+	end
+	
+	local isFreeFlag = false
+	if config.isFree and config.isFree == 1 then--是否可以每天免费 
+		isFreeFlag = CanFreeDraw(actorId, config)
+	end
+	
+	local logId = 0
+	local consumeLogTips = ""
+	local awardLogTips = ""
+	
+	if isFreeFlag == true then
+		consumeYb = 0
+	else
+		if config.logId and config.logId > 0 then
+			logId = config.logId
+			consumeLogTips = config.consumeLogTips
+			if config.ldIdx == 5 then
+				local retBetCountTab = GetBetCountInfo(config, betTab)
+				if table.getn(retBetCountTab) > 0 then
+					consumeLogTips = string.format(consumeLogTips, unpack(retBetCountTab))  --五色转盘日志记录玩家所有颜色的投注量
+				end
+			end
+		else
+			logId = 980
+			consumeLogTips = Lang.LogTips.yyd0101
+		end
+		if Actor.changeMoney(sysarg, 3, -consumeYb, logId, consumeLogTips) ~= true then 
+			Actor.sendTipmsg(sysarg, Lang.Activity.msd0006, ttFlyTip)
+			return 
+		end
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+
+	local turntableItemPtr = AddPersonLuckDrawInfo(sysarg, ldIdx) --增加玩家转盘数据
+	if not turntableItemPtr then
+		return 
+	end
+	
+	local awardTab = {}
+	local paramTab = nil
+	
+	local perDrawLogTab = {} --用来给前端发送的个人记录
+	local allDrawLogTab = {} --用来给前端发送的全服记录 
+
+	for i = 1, drawCount do
+		ProduceLuckDrawAward(awardTab, paramTab, actorId, config, 1) 
+	end
+	
+	local itemLists = config.itemLists
+	local count = 0
+    if table.getn(awardTab)/2 > 0 then
+		count = table.getn(awardTab)/2
+	end
+	
+	local actorName = Actor.getName(sysarg) 
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx]
+			local itemIdx = awardTab[2*(j-1)+2] 
+			local itemConfig = storeConfig.itemList[itemIdx]
+			local retBetNum, retBetCount = CheckIsBet(config, betTab, itemConfig)
+			
+			if config.logId and config.logId > 0 then 
+				awardLogTips = config.awardLogTips
+				if config.ldIdx == 5 then 
+					awardLogTips = string.format(awardLogTips, j, itemConfig.betNumber) --五色转盘日志第1个表示第几次抽奖（1到10），第2个表示当前抽到的颜色序号
+				end 
+			else
+				awardLogTips = Lang.LogTips.yyd0105
+			end 
+			Dmkj.addItem(sysarg, itemConfig.id, itemConfig.count*(1+retBetCount), itemConfig.quality, itemConfig.strong, itemConfig.bind, false, 0, logId, awardLogTips)  	
+			
+			if itemConfig.isBrocast and itemConfig.isBrocast == true then  
+				local itemName = Item.getAwardDesc(itemConfig.type, itemConfig.id)
+				if config.isShowLog and config.isShowLog == 1 then
+					if config.isAllLog and config.isAllLog == 1 then
+						UpdateAllDrawLog(config, actorName, itemConfig.id, chrAllLuckDrawLog) --更新全服抽奖记录  
+						local tempLogTab = {}
+						table.insert(tempLogTab, actorName)
+						table.insert(tempLogTab, itemConfig.id)
+						table.insert(allDrawLogTab, tempLogTab) 
+					end	
+				end
+	 
+				local broadCastStr = string.format(Lang.Activity.yyd0105, actorName, itemName)
+				if config.isBroadCastTip and config.isBroadCastTip == 1 then
+					if config.ldIdx == 5 then
+						if retBetCount > 0 then
+							local colorStr = nil
+							if retBetNum > 0 and retBetNum <= table.getn(config.colorTab) then
+								colorStr = config.colorTab[retBetNum]
+							end
+							if colorStr == nil then
+								broadCastStr = nil
+							else 
+								broadCastStr = string.format(Lang.Activity.ywy0206, actorName, colorStr, retBetCount, itemName, itemConfig.count*(1+retBetCount))
+							end
+						else
+							broadCastStr = string.format(Lang.Activity.ywy0207, actorName, itemName, itemConfig.count*(1+retBetCount))
+						end
+						
+					else
+						
+					end
+				end
+				
+				if broadCastStr ~= nil then
+					System.broadcastTipmsg(broadCastStr, ttScreenCenter+ttChatWindow)
+				end
+			
+			end 
+			
+			if config.isShowLog and config.isShowLog == 1 then
+				if config.isPerLog and config.isPerLog == 1 then
+					UpdatePersonDrawLog(config, actorId, itemConfig.id, chrPersonLuckDrawLog) --个人抽奖记录 
+					table.insert(perDrawLogTab, itemConfig.id)
+				end
+			end
+	
+		end
+	end
+	
+	UpdateLuckDrawInfoData(actorId, consumeYb, config, nil, isFreeFlag)	--更新玩家数据  
+	UpdateLuckDrawData(config.paramFile, config.turntableCount+1, 0, consumeYb, 1) --更新全服消费元宝
+	
+	--SendLuckDrawInfo(sysarg, true, config) 
+	SendLuckDrawAwardInfo(sysarg, awardTab, config, opTye, betTab)  
+	
+	if config.isShowLog and config.isShowLog == 1 then   
+		local logType = 0
+		if opTye == 1 then
+			logType = 2
+		elseif opTye == 2 then
+			logType = 3
+		end 
+		if config.isPerLog and config.isPerLog == 1 then
+			SendPersonDrawLog(sysarg, config, logType, perDrawLogTab, chrPersonLuckDrawLog, 145, 117)
+		end
+		if config.isAllLog and config.isAllLog == 1 then
+			SendAllDrawLog(sysarg, config, logType, allDrawLogTab, chrAllLuckDrawLog, 145, 116)
+		end
+	end
+	
+end
+
+--检查是否投注中奖
+function CheckIsBet(config, betTab, itemConfig)
+	local retBetNum = 0 
+	local retBetCount = 0 
+	if config.isBetTurntable and config.isBetTurntable == 1 then
+		for i = 1, table.getn(betTab or {}) do
+			local betNum = betTab[2*(i-1)+1]
+			local betCount = betTab[2*(i-1)+2] 
+			if betNum == itemConfig.betNumber then
+				retBetNum = betNum
+				retBetCount = betCount
+				break
+			end
+		end
+	end
+	
+	return retBetNum, retBetCount
+end
+
+--获取投注的数量列表
+function GetBetCountInfo(config, betTab)
+	local retBetCountTab = {}
+	if config.isBetTurntable and config.isBetTurntable == 1 then
+		for num = 1, config.betLimitMult do
+			local retBetCount = 0
+			for i = 1, table.getn(betTab or {}) do
+				local betNum = betTab[2*(i-1)+1]
+				local betCount = betTab[2*(i-1)+2] 
+				if betNum == num then
+					retBetCount = betCount
+					break
+				end
+			end
+			table.insert(retBetCountTab, retBetCount)
+		end
+	end
+	return retBetCountTab
+end
+
+
+--刷新折扣
+function RefreshLuckDrawDiscount(sysarg, ldIdx, packet)
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	if not config.isFreshDiscount or config.isFreshDiscount ~= 1 then--是否可以刷新折扣 
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	if config.turntableCount <= 0 or config.turntableCount > table.getn(config.itemLists) then 
+		return
+	end
+	local curDiscountIdx = GetLuckDrawData(config.infoFile, actorId, config.turntableCount-1, 1) --获取折扣序号 
+	if curDiscountIdx <= 0 then
+		curDiscountIdx = 1
+	end
+	
+	local itemList = config.itemLists[config.turntableCount].itemList 
+	if curDiscountIdx + 1 > table.getn(itemList) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0107, ttFlyTip)
+		return 
+	end
+	
+	local consumeYb = config.refreshYb   
+	local isFreeFlag = false
+	if config.isFree and config.isFree == 1 then--是否可以每天免费 
+		isFreeFlag = CanFreeDraw(actorId, config) 
+	end
+	
+	if isFreeFlag == true then
+		consumeYb = 0
+	else
+		if Actor.changeMoney(sysarg, 3, -consumeYb, 980, Lang.LogTips.yyd0102) ~= true then 
+			Actor.sendTipmsg(sysarg, Lang.Activity.yyd0101, ttFlyTip)
+			return 
+		end
+	end
+
+	local turntableItemPtr = AddPersonLuckDrawInfo(sysarg, ldIdx) --增加玩家转盘数据    
+	if not turntableItemPtr then
+		return 
+	end
+	
+	local curFresh = GetLuckDrawData(config.infoFile, actorId, config.turntableCount+4, 1) --刷新次数
+	local discountCfg = itemList[curDiscountIdx]
+	local limitFresh = discountCfg.limitFresh
+	if curFresh > limitFresh then
+		local randVal = System.getRandomNumber(discountCfg.totalrate)  
+		if randVal <= discountCfg.rate then
+			curDiscountIdx = curDiscountIdx + 1
+			UpdateLuckDrawData(config.infoFile, actorId, config.turntableCount-1, curDiscountIdx, 2) --更新折扣索引
+			UpdateLuckDrawData(config.infoFile, actorId, config.turntableCount+4, 0, 2) --更新刷新次数
+		end
+	else
+		UpdateLuckDrawData(config.infoFile, actorId, config.turntableCount-1, curDiscountIdx, 2) --更新折扣索引
+		UpdateLuckDrawData(config.infoFile, actorId, config.turntableCount+4, 1, 1) --更新刷新次数
+	end 
+	
+	UpdateLuckDrawInfoData(actorId, consumeYb, config, nil, isFreeFlag)	--更新玩家数据  
+	
+	SendLuckDrawInfo(sysarg, true,  config, nil)
+	
+end 
+
+--购买折扣物品 
+function BuyLuckDrawDisItem(sysarg, ldIdx, packet)  
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	if not config.isBuyDisItem or config.isBuyDisItem ~= 1 then --是否可以购买物品
+		return
+	end 
+	 
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local curDiscountIdx = GetLuckDrawData(config.infoFile, actorId, config.turntableCount-1, 1) --获取折扣序号
+	if curDiscountIdx <= 0 then
+		curDiscountIdx = 1
+	end
+	
+	local itemLists = config.itemLists
+	local itemList = itemLists[config.turntableCount].itemList
+	local discountCfg = itemList[curDiscountIdx] 
+	local limit = discountCfg.limit
+	local discount = discountCfg.discount 
+	
+	local totalConsume = 0
+	local totalCount = 0 
+	local buyItemTab = {}
+	local buyDisItemLists = config.buyDisItemLists
+	local count = DataPack.readByte(packet)
+
+	if count > 0 then
+		for i = 1, count do 
+			local tempIdx = DataPack.readByte(packet)  
+			local tempCount = DataPack.readByte(packet)
+			if tempIdx <= 0 or tempIdx > table.getn(buyDisItemLists) then 
+				return
+			end
+			
+			if tempIdx > 0 and tempCount > 0 then
+				table.insert(buyItemTab, tempIdx) 
+				table.insert(buyItemTab, tempCount)  
+				totalConsume = totalConsume + buyDisItemLists[tempIdx].price * tempCount
+				totalCount = totalCount + tempCount
+			end
+		end
+	end
+
+	if table.getn(buyItemTab) <= 0 then
+		return 
+	end
+	
+	if limit > 0 and totalCount > limit then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0102, ttFlyTip)
+		return
+	end
+	
+	totalConsume = math.ceil(totalConsume * discount / 10)
+	if Actor.changeMoney(sysarg, 3, -totalConsume, 980, Lang.LogTips.yyd0103) ~= true then 
+		Actor.sendTipmsg(sysarg, Lang.Activity.yyd0103, ttFlyTip)
+		return 
+	end
+	
+	local perDrawLogTab = {} --用来给前端发送的个人记录
+	local allDrawLogTab = {} --用来给前端发送的全服记录 
+	
+	UpdateLuckDrawData(config.infoFile, actorId, config.turntableCount-1, 1, 2) --重置折扣
+	UpdateLuckDrawData(config.infoFile, actorId, config.turntableCount+4, 0, 2) --更新刷新次数
+	
+	if table.getn(buyItemTab)/2 > 0 then
+		count = table.getn(buyItemTab)/2
+	end
+	if count > 0 then
+		local actorName = Actor.getName(sysarg)
+		for j = 1, count do 
+			local tempIdx = buyItemTab[2*(j-1)+1]
+			local tempCount = buyItemTab[2*(j-1)+2]
+			local buyItemConfig= buyDisItemLists[tempIdx] 
+			--if Actor.giveAward(sysarg, buyItemConfig.type, buyItemConfig.id, tempCount, buyItemConfig.quality, buyItemConfig.strong, buyItemConfig.bind, 0, 980, Lang.LogTips.yyd0104) ~= true then
+				Dmkj.addItem(sysarg, buyItemConfig.id, tempCount, buyItemConfig.quality, buyItemConfig.strong, buyItemConfig.bind, false, 0, 980, Lang.LogTips.yyd0104) 
+				--Actor.sendTipmsg(sysarg, Lang.Activity.yyd0104, ttFlyTip)
+			--end
+			
+			if buyItemConfig.isBrocast and buyItemConfig.isBrocast == true then
+				local itemName = Item.getAwardDesc(buyItemConfig.type, buyItemConfig.id)
+				if config.isShowLog and config.isShowLog == 1 then
+					if config.isAllLog and config.isAllLog == 1 then
+						UpdateAllDrawLog(config, actorName, buyItemConfig.id, chrAllLuckDrawLog) --更新全服抽奖记录  
+						local tempLogTab = {}
+						table.insert(tempLogTab, actorName)
+						table.insert(tempLogTab, buyItemConfig.id)
+						table.insert(allDrawLogTab, tempLogTab) 
+					end	
+				end
+				
+				System.broadcastTipmsg(string.format(Lang.Activity.yyd0106, actorName, discount, itemName), ttScreenCenter+ttChatWindow)
+			end 
+		
+			if config.isShowLog and config.isShowLog == 1 then
+				if config.isPerLog and config.isPerLog == 1 then
+					UpdatePersonDrawLog(config, actorId, buyItemConfig.id, chrPersonLuckDrawLog) --个人抽奖记录 
+					table.insert(perDrawLogTab, buyItemConfig.id)
+				end
+			end	
+			
+		end
+	end
+	
+	if config.isShowLog and config.isShowLog == 1 then  
+		local logType = 3 --更新单个记录
+		if config.isPerLog and config.isPerLog == 1 then
+			SendPersonDrawLog(sysarg, config, logType, perDrawLogTab, chrPersonLuckDrawLog, 145, 117)
+		end
+		if config.isAllLog and config.isAllLog == 1 then
+			SendAllDrawLog(sysarg, config, logType, allDrawLogTab, chrAllLuckDrawLog, 145, 116)
+		end
+	end
+	
+	SendLuckDrawInfo(sysarg, true,  config, nil)
+	
+end
+
+--产生抽到的奖品，awardTab奖品列表，paramTab已经产生过的奖品列表，param参数, config 整个配置, idx 库的序号,从1开始
+function ProduceLuckDrawAward(awardTab, paramTab, param, config, idx)	 
+	local itemId = 0
+	local drawIdx = 0
+	
+	if idx <= 0 or idx > table.getn(config.itemLists) then
+		return itemId
+	end
+	
+	local itemList = config.itemLists[idx].itemList 
+	for  i=1,10000 do
+		drawIdx = GetCfgRandomInfo(itemList, paramTab)  
+	    if CheckLuckDrawAward(drawIdx, param, config, idx) == true then  
+			break 
+		end
+	end
+	
+	if drawIdx <= 0 then
+		drawIdx = table.getn(itemList) 
+	end
+	
+	table.insert(awardTab, idx)
+	table.insert(awardTab, drawIdx) 
+	
+	itemId = itemList[drawIdx].id
+	
+	return itemId
+end
+
+--检测物品是否可以抽到
+function CheckLuckDrawAward(drawIdx, param, config, idx)
+ 
+	local itemList = config.itemLists[idx].itemList
+	if drawIdx <= 0 or drawIdx > table.getn(itemList) then
+		return false
+	end 
+	
+	local awardConfig = itemList[drawIdx]
+	if not awardConfig then
+		return false
+	end  
+	
+	local totalConsumeYb = 0 
+	local turntableParamPtr = Ranking.getRanking(config.paramFile) 
+	if turntableParamPtr then
+		local ybItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, config.turntableCount + 1)
+		if ybItemPtr then
+			totalConsumeYb = tonumber(Ranking.getSub(ybItemPtr, 0)) or 0
+		end 
+		
+		local paramItemPtr = Ranking.getItemPtrFromId(turntableParamPtr, (config.itemCount*idx)+drawIdx)
+		if paramItemPtr then
+			--获取玩家消费的元宝 
+			if GetLuckDrawData(config.infoFile, param, config.turntableCount+1, 1) >= awardConfig.startYb then 
+				local needYb = tonumber(Ranking.getSub(paramItemPtr, 0)) or 0
+				if awardConfig.ybCircle and awardConfig.ybCircle > 0 then
+					if totalConsumeYb >= needYb then
+						Ranking.setSub(paramItemPtr, 0, needYb+awardConfig.ybCircle)
+					else
+						return false
+					end
+				end
+				return true  
+			end
+		end
+	end
+	
+	return false 
+end
+
+ 
+--增加的玩家的转盘信息     
+function AddPersonLuckDrawInfo(sysarg, ldIdx)   
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile) 
+	if not turntableInfoPtr then
+		return nil
+	end
+	
+	local turntableItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+	if turntableItemPtr then
+		return turntableItemPtr
+	end
+		
+	turntableItemPtr = Ranking.addItem(turntableInfoPtr, actorId, 0, false)
+	if not turntableItemPtr then
+		return nil
+	end
+	
+	if config.isSaveName and config.isSaveName == 1 then
+		local actorName = Actor.getName(sysarg) 
+		Ranking.setSub(turntableItemPtr, config.turntableCount, actorName)  
+	end
+	return turntableItemPtr 
+	
+end
+
+--检测是否可以免费抽奖
+function CanFreeDraw(actorId, config) 
+	local isFreeFlag = false
+	local curCount = GetLuckDrawData(config.infoFile, actorId, config.turntableCount+2, 1) 
+	if curCount < config.freeCount then
+		isFreeFlag = true
+	end
+	
+	return isFreeFlag
+end
+
+--是否可以抽奖, 为1表示可以领取奖励，0或者空表示可以抽奖 
+function CanDraw(actorId, config)  
+	local isDrawFlag = true
+	local curFlag = GetLuckDrawData(config.infoFile, actorId, config.turntableCount+3, 1) 
+	if curFlag >= 1 then
+		isDrawFlag = false 
+	end
+	return isDrawFlag
+end
+
+--更新抽奖状态，为1表示可以领取奖励，0或者空表示可以抽奖
+function UpdateDrawFlag(actorId, config, val)
+	UpdateLuckDrawData(config.infoFile, actorId, config.turntableCount+3, val, 1)
+end
+
+--设置转盘文件数据，valType为1数值，2字符串
+function UpdateLuckDrawData(rankFile, id, idx, val, valType)
+	local chrTurntablePtr = Ranking.getRanking(rankFile)
+	if chrTurntablePtr then
+		local chrTurntableItemPtr = Ranking.getItemPtrFromId(chrTurntablePtr, id)
+		if chrTurntableItemPtr then
+			if valType == 1 then
+				local curVal = tonumber(Ranking.getSub(chrTurntableItemPtr, idx)) or 0
+				Ranking.setSub(chrTurntableItemPtr, idx, curVal+val)
+			elseif valType == 2 then
+				Ranking.setSub(chrTurntableItemPtr, idx, val)
+			end
+		end
+	end
+end 
+
+--获取转盘文件数据，valType为1数值，2字符串, idx从0开始
+function GetLuckDrawData(rankFile, id, idx, valType) 
+	local result = nil
+	if valType == 1 then
+		result = 0 
+	else
+		result = ""
+	end
+	local chrTurntablePtr = Ranking.getRanking(rankFile)
+	if chrTurntablePtr then
+		local chrTurntableItemPtr = Ranking.getItemPtrFromId(chrTurntablePtr, id)
+		if chrTurntableItemPtr then
+			if valType == 1 then
+				result = tonumber(Ranking.getSub(chrTurntableItemPtr, idx)) or 0 
+			else
+				result = Ranking.getSub(chrTurntableItemPtr, idx) or ""
+			end
+		end 		
+	end
+
+	return result 
+end
+
+--获取转盘文件多个数据，valType为1数值，2字符串, idx从0开始
+function GetLuckDrawDataExt(rankFile, id, count, valType) 
+	local result = {}
+	
+	local chrTurntablePtr = Ranking.getRanking(rankFile)
+	if chrTurntablePtr then
+		local chrTurntableItemPtr = Ranking.getItemPtrFromId(chrTurntablePtr, id)
+		if chrTurntableItemPtr then
+			if valType == 1 then
+				for i = 1, count do
+					local temp = tonumber(Ranking.getSub(chrTurntableItemPtr, i-1)) or 0 
+					table.insert(result, i)
+					table.insert(result, temp) 
+				end
+				
+			else
+				for i = 1, count do
+					local temp = Ranking.getSub(chrTurntableItemPtr, i-1) or 0 
+					table.insert(result, i)
+					table.insert(result, temp) 
+				end
+			end
+		end 		
+	end
+
+	return result 
+end
+ 
+--更新玩家数据，包括玩家奖励序号，消费的元宝，如果需要根据积分排名也更新积分
+function UpdateLuckDrawInfoData(actorId, addConsumYb, config, awardTab, isFreeFlag) 
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile)
+
+	if turntableInfoPtr then
+		local turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+		if turntableInfoItemPtr then
+			local itemLists = config.itemLists
+			local count = 0
+			if table.getn(awardTab or {})/2 > 0 then
+				count = table.getn(awardTab)/2
+			end
+			for j = 1, count do
+				if table.getn(awardTab or {}) >= 2*j then
+					local idx = awardTab[2*(j-1)+1]
+					local itemIdx = awardTab[2*(j-1)+2] 
+					Ranking.setSub(turntableInfoItemPtr, j-1, itemIdx)   
+				end
+			end
+			
+			local curYb = tonumber(Ranking.getSub(turntableInfoItemPtr, config.turntableCount+1)) or 0
+			Ranking.setSub(turntableInfoItemPtr, config.turntableCount+1, curYb + addConsumYb)
+			
+			if (config.isPullBa and config.isPullBa == 1) then
+				Ranking.setSub(turntableInfoItemPtr, config.turntableCount+3, 1) --设置可领奖，要领完奖才能抽下次
+			end
+			
+			
+			if isFreeFlag == true then --更新免费次数
+				local curCount = tonumber(Ranking.getSub(turntableInfoItemPtr, config.turntableCount+2)) or 0
+				Ranking.setSub(turntableInfoItemPtr, config.turntableCount+2, curCount + 1)
+			end
+			
+			if config.isRankPoint and config.isRankPoint == 1 then
+				local curPoint = Ranking.getPoint(turntableInfoItemPtr) 
+				local result = curPoint + addConsumYb*config.ybToPoint
+				Ranking.setItem(turntableInfoPtr, actorId, curPoint + addConsumYb*config.ybToPoint)
+			end
+		end
+	end
+end
+
+--初始化转盘相关信息,
+function InitLuckDraw(config) 
+	if not config.paramFile then
+		return
+	end 
+	
+	local turntableParamPtr = Ranking.getRanking(config.paramFile) 
+	if turntableParamPtr then
+		if Ranking.getRankItemCount(turntableParamPtr) > 0 then 
+			return 
+		end 
+		
+		local itemPtr = Ranking.getItemPtrFromId(turntableParamPtr, config.turntableCount+1)  
+		if not itemPtr then
+			itemPtr = Ranking.addItemExt(turntableParamPtr, config.turntableCount+1, 0, false)  --这里用个很大的数表示id
+		end
+		
+		local itemLists = config.itemLists
+		if not itemLists or table.getn(itemLists) <= 0 then
+			return 
+		end
+
+		InitLuckDrawParamData(config) 
+		
+	end
+
+end
+
+--初始化转盘参数
+function InitLuckDrawParamData(config)  
+	if not config.paramFile then
+		return
+	end
+	local turntableParamPtr = Ranking.getRanking(config.paramFile) 
+	if not turntableParamPtr then 
+		return 
+	end
+	
+	local itemLists = config.itemLists  
+	if not itemLists then
+		return 
+	end
+	
+	for i = 1, table.getn(itemLists or {}) do 
+		local itemList = itemLists[i].itemList
+		for j = 1, table.getn(itemList or {}) do 
+			local itemPtr = Ranking.getItemPtrFromId(turntableParamPtr, config.itemCount * i + j) 
+			if not itemPtr then
+				itemPtr = Ranking.addItemExt(turntableParamPtr, config.itemCount * i + j, 0, false)
+			end 
+			if itemPtr then
+				if itemList[j] then
+					Ranking.setSub(itemPtr, 0, itemList[j].startYb)
+				end
+			end 
+		end
+		
+	end
+end
+
+--发送转盘的数据, hFlag为false表示没有玩家购买信息 
+function SendLuckDrawInfo(sysarg, hFlag, config, awardRatio) 
+	if not awardRatio then
+		awardRatio = 1
+	end	
+	
+	local turntableInfoPtr = Ranking.getRanking(config.infoFile)
+	if not turntableInfoPtr then
+		return 
+	end 
+	
+	local turntableInfoItemPtr	= nil 
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	if hFlag == true then
+		turntableInfoItemPtr = Ranking.getItemPtrFromId(turntableInfoPtr, actorId)
+		if not turntableInfoItemPtr then
+			return 
+		end		
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 145, 112)  
+	if not pack then
+		return 
+	end
+	DataPack.writeByte(pack, config.ldIdx)
+	
+	local itemCount = 0
+	if hFlag == true then
+		itemCount = config.turntableCount
+	else
+		if config.ldIdx == 3 then
+			itemCount = config.turntableCount
+		end
+	end
+	
+	DataPack.writeByte(pack, itemCount) 
+	
+	local itemLists = config.itemLists
+	
+
+		if itemCount > 0 then
+			for i = 1, itemCount do 
+				local itemIndex = 0
+				if hFlag == true then
+					itemIndex = tonumber(Ranking.getSub(turntableInfoItemPtr, i-1)) or 0 
+				else
+					if config.ldIdx == 3 then --需要显示折扣默认的序号
+						itemIndex = 1
+					end
+				end
+
+				if i > table.getn(itemLists) then
+					return 
+				end
+
+				local storeConfig = itemLists[i]
+				if itemIndex <= 0 or itemIndex > table.getn(storeConfig.itemList) then
+					return  
+				end
+				
+				local itemConfig = storeConfig.itemList[itemIndex] 
+				if not itemConfig then
+					return 
+				end
+				
+				if config.isFreshDiscount and config.isFreshDiscount == 1 then
+					DataPack.writeInt(pack, itemConfig.idx)
+					DataPack.writeByte(pack, itemConfig.limit)
+				else
+					DataPack.writeInt(pack, itemConfig.id)
+					DataPack.writeByte(pack, itemConfig.count*awardRatio)
+				end
+			end
+		end
+		
+
+	
+	local freeCount = 0
+	if config.isFree == 1 then --是否可以每天免费
+		local useCount = tonumber(Ranking.getSub(turntableInfoItemPtr, config.turntableCount+2)) or 0
+		if config.isShowFreeUse and config.isShowFreeUse == 1 then 
+			freeCount = useCount 
+		else
+			freeCount = config.freeCount - useCount
+		end
+	end
+
+	DataPack.writeByte(pack, freeCount)  
+	
+	DataPack.flush(pack)
+
+end
+
+--发送抽到的奖励信息
+function SendLuckDrawAwardInfo(sysarg, awardTab, config, opTye, betTab) 
+	local pack = DataPack.allocPacket(sysarg, 145, 133)
+	if not pack then
+		return 
+	end
+
+	DataPack.writeByte(pack, config.ldIdx)
+	
+	local param = 0 
+	local count = 0
+	if table.getn(awardTab)/2 > 0 then
+		count =  table.getn(awardTab)/2
+		
+		if config.isBetTurntable and config.isBetTurntable == 1 then
+			if opTye == 1 then
+				param = awardTab[2]
+			end
+		end
+	end
+	
+	DataPack.writeByte(pack, param)  
+	DataPack.writeByte(pack, count)
+	local itemLists = config.itemLists
+	for j = 1, count do
+		if table.getn(awardTab) >= 2*j then
+			local idx = awardTab[2*(j-1)+1]
+			local storeConfig = itemLists[idx]
+			local itemIdx = awardTab[2*(j-1)+2]
+			local itemConfig = storeConfig.itemList[itemIdx]
+			DataPack.writeInt(pack, itemConfig.id)
+			DataPack.writeByte(pack, itemConfig.count)
+			
+			if config.isBetTurntable and config.isBetTurntable == 1 then
+				local retBetNum, retBetCount = CheckIsBet(config, betTab, itemConfig)
+				DataPack.writeByte(pack, itemConfig.betNumber)
+				DataPack.writeByte(pack, retBetCount)
+			end
+		end
+	end
+
+	DataPack.flush(pack)  
+
+end
+
+--每天重置
+function ResetLuckDrawData(ldIdx)  
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	local rankPtr = Ranking.getRanking(config.infoFile)
+	if not rankPtr then
+		return  
+	end
+	
+	local rankCount = Ranking.getRankItemCount(rankPtr)
+	if rankCount > 0 then
+		for i = 1, rankCount do 
+			local itemPtr = Ranking.getItemPtrByIndex(rankPtr, i-1) 
+			if itemPtr then
+				 Ranking.setSub(itemPtr, config.turntableCount+2, 0)
+			end
+		end
+		
+	end
+	
+end
+
+--清除数据
+function ClearLuckDrawData(ldIdx)  
+	local config = GetLuckDrawConfig(ldIdx)
+	if not config then
+		return 
+	end
+	
+	local turntableParamPtr = Ranking.getRanking( config.paramFile )		
+	if turntableParamPtr then
+		Ranking.clearRanking(turntableParamPtr)
+	end
+	
+	local turntableInfoPtr = Ranking.getRanking( config.infoFile )		
+	if turntableInfoPtr then
+		Ranking.clearRanking(turntableInfoPtr)
+	end
+	
+	ClearAllDrawLog(config, chrAllLuckDrawLog) --清除全服抽奖记录
+	ClearPersonDrawLog(config, chrPersonLuckDrawLog) --清除个人抽奖记录
+	
+end
+
+--下线发一下奖励，摇了奖，未领奖就下线
+function LuckDrawLogoutHandle(sysarg) 
+	for k, v in ipairs(LuckDrawFileConfig or {}) do
+		if v.isPullBa and v.isPullBa == 1 then 
+			GetLuckDrawAward(sysarg, v.ldIdx) 
+		end
+	end
+end
+
+function CallInitLuckDraw()   
+	local config = GetLuckDrawConfig(5)
+	if not config then
+		return 
+	end
+	
+	InitLuckDraw(config)  
+
+end
+
+function CallClearLuckDraw()   
+	ClearLuckDrawData(5) 
+	--ResetLuckDrawData(1)  
+end

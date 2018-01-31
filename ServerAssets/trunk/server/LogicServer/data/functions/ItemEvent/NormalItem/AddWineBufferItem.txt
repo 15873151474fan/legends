@@ -1,0 +1,104 @@
+﻿--lua script
+--for item add buffs
+
+--#include "data\config\item\BuffItemDatas.txt" once --BUFF配置表
+
+--[[
+--添加buff的物品
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 
+--]]
+
+--篝火酒 功能实现
+function AddWineItemBuffer(sysarg,itemidx,itemPtr,ItemTable)
+	if (Actor.getItemCount(sysarg,ItemTable.item_id) == 0) then
+		Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00013,ttTipmsgWindow )
+		return false
+  end
+  
+	if ItemTable.item_id == itemidx then
+		local index = 0
+		table.foreachi( AddWineBuffItems, function( i, v )  if (v.item_id == itemidx )  then index = i end end )
+		if index <= 0 then return end
+		--判断是否有 同类型不同组的BUFF
+		local HasItemBuff = 0
+		for i = 1, table.getn(AddWineBuffItems) do
+			local AddWineBuffItem = AddWineBuffItems[i]
+			if AddWineBuffItem.item_id ~= ItemTable.item_id then
+				for j = 1, table.getn(AddWineBuffItem.buff) do
+					local buff = AddWineBuffItem.buff[j]
+					if Actor.hasBuff(sysarg, buff.buffType, buff.buffGroup)==true then
+						HasItemBuff = HasItemBuff + 1
+					end
+				end
+			end
+		end
+		local tips = Lang.ScriptTips.t00069
+		--判断BUFF值高低
+		if Actor.getDrunkExpAddRate(sysarg) > AddWineBuffItems[index].buff[1].value
+		or Actor.getDrunkXiuweiAdd(sysarg) > AddWineBuffItems[index].buff[2].value then
+			tips = Lang.ScriptTips.t00070
+		end
+		---
+		--if HasItemBuff >= table.getn(AddWineBuffItems[index].buff) then
+		if HasItemBuff >= 1 then
+			local npcHandle = Actor.getHandle(thisNPC)
+			Actor.messageBox(sysarg,npcHandle,0,tips,Lang.ScriptTips.x00068.."/OnOverWineBuff,"..ItemTable.item_id,Lang.ScriptTips.x00069.."/cancelOnOverBuff",nil)
+	    return 
+		else
+			if (ItemTable.needDelete) then --需要删除
+				Actor.removeItemByPtr(sysarg,itemPtr,1,true,"AddWineItemBuffer",5)      --删除一个物品
+			end
+			for i = 1, table.getn(ItemTable.buff) do
+				local buff = ItemTable.buff[i]
+				Actor.addBuff(sysarg,buff.buffType,buff.buffGroup, buff.value, buff.times, buff.interval, Item.getItemName(itemidx), buff.timeOverlay) --添加buff 
+			end
+		  return
+		end
+		
+	end
+end
+
+function OnOverWineBuff( sysarg, itemid)
+  local itemid = tonumber(itemid)
+  local x = {}
+	local index = 0
+  table.foreachi( AddWineBuffItems, function( i, v )  if (v.item_id == itemid )  then x = v end end )
+	
+	
+	--清除同类型不同组的BUFF
+	for i = 1, table.getn(AddWineBuffItems) do
+		local AddWineBuffItem = AddWineBuffItems[i]
+		if AddWineBuffItem.item_id ~= x.item_id then
+			for j = 1, table.getn(AddWineBuffItem.buff) do
+				local buff = AddWineBuffItem.buff[j]
+				if Actor.hasBuff(sysarg,buff.buffType,buff.buffGroup)==true then
+					Actor.delBuff(sysarg,buff.buffType,buff.buffGroup)
+				end
+			end
+		end
+	end
+
+	if (x.needDelete) then --需要删除
+    Actor.removeItem(sysarg,itemid,1,-1,-1,-1,"AddWineItemBuffer",5)      --删除一个物品
+  end
+	for i = 1, table.getn(x.buff) do
+		local buff = x.buff[i]
+		Actor.addBuff(sysarg,buff.buffType,buff.buffGroup, buff.value, buff.times, buff.interval, Item.getItemName(itemid), false) --添加buff 
+	end
+end
+
+function cancelOnOverBuff(sysarg)
+end
+
+
+function AddWineItemBufferInit(sysarg)
+  for i = 1,table.getn(AddWineBuffItems) do
+		local x = AddWineBuffItems[i]
+		GlobalItemFn[x.item_id] = { func = AddWineItemBuffer, params = x }
+  end
+end
+
+table.insert(InitFnTable,AddWineItemBufferInit)

@@ -1,0 +1,354 @@
+--lua script
+--充值返利
+--#include "data\config\activityconfig\MidAutumn\RechargeConfig.txt" once
+
+--请求返利界面:充值总数,返利总数,按钮亮/暗 (0-1-2 已达，已领， 未达)
+function ReqRecharge(sysarg)
+	local config = RechargeConfig
+	if not config then return end
+	local pack = DataPack.allocPacket(sysarg, 145, 71)
+	if pack == nil then return end
+
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+
+	DataPack.writeByte(pack, actDay)
+	local rechargeNum = GetRechargeYb(sysarg)--充值元宝
+	local continue =  GetContinueDays(sysarg)--持续的天数
+	local rebateybNum = GetRechargeAward(sysarg)--返利总额
+	local isok = IsCanGetAward(sysarg) --是否达标
+	local isCanrebate = IsGetRechargeAward(sysarg)--是否可领
+	local day = GetTheDaysNum(sysarg)--判断当天是第几天
+
+	for i=1, actDay do
+		local id = continue[i]
+		local bili = 0
+		if id ~= 0 then
+			bili = config.awardName.awardId[id][1] --比例
+		end
+		DataPack.writeInt(pack, rechargeNum[i])
+		DataPack.writeByte(pack, bili)
+		DataPack.writeInt(pack, rebateybNum[i])
+
+		if day > i then
+			if isok[i] == 1 then
+				if isCanrebate[i] ~= 1 then
+					DataPack.writeByte(pack, 0) --已达
+				else
+					DataPack.writeByte(pack, 1) --已领
+				end
+			else
+				DataPack.writeByte(pack, 2) --未达
+			end
+		else
+			DataPack.writeByte(pack, 2) --未达
+		end
+	end
+
+	DataPack.flush(pack)
+end
+
+
+--请求领奖
+function ReqGetRecharge(sysarg, day)
+	--判断活动
+	if System.isInDateRange(unpack(RechargeConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yncj001, ttFlyTip)
+		return
+	end
+
+	local now = GetTheDaysNum(sysarg)
+	if now <= day then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0005, ttFlyTip) --提示次日才可以领
+		return
+	end
+
+	local ret =  IsGetRechargeAward(sysarg)
+	if ret[day] == 1 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.cjf002, ttFlyTip)
+		return
+	end
+	local sNum = GetRechargeYb(sysarg)
+	local config = RechargeConfig
+	if not config then return end
+	local needYb = config.awardName.targeYb[day]
+	if sNum[day] < needYb then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mzq0000, ttFlyTip)
+		return
+	end
+	local awardNum  = GetRechargeAward(sysarg)
+
+	if not Actor.changeMoney(sysarg, mtYuanbao, awardNum[day], 970, Lang.LogTips.mzq001) then return end
+
+	--成功领取，保存状态
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+	SavRechargeAward(sysarg, day+actDay-1, awardNum[day]) --从0开始算，所以-1，0-day-1是充值，后面是奖励
+
+	local pack = DataPack.allocPacket(sysarg, 145, 73)
+	if pack == nil then return end
+
+	DataPack.writeByte(pack, day)
+	DataPack.flush(pack)
+	ReqRecharge(sysarg)
+end
+
+--求持续的天数
+function GetContinueDays(sysarg)
+	local ret = {}
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+	for i=1, actDay do
+		ret[i]=0
+	end
+
+	local recharge = IsCanGetAward(sysarg)
+	for i=1, actDay do
+		local n = 0
+		if recharge[i] == 1 then
+			for j=i, 1, -1 do
+				if recharge[j] == 1 then
+					n = n + 1
+				else
+					break
+				end
+				ret[i] = n
+			end
+		else
+			ret[i] = 0
+		end
+	end
+	return ret
+end
+
+--读取文件1-8表示对应天充值元宝
+function GetRechargeYb(sysarg)
+	local ybNum = {}
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+	for i=1, actDay do
+		ybNum[i]=0
+	end
+	
+	local ranking = Ranking.getRanking(Lang.Rank.AutumnRechargeFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			for i=1, actDay do
+				local result = Ranking.getSub(item, i-1)
+				result = tonumber(result) or 0
+				if result then
+					ybNum[i] = result
+				end
+			end
+		end
+	end
+	return ybNum
+end
+
+--返利总额
+function GetRechargeAward(sysarg)
+	local award = {}
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+	for i=1, actDay do
+		award[i]=0
+	end
+	
+	local ranking = Ranking.getRanking(Lang.Rank.AutumnRechargeFile)
+	local recharge = IsCanGetAward(sysarg)
+	local continueday = GetContinueDays(sysarg)--求持续的天数
+
+	local rechargeNum = GetRechargeYb(sysarg)--充值元宝
+	local config = RechargeConfig
+	if not config then return end
+
+	for i=1, actDay do
+		if recharge[i] == 1 then
+			local id = continueday[i]
+			if id ~= 0 then
+				local ret = math.modf(rechargeNum[i]*config.awardName.awardId[id][1] / 100)
+				if ret > config.awardName.awardId[id][2] then
+					ret  = config.awardName.awardId[id][2]
+				end
+				award[i] = ret
+			end
+		end
+	end
+	return award
+end
+
+--是否达标
+function IsCanGetAward(sysarg)
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+	local result = {}
+	local rechargeList = GetRechargeYb(sysarg)
+	local config = RechargeConfig
+	if not config then return end
+	for i=1, actDay do
+		if rechargeList[i] >= config.awardName.targeYb[i] then
+			result[i] = 1
+		else
+			result[i] = 0
+		end
+	end
+
+	return result
+end
+
+
+-- 读取是否可以点击领取按钮 0未领取，1已领取
+function IsGetRechargeAward(sysarg)
+	local result = {}
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+	for i=1, actDay do
+		result[i]=0
+	end
+
+	local ranking = Ranking.getRanking(Lang.Rank.AutumnRechargeFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			for i=1, actDay do
+				local res = Ranking.getSub(item, i+actDay-1) --0~4充值，5~9奖励
+				res = tonumber(res)
+				if res then
+					result[i] = 1
+				end
+			end
+		end
+	end
+	return result
+end
+
+--保存领奖信息到文件
+function SavRechargeAward(sysarg, awardId, num)
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(Lang.Rank.AutumnRechargeFile)
+	if ranking then
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			Ranking.setSub(itemPtr, awardId, num)
+		else
+			local newPtr = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(newPtr, awardId, num)
+		end
+	end
+end
+
+--计算当天是活动第几天
+function GetTheDaysNum(sysarg)
+	local year = RechargeConfig.actTime[1]
+	local mons = RechargeConfig.actTime[2]
+	local day  = RechargeConfig.actTime[3]
+	local hour = RechargeConfig.actTime[4]
+	local mini = RechargeConfig.actTime[5]
+	local sec  = RechargeConfig.actTime[6]
+	local days = System.getActivityStartDay(year,mons,day, hour,mini,sec)-1
+	if days < 0 then
+		days = 0
+	end
+	return days
+end
+
+--保存当天充值的元宝到文件
+function OnRechargeYuanBao(sysarg, nYuanBao)
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+	local day = GetTheDaysNum(sysarg)
+	if day > actDay then return end
+	if nYuanBao <= 0 then return end
+	local day = GetTheDaysNum(sysarg)
+	if day == 0 then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local pRanking = Ranking.getRanking(Lang.Rank.AutumnRechargeFile)
+	if pRanking then
+		local pItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if pItem == nil then
+			pItem = Ranking.addItem(pRanking, nActorId, 0)
+			if pItem then
+				Ranking.setSub(pItem, day-1, nYuanBao) --(0~actDay-1 保存充值数)
+			end
+		else
+			local ret = Ranking.getSub(pItem, day-1)
+			ret = tonumber(ret)
+			if ret and ret ~= 0 then
+				nYuanBao = nYuanBao + ret
+			end
+			Ranking.setSub(pItem, day-1, nYuanBao)
+		end
+	end
+end
+
+--活动结束后发送未领取的返利奖励
+function SendMailRechargeAward()
+	local config = RechargeConfig
+	local actDay = RechargeConfig.actDay or 0 --活动天数
+
+	local ranking = Ranking.getRanking(Lang.Rank.AutumnRechargeFile)
+	if ranking then
+		local num = Ranking.getRankItemCount(ranking)
+		for k=1, num do
+			local item = Ranking.getItemPtrByIndex(ranking, k-1)
+			if item then
+				local nActorId = Ranking.getId(item)
+				local reNumList = {}--充值表
+				local reBateList= {}--返利表
+				local dabiaoList= {}--达标表
+				local continue =  {}--连续天数表
+				local sum = 0
+				for i=1, actDay do
+					local ret = Ranking.getSub(item, i-1)
+					ret = tonumber(ret)
+					if ret then
+						reNumList[i] = ret
+						if reNumList[i] >= config.awardName.targeYb[i] then
+							dabiaoList[i] = 1
+						end
+					end
+				end
+
+				for i=actDay, actDay+actDay-1 do
+					local ret = Ranking.getSub(item, i)
+					ret = tonumber(ret)
+					if ret then
+						reBateList[i-actDay+1] = ret
+					end
+				end
+
+				for i=1, actDay do
+					local n = 0
+					if dabiaoList[i] == 1 then
+						for j=i, 1, -1 do
+							if dabiaoList[j] == 1 then
+								n = n + 1
+							else
+								break
+							end
+							continue[i] = n
+						end
+					end
+				end
+
+				for i=1, actDay do
+					if dabiaoList[i] == 1 and reBateList[i] == nil then
+						local id = continue[i] or 0
+						if id ~= 0 then
+							local award = math.modf(reNumList[i]*config.awardName.awardId[id][1] / 100)
+							if award > config.awardName.awardId[id][2] then
+								award  = config.awardName.awardId[id][2]
+							end
+							sum = sum + award
+							Ranking.setSub(item, i+actDay-1, award)
+						end
+					end
+				end
+
+				if sum ~= 0 then
+					-- 发送离线消息
+					local msg = string.format(Lang.Activity.mzq0006, sum)
+					System.addOfflineMsg(nActorId, 64, msg, 0, sum)--分别表示：玩家id，类型，消息内容，发送者（系统）， 元宝数量
+				end
+			end
+		end
+		Ranking.clearRanking(ranking)
+	end
+end
+

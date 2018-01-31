@@ -1,0 +1,23 @@
+﻿--lua script
+
+ --#include "data\language\LangCode.txt" once
+--NPC对话学习副职技能
+function LearnDeputySkillsMap( sysarg )
+  --获得副职技能数据 如果全满则不显示这些对话
+  local pid = Actor.getIntProperty( sysarg, PROP_ENTITY_ID )
+  local deputyMakeAble = getActorData( sysarg, DEPUTYMAKEDATA )
+  if ( table.getn(deputyMakeAble) < 4 ) then
+	return "\\<#b"..Misc.m00009.."/@@LearnDeputySkills>"
+		.."\\<#b"..Lang.Misc.m000010.."/@@LearnItemMakeSmithery>"
+		.."\\<#b"..Lang.Misc.m000011.."/@@LearnItemMakeTailor>"
+		.."\\<#b"..Lang.Misc.m000012.."/@@LearnItemMakePharmaceutical>"
+		.."\\<#b"..Lang.Misc.m000013.."/@@LearnItemMakeWine>"
+  else
+	return "\\<#b"..Lang.Misc.m000010.."/@@LearnItemMakeSmithery>"
+		.."\\<#b"..Lang.Misc.m000011.."/@@LearnItemMakeTailor>"
+		.."\\<#b"..Lang.Misc.m000012.."/@@LearnItemMakePharmaceutical>"
+		.."\\<#b"..Lang.Misc.m000013.."/@@LearnItemMakeWine>"
+  end
+end
+
+table.insert(MainFnTable,LearnDeputySkillsMap)

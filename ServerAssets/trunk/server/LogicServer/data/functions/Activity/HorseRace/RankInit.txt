@@ -1,0 +1,41 @@
+﻿--lua script
+--活动 排行榜名单初始化
+--#include "data\config\activityconfig\HorseRace\TimeRide.txt" once
+--#include "RankPointer.txt" once
+
+--#include "data\functions\Activity\Common\Rank.txt" once --活动通用 排行榜
+
+
+function HRRanking_Init(npcobj)
+	local config = HorseRaceRankPt
+	Rank.Init(config.RankName, config.RankFile, config.RankColumn, config.ClinetShowCount, config.ClientShow)
+
+	local ranking = Ranking.getRanking(LimitTimeRide.LimitTimeRideRank)		--通过排行名称获取排行对象
+	if ranking == nil then							--没有排行对象则创建并加载数据
+		ranking = Ranking.add(LimitTimeRide.LimitTimeRideRank,1000,0)		--创建排行榜
+		if ranking ~= nil then
+			local isLoad = Ranking.load(ranking,LimitTimeRide.LimitTimeRideRank)
+			
+			if isLoad == false then
+				for i=1,2 do										-- 坐骑id,已购买次数
+					Ranking.addColumn(ranking,"value"..i)
+				end
+			end
+		end
+	end
+end
+
+function HRRanking_Fina(npcobj)
+	local config = HorseRaceRankPt
+	--Ranking.removeRanking(config.RankName)
+	Rank.Fina(config.RankName, config.RankFile)
+
+	local ranking = Ranking.getRanking(LimitTimeRide.LimitTimeRideRank)
+	if ranking then
+		Ranking.save(ranking,LimitTimeRide.LimitTimeRideRank,true)
+	end
+
+end
+
+table.insert(InitFnTable,HRRanking_Init)
+table.insert(FinaFnTable,HRRanking_Fina)

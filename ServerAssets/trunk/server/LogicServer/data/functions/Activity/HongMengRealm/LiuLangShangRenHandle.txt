@@ -1,0 +1,60 @@
+--lua script
+--流浪仙人
+
+--#include "NpcStoreHandle.txt" once
+
+function LiuLangShangRen_Main(sysarg) 
+	local str = Lang.Activity.hmr0005
+	str = str.."\\<#BL"..Lang.Activity.hmr0007.."/@OpenHmrStore,1>"  --打开商店
+	return str
+end
+
+
+function BeginSnowShangRen()
+	local config = HongMengRealmConfig
+	if not config or not thisNPC then return end
+	local npcName = Actor.getName(thisNPC)
+	if npcName ~= config.npcName then return end
+
+	--NPC
+	local rand = math.random(table.getn(config.randomMove))
+	local move = config.randomMove[rand]
+	local sceneId = Actor.getSceneId(thisNPC)
+	if not Actor.enterScene(thisNPC, sceneId, move.x, move.y) then 
+		return 
+	end
+	--显示NPC
+	
+	Actor.setEntityVisibleFlag(thisNPC, true)
+	--System.broadcastTipmsg(Lang.Activity.hmr0008, ttScreenCenter+ttChatWindow)
+	
+	local sHandle = Fuben.getSceneHandleById(HongMengRealmConfig.sceneId, 0)
+	Fuben.sendMsgToScene(sHandle, Lang.Activity.hmr0008, ttScreenCenter+ttChatWindow)
+	
+	ClearHmrRank(config.npcShopType)
+end
+
+
+function CloseSnowShangRen()
+	Actor.setEntityVisibleFlag(thisNPC, false)
+	
+	local playerList = LuaHelp.getSceneActorListById(HongMengRealmConfig.sceneId)	--获取场景玩家对象列表
+	if playerList ~= nil then
+		for i = 1, #playerList do
+			local player = playerList[i]
+			if player then
+				SendCloseHmrShop(player, 1)  --1为npc商店类型
+			end
+		end
+	end
+	
+	--System.broadcastTipmsg(Lang.Activity.hmr0009, ttScreenCenter+ttChatWindow)
+	local sHandle = Fuben.getSceneHandleById(HongMengRealmConfig.sceneId, 0)
+	Fuben.sendMsgToScene(sHandle, Lang.Activity.hmr0009, ttScreenCenter+ttChatWindow)
+end
+
+
+
+
+table.insert(MainFnTable, LiuLangShangRen_Main)
+

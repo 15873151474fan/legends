@@ -1,0 +1,53 @@
+
+
+CampBattleConfig = {
+	--显示在任务追踪面板上的信息
+
+	ACampId = 1,			--人
+	BCampId = 2,			--魔
+
+	SceneName = Lang.SceneName.s00036,
+	ActiveTime = 1800,			--活动持续时间
+	ACampPos = {32,49,110,120},
+	BCampPos = {98,104,43,53},
+	MinLevel = 40,
+	ExitSendScene = Lang.SceneName.s00008,
+	ExitSendPos = {139,155,174,185},
+
+	EnterPoint = 1,				--进场一次个人得分
+	BossId = 133,
+	BossStartTime = 300000,
+	BossTimeInterval = 600000,
+	BossPos = {74,81},
+	KillBossPoint = 500,
+	TableIndex = 2,				--总经验表中第1个
+	KillBossExpRate = 0.10,		--杀死boss人所得经验比率
+	KillCampPlyExpRate = 0.08,	--同阵营玩家所得经验比率
+	VipAddRate = 0,				--如果是vip，是否有加成
+
+	WinCampReward = {			--赢的阵营奖励
+		{ minPoint = 0, maxPoint = 200,		type = 0, id = 278, count=1, quality=0, strong=0, bind=1},
+		{ minPoint = 0, maxPoint = 200,		type = 0, id = 2111, count=2, quality=0, strong=0, bind=1},
+		{ minPoint = 0, maxPoint = 200,		type = 21, id = 0, count=5000},
+
+		{ minPoint = 201, maxPoint = 2000,	type = 0, id = 278, count=3, quality=0, strong=0, bind=1},
+		{ minPoint = 201, maxPoint = 2000,	type = 0, id = 2111, count=6, quality=0, strong=0, bind=1},
+		{ minPoint = 201, maxPoint = 2000,	type = 21, id = 0, count=20000},
+
+		{ minPoint = 2001, maxPoint = 99999,    type = 0, id = 278, count=5, quality=0, strong=0, bind=1},
+		{ minPoint = 2001, maxPoint = 99999,	type = 0, id = 2111, count=10, quality=0, strong=0, bind=1},
+		{ minPoint = 2001, maxPoint = 99999,	type = 21, id = 0, count=50000},
+	},
+	LoseCampReward = {			--输的阵营奖励
+
+		{ minPoint = 0, maxPoint = 200,		type = 21, id = 0, count=3000},
+
+		{ minPoint = 201, maxPoint = 2000,	type = 0, id = 278, count=1, quality=0, strong=0, bind=1},
+		{ minPoint = 201, maxPoint = 2000,	type = 0, id = 2111, count=3, quality=0, strong=0, bind=1},
+		{ minPoint = 201, maxPoint = 2000,	type = 21, id = 0, count=10000},
+
+		{ minPoint = 2001, maxPoint = 99999,    type = 0, id = 278, count=3, quality=0, strong=0, bind=1},
+		{ minPoint = 2001, maxPoint = 99999,	type = 0, id = 2111, count=7, quality=0, strong=0, bind=1},
+		{ minPoint = 2001, maxPoint = 99999,	type = 21, id = 0, count=50000},
+	},
+}

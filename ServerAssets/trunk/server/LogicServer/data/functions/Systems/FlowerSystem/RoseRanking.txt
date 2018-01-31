@@ -1,0 +1,70 @@
+--[[File:RoseRanking.txt]]
+--#include "RoseCommon.txt" once
+
+--÷ÿ÷√≈≈√˚
+
+function ResetRoseRanking()
+	local sysVar = System.getStaticVar()
+	sysVar.RoseWeekRank = {}
+	sysVar.RoseWeekRankFlag = {}
+	for idx, info in ipairs(RoseRankConfig.RankData) do
+		local ranking = Ranking.getRanking(info.rankFile)
+		if ranking then
+			for j, titleId in ipairs(info.titles or {}) do
+				local item = Ranking.getItemFromIndex(ranking,j-1)
+				if item then
+					local pid = Ranking.getId(item)
+					if j == 1 then
+						local topName = Ranking.getSub(item, 0)
+						sysVar.RoseWeekRank[idx] = topName
+						--for k, v in ipairs(info.weekAward) do
+							--if v.type == 0 then
+								System.sendOfflineMsg(pid, Lang.ScriptTips.c000087,0)
+								--System.addItemMsgByName(topName,0,v.id, v.count,v.bind, Lang.ScriptTips.rank0004, Lang.ScriptTips.rank0005,704)
+							--end
+						--end						
+					end					
+					local playerPtr = System.getEntityPtrByActorID(pid)
+					if playerPtr then
+						Actor.setTopTitle(playerPtr, titleId, false)
+					end
+				end
+			end
+			Ranking.clearRanking(ranking)
+			Ranking.save(ranking, info.rankFile)
+		end
+	end
+end
+
+
+function RoseRankingInit()
+	for idx, info in ipairs(RoseRankConfig.RankData) do
+		local ranking = Ranking.getRanking(info.rankFile)
+		if not ranking then
+			ranking = Ranking.add(info.rankFile, 100, 1)
+			if not Ranking.load(ranking, info.rankFile) then
+				Ranking.addColumn(ranking, Lang.Flower.f016)
+				Ranking.addColumn(ranking, Lang.Flower.f034)
+				Ranking.addColumn(ranking, Lang.Flower.f035)
+			end
+			 Ranking.setDisplayName(ranking, info.showName)
+			 Ranking.setIdTitle(ranking,Lang.Flower.f013)
+			 Ranking.setPointTitle(ranking, info.pointName)
+			 Ranking.save(ranking, info.rankFile)
+		end
+		Ranking.addRef(ranking)
+	end
+end
+
+function RoseRankingFinal()
+	for idx, info in ipairs(RoseRankConfig.RankData) do
+		local ranking = Ranking.getRanking(info.rankFile)
+		if ranking then
+			 Ranking.save(ranking, info.rankFile)
+		end
+	end
+end
+
+
+table.insert(InitFnTable,RoseRankingInit)
+table.insert(FinaFnTable,RoseRankingFinal)

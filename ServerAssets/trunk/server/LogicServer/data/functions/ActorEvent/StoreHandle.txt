@@ -1,0 +1,114 @@
+﻿--lua script
+--处理商城相关的操作
+
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "data\config\store\Store.txt" once  --商城物品配置 如果是特惠礼包的物品需要播报 
+--#include "data\config\quest\StoreQuest.txt" once --任务相关的配置
+--#include "data\config\activityconfig\YbConsume\ConsumeConfig.txt" once
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+local StoreOpId = 
+{  
+	enStoreBuy 	= 1,	--购买物品	
+	enGetConsumeAwards = 2,	--领取奖励
+	enSendToClientTips = 3,	--给予提示
+}
+
+StoreOpFuncList = {}
+
+TeHuiLibaoRecordTable = {}  --特惠礼包需要播报的物品ID表 
+function SortStoreTehuiLibaoID()
+
+  for i = 1 , #GameStore do
+    if GameStore[i].labelId == 18 or GameStore[i].labelId == 19 then
+      local ItemTable = GameStore[i].items
+      for j = 1, #ItemTable do
+        TeHuiLibaoRecordTable[ItemTable[j].id] = 1 
+      end 
+    end
+  end
+  
+end
+
+EventCallDispatcher.HandlerStoreOp = function (sysarg, args)
+  if args[1] == nil then return end   --
+  local func = StoreOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--购买某个物品
+StoreOpFuncList[StoreOpId.enStoreBuy] = function (sysarg,args)
+	--完成相关的任务
+	local qData = StoreQuestData[args[2]]
+	if qData then
+		for idx, curData in ipairs(qData) do
+			Actor.setQuestValue(sysarg, curData.qid, curData.tid, curData.count)
+		end
+	end
+	
+	local ShopID = args[4]
+	if TeHuiLibaoRecordTable[ShopID] ~= nil then
+      local sMsg = Lang.ScriptTips.TehuiLibaoTip
+      if sMsg == nil or sMsg == "" then return end
+      sMsg = string.format(sMsg,Actor.getName(sysarg))
+      System.broadcastTipmsg(sMsg,ttScreenCenter)
+   
+      local sChatMsg = sMsg..Lang.ScriptTips.OpenTehuiLIbao
+      System.broadcastTipmsg(sChatMsg,ttChatWindow)
+	
+	end
+end
+
+--领取奖励
+StoreOpFuncList[StoreOpId.enGetConsumeAwards] = function (sysarg,args)
+	local avr = Actor.getStaticVar(sysarg)
+	if avr.getConsumeAwardFlag == nil then
+		avr.getConsumeAwardFlag = 0
+	end
+
+	if avr.getConsumeAwardFlag == 1 then
+		Actor.sendTipmsg(sysarg,Lang.Activity.w00017,1)
+		return
+	end
+	
+	local nCount = args[2]
+	ConsumeConfig.awards[1].count = math.floor(nCount * ConsumeConfig.nRate /100)
+	if Awards.CheckBagGridCount(sysarg,ConsumeConfig.awards) then
+		Awards.Give(sysarg,ConsumeConfig.awards,822,Lang.Activity.w00015)
+		local str = string.format(Lang.Activity.w00016,Actor.getName(sysarg))
+		System.broadcastTipmsg(str,2+128)
+
+		avr.getConsumeAwardFlag = 1
+	end
+end
+
+--下发提示
+StoreOpFuncList[StoreOpId.enSendToClientTips] = function (sysarg,args)
+	local avr = Actor.getStaticVar(sysarg)
+	if avr.getConsumeAwardFlag == nil then
+		avr.getConsumeAwardFlag = 0
+	end
+
+	local nState = 1
+	if avr.getConsumeAwardFlag == 1 then
+		nState = 0
+	end
+
+	local nPoint = args[2]
+	local nAwards = math.floor(nPoint * 10 / 100)
+
+	local pack = DataPack.allocPacket(sysarg,12,8)
+
+	if(pack==nil) then return end
+	DataPack.writeByte(pack,nState) --压入一个Byte
+	DataPack.writeInt(pack, nPoint)  
+	DataPack.writeInt(pack, nAwards)  
+	DataPack.flush(pack) --向客户端发送
+
+end
+
+
+table.insert(InitFnTable, SortStoreTehuiLibaoID)
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeStore, EventCallDispatcher.HandlerStoreOp)

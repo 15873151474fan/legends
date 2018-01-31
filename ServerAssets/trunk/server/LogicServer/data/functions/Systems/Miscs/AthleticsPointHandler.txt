@@ -1,0 +1,18 @@
+﻿
+--竞技积分消息处理
+
+--#include "data\functions\Tasks\AthleticsPoint\OnServerAndClientMsg.txt" once	--消息处理
+
+MiscsImplement.GetAthleticsPointActorData = function (sysarg, msgid, packet)
+	-- print("GetAthleticsPointActorData")
+	SendAthleticsPointActorData(sysarg)
+end
+
+MiscsImplement.GetAthleticsPointAward = function (sysarg, msgid, packet)
+	-- print("GetAthleticsPointAward")
+	GetAthleticsPointAward(sysarg)
+end
+
+
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cGetAthleticsPointActorData,MiscsImplement.GetAthleticsPointActorData)
+MiscsImplement.registerMsgHandler(LogicCmd.miscSys.sub.cGetAthleticsPointAward,MiscsImplement.GetAthleticsPointAward)

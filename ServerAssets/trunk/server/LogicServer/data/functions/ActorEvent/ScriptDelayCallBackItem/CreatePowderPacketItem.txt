@@ -1,0 +1,18 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+
+function CreatePowderPacket(sysarg,arg)
+  local monsterid = arg[3]
+  local x = arg[4]
+  local y = arg[5]
+  --print("---:"..monsterid.." "..x.." "..y)
+  local mPtr = Actor.createMonster(sysarg,monsterid,x,y,0)
+  if mPtr == nil then return end
+
+  Actor.addBuff(mPtr,68,1,139,1,1,"",false,nil,1)
+  Actor.removeItem(sysarg,1598,1)
+  Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00040,ttScreenCenter)
+end
+
+--table.insert(LocalDT.ScriptDelayConfig[3],CreatePowderPacket)

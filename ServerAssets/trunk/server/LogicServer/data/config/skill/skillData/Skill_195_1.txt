@@ -1,0 +1,147 @@
+﻿
+--萝卜本箭塔技能第1级
+{
+
+	actions=
+	{
+		{act=0,effect=0},
+	},
+
+	desc=Lang.Skill.s195L1Desc,
+
+	iconID=6,
+
+	actRange=
+	{
+		{
+			xStart=0,
+			xEnd=0,
+			yStart=0,
+			yEnd=0,
+
+			rangeType=0,
+			rangeCenter=0,
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond=36,value=1},
+						{cond=53,value=0}, --等级大于 0 则伤害 200
+						{cond=52,value=1}, --等级小于等于1 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=200},
+						{mj=0,timeParam=1,type=1,delay=0,id=47,buffType=49,value=300,interval=5,effectType=6,effectId=53},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=187,keepTime=300,delay=0,always=false},
+						{type=4,mj=0,id=188,keepTime=200,delay=300,always=false},
+					},
+				},
+				{
+					conds=
+					{
+						{cond=36,value=1},
+						{cond=53,value=1}, --等级大于 1 则伤害 500
+                        {cond=52,value=2}, --等级小于等于2 
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=500},
+						{mj=0,timeParam=1,type=1,delay=0,id=47,buffType=49,value=300,interval=5,effectType=6,effectId=53},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=187,keepTime=300,delay=0,always=false},
+						{type=4,mj=0,id=188,keepTime=200,delay=300,always=false},
+					},
+				},
+				{
+					conds=
+					{
+						{cond=36,value=1},
+						{cond=53,value=2}, --等级大于 2 则伤害 800
+						{cond=52,value=3}, --等级小于等于3
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=800},
+						{mj=0,timeParam=1,type=1,delay=0,id=47,buffType=49,value=300,interval=5,effectType=6,effectId=53},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=187,keepTime=300,delay=0,always=false},
+						{type=4,mj=0,id=188,keepTime=200,delay=300,always=false},
+					},
+				},
+				--[[{
+					conds=
+					{
+						{cond=36,value=1},
+						{cond=62,value=32,param=48},
+						
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=3550},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=187,keepTime=500,delay=0,always=false},
+						{type=4,mj=0,id=188,keepTime=400,delay=500,always=false},
+					},
+				},
+				{
+					conds=
+					{
+						{cond=36,value=1},
+						{cond=62,value=33,param=48},
+					},
+
+					results=
+					{
+						{mj=0,timeParam=1,type=61,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,value=4300},
+					},
+
+					specialEffects=
+					{
+						{type=3,mj=0,id=187,keepTime=500,delay=0,always=false},
+						{type=4,mj=0,id=188,keepTime=400,delay=500,always=false},
+					},
+				},]]
+			},
+		},
+	},
+
+	trainConds=
+	{
+	},
+
+	spellConds=
+	{
+		{cond=13,value=20,consume=false},
+	},
+
+	singTime=0,
+
+	cooldownTime=0,
+},

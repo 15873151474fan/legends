@@ -1,0 +1,194 @@
+--战士魔法盾1级
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s159L1Desc,--技能的描述
+	
+	iconID=108,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+						--{cond = 17,value =54,param=40},						
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=1,delay=0,buffType=54,id=40,interval=20,value=2400,vt=1,effectType =6,effectId =143	},
+						{type=20,id=59,value=1,timeParam=20000,vt=0},--增加技能标记，用于免疫缓慢材料的效果；
+						{type=2,buffType=49,id=47,},	--用于删除减速效果					
+						{type=2,buffType=49,id=218,},
+					},
+
+					specialEffects=
+					{
+						{type=1,mj=0,id=142,keepTime=2000,delay=0,always=false},
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+											
+					},
+					results=
+					{
+						{mj=2548,timeParam=1,type=1,delay=0,buffType=94,rateType=0,id=203,value=0,interval=20,mjParam1=400,},
+						
+					},
+
+					specialEffects=
+					{
+						
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+										
+					},
+					results=
+					{
+						{mj=2781,timeParam=1000,type=20,delay=0,id=81,value=1,vt=1,},
+						
+					},
+
+					specialEffects=
+					{
+						
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+						{cond = 21,value =81},
+						{cond = 3,value =1},
+										
+					},
+					results=
+					{
+						{mj=2781,timeParam=1,type=1,delay=0,buffType=5,id=217,interval=20,mjParam1=2000},
+						{mj=2781,timeParam=1,type=13,delay=200,mjParam1=2000},
+					},
+
+					specialEffects=
+					{
+						
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+										
+					},
+					results=
+					{
+						{mj=2781,timeParam=1,type=21,delay=0,id=81,value=81,vt=1,},
+						
+					},
+
+					specialEffects=
+					{
+						
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		{cond=39,value=1,consume=false},--表示需要转数
+		{cond=3,value=1745,consume=true,exceptVip=false },--表示书本
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=224,consume=true},--消耗蓝80
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=40000,
+
+},

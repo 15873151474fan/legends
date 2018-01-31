@@ -1,0 +1,18 @@
+--驿站NPC的传送表
+
+--#include "..\..\language\LangCode.txt"
+ChuansongPoint=
+{
+
+{
+   name =Lang.Misc.m000170,  --门派
+   scenes=  --包含的场景的列表
+   {
+    120,122,124
+   }
+},
+
+
+
+
+}

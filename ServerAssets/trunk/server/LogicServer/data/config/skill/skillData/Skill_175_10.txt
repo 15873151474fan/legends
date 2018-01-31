@@ -1,0 +1,92 @@
+{
+--BOSS狂暴技能
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s6L1Desc,--技能的描述
+	
+	iconID=6,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+
+        {
+		    xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,	
+			acts=
+			{
+				{
+
+					conds=
+					{
+					   {cond =33 ,value =5000}, 
+				     	{cond =3 ,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=11,buffType=2,id=98},
+						{mj=0,timeParam=20000,type=20,id=80,value=1,vt=1},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=98,keepTime=400,delay=200,always=false},				
+					},
+				},
+			},
+		},
+		
+        {
+		xStart=-19,--相对于中心点x左边的相对坐标
+			xEnd=19,--相对于中心点x右边的相对坐标
+			yStart=-19,--相对于中心点y上边的相对坐标
+			yEnd=19,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,	
+			acts=
+			{
+				{
+
+					conds=
+					{
+						{cond =21 ,value =80},
+						{cond =6 ,value =1},
+					},
+					results=
+					{
+					        {mj=0,timeParam=1,type=2,buffType=56,id=-1},
+						{mj=0,timeParam=1,type=19,id=0, value=0,vt=2,},
+						{mj=0,timeParam=1,type=3,delay=200, rate=10000,value=2000,interval=5000},
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=86,keepTime=400,delay=200,always=false},							
+					},
+				},
+			},
+		},
+	},	
+			trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+	       {cond=13,value=50,consume=false},
+
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=20000,
+
+	
+},

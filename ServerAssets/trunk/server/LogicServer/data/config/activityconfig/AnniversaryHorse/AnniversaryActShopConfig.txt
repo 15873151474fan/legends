@@ -1,0 +1,86 @@
+--lua script
+
+--#include "data\language\Zh-CN\ScriptTips.txt" once
+
+--祈福树购买东西配置
+AnniversaryActShopConfig = 
+{
+	limitLevel = 50,	--限制等级
+	--购买子目录
+	subMenu =
+	{
+		--购买1个鸡蛋(8888金币)【最多只可购买5次】
+		{
+			times = 5, --每天限制购买次数
+			consumes = 	--消耗
+			{
+				{type=6, id=0, count=8888},	
+			},
+			awards = 	--获得
+			{
+				{type=0, id=3221, count=1, bind = 1},	
+			},
+		},
+		--购买10个鸡蛋(50元宝)【最多只可购买15次】
+		{
+			times = 15, --每天限制购买次数
+			consumes = 	--消耗
+			{
+				{type=15, id=0, count=50},	
+			},
+			awards = 	--获得
+			{
+				{type=0, id=3221, count=10, bind = 1},	
+			},
+		},
+		--购买1袋面粉(10礼券)【最多只可购买5次】
+		{
+			times = 5, --每天限制购买次数
+			consumes = 	--消耗
+			{
+				{type=7, id=0, count=10},	
+			},
+			awards = 	--获得
+			{
+				{type=0, id=3222, count=1, bind = 1},	
+			},
+		},
+		--购买10袋面粉(50元宝)【最多只可购买15次】
+		{
+			times = 15, --每天限制购买次数
+			consumes = 	--消耗
+			{
+				{type=15, id=0, count=50},	
+			},
+			awards = 	--获得
+			{
+				{type=0, id=3222, count=10, bind = 1},	
+			},
+		},
+		--购买1个周年烟花(5元宝)
+		{
+			times = -1, --每天购买无数次
+			consumes = 	--消耗
+			{
+				{type=15, id=0, count=5},	
+			},
+			awards = 	--获得
+			{
+				{type=0, id=2592, count=1, bind = 1},	
+			},
+		},
+		--免费领取周年烟花【每天最多可领取3次】
+		{
+			times = 3, --每天免费领取3次
+			consumes = 	--消耗
+			{
+				{type=0, id=0, count=0},	
+			},
+			awards = 	--获得
+			{
+				{type=0, id=2592, count=1, bind = 1},	
+			},
+		},
+
+	},
+}

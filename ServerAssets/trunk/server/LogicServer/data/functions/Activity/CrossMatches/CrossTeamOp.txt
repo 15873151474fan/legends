@@ -1,0 +1,1117 @@
+--lua script
+--跨服队伍操作
+ 
+ --获取跨服战队信息 
+ function OnGetCrossTeamInfo(sysarg, args) 
+	--print("OnGetCrossTeamInfo ....")
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)  
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )
+	--print("memberRankingPtr ",memberRankingPtr)
+	if not memberRankingPtr then
+		return
+	end
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )
+	--print("teamRankingPtr ",teamRankingPtr)
+	if not teamRankingPtr then
+		return
+	end 
+
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId)
+	--print("memberItemPtr ",memberItemPtr)
+	if memberItemPtr then
+		local teamId = tonumber(Ranking.getSub(memberItemPtr, 0)) 
+		if teamId > 0 then
+			SendCrossTeamInfo(sysarg,teamId)
+		end
+	end
+ end 
+ 
+ --广播战队信息
+ function BroadcastCrossTeamInfo(teamId, ExitActorList) 
+	--print("BroadcastCrossTeamInfo ")
+	--print("teamId ",teamId)
+	if teamId <= 0 then
+		return
+	end
+	
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember ) 
+	--print("memberRankingPtr ",memberRankingPtr)
+	if not memberRankingPtr then
+		return
+	end
+
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam ) 
+	--print("teamRankingPtr ",teamRankingPtr)
+	if not teamRankingPtr then
+		return
+	end
+	
+	local removeFlag = false
+	
+	local teamItemPtr =	Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+	--print("teamItemPtr ",teamItemPtr)
+	if not teamItemPtr then
+		if ExitActorList == nil then
+			return
+		else
+			removeFlag = true
+		end
+	end
+	
+	--print("removeFlag ", removeFlag)
+	if removeFlag == false then
+		local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+		local rankCount = Ranking.getRankItemCount(memberRankingPtr)
+		local count = 0
+	
+		for i = 1, rankCount do 
+			local tempItemPtr = Ranking.getItemFromIndex( memberRankingPtr, i-1)
+			if tempItemPtr then
+				if tonumber(Ranking.getSub(tempItemPtr, 0)) == teamId then
+					local actorId = Ranking.getId(tempItemPtr)
+					local actorPtr = System.getEntityPtrByActorID(actorId)
+					SendCrossTeamInfo(actorPtr, teamId)
+					count = count + 1
+				end
+				if count >= curCount then 
+					break 
+				end
+			end
+		end
+	end
+	
+	if ExitActorList and table.getn(ExitActorList) > 0 then
+		for k, v in ipairs(ExitActorList) do
+			local actorPtr = System.getEntityPtrByActorID(v)
+			if actorPtr then 
+				local pack = DataPack.allocPacket(actorPtr, 46, 13)
+				
+				if (pack ~= nil) then
+					DataPack.writeString(pack, "-")
+					DataPack.writeUInt(pack, 0)
+					DataPack.writeUInt(pack, 0)
+					DataPack.writeString(pack, "-")
+					DataPack.writeByte(pack, 0)
+					DataPack.flush(pack)   	
+				end
+			end
+		end
+	end
+	
+ end
+ 
+ --发送跨服战队信息
+ function SendCrossTeamInfo(sysarg, teamId)
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )
+	if not memberRankingPtr then
+		return
+	end
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )
+	if not teamRankingPtr then
+		return
+	end
+
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+	--print("teamItemPtr ",teamItemPtr)
+	if teamItemPtr then
+		local pack = DataPack.allocPacket(sysarg, 46, 13)
+		if (pack ~= nil) then
+			DataPack.writeString(pack, Ranking.getSub(teamItemPtr, 0))
+	
+			local sortNum = -1
+			local selectMatchesRankPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+			--print("selectMatchesRankPtr ",selectMatchesRankPtr)
+			if selectMatchesRankPtr then
+				local selectItemPtr = Ranking.getItemPtrFromId(selectMatchesRankPtr, teamId)
+				if selectItemPtr then
+					sortNum = Ranking.getIndexFromPtr(selectItemPtr)
+					DataPack.writeUInt(pack, Ranking.getPoint(selectItemPtr))
+				else
+					DataPack.writeUInt(pack, Ranking.getPoint(teamItemPtr))
+				end
+			end
+			if sortNum < 0 then
+				DataPack.writeUInt(pack, 0)
+			else
+				DataPack.writeUInt(pack, sortNum+1)
+			end
+			
+			local crossMatchesNum = GetCrossMatchesNum(teamId)
+			--print(crossMatchesNum)
+			DataPack.writeString(pack, crossMatchesNum)
+
+			local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+			DataPack.writeByte(pack, curCount)
+			local rankCount = Ranking.getRankItemCount(memberRankingPtr) 
+			local counter = 0
+			for i = 1, rankCount do 
+				local tempItemPtr = Ranking.getItemFromIndex( memberRankingPtr, i-1)
+				if tempItemPtr then
+					if tonumber(Ranking.getSub(tempItemPtr, 0)) == teamId then
+						--print("teamId ",teamId)
+						DataPack.writeString(pack, Ranking.getSub(tempItemPtr, 1))
+						DataPack.writeByte(pack, tonumber(Ranking.getSub(tempItemPtr, 2)))
+						DataPack.writeByte(pack, tonumber(Ranking.getSub(tempItemPtr, 3)))
+						DataPack.writeByte(pack, tonumber(Ranking.getSub(tempItemPtr, 4)))
+						DataPack.writeUInt(pack, tonumber(Ranking.getSub(tempItemPtr, 5)))
+						DataPack.writeByte(pack, tonumber(Ranking.getSub(tempItemPtr, 6)))
+						
+						local actorId = Ranking.getId(tempItemPtr)
+						local actorPtr = System.getEntityPtrByActorID(actorId)
+						--print("actorId ",actorId)
+						--print("actorPtr ",actorPtr)
+						if actorPtr then
+							DataPack.writeByte(pack, Actor.getIntProperty(actorPtr, PROP_ENTITY_ICON))
+							DataPack.writeUInt(pack, Ranking.getId(tempItemPtr))
+							DataPack.writeByte(pack, Actor.getIntProperty(actorPtr, PROP_ACTOR_SEX))
+						else
+							DataPack.writeByte(pack, Actor.getIntProperty(sysarg, PROP_ENTITY_ICON))
+							DataPack.writeUInt(pack, Ranking.getId(tempItemPtr))
+							DataPack.writeByte(pack, Actor.getIntProperty(sysarg, PROP_ACTOR_SEX))
+						end
+			
+						counter = counter + 1
+					end
+				end
+				if counter >= curCount then
+					break
+				end
+			end
+			DataPack.flush(pack)   			
+		end
+	end 
+ end
+ 
+ --获取淘汰赛排名
+ function GetCrossMatchesNum(teamId)
+	--print("GetCrossMatchesNum ...")
+	local result = "-"
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+	--print("selectMatchesRankingPtr ",selectMatchesRankingPtr)
+	if not selectMatchesRankingPtr then
+		return result
+	end
+	
+	local selectItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	--print("selectItemPtr ",selectItemPtr)
+	--print("teamId ",teamId)
+	if not selectItemPtr then
+		return result
+	end
+	
+	local groupType = tonumber(Ranking.getSub(selectItemPtr, 11))
+	local matchesType = tonumber(Ranking.getSub(selectItemPtr, 12)) 
+	--print("groupType ",groupType)
+	--print("matchesType ",matchesType)
+	
+	if groupType == 1 then
+		result = Lang.Activity.kf0079 
+	elseif groupType == 2 then
+		result = Lang.Activity.kf0080
+	else 
+		return result
+	end
+	
+	if matchesType > 0 then
+		if matchesType ~= 2 then
+			result = result..string.format(Lang.Activity.kf0087, matchesType)
+		else
+			local reportRankingPtr = nil
+			if groupType == 1 then
+				reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+			elseif groupType == 2 then
+				reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+			end
+			if reportRankingPtr then
+				local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType+1)
+				if reportItemPtr then
+					local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+					local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+					local state = tonumber(Ranking.getSub(reportItemPtr, 10))
+					if state == 1 then
+						if teamId1 == teamId then
+							result = result..Lang.Activity.kf0088
+						else
+							result = result..Lang.Activity.kf0089
+						end	
+					elseif state == 2 then
+						if teamId2 == teamId then
+							result = result..Lang.Activity.kf0088
+						else
+							result = result..Lang.Activity.kf0089
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return result
+ end 
+ 
+ --获取跨服战队列表
+ function OnGetCrossTeamList(sysarg, args) 
+	--print("OnGetCrossTeamList ...")
+	SendCrossTeamList(sysarg, args)
+ end 
+  
+ --发送跨服战队列表 
+ function SendCrossTeamList(sysarg, args)
+	local pageNum = args[2]
+	local pageIndex = args[3]
+	
+	--print("pageNum ",pageNum)
+	--print("pageIndex ",pageIndex)
+
+	if pageNum <= 0 or pageIndex <= 0 then
+		return 
+	end
+	
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )   
+	if not teamRankingPtr then
+		return
+	end
+	
+	local totalCount = Ranking.getRankItemCount(teamRankingPtr)  
+	--print("totalCount",totalCount)
+	local totalPage = 0
+	if totalCount % pageNum > 0 then
+		totalPage = math.floor(totalCount / pageNum) + 1
+	else
+		totalPage = math.floor(totalCount / pageNum) 
+	end
+	
+	local beginIndex = pageNum	* (pageIndex - 1)
+	local endIndex = pageNum * pageIndex
+	if totalCount < endIndex then
+		endIndex = totalCount - 1
+	else
+		endIndex = endIndex - 1
+	end 
+	
+	local pack = DataPack.allocPacket(sysarg, 46, 14)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, pageIndex)
+		DataPack.writeInt(pack, totalPage)
+		DataPack.writeInt(pack, endIndex - beginIndex + 1)
+		
+		for i = beginIndex, endIndex do
+			local rankItemPtr = Ranking.getItemFromIndex( teamRankingPtr, i)
+			if rankItemPtr then
+				DataPack.writeInt(pack, Ranking.getId(rankItemPtr))
+				DataPack.writeString(pack, Ranking.getSub(rankItemPtr, 0))
+				DataPack.writeString(pack, Ranking.getSub(rankItemPtr, 1))
+				DataPack.writeByte(pack, Ranking.getSub(rankItemPtr, 2))
+				DataPack.writeByte(pack, Ranking.getSub(rankItemPtr, 3))
+			end
+		end
+		DataPack.flush(pack)    
+	end
+ end
+ 
+ --[[
+
+1 申请加入
+2 退出战队
+3 踢出战队
+4 邀请入队
+ --]]
+
+ function OnCrossTeamOperate(sysarg, args)
+	if args[2] == 1 then
+		JoinTeam(sysarg, args)
+	elseif args[2] == 2 then
+		ExitTeam(sysarg, args)
+	elseif args[2] == 3 then
+		KickMember(sysarg, args)
+	elseif args[2] == 4 then
+		InviteMember(sysarg, args) 
+	end
+ end  
+ 
+ 
+ --申请加入
+ function JoinTeam(sysarg, args)
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	if Actor.checkActorLevel(sysarg, CrossMatchesConfig.minLevel) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0074, ttFlyTip) 
+		return 
+	end
+	
+	local teamId = args[5]
+	
+	if teamId <= 0 then
+		return
+	end
+	
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+	
+	if memberItemPtr then
+		local teampTeamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+		if teampTeamId > 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0019, ttFlyTip)
+			return   --已在其他队伍
+		end
+	end
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankPtr, teamId) 
+	if not teamItemPtr then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0020, ttFlyTip)
+		return 
+	end
+	
+	--
+	if CheckCanOp(sysarg, teamId, 1) ~= true then 
+		return 
+	end
+	--
+	
+	local groupNum = tonumber(Ranking.getSub(teamItemPtr, 4))
+	if groupNum ~= -1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0068, ttFlyTip)
+		return 
+	end
+	
+	local teamName = Ranking.getSub(teamItemPtr, 0)
+	Actor.messageBox(sysarg, 0, 0, string.format(Lang.Activity.kf0058,teamName), Lang.Activity.kf0056.."/ConfirmJoinFunc,"..tostring(teamId), Lang.Activity.kf0057.."/CancelFunc", nil, 0, 0)
+ end
+ 
+ --确认加入队伍
+ function ConfirmJoinFunc(sysarg, strTeamId)
+	
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local teamId = tonumber(strTeamId)
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankPtr, teamId) 
+	if not teamItemPtr then
+		return  --队伍不存在
+	end
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	local maxCount = tonumber(Ranking.getSub(teamItemPtr, 3))
+	if curCount >= maxCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0021, ttFlyTip)
+		return 
+	end
+	
+	local captainName = Ranking.getSub(teamItemPtr, 1)
+	local captainId = 0
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if memberRankPtr then
+		local totalCount = Ranking.getRankItemCount(memberRankPtr)
+		for i = 1, totalCount do 
+			local memberItemPtr = Ranking.getItemPtrByIndex(memberRankPtr, i-1)
+			if memberItemPtr then
+				if teamId == tonumber(Ranking.getSub(memberItemPtr, 0)) then
+					if tonumber(Ranking.getSub(memberItemPtr, 6)) == 0 then
+						captainId = Ranking.getId(memberItemPtr)
+						break
+					end
+				end
+			end
+		end
+	end
+	
+	local actorName = Actor.getName(sysarg)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	if captainId > 0 then
+		Actor.messageBox(sysarg, 0, captainId, string.format(Lang.Activity.kf0022,actorName), Lang.Activity.kf0023.."/AcceptJoinFunc,"..actorName..","..tostring(actorId)..","..tostring(teamId), Lang.Activity.kf0024.."/RefuseFunc,"..tostring(actorId), nil, 0, 0)
+	end
+ end
+
+function AcceptJoinFunc(sysarg, actorName, strActorId, strTeamId)
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankPtr then
+		return 
+	end
+	
+	local teamId = tonumber(strTeamId)
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankPtr, teamId)
+	--print("teamItemPtr ",teamItemPtr)
+	if teamItemPtr then 
+		-- id，个人积分，战队id，名称，职业，转数，等级，战力，职位（队长0，队员1）,组号 -1表为报名, 0排队, 大于0分配的组号
+		local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+		local maxCount = tonumber(Ranking.getSub(teamItemPtr, 3))
+		if curCount >= maxCount then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0021, ttFlyTip)
+			return 
+		end
+		
+		local teamName = Ranking.getSub(teamItemPtr, 0) 
+		
+		local actorId = tonumber(strActorId)
+		local actorPtr = System.getEntityPtrByActorID(actorId)
+		
+		local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+		--print("memberItemPtr ",memberItemPtr)
+		if memberItemPtr then
+			if tonumber(Ranking.getSub(memberItemPtr, 0)) > 0 then
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kf0096, actorName), ttFlyTip)
+				return  
+			end
+		end
+		
+		--local point = GetAveragePoint(teamId)
+		--point = ( point < CrossMatchesConfig.initPoint ) and point or CrossMatchesConfig.initPoint
+		local point = CrossMatchesConfig.initPoint
+		if memberItemPtr then
+			memberItemPtr = Ranking.setItem(memberRankPtr, actorId, point)
+		else 
+			memberItemPtr = Ranking.addItem(memberRankPtr, actorId, point)
+		end
+		--local memberItemPtr = Ranking.addItem(memberRankPtr, actorId, point)
+		if memberItemPtr then
+			Ranking.setSub(memberItemPtr, 0, teamId)
+			Ranking.setSub(memberItemPtr, 1, actorName)
+			local temp = Actor.getIntProperty(actorPtr, PROP_ACTOR_VOCATION)
+			Ranking.setSub(memberItemPtr, 2, temp)
+			temp = Actor.getIntProperty(actorPtr, PROP_ACTOR_CIRCLE)
+			Ranking.setSub(memberItemPtr, 3, temp)
+			temp = Actor.getIntProperty(actorPtr, PROP_CREATURE_LEVEL)
+			Ranking.setSub(memberItemPtr, 4, temp)
+			temp = Actor.getIntProperty(actorPtr, PROP_ACTOR_BATTLE_POWER)
+			Ranking.setSub(memberItemPtr, 5, temp)
+			Ranking.setSub(memberItemPtr, 6, 1)
+			Ranking.setSub(memberItemPtr, 7, -1)
+			Ranking.setSub(memberItemPtr, 8, 0)
+			Ranking.setSub(memberItemPtr, 9, 0)
+			Ranking.setSub(memberItemPtr, 10, 0)
+			
+			Ranking.setSub(teamItemPtr, 2, curCount+1) 
+			Actor.messageBox(sysarg, 0, actorId, string.format(Lang.Activity.kf0025,teamName), Lang.Activity.kf0026.."/ViewTeamFunc", nil, nil, 0, 1, Lang.Activity.kf0027)
+			
+			local actorPtr = System.getEntityPtrByActorID(actorId)
+			SendCrossTeamOpRet(actorPtr, true)
+			
+			--UpdateCrossTeam(1, teamId, actorId) 
+			--UpdateTeamOp(sysarg, teamId, 1)
+		end
+	end 
+	
+	BroadcastCrossTeamInfo(teamId)
+
+end 
+
+function ViewTeamFunc(sysarg)
+	return
+end
+
+function RefuseFunc(sysarg,strActorId)
+	local actorId = tonumber(strActorId)
+	local captionName = Actor.getName(sysarg)
+	Actor.messageBox(sysarg, 0, actorId, string.format(Lang.Activity.kf0090,captionName), Lang.Activity.kf0029.."/ConfirmFunc", nil, nil, 0, 1)
+	return 
+end
+
+ --退出队伍
+ function ExitTeam(sysarg, args)
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	local exitId = args[5]
+	
+	if exitId <= 0 then
+		return
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	if exitId ~= actorId then 
+		return
+	end
+	
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankPtr then
+		return 
+	end
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+	if not memberItemPtr then
+		return 
+	end
+	
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	local position = tonumber(Ranking.getSub(memberItemPtr, 6))
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankPtr, teamId)
+	if not teamItemPtr then
+		return 
+	end
+	
+	local groupNum = tonumber(Ranking.getSub(teamItemPtr, 4))
+	if groupNum ~= -1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0068, ttFlyTip)
+		return 
+	end
+	
+	--
+	if CheckCanOp(sysarg, teamId, 3) ~= true then 
+		return 
+	end
+	--
+	
+	local title = ""
+	local teamName = Ranking.getSub(teamItemPtr, 0)
+	if position == 0 then
+		title = string.format(Lang.Activity.kf0054, teamName)
+	else 
+		title = string.format(Lang.Activity.kf0028, teamName)
+	end
+	
+	Actor.messageBox(sysarg, 0, 0, title, Lang.Activity.kf0056.."/ExitTeamFunc,"..tostring(position), Lang.Activity.kf0057.."/CancelFunc", nil, 0, 0)
+	
+ end 
+
+function ExitTeamFunc(sysarg, strPostion)
+	local postion = tonumber(strPostion)
+	--print("position ",postion)
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankPtr then
+		return 
+	end
+	
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	--print("actorId ",actorId)
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+	if not memberItemPtr then
+		return 
+	end
+	
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	local position = tonumber(Ranking.getSub(memberItemPtr, 6))
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankPtr, teamId)
+	if not teamItemPtr then
+		return 
+	end
+
+	local ExitActorList = {}
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	local teamName = Ranking.getSub(teamItemPtr, 0)
+	--print("curCount ",curCount)
+	if position == 0 then  --队长 解散队伍
+		local captainName = Actor.getName(sysarg)
+		--print("captainName ",captainName)
+		local tempCount = 0
+		local itemCount = Ranking.getRankItemCount(memberRankPtr)
+		--print("itemCount ", itemCount)
+		for i = 1, itemCount do
+			local memberItemPtr = Ranking.getItemFromIndex(memberRankPtr, i-1)
+			--print("memberItemPtr ",memberItemPtr)
+			if memberItemPtr then
+				--print(Ranking.getSub(memberItemPtr, 0))
+				if tonumber(Ranking.getSub(memberItemPtr, 0)) == teamId then
+					local id = Ranking.getId(memberItemPtr)
+					--print("id ", id)
+					--Ranking.removeId(memberRankPtr, id) 
+					if id ~= actorId then
+						Actor.messageBox(sysarg, 0, id, string.format(Lang.Activity.kf0060, captainName), Lang.Activity.kf0056.."/ConfirmFunc", Lang.Activity.kf0057.."/CancelFunc", nil, 0, 0)
+						table.insert(ExitActorList, id)
+					else
+						Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kf0059, captainName), ttFlyTip) 
+						table.insert(ExitActorList, id)
+					end
+					tempCount = tempCount + 1
+				end
+				--print("tempCount ",tempCount)
+				if tempCount >= curCount then
+					break
+				end
+			end 
+		end
+	
+		if table.getn(ExitActorList) > 0 then
+			for k, v in ipairs(ExitActorList) do 
+				--print(v)
+				--Ranking.removeId(memberRankPtr, v)
+				local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, v)
+				if memberItemPtr then
+					Ranking.setSub(memberItemPtr, 0, 0)
+					Ranking.setSub(memberItemPtr, 7, -1)
+				end
+			end
+			Ranking.removeId(teamRankPtr, teamId)
+			--UpdateCrossTeam(3, teamId, actorId)  --解散队伍，更新跨服队伍信息
+			RemoveTeamParam(teamId)
+		end
+		
+	else --离开
+		
+		--Ranking.removeId(memberRankPtr, actorId)
+		local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+		if memberItemPtr then
+			Ranking.setSub(memberItemPtr, 0, 0)
+			Ranking.setSub(memberItemPtr, 7, -1)
+		end
+		
+		local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+		if curCount <= 1 then
+			Ranking.removeId(teamRankPtr, actorId)
+		else
+			Ranking.setSub(teamItemPtr, 2, curCount-1)
+		end
+		table.insert(ExitActorList, actorId)
+		if table.getn(ExitActorList) > 0 then
+			if curCount <= 1 then
+				--UpdateCrossTeam(3, teamId, actorId)  --解散队伍，更新跨服队伍信息
+				RemoveTeamParam(teamId)
+			else 
+				--UpdateCrossTeam(2, teamId, actorId)  --更新跨服队伍信息
+			end
+			
+		end
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.kf0059,teamName), ttFlyTip) 
+	end  
+
+	SendCrossTeamOpRet(sysarg, true)
+	
+	BroadcastCrossTeamInfo(teamId, ExitActorList)
+ end 
+ 
+ function CancelFunc()
+	return 
+ end
+ 
+ --[[
+ function ExitTeamFunc(sysarg)
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankPtr then
+		return 
+	end
+	
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+	local teamId = Ranking.getSub(memberItemPtr, 0)
+	local position = Ranking.getSub(memberItemPtr, 6)
+	Ranking.removeId(memberRankPtr, actorId) 
+	
+	local captainName = ""
+	if position == 0 then  --队长
+		local itemCount = Ranking.getRankItemCount(memberRankPtr)
+		for i = 1, itemCount do
+			local memberItemPtr = Ranking.getItemFromIndex(memberRankPtr, i-1)
+			local tempTeamId = Ranking.getSub(memberItemPtr, 0)
+			captainName = Ranking.getSub(memberItemPtr, 1)
+			if tempTeamId == teamId then
+				Ranking.setSub(tempItemPtr, 6, 0)
+				break
+			end
+		end
+	end  
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(memberRankPtr, teamId)
+	local curCount = Ranking.getSub(teamItemPtr, 2)
+	if curCount <= 1 then
+		Ranking.removeId(teamRankPtr, actorId)
+	else
+		Ranking.setSub(teamItemPtr, 2, curCount-1)
+		if position == 0 then
+			Ranking.setSub(teamItemPtr, 1, captainName)
+		end
+	end
+	SendCrossTeamOpRet(sysarg,true)
+	BroadcastCrossTeamInfo(teamId)
+ end
+ --]]
+ 
+ --踢出队伍
+ function KickMember(sysarg, args)
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	local bekickedId = args[5]
+	
+	if bekickedId <= 0 then
+		return
+	end
+	
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankPtr then
+		return 
+	end
+	
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID) 
+	
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	local position = tonumber(Ranking.getSub(memberItemPtr, 6))
+	
+	------
+	if CheckCanOp(sysarg, teamId, 2) ~= true then
+		return 
+	end
+	------
+	
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankPtr, teamId)
+	if not teamItemPtr then
+		return 
+	end
+	
+	local groupNum = tonumber(Ranking.getSub(teamItemPtr, 4))
+	if groupNum ~= -1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0068, ttFlyTip)
+		return 
+	end
+	
+	if position ~= 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0030, ttFlyTip) 
+		return 
+	end
+	
+	if bekickedId == actorId then 
+		return
+	end 
+
+	local ExitActorList = {}
+	--Ranking.removeId(memberRankPtr, bekickedId)
+	local bekicekMemberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, bekickedId)
+	if bekicekMemberItemPtr then
+		Ranking.setSub(bekicekMemberItemPtr, 0, 0)
+		Ranking.setSub(bekicekMemberItemPtr, 7, -1)
+	end
+	
+	table.insert(ExitActorList, bekickedId)
+	if table.getn(ExitActorList) > 0 then
+		--UpdateCrossTeam(2, teamId, bekickedId) 
+		UpdateTeamOp(sysarg, teamId, 2)
+	end
+	
+	if teamItemPtr then
+		local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+		Ranking.setSub(teamItemPtr, 2, curCount-1)
+	end
+	
+	local actorName = Actor.getName(sysarg)
+	Actor.messageBox(sysarg, 0, bekickedId, string.format(Lang.Activity.kf0031,actorName), Lang.Activity.kf0029.."/ConfirmFunc", nil, nil, 0, 1)
+	SendCrossTeamOpRet(sysarg,true)
+	
+	BroadcastCrossTeamInfo(teamId, ExitActorList)
+ end 
+ 
+ function ConfirmFunc(sysarg)
+	return 
+ end
+  
+ --邀请入队
+ function InviteMember(sysarg, args)
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	if Actor.checkActorLevel(sysarg, CrossMatchesConfig.minLevel) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0074, ttFlyTip) 
+		return 
+	end
+	
+	local beInvitedId = args[5]
+	
+	if not beInvitedId or beInvitedId <= 0 then 
+		return 
+	end
+	--print("beInvitedId ", beInvitedId)
+	
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankPtr then
+		return 
+	end
+	
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, beInvitedId)
+	if memberItemPtr then
+		local teampTeamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+		if teampTeamId > 0 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0032, ttFlyTip) 
+			return
+		end
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local myMemberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+	if not myMemberItemPtr then
+		return
+	end
+	local teamId = tonumber(Ranking.getSub(myMemberItemPtr, 0))
+	--
+	if CheckCanOp(sysarg, teamId, 1) ~= true then 
+		return 
+	end
+	--
+	--print("actorId ",actorId)
+	local actorName = Actor.getName(sysarg)
+	Actor.messageBox(sysarg, 0, beInvitedId, string.format(Lang.Activity.kf0033,actorName), Lang.Activity.kf0034.."/AgreeJoinFunc,"..actorId, Lang.Activity.kf0035.."/RefuseJoinFunc", nil, 0, 0)
+	
+
+ end
+ 
+ function AgreeJoinFunc(sysarg, strCaptainId)
+	if Actor.checkActorLevel(sysarg, CrossMatchesConfig.minLevel) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0074, ttFlyTip) 
+		return 
+	end
+ 
+	local captainId = tonumber(strCaptainId)
+	if captainId <= 0 then
+		return
+	end
+	
+	local memberRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankPtr then
+		return 
+	end
+	
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local teamId = 0
+	local captainItemPtr = Ranking.getItemPtrFromId(memberRankPtr, captainId)
+	if captainItemPtr then
+		teamId = tonumber(Ranking.getSub(captainItemPtr, 0))
+	end
+	
+	if CheckCanOp(sysarg, teamId, 1) ~= true then 
+		return 
+	end
+
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankPtr, teamId)
+	if teamItemPtr then
+		curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+		maxCount = tonumber(Ranking.getSub(teamItemPtr, 3))
+		if curCount >= maxCount then
+			Actor.sendTipmsg(sysarg, Lang.Activity.kf0021, ttFlyTip) 
+			return
+		else
+			Ranking.setSub(teamItemPtr, 2, curCount+1)
+		end
+
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local point = GetAveragePoint(teamId)
+		point = CrossMatchesConfig.initPoint 
+		
+		local memberItemPtr = Ranking.getItemPtrFromId(memberRankPtr, actorId)
+		if memberItemPtr then
+			memberItemPtr = Ranking.setItem(memberRankPtr, actorId, point)
+		else 
+			memberItemPtr = Ranking.addItem(memberRankPtr, actorId, point)
+		end
+		
+		--local memberItemPtr = Ranking.addItem(memberRankPtr, actorId, point)
+		if memberItemPtr then
+			Ranking.setSub(memberItemPtr, 0, teamId)
+			local temp = Actor.getName(sysarg)
+			Ranking.setSub(memberItemPtr, 1, temp)
+			local temp = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+			Ranking.setSub(memberItemPtr, 2, temp)
+			temp = Actor.getIntProperty(sysarg, PROP_ACTOR_CIRCLE)
+			Ranking.setSub(memberItemPtr, 3, temp)
+			temp = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+			Ranking.setSub(memberItemPtr, 4, temp)
+			temp = Actor.getIntProperty(sysarg, PROP_ACTOR_BATTLE_POWER)
+			Ranking.setSub(memberItemPtr, 5, temp)
+			Ranking.setSub(memberItemPtr, 6, 1)
+			Ranking.setSub(memberItemPtr, 7, -1)
+			Ranking.setSub(memberItemPtr, 8, 0)
+			Ranking.setSub(memberItemPtr, 9, 0)
+			Ranking.setSub(memberItemPtr, 10, 0)
+			local actorPtr = System.getEntityPtrByActorID(actorId)  
+			
+			--UpdateCrossTeam(1, teamId, actorId) 
+			UpdateTeamOp(sysarg, teamId, 1)
+ 			
+		end	
+		SendCrossTeamOpRet(sysarg, true)
+	end
+
+	BroadcastCrossTeamInfo(teamId,nil)
+ end  
+ 
+ function RefuseJoinFunc(sysarg)
+	return
+ end
+ 
+
+ --发送队伍操作结果
+ function SendCrossTeamOpRet(sysarg, result)
+	local pack = DataPack.allocPacket(sysarg, 46, 15) 
+	if (pack ~= nil) then
+		DataPack.writeChar(pack, ((result and 0) or -1))  
+		DataPack.flush(pack)
+	end
+ end
+ 
+ --判断是否可加入 opType为1, 是否可踢人opType为2 , 是否退出队伍opType为3
+ function CheckCanOp(sysarg, teamId, opType)
+	local teamParamRankingPtr = Ranking.getRanking(Lang.Rank.CrossTeamParamName)
+	if teamParamRankingPtr then
+		local teamParamItemPtr = Ranking.getItemPtrFromId(teamParamRankingPtr, teamId)
+		if teamParamItemPtr then
+			local flag = Ranking.getPoint(teamParamItemPtr)
+			if flag ~= 0 then 
+				Actor.sendTipmsg(sysarg, Lang.Activity.kf0099, ttFlyTip) 
+				return false
+			end
+			--[[
+			if flag ~= 0 then
+				if flag == 2 then
+					Actor.sendTipmsg(sysarg, Lang.Activity.kf0083, ttFlyTip)
+					return false
+				elseif flag == 1 then
+					local index1 = 2*opType - 1
+					local index2 = 2*opType
+					local joinTime = tonumber(Ranking.getSub(teamParamItemPtr, index1))
+					local joinCount = tonumber(Ranking.getSub(teamParamItemPtr, index2))
+					if joinTime ~= 0 then
+						local curTime = System.getCurrMiniTime()
+						if System.isSameWeek(joinTime, curTime) == true then
+							Actor.sendTipmsg(sysarg, Lang.Activity.kf0072, ttFlyTip)
+							return false
+						end
+					end
+				end
+			end
+			--]]
+		end
+	end
+	return true
+ end
+ 
+ --更新加入，踢出的信息
+ function UpdateTeamOp(sysarg, teamId, opType)
+	local teamParamRankingPtr = Ranking.getRanking(Lang.Rank.CrossTeamParamName)
+	if teamParamRankingPtr then
+		local teamParamItemPtr = Ranking.getItemPtrFromId(teamParamRankingPtr, teamId)
+		if teamParamItemPtr then
+			local flag = Ranking.getPoint(teamParamItemPtr)
+			if flag ~= 0 then
+				if flag == 2 then
+					Actor.sendTipmsg(sysarg, Lang.Activity.kf0083, ttFlyTip)
+					return 
+				elseif flag == 1 then
+					local index1 = 2*opType - 1
+					local index2 = 2*opType
+					local joinTime = tonumber(Ranking.getSub(teamParamItemPtr, index1))
+					local joinCount = tonumber(Ranking.getSub(teamParamItemPtr, index2))
+					if joinTime == 0 then
+						local curTime = System.getCurrMiniTime()
+						Ranking.setSub(teamParamItemPtr, index1, curTime)
+						Ranking.setSub(teamParamItemPtr, index2, 1)
+					else
+						local curTime = System.getCurrMiniTime()
+						if System.isSameWeek(joinTime, curTime) == true then
+							Actor.sendTipmsg(sysarg, Lang.Activity.kf0072, ttFlyTip)
+							return false
+						else
+							Ranking.setSub(teamParamItemPtr, index1, curTime)
+							local count = tonumber(Ranking.getSub(teamParamItemPtr, index2))
+							Ranking.setSub(teamParamItemPtr, index2, count+1)
+						end
+					end
+				end
+			end
+		end
+	end
+ end
+ 
+ --更新跨服队伍信息
+ function UpdateCrossTeam(opType, teamId, actorId)
+	--print("UpdateCrossTeam ")
+	local teamParamRankingPtr = Ranking.getRanking(Lang.Rank.CrossTeamParamName)
+	if teamParamRankingPtr then
+		local teamParamItemPtr = Ranking.getItemPtrFromId(teamParamRankingPtr, teamId)
+		if teamParamItemPtr then
+			local flag = Ranking.getPoint(teamParamItemPtr)
+			if flag == 1 then  --海选赛更换队伍成员才更新
+				--print("->flag ",flag)
+				if UpdateLocalSelectMatches(opType, teamId) == true then
+					System.sendUpdateCrossTeam(opType, teamId, actorId)
+				end
+			end
+		end
+	end
+ end
+ 
+ --更新本地海选榜
+ function UpdateLocalSelectMatches(opType, teamId)
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+	if not selectMatchesRankingPtr then
+		return false
+	end
+	
+	local selectItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if not selectItemPtr then
+		return false
+	end
+	
+	local curCount = tonumber(Ranking.getSub(selectItemPtr, 2))
+	if opType == 1 then
+		if curCount < 3 then
+			Ranking.setSub(selectItemPtr, 2, curCount + 1)
+			local point = Ranking.getPoint(selectItemPtr)
+			point = (point*curCount + CrossMatchesConfig.initPoint) / (curCount+1)
+			Ranking.setItem(selectMatchesRankingPtr, teamId, point)
+		end
+	elseif opType == 2 then
+		if curCount > 1 then
+			Ranking.setSub(selectItemPtr, 2, curCount - 1)
+		end
+	elseif opType == 3 then
+		Ranking.removeId(selectMatchesRankingPtr, teamId)
+	end
+	return true
+	
+ end
+ 
+ --移除队伍参数
+ function RemoveTeamParam(teamId)
+	local teamParamRankingPtr = Ranking.getRanking(Lang.Rank.CrossTeamParamName)
+	if teamParamRankingPtr then
+		Ranking.removeId(teamParamRankingPtr, teamId)
+	end
+ end

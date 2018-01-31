@@ -1,0 +1,23 @@
+﻿--[[ 道具增加 技能熟练度物品功能实现]]
+
+--#include "data\config\item\AddSkillExpItem.txt"
+function UseItemAddSkillExp( sysarg, itemidx, itemPtr, params, delType, param)
+  if Actor.addSkillExp(sysarg,params.SkillID,params.SkillExp) == true then
+   -- print("its true")
+    Actor.removeItemByPtr(sysarg,itemPtr,1,false,"AddSkillItem",2)
+  else
+ --   print("its false")
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.UseSkillExpItemFail,ttScreenCenter)  
+  end
+  
+  return false
+end
+
+function ItemAddSkillExp_Init(npcobj)
+	for i = 1, table.getn(ItemAddSkillExpConfig) do
+		local x = ItemAddSkillExpConfig[i]
+		GlobalItemFn[x.item_id] = { func = UseItemAddSkillExp, params = x }
+	end
+end
+
+table.insert( InitFnTable, ItemAddSkillExp_Init )

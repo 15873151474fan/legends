@@ -1,0 +1,78 @@
+--lua script
+--鸿蒙幻境
+--#include "HongMengRealmCommon.txt" once
+
+function HongMengRealm_Main(sysarg)
+	local str = Lang.Activity.hmr0005
+	str = str.."\\<#BL"..Lang.Activity.hmr0001.."/@EnterHongMengRealm>"  --进入鸿蒙幻境
+	str = str.."\\<#BL"..Lang.Activity.hmr0006.."/@TeleportByYb>"	--花元宝传送
+	str = str.."\\<#BL"..Lang.Activity.hmr0026.."/@BuyHundunZhu>" 	--购买混沌珠
+	str = str.."\\<#BL"..Lang.Activity.hmr0002.."/@Introduce>"  --详情
+	return str
+end
+
+function InitHmrRanking()
+	local qyAwardPtr = Ranking.getRanking( Lang.Rank.QiYuanAwardFile ) 
+	if qyAwardPtr == nil then
+		qyAwardPtr = Ranking.add(Lang.Rank.QiYuanAwardFile, 2000)
+		if qyAwardPtr then
+			local ret = Ranking.load(qyAwardPtr, Lang.Rank.QiYuanAwardFile)  --奇缘奖励
+			if not ret then
+				for i=1, 1 do
+					Ranking.addColumn(qyAwardPtr, "value"..0) 
+				end
+			end 
+		end
+	end
+	
+	local hmListPtr = Ranking.getRanking( Lang.Rank.HongMengListFile ) 
+	if hmListPtr == nil then
+		hmListPtr = Ranking.add(Lang.Rank.HongMengListFile, 2000)
+		if hmListPtr then
+			local ret = Ranking.load(hmListPtr, Lang.Rank.HongMengListFile)  --鸿蒙幻境商店物品列表
+			if not ret then
+				for i = 1, 5 do
+					Ranking.addColumn(hmListPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end	
+
+	local hmBuyInfoPtr = Ranking.getRanking( Lang.Rank.HongMengBuyInfoFile )  
+	if hmBuyInfoPtr == nil then
+		hmBuyInfoPtr = Ranking.add(Lang.Rank.HongMengBuyInfoFile, 2000)
+		if hmBuyInfoPtr then
+			local ret = Ranking.load(hmBuyInfoPtr, Lang.Rank.HongMengBuyInfoFile)  --鸿蒙幻境玩家购买商品数据
+			if not ret then
+				for i = 1, 6 do  --商店的物品个数为6
+					Ranking.addColumn(hmBuyInfoPtr, "value"..i-1) 
+				end
+			end 
+		end
+	end	
+
+end 
+
+function HmrRankEnd()
+	local qyAwardPtr = Ranking.getRanking( Lang.Rank.QiYuanAwardFile )
+	if qyAwardPtr then
+		Ranking.save(qyAwardPtr, Lang.Rank.QiYuanAwardFile, true)
+	end
+
+	local hmListPtr = Ranking.getRanking( Lang.Rank.HongMengListFile )		
+	if hmListPtr then
+		Ranking.save(hmListPtr, Lang.Rank.HongMengListFile, true)
+	end
+	
+	local hmBuyInfoPtr = Ranking.getRanking( Lang.Rank.HongMengBuyInfoFile )		
+	if hmBuyInfoPtr then
+		Ranking.save(hmBuyInfoPtr, Lang.Rank.HongMengBuyInfoFile, true)
+	end
+	
+end 
+
+
+
+table.insert(MainFnTable, HongMengRealm_Main) 
+table.insert(InitFnTable, InitHmrRanking) --鸿蒙幻境相关的数据
+table.insert(FinaFnTable, HmrRankEnd)

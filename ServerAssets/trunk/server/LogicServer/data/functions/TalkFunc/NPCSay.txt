@@ -1,0 +1,25 @@
+﻿--lua script
+--NPC发言处理
+--#include "data\language\LangCode.txt" once
+
+--NPC发言。目前按照Idle的间隔来发言
+local function NpcSay()
+	if (NpcSayContent == nil or NpcSayContent.content == nil) then return end
+	local count = table.getn(NpcSayContent.content)
+	if (count <= 0) then return	end
+	local CurrSayIdx = System.getRandomNumber(count)+1	
+	if (CurrSayIdx == NpcSayContent.PreSayIdx) then
+		CurrSayIdx = CurrSayIdx + 1
+		if (CurrSayIdx > count) then
+			CurrSayIdx = 1
+		end
+	end
+		
+	Actor.monsterSay(thisNPC, NpcSayContent.content[CurrSayIdx].info, NpcSayContent.content[CurrSayIdx].bctype)
+	NpcSayContent.PreSayIdx = CurrSayIdx;
+end
+
+--NPC空闲更新处理
+function idle()
+	NpcSay()
+end

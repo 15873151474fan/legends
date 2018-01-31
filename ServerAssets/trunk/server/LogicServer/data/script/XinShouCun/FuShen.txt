@@ -1,0 +1,70 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+
+---#include "data\language\LangCode.txt" once             
+
+--#include "data\functions\Tasks\specialMeeting\BillikenAutoRun.txt"  --福神 地点跳跃 
+--#include "data\functions\Tasks\specialMeeting\BillikenMain.txt"   --福神 领奖
+
+
+
+
+--[[此NPC中标准任务发行表]]
+
+
+--[[此NPC中标准任务受理表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = "", },
+
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+--QTSTB-----------------------------------
+--优先返回此NPC的任务对话状态
+  local qts, qid = Actor.getQuestTalkState( sysarg )
+  if qts == 1 then
+    return ShowQuestTalk( sysarg, qid, 1 )
+  elseif qts == 2 then
+    return ShowQuestTalk( sysarg, qid, 0 )
+  end
+--QTSTE-----------------------------------
+  --@ReloadNPC 测试场景 店小二
+  local rand = System.getRandomNumber(table.getn(NpcDialogue))
+  local str = NpcDialogue[rand +1].say
+
+  for i = 1, table.getn(MainFnTable) do
+      str = str .. MainFnTable[i](sysarg)
+  end
+   
+  return str
+end
+
+
+--[[注销任务的系统回调函数]]
+
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

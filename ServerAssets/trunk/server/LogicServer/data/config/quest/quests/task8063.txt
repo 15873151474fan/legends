@@ -1,0 +1,593 @@
+﻿--lua script
+{
+	id = 8063,			-- 天书任务
+	parentid = 0,type = 12,multiAward = 0,level = 20,circle = 0,entrust = 2,speedYb = 3,star = 3,guideId = 0,timelimit = 0,interval = 86400,maxcount = 10,
+	cangiveup = true,
+	automount = true,
+	autoRun = false,
+	excludetree = false,
+	showTimerBox = true,
+	doubleYB = false,
+	randomTarget = true,
+	name = Lang.Quest.name8063,
+	content = Lang.Quest.desc8063,
+
+	prom = { type = 2, scene = Lang.SceneName.s00002, npc = Lang.EntityName.n00040 },
+	comp = { type = 2, scene = Lang.SceneName.s00002, npc = Lang.EntityName.n00040 },
+	target = {
+	       --第1组黑石弓箭手
+		{
+			type = 0, id = 51, count = 15, rewardId = 1,useList = false,
+			location = {
+				sceneid = 14, x= 134,y = 196,entityName = Lang.EntityName.m51,hideFastTransfer = false,
+			},
+		},
+		
+		--第2组钉耙兽妖 
+		{
+			type = 0, id = 54, count = 15, rewardId = 1,useList = false,
+			location = {
+				sceneid = 15, x= 67,y = 65,entityName = Lang.EntityName.m54,hideFastTransfer = false,
+			},
+		},
+		
+		--第3组尖勾兽妖 
+		{
+			type = 0, id = 55, count = 15, rewardId = 1,useList = false,
+			location = {
+				sceneid = 15, x= 138,y = 185,entityName = Lang.EntityName.m55,hideFastTransfer = false,
+			},
+		},
+		
+		--第4组黑石红妖 
+		{
+			type = 0, id = 57, count = 15, rewardId = 1,useList = false,
+			location = {
+				sceneid = 15, x= 201,y = 178,entityName = Lang.EntityName.m57,hideFastTransfer = false,
+			},
+		},
+		
+		--第5组骷髅矛兵 
+		{
+			type = 0, id = 58, count = 15, rewardId = 1,useList = false,
+			location = {
+				sceneid = 16, x= 97,y = 122,entityName = Lang.EntityName.m58,hideFastTransfer = false,
+			},
+		},
+		
+		--第6组骷髅弓箭手 
+		{
+			type = 0, id = 59, count = 15, rewardId = 1,useList = false,
+			location = {
+				sceneid = 16, x= 55,y = 97,entityName = Lang.EntityName.m59,hideFastTransfer = false,
+			},
+		},
+		
+		--第7组双斧魔妖 
+		{
+			type = 0, id = 60, count = 15, rewardId = 1,useList = false,
+			location = {
+				sceneid = 16, x= 43,y = 47,entityName = Lang.EntityName.m60,hideFastTransfer = false,
+			},
+		},
+		
+		--第8组伏魔腐尸 
+		{
+			type = 0, id = 63, count = 18, rewardId = 1,useList = false,
+			location = {
+				sceneid = 17, x= 217,y = 90,entityName = Lang.EntityName.m63,hideFastTransfer = false,
+			},
+		},
+		
+		--第9组伏魔蓝妖 
+		{
+			type = 0, id = 64, count = 18, rewardId = 1,useList = false,
+			location = {
+				sceneid = 17, x= 170,y = 112,entityName = Lang.EntityName.m64,hideFastTransfer = false,
+			},
+		},
+		
+		--第10组黄腐虫 
+		{
+			type = 0, id = 65, count = 18, rewardId = 1,useList = false,
+			location = {
+				sceneid = 17, x= 114,y = 92,entityName = Lang.EntityName.m65,hideFastTransfer = false,
+			},
+		},
+		
+		--第11组伏魔牛妖
+		{
+			type = 0, id = 67, count = 18, rewardId = 1,useList = false, 
+			location = {
+				sceneid = 18, x= 178,y = 189,entityName = Lang.EntityName.m67,hideFastTransfer = false,
+			},
+		},
+		
+		--第12组伏魔兽人 
+		{
+			type = 0, id = 68, count = 18, rewardId = 1,useList = false,
+			location = {
+				sceneid = 18, x= 198,y = 83,entityName = Lang.EntityName.m68,hideFastTransfer = false,
+			},
+		},
+		
+		--第13组伏魔力士 
+		{
+			type = 0, id = 69, count = 18, rewardId = 1,useList = false,
+			location = {
+				sceneid = 18, x= 149,y = 122,entityName = Lang.EntityName.m69,hideFastTransfer = false,
+			},
+		},
+		
+		--第14组独眼红魔 
+		{
+			type = 0, id = 70, count = 18, rewardId = 1,useList = false,
+			location = {
+				sceneid = 18, x= 97,y = 148,entityName = Lang.EntityName.m70,hideFastTransfer = false,
+			},
+		},
+		
+		--第15组八触魔人
+		{
+			type = 0, id = 71, count = 20, rewardId = 1,useList = false,
+			location = {
+				sceneid = 19, x= 103,y = 121,entityName = Lang.EntityName.m71,hideFastTransfer = false,
+			},
+		},
+		
+		--第16组石像魔人 
+		{
+			type = 0, id = 72, count = 20, rewardId = 1,useList = false,
+			location = {
+				sceneid = 19, x= 166,y = 118,entityName = Lang.EntityName.m72,hideFastTransfer = false,
+			},
+		},
+		
+		--第17组四臂魔妖
+		{
+			type = 0, id = 73, count = 20, rewardId = 1,useList = false,
+			location = {
+				sceneid = 19, x= 66,y = 101,entityName = Lang.EntityName.m73,hideFastTransfer = false,
+			},
+		},
+		
+		--第18组四臂魔兽
+		{
+			type = 0, id = 74, count = 20, rewardId = 1,useList = false,
+			location = {
+				sceneid = 19, x= 118,y = 72,entityName = Lang.EntityName.m74,hideFastTransfer = false,
+			},
+		},
+		
+		--第19组火焰兽人 
+		{
+			type = 0, id = 75, count = 20, rewardId = 1,useList = false,
+			location = {
+				sceneid = 20, x= 157,y = 208,entityName = Lang.EntityName.m75,hideFastTransfer = false,
+			},
+		},
+		
+		--第20组火岩战将 
+		{
+			type = 0, id = 76, count = 20, rewardId = 1,useList = false,
+			location = {
+				sceneid = 20, x= 215,y = 174,entityName = Lang.EntityName.m76,hideFastTransfer = false,
+			},
+		},
+		
+		--第21组火焰魔兽
+		{
+			type = 0, id = 79, count = 20, rewardId = 1,useList = false,
+			location = {
+				sceneid = 21, x= 116,y = 76,entityName = Lang.EntityName.m79,hideFastTransfer = false,
+			},
+		},
+		
+		--第22组火焰魔娃 
+		{
+			type = 0, id = 80, count = 20, rewardId = 1,useList = false,
+			location = {
+				sceneid = 21, x= 154,y = 181,entityName = Lang.EntityName.m80,hideFastTransfer = false,
+			},
+		},
+		
+		--第23组炽焰魔兽
+		{
+			type = 0, id = 81, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 21, x= 69,y = 107,entityName = Lang.EntityName.m81,hideFastTransfer = false,
+			},
+		},
+		
+		--第24组钢甲兽人 
+		{
+			type = 0, id = 82, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 21, x= 180,y = 93,entityName = Lang.EntityName.m82,hideFastTransfer = false,
+			},
+		},
+		
+		--第25组百炼翼魔 
+		{
+			type = 0, id = 83, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 22, x= 56,y = 108,entityName = Lang.EntityName.m83,hideFastTransfer = false,
+			},
+		},
+		
+		--第26组炎龙卫士 
+		{
+			type = 0, id = 84, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 22, x= 136,y = 72,entityName = Lang.EntityName.m84,hideFastTransfer = false,
+			},
+		},
+		
+		--第27组岩浆魔兽
+		{
+			type = 0, id = 85, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 22, x= 153,y = 115,entityName = Lang.EntityName.m85,hideFastTransfer = false,
+			},
+		},
+		
+		--第28组火焰锤手 
+		{
+			type = 0, id = 86, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 23, x= 215,y = 232,entityName = Lang.EntityName.m86,hideFastTransfer = false,
+			},
+		},
+		
+		--第29组火焰魔蝠 
+		{
+			type = 0, id = 87, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 23, x= 122,y = 225,entityName = Lang.EntityName.m87,hideFastTransfer = false,
+			},
+		},
+		
+		--第30组人马射手
+		{
+			type = 0, id = 88, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 23, x= 216,y = 191,entityName = Lang.EntityName.m88,hideFastTransfer = false,
+			},
+		},
+		
+        --第31组火焰蛛
+		{
+			type = 0, id = 89, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 23, x= 252,y = 130,entityName = Lang.EntityName.m89,hideFastTransfer = false,
+			},
+		},
+		--第32组莽荒熊人
+		{
+			type = 0, id = 90, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 25, x= 154,y = 124,entityName = Lang.EntityName.m90,hideFastTransfer = false,
+			},
+		},
+		--第33组莽荒斧兽
+		{
+			type = 0, id = 91, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 25, x= 101,y = 86,entityName = Lang.EntityName.m91,hideFastTransfer = false,
+			},
+		},
+		--第34组独眼巨人
+		{
+			type = 0, id = 92, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 25, x= 58,y = 78,entityName = Lang.EntityName.m92,hideFastTransfer = false,
+			},
+		},
+		--第35组莽荒卫士
+		{
+			type = 0, id = 93, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 26, x= 121,y = 86,entityName = Lang.EntityName.m93,hideFastTransfer = false,
+			},
+		},
+		--第36组莽荒卫士
+		{
+			type = 0, id = 94, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 26, x= 59,y = 145,entityName = Lang.EntityName.m94,hideFastTransfer = false,
+			},
+		},
+		--第37组狼牙牛妖
+		{
+			type = 0, id = 95, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 26, x= 144,y = 133,entityName = Lang.EntityName.m95,hideFastTransfer = false,
+			},
+		},
+		--第37组铁斧牛妖
+		{
+			type = 0, id = 96, count = 25, rewardId = 1,useList = false,
+			location = {
+				sceneid = 26, x= 98,y = 112,entityName = Lang.EntityName.m96,hideFastTransfer = false,
+			},
+		},
+		--[[{
+			type = 0, id = 302, count = 20, rewardId = 2,useList = false,
+			location = {
+				sceneid = 30, x= 0,y = 0,entityName = Lang.EntityName.m302,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 303, count = 20, rewardId = 2,useList = false,
+			location = {
+				sceneid = 31, x= 0,y = 0,entityName = Lang.EntityName.m303,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 304, count = 20, rewardId = 2,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m304,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 105, count = 100, rewardId = 2,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m105,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 50, count = 50, rewardId = 2,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m108,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 50, count = 60, rewardId = 2,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m98,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 50, count = 80, rewardId = 2,useList = false,
+			location = {
+				sceneid = 33, x= 0,y = 0,entityName = Lang.EntityName.m176,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 127, id = 50097, count = 1, rewardId = 2,useList = false, data = Lang.Quest.data806342,
+		},
+		{
+			type = 0, id = 110, count = 50, rewardId = 3,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m110,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 175, count = 60, rewardId = 3,useList = false,
+			location = {
+				sceneid = 33, x= 0,y = 0,entityName = Lang.EntityName.m175,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 108, count = 100, rewardId = 3,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m108,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 99, count = 50, rewardId = 3,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m99,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 107, count = 60, rewardId = 3,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m107,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 50, count = 100, rewardId = 3,useList = false,
+			location = {
+				sceneid = 30, x= 0,y = 0,entityName = Lang.EntityName.m84,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 50, count = 50, rewardId = 3,useList = false,
+			location = {
+				sceneid = 31, x= 0,y = 0,entityName = Lang.EntityName.m95,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 50, count = 50, rewardId = 3,useList = false,
+			location = {
+				sceneid = 33, x= 0,y = 0,entityName = Lang.EntityName.m109,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 127, id = 50101, count = 1, rewardId = 3,useList = false, data = Lang.Quest.data806351,
+		},
+		{
+			type = 127, id = 50102, count = 1, rewardId = 3,useList = false, data = Lang.Quest.data806352,
+		},
+		{
+			type = 127, id = 50100, count = 1, rewardId = 4,useList = false, data = Lang.Quest.data806353,
+		},
+		{
+			type = 37, id = 2, count = 1, rewardId = 4,useList = false, data = Lang.Quest.data806354,
+		},
+		{
+			type = 0, id = 108, count = 80, rewardId = 4,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m108,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 112, count = 80, rewardId = 4,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m112,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 50, count = 60, rewardId = 4,useList = false,
+			location = {
+				sceneid = 31, x= 0,y = 0,entityName = Lang.EntityName.m95,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 127, id = 50101, count = 1, rewardId = 4,useList = false, data = Lang.Quest.data806358,
+		},
+		{
+			type = 127, id = 50102, count = 1, rewardId = 4,useList = false, data = Lang.Quest.data806359,
+		},
+		{
+			type = 127, id = 50092, count = 1, rewardId = 4,useList = false, data = Lang.Quest.data806360,
+			location = {
+				sceneid = 8, x= 0,y = 0,entityName = Lang.EntityName.n00024,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 99, count = 60, rewardId = 4,useList = false,
+			location = {
+				sceneid = 32, x= 0,y = 0,entityName = Lang.EntityName.m99,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 50, count = 40, rewardId = 4,useList = false,
+			location = {
+				sceneid = 33, x= 0,y = 0,entityName = Lang.EntityName.m176,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 557, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 121, x= 0,y = 0,entityName = Lang.EntityName.m557,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 560, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 121, x= 0,y = 0,entityName = Lang.EntityName.m560,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 60, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 121, x= 0,y = 0,entityName = Lang.EntityName.m562,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 60, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 121, x= 0,y = 0,entityName = Lang.EntityName.m556,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 127, id = 50092, count = 1, rewardId = 4,useList = false, data = Lang.Quest.data806367,
+			location = {
+				sceneid = 8, x= 0,y = 0,entityName = Lang.EntityName.n00024,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 561, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 121, x= 0,y = 0,entityName = Lang.EntityName.m561,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 567, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 122, x= 0,y = 0,entityName = Lang.EntityName.m567,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 60, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 122, x= 0,y = 0,entityName = Lang.EntityName.m568,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 558, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 121, x= 0,y = 0,entityName = Lang.EntityName.m558,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 9, id = 60, count = 120, rewardId = 5,useList = false,
+			location = {
+				sceneid = 122, x= 0,y = 0,entityName = Lang.EntityName.m565,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 1517, count = 100, rewardId = 5,useList = false,--新增部分
+			location = {
+				sceneid = 232, x= 0,y = 0,entityName = Lang.EntityName.m1517,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 1519, count = 100, rewardId = 5,useList = false,
+			location = {
+				sceneid = 232, x= 0,y = 0,entityName = Lang.EntityName.m1519,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 1524, count = 100, rewardId = 5,useList = false,
+			location = {
+				sceneid = 233, x= 0,y = 0,entityName = Lang.EntityName.m1524,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 1521, count = 100, rewardId = 5,useList = false,
+			location = {
+				sceneid = 232, x= 0,y = 0,entityName = Lang.EntityName.m1521,hideFastTransfer = false,
+			},
+		},
+		{
+			type = 0, id = 1526, count = 100, rewardId = 5,useList = false,
+			location = {
+				sceneid = 233, x= 0,y = 0,entityName = Lang.EntityName.m1526,hideFastTransfer = false,
+			},
+		},]]
+	},
+	conds = {
+		{ type = 0, id = 0, count = 50 },
+	},
+	awards = {
+		{
+			{ type = 20, id = 1, count = 1300, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 51, id = 0, count = 3817, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+		},
+		{
+			{ type = 20, id = 1, count = 1300, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 51, id = 0, count = 3817, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+		},
+		{
+			{ type = 20, id = 1, count = 1300, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 51, id = 0, count = 3817, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+		},
+		{
+			{ type = 20, id = 1, count = 1300, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 51, id = 0, count = 3817, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+		},
+		{
+			{ type = 20, id = 1, count = 1300, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 51, id = 0, count = 3817, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+		},
+		{
+			{ type = 20, id = 1, count = 1300, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+			{ type = 51, id = 0, count = 3817, group = 0,strong = 1,quality = 0,job = 0,sex = -1,bind = false,levelRate = 0.00, ringRate = 0.00},
+		},
+	},
+	PromMsTalks = {
+		Lang.Quest.promTlk80631,
+	},
+	CompMsTalks = {
+		Lang.Quest.compTlk80631,
+	},
+	CompMsTip = {
+		Lang.Quest.compTip80631,
+	},
+	PassMsTip = {
+		Lang.Quest.passTip80631,
+	},
+},

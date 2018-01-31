@@ -1,0 +1,77 @@
+﻿--宝物配置
+--#include "..\..\language\LangCode.txt" once
+GemGlobalConfig=
+{
+expAddInterval=300,-- 宝物装备后经验恢复间隔时间（秒为单位）
+endureConsInterval=5,-- 宝物灵力消耗间隔时间
+maxWishVal=1000,-- 最大祝福值
+wishValUpRate=500,-- 多少点祝福值可以提高一点档次进阶成功率
+getWishValWhenFail=10,-- 进阶失败一次，获得的祝福值
+actorExp2GemExpRate=100,-- 多少点角色经验值可以转换为1点宝物经验值
+upGradeReqItemId=1916,-- 档次进阶消耗宝物进阶符物品id
+upGradeProtectItemId=1917,-- 档次进阶保护符物品id
+openHoleItemId=1922,-- 宝物开槽位消耗的物品id
+openHoleConsumeItemCnt=1,-- 宝物开槽位消耗的物品数量
+openSuitHoleReqItemId=1007,-- 宝物命盘开槽需要的物品id
+openSuitHoleReqItemCnt=0,-- 宝物命盘开槽需要的物品数量
+maxSmithCount=1000,-- 宝物最大精锻次数
+gemSmithLevel={5,10,15,20},-- 宝物天赐属性开通等级
+gemMinLvlOfUpLvl=40,--宝物提升升级的最低等级限制
+gemMinGradeOfUpQuality = 4,--宝物精粹所需要的宝物档次
+gemMinLvOfSmith = 20,--宝物开光所需要的宝物等级
+maxGemSuitXPVal=200, -- XP值上限
+killActorAddXPVal=2, -- 杀死玩家增加的XP值
+-- 杀死怪物增加的XP值，针对不同类型的怪物给予不同的XP值配置
+-- 分布对应普通怪、精英怪、头目、boss（玩家），分布对应{ 杀死怪物获取XP值, 吸魂特效数目下限, 吸魂特效数目上限 }
+killMonsterAddXPVal={
+	{ xpVal=1, effectNumMin=1, effectNumMax=3},
+	{ xpVal=1, effectNumMin=1, effectNumMax=3},
+	{ xpVal=2, effectNumMin=3, effectNumMax=5},
+	{ xpVal=2, effectNumMin=3, effectNumMax=5},	
+}, 
+
+-- 宝物开光各个属性最大值配置表
+gemSmithPropMax = {
+{21,393},
+{31,393},
+{23,373},
+{33,373},
+{39,156},
+{37,156},
+{35,156},
+{17,2073},
+{19,2073},
+{84,249},
+{85,249},
+{86,79},
+{80,-118},
+{79,-118},
+{78,-0.04},
+{77,-0.04},
+{87,0.067},
+{88,0.134},
+{59,0.117},
+{22,0.06},
+{32,0.06},
+{24,0.06},
+{34,0.06},
+},
+-- 宝物升级经验配置表
+--#include "GemUpLevelExp.txt" once
+-- 灵性配置
+--#include "GemUpSpriteChar.txt" once
+-- 品质配置
+--#include "GemUpQuality.txt" once
+-- 宝物命盘配置
+--#include "GemSuit.txt" once
+-- 宝物精锻配置
+--#include "GemSmithConfig\SmithConfig.txt" once
+-- 宝物档次进阶配置
+--#include "GemUpGrade.txt" once
+-- 宝物描述配置
+--#include "GemDesc.txt" once
+-- 宝物开光消耗配置
+--#include "GemSmithConsume.txt" once
+-- 宝物合成配置
+--#include "GemCompose.txt" once
+}

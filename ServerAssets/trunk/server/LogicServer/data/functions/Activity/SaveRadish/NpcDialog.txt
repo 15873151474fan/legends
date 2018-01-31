@@ -1,0 +1,113 @@
+--lua script
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\SaveRadish\RadishConfig.txt" once
+--#include "data\functions\NpcTradeEventFunc.txt" once
+
+
+--保卫萝卜指引人对话
+function SaveRadishDialog(sysarg)
+	local str = ""
+	str = str..Lang.Activity.a00004
+	--str = str.."\\<#BL"..Lang.Activity.w00148.."/@BuySoul>"
+	str = str.."\\<#BL"..Lang.Activity.t00037.."/@ExitSaveRadishFuben>"
+	
+	--[[
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	if fbVar.passNext and fbVar.passNext == 1 then
+		str = str.."\\<#BL"..Lang.Activity.w00133.."/@EnterNextPass>"		
+	end	
+	--]]
+	return str
+end
+
+function ExitSaveRadishFuben(sysarg)
+	Actor.closeActivityWind(sysarg)
+	local nHandle = Fuben.getSceneHandleById(RadishConfig.ExitSceenId,0)
+	Actor.enterFuBen(sysarg,nHandle,RadishConfig.ExitSceenId,RadishConfig.eMapX,RadishConfig.eMapY)
+end
+
+function EnterNextPass(sysarg) 
+	local teamId = Actor.getTeamId(sysarg)
+	if teamId > 0 then
+		local captainPtr = TeamFun.getTeamCaptain( teamId )
+		if captainPtr ~= sysarg then
+			Actor.sendTipmsg(sysarg, Lang.Activity.w00139, ttFlyTip)
+			return
+		end
+	else
+	  return 
+	end 
+	local TeamMemb = LuaHelp.getTeamMemberList(sysarg)		--获取该队伍的成员
+	if TeamMemb == nil then
+	  return
+	end
+	
+	--local fhadle = Fuben.createFuBen(RadishConfig.FubId)
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	if fbVar.passNext and fbVar.passNext == 1 then
+		fbVar.passNext = 0
+	end
+	
+	if (not fbVar.fbTimes) or fbVar.monsterCount then
+		fbVar.fbTimes = 1
+	end
+	if (not fbVar.monsterCount) or fbVar.fbTimes then
+		fbVar.monsterCount = 0
+	end
+	
+	local fhadle = Actor.getFubenHandle(sysarg)
+	local passNum = 0
+	local scenes = RadishConfig.EnterScreens
+	local sceneId = Actor.getSceneId(sysarg)
+	for i = 1, table.getn(scenes or {}) do
+		if scenes[i] == sceneId then
+			passNum = i
+			break
+		end
+	end
+	--print("...passNum : ", passNum)
+	passNum = passNum + 1
+	
+	for k, memPtr in ipairs(TeamMemb) do
+		Actor.enterFuBen(memPtr,fhadle,RadishConfig.EnterScreens[passNum],RadishConfig.nMapX,RadishConfig.nMapY)
+		
+		local actorVar = Actor.getStaticVar(memPtr)
+		if not actorVar.nExp then
+			actorVar.nExp = 0
+		end
+		if not actorVar.nSoul then
+			actorVar.nSoul = 0
+		end
+		
+		--Actor.changeActivityProgress(memPtr, 1, actorVar.nSoul, RadishConfig.RadishMonster.nRadishBlood)
+		Actor.changeActivityProgress(memPtr, 1, actorVar.nSoul, RadishConfig.RadishMonster.nRadishBlood, 0)
+	end
+	
+	local hScene =Fuben.getSceneHandleById(RadishConfig.EnterScreens[passNum], fhadle)
+	Fuben.sendMsgToScene(hScene,Lang.Activity.w00147,ttScreenCenter+ttChatWindow)
+	Fuben.sendCountDown(hScene,30)	
+end
+
+function BuySoul(sysarg)
+	if Actor.checkConsume(sysarg, 0, RadishConfig.SoulProp.id, 1) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00150, ttFlyTip)
+	else	
+		local actorVar = Actor.getStaticVar(sysarg)
+		if not actorVar then
+			return
+		end
+		Actor.removeConsume(sysarg, 0, RadishConfig.SoulProp.id, 1, 0, 0, 0, 0, 934, "comsume for buy soul")
+		if not actorVar.nSoul then
+			actorVar.nSoul = RadishConfig.SoulProp.nSoul
+		else
+			actorVar.nSoul = actorVar.nSoul + RadishConfig.SoulProp.nSoul
+		end
+		--Actor.changeActivityProgress(sysarg, -2, actorVar.nSoul, -2)
+		Actor.changeActivityProgress(sysarg, -2, actorVar.nSoul, -2, actorVar.nRadishRank)
+		Actor.sendTipmsg(sysarg, Lang.Activity.w00149, ttFlyTip)
+	end	
+end
+
+table.insert(MainFnTable,SaveRadishDialog)

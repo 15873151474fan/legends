@@ -1,0 +1,133 @@
+--[[File:RoseCommon.txt]]
+--#include "data\config\item\RoseRankConfig.txt" once
+
+function BuyRedRose( sysarg )
+	local dlgStr = Lang.ScriptTips.c000066
+	for idx, tab in ipairs(GiveRoseConfig.BuyRose[RedRose]) do
+		dlgStr = string.format("%s\\<#BL%s/@BuyRose,%d,%d,%d>", dlgStr, string.format(tab.str, tab.count, tab.gold), RedRose, tab.id, tab.count)
+	end
+	dlgStr = dlgStr .. Lang.ScriptTips.back001
+	return dlgStr	
+end
+
+function BuyBlueRose( sysarg )
+	local dlgStr = Lang.ScriptTips.c000066
+	for idx, tab in ipairs(GiveRoseConfig.BuyRose[BlueRose]) do
+		dlgStr = string.format("%s\\<#BL%s/@BuyRose,%d,%d, %d>", dlgStr, string.format(Lang.ScriptTips.c000065, tab.count, tab.gold), BlueRose, tab.id, tab.count)
+	end
+	dlgStr = dlgStr .. Lang.ScriptTips.back001
+	return dlgStr
+end
+
+--RedRose
+--BlueRose
+
+function AddAllRose( sysarg, roseType, roseNum )
+	--[[local sVar = Actor.getStaticVar(sysarg)
+	local curAllCount = GetAllRose(sysarg, roseType)
+	sVar.AllRoseCount[roseType] = curAllCount + roseNum]]
+end
+
+function GetAllRose(sysarg, roseType)
+	--[[local sVar = Actor.getStaticVar(sysarg)
+	if not sVar.AllRoseCount then
+		sVar.AllRoseCount = {}
+	end
+	return sVar.AllRoseCount[roseType] or 0]]
+	return 0
+end
+
+function GetPickRose(sysarg, roseType)
+	--[[local sVar = Actor.getStaticVar(sysarg)
+	if not sVar.PickRoseCount then
+		sVar.PickRoseCount = {}
+	end
+	return sVar.PickRoseCount[roseType] or 0]]
+	return 0
+end
+
+function AddPickRose( sysarg, roseType, roseNum )
+	--[[local sVar = Actor.getStaticVar(sysarg)
+	local curAllPick = GetPickRose(sysarg, roseType)
+	sVar.PickRoseCount[roseType] = curAllPick + roseNum]]
+end
+
+function GetRoseItemCfg( roseType, roseCount )
+	for idx, tab in ipairs(GiveRoseConfig.Rose[roseType] or {}) do
+		if tab.roseNum == roseCount then
+			return tab
+		end
+	end
+	return nil
+end
+
+function GetPickRoseId( roseType )
+	local cfg = GetRoseItemCfg( roseType, 1)
+	if cfg then
+		return cfg.roseItemId
+	end
+	return nil
+end
+
+function PickBindRose( sysarg, roseType, roseNum )
+	roseType = tonumber(roseType)
+	roseNum = tonumber(roseNum)
+	local allCount =  GetAllRose(sysarg, roseType)
+	local pickCount = GetPickRose(sysarg, roseType)
+	if pickCount + roseNum > allCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000030, roseNum), ttFlyTip)
+		return false
+	end	
+	local bindFlag = 1
+	local roseItemId = GetPickRoseId(roseType)
+	if roseItemId and checkBagGrids(sysarg, roseItemId, roseNum, bindFlag) then
+		AddPickRose( sysarg, roseType, roseNum)
+		Actor.addItem(sysarg, roseItemId, 0, 0, roseNum, bindFlag)
+	end
+	if roseType == RedRose then
+		return PickRedRose(sysarg)
+	elseif roseType == BlueRose then	
+		return PickBLueRose(sysarg)
+	end
+end
+
+function GetSaleRoseCfg( roseType, roseId, roseNum )
+	local cfg = GiveRoseConfig.BuyRose[roseType]
+	for k, v in ipairs(cfg or {}) do
+		if v.id == roseId and roseNum == v.count then
+			return v
+		end
+	end
+	return nil
+end
+
+function BuyRose( sysarg, roseType, roseId, roseNum )
+	roseType = tonumber(roseType)
+	roseId = tonumber(roseId)
+	roseNum = tonumber(roseNum)
+	local roseCfg = GetSaleRoseCfg( roseType, roseId, roseNum )
+	if roseCfg then
+		local myGold = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+		if myGold < roseCfg.gold then
+			local roseName = Item.getItemName(roseId)
+			Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.c000067, roseNum, roseName, roseCfg.gold), ttFlyTip)
+			return
+		end
+		local bindFlag = 0
+		if checkBagGrids(sysarg, roseCfg.id, roseCfg.count, bindFlag) and Actor.changeMoney(sysarg, mtYuanbao, -roseCfg.gold, 115, Lang.LogTips.yb019) then
+			Actor.addItem(sysarg, roseCfg.id, 0, 0, roseCfg.count, bindFlag, 0, Lang.LogTips.yb019, 115)
+		end
+	end
+end
+
+
+--检查背包格子数是否够
+function checkBagGrids( sysarg, itemId, itemCount, bindFlag )
+	local count = Item.getAddItemNeedGridCount( sysarg, itemId, itemCount, 0, 0, bindFlag)
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+		return false
+	end
+	return true
+end

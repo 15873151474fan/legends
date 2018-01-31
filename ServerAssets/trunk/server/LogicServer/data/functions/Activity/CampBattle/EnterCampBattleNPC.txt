@@ -1,0 +1,87 @@
+
+--#include "CampBattleCommon.txt" once
+--武易战场
+function EnterCampBattle_Main( sysarg )
+	local dlgStr = ""
+	dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.a00018.."/@joinCampBatttle>"
+	dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.a00019.."/@getCampBatttleReward>"
+	dlgStr =  dlgStr .. "\\<#BL"..Lang.Activity.a00020.."/@viewCampBatttleInfo>"
+	return dlgStr
+end
+
+function joinCampBatttle( sysarg )
+	if Actor.checkActorLevel(sysarg, CampBattleConfig.MinLevel, 0) ~= true then
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.zf049,CampBattleConfig.MinLevel), ttFlyTip)
+		return
+	end
+	--活动开始的标记
+	local sVar = System.getDyanmicVar()
+	if not sVar.CampBattleStartFlag then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.zf050, ttFlyTip)
+		return
+	end
+
+	local posTab = nil
+	local zyVal = CampBattleConfig.BCampId
+	if sVar.CampBattleANum < sVar.CampBattleBNum then
+		posTab = CampBattleConfig.ACampPos
+		zyVal = CampBattleConfig.ACampId
+		sVar.CampBattleANum = sVar.CampBattleANum + 1
+	elseif sVar.CampBattleANum == sVar.CampBattleBNum then
+		if math.random(1000) >= 500 then
+			posTab = CampBattleConfig.ACampPos
+			zyVal = CampBattleConfig.ACampId
+			sVar.CampBattleANum = sVar.CampBattleANum + 1
+		else
+			posTab = CampBattleConfig.BCampPos
+			sVar.CampBattleBNum =  sVar.CampBattleBNum + 1
+		end
+	else
+		posTab = CampBattleConfig.BCampPos
+		sVar.CampBattleBNum =  sVar.CampBattleBNum + 1
+	end
+	ClearActorPoint(sysarg)
+	SetActorPoint(sysarg, CampBattleConfig.EnterPoint)
+	--Actor.setPkMode(sysarg, fpZY)
+	Actor.setCampId( sysarg, zyVal )
+	local x = math.random(posTab[1],posTab[2])
+	local y = math.random(posTab[3], posTab[4])
+	System.telportSceneByName(sysarg, CampBattleConfig.SceneName, x, y)
+	local handleScene = Fuben.getSceneHandleByName( CampBattleConfig.SceneName, 0)
+	local diffTime = Fuben.getSceneTime(handleScene)
+	Actor.initActivityWind(sysarg, Lang.Activity.a00065, diffTime, Lang.Activity.a00066, Lang.Activity.a00067, GetCampPoint(CampBattleConfig.ACampId),Lang.Activity.a00068, GetCampPoint(CampBattleConfig.BCampId), Lang.Activity.a00069, 0)
+end
+
+--领导奖励
+function getCampBatttleReward(sysarg)
+	local myPoint, winFlag = GetActorPoint(sysarg)
+	if myPoint == 0 then
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.zf052, ttFlyTip)
+		return
+	end
+	local rewardTab = CampBattleConfig.LoseCampReward
+	if winFlag then
+		rewardTab = CampBattleConfig.WinCampReward
+	end
+	if checkBagGrids(sysarg, rewardTab, myPoint) then
+		for k, v in ipairs(rewardTab or {}) do
+			if myPoint >= v.minPoint and myPoint <= v.maxPoint then
+				if v.type == 0 then
+					Actor.addItem( sysarg, v.id, v.quality, v.strong, v.count, v.bind)						
+				else
+					Actor.giveAward( sysarg, v.type, 0, v.count,0, 0, 1, 0,205,  "get battle camp reward")
+				end
+			end
+		end
+		ClearActorPoint(sysarg)
+		Actor.sendTipmsg( sysarg, Lang.ScriptTips.zf051, ttFlyTip)
+	end
+end
+
+
+function viewCampBatttleInfo(sysarg)
+	local dlgStr = string.format("%s\\<#BL%s/@main>", Lang.Activity.a00021, Lang.Activity.a00101)
+	return dlgStr
+end
+
+table.insert(MainFnTable, EnterCampBattle_Main)

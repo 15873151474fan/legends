@@ -1,0 +1,104 @@
+--宝物的引导
+{
+  --触发条件
+  triggerList =
+  {
+       { type = 4, valueList = {1972,},},   --有物品
+       { type = 8, valueList = {0,},},      --没有宝物
+  },
+  
+
+  --引导的步骤 
+  steps = 
+  {
+
+    --第1步 指向导航背包按钮
+    {
+      condList = 
+      {
+				{ type = 2,  helpId = 20, dataList = {0,} },
+      },
+
+      action = { type = 1, helpId = 2, data = 0, desc = Lang.GuideLang.desc3 },
+    },
+
+
+    --第2步 双击使用道具
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 20, dataList = {0,} },      --背包打开
+				{ type = 6,  helpId = 22, dataList = {1972,} },   --有物品
+				{ type = 21,  helpId = 20, dataList = {0,} },     --没有宝物
+      },
+
+      action = { type = 6, helpId = 22, data = 1972, desc = Lang.GuideLang.desc13 },
+    },
+
+    --第3步 指向导航栏宝物按钮
+    {
+      condList = 
+      {
+				{ type = 2,  helpId = 80, dataList = {0,} },     --宝物界面没打开
+				{ type = 22,  helpId = 22, dataList = {0,} },    --有宝物
+				{ type = 23,  helpId = 22, dataList = {0,} },    --没有装备的宝物
+				{ type = 25,  helpId = 22, dataList = {0,} },    --没有驾驭的宝物
+      },
+
+      action = { type = 1, helpId = 5, data = 0, desc = Lang.GuideLang.desc14 },
+    },
+
+    --第4步 指向 装佩
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 80, dataList = {0,} },     --宝物界面没打开
+				{ type = 22,  helpId = 22, dataList = {0,} },    --有宝物
+				{ type = 23,  helpId = 22, dataList = {0,} },    --没有装备的宝物
+ 				{ type = 25,  helpId = 22, dataList = {0,} },    --没有驾驭的宝物
+      },
+
+      action = { type = 1, helpId = 81, data = 0, desc = Lang.GuideLang.desc15 },
+    },
+
+     --第5步 指向 驾御
+    {
+      condList = 
+      {
+				{ type = 1,  helpId = 80, dataList = {0,} },     --宝物界面没打开
+				{ type = 22,  helpId = 22, dataList = {0,} },    --有宝物
+				{ type = 24,  helpId = 22, dataList = {0,} },    --有装备的宝物
+				{ type = 25,  helpId = 22, dataList = {0,} },    --没有驾驭的宝物
+      },
+
+      action = { type = 1, helpId = 82, data = 0, desc = Lang.GuideLang.desc16 },
+    },
+    
+    --第6步 关闭窗口
+    {
+      condList = 
+      {
+	 { type = 1,  helpId = 80, dataList = {0,} },    --宝物面板打开
+	 { type = 26,  helpId = 30, dataList = {0,} },   --有驾驭的宝物
+	 { type = 2,  helpId = 18, dataList = {0,} },    --宝物引导窗口不可见
+      },
+
+      --引导玩家 点击分解按钮
+      action = { type = 4, helpId = 80, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+
+    --第7步 弹出特殊界面
+    {
+      condList = 
+      {
+				{ type = 2,  helpId = 80, dataList = {0,} },    --宝物窗口不可见
+				{ type = 2,  helpId = 18, dataList = {0,} },    --宝物引导窗口不可见
+				{ type = 24,  helpId = 22, dataList = {0,} },    --有装备的宝物
+				{ type = 26,  helpId = 22, dataList = {0,} },    --有驾驭的宝物
+      },
+
+      --引导玩家
+      action = { type = 11, helpId = 18, data = 0, desc = Lang.GuideLang.desc19 },
+    },
+  } 
+}

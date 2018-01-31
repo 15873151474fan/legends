@@ -1,0 +1,163 @@
+--龙王aoe
+{
+
+	actions=
+	{
+		{act=0,effect=1,},
+	},
+	
+	desc=Lang.Skill.s176L2Desc,--技能的描述
+	
+	iconID=2,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+				 
+					conds=
+					{
+						{cond = 32,value =2000},
+						{cond = 13,value =1},
+								
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=0,rate=10000,value=1000},
+																		
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=49,keepTime=1000,delay=0,always=false},
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+					
+					conds=
+					{
+
+						{cond = 13,value =1},
+						{cond = 19,value =96},
+					},
+					results=
+					{
+						{mj=0,timeParam=10,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,rate=1000,value=10000},
+																		
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=48,keepTime=1000,delay=0,always=false},
+					},
+				},
+			},
+		},
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+					
+					conds=
+					{
+
+						{cond = 33,value =2000},
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=47,delay=0,rate=3000,id=3},
+						{mj=0,timeParam=1,type=3,delay=0,rate=1000,value=5000},
+																		
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=48,keepTime=1000,delay=0,always=false},
+					},
+				},
+			},
+		},	
+		{
+			xStart=-13,--相对于中心点x左边的相对坐标
+			xEnd=13,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=13,--相对于中心点y下边的相对坐标
+
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+					
+					conds=
+					{
+
+						{cond = 21,value =97},
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=34,delay=0,value=1},
+						{mj=0,timeParam=1,type=3,delay=0,rate=10000,value=10000},
+																		
+					},
+
+					specialEffects=
+					{
+						{type=4,mj=0,id=48,keepTime=1000,delay=0,always=false},
+					},
+				},
+			},
+		},
+		
+	},
+
+	trainConds=
+	{
+		
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=15,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=10000,
+
+},

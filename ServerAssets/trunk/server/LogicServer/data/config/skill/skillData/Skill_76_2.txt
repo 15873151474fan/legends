@@ -1,0 +1,639 @@
+--团队副本怪物死亡后触发技能
+{
+
+	actions=
+	{
+		--{act=0,effect=26,},
+	},
+	
+	desc=Lang.Skill.s19L1Desc,--技能的描述
+	
+	iconID=19,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+			--悟空副本指示
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 3,value = 1},
+						{cond = 48,value =764},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=44,delay=0,id=3,value=1},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},
+		{
+			--猪八戒副本指示+召唤路灯
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 3,value = 1},
+						{cond = 48,value =763},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=44,delay=0,id=2,value=1},
+						{mj=0,timeParam=1,type=17,id=17,delay=0, interval=0,value=1,buffType=10,timeRate=76,effectId=81},
+						{mj=0,timeParam=1,type=17,id=17,delay=0, interval=0,value=1,buffType=10,timeRate=76,effectId=82},
+						{mj=0,timeParam=1,type=17,id=21,delay=0, interval=0,value=1,buffType=10,timeRate=76,effectId=79},
+						{mj=0,timeParam=1,type=17,id=21,delay=0, interval=0,value=1,buffType=10,timeRate=76,effectId=78},
+						{mj=0,timeParam=1,type=17,id=23,delay=0, interval=0,value=1,buffType=10,timeRate=77,effectId=80},
+						{mj=0,timeParam=1,type=17,id=23,delay=0, interval=0,value=1,buffType=10,timeRate=78,effectId=80},
+						{mj=0,timeParam=1,type=17,id=19,delay=0, interval=0,value=1,buffType=10,timeRate=75,effectId=80},
+						{mj=0,timeParam=1,type=17,id=19,delay=0, interval=0,value=1,buffType=10,timeRate=74,effectId=80},
+						{mj=0,timeParam=1,type=17,id=21,delay=0, interval=0,value=1,buffType=10,timeRate=76,effectId=74},						
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},	
+		{
+			--水妖副本指示+召唤路灯
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 3,value = 1},
+						{cond = 48,value =762},
+					},
+					results=
+					{		
+						{mj=0,timeParam=1,type=44,delay=0,id=1,value=1},
+						{mj=0,timeParam=1,type=17,id=17,delay=0, interval=0,value=1,buffType=10,timeRate=74,effectId=99},
+						{mj=0,timeParam=1,type=17,id=17,delay=0, interval=0,value=1,buffType=10,timeRate=74,effectId=100},
+						{mj=0,timeParam=1,type=17,id=21,delay=0, interval=0,value=1,buffType=10,timeRate=74,effectId=97},
+						{mj=0,timeParam=1,type=17,id=21,delay=0, interval=0,value=1,buffType=10,timeRate=74,effectId=96},
+						{mj=0,timeParam=1,type=17,id=23,delay=0, interval=0,value=1,buffType=10,timeRate=75,effectId=98},
+						{mj=0,timeParam=1,type=17,id=23,delay=0, interval=0,value=1,buffType=10,timeRate=76,effectId=98},
+						{mj=0,timeParam=1,type=17,id=19,delay=0, interval=0,value=1,buffType=10,timeRate=73,effectId=98},
+						--{mj=0,timeParam=1,type=17,id=19,delay=0, interval=0,value=1,buffType=10,timeRate=72,effectId=98},
+						
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},			
+		{
+			--悟空驱散如来金身
+			xStart=-100,--相对于中心点x左边的相对坐标
+			xEnd=100,--相对于中心点x右边的相对坐标
+			yStart=-100,--相对于中心点y上边的相对坐标
+			yEnd=100,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 30,value =765},
+						{cond = 48,value =764},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=2,delay=30000, buffType=21,id=73,alwaysTakeEffect=1},
+						{mj=0,timeParam=1,type=2,delay=30000, buffType=23,id=74,alwaysTakeEffect=1},
+						{mj=0,timeParam=1,type=2,delay=30000, buffType=25,id=75,alwaysTakeEffect=1},
+						{mj=0,timeParam=1,type=2,delay=30000, buffType=27,id=76,alwaysTakeEffect=1},
+						{mj=0,timeParam=1,type=2,delay=30000, buffType=56,id=60,alwaysTakeEffect=1},
+						{mj=0,timeParam=1,type=24,buffType=2,delay=5000,value=2,id=89,alwaysTakeEffect=1},--技能说话
+						{mj=0,timeParam=1,type=24,buffType=2,delay=15000,value=2,id=90,alwaysTakeEffect=1},--技能说话
+						{mj=0,timeParam=1,type=24,buffType=2,delay=20000,value=2,id=91,alwaysTakeEffect=1},--技能说话
+						{mj=0,timeParam=1,type=24,buffType=2,delay=25000,value=2,id=92,alwaysTakeEffect=1},--技能说话
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},	
+
+		{
+			--悟空给猎魔人的额外掉落
+			xStart=-21,--相对于中心点x左边的相对坐标
+			xEnd=21,--相对于中心点x右边的相对坐标
+			yStart=-21,--相对于中心点y上边的相对坐标
+			yEnd=21,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 30,value =751},
+						{cond = 48,value =764},
+					},
+					results=
+					{
+						{type=42,id=818},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =752},
+						{cond = 48,value =764},
+					},
+					results=
+					{
+						{type=42,id=818},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =754},
+						{cond = 48,value =764},
+					},
+					results=
+					{
+						{type=42,id=818},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},	
+		
+		{
+			--猪妖给猎魔人的额外掉落
+			xStart=-21,--相对于中心点x左边的相对坐标
+			xEnd=21,--相对于中心点x右边的相对坐标
+			yStart=-21,--相对于中心点y上边的相对坐标
+			yEnd=21,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 30,value =751},
+						{cond = 48,value =763},
+					},
+					results=
+					{
+						{type=42,id=818},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =752},
+						{cond = 48,value =763},
+					},
+					results=
+					{
+						{type=42,id=818},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =754},
+						{cond = 48,value =763},
+					},
+					results=
+					{
+						{type=42,id=818},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},	
+		
+		{
+			--鱼妖给猎魔人的额外掉落
+			xStart=-21,--相对于中心点x左边的相对坐标
+			xEnd=21,--相对于中心点x右边的相对坐标
+			yStart=-21,--相对于中心点y上边的相对坐标
+			yEnd=21,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 30,value =749},
+						{cond = 48,value =762},
+					},
+					results=
+					{
+						{type=42,id=818},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =750},
+						{cond = 48,value =762},
+					},
+					results=
+					{
+						{type=42,id=818},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},	
+		{
+			--水寨小怪给猎魔人的额外掉落
+			xStart=-21,--相对于中心点x左边的相对坐标
+			xEnd=21,--相对于中心点x右边的相对坐标
+			yStart=-21,--相对于中心点y上边的相对坐标
+			yEnd=21,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 30,value =749},
+						{cond = 48,value =756},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =750},
+						{cond = 48,value =756},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =749},
+						{cond = 48,value =757},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =750},
+						{cond = 48,value =757},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},
+		{
+			--高家店小怪给猎魔人的额外掉落
+			xStart=-21,--相对于中心点x左边的相对坐标
+			xEnd=21,--相对于中心点x右边的相对坐标
+			yStart=-21,--相对于中心点y上边的相对坐标
+			yEnd=21,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 30,value =751},
+						{cond = 48,value =758},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =752},
+						{cond = 48,value =758},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =754},
+						{cond = 48,value =758},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =751},
+						{cond = 48,value =759},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =752},
+						{cond = 48,value =759},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =754},
+						{cond = 48,value =759},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},	
+		{
+			--五指山下小怪给猎魔人的额外掉落
+			xStart=-21,--相对于中心点x左边的相对坐标
+			xEnd=21,--相对于中心点x右边的相对坐标
+			yStart=-21,--相对于中心点y上边的相对坐标
+			yEnd=21,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+		acts=
+			{
+				{
+					conds=
+					{
+						{cond = 30,value =751},
+						{cond = 48,value =760},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =752},
+						{cond = 48,value =760},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =754},
+						{cond = 48,value =760},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =751},
+						{cond = 48,value =761},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =752},
+						{cond = 48,value =761},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+				{
+					conds=
+					{
+						{cond = 30,value =754},
+						{cond = 48,value =761},
+					},
+					results=
+					{
+						{type=42,id=817},
+					},
+
+					specialEffects=
+					{
+					
+					},
+				},
+			},
+		},			
+	},
+	
+
+	trainConds=
+	{
+
+	},
+	
+	spellConds=
+	{
+
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=15000,
+
+},

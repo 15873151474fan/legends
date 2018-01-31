@@ -1,0 +1,90 @@
+--lua script
+
+--#include "data\config\activityconfig\NationalDayHorse\NationalDayHorseAct.txt" once
+--#include "data\config\activityconfig\NationalDayHorse\BuyingSpreeCfg.txt" once  
+--#include "data\functions\Activity\Common\Misc.txt" once 
+
+--¹ºÎï¿ñ»¶
+
+
+--¸ø¹ºÎï¿ñ»¶½±Àø
+function GiveBuyingSpreeAward(sysarg, args) 
+	if System.getDoubleElevenActFlag(7) ~= 1 then
+		return 
+	end
+	
+	local consumeYb = args[2]
+	local itemId = args[3]
+	if consumeYb <= 0 then
+		return 
+	end
+	
+	if not BuyingSpreeCfg then 
+		return 
+	end
+	
+	local idx = GetCfgRandomInfo(BuyingSpreeCfg.awards, nil) 
+	if idx <= 0 then
+		idx = table.getn(BuyingSpreeCfg.awards)
+	end
+	
+	local awardList = BuyingSpreeCfg.awards[idx].awardList
+	if table.getn(awardList) <= 0 then
+		return
+	end
+	
+	local awardIdx = GetCfgRandomInfo(awardList, nil) 
+	if awardIdx <= 0 then
+		awardIdx = table.getn(awardList)
+	end
+	
+	local broacastFlag = false
+	local str = ""
+	local actorName = Actor.getName(sysarg)
+	local awardConfig = awardList[awardIdx]
+	if awardConfig then
+		if awardConfig.type == 15 then
+			local award = consumeYb * awardConfig.count / 100  
+			if award <= 0 then
+				return 
+			end
+			
+			Actor.changeMoney(sysarg, 3, award, 973, Lang.LogTips.mgq109)
+	
+			if awardConfig.isBrocast == true then
+				broacastFlag = true
+				if awardConfig.count == 100 then
+					local itemName = Item.getAwardDesc(0, itemId)
+					str = string.format(Lang.Activity.mqg0203, actorName, itemName)
+				else
+					str = string.format(Lang.Activity.mqg0204, actorName, award)
+				end
+			end
+		elseif awardConfig.type == 0 then
+			local itemName = Item.getAwardDesc(awardConfig.type, awardConfig.id)
+			local needCount = Item.getAddItemNeedGridCount(sysarg, awardConfig.id, awardConfig.count, awardConfig.quality, awardConfig.strong, awardConfig.bind)
+			local emptyCount = Item.getBagEmptyGridCount(sysarg)
+			if emptyCount >= needCount then
+				Actor.giveAward(sysarg, awardConfig.type, awardConfig.id, awardConfig.count,
+					awardConfig.quality, awardConfig.strong, awardConfig.bind, 0, 973, Lang.LogTips.mgq109)
+			else
+				Dmkj.addItem(sysarg, awardConfig.id,awardConfig.count,awardConfig.quality,awardConfig.strong,awardConfig.bind,false,0,973,Lang.LogTips.mgq109)
+				--Actor.messageBox(sysarg, 0, 0, string.format(Lang.Activity.mgq0201,itemName), Lang.Activity.mgq0202.."/OpenDmkjDlgfunc", nil, nil,0,0)
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mgq0201,itemName), ttDialog)
+			end
+			
+			if awardConfig.isBrocast == true then
+				broacastFlag = true
+				str = string.format(Lang.Activity.mqg0205, actorName, itemName)
+			end
+		end
+		
+		if broacastFlag then
+			System.broadcastTipmsg(str, ttChatWindow + ttScreenCenter)
+		end
+	end
+	
+end
+
+
+

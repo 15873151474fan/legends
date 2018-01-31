@@ -1,0 +1,43 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+function PowderPacketItemFunc(sysarg,itemidx,itemPtr,ItemTable)
+  local DELAYTIME = 3000
+  if ItemTable == nil then return end
+  if Actor.getSceneId(sysarg) ~= ItemTable.usesceneid then 
+  	Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00038,ttDialog)
+  	return
+  end
+  local x = Actor.getIntProperty(sysarg,PROP_ENTITY_POSX)
+	local y = Actor.getIntProperty(sysarg,PROP_ENTITY_POSY)
+  if not (x >= ItemTable.x1 and x <= ItemTable.x2 and y == ItemTable.y) then 
+   	Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00031,ttDialog)
+		return
+  end
+  --[[
+  local result1 = false
+  local postint,result1 = Actor.postEntityScriptDelayMsg(sysarg,DELAYTIME,result1,ItemTable.DelayType,ItemTable.item_id,ItemTable.monsterid,x,y)
+  if not result1 then 
+  	--print("post delay is false")
+ 		return 
+  end
+	local npack = DataPack.allocPacket(sysarg,139,4)
+	if npack == nil then return end
+	DataPack.writeInt(npack,postint)
+	DataPack.writeInt(npack,DELAYTIME)
+	DataPack.writeByte(npack,1)
+	DataPack.writeByte(npack,1)
+	DataPack.writeString(npack,Lang.ScriptTips.x00073)
+	DataPack.flush(npack)
+	--]]
+	Actor.startSingWnd(sysarg,ItemTable.DelayType,3000,Lang.ScriptTips.x00073,true,true,false,ItemTable.item_id,ItemTable.monsterid,x,y)
+end
+
+function  PowderPacketItemsInit(sysarg)
+  for i = 1,table.getn(PowderPacketItem) do
+	local x = PowderPacketItem[i]
+	GlobalItemFn[x.item_id] = { func = PowderPacketItemFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable,PowderPacketItemsInit)

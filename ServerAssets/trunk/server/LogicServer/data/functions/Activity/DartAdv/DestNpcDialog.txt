@@ -1,0 +1,184 @@
+--lua script
+--交送美女的对话
+
+--#include "data\functions\Activity\Common\Awards.txt" once
+--#include "ApplyDartCommon.txt" once
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+
+--交送
+function FinishDartAdvDialog(sysarg)
+	local str = ""
+	--系统级静态变量
+	local dVar = Actor.getStaticVar(sysarg)
+	
+	if dVar.ActorDartAdvStatus == nil then
+		dVar.ActorDartAdvStatus = 0
+	end
+
+	if dVar.ActorDartAdvStatus == 1 then
+		str = str .. "\\".."<#BL"..Lang.Activity.da0007.."/@FinishActorDartAdv>"
+	end
+
+	return str
+end
+
+--护送美女 完成
+function FinishActorDartAdv(sysarg)
+	--判断是否有镖车
+	local svar = Actor.getStaticVar(sysarg)
+	if svar.ActorDartAdvMonster == nil or svar.ActorDartAdvMonster == 0 then
+		Actor.sendTipmsg( sysarg, Lang.Activity.da0008,ttFlyTip)
+		return
+	end
+	
+	local ActorDartAdvMon = Actor.getEntity(svar.ActorDartAdvMonster)
+	if (ActorDartAdvMon == nil or ActorDartAdvMon == 0) then 
+		Actor.sendTipmsg( sysarg, Lang.Activity.da0009,ttFlyTip)
+		return
+	end
+
+	local monPosX, monPosY = Actor.getEntityPosition(ActorDartAdvMon, 0, 0)
+	local selfPosX, selfPosY = Actor.getEntityPosition(thisNPC, 0, 0)
+	local succFollowDist = DartAdvConfig.FinishsuccDist
+
+	if (math.abs(monPosX-selfPosX) > succFollowDist or math.abs(monPosY-selfPosY) > succFollowDist) then
+		Actor.sendTipmsg( sysarg, Lang.Activity.da0010,ttFlyTip)
+		return
+	else		
+		local hasCount = Item.getBagEmptyGridCount(sysarg)
+		local needCount = 2
+		if hasCount < needCount then
+			Actor.sendTipmsg( sysarg, string.format(Lang.Activity.da0019,needCount),ttFlyTip)
+			return
+		end
+
+		OnActorDartAdvFinished(sysarg)
+	end
+	
+	--Actor.setWorkDayMask(sysarg, 0, 33, true)
+
+	Actor.closeNPCDialog( sysarg )
+end
+
+-- @brief: 交付镖车，护送镖车完毕
+function OnActorDartAdvFinished(sysarg)
+	local svar = Actor.getDyanmicVar(sysarg)
+	local dVar = Actor.getStaticVar(sysarg)
+
+	if dVar.ActorDartAdvMonster == nil then
+		return
+	end
+
+	if dVar.ActorDartAdvType == nil or dVar.ActorDartAdvType == 0 then 
+		return 
+	end
+
+	local pack = DataPack.allocPacket(sysarg, 139, 13)
+	if (pack ~= nil) then
+		DataPack.writeInt64(pack,dVar.ActorDartAdvMonster)    --下属句柄
+		DataPack.flush(pack)
+	end
+
+	GiveActorDartAdvAward(sysarg,dVar.ActorDartAdvType)
+
+	
+	if dVar.ActorApplyDartAdvTimes == nil then
+		dVar.ActorApplyDartAdvTimes = 0 
+	end
+	
+	local nTimes = DartAdvConfig.OpenTimes		--能护送的次数
+	if Actor.isVip(sysarg) == true then
+		nTimes = DartAdvConfig.VipOpenTimes
+	end
+
+	dVar.ActorDartAdvStatus = DartAdvConfig.DartSetup.CampDartStatusFinished
+	ResetActorDartAdvInfo(sysarg,false)
+	--Actor.triggerQuestEvent(sysarg, 127, 50094, 1)
+
+	if dVar.ActorApplyDartAdvTimes < nTimes then			--护送的次数
+		local str = string.format(Lang.Activity.da0020,nTimes-dVar.ActorApplyDartAdvTimes)
+		Actor.messageBox(sysarg,0,0,str,Lang.Activity.da0021.."/GoonApplyDartAdv",Lang.Activity.w00011.."/CancleApply",NULL)
+	else
+		OpenGuideUi(sysarg)
+	end
+end
+
+--发送奖励
+function GiveActorDartAdvAward(sysarg,nIndex)
+	--print("GiveActorDartAdvAward:"..nIndex)
+	local str = ""
+	if nIndex == nil or nIndex == 0 then return end
+	
+	local sVar = Actor.getStaticVar(sysarg)
+	
+	if sVar.ActorDartAdvStatus ~= 1 then return end
+	
+	sVar.ActorDartAdvStatus = nil
+	
+	local DartHorse = DartAdvConfig.DartHorse[nIndex]
+	
+	if not DartHorse then return end
+	
+	local nHour,nMinu,nSec = System.getTime(0,0,0)
+	
+	local nrate = 1
+	if System.isInTimeRange(unpack(DartAdvConfig.DoubleAwardTime)) == true then
+		nrate = DartAdvConfig.AwardsRate
+	end
+
+	--双倍奖励活动
+	local doubleAwardActRate = 0
+	if System.getDoubleAwardFlag(1) == 1 then
+		doubleAwardActRate = 1
+	end
+	
+	local awards, DepositCoin = GetDartAdvRealAwards(sysarg, DartHorse)
+	--押金
+	if DepositCoin > 0 then
+		Actor.changeMoney(sysarg, mtCoin, DepositCoin, 917, Lang.LogTips.l00175)
+	end
+	
+	--完成奖励
+	if not awards then return end
+	
+	local rRate = GetCombineActivityRate()
+
+	local nExp = Actor.getActivityExp(sysarg,awards[1].id,awards[1].count * (nrate * rRate + doubleAwardActRate),awards[1].quality)
+	
+	--拉镖奖励
+	if nrate > 0 and rRate > 0 then
+		for i=1,table.getn(awards) do
+			Actor.giveAward(sysarg,awards[i].type,
+							awards[i].id,
+							awards[i].count * (nrate * rRate + doubleAwardActRate),
+							awards[i].quality,
+							awards[i].strong,
+							awards[i].bind,
+							0, 917, Lang.LogTips.l00175)
+		end
+	end
+
+
+	local nCoin = awards[2].count * (nrate * rRate + doubleAwardActRate)
+
+	local dVar = Actor.getStaticVar(sysarg)
+	if dVar.ThisDartAdvFreshAward == nil then
+		dVar.ThisDartAdvFreshAward = 0
+	end
+	str = string.format(Lang.Activity.g00049,nExp,nCoin)
+	local tmpStr = ""
+	
+	--额外奖励
+	if sVar.DartAdvInsureType == 2 or sVar.DartAdvBeLoot ~= 1 then	--如果投保了 或者 没有被劫
+		if dVar.ThisDartAdvFreshAward == 1 then
+			Awards.Give(sysarg,DartHorse.AwardsMore,917,Lang.LogTips.l00177)
+			local sname = Item.getItemName(DartHorse.AwardsMore[1].id)
+			tmpStr = string.format(Lang.Activity.g00050,sname)
+		end
+	end
+
+	str = str..tmpStr
+	Actor.sendTipmsg( sysarg, str,ttFlyTip)
+end
+
+table.insert(MainFnTable, FinishDartAdvDialog)

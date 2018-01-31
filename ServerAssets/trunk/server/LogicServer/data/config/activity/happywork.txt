@@ -1,0 +1,310 @@
+﻿--lua script
+
+--#include "..\..\language\LangCode.txt" once
+--快乐上班
+
+HappyWork =
+{
+	{	--上班没时间
+		title = Lang.Secretary.name0001,		--”上班没时间“的文字配置
+		desc = Lang.Secretary.desc0001,			--上班没时间	描述
+		tips = Lang.Secretary.tips0001,			--上班没时间 提示标题
+		content	=
+		{
+			{
+				--30-34区间的配置	
+				minLv = 30,		
+				maxLv = 34,	
+				context = 
+				{--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0001,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 2,				--对应的页
+						activeName = Lang.ActivityName.name00046,		--对应活动或者副本名字
+						openLevelTitle = Lang.Secretary.openLevelTitle0002,
+						awardDesc = Lang.Secretary.item0001,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0005,			   --超链接标题
+						pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 20, y = 20, entityName = Lang.EntityName.n00155},
+					},
+					{
+						type = 4,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0002,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 2,				--对应的页
+						activeName = Lang.Secretary.title0002,		--对应活动或者副本名字
+						openLevelTitle = Lang.Secretary.openLevelTitle0002,
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0001,			   --超链接标题
+							pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 20, y =20 , entityName = Lang.EntityName.n00155},
+						},
+					{
+						type = 4,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0003,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 2,				--对应的页
+						activeName = Lang.Secretary.title0003,		--对应活动或者副本名字
+						openLevelTitle = Lang.Secretary.openLevelTitle0003,
+						awardDesc = Lang.Secretary.item0003,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0001,			   --超链接标题
+							pos = {sceneid = 8,sceneName = Lang.SceneName.s00008, x = 20, y = 20, entityName = Lang.EntityName.n00024},
+		
+					},
+					{
+						type = 4,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0004,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 2,				--对应的页
+						activeName = Lang.Secretary.title0004,		--对应活动或者副本名字
+						openLevelTitle = Lang.Secretary.openLevelTitle0004,
+						awardDesc = Lang.Secretary.item0004,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0001,			   --超链接标题
+							pos = {sceneid = 2, sceneName = Lang.SceneName.s00002, x = 20, y = 20, entityName = Lang.EntityName.n00135},
+		
+					},
+					{
+						type = 4,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0005,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 2,				--对应的页
+						activeName = Lang.Secretary.title0005,		--对应活动或者副本名字
+						openLevelTitle = Lang.Secretary.openLevelTitle0004,
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0001,			   --超链接标题
+							pos = {sceneid = 8,sceneName = Lang.SceneName.s00008, x = 20, y = 20, entityName = Lang.EntityName.n00129},
+		
+					},
+				 },
+			  },
+		},
+	},
+	
+	--实在没时间
+	{	
+		title = Lang.Secretary.name0002,		--”实在没时间“的文字配置
+		desc = Lang.Secretary.desc0002,	
+		tips = Lang.Secretary.tips0002,
+		content	=
+		{
+			{
+				--30-34区间的配置	
+				minLv = 30,		
+				maxLv = 34,	
+				context = 
+				{--具体任务
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0006,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 0,				--对应的页
+						activeName = Lang.ActivityName.name00001,		--对应活动或者副本名字
+						awardDesc = Lang.Secretary.item0005,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0002,			   --超链接标题
+								pos = {},
+		
+					},
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0007,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						awardDesc = Lang.Secretary.item0005,	--奖励描述名字
+						pageId = 1,				--对应的页
+						activeName = Lang.Secretary.title0007,		--对应活动或者副本名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0002,			   --超链接标题
+							pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 20, y = 20, entityName = Lang.EntityName.n00155},
+		
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0008,		--对应类型的活动或者副本名字
+						id = 52,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						awardDesc = Lang.Secretary.item0006,	--奖励描述名字
+						pageId = 1,				--对应的页
+						activeName = Lang.Secretary.title0008,		--对应活动或者副本名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0003,			   --超链接标题
+							pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 20, y = 20, entityName = Lang.EntityName.n00155},
+		
+					},
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0009,		--对应类型的活动或者副本名字
+						id = 43,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 0,				--对应的页
+						activeName = Lang.Secretary.title0009,		--对应活动或者副本名字
+						awardDesc = Lang.Secretary.item0007,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0004,			   --超链接标题
+							pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 20, y = 20, entityName = Lang.EntityName.n00155},
+		
+					},
+			    },
+			},
+		 },	
+	},
+	--工作午休时间
+	{	
+		title = Lang.Secretary.name0003,		--”工作午休时间“的文字配置
+		desc = Lang.Secretary.desc0003,
+		tips = Lang.Secretary.tips0003,
+		content	=
+		{
+			{
+				--30-34区间的配置	
+				minLv = 30,		
+				maxLv = 34,	
+				context = 
+				{--具体任务
+					{
+						type = 2,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0010,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 0,				--对应的页
+						activeName = Lang.Secretary.title0010,		--对应活动或者副本名字
+						openLevelTitle = Lang.Secretary.openLevelTitle0001,
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0005,			   --超链接标题
+								pos = { },
+		
+					},
+					{
+						type = 4,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0011,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						pageId = 0,				--对应的页
+						activeName = Lang.Secretary.title0011,		--对应活动或者副本名字
+						openLevelTitle = Lang.Secretary.openLevelTitle0003,
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0001,			   --超链接标题
+							pos = {sceneid = 3, sceneName = Lang.SceneName.s00003, x = 20, y = 20, entityName = Lang.EntityName.n00124},
+		
+					},
+					{
+						type = 4,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0012,		--对应类型的活动或者副本名字
+						id = 15,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 0,				--对应的页
+						activeName = Lang.Secretary.title0012,		--对应活动或者副本名字
+						openLevelTitle = Lang.Secretary.openLevelTitle0002,
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0001,			   --超链接标题
+							pos = {sceneid = 8, sceneName = Lang.SceneName.s00008, x = 20, y =20 , entityName = Lang.EntityName.n00155},
+		
+					},
+			   },
+			},
+		  },
+		},
+--下班回家时间
+	{	
+		title = Lang.Secretary.name0004,		--”下班回家时间“的文字配置
+		desc = Lang.Secretary.desc0004,
+		tips = Lang.Secretary.tips0004,
+		content	=
+		{
+			{
+				--30-34区间的配置	
+				minLv = 30,		
+				maxLv = 34,	
+				context = 
+				{--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0013,		--对应类型的活动或者副本名字
+						id = 35,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 0,				--对应的页
+						activeName = Lang.Secretary.title0013,		--对应活动或者副本名字
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0006,			   --超链接标题
+								pos = {},
+		
+					},
+			
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0009,		--对应类型的活动或者副本名字
+						id = 43,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 0,				--对应的页
+						activeName = Lang.Secretary.title0009,		--对应活动或者副本名字
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0004,			   --超链接标题
+							pos = {},
+		
+					},
+				},
+			},	
+		},
+	},
+--晚上睡觉时间
+	{	
+		title = Lang.Secretary.name0005,		--”下班回家时间“的文字配置
+		desc = Lang.Secretary.desc0005,
+		tips = Lang.Secretary.tips0005,
+		content	=
+		{
+			{
+				--30-34区间的配置	
+				minLv = 30,		
+				maxLv = 34,	
+				context = 
+				{--具体任务
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0013,		--对应类型的活动或者副本名字
+						id = 35,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId =0,				--对应的页
+						activeName = Lang.Secretary.title0013,		--对应活动或者副本名字
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0006,			   --超链接标题
+								pos = {},
+		
+					},
+	
+					{
+						type = 3,              --1表示任务，2表示活动，3表示打开界面，4根据阵营去指定npc
+						typeTitle = Lang.Secretary.title0009,		--对应类型的活动或者副本名字
+						id = 43,            --任务的话就是任务的id,活动表示活动的ID，界面表示界面的Id
+						pageId = 0,				--对应的页
+						activeName = Lang.Secretary.title0009,		--对应活动或者副本名字
+						awardDesc = Lang.Secretary.item0002,	--奖励描述名字
+						star = 5,              --奖励的星级
+						times = 0,			   --每日次数
+						desc = Lang.Secretary.cao0004,			   --超链接标题
+							pos = {},
+		
+					},
+				},
+			},
+		},
+	},	
+
+}

@@ -1,0 +1,579 @@
+﻿--活动通用函数
+
+--判断物品数量是否满足条件
+--checkTbl：待检测的物品ID表
+	--[[
+		checkTbl = 
+		{
+			{nId = 1111, nCount = 1, nQuality = -1, nStrong = -1, nBind = -1},	
+			{nId = 1111, nCount = 1, nQuality = -1, nStrong = -1, nBind = -1},
+			{nId = 1111, nCount = 1, nQuality = -1, nStrong = -1, nBind = -1},
+			{nId = 1111, nCount = 1, nQuality = -1, nStrong = -1, nBind = -1},
+		},
+		--]]
+--返回bool , 物品下标
+function CheckItemCount(sysarg, checkTbl)
+	local bCheck = true
+	local index = 0
+	for i = 1, table.getn(checkTbl) do
+		local item = checkTbl[i]
+		if Actor.getItemCount(sysarg, item.nId, item.nQuality, item.nStrong, item.nBind) < item.nCount then
+			index = i
+			bCheck = false
+			break
+		end
+	end
+	return bCheck, index
+end
+
+--收取物品
+--removeTbl：待收取的物品ID表
+	--[[
+		removeTbl = 
+		{
+			{nId = 1111, nCount = 1, nQuality = -1, nStrong = -1, nBind = -1},	
+			{nId = 1111, nCount = 1, nQuality = -1, nStrong = -1, nBind = -1},
+			{nId = 1111, nCount = 1, nQuality = -1, nStrong = -1, nBind = -1},
+			{nId = 1111, nCount = 1, nQuality = -1, nStrong = -1, nBind = -1},
+		},
+		--]]
+--sLog；运营日志
+--nLogID：日志号
+--返回bool , 物品下标
+function RemoveItem(sysarg, removeTbl, sLog, nLogID)
+	local bRun = true
+	local index = 0
+	for i = 1, table.getn(removeTbl) do
+		local item = removeTbl[i]
+		if Actor.removeItem(sysarg, item.nId, item.nCount, item.nQuality, item.nStrong, item.nBind, sLog, nLogID) < item.nCount then
+			index = i
+			bRun = false
+			break
+		end
+	end
+	-------------------报警
+	if bRun == false then
+		local id = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		print(string.format("Script %s RemoveItem Error! ActorID = %d", sLog, id))
+	end
+	--------------------
+	return bRun, index
+end
+
+--判断是否可以给予物品
+--giveTbl：待给予的物品ID表
+	--[[
+		addTbl = 
+		{
+			{nId = 1111, nCount = 1, nQuality = 0, nStrong = 0, nBind = 1},
+			{nId = 1111, nCount = 1, nQuality = 0, nStrong = 0, nBind = 1},
+		},
+		--]]
+--sLog；运营日志
+--nLogID：日志号
+--返回bool , 物品下标
+function CanAddItem(sysarg, addTbl, sLog, nLogID)
+	local bRun = true
+	local index = 0
+	for i = 1, table.getn(addTbl) do
+		local item = addTbl[i]
+		if Actor.canAddItem(sysarg, item.nId, item.nCount, item.nQuality, item.nStrong, item.nBind) == false then
+			index = i
+			bRun = false
+			break
+		end
+	end
+	return bRun, index
+end
+
+--给予物品
+--giveTbl：待给予的物品ID表
+	--[[
+		addTbl = 
+		{
+			{nId = 1111, nCount = 1, nQuality = 0, nStrong = 0, nBind = 1},
+			{nId = 1111, nCount = 1, nQuality = 0, nStrong = 0, nBind = 1},
+		},
+		--]]
+--sLog；运营日志
+--nLogID：日志号
+--返回bool , 物品下标
+function AddItem(sysarg, addTbl, sLog, nLogID)
+	local bRun = true
+	local index = 0
+	for i = 1, table.getn(addTbl) do
+		local item = addTbl[i]
+		if Actor.addItem(sysarg, item.nId,  item.nQuality, item.nStrong, item.nCount,item.nBind, 0,sLog, nLogID) < item.nCount then
+			index = i
+			bRun = false
+			break
+		end
+	end
+	-------------------报警
+	if bRun == false then
+		local id = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		print(string.format("Script %s AddItem Error! ActorID = %d", sLog, id))
+	end
+	--------------------
+	return bRun, index
+end
+
+--给予非物品奖励
+--addTbl 奖励表
+	--[[
+	addTbl = 
+	{
+		{
+			type = 2,								--奖励类型 例如2为经验奖励
+			levelRange = {1, 60},	--等级范围
+			value =									--奖励值，跟levelRange挂钩 例如value[1] = levelRange[1]开始
+			{
+				10,
+				11,
+			},
+		},
+	}
+	--]]
+--auxParam:辅助参数，比如学习技能的话就是技能的等级
+--sLog: 记录日志的字符串
+--nLogId: 记录日志的id
+function AddLevelOther(sysarg, addTbl, auxParam, sLog, nLogID)
+	local bRun = true
+	local index = 0
+	for i=1, table.getn(addTbl) do
+		local other = addTbl[i]
+		local level = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL) 
+		if other.levelRange[1] <= level and other.levelRange[2] >= level then 
+			local nValue = other.value[(level-other.levelRange[1])+1]
+			if nValue then
+				if Actor.giveAward(sysarg, other.type,0,nValue,0, 0, 1, auxParam, nLogID,sLog) == false then 
+					index = i
+					bRun = false
+					break
+				end
+			end
+		end
+	end
+	-------------------报警
+	if bRun == false then
+		local id = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		print(string.format("Script %s AddLevelOther Error! ActorID = %d", sLog, id))
+	end
+	--------------------
+	return bRun, index
+end
+
+--判断时间是否在一个范围组内
+--tbtime  时间表
+	--[[
+		tbTime = 
+		{
+			{11,45,0,12,15,0},
+			{11,45,0,12,15,0},
+		},  
+	--]]
+--返回 bool
+function IsInTimeRange(tbTime)
+	for i=1, table.getn(tbTime) do
+		if System.isInTimeRange(unpack(tbTime[i])) == true then
+			return true
+		end
+	end
+	return false
+end
+
+--排行榜初始化函数
+--sRankName:排行榜的名称
+--sRankFile:排行榜保存文件
+--tbColumn:排行榜列 表 tbColumn = {column0, column1, column2, ...}
+--nMax:发给客户端最多的行数
+--boDisplay:是否在客户端显示，默认是0，不显示，1显示
+function RankingInit(sRankName, sRankFile, tbColumn, nMax, boDisplay)
+	--每场排行榜
+	local ranking = Ranking.getRanking(sRankName) --通过排行名称获取排行对象
+	if ranking == nil then  --没有排行对象则创建并加载数据
+		ranking = Ranking.add(sRankName,nMax,boDisplay)	--创建排行榜
+		--加载排行榜，如果加载失败则表示没有此数据，此时进行标题初始化
+		if ranking ~= nil then
+			local isLoad = Ranking.load(ranking,sRankFile)                --读取文件内容
+			if isLoad == false then
+				for i=1, table.getn(tbColumn) do
+					Ranking.addColumn(ranking,tbColumn[i][1]) --添加一个标题列  
+				end
+			end
+		end
+	end
+	--设置列显示
+	if boDisplay == 1 then
+		for i=0, (table.getn(tbColumn)-1) do
+			if tbColumn[i+1][2] == 0 then
+				Ranking.setColumnDisplay(ranking,i,0)   --设置某列是否显示在客户端
+			end
+		end
+	end
+	Ranking.addRef(ranking) --增加对此排行对象的引用计数
+end
+
+
+--排行榜销毁函数
+--sRankName:排行榜的名称
+--sRankFile:排行榜保存文件
+function RankingFina(sRankName, sRankFile)
+	--每场排行榜
+	local ranking = Ranking.getRanking(sRankName) --通过排行名称获取排行对象
+	if ranking ~= nil then
+    Ranking.save(ranking,sRankFile)       --保存排行榜进文件
+		if Ranking.getRef(ranking) == 1 then
+			Ranking.removeRanking(sRankName) 	      --如果引用计数减少至0，则对象自动被销毁
+		else
+			Ranking.release(ranking)			      --减少引用计数
+		end
+  end
+  ranking = nil
+end
+
+
+
+--显示排行榜
+--sRankName:排行榜名称
+--nCount:排行榜项数
+--sTips1:排行榜tips
+--sTips2:排行榜tips
+function ShowRankingList(sysarg, sRankName, nCount, sTips1, sTips2)
+	local ranking = Ranking.getRanking(sRankName)
+	if (not ranking) then 
+		return Lang.ScriptTips.mt00008
+	end
+	local str = ""
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local item = Ranking.getItemPtrFromId(ranking, userId)
+	local point = 0
+	local rank = Lang.ScriptTips.mt00009
+	if (item) then
+		point = Ranking.getPoint(item)
+		rank = Ranking.getItemIndexFromId(ranking, userId)+1
+	end
+	str = str..string.format(sTips1, point, tostring(rank))	--sTips1
+	
+	local count = tonumber(nCount)
+	if (not count) or count < 0 then
+		count = Ranking.getRankItemCount(ranking)
+	end
+	local rankTbl = LuaHelp.getRankingItemList(ranking,count)
+	if rankTbl and #rankTbl > 0 then
+		local i
+		for i=1, #rankTbl do
+			local userName = Ranking.getSub(rankTbl[i],0)
+			local point = Ranking.getPoint(rankTbl[i])
+			str = str..string.format(sTips2,i,userName,point)	--sTips2
+		end
+	else 
+		str = Lang.ScriptTips.mt00008
+	end
+	return str
+end
+
+
+--[[
+    函数名称：checkJob
+    函数描述：检测人物职业 返回职业字符串 
+    参数 idx 的描述：职业ID 
+]]
+function checkJob(idx)
+	local userJob = tonumber(idx)
+	local job = ""
+	if userJob == 1 then
+		job = Lang.ScriptTips.mt00010
+	elseif userJob == 2 then
+		job = Lang.ScriptTips.mt00011
+	elseif userJob == 3 then
+		job = Lang.ScriptTips.mt00012
+	elseif userJob == 4 then
+		job = Lang.ScriptTips.mt00013
+	elseif userJob == 5 then
+		job = Lang.ScriptTips.mt00014
+	elseif userJob == 6 then
+		job = Lang.ScriptTips.mt00015
+	elseif userJob == 7 then
+		job = Lang.ScriptTips.mt00016
+	elseif userJob == 8 then
+		job = Lang.ScriptTips.mt00017
+	else
+		job = Lang.ScriptTips.mt00018
+	end
+	return job
+end
+
+--[[
+    函数名称：checkSex
+    函数描述：检测人物性别 返回性别字符串
+    参数 idx 的描述：性别ID
+]]
+function checkSex(idx)
+	local idx = tonumber(idx)
+	local sex = ""
+	if idx == 1 then
+		sex = Lang.ScriptTips.mt00019
+	else
+		sex = Lang.ScriptTips.mt00020
+	end
+	return sex  
+end
+
+
+--清除场景表里的玩家 返回各个阵营
+--tbClearId:清除场景ID表
+	--[[
+		ClearHolyFlameArea = {1,2}
+	--]]
+--tbReturn:阵营回城表
+	--[[
+		--回城区 请不要改变顺序 [1]无忌 [2]逍遥 [3]日月
+		GoHomeArea = 
+		{
+			[1] = {nSid = 1, nPosX1 = 1, nPosX2 = 1, nPosY = 2,},	--无忌
+			[2] = {nSid = 1, nPosX1 = 1, nPosX2 = 1, nPosY = 2,},	--逍遥
+			[3] = {nSid = 1, nPosX1 = 1, nPosX2 = 1, nPosY = 2,},	--日月
+		},
+	--]]
+function ClearSceneAllActorToCamp(tbClearId,tbReturn)
+	if (not tbClearId) or (not tbReturn) then return end
+	for i=1, #tbClearId do
+	  local playerList = LuaHelp.getSceneActorListById(tbClearId[i])  --获取某场景玩家对象列表
+	  if playerList ~= nil then
+		  for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+			  --直接把玩家传出来
+				local campId = Actor.getCampId(player)
+				local Return = tbReturn[campId]
+				if Return then
+					local randX = math.random(Return.nPosX1, Return.nPosX2)
+					Actor.enterScene(player,Return.nSid,randX,Return.nPosY)
+				end
+			end
+		  end
+	  end
+	end
+end
+
+
+--清除场景表里的玩家 返回某个场景
+--tbClearId:清除场景ID表
+	--[[
+		tbClearId = {1,2}
+	--]]
+--tbReturn:回城表
+	--[[
+		tbReturn = {nSid = 1, nPosX1 = 1,nPosX2 = 1, nPosY = 2,}
+	--]]
+function ClearSceneAllActorToScene(tbClearId,tbReturn)
+	if (not tbClearId) or (not tbReturn) then return end
+	for i=1, #tbClearId do
+		local playerList = LuaHelp.getSceneActorListById(tbClearId[i])  --获取某场景玩家对象列表
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					--直接把玩家传出来
+					local Return = tbReturn
+					if Return then
+						local randX = math.random(Return.nPosX1, Return.nPosX2)
+						Actor.enterScene(player,Return.nSid,randX,Return.nPosY)
+					end
+				end
+			end
+		end
+	end
+end
+
+--将某个场景里的玩家传送回自己服务器
+--tbClearId:清除场景ID表
+	--[[
+		tbClearId = {1,2}
+	--]]
+function ClearSceneAllActorToRawServer(tbClearId)
+	if (not tbClearId) then return end
+	for i=1, #tbClearId do
+		local playerList = LuaHelp.getSceneActorListById(tbClearId[i])  --获取某场景玩家对象列表
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player and Actor.isInRawServer(player) ~= true then
+					--local rawServerId = Actor.getActorRawServerId(player)
+					--Actor.reqTransmitTo(player, rawServerId)
+					Actor.reqTransmitToRawServer(player)
+				end
+			end
+		end
+	end
+end
+
+--清除场景表里的玩家 返回重配地图
+function ClearSceneAllActorToReloadMapPos(tbClearId)
+	if (not tbClearId) then return end
+	for i=1, #tbClearId do
+		local playerList = LuaHelp.getSceneActorListById(tbClearId[i])  --获取某场景玩家对象列表
+		if playerList ~= nil then
+			for j = 1, #playerList do
+				local player = playerList[j]
+				if player then
+					--直接把玩家传出来
+					local Pos = LuaHelp.getReloadMapPos(player) 
+					Actor.enterScene(player,Pos[1],Pos[2],Pos[3])
+				end
+			end
+		end
+	end
+end
+
+
+--传送在线玩家到某坐标 
+--npcPtr：脚本所在NPC指针
+--nCallLimitLevel: 传送限制等级
+--nSceneId: 传送目标点场景ID
+--nPosX1：传送目标点场景X1
+--nPosX2：传送目标点场景X2
+--nPosY：传送目标点场景Y
+--sShowMsg：弹出框显示信息
+--nTimeOut：对话框的存在时间，单位：秒。如果不限制时间，填 0
+--nMsgType：弹出类型  0:直接弹出	1：停在屏幕中央，用户点击才弹出
+--sTips：鼠标移上去的tip，弹出类型是1才有用
+--nIcon：窗口图标ID，弹出类型是1才有用 
+function CallAllOnlineActorToPos(npcPtr, nCallLimitLevel, nSceneId, nPosX1, nPosX2, nPosY, sShowMsg, nTimeOut, nMsgType, sTips, nIcon)
+	local playerList = LuaHelp.getAllActorList()  --获取在线玩家对象列表
+	if playerList == nil then return end  
+	local npcHandle = Actor.getHandle(npcPtr)
+	for i = 1, #playerList do
+		local player = playerList[i]
+		if player then
+			--判断在线玩家是否符合等级和是否在副本 
+			if Actor.getIntProperty( player, PROP_CREATURE_LEVEL ) >= nCallLimitLevel and Actor.getFubenId(player) == 0 then
+				local userId = Actor.getIntProperty( player, PROP_ENTITY_ID )
+				local randX = math.random(nPosX1, nPosX2)
+				Actor.messageBox(player,npcHandle,userId,sShowMsg,Lang.ScriptTips.mt00021.."/AcceptTelportFunc,"..nSceneId..","..randX..","..nPosY, Lang.ScriptTips.mt00022.."/CancelTelportFunc",nil, nTimeOut, nMsgType, sTips, nIcon) 
+			end
+		end   
+	end
+end
+
+--传送在线玩家到各个阵营坐标 
+--npcPtr：脚本所在NPC指针
+--nCallLimitLevel: 传送限制等级
+--tbTelport: 传送各阵营目标点场景表
+	--[[
+		--传送表 请不要改变顺序 [1]无忌 [2]逍遥 [3]日月
+		tbTelport = 
+		{
+			[1] = {nSid = 120, nPosX1 = 57, nPosX2 = 58, nPosY = 42, sNPC = Lang.ScriptTips.mt00021},	--无忌
+			[2] = {nSid = 122, nPosX1 = 76, nPosX2 = 77, nPosY = 37, sNPC = Lang.ScriptTips.mt00021},	--逍遥
+			[3] = {nSid = 124, nPosX1 = 66, nPosX2 = 67, nPosY = 38, sNPC = Lang.ScriptTips.mt00021},	--日月
+		},
+	--]]
+--sShowMsg：弹出框显示信息
+--nTimeOut：对话框的存在时间，单位：秒。如果不限制时间，填 0
+--nMsgType：弹出类型  0:直接弹出	1：停在屏幕中央，用户点击才弹出
+--sTips：鼠标移上去的tip，弹出类型是1才有用
+--nIcon：窗口图标ID，弹出类型是1才有用 
+function CallAllOnlineActorToCampPos(npcPtr, nCallLimitLevel, tbTelport, sShowMsg, nTimeOut, nMsgType, sTips, nIcon)
+  local playerList = LuaHelp.getAllActorList()  --获取在线玩家对象列表
+  if playerList == nil then return end  
+  local npcHandle = Actor.getHandle(npcPtr)
+  for i = 1, #playerList do
+    local player = playerList[i]
+    if player then
+      --判断在线玩家是否符合等级和是否在副本 
+      if Actor.getIntProperty( player, PROP_CREATURE_LEVEL ) >= nCallLimitLevel and Actor.getFubenId(player) == 0 then
+        local userId = Actor.getIntProperty( player, PROP_ENTITY_ID )
+			local campId = Actor.getCampId(player)
+			if tbTelport[campId] then
+				local randX = math.random(tbTelport[campId].nPosX1,tbTelport[campId].nPosX2)
+				Actor.messageBox(player,npcHandle,userId,sShowMsg,Lang.ScriptTips.mt00021.."/AcceptTelportFunc,"..tbTelport[campId].nSid..","..randX..","..tbTelport[campId].nPosY, Lang.ScriptTips.mt00022.."/CancelTelportFunc",nil, nTimeOut, nMsgType, sTips, nIcon) 
+			end
+      end
+    end   
+  end
+end
+
+--玩家传送 
+function AcceptTelportFunc(player, nSceneId, nPosX, nPosY)
+	local nSceneId = tonumber(nSceneId)
+	local nPosX = tonumber(nPosX)
+	local nPosY = tonumber(nPosY)
+  Actor.enterScene(player,nSceneId,nPosX,nPosY)
+end
+--取消传送
+function CancelTelportFunc(player)
+end
+
+
+--#include "data\config\item\BuffItemDatas.txt" once --BUFF配置表
+--检测活动buff 是否存在与道具或活动共有的BUFF组
+--待检测的buff buff = {type = 71, group = 130, value = 1, times = 1, interval = 1*60*60, name = Lang.ScriptTips.mt00022, timeOverlay = true,},
+--返回：nItemBuffCount 存在的道具BUFF index   nAtvBuffCount 存在的活动BUFF index  
+function CheckTaskBuffGroup(sysarg,buff)
+	local itemBuffGroups = nil
+	local atvBuffGroups = nil
+	if buff.type == 67 then	--修为
+		itemBuffGroups = AddXiuWeiBuffItems
+		atvBuffGroups = AtvXiuWeiBuffGroups
+	elseif buff.type == 71 then  --经验
+		itemBuffGroups = AddExpBuffItems
+		atvBuffGroups = AtvExpBuffGroups
+	end
+	local nItemBuffCount = 0
+	if itemBuffGroups ~= nil then	
+		--清除同类型不同组的BUFF
+		for i = 1, table.getn(itemBuffGroups) do
+			local buffGroup = itemBuffGroups[i]
+			if Actor.hasBuff(sysarg,buff.type,buffGroup.buffGroup)==true then
+				nItemBuffCount = i
+				break
+			end
+		end
+	end
+	local nAtvBuffCount = 0
+	if atvBuffGroups ~= nil then			
+		for i = 1, table.getn(atvBuffGroups) do
+			local AtvBuffGroup = atvBuffGroups[i]
+			if AtvBuffGroup ~= buff.group then
+				if Actor.hasBuff(sysarg,buff.type,AtvBuffGroup)==true then
+					nAtvBuffCount = i
+					break
+				end
+			end
+		end
+	end
+	return nItemBuffCount, nAtvBuffCount
+end
+--清空活动buff 存在与道具或活动共有的BUFF组
+function DelTaskBuffGroup(sysarg,buff)
+	local itemBuffGroups = nil
+	if buff.type == 67 then	--修为
+		itemBuffGroups = AddXiuWeiBuffItems
+		atvBuffGroups = AtvXiuWeiBuffGroups
+	elseif buff.type == 71 then  --经验
+		itemBuffGroups = AddExpBuffItems
+		atvBuffGroups = AtvExpBuffGroups
+	end
+	if itemBuffGroups ~= nil then
+		--清除同类型不同组的BUFF
+		for i = 1, table.getn(itemBuffGroups) do
+			local buffGroup = itemBuffGroups[i]
+			if Actor.hasBuff(sysarg,buff.type,buffGroup.buffGroup)==true then
+				Actor.delBuff(sysarg,buff.type,buffGroup.buffGroup)
+			end
+		end
+	end
+	if atvBuffGroups ~= nil then
+		for i = 1, table.getn(atvBuffGroups) do
+			local AtvBuffGroup = atvBuffGroups[i]
+			if AtvBuffGroup ~= buff.group then
+				if Actor.hasBuff(sysarg,buff.type,AtvBuffGroup)==true then
+					Actor.delBuff(sysarg,buff.type,AtvBuffGroup)
+				end
+			end
+		end
+	end
+	return true
+end

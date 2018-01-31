@@ -1,0 +1,8 @@
+﻿--lua script
+--本文件是用于定义宝物相关的任务
+
+--这里配置装备宝物后，要完成的任务
+GemTakeOnEquestData = 
+{
+   {qid = 1862, tid = 31058,count=1},  --任务目标
+} 

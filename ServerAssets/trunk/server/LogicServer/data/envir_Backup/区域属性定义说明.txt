@@ -1,0 +1,116 @@
+//tolua_begin
+//地图区域属性的定义
+//完全搬战将的过来，有些未必用得到,先定义
+//注意：在配置文件中，attri字段里的type对应下面的值，如aaSaft，而value根据type的值不同，会需要配置不同的值，有些是配一个整数，有些是整数列表（多个整数），有些
+//有时不需要配置value
+enum tagMapAreaAttribute
+{
+	aaNoAttri = 0,	//无意义
+	aaSaft = 1,		//"世界安全区"，无参数
+	aaAddBuff = 2,	//进入自动增加buff,离开后会自动删除buff,参数：[buff的个数]+N*{[buff类型][groupid][周期（秒）][次数][buff值]},
+	//注：应该给区域属性的buff分配个固定的id，另外由于这里参数都是填整数类型的，buff值如果是浮点数类型的，比如0.01，就写100，即0.01的10000倍,
+	//为保险起见，加的buff需要限定次数，以避免buff没正常删除的情况
+	aaWar = 3,		//"战斗"，战斗专门区域，打死人是不用负责任滴，无参数,注：暂未实现
+	aaGuildWar = 4,	//"帮派战斗"，帮派战的合理区域，，无参数,注：暂未实现
+	aaChat = 5,		//"禁言"，无参数,注：暂未实现
+	aaReloadMap = 6,//"重配地图",如果玩家在这个区域挂掉或重新上线，会转移到之前的非重配地图区域，无参数
+	aaExpDouble = 7,	//"经验倍数"，，无参数，注：可能取消
+	aaPKAddLevel = 8,	//"PK胜利加等级"，[等级增加的数量],注：暂未实现
+	aaPkAddExp = 9,		//"PK胜利加经验"  [增加经验的数量],注：暂未实现
+	aaPkSubLevel = 10,	//"PK失败减等级"	[等级减少的数量],注：暂未实现
+	aaPkSubExp = 11,	//"PK失败减经验"	[减少的经验],注：暂未实现
+	aaAutoSubHP = 12,	//"自动减HP"		[减少的HP]，注：执行的周期是1秒
+	aaAutoAddHP = 13,	//"自动加HP"		[增加的HP]，注：执行的周期是1秒
+	aaXiuweiRate = 14,	//"修为加成"	[加成值，整数,每20秒增加一次]
+	aaAutoSubBindYuanbao = 15,	//"自动减游戏点"	[数量],注：暂未实现
+	aaAutoAddYuanbao = 16,	//"自动加游戏币"		[数量],注：暂未实现
+	aaAUtoAddBindYuanbao = 17,	//"自动加游戏点"	[数量],注：暂未实现
+	aaCrossMan = 18,		//"穿人"	，无参数,	 
+	aaCrossMonster = 19,		//"穿怪"，无参数,	
+	aaNotCrossMan = 20,		//"禁止穿人"，无参数
+	aaNotCrossMonster = 21,		//"禁止穿怪"，无参数
+	aaNotSubDura = 22,		//死亡不减武器的耐久度
+	aaNotGuildTran = 23,		//"禁止使用行会拉传"，参数：【召唤1，行会集结令2，行会回城卷3,队伍集结4】
+	aaNotMarryTran = 24,		//"禁止使用夫妻传送"，无参数,注：可能取消
+	aaNotMasterTran = 25,		//"禁止使用师徒传送"，无参数,注：暂未实现
+	aaRandTran = 26,		//"禁止随机传送"，无参数,注：暂未实现
+	aaNoDrug = 27,			//"禁止使用药品"，无参数,注：暂未实现
+	aaZyProtect = 28,			//"阵营保护区域",【被保护的阵营id】，如果有2个阵营被保护，则2个参数。
+	aaNotTransfer = 29,		//"禁止定点传送"，无参数
+	aaNotBeTran = 30,		//"禁止被行会拉传"，参数：【召唤1，行会集结令2，行会回城卷3,队伍集结4】
+	aaTriggerGuid = 31,		//"图为引导"，[图文id]
+	aaNotBeMasterTran = 32,		//"禁止被师徒传送"，无参数,注：暂未实现
+	aaNotSkillId = 33,		//"限制技能使用"，[技能1，技能2，技能3...],技能id
+	aaNotItemId = 34,		//"限制物品使用"[物品1，物品2，物品3...]，都是指物品id
+	aaNotAttri = 35,		//"限制特殊属性",注：暂未实现
+	aaSceneLevel = 36,		//"进地图等级"，[等级,转数]
+	aaSceneFlag = 37,		//"进地图标志"	,注：暂未实现
+	aaRunNpc = 38,			//"进入触发NPC脚本",注：
+	aaCity = 39,			//"城镇"，无参数,表示回城卷或者回城复活，就会回到这里
+	aaNotLevelProtect = 40,			//"关闭新手保护"，无参数，现低于40级（以下）是保护状态，免受攻击，进入该区域后，这个规则失效
+	aaAutoAddExp = 41,		//"自动加经验"，[经验的数量]，注：执行的周期是1秒
+	aaAutoSubExp = 42,		//"自动减经验"，[经验的数量]，注：
+	aaNotMount = 43,		//"限制骑乘宝物"	，无参数，骑乘宝物,注：
+	aaNotHereRelive = 44,		//"禁止原地复活"，无参数,注：
+	aaNotCallMount = 45,		//"禁止骑马"，无参数,注：
+	aaSaftRelive = 46,		//"安全复活区"，即复活点，无参数,		如果是表示沙巴克战是复活，第五个参数表示复活的地图id
+	aaSubHPByPercent = 47,		//"按千分比减少HP"[每次减少的千分比]，注：可能取消
+	aaAddHPByPercent = 48,		//"按千分比增加HP"[每次增加的千分比]，注：可能取消
+	aaEndPkCanHereRelive = 49,	//"PK死亡允许原地复活"，无参数,注：暂未实现
+	aaForcePkMode = 50,		//"强制攻击模式",[PK模式]，注意：只接受一个参数。0和平模式，1团队模式，2帮派模式，3阵营模式，4杀戮模式，5联盟模式
+	aaNotSkillAttri = 51,		//"禁止使用任何技能属性"，无参数,注：暂未实现
+	aaNotTeam = 52,			//"禁止组队"，无参数,注：暂未实现
+	aaLeftTeam = 53,		//"强制离开队伍"，无参数
+	aaNotAutoAddHpDrug = 54,	//"自动恢复体力类物品无效"，无参数,注：暂未实现
+	aaNotAutoAddMpDrug = 55,	//"自动恢复灵力类物品无效"，无参数,注：暂未实现
+	aaNotDeal = 56,			//"禁止交易"，无参数,注：暂未实现
+	aaNotMeditation = 57,		//"禁止打坐"，无参数
+	aaEndPkNotHereRelive = 58,	//"PK死亡后禁止原地复活"，无参数,注：暂未实现
+	aaNotProtect = 59,		//"关闭保护"，无参数
+	aaNotAutoBattle = 60,		//禁止自动战斗，无参数,注：暂未实现
+	aaNotMatch = 61,		//禁止切磋，无参数
+	aaNotJump = 62,			//禁止跳跃，无参数
+	aaNotJumpTarget = 63,	//禁止以这个为跳跃目的点，无参数
+	aaJumpNotQg = 64,			//跳跃不消耗轻功，无参数
+	aaNotAddZhanHun = 65,		//禁止PK获得战魂
+	aaAddZhanHunByPercent = 66,	//"PK胜利按千分比增加战魂"[每次增加的千分比]
+	aaNotSubZhanHun = 67,		//禁止PK掉落战魂
+	aaSubZhanHunByPercent = 68,	//"PK失败按千分比减少战魂"[每次减少的千分比]
+	aaPkNotAddExp = 69,			//禁止PK获得经验
+	aaPkAddExpByPercent = 70,		//"PK胜利按千分比增加经验"[每次增加的千分比]
+	aaPkNotSubExp = 71,		//禁止PK掉落经验
+	aaPkSubExpByPercent = 72,	//"PK失败按千分比减少经验"[每次减少的千分比]
+	aaCannotViewOther=73,		// "无法查看其他玩家信息"
+	aaCannotShutUp=74,			// "无法聊天频道发言"
+	aaCannotSeeName=75,			// "无法看到周围玩家名字"
+	aaLeaveDelBuf=76,			// 删除场景的时候删除buff[bufftype,buffid,bufftype,buffid]
+	aaSceneMaxLevel = 77,		//进入地图的最高等级[等级,转数]
+	asStallArea = 78,			//摆摊区域
+	asSceneAreaMode = 79,		//区域玩家属性 参数： 1 进入沙巴克区域 2 卫城区域
+	asNoDropEquip = 80,			//所在场景不爆装备
+	aaDigArea=81,               //挖矿区域
+	aaCitydoorArea=82,           //城门区域,如沙巴克城门
+	aaNoFire = 83,				//禁止使用火墙术
+	aaHorseRace = 84,			//赛马区域
+	aaNotCallHero = 85,			//禁止召唤英雄与道士宝宝
+	aaSwimArea = 86,			//游泳地图
+	aaNewPlayerProtect = 87,	//新手保护有效，有此地图属性的区域，新手保护BUFF将产生效果，在此区域内，玩家不会被他人攻击，也不可攻击他人
+	aaChangeModel = 88,			//切换模型[男模ID,女模ID]
+	aaNoDropItem = 89,			//不能丢弃物品
+	aaBigFire	= 90,			//大篝火区域
+	aaNotItemTran = 91,			//禁止使用物品类速传
+	aaAnswerArea = 92,			//答题区域
+	aaSunlight = 93,			//沐光区域
+	aaMonsterSafe = 94,			//无法攻击怪物区
+	aaNotOpenShop = 95,			//禁止打开商城
+	aaNotUseDrug = 96,			//禁止使用药物 包括迅回药，BUFF药
+	aaNotRun = 97,				//禁止跑
+	aaDunkArea = 98,			//沙城占领者泡点区域   参数：1 沙城占领者泡点区域
+	aaCanNotTakeOnWarCar = 99,	//不能再战车上
+	aaForceRelivePos = 100,		//强制安全复活坐标区域 参数：[复活到场景id, 复活到坐标x, 复活到坐标y]
+	aaAttackInSafe = 101,		//安全也可以攻击
+	aaChangeSafeRelivePos = 102,	//切换当前场景需要改变安全复活点，参数：[复活到场景id, 复活到坐标x, 复活到坐标y]
+
+	aaAttriCount,			//属性类型的数量
+};
+//tolua_end

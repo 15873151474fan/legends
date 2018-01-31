@@ -1,0 +1,34 @@
+﻿
+--深渊烈域
+HellConfig = 
+{
+	keyBoss = {mid = 619, sid = 8, x = 176, y = 200, liveTime = 3600},	--钥匙BOSS配置
+	
+	--队伍传送半径
+	teleportRange = 10,		
+	
+	--楼层配置
+	Floors =
+	{
+		{sid = 128, x = 25, y = 61, bp = 2000, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 129, x = 29, y = 46, bp = 2500, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 130, x = 30, y = 28, bp = 3000, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 131, x = 25, y = 61, bp = 3500, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 132, x = 53, y = 41, bp = 4000, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 133, x = 27, y = 58, bp = 4500, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 134, x = 30, y = 28, bp = 5000, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 135, x = 29, y = 46, bp = 5500, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 136, x = 26, y = 48, bp = 6000, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+		{sid = 137, x = 29, y = 73, bp = 6500, item = {id = 1171, count = 1}},		--一层 sid:场景ID x:传送x y:传送y bp:限制战力 item:需求物品
+
+	},
+	
+	returnArea = {sid = 8, x = 146, y = 182},	--返回区域
+	
+	
+	--每个单位1小时，作用次数为2次，用钱购买时间就相当于购买作用次数，interval是单位时间，不用变。
+	--buffType：87挂机地图 利用groupId区分各个挂机地图 (0温泉 1雷泽 2九天冰宫 3深渊烈域)
+	--必须到C++里进行处理
+	buff = {buffType = 87, groupId = 3, value = 0, times = 1, interval = 7200, buffName = "深渊烈域", timeOverlay = true},	--控制进入BUFF
+	
+}

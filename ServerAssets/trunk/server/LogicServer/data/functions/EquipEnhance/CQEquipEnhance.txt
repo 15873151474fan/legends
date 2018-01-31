@@ -1,0 +1,45 @@
+﻿--lua script
+
+--#include "data\config\item\itemEnhance\CQEquipEnhance.txt" once
+--#include "data\functions\Activity\OpenTenDaysActivity\ItentifyTopic.txt" once
+
+itEquipUpgrade = 1
+itEquipStrong = 2
+itEquipAuthenticate = 3
+itEquipClearProp = 4
+itEquipFeatherStrong = 18	--翅膀羽化
+
+itEquipMoveInitAttr = 11
+itEquipClearInitAttr = 12
+
+bawEquipStrong	= 2	--装备强化时生产极品属性
+bawEquipUpgrade = 3	--装备升级时生产极品属性
+
+--鉴定属性
+AuthValTab = {
+	Item.ipItemForgeProperty1Value,
+	Item.ipItemForgeProperty2Value,
+	Item.ipItemForgeProperty3Value,
+    --Item.ipItemForgeProperty4Value,
+}
+
+
+--#include "EquipUpgrade.txt" once			--装备升级
+--#include "EquipStrong.txt" once			--装备强化
+--#include "EquipAuthenticate.txt" once		--装备鉴定
+----#include "EquipFeatherStrong.txt" once	--翅膀羽化
+----#include "WeaponExtendStrong.txt" once	--武器扩展 幻武启灵
+----#include "FootPrintUpgrade.txt" once		--足迹升阶
+----#include "SealUpgrade.txt" once		    --足迹升阶
+----#include "FootPrintStrong.txt" once		--足迹强化
+--#include "SpecialRingComposite.txt" once	--特戒融合
+----#include "SealStrong.txt" once			--玉玺强化
+
+--下发装备操作结果
+function SendEquipOptResult( sysarg, itemGuid, optType, optResult)
+	local netPack = DataPack.allocPacket(sysarg, 8, 8)
+	DataPack.writeInt64(netPack, itemGuid)
+	DataPack.writeByte(netPack, optType)
+	DataPack.writeByte(netPack, optResult)
+	DataPack.flush(netPack)
+end

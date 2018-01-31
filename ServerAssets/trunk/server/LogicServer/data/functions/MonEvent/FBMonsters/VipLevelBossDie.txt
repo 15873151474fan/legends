@@ -1,0 +1,31 @@
+﻿
+--#include "data\config\vip\vipLevel.txt" once
+
+function OnVipLevelBossDie(monster,sysarg,monId)
+	Actor.changeActivityProgress(sysarg, 1)  
+end
+
+MonDieDispatcher.VipLevelBossDie = function (monster,sysarg,monId)
+	OnVipLevelBossDie( monster,sysarg,monId )
+end
+
+
+--注册boss
+for idx, bossId in ipairs(VIPLevelConfig.vipLevelBoss) do
+	--MonDieDispatcher.register(bossId, MonDieDispatcher.VipLevelBossDie)
+end
+
+
+--注册开服活动个人Boss
+
+--#include "data\config\activityconfig\StartAct\StartActConfig.txt" once		-- 配置文件
+
+ 
+MonDieDispatcher.StartActBossDie = function (monster,sysarg,monId)
+	System.runNpcFunction(System.getGlobalNpc(), "SetBossActSecond", sysarg, monId)
+end
+
+--注册boss
+for idx, bossId in ipairs(StartActConfig.BossAct.NeedKillBoss[1]) do
+	MonDieDispatcher.register(bossId, MonDieDispatcher.StartActBossDie)
+end

@@ -1,0 +1,74 @@
+﻿--lua script
+
+--#include "data\functions\CombatChallange\CombatChallangeOp.txt" once
+
+--处理战力竞技相关
+--[[
+local	cAddchallageTimes = 1, --元宝增加挑战次数
+local   cRefreshNextTimeChanage = 2,	--刷新下次可以挑战的次数
+local   cRefreshChallagePower = 3,	--刷新战力
+local   cGiveCombatAward = 4,		--挑战后给予奖励
+local	cGetPerDayAward = 5,		--每隔几天可以领取的奖励
+local	cSendPerDayAward = 6,		--下发奖励的类容
+local   cBeginChallange = 7,		--发起PK
+local   cSendCurRankAward = 8,		--当前排名的奖励
+local   cGetRankAwardInfoMsg = 9,	--请求排名前三名的信息和奖励信息
+--]]
+
+CombatOpFuncList = {}
+
+EventCallDispatcher.HandlerCombatOp = function (sysarg, args)
+  --print("战力参数："..args[1])
+  if args[1] == nil then return end   
+  local func = CombatOpFuncList[args[1]]
+  if func ~= nil then
+    func(sysarg, args) 
+  end
+end
+
+--元宝增加挑战次数
+CombatOpFuncList[1] = function (sysarg,args)
+	AddChanllageTimesOp( sysarg, args )
+end
+
+--刷新下次可以挑战的次数
+CombatOpFuncList[2] = function (sysarg,args)
+	RefreshNextChanllageTime( sysarg, args )
+end
+
+--刷新战力
+CombatOpFuncList[3] = function (sysarg,args)
+	RefreshChanllagePower( sysarg, args )
+end
+
+--挑战后给予奖励
+CombatOpFuncList[4] = function (sysarg,args)
+	GiveCombatAwardOp( sysarg, args )
+end
+
+--每隔几天可以领取的奖励
+CombatOpFuncList[5] = function (sysarg,args)
+	GiveCombatAwardOnTime(sysarg,args)
+end
+
+--下发奖励的类容
+CombatOpFuncList[6] = function (sysarg,args)
+	SendCombatAwardOnTime(sysarg,args)
+end
+
+--发起PK
+CombatOpFuncList[7] = function (sysarg,args)
+	BeginCombatOp(sysarg,args)
+end
+
+--下发当前排名的奖励
+CombatOpFuncList[8] = function (sysarg,args)
+	SendCurAwardOp(sysarg,args)
+end
+
+--请求排名前三名的信息和奖励信息
+CombatOpFuncList[9] = function (sysarg,args)
+	SendCombatAwardRankInfo(sysarg,args)
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeCombat, EventCallDispatcher.HandlerCombatOp)

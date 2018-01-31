@@ -1,0 +1,129 @@
+--lua script
+
+--卫城npc对话
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\guild\SecSbkCityAward.txt" once 
+
+--卫城npc对话
+function OnSecSbkNpcDialog(sysarg)
+	local str = ""
+	
+	local gVar = System.getDyanmicVar()
+	if gVar.StartSbkWarFlag == nil then
+		gVar.StartSbkWarFlag = 0
+	end
+	
+	if gVar.StartSbkWarFlag == 1 then
+		return str
+	end
+
+	str = str.."\\<#BL"..Lang.GuildLang.arr0011.."/@OnGetSecSbkAward>"		--领取卫城奖励
+	str = str.."\\<#BL"..Lang.GuildLang.arr0012.."/@OnGetSecSbkTax>"		--领取税收
+	str = str.."\\<#BL"..Lang.GuildLang.arr0027.."/@OnGetSecDes>"			--说明
+
+	return str
+end
+
+--领取卫城奖励
+function OnGetSecSbkAward(sysarg)
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	if nGuildId <= 0 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0013,ttFlyTip )
+		return
+	end
+	
+	local nSecSbkGuildId = System.getSecSbkCityGuildId()
+	if nGuildId ~= nSecSbkGuildId then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0013,ttFlyTip )
+		return
+	end
+	
+	if Actor.getGuildPos(sysarg) ~= 3 and Actor.getGuildPos(sysarg) ~= 2 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0013,ttFlyTip )
+		return
+	end
+
+	local var = System.getStaticVar()
+	local awardFlag = var.GetSecSbkGuildAward    --已领取卫城的奖励
+	if awardFlag == nil then
+		awardFlag = 0
+	end
+
+	if awardFlag == 1 then		--今天已领取奖励
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0014,ttFlyTip )
+		return
+	end
+	
+	for i=1,table.getn(SecSbkCityAward.awards) do
+		Actor.giveAward(sysarg,SecSbkCityAward.awards[i].type,SecSbkCityAward.awards[i].id,SecSbkCityAward.awards[i].count,
+			SecSbkCityAward.awards[i].quality,SecSbkCityAward.awards[i].strong,SecSbkCityAward.awards[i].bind,0,932,Lang.GuildLang.arr0011)
+	end
+
+	var.GetSecSbkGuildAward = 1
+end
+
+--领取税收
+function OnGetSecSbkTax(sysarg)
+	local nCurTaxing = 0
+	local RankNameList = Ranking.getRanking("SecSbkCityFile.txt")
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+		if pItem then
+			nCurTaxing = tonumber(Ranking.getSub(pItem,1)) or 0
+		end
+	end
+	local str = string.format(Lang.GuildLang.arr0018,nCurTaxing)
+
+	str = str.."\\<#BL"..Lang.GuildLang.arr0012.."/@OnAwardSecSbkTax>"		--领取税收
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+function OnGetSecDes(sysarg)
+	local str = Lang.GuildLang.arr0028
+	str = str.."\\<#BL"..Lang.GuildLang.f00023.."/@main>"
+
+	return str
+end
+
+--领取税收
+function OnAwardSecSbkTax(sysarg)
+	local nGuildId = Actor.getIntProperty(sysarg,PROP_ACTOR_GUILD_ID)
+	if nGuildId <= 0 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0013,ttFlyTip )
+		return
+	end
+	
+	local nSecSbkGuildId = System.getSecSbkCityGuildId()
+	if nGuildId ~= nSecSbkGuildId then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0013,ttFlyTip )
+		return
+	end
+	
+	if Actor.getGuildPos(sysarg) ~= 3 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.arr0013,ttFlyTip )
+		return
+	end
+	
+	local nCurTaxing = 0
+	local RankNameList = Ranking.getRanking("SecSbkCityFile.txt")
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+		if pItem then
+			nCurTaxing = tonumber(Ranking.getSub(pItem,1)) or 0
+		end
+	end
+
+	Actor.changeGuildCoin(sysarg,nCurTaxing)
+
+	if RankNameList then
+		local pItem = Ranking.getItemFromIndex(RankNameList,0)
+		if pItem then
+			Ranking.setSub(pItem,0,tostring(0))
+			Ranking.setSub(pItem,1,tostring(0))
+		end
+	end
+end
+
+table.insert(MainFnTable, OnSecSbkNpcDialog)

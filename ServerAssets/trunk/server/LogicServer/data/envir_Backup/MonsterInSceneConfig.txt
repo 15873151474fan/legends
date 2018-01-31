@@ -1,0 +1,8 @@
+﻿--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+MonsterInScene = {
+{sceneid = 1 ,scenename = Lang.SceneName.s00001,pos_x = 12,pos_y = 48},
+{sceneid = 2 ,scenename = Lang.SceneName.s00002,pos_x = 36,pos_y = 17},
+{sceneid = 2 ,scenename = Lang.SceneName.s00002,pos_x = 45,pos_y = 18},
+}

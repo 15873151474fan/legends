@@ -1,0 +1,75 @@
+﻿
+	--等级达40级
+	{
+		id = 0,                  --成就的ID,客户端用的
+		broadcast = false,        --是否进行全服播报。true为全服可见,false为自己可见。
+		name = Lang.AchieveName.name0000,  --成就名字
+		groupId = 0,   --成就的分组ID
+		needCondCount = 1, --需要几个条件达成才能完成,这里可能列了4个条件,但是其中的3个完成了就算完成的
+		desc = Lang.AchieveName.desc0000,  --成就描述
+		icon = 23,
+		isDelete = false,   --是否删除了，删除了在客户端不显示，默认是false,true表示这个成就已经废弃
+		isDefaultActive = false,  --是否是默认激活的，默认的话为false，表示默认不激活，等分组激活才激活
+		isDayRefresh = false,    --是否每天都清除数据，默认是false，就是不刷新，一些特殊的成就，比如活动需要每天刷新
+		isMonthRefresh = false,		--是否每月都清除数据，默认是false，就是不刷新，先判断是否每日刷新，如果isDayRefresh=true，则无视此配置
+		nextAim = 0,	--客户端用于一些特殊处理
+		showPos = 0,              --成就的显示的位置，0表示普通的成就界面,1表示充值奖励界面，2表示活动的活跃度界面，3表示目标系统，5表示登陆奖励，6表示老友回归，7表示老友邀请，8表示每日充值 ,9表示成就生效不显示面板
+		
+		needYb = 0,		--秒活跃度事件 需要元宝 0表示不能秒 默认为0
+
+		sceneId=0,  --用在活跃度里，去哪个场景找npc,默认是0可以不配置
+		npcName ="",  --用在活跃度里，去哪个场景找npc，默认是""可以不配置，请在Lang.EntityName语言包里找
+	    uiId =0,   --打开的界面id,默认是0可以不配置，如果需要打开界面的分页的，配置在sceneId里
+
+		badgeId = 1,	--徽章id	对应badgeConfig.txt里的徽章id
+
+		--[[
+			一个成就是由1个或多个成就事件触发完成的,
+			比如杀掉死亡之勾这个boss
+			4种生活技能中有3个达到3级
+			eventId: 成就事件,是achieveEvent.txt配置的id
+			count:    需要完成几次
+			dataPos: 表示存储位置,在内存里的存储位置,从0开始存储
+			dataByteCount: 在内存里占的空间的大小
+		--]]
+		conds =
+		{
+			{ eventId = 0, count = 1 },
+		},
+
+		--[[
+		enum QuestAwardType
+		{
+			atEquipment=0,//道具或者装备
+			atXiuwei =1,  //修为
+			atExp =2,	//角色经验值
+			atGuildContribution=3,	//帮派贡献值
+			atZYContribution=4,//阵营贡献
+			atBindMoney=5,	//绑定银两
+			atMoney=6,	//银两
+			atLiJin=7,	//礼金
+			atTitle=8,	//称谓
+			atSkill=9,	//奖励技能
+			atZhanhun=10, // 战魂
+			atchengjiupoint  = 11,	//成就点
+			atActivity      = 14,   //活跃度
+		};
+		--]]
+
+		--完成成就的奖励,bind绑定；1为绑定,0为不绑定 成就礼盒ID为 1572
+		--job表示玩家的职业,2,华山,4水月,7御神,8忍者
+		--sex表示玩家的性别，默认的话是-1，可以不填，表示任何职业都可以，否则0表示男的，1表示女的
+		awards=
+		{
+			{ type = 11, id= 0 , count = 1, job = 0, sex = -1, vipLevel = 0, },
+			{ type = 7, id= 0 , count = 100, job = 0, sex = -1 },
+			{ type = 8, id= 1 , count = 1, job = 0, sex = -1 },
+		},
+
+		parent = -1,  --父成就的id，默认是-1，表示没有父成就，成就要在父成就完成并领取了奖励了才能显示下一个
+		--礼包开出来的道具列表，用于首充礼包和后续的礼包的物品的开出
+		gift=
+		{
+			{ type = 1, id =1, count = 1, },
+		},
+	},

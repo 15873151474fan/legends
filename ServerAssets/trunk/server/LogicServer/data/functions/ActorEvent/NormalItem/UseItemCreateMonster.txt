@@ -1,0 +1,99 @@
+--lua script
+
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+
+--local DELAYTYPE = 8
+
+--[[
+    函数名称：UseItemCreateMonster_Func
+    函数描述：使用道具刷怪函数
+    参数 sysarg 的描述：使用者指针
+    参数 itemidx 的描述：道具ID
+    参数 itemPtr 的描述：道具指针
+    参数 ItemTable 的描述：物品表
+]]
+function UseItemCreateMonster_Func(sysarg,itemidx,itemPtr,ItemTable)
+  if ItemTable == nil then return end
+  if ItemTable.item_id == itemidx then
+		local userSid = Actor.getSceneId(sysarg)
+		local userX, userY = Actor.getEntityPosition(sysarg, 0, 0)
+	  if (not (userX >= ItemTable.useArea.x1 and userX <= ItemTable.useArea.x2))
+    or (not (userY >= ItemTable.useArea.y1 and userY <= ItemTable.useArea.y2))
+    or (not (userSid == ItemTable.useArea.sid)) then
+	   	Actor.sendTipmsg(sysarg,ItemTable.wrongUseAreaTips,ttDialog)
+			return
+	  end
+	  local index, itemTB = nil, nil
+	  table.foreachi( UseItemCreateMonster, function( i, v ) if (v.item_id == itemidx) then index,itemTB = i, v end end )
+	  if (not index) or (itemTB ~= ItemTable) then return end
+	  local result = false
+	  local postint,result = Actor.postEntityScriptDelayMsg(sysarg,ItemTable.delayTime,result,DELAYTYPE,index)
+	  if not result then return end 
+		local npack = DataPack.allocPacket(sysarg,139,4)
+		if npack == nil then return end
+		DataPack.writeInt(npack,postint)
+		DataPack.writeInt(npack,ItemTable.delayTime)
+		DataPack.writeByte(npack,1)
+		DataPack.writeByte(npack,1)
+		DataPack.writeString(npack,ItemTable.delayTips)
+		DataPack.flush(npack)
+  end
+end
+
+--#include "data\config\item\ItemCreateMonster.txt" once
+
+--[[
+    函数名称：ItemCreateMonster
+    函数描述：使用道具刷怪延时回调
+    参数 sysarg 的描述：
+    参数 arg 的描述：
+]]
+function ItemCreateMonster(sysarg,arg)
+  local index = arg[2]
+  if (not UseItemCreateMonster) then return end
+  if (not index) or (not UseItemCreateMonster[index]) then return end
+  local ItemTable = UseItemCreateMonster[index]
+	if Actor.getItemCount(sysarg, ItemTable.item_id, -1, -1, -1) <= 0 then return end
+  local mid = ItemTable.createMon.mid 
+  local sid = ItemTable.createMon.sid
+  local x1 = ItemTable.createMon.x1
+  local x2 = ItemTable.createMon.x2
+  local y = ItemTable.createMon.y
+	local userSid = Actor.getSceneId(sysarg)
+	local userX, userY = Actor.getEntityPosition(sysarg, 0, 0)
+  if sid < 0 then sid = userSid end
+  if x1 < 0 then x1 = userX end
+  if x2 < 0 then x2 = userX end
+  if y < 0 then y = userY end 
+  local num = ItemTable.createMon.num
+  local live = ItemTable.createMon.live
+  local sucessTips = ItemTable.sucessTips
+  local tipsType = ItemTable.tipsType
+  local needDelete = ItemTable.needDelete
+  if needDelete == true then
+    Actor.removeItem(sysarg,ItemTable.item_id,1)
+  end
+  local hFuben = Actor.getFubenHandle(sysarg)
+  local hScene = Fuben.getSceneHandleById(sid, hFuben)
+  Fuben.createMonsters(hScene,mid,x1,x2,y,num,live)
+  if tipsType == 1 then
+    Fuben.sendMsgToFb(hFuben, sucessTips, ttScreenCenter)   
+  elseif tipsType == 2 then
+    Fuben.sendMsgToScene(hScene, sucessTips, ttScreenCenter)
+  elseif tipsType == 3 then
+    System.broadcastTipmsg(sucessTips, ttScreenCenter)
+  elseif tipsType == 4 then
+    Actor.sendTipmsg(sysarg,sucessTips,ttScreenCenter)
+  end
+  ItemTable.callBackFunc(sysarg,ItemTable)
+end
+
+function UseItemCreateMonster_Init(sysarg)
+  for i = 1,table.getn(UseItemCreateMonster) do
+	local x = UseItemCreateMonster[i]
+    GlobalItemFn[x.item_id] = { func = UseItemCreateMonster_Func, params = x }
+  end
+end
+
+table.insert(InitFnTable,UseItemCreateMonster_Init)
+--table.insert(LocalDT.ScriptDelayConfig[DELAYTYPE],ItemCreateMonster)

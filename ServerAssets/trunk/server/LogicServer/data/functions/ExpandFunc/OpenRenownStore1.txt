@@ -1,0 +1,18 @@
+--[[
+	openDialogs 第三个参数定义 ：打开声望商店是默认的标签栏
+	1：套装
+	2：攻击装备
+	3：防御装备
+	4：宠物装备
+--]]
+
+function OpenRenownStore(sysarg)
+  return "\\<#BL"..Lang.ScriptTips.x00131.."/@OpenRenownStoreFunc>"  --<打开声望商店>
+end
+--打开声望商店
+function OpenRenownStoreFunc(sysarg)
+  Actor.openDialogs(sysarg, 14, 1)
+  Actor.closeNPCDialog( sysarg )
+end
+
+table.insert(MainFnTable, OpenRenownStore)

@@ -1,0 +1,355 @@
+﻿--龙虎道符2级
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s20L2Desc,--技能的描述
+	
+	iconID=20,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		
+		
+		{
+
+			
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+					},
+					results=
+					{
+										
+						{mj=2556,timeParam=1000,type=20,delay=0,vt=1, id=56,value=1},--增加技能标记
+					},
+
+					specialEffects=
+					{
+											
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=2,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 1,value =1},
+						{cond = 22,value =56},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=33,delay=400, rate=11000,value=35,interval=65},
+						{mj=0,timeParam=30,type=20,delay=0,vt=1, id=20,value=1},
+						
+						
+					},
+
+					specialEffects=
+					{
+					{type=3,mj=0,id=67,keepTime=60,delay=300,always=false},	
+					{type=4,mj=0,id=112,keepTime=450,delay=650,always=false},							
+					},
+				},
+			},
+		},
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=0,				
+		rangeCenter=2,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 1,value =1},
+						{cond = 21,value =56},
+					},
+					results=
+					{
+						
+					{mj=2556,timeParam=1,type=33,delay=400, rate=11500,value=35,interval=65,mjParam2=100},
+					{mj=0,timeParam=30,type=20,delay=0,vt=1, id=20,value=1},
+						
+						
+					},
+
+					specialEffects=
+					{
+					{type=3,mj=0,id=67,keepTime=60,delay=300,always=false},	
+					{type=4,mj=0,id=112,keepTime=450,delay=800,always=false},							
+					},
+				},
+			},
+		},
+		
+		
+	
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-13,--相对于中心点y上边的相对坐标
+			yEnd=-13,--相对于中心点y下边的相对坐标
+		rangeType=4,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+				   targetType=1	,
+					conds=
+					{
+
+						{cond = 22,value =20},
+					},
+					results=
+					{
+
+					},
+
+					specialEffects=
+					{
+					{type=1,mj=0,id=67,keepTime=300,delay=0,always=false},	
+				
+					},
+				},
+			},
+		},
+		
+		
+			{	
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+			acts=
+			{
+				{
+				   targetType=0	,
+					conds=
+					{
+						{cond = 3,value =1}, --施法者自己删除技能标记
+					},
+				   results=
+					{
+						{mj=0,timeParam=1,type=21,delay=0, id=20,vt=1}, --删除自己的技能标记
+					},
+				   specialEffects=
+					{
+					
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=-1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=2556,timeParam=1,type=33,delay=400, rate=9000,value=0,mjParam2=200},
+
+					},
+
+					specialEffects=
+					{
+												
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=2556,timeParam=1,type=33,delay=400, rate=9000,value=0,mjParam2=200},
+
+					},
+
+					specialEffects=
+					{
+												
+					},
+				},
+			},
+		},
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=-1,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=2556,timeParam=1,type=33,delay=400, rate=9000,value=0,mjParam2=200},
+
+					},
+
+					specialEffects=
+					{
+												
+					},
+				},
+			},
+		},
+		{
+
+			xStart=1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=0,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=0,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 13,value =1},
+					},
+					results=
+					{
+						{mj=2556,timeParam=1,type=33,delay=400, rate=9000,value=0,mjParam2=200},
+
+					},
+
+					specialEffects=
+					{
+												
+					},
+				},
+			},
+		},
+		{
+
+			
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=1,--相对于中心点y下边的相对坐标
+		rangeType=3,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 3,value =1},
+					},
+					results=
+					{
+										
+						{mj=2556,timeParam=1,type=21,delay=0,vt=1, id=56,value=1},
+					},
+
+					specialEffects=
+					{
+											
+					},
+				},
+			},
+		},
+	},
+
+	trainConds=
+	{
+		{cond=1,value=15,consume=false},--表示等级要21级
+		{cond=21,value=300,consume=false},--表示需要300熟练度
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=1,consume=true},--消耗蓝50
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

@@ -1,0 +1,75 @@
+--职业战力比拼
+
+--主题活动提前预告
+function BroadBattleTopicNotice()
+	System.broadcastTipmsg(Lang.Activity.t00021,2+128)
+end
+
+--全民活动
+function TenWhloeActivityNotice()
+	System.broadcastTipmsg(Lang.Activity.k00035,2+128)
+end
+
+--19点后播报消息
+function BroadBattleActorToClient()
+	System.broadTopicActorToClient()
+
+	local nHoure,nMin,nSec = System.getTime(0,0,0)
+
+	if nHoure == 23 then
+		System.onAccountAllActivity(OpenServerConfig.activitys[10].openDays,OpenServerConfig.activitys[10].needValue)		--全民活动结算
+		System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+	end
+end
+
+--播放庆典
+function BroadAccountAwardEffect()
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[10].rankName)
+
+	if ranking then
+		local pItem = Ranking.getItemFromIndex(ranking,0)
+
+		if pItem then
+			System.broadcastTipmsg(Lang.Activity.t00068,2)
+			local playerList = LuaHelp.getAllActorList()		
+			if playerList ~= nil then
+				for j = 1, #playerList do
+					local player = playerList[j]
+					if player then
+						Actor.playScrEffectCode(player,OpenServerConfig.activitys[10].effectId,OpenServerConfig.activitys[10].lastTime)
+					end
+				end
+			end
+		end
+	end
+end
+
+--23点后的播报
+function AfterAccountNotice()
+	local RankNameList = Ranking.getRanking(OpenServerConfig.activitys[10].rankName)
+	
+	if RankNameList then
+		local str = ""
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(RankNameList,i)
+
+			if pItem then
+				local strName =Ranking.getSub(pItem,0)
+				str = str.."<(n"..strName..")>,"
+			end
+		end
+
+		local str1 = string.format(Lang.Activity.t00022,str,Item.getItemName(OpenServerConfig.activitys[10].awards[1].id))
+
+		System.broadcastTipmsg(str1,2+128)
+
+	end
+
+	System.broadcastTipmsg(Lang.Activity.k00023,2+128)
+end
+
+--提前一天预告
+function PreBattleNotice()
+	System.broadcastTipmsg(Lang.Activity.t00048,2+128)
+end
+

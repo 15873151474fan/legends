@@ -1,0 +1,35 @@
+﻿--经验福利奖励 配置
+--[[
+	玩家当前等级的单位经验×（玩家离线小时－最少离线小时｜不超过最大离线小时）。
+--]]
+
+LogOutExp = 
+{
+	limitLevel = {30, 100},	--领取福利等级限制	
+	minTime = 1,	--最少离线时间（小时），目前设置1小时
+	maxTime = 72,	--最大离线时间（小时），目前设置72小时
+	
+	maxExpPerHour = 5800000,	--每小时最大上限
+	
+	getExpConsume = 
+	{
+		{
+			rate = 1,
+			consume = {},			--每小时消耗
+		},
+		{
+			rate = 2,
+			consume = {type = 0, id = 751, count = 1, yb = 30},			--消耗 --yb:元宝单价替换数(去掉此值代表此项消耗不能使用元宝替代)
+		},
+		{
+			rate = 3,
+			consume = {type = 0, id = 751, count = 2, yb = 30},				--消耗
+		},
+		{
+			rate = 5,
+			consume = {type = 0, id = 751, count = 4, yb = 30},				--消耗
+		},
+	},
+	
+	expPerLevel = {type = 20, id = 3, count = 150, quality = 0},	--每等级对应经验
+}

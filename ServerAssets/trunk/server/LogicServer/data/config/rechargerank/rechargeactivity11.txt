@@ -1,0 +1,94 @@
+{
+	--id为活动id，每个充值排行活动唯一
+	--rechargeRankTotalFile，活动期间总排行，每个充值排行活动唯一
+	--中秋圆月
+	id = 11,
+	rechargeRankTotalFile = "RechargeRankTotal_11.txt",	--总充值排行
+
+	actTime = {2015, 3, 5, 0, 0, 0,  2015, 3, 9, 23, 59, 59},	--充值时间范围
+	actTimeAwards = {2015, 3, 5, 0, 0, 0,  2015, 3, 10, 23, 59, 59},	--领取时间范围(没配置领取时间直接使用充值时间)
+	onRankNeedYB = 0,	--上榜需要100000元宝
+	isNewDayFresh = 0,	--是否重置每日充值 1 是 0 否
+	isNewDaySendOfflineMsg = 0,	--是否发送每日未领奖离线消息 1 是 0 否
+	isUseActTime = 1,	--是否使用actTime配置项 1 是 0 否
+	isNeedShow = 0, 	--是否需要保留显示，1是 0否
+	isUseServYB = 1,	--是否需要全服充值
+	isLastDaySendCommonAwards = 1,	--是否需要最后一天发未领奖奖励 1 是 0 否
+
+	--排行奖励
+	rankAwards =
+	{
+	},
+	
+	--奖励
+	commonAwards =
+	{
+		--娥眉月礼包
+		{
+			needYB = 200,
+			needServYB = 50000,				--需全服充值
+			offlineMsg = Lang.Activity.mzq0200,		--离线消息
+			offlineNeedBagCount = 3,			--离线奖励需要背包空格数
+			servBroadcast = Lang.Activity.mzq0213,		--全服广播消息
+			
+			awards =
+			{
+				{ type = 0, id = 749 , count = 1, strong = 0, quality = 0, bind = 1, job =  1, sex = -1},
+				{ type = 0, id = 759 , count = 1, strong = 0, quality = 0, bind = 1, job =  2, sex = -1},
+				{ type = 0, id = 769 , count = 1, strong = 0, quality = 0, bind = 1, job =  3, sex = -1},
+				{ type = 0, id = 3183, count = 3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3186, count = 3, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--弦月礼包
+		{
+			needYB = 500,
+			needServYB = 100000,				--需全服充值
+			offlineMsg = Lang.Activity.mzq0200,		--离线消息
+			offlineNeedBagCount = 4,			--离线奖励需要背包空格数
+			servBroadcast = Lang.Activity.mzq0214,		--全服广播消息
+
+			awards =
+			{
+				{ type = 0, id = 2910, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2747, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3232, count = 5 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3231, count = 10, strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+			},
+		},
+		--凸月礼包
+		{
+			needYB = 5000,
+			needServYB = 300000,				--需全服充值
+			offlineMsg = Lang.Activity.mzq0200,		--离线消息
+			offlineNeedBagCount = 5,			--离线奖励需要背包空格数
+			servBroadcast = Lang.Activity.mzq0215,		--全服广播消息
+
+			awards =
+			{
+				{ type = 0, id = 3166, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2662, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2673, count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 2982, count = 5 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3451, count = 8 , strong = 0, quality = 0, bind = 0, job = -1, sex = -1},
+			},
+		},
+		--满月礼包
+		{
+			needYB = 25000,
+			needServYB = 500000,				--需全服充值
+			offlineMsg = Lang.Activity.mzq0200,		--离线消息
+			offlineNeedBagCount = 5,			--离线奖励需要背包空格数
+			servBroadcast = Lang.Activity.mzq0216,		--全服广播消息
+
+			awards =
+			{
+				{ type = 0, id = 2195, count = 1 , strong = 0, quality = 0, bind = 0, job = -1, sex = -1},
+				{ type = 0, id = 2828, count = 1 , strong = 0, quality = 5, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 780 , count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 790 , count = 1 , strong = 0, quality = 0, bind = 1, job = -1, sex = -1},
+				{ type = 0, id = 3451, count = 10, strong = 0, quality = 0, bind = 0, job = -1, sex = -1},
+			},
+		},
+	},
+},

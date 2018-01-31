@@ -1,0 +1,167 @@
+﻿--护送美女
+EscortDartConfig =
+{
+	ActiveName = Lang.Activity.da00011,	--活动名字
+	DartQuestId = 300,	--有这个任务存在，可以不计次数
+	LevelLimit = 58,	--参加活动最低等级
+	ApplyDely = 1800,	--领取美女护送时间持续(秒)
+
+	OpenTimes = 3,			--非vip每天开始运镖次数
+	VipOpenTimes = 4,		--vip每天开启运镖次数
+
+	FreshFreeTimes = 3,		--免费刷新的次数
+	FreshFreeVipTimes = 5,		--vip免费刷新的次数
+
+	FreshNeedItem = 756,		--刷新时需要的道具
+	FreshNeedCoupons = 100,		--刷新时需要的礼卷
+	FreshNeedYb = 10,		--刷新时需要的元宝
+
+	FreshTimes = 50,		--刷新次数达到10次 给予额外奖励
+	AwardRate = 5,			--额外奖励的概率 /100
+	
+	--持续半个小时 额外奖励的时间17:00-17:30 支持hh:mm
+	AwardTime = {
+		-- 开始时间 			-- 结束时间
+		{{hour = 17, min = 00}, {hour = 17, min = 30}},
+		{{hour = 22, min = 00}, {hour = 22, min = 30}},
+	},
+
+	AwardsRate = 2,		--额外奖励的倍率 
+
+	--美女的档次
+	DartHorse =
+	{
+		--  一档
+		{
+			id = 290,				--镖车的id
+			livetime =1800,			--存活的时间
+			monName = Lang.EntityName.m290,	--镖车名字
+			color = "0xFFFFFFFF",			--镖车的颜色
+
+			freshRate = {700,900,990,995,1000},				--刷新概率 /100
+			--奖励
+			Awards =
+			{
+				{type = 20, id = 1, count = 1250, quality = 0, strong = 0, bind = 0, param = 0},	--经验库取值
+				{type = 5, id = 0, count = 37135, quality = 0, strong = 0, bind = 0, param = 0},	--金币
+			},
+
+			AwardsMore =				--额外的奖励
+			{
+				--{type = 0, id = 816, count = 1, quality = 0, strong = 0, bind = 1, param = 0},
+			},
+		},
+
+		--  二档
+		{
+			id = 291,				--镖车的id
+			livetime =1800,			--存活的时间
+			monName = Lang.EntityName.m291,	--镖车名字
+			color = "0xFF00FF00",			--镖车的颜色
+
+			freshRate = {0,650,880,990,1000},				--刷新概率
+			--奖励
+			Awards =
+			{
+				{type = 20, id = 1, count = 2000, quality = 0, strong = 0, bind = 0, param = 0},	--经验
+				{type = 5, id = 0, count = 48275, quality = 0, strong = 0, bind = 0, param = 0},	--金币
+			},
+
+			AwardsMore =				--额外的奖励
+			{
+				--{type = 0, id = 816, count = 1, quality = 0, strong = 0, bind = 1, param = 0},
+			},
+		},
+
+		--  三档
+		{
+			id = 292,				--镖车的id
+			livetime =1800,			--存活的时间
+			monName = Lang.EntityName.m292,	--镖车名字
+			color = "0xFF00BFFF",			--镖车的颜色
+
+			freshRate = {0,0,830,985,1000},				--刷新概率 /100
+			--奖励
+			Awards =
+			{
+				{type = 20, id = 1, count = 2750, quality = 0, strong = 0, bind = 0, param = 0},	--经验
+				{type = 5, id = 0, count = 59416, quality = 0, strong = 0, bind = 0, param = 0},	--金币
+			},
+
+			AwardsMore =				--额外的奖励
+			{
+				--{type = 0, id = 816, count = 1, quality = 0, strong = 0, bind = 1, param = 0},
+			},
+		},
+
+		--  四档
+		{
+			id = 293,				--镖车的id
+			livetime =1800,			--存活的时间
+			monName = Lang.EntityName.m293,	--镖车名字
+			color = "0xFF4B0082",			--镖车的颜色
+
+			freshRate = {0,0,0,910,1000},				--刷新概率
+			--奖励
+			Awards =
+			{
+				{type = 20, id = 1, count = 4500, quality = 0, strong = 0, bind = 0, param = 0},	--经验
+				{type = 5, id = 0, count = 74270, quality = 0, strong = 0, bind = 0, param = 0},	--金币
+			},
+
+			AwardsMore =				--额外的奖励
+			{
+				{type = 0, id = 850, count = 1, quality = 0, strong = 0, bind = 1, param = 0},
+			},
+		},
+
+		--  五档
+		{
+			id = 294,				--镖车的id
+			livetime =1800,			--存活的时间
+			monName = Lang.EntityName.m294,	--镖车名字
+			color = "0xFFFFA500",			--镖车的颜色
+
+			freshRate = {0,0,0,0,100},				--刷新概率 /100
+			--奖励
+			Awards =
+			{
+				{type = 20, id = 1, count = 6250, quality = 0, strong = 0, bind = 0, param = 0},	--经验
+				{type = 5, id = 0, count = 92837, quality = 0, strong = 0, bind = 0, param = 0},	--金币
+			},
+
+			AwardsMore =				--额外的奖励
+			{
+				{type = 0, id = 850, count = 1, quality = 0, strong = 0, bind = 1, param = 0},
+			},
+		},
+
+	},
+
+	Src = {sid = 1, x = 98, y = 130, snpcname = Lang.EntityName.n00108},
+	--x、y为目标npc 所在坐标，destsceneid为目标场景，destnpcname为目标NPC名称
+	Dest = {destsceneid = 2, x = 280, y = 199, destnpcname = Lang.EntityName.n00073},
+
+	DartSetup =
+	{
+		succFollowDist = 8,						-- 交镖成功距离
+		actionTime = 1800,						-- 护镖活动时间，秒为单位
+		-- guargStatus 护镖状态定义
+		CampDartStatusIdle = 0,			-- 没有护镖
+		CampDartStatusAccept = 1,		-- 已经接镖
+		CampDartStatusFinished = 2,		-- 完成镖，但还没有领取奖励
+		CampDartStatusGotAward = 3, 		-- 已经领取奖励。实际上此状态不存在。在领取奖励之后，就会重置
+
+		-- guardFailedReason 护镖失败原因
+		CampDartFailUnknown = 0,			-- 未知原因
+		CampDartFailExpired = 1,  		-- 护镖超时
+		CampDartFailOverMaxDist = 2,		-- 玩家和镖车距离过远
+		CampDartFailObjDie=3,				-- 镖车死亡
+		CampDartFailActorGiveUp=4,		-- 玩家放弃
+		CampDartFailActorLogout=5,		-- 玩家退出游戏
+		CampDartFailBeLoot = 6,			--玩家死亡 镖车被劫
+	},
+	
+	FinishsuccDist = 30,				--交镖的距离
+	
+}

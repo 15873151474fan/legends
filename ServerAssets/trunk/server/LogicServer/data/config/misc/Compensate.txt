@@ -1,0 +1,37 @@
+﻿--玩家的补偿的列表
+--id表示补偿的id，这个是唯一的
+--year表示年份
+--month表示月份
+--day表示天
+--startHour表示开始的时间
+--endHour表示结束的时间  
+--items表示物品的列表
+
+CompensateConfig=
+{
+
+
+--玩家的一个补偿的数据
+ {
+    id=2,
+    name ="网络波动补偿",
+    times=
+    {
+      {year=2011,month =7,day=5,startHour =0, endHour =24}, --有效的时间段 
+      {year=2011,month =7,day=6,startHour =0, endHour =24}, --有效的时间段 
+      {year=2011,month =7,day=7,startHour =0, endHour =24}, --有效的时间段 
+    }, 
+    
+    
+	  items=
+		{
+		    {type=0,id=618,count=1,quality=0,strong=0,bind=1}, --复活石 *2
+	            {type=0,id=621,count=1,quality=0,strong=0,bind=1},  -- 生命之源（1天） *1
+                    {type=0,id=1625,count=1,quality=0,strong=0,bind=1},  --内力之源（1天）*1
+                    {type=0,id=611,count=1,quality=0,strong=0,bind=1},  -- 双倍修为丹*2*1
+               
+		}
+ }, 
+
+	
+}

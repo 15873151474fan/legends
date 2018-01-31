@@ -1,0 +1,25 @@
+﻿
+
+--各个NPC需要在对应的场景中配置对应的NPC 要相同场景名 相同名字 
+--type:雕像类型 
+--[[
+//NPC雕像类型
+enum NpcStatueType 
+{
+	stNormal = 0,
+	stRsCastellan = 1,	//本服沙巴克城主雕像
+	stCsCastellan = 2,	//跨服沙巴克城主雕像
+	stRsVocation = 3,	//本服职业雕像
+	stCsVocation = 4,	//跨服职业雕像
+};
+--]]
+--param:辅助参数 当type = 3或4时代表职业ID
+--npcScene:NPC所在场景名
+--npcName:NPC名字
+--maleModelid:男性模型ID
+--femaleModelid:女性模型ID
+NpcStatue = 
+{
+	{type = 1, param = 0, npcScene=Lang.SceneName.s00004, npcName=Lang.EntityName.n00084, maleModelid = 399, femaleModelid = 399},
+	
+}

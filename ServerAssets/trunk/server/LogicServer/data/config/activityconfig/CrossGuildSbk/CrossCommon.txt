@@ -1,0 +1,20 @@
+--跨服公共配置
+CrossCommonConig = 
+{
+	BossRankName = "CrossBossConfig",		--跨服boss
+	BossRankFile = "CrossBossConfig.txt",	--跨服boss的存盘文件
+
+	sceneid =150,			--刷怪的场景
+
+	outSceneId = 147,		--退出的场景id
+	outX = 148,				--退出的场景的坐标x
+	outY = 180,				--退出的场景坐标Y
+
+	minBattle = 3500,		--进入的跨服天下第一最低战力
+
+	minLeve = 0,			--进入跨服沙城战的最低等级:原：50
+	minSbkBattle = 3500,		--进入跨服沙城战的最低战力
+
+	pos_x =	37,				--进入跨服boss的场景x
+	pos_y =	113,			--进入跨服boss的场景y
+}

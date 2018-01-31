@@ -1,0 +1,65 @@
+--天关70波BOSS 召唤死灵
+{
+
+	actions=
+	{
+		{act=1,effect=0,},
+	},
+	
+	desc=Lang.Skill.s213L4Desc,--技能的描述
+	
+	iconID=279,--图标的ID
+			
+	--作用范围表
+	actRange=
+		{
+		
+		{
+
+			xStart=-3,--相对于中心点x左边的相对坐标
+			xEnd=3,--相对于中心点x右边的相对坐标
+			yStart=-3,--相对于中心点y上边的相对坐标
+			yEnd=3,--相对于中心点y下边的相对坐标
+			rangeType=3,				
+			rangeCenter=1,			
+
+			acts=
+			{
+				{
+					conds=
+					{
+						{cond = 3,value =1},
+						{cond = 51,value =1481},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=24,buffType=1,id=149,},--技能说话
+						{mj=0,timeParam=1,type=17,id=1481,delay=0,interval=600,value=3,buffType=1,rate=5},
+					},
+
+					specialEffects=
+					{
+						
+					},
+				},
+			},
+			},
+		
+	},
+
+	trainConds=
+	{
+		
+	
+	},
+	
+	spellConds=
+	{
+		{cond=13,value=15,consume=false},--消耗蓝10
+		{cond=18,value=80,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=20000,
+
+},

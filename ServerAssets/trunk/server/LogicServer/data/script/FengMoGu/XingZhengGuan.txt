@@ -1,0 +1,82 @@
+﻿--lua script
+--行政官 
+--[[键入'ss'并按分号即可按模板生成脚本]]--
+  thisNPC = nil
+InitFnTable = {}
+FinaFnTable = {}
+MainFnTable = {}
+ 
+--#include "data\functions\NormalFuncForQuest.txt" once --任务内容
+--#include "data\functions\Activity\GrowRose\CallParterCommon.txt" once
+
+--[[此NPC中标准任务发行表]]
+
+--[[此处为NPC对白]]
+NpcDialogue = {
+   { say = Lang.NormalTalk.h00040, },
+
+}
+
+--[[此NPC中标准任务发行表]]
+PromMs =
+{
+  --键入mp+分号，根据模板生成发行任务脚本模板
+--#include "data\config\quest\quests\task8100.txt"
+--#include "data\config\quest\quests\task8101.txt"
+--#include "data\config\quest\quests\task8102.txt"
+--#include "data\config\quest\quests\task8103.txt"
+--#include "data\config\quest\quests\task8104.txt"
+--#include "data\config\quest\quests\task8105.txt"
+--#include "data\config\quest\quests\task8106.txt"
+--#include "data\config\quest\quests\task8107.txt"
+--#include "data\config\quest\quests\task8108.txt"
+}
+
+--[[此NPC中标准任务受理表]]
+CompMs =
+{
+--#include "data\config\quest\quests\task8100.txt"
+--#include "data\config\quest\quests\task8101.txt"
+--#include "data\config\quest\quests\task8102.txt"
+--#include "data\config\quest\quests\task8103.txt"
+--#include "data\config\quest\quests\task8104.txt"
+--#include "data\config\quest\quests\task8105.txt"
+--#include "data\config\quest\quests\task8106.txt"
+--#include "data\config\quest\quests\task8107.txt"
+--#include "data\config\quest\quests\task8108.txt"
+}
+
+--[[此NPC中标准任务过程表]]
+PassMs =
+{
+
+}
+
+--[[脚本主函数]]--
+function main(sysarg)
+	local str,f = commonQuestNpcMain(sysarg)
+	if f then
+		return str
+	end
+	
+	return Lang.Activity.t00135 .. str
+end
+
+
+--[[初始化函数]]--
+function initialization(npcobj)
+  local i
+  thisNPC = npcobj
+  for i = 1, table.getn(InitFnTable) do
+    InitFnTable[i]( npcobj )
+  end
+end
+
+--[[析构化函数]]--
+function finalization(npcobj)
+  local i
+  for i = 1, table.getn(FinaFnTable) do
+    FinaFnTable[i]( npcobj )
+  end
+  thisNPC = nil
+end

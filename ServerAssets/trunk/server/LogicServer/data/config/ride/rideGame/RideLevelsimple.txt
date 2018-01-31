@@ -1,0 +1,205 @@
+--0阶坐骑配置
+{
+	level = 0,		--0阶
+	id = 1,			--对应的坐骑id
+	exprate = 10, --小惊喜的爆率奖励10倍经验
+
+	starOrder		--各星级配置
+	{
+		{
+			starIndex = 0,		--0星
+			needExp = 500,		--达到下星级需要的经验
+			
+			--增加经验的方式
+			UpLevelType
+			{
+				{type = 1,value = 20,AwardExp = 300,minAwardTimes = 10,maxAwardTimes = 0,},	--荣誉方式  value需要的荣誉 ，awardexp获得的经验
+				{type = 2,value = 100,AwardExp = 100,minAwardTimes = 10,maxAwardTimes = 20,}, --value需要的元宝 minAwardTimes小惊喜的次数,maxAwardTimes大惊喜的次数
+				{type = 3,value =   1,AwardExp = 100,minAwardTimes = 10,maxAwardTimes = 20,},	--value 为物品的id
+			},
+
+			basePropConfig = 
+			{
+				{type=5,value=100,addmode=0,}		--属性配置参照bufftype设定  addmode 为1表示骑上坐骑才添加的属性 默认为0
+			},
+		},
+
+		{
+			starIndex = 2,		--2星
+			needExp = 200,
+
+			--增加经验的方式
+			UpLevelType
+			{
+				{type = 1,value = 100,AwardExp = 100,,minAwardTimes = 10,maxAwardTimes=20,},
+				{type = 2,value = 100,AwardExp = 100,,minAwardTimes = 10,maxAwardTimes=20,}, 
+				{type = 2,value = 1,AwardExp = 100,},	
+			},
+
+			basePropConfig = 
+			{
+				{type=5,value=100,addmode=0,}		--属性配置参照bufftype设定  addmode 为1表示骑上坐骑才添加的属性 默认为0
+			},
+
+		},
+
+	},
+	
+	--觉醒(有此项且等级>=awakeLevel则星级满后会进行觉醒操作)
+	awake =
+	{
+		canAwake = false,	--是否显示觉醒面板 默认false
+		maxValue = 10000,	--最大觉醒值
+		range =	--觉醒段必须从小到大配置 
+		{
+			{
+				index = 0,		--觉醒段
+				value = 0,		--所需觉醒值必须从小到大配置
+				prop = 			--觉醒属性
+				{
+					
+				},
+				consumes =		--每次觉醒操作消耗
+				{
+					{type = 0, id = 817, count = 1},
+					{type = 6, id = 0, count = 10000},
+				},
+				
+				addValue =	--觉醒值提升范围 rate总和=10000
+				{
+					{value = 100, rate = 1000},	--value:提升值 rate:几率
+					{value = 200, rate = 2000},	--value:提升值 rate:几率
+					{value = 300, rate = 3000},	--value:提升值 rate:几率
+					{value = 400, rate = 3000},	--value:提升值 rate:几率
+					{value = 500, rate = 1000},	--value:提升值 rate:几率
+				},
+			},
+			
+			{
+				index = 1,		--觉醒段
+				value = 3000,	--所需觉醒值
+				prop = 			--觉醒属性
+				{
+					{ type = 11, value = 100, },
+					{ type = 15, value = 200, },
+				},
+				consumes =		--每次觉醒操作消耗
+				{
+					{type = 0, id = 817, count = 1},
+					{type = 6, id = 0, count = 20000},
+				},
+				
+				addValue =	--觉醒值提升范围 rate总和=10000
+				{
+					{value = 100, rate = 1000},	--value:提升值 rate:几率
+					{value = 200, rate = 2000},	--value:提升值 rate:几率
+					{value = 300, rate = 3000},	--value:提升值 rate:几率
+					{value = 400, rate = 3000},	--value:提升值 rate:几率
+					{value = 500, rate = 1000},	--value:提升值 rate:几率
+				},
+				
+			},
+			
+			{
+				index = 2,		--觉醒段
+				value = 5000,	--所需觉醒值
+				prop = 			--觉醒属性
+				{
+					{ type = 11, value = 100, },
+					{ type = 15, value = 200, },
+				},
+				consumes =		--每次觉醒操作消耗
+				{
+					{type = 0, id = 817, count = 1},
+					{type = 6, id = 0, count = 20000},
+				},
+				
+				addValue =	--觉醒值提升范围 rate总和=10000
+				{
+					{value = 100, rate = 1000},	--value:提升值 rate:几率
+					{value = 200, rate = 2000},	--value:提升值 rate:几率
+					{value = 300, rate = 3000},	--value:提升值 rate:几率
+					{value = 400, rate = 3000},	--value:提升值 rate:几率
+					{value = 500, rate = 1000},	--value:提升值 rate:几率
+				},
+				
+			},
+			
+			{
+				index = 3,		--觉醒段
+				value = 7000,	--所需觉醒值
+				prop = 			--觉醒属性
+				{
+					{ type = 11, value = 700, },
+					{ type = 15, value = 200, },
+				},
+				consumes =		--每次觉醒操作消耗
+				{
+					{type = 0, id = 817, count = 1},
+					{type = 6, id = 0, count = 20000},
+				},
+				
+				addValue =	--觉醒值提升范围 rate总和=10000
+				{
+					{value = 100, rate = 1000},	--value:提升值 rate:几率
+					{value = 200, rate = 2000},	--value:提升值 rate:几率
+					{value = 300, rate = 3000},	--value:提升值 rate:几率
+					{value = 400, rate = 3000},	--value:提升值 rate:几率
+					{value = 500, rate = 1000},	--value:提升值 rate:几率
+				},
+				
+			},
+			
+			{
+				index = 4,		--觉醒段
+				value = 8000,	--所需觉醒值
+				prop = 			--觉醒属性
+				{
+					{ type = 11, value = 800, },
+					{ type = 15, value = 800, },
+				},
+				consumes =		--每次觉醒操作消耗
+				{
+					{type = 0, id = 817, count = 1},
+					{type = 6, id = 0, count = 20000},
+				},
+				
+				addValue =	--觉醒值提升范围 rate总和=10000
+				{
+					{value = 100, rate = 1000},	--value:提升值 rate:几率
+					{value = 200, rate = 2000},	--value:提升值 rate:几率
+					{value = 300, rate = 3000},	--value:提升值 rate:几率
+					{value = 400, rate = 3000},	--value:提升值 rate:几率
+					{value = 500, rate = 1000},	--value:提升值 rate:几率
+				},
+				
+			},
+			
+			{
+				index = 5,		--觉醒段
+				value = 9000,	--所需觉醒值
+				prop = 			--觉醒属性
+				{
+					{ type = 11, value = 1000, },
+					{ type = 15, value = 2000, },
+				},
+				consumes =		--每次觉醒操作消耗
+				{
+					{type = 0, id = 817, count = 1},
+					{type = 6, id = 0, count = 20000},
+				},
+				
+				addValue =	--觉醒值提升范围 rate总和=10000
+				{
+					{value = 100, rate = 1000},	--value:提升值 rate:几率
+					{value = 200, rate = 2000},	--value:提升值 rate:几率
+					{value = 300, rate = 3000},	--value:提升值 rate:几率
+					{value = 400, rate = 3000},	--value:提升值 rate:几率
+					{value = 500, rate = 1000},	--value:提升值 rate:几率
+				},
+				
+			},
+		},
+		
+	},
+},

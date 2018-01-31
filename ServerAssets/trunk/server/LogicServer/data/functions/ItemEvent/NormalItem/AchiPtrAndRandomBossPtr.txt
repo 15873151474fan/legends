@@ -1,0 +1,41 @@
+﻿--增加成就积分和狩猎BOSS积分的功能实现 李昀
+
+--#include "data\config\item\AchiPtrAndRDPtr.txt"
+
+
+--使用积分配置物品 
+function UseAARPtrItemFunc( sysarg, itemidx, itemPtr, params, delType, param)
+  --print("使用成就积分 和BOSS积分配置物品")
+  
+  local result = false
+  
+  if params.Type == 1 then --增加狩猎积分 
+    local Ptr = Actor.getIntProperty(sysarg,PROP_ACTOR_RandomBossPtr) + params.Ptr
+    Actor.setUIntProperty(sysarg,PROP_ACTOR_RandomBossPtr,Ptr)  
+    Actor.sendTipmsg(Player,string.format(Lang.ScriptTips.RandomBossPtrTips,params.Ptr),ttTipmsgWindow)
+    result = true
+  elseif params.Type == 2 then --增加成就积分 
+    --print("增加成就积分")
+    local Ptr = Actor.getIntProperty(sysarg,PROP_ACTOR_ACIEVEPOINT) + params.Ptr
+    Actor.setUIntProperty(sysarg,PROP_ACTOR_ACIEVEPOINT,Ptr)
+    Actor.sendTipmsg(Player,string.format(Lang.ScriptTips.AchiPtrTips,params.Ptr),ttTipmsgWindow)
+    result = true
+  end
+
+  if result then
+    Actor.removeItemByPtr(sysarg,itemPtr,1,false,"ItemFunction",1000) 
+  end
+  
+  return result
+  	
+end
+
+--注册积分物品配置 
+function AARPtrItemFuncInit(sysarg)
+  for i = 1,#AchiAndBossPtrConfig do
+    local x = AchiAndBossPtrConfig[i]
+    GlobalItemFn[x.item_id] = { func = UseAARPtrItemFunc, params = x }
+  end
+end
+
+table.insert(InitFnTable, AARPtrItemFuncInit)

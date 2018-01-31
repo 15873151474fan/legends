@@ -1,0 +1,220 @@
+--lua script
+--[[ 
+--帮派运镖活动 此脚本挂于各阵营主城
+ --]]
+
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\guild\GuildBiaoChe.txt"  once  --基本设置 
+--#include "data\config\guild\SbkBiaoChe.txt" once
+--#include "GuildDartCommon.txt" once  
+--#include "data\functions\Activity\Common\Awards.txt"
+
+--[[
+    函数名称：CampDart_Main
+    函数描述：帮派运镖活动 功能入口函数
+    参数 sysarg 的描述：
+--]]
+function guildMain(sysarg)
+	local str = ""
+	
+	str = str .. "\\<#BL"..Lang.Activity.g00001.."/@guildDart>"			--开启护送
+	local dVar = System.getDyanmicVar()
+	if dVar.startSbkDartFlag == nil then
+		dVar.startSbkDartFlag = 0
+	end
+	
+	if dVar.startSbkDartFlag == 1 then
+		str = str .. "\\<#BL"..Lang.Activity.g00037.."/@finlishSbkDart>"		--完成护送沙皇后
+	end
+	
+	str = str .. "\\<#BL"..Lang.Activity.g00052.."/@guildDartDesc>"			--活动详述
+	return str
+end
+
+--开启护送
+function guildDart(sysarg)
+	local str = Lang.Activity.g00002
+	str = str .. "\\<#BL"..Lang.Activity.g00003.."/@openGuildDart>"			--普通开启
+	str = str .. "\\<#BL"..Lang.Activity.g00004.."/@openPerotectGuildDart>"		--使用保护令开启
+	str = str .. "\\<#BL"..Lang.Activity.g00008.."/@main>"
+	return str
+end
+
+--普通开启
+function openGuildDart(sysarg)
+	local str = Lang.Activity.g00005
+	
+	str = str .. "\\<#BL"..Lang.Activity.g00006.."/@onOpenGuildDart>"			--确定
+	str = str .. "\\<#BL"..Lang.Activity.g00008.."/@main>"					--返回
+
+	return str
+end
+
+--使用保护令开启
+function openPerotectGuildDart(sysarg)
+	local str = Lang.Activity.g00009
+	
+	str = str .. "\\<#BL"..Lang.Activity.g00006.."/@onOpenProtectDart>"			--确定
+	str = str .. "\\<#BL"..Lang.Activity.g00008.."/@main>"					--返回
+
+	return str
+end
+
+--确定普通开启
+function onOpenGuildDart(sysarg)
+	--local bGuild = Actor.bInGuild(sysarg)
+	
+	--不在帮派中 
+	--if( bGuild == true) then
+	--	return Lang.TaskTalk.t00695
+	--end
+	if OnCheckCanApplyDart(sysarg) == false then return end
+	onStartGuildDart(sysarg)
+
+	Actor.closeNPCDialog(sysarg)
+end
+
+--确定使用保护令开启
+function onOpenProtectDart(sysarg)
+	if OnCheckCanApplyDart(sysarg) == false then return end
+
+	if Actor.getItemCount(sysarg, GuildDartConst.protectItemId, -1, -1, -1) < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00014, ttDialog)
+		return
+	end
+	if Actor.removeItem(sysarg, GuildDartConst.protectItemId, 1, -1, -1, -1, Lang.Activity.g00015, 2) < 1 then 
+		return
+	end
+
+	onStartGuildDart(sysarg)
+	local dVar = System.getDyanmicVar()
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	
+	if dVar.UseProtectDart == nil then
+		dVar.UseProtectDart = {}
+	end
+	if dVar.UseProtectDart[nGuildId] == nil then	
+		dVar.UseProtectDart[nGuildId] = 0
+	end
+
+	dVar.UseProtectDart[nGuildId] = 1
+	Actor.closeNPCDialog(sysarg)
+end
+
+--上交沙皇后
+function finlishSbkDart(sysarg)
+	local str = Lang.Activity.g00038
+	
+	str = str .. "\\<#BL"..Lang.Activity.g00039.."/@OnCompleteDart>"			--上交
+	str = str .. "\\<#BL"..Lang.Activity.g00008.."/@main>"					--返回
+
+	return str
+end
+
+--上交
+function OnCompleteDart(sysarg)
+	local dVar = System.getDyanmicVar()
+	if dVar.startSbkDartFlag == nil then
+		dVar.startSbkDartFlag = 0
+	end
+
+	if dVar.startSbkDartFlag ~= 1 then return end
+	if dVar.sbkMonster == nil then return end
+
+	local nPos = Actor.getGuildPos(sysarg)
+	if nPos ~= 3 and nPos ~= 2 then					--职位不够
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00042, ttFlyTip)
+		return
+	end
+
+	local nMonster = Actor.getEntity(dVar.sbkMonster)
+
+	local monPosX, monPosY = Actor.getEntityPosition(nMonster, 0, 0)
+	local selfPosX, selfPosY = Actor.getEntityPosition(thisNPC, 0, 0)
+	local succFollowDist = GuildDartConst.DartSetup.succFollowDist
+
+	if (math.abs(monPosX-selfPosX) > succFollowDist or math.abs(monPosY-selfPosY) > succFollowDist) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00040, ttFlyTip)
+		return
+	end		
+	
+	local nGuildId = System.getSbkGuildId()
+	local guildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	
+	if guildId ~= nGuildId then
+		Actor.sendTipmsg(sysarg, Lang.Activity.g00041, ttFlyTip)
+		return
+	end
+
+	local playerList = LuaHelp.getVisiActorList(nMonster)		
+	local nCount = 0
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local gId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				
+				if gId == nGuildId then
+					nCount = nCount + 1
+				end
+			end
+		end
+	end
+
+	local fRate = 1.0
+
+	local  awardConfig = SbkDartConfig.successAwards
+	local bCount = awardConfig[1].count
+	if table.getn(SbkDartConfig.actorNumAward) > 0 then
+		if nCount >= SbkDartConfig.actorNumAward[table.getn(SbkDartConfig.actorNumAward)][1] then
+			fRate = SbkDartConfig.actorNumAward[table.getn(SbkDartConfig.actorNumAward)][2]
+		else
+			for i=1,table.getn(SbkDartConfig.actorNumAward) do		--人数越多倍率越高
+				if nCount < SbkDartConfig.actorNumAward[i][1] then
+					fRate = SbkDartConfig.actorNumAward[i][2]
+				end
+			end
+		end
+		
+		for k=1,table.getn(awardConfig) do
+			bCount = math.floor(bCount * fRate)
+		end
+	end
+
+	--给奖励
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				local gId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+				
+				if gId == nGuildId then
+					if Awards.CheckBagGridCount(player,awardConfig) then
+						Actor.giveAward(player,awardConfig[1].type,awardConfig[1].id,bCount,awardConfig[1].quality,awardConfig[1].strong,awardConfig[1].bind)
+					end
+				end
+			end
+		end
+	end
+
+	Actor.changeGuildCoin(sysarg,SbkDartConfig.AwardGuildCoin)
+	
+	if dVar.sbkMonster ~= nil and dVar.sbkMonster > 0 then
+		Fuben.clearMonster(dVar.sbkMonster, false)
+	end
+
+	Actor.closeNPCDialog(sysarg)
+	dVar.startSbkDartFlag = nil
+	dVar.sbkMonster = nil
+end
+
+--活动详述
+function guildDartDesc(sysarg)
+	local str = Lang.Activity.g00053
+
+	str = str .. "\\<#BL"..Lang.Activity.g00008.."/@main>"					--返回
+
+	return str
+end
+
+table.insert(MainFnTable, guildMain)

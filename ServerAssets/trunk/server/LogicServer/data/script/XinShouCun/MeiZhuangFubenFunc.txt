@@ -1,0 +1,50 @@
+﻿--lua script
+--#include "data\envir\FuBen.txt" once
+
+
+function enterMeiZhuangFuben(sysarg)
+  --[[local teamid = Actor.getTeamId(sysarg)
+  if teamid == 0 then 
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00023,ttDialog) 
+    return
+  end
+  local captain = TeamFun.getTeamCaptain(teamid)
+  if captain ~= sysarg then 
+    Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00023,ttDialog)
+    return
+  end
+ 	local level = Actor.getIntProperty( sysarg, PROP_CREATURE_LEVEL ) 
+  local TeamMemb = LuaHelp.getTeamMemberList(sysarg)
+  if TeamMemb == nil then return end
+  local t_len = table.getn(TeamMemb)  
+  local fbdata = FuBen[12]
+	if ( t_len < fbdata.minPlayCount ) then
+		Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00001,ttDialog)
+		return
+	end
+	if (t_len > fbdata.maxPlayCount) then 
+	  Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00002,ttDialog)
+		return false
+	end
+	for i = 1 ,t_len do
+	 local memblevel = Actor.getIntProperty(TeamMemb[i],PROP_CREATURE_LEVEL)
+	 local membfbcount = Actor.getDayFubenCount(TeamMemb[i],类型)        --副本类型要更换成对应的类型 
+	 if memblevel < fbdata.minLevel then
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00006,ttDialog)
+			return false
+   end
+	 if membfbcount < 1 then
+		  Actor.sendTipmsg(sysarg,Lang.ScriptTips.f00006,ttDialog)
+			return false
+	 end
+	end 
+	Actor.createFubenTeam(sysarg,12) 
+  ]]
+	local Hfuben = Fuben.createFuBen(12)
+  Actor.enterFuBen(sysarg,Hfuben,-1,-1,-1)
+end
+
+
+function MeiZhuangFunc(sysarg)
+  return Lang.Talk.t02902
+end

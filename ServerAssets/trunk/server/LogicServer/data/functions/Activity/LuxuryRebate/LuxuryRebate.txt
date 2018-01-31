@@ -1,0 +1,209 @@
+--lua script
+--豪华返利活动
+--#include "data\config\activityconfig\LuxuryRebate\LuxuryRebateConfig.txt" once
+--可以开启任意天数，但是天数不能大于配置文件的奖励条数
+
+--请求返利界面
+function ReqLuxuryRebate(sysarg)
+	--剩余的秒
+	local remainTime = 0
+	if System.getLuxuryRebateFlag() == 1 then
+		remainTime = System.getLuxuryRebateRemainTime()-60
+	end
+	if System.getLuxuryRebateFlag() ~= 1 or remainTime <= 0 then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.cjf001, ttFlyTip)
+		return
+	end
+
+	local openDays = System.getLuxuryDays()--获取活动天数
+	local awardMax = #LuxuryRebateConfig.award
+	if openDays > awardMax then return end --活动天数大于奖励配置
+	local day = GetLuxuryDays()
+	if day <=0 or day >openDays then return end
+	--当天充值的元宝
+	local sNum = GetLuxuryRebateYb(sysarg, day)
+
+	--求持续的天数
+	local continueDay = GetLuxuryContinueDays(sysarg)+1
+	--第几天
+	local activeDay = GetLuxuryContinueDays(sysarg)+1
+	local bili = LuxuryRebateConfig.award[activeDay].awardYb
+
+	--当天返利数
+	local rebateNum = 0
+
+	--充值目标
+	local needYb = LuxuryRebateConfig.award[continueDay].needYb
+	if sNum >= LuxuryRebateConfig.maxNeedYb then
+		rebateNum = LuxuryRebateConfig.maxNeedYb * LuxuryRebateConfig.maxAwardYb /100
+	else
+		if sNum >= needYb then
+			rebateNum = sNum * LuxuryRebateConfig.award[continueDay].awardYb / 100
+			if rebateNum > LuxuryRebateConfig.award[continueDay].maxYb then
+				rebateNum = LuxuryRebateConfig.award[continueDay].maxYb
+			end
+		else
+			continueDay = continueDay -1
+		end
+	end
+	rebateNum = math.modf(rebateNum)
+	local AllYb =  GetLuxuryAllYb(sysarg)
+	local pack = DataPack.allocPacket(sysarg, 145, 84)
+	if not pack then return end
+	--剩余的秒
+	DataPack.writeInt(pack, remainTime)
+	--当天充值的目标
+	DataPack.writeInt(pack, needYb)
+	--当天累计充值
+	DataPack.writeInt(pack, sNum)
+	--当天返利数
+	DataPack.writeInt(pack, rebateNum)
+	--累计的天数
+	DataPack.writeByte(pack, continueDay)
+	--累计充值数
+	DataPack.writeInt(pack, AllYb)
+	--第N天
+	DataPack.writeByte(pack, activeDay)
+	--返利比例
+	DataPack.writeByte(pack, bili)
+	DataPack.flush(pack)
+end
+
+--求持续的天数
+function GetLuxuryContinueDays(sysarg)
+	local openDays = System.getLuxuryDays()--获取活动天数
+	local day = GetLuxuryDays()
+	local n = 0
+	if day > 1 then
+		for i=day-1, 1, -1 do
+			local ret = GetLuxuryRebateYb(sysarg, i+openDays) --1-openDays表示充值，openDays+1-10表示奖励
+			if ret > 0 then
+				n = n + 1
+			else
+				break
+			end
+		end
+	end
+	return n
+end
+
+--获取当天是第几天
+function GetLuxuryDays()
+	local days = System.getLuxuryStartDays()
+	if days < 0 then
+		days = 0
+	end
+	return days
+end
+
+--0点发送奖励
+function SendMailLuxuryRebateAward()
+	local day = GetLuxuryDays()
+	local openDays = System.getLuxuryDays()--获取活动天数
+	local awardMax = #LuxuryRebateConfig.award
+	if openDays > awardMax then return end --活动天数大于奖励配置
+	
+	if day <= 1 or day > openDays+1 then return end
+	local ranking = Ranking.getRanking(Lang.Rank.LuxuryRebateFile)
+	if ranking then
+		local num = Ranking.getRankItemCount(ranking)
+		for i=1, num do
+			local item = Ranking.getItemPtrByIndex(ranking, i-1)
+			if item then
+				local nActorId = Ranking.getId(item)
+				local sum = Ranking.getSub(item, day+openDays-1)--发放的是前一天的奖励
+				sum = tonumber(sum)
+				if sum and sum > 0 then
+					-- 发送离线消息  mtLuxuryRebate = 68//豪华返利活动
+					local msg = string.format(Lang.ScriptTips.hhf001, sum)
+					System.addOfflineMsg(nActorId, 68, msg, 0, sum)--分别表示：玩家id，类型，消息内容，发送者（系统）， 元宝数量
+				end
+			end
+		end
+		if day > openDays then
+			Ranking.clearRanking(ranking)
+		end
+	end
+end
+
+--应急使用，用来清除数据
+function ClearLuxuryData()
+	local ranking = Ranking.getRanking(Lang.Rank.LuxuryRebateFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+end
+
+--获取x天充值的元宝
+function GetLuxuryRebateYb(sysarg, subid)
+	local ranking = Ranking.getRanking(Lang.Rank.LuxuryRebateFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local item = Ranking.getItemPtrFromId(ranking, nActorId)
+		if item then
+			local result = Ranking.getSub(item, subid)
+			result = tonumber(result)
+			if result then
+				return result
+			end
+		end
+	end
+	return 0
+end
+
+--获取累计充值数
+function GetLuxuryAllYb(sysarg)
+	local openDays = System.getLuxuryDays()--获取活动天数
+	local ret = 0
+	for i=1, openDays do
+		ret = ret + GetLuxuryRebateYb(sysarg, i)
+	end
+	return ret
+end
+
+--保存当天充值的元宝到文件
+function OnLuxuryRebateToday(sysarg, nYuanBao)
+	local day = GetLuxuryDays(sysarg)
+	local openDays = System.getLuxuryDays()--获取活动天数
+	local awardMax = #LuxuryRebateConfig.award
+	if openDays > awardMax then return end --活动天数大于奖励配置
+	if day > openDays or day == 0 then return end
+	if nYuanBao <= 0 then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local pRanking = Ranking.getRanking(Lang.Rank.LuxuryRebateFile)
+	if pRanking then
+		local pItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if pItem == nil then
+			pItem = Ranking.addItem(pRanking, nActorId, 0)
+			if pItem then
+				Ranking.setSub(pItem, day, nYuanBao) --(1-openDays 保存充值数)
+			end
+		else
+			local ret = Ranking.getSub(pItem, day)
+			ret = tonumber(ret)
+			if ret and ret ~= 0 then
+				nYuanBao = nYuanBao + ret
+			end
+			Ranking.setSub(pItem, day, nYuanBao)
+		end
+		--当天返利数
+		local rebateNum=0
+		--求持续的天数
+		local continueDay = GetLuxuryContinueDays(sysarg)+1
+		--充值目标
+		local needYb = LuxuryRebateConfig.award[continueDay].needYb
+		if nYuanBao >= needYb then	
+			if nYuanBao >= LuxuryRebateConfig.maxNeedYb then
+				rebateNum = LuxuryRebateConfig.maxNeedYb * LuxuryRebateConfig.maxAwardYb /100
+			else
+				rebateNum = nYuanBao * LuxuryRebateConfig.award[continueDay].awardYb / 100
+				if rebateNum > LuxuryRebateConfig.award[continueDay].maxYb then
+					rebateNum = LuxuryRebateConfig.award[continueDay].maxYb
+				end
+			end
+			rebateNum = math.modf(rebateNum)
+			Ranking.setSub(pItem, day+openDays, rebateNum)
+		end
+	end
+end

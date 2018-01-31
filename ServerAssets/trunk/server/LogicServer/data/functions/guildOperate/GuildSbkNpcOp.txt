@@ -1,0 +1,757 @@
+﻿--lua script
+--#include "data\language\LangCode.txt" once --语言包 
+
+--#include "data\config\guild\GuildSiegeConfig.txt" once 
+--#include "data\config\guild\FreshSbkMonster.txt" once 
+--#include "data\functions\Activity\Common\Awards.txt" once
+
+--沙巴克npc操作
+function OnSbkNpcOpmain(sysarg)
+	local str = ""
+	str = Lang.GuildLang.z00084
+	str = str.."\\<#BL"..Lang.GuildLang.z00111.."/@SendGetTaxingToClient>"		--领取税收
+	--str = str.."\\<#BL"..Lang.GuildLang.z00094.."/@GetSbkMasterFashion>"		--领取城主时装
+	str = str.."\\<#BL"..Lang.GuildLang.z00095.."/@SendAwardToMember>"		--普天同庆
+	str = str.."\\<#BL"..Lang.GuildLang.z00065.."/@OnRepairWall>"			--维修城墙
+	str = str.."\\<#BL"..Lang.GuildLang.z00066.."/@CallSbkGuardMain>"		--召唤守卫
+
+	local dVar = System.getDyanmicVar()
+	if dVar.haveOpenSbkGuildFubenFlag == nil then
+		dVar.haveOpenSbkGuildFubenFlag = 0
+	end
+	--if dVar.haveOpenSbkGuildFubenFlag == 1 then		--已开启
+		--str = str.."\\<#BL"..Lang.GuildLang.z00127.."/@EnterSbkGuildFuBen>"		--进入沙城荣誉神殿副本
+	--else
+		--str = str.."\\<#BL"..Lang.GuildLang.z00126.."/@OpenSbkGuildFuBen>"		--开启沙城荣誉神殿副本
+	--end
+
+	--str = str.."\\<#BL"..Lang.GuildLang.z00135.."/@SbkGuildFuBenExplain>"		--荣誉神殿说明
+	
+	str = str.."\\<#BL"..Lang.GuildLang.m00170.."/@OnGetSbkYbAwards>"			--领取攻沙元宝奖励
+	str = str.."\\<#BL"..Lang.GuildLang.m00171.."/@OnGetSbkYbExplain>"			--奖励说明
+
+	return str
+end
+
+--领取城主时装
+function GetSbkMasterFashion(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip)
+		return 
+	end
+
+	local sbkGuildId = System.getSbkGuildId()
+	if sbkGuildId == 0 or nGuildId ~= sbkGuildId then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip)
+		return 
+	end
+
+	if nGuildId == sbkGuildId then
+		if Actor.getGuildPos(sysarg) == 3 then
+			local var = System.getStaticVar()
+
+			if var.GetSbkFashionFlag == nil then
+				var.GetSbkFashionFlag = 0
+			end
+
+			if var.GetSbkFashionFlag == 1 then		--已领取
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.z00096,ttFlyTip)
+				return 
+			end
+			
+			local nSex = Actor.getIntProperty( sysarg, PROP_ACTOR_SEX )
+			
+			local itemID = 0
+			if nSex == 0 then	--0男1女
+				itemID = GuildSiegeConfig.ManmMnsterFashion.id
+			else
+				itemID = GuildSiegeConfig.WomanMonsterFashion.id
+			end
+
+			local itemQuality = 0
+			local itemStrong = 0
+			local itemCount = 1
+			local itemBind = GuildSiegeConfig.ManmMnsterFashion.bind
+			local itemName = Item.getItemName(itemID) or ""
+
+			--背包不够
+			local nGridCount= Item.getBagEmptyGridCount(sysarg)
+			local nNeedGrid = Item.getAddItemNeedGridCount(sysarg,itemID,itemCount,itemQuality, itemStrong)
+			if(nGridCount < 2) then
+				local tipmsg= string.format(Lang.ScriptTips.x00074,2) --通知用户，需要空出多少个空格
+				Actor.sendTipmsg( sysarg, tipmsg,ttFlyTip )
+				return
+			end
+			
+			var.GetSbkFashionFlag = 1
+			Actor.addItem(sysarg,itemID,itemQuality,itemStrong,itemCount,itemBind)
+			Actor.addItem(sysarg,GuildSiegeConfig.MagicWeapon.id,GuildSiegeConfig.MagicWeapon.quality,GuildSiegeConfig.MagicWeapon.strong,GuildSiegeConfig.MagicWeapon.count
+			,GuildSiegeConfig.MagicWeapon.bind)
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip)
+		end
+	end
+end
+
+--普天同庆
+function SendAwardToMember(sysarg)
+	local str = ""
+	str = str.."\\<#BL"..Lang.GuildLang.z00097.."/@BeginFortuneActivity,1>"		
+	str = str.."\\<#BL"..Lang.GuildLang.z00098.."/@BeginFortuneActivity,2>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00099.."/@BeginFortuneActivity,3>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00110.."/@main>"
+
+	return str
+end
+
+--开始普天同庆的活动
+function BeginFortuneActivity(sysarg,args)
+	local nType = tonumber(args)
+	
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00100,ttFlyTip)
+		return 
+	end
+
+	local sbkGuildId = System.getSbkGuildId()
+	if sbkGuildId == 0 or nGuildId ~= sbkGuildId then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00100,ttFlyTip)
+		return 
+	end
+
+	local var = System.getStaticVar()
+
+	if var.StartFortuneFlag == nil then
+		var.StartFortuneFlag = 0
+	end
+	
+	if var.StartFortuneFlag == 1 or var.StartFortuneFlag == 2  or var.StartFortuneFlag == 3 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00102,ttFlyTip)
+		return 
+	end
+
+	if nGuildId == sbkGuildId then
+		if Actor.getGuildPos(sysarg) == 3 or Actor.getGuildPos(sysarg) == 2 then
+			local nFortneConfig = GuildSiegeConfig.FortuneAwards[nType]
+
+			if nFortneConfig == nil then return end
+
+			local gCoin = Actor.getGuildCoin(sysarg)
+
+			if gCoin < nFortneConfig.needCoin then
+				local str3 = string.format(Lang.GuildLang.z00101, nFortneConfig.needCoin)
+				Actor.sendTipmsg( sysarg, str3 ,ttFlyTip)
+				return
+			end
+
+			BroadSbkEffect(1)
+
+			Actor.regScriptCallback(thisNPC, thisNPC, GuildSiegeConfig.FortuneLastTime * 1000, GuildSiegeConfig.FortuneLastTime * 1000, 1, "GiveFortuneActivityAward",nType)
+
+			Actor.changeGuildCoin(sysarg,-nFortneConfig.needCoin)
+			var.StartFortuneFlag = nType
+			System.broadcastTipmsg(Lang.GuildLang.z00103,ttFlyTip + 2)
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00100,ttFlyTip)
+		end
+	end
+end
+
+--发送倒计时或者播放金币特效 nType 1:播放倒计时 2：播放金币特效
+function BroadSbkEffect(nType)
+	local playerList = LuaHelp.getSceneActorListById(GuildSiegeConfig.PalaceSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				if nType == 1 then
+					Actor.sendCountdown(player,GuildSiegeConfig.countDown)					
+				end
+			end
+		end
+	end
+end
+
+--给玩家发奖励
+function GiveFortuneActivityAward(nType)
+	Actor.unregScriptCallback(thisNPC,"GiveFortuneActivityAward")
+
+	local var = System.getStaticVar()
+	if var.StartFortuneFlag == nil then return end
+	
+	local nType = var.StartFortuneFlag
+	local nFortneConfig = GuildSiegeConfig.FortuneAwards[nType]
+
+	var.StartFortuneFlag = nil
+	if nFortneConfig == nil then return end
+	
+	local sbkGuildId = System.getSbkGuildId()
+	local playerList = LuaHelp.getSceneActorListById(GuildSiegeConfig.PalaceSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.playScrEffectCode(player,GuildSiegeConfig.sbkeffect.effectId,GuildSiegeConfig.sbkeffect.effectLastTime)
+
+				local nGuildId = Actor.getIntProperty( player, PROP_ACTOR_GUILD_ID )
+
+				if nGuildId > 0 and nGuildId == sbkGuildId then
+					local nRate = System.getRandomNumber(100)			
+					local nIndex = 1
+					for i=1,table.getn(nFortneConfig.nRate) do
+						if nRate <= nFortneConfig.nRate[i] then
+							nIndex = i
+							break
+						end
+					end
+
+					if nFortneConfig.awards[nIndex] == nil then
+						break
+					end
+
+					Actor.giveAward(player, nFortneConfig.awards[nIndex].type, nFortneConfig.awards[nIndex].id, nFortneConfig.awards[nIndex].count, 0, 0, nFortneConfig.awards[nIndex].bind, 0, 822, "FortuneAward")
+				end
+			end
+		end
+	end
+end
+
+
+--维修城墙
+function OnRepairWall(sysarg)
+	local str = ""
+	str = string.format(Lang.GuildLang.z00083,GuildSiegeConfig.repairWallCoin)
+	str = str.."\\<#BL"..Lang.GuildLang.z00067.."/@OnRepairWall1>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00068.."/@OnRepairWall2>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00069.."/@OnRepairWall3>"
+
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+function OnRepairWall1(sysarg)
+	local str = ""
+	OnRepairWallOp(sysarg,1)
+end
+
+function OnRepairWall2(sysarg)
+	local str = ""
+	OnRepairWallOp(sysarg,2)
+end
+
+function OnRepairWall3(sysarg)
+	local str = ""
+	OnRepairWallOp(sysarg,3)
+end
+
+function OnRepairWallOp(sysarg,nIndex)
+	local str = ""
+	if nIndex < 1 or nIndex > 3 then return end
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip)
+		return 
+	end
+
+	local sbkGuildId = System.getSbkGuildId()
+	if sbkGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip)
+		return 
+	end
+
+	if nGuildId == sbkGuildId then
+		--是否为城主
+		if Actor.getGuildPos(sysarg) == 3 or Actor.getGuildPos(sysarg) == 2 then
+			local nState = System.getSbkWallState(nIndex)
+			if nState == 0 then
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.z00073,ttFlyTip)
+				return
+			end
+
+			local gCoin = Actor.getGuildCoin(sysarg)
+			
+			if gCoin < GuildSiegeConfig.repairWallCoin then
+				local str3 = string.format(Lang.GuildLang.z00080, GuildSiegeConfig.repairWallCoin)
+				Actor.sendTipmsg( sysarg, str3 ,ttFlyTip)
+				return
+			end
+
+			local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.wallMonsters[nIndex].Sceneid, 0)
+			Fuben.clearMonster(hScene, GuildSiegeConfig.wallMonsters[nIndex].nMonsterID)
+			local nMonster = Fuben.createOneMonsters(hScene, GuildSiegeConfig.wallMonsters[nIndex].nMonsterID, GuildSiegeConfig.wallMonsters[nIndex].posX1, GuildSiegeConfig.wallMonsters[nIndex].posX2, GuildSiegeConfig.wallMonsters[nIndex].posY, GuildSiegeConfig.wallMonsters[nIndex].nCount, GuildSiegeConfig.wallMonsters[nIndex].nLiveTime)
+			System.setWallTepotVisible(true,hScene,GuildSiegeConfig.teleport[nIndex].posx,GuildSiegeConfig.teleport[nIndex].posy)
+
+			local nMp = Actor.getIntProperty( nMonster, PROP_CREATURE_MAXHP )
+			System.setSbkWallState(nIndex,0)
+			System.setSbkWallInfo(nMonster,nIndex,0,nMp)
+			
+			Actor.changeGuildCoin(sysarg,-GuildSiegeConfig.repairWallCoin)
+			Actor.setMonsterCanMove(nMonster,true)
+			Actor.setNpcGuildId(nMonster,System.getSbkGuildId())
+
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00076 ,ttFlyTip)
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip )
+		end
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip )
+	end
+end
+
+--召唤守卫
+function CallSbkGuardMain(sysarg)
+	local str = ""
+	str = string.format(Lang.GuildLang.z00082,GuildSiegeConfig.callGuardCoin)
+	str = str.."\\<#BL"..Lang.GuildLang.z00070.."/@CallSbkGuard1>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00071.."/@CallSbkGuard2>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00072.."/@CallSbkGuard3>"
+
+	str = str.."\\<#BL"..Lang.GuildLang.z00085.."/@CallSbkGuard4>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00086.."/@CallSbkGuard5>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00087.."/@CallSbkGuard6>"
+
+	str = str.."\\<#BL"..Lang.GuildLang.z00088.."/@CallSbkGuard7>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00089.."/@CallSbkGuard8>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00090.."/@CallSbkGuard9>"
+
+	str = str.."\\<#BL"..Lang.GuildLang.z00091.."/@CallSbkGuard10>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00092.."/@CallSbkGuard11>"
+	str = str.."\\<#BL"..Lang.GuildLang.z00093.."/@CallSbkGuard12>"
+
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+function CallSbkGuard1(sysarg)
+	local str = ""
+	CallSbkGuardOp(sysarg,1)
+end
+
+function CallSbkGuard2(sysarg)
+	local str = ""
+	CallSbkGuardOp(sysarg,2)
+end
+
+function CallSbkGuard3(sysarg)
+	local str = ""
+	CallSbkGuardOp(sysarg,3)
+end
+
+function CallSbkGuard4(sysarg)
+	CallSbkGuardOp(sysarg,4)
+end
+
+function CallSbkGuard5(sysarg)
+	CallSbkGuardOp(sysarg,5)
+end
+
+function CallSbkGuard6(sysarg)
+	CallSbkGuardOp(sysarg,6)
+end
+
+function CallSbkGuard7(sysarg)
+	CallSbkGuardOp(sysarg,7)
+end
+
+function CallSbkGuard8(sysarg)
+	CallSbkGuardOp(sysarg,8)
+end
+
+function CallSbkGuard9(sysarg)
+	CallSbkGuardOp(sysarg,9)
+end
+
+function CallSbkGuard10(sysarg)
+	CallSbkGuardOp(sysarg,10)
+end
+
+function CallSbkGuard11(sysarg)
+	CallSbkGuardOp(sysarg,11)
+end
+
+function CallSbkGuard12(sysarg)
+	CallSbkGuardOp(sysarg,12)
+end
+
+function CallSbkGuardOp(sysarg,nIndex)
+	if nIndex < 1 or nIndex > table.getn(GuildSiegeConfig.archerConfig) then
+		return
+	end
+
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074 ,ttFlyTip)
+		return 
+	end
+
+	local sbkGuildId = System.getSbkGuildId()
+	if sbkGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074 ,ttFlyTip)
+		return 
+	end
+
+	if nGuildId == sbkGuildId then
+		--是否为城主
+		if Actor.getGuildPos(sysarg) == 3 or Actor.getGuildPos(sysarg) == 2 then
+
+			local bExits = System.exitsGuardId(nIndex)
+
+			if bExits == false then
+
+				local gCoin = Actor.getGuildCoin(sysarg)
+					
+				if gCoin < GuildSiegeConfig.callGuardCoin then
+					local str3 = string.format(Lang.GuildLang.z00081, GuildSiegeConfig.callGuardCoin)
+					Actor.sendTipmsg( sysarg, str3 ,ttFlyTip)
+					return
+				end
+
+				local hScene = Fuben.getSceneHandleById(GuildSiegeConfig.archerConfig[nIndex].Sceneid, 0)
+				local nMonster = Fuben.createOneMonsters(hScene, GuildSiegeConfig.archerConfig[nIndex].nMonsterID, GuildSiegeConfig.archerConfig[nIndex].posX1, GuildSiegeConfig.archerConfig[nIndex].posX2, GuildSiegeConfig.archerConfig[nIndex].posY, GuildSiegeConfig.archerConfig[nIndex].nCount, GuildSiegeConfig.archerConfig[nIndex].nLiveTime)
+
+				if (nMonster ~= nil) then
+					Actor.setNpcGuildId(nMonster,System.getSbkGuildId())
+					local nHandle = Actor.getHandle(nMonster)
+					
+					local nMp = Actor.getIntProperty( nMonster, PROP_CREATURE_MAXHP )
+					System.setSbkGuardState(nMonster,nIndex,nMp)
+					Actor.setMonsterCanMove(nMonster,true)
+					Actor.changeGuildCoin(sysarg,-GuildSiegeConfig.callGuardCoin)
+					Actor.sendTipmsg( sysarg, Lang.GuildLang.z00077 ,ttFlyTip)
+				end
+			else
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.z00075,ttFlyTip )
+			end
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip )
+		end
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip )
+	end
+end
+
+--领取税收
+function SendGetTaxingToClient(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074 ,ttFlyTip)
+		return 
+	end
+
+	local sbkGuildId = System.getSbkGuildId()
+	if sbkGuildId == 0 then 
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074 ,ttFlyTip)
+		return 
+	end
+
+	if nGuildId == sbkGuildId then
+		--是否为城主
+		if Actor.getGuildPos(sysarg) == 3 or Actor.getGuildPos(sysarg) == 2 then
+			local pack = DataPack.allocPacket(sysarg, 10, 53)
+
+			if (pack ~= nil) then
+				local curNum = System.getCurWorldTaxing()		--当前世界收入
+				DataPack.writeInt(pack,curNum)
+				
+				local nRate = System.getCultureRate(6)
+				local AwardNum = math.floor(GuildSiegeConfig.MaxTaxing *  GuildSiegeConfig.taxingRate * 10 / 100)
+				AwardNum = math.floor(AwardNum * nRate / 100 )
+				local maxTaxing = GuildSiegeConfig.MaxTaxing + AwardNum		--领取税收上限
+				local rData = System.getCurReciveTaxing()
+				
+				local nValue = math.floor(GuildSiegeConfig.taxingRate * (curNum /100))
+
+				--[[local RankNameList = Ranking.getRanking("SecSbkCityFile.txt")
+				if RankNameList then			--扣除卫城的税收
+					local pItem = Ranking.getItemFromIndex(RankNameList,0)
+					if pItem then
+						local nSenValue = tonumber(Ranking.getSub(pItem,2)) or 0
+						if nSenValue < nValue then
+							nValue = nValue - nSenValue
+						end
+					end
+				end]]
+
+				if nValue > maxTaxing - rData then
+					if (maxTaxing - rData) > 0 then
+						DataPack.writeInt(pack,maxTaxing - rData)
+					else
+						DataPack.writeInt(pack,0)
+					end
+				else
+					DataPack.writeInt(pack,nValue)
+				end
+				
+				DataPack.writeInt(pack,maxTaxing)
+				DataPack.writeInt(pack,nRate)
+				DataPack.writeInt(pack,rData)
+
+				DataPack.flush(pack)
+			end
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip )
+		end
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00074,ttFlyTip )
+	end
+end
+
+
+--开启沙城荣誉神殿副本
+function OpenSbkGuildFuBen(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local sbkGuildId = System.getSbkGuildId()
+
+	if nGuildId > 0 and nGuildId == sbkGuildId then
+		--是否为城主
+		if Actor.getGuildPos(sysarg) == 3 or Actor.getGuildPos(sysarg) == 2 then
+			local nHoure,nMin,nSec = System.getTime(0,0,0)
+			if nHoure >= SbkGuildMonsterConfig.nonActivityTime[1] and nHoure < SbkGuildMonsterConfig.nonActivityTime[2] then
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.z00141,ttFlyTip )
+				return
+			end
+
+			local dVar = System.getDyanmicVar()
+			if dVar.haveOpenSbkGuildFubenFlag == nil then
+				dVar.haveOpenSbkGuildFubenFlag = 0
+			end
+			if dVar.haveOpenSbkGuildFubenFlag == 1 then		--已开启
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.z00129,ttFlyTip )
+				return
+			end
+
+			local sVar = System.getStaticVar()
+			if sVar.OpenSbkGuildFubenTimes == nil then
+				sVar.OpenSbkGuildFubenTimes = {}
+			end
+			
+			if sVar.OpenSbkGuildFubenTimes[nGuildId] == nil then
+				sVar.OpenSbkGuildFubenTimes[nGuildId] = 0
+			end
+			local str = string.format( Lang.GuildLang.z00131,System.getGuildName(nGuildId))
+			if sVar.OpenSbkGuildFubenTimes[nGuildId] < SbkGuildMonsterConfig.freeOpenTimes then		--免费
+				OpenSbkGuildFubenSuc(sysarg)
+				System.broadcastTipmsg(str,2+128)
+			elseif sVar.OpenSbkGuildFubenTimes[nGuildId] < SbkGuildMonsterConfig.totalOpenTimes then		--需要扣除行会资金
+				local nGuildCoin = Actor.getGuildCoin(sysarg)
+				if nGuildCoin >= SbkGuildMonsterConfig.needGuildCoin then
+					System.changeGuildCoin(nGuildId,-SbkGuildMonsterConfig.needGuildCoin)
+					OpenSbkGuildFubenSuc(sysarg)
+					System.broadcastTipmsg(str,2+128)
+				else
+					local str1 = string.format( Lang.GuildLang.z00132,SbkGuildMonsterConfig.needGuildCoin)
+					Actor.messageBox(sysarg,0,0,str1,Lang.GuildLang.z00040.."/OnOpenSbkFubenByYb",Lang.GuildLang.z00041.."/CancleOpenSbkFuben",NULL)
+				end
+			elseif sVar.OpenSbkGuildFubenTimes[nGuildId] == SbkGuildMonsterConfig.totalOpenTimes then		--开启次数已到上限
+				Actor.sendTipmsg( sysarg, Lang.GuildLang.z00130,ttFlyTip )
+			end
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00128 ,ttFlyTip)
+		end
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00128 ,ttFlyTip)
+	end
+end
+
+--行会资金不够的处理
+function OnOpenSbkFubenByYb(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local str = string.format( Lang.GuildLang.z00131,System.getGuildName(nGuildId))
+	if Actor.getItemCount(sysarg,SbkGuildMonsterConfig.nDrafts.itemId) >= SbkGuildMonsterConfig.nDrafts.count then		--行会银票足够
+		Actor.removeItem(sysarg,SbkGuildMonsterConfig.nDrafts.itemId,SbkGuildMonsterConfig.nDrafts.count,0,0,0,Lang.GuildLang.z00126)
+		OpenSbkGuildFubenSuc(sysarg)
+		System.broadcastTipmsg(str,2+128)
+	else
+		local nYb = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+		if nYb >= SbkGuildMonsterConfig.openNeedYb then
+			Actor.changeMoney(sysarg,3,-SbkGuildMonsterConfig.openNeedYb,823,Lang.GuildLang.z00126)
+			OpenSbkGuildFubenSuc(sysarg)
+			System.broadcastTipmsg(str,2+128)
+		else
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.z00133,ttFlyTip )
+		end
+	end
+end
+
+--成功开启沙城荣誉神殿副本
+function OpenSbkGuildFubenSuc(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	if nGuildId <= 0 then return end
+
+	local sVar = System.getStaticVar()
+	local dVar = System.getDyanmicVar()
+	dVar.haveOpenSbkGuildFubenFlag = 1
+	if sVar.OpenSbkGuildFubenTimes == nil then
+		sVar.OpenSbkGuildFubenTimes = {}
+	end
+
+	if sVar.OpenSbkGuildFubenTimes[nGuildId] == nil then
+		sVar.OpenSbkGuildFubenTimes[nGuildId] = 0
+	end
+
+	dVar.StartOpenSbkFubenTime = System.getCurrMiniTime()
+
+	sVar.OpenSbkGuildFubenTimes[nGuildId] = sVar.OpenSbkGuildFubenTimes[nGuildId] + 1
+
+	Actor.enterScene(sysarg, SbkGuildMonsterConfig.nSceenId, unpack(SbkGuildMonsterConfig.nSceenRange))
+
+	Actor.initActivityWind(sysarg,Lang.GuildLang.z00138,SbkGuildMonsterConfig.sbkTimeUp,Lang.GuildLang.z00137)
+
+	Actor.regScriptCallback(thisNPC, thisNPC, SbkGuildMonsterConfig.fressBossTime, SbkGuildMonsterConfig.fressBossTime, 1, "OnFreshMonsterTenMin")
+
+	Actor.regScriptCallback(thisNPC, thisNPC, SbkGuildMonsterConfig.sbkTimeUp * 1000, SbkGuildMonsterConfig.sbkTimeUp *1000, 1, "OnSbkFubenTimeUp")
+
+	Actor.regScriptCallback(thisNPC, thisNPC, SbkGuildMonsterConfig.perTime, SbkGuildMonsterConfig.perTime, -1, "OnGiveMemExpOnTimeInSbk")
+	
+	Actor.regScriptCallback(thisNPC, thisNPC, SbkGuildMonsterConfig.broadPerMin * 1000, SbkGuildMonsterConfig.broadPerMin * 1000, 5, "onBroadOpenFubenTips")
+end
+
+--进入沙城荣誉神殿副本
+function EnterSbkGuildFuBen(sysarg)
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local sbkGuildId = System.getSbkGuildId()
+	if nGuildId > 0 and nGuildId == sbkGuildId then
+		if Actor.checkActorLevel(sysarg,SbkGuildMonsterConfig.minLevel) then
+			Actor.enterScene(sysarg, SbkGuildMonsterConfig.nSceenId, unpack(SbkGuildMonsterConfig.nSceenRange))
+			local dVar = System.getDyanmicVar()
+			if dVar.StartOpenSbkFubenTime == nil then return end
+			if dVar.StartOpenSbkFubenTime + SbkGuildMonsterConfig.sbkTimeUp > System.getCurrMiniTime() then
+				local leftTime = dVar.StartOpenSbkFubenTime + SbkGuildMonsterConfig.sbkTimeUp - System.getCurrMiniTime()
+				Actor.initActivityWind(sysarg,Lang.GuildLang.z00138,leftTime,Lang.GuildLang.z00137)
+			end
+		else
+			Actor.sendTipmsg( sysarg, string.format(Lang.GuildLang.z00143,SbkGuildMonsterConfig.minLevel),ttFlyTip )
+		end
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.z00142,ttFlyTip )
+	end
+end
+
+--十分钟后刷出boss
+function OnFreshMonsterTenMin()
+	for i=1,table.getn(SbkGuildMonsterConfig.cityMonster) do
+		local hScene = Fuben.getSceneHandleById(SbkGuildMonsterConfig.cityMonster[i].nSceenId, 0)
+		Fuben.createMonsters(hScene, SbkGuildMonsterConfig.cityMonster[i].nMonsterID, SbkGuildMonsterConfig.cityMonster[i].posX1, SbkGuildMonsterConfig.cityMonster[i].posX2, SbkGuildMonsterConfig.cityMonster[i].posY, SbkGuildMonsterConfig.cityMonster[i].nCount, SbkGuildMonsterConfig.cityMonster[i].nLiveTime)
+	end
+
+	Actor.unregScriptCallback(thisNPC,"OnFreshMonsterTenMin")
+end
+
+--开启后每隔1分钟播报
+function onBroadOpenFubenTips()
+	local nGuildId = System.getSbkGuildId()
+	if nGuildId > 0 then
+		local str = string.format( Lang.GuildLang.z00131,System.getGuildName(nGuildId))
+		System.broadcastTipmsg(str,2+128)
+	end
+end
+
+--一个小时沙城荣誉神殿结束
+function OnSbkFubenTimeUp()
+	local sVar = System.getStaticVar()
+	local dVar = System.getDyanmicVar()
+	dVar.haveOpenSbkGuildFubenFlag = 0
+
+	local playerList = LuaHelp.getSceneActorListById(SbkGuildMonsterConfig.nSceenId)		--获取某场景玩家对象列表
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player then
+				Actor.enterScene(player,SbkGuildMonsterConfig.outSceenId,unpack(SbkGuildMonsterConfig.outRange))
+			end
+		end
+	end
+
+	Actor.unregScriptCallback(thisNPC,"OnSbkFubenTimeUp")
+	Actor.unregScriptCallback(thisNPC,"OnGiveMemExpOnTimeInSbk")
+end
+
+--循环给经验等
+function OnGiveMemExpOnTimeInSbk()
+	local playerList = LuaHelp.getSceneActorListById(SbkGuildMonsterConfig.nSceenId)
+	if playerList ~= nil then
+		for j = 1, #playerList do
+			local player = playerList[j]
+			if player and Actor.isDeath(player) == false then
+				if Awards.CheckBagGridCount(player,SbkGuildMonsterConfig.GiveExpOnTime) then
+					Awards.Give(player,SbkGuildMonsterConfig.GiveExpOnTime,61,Lang.GuildLang.z00134)
+				end
+			end
+		end
+	end
+end
+
+--荣誉神殿说明
+function SbkGuildFuBenExplain(sysarg)
+	local str = Lang.GuildLang.z00136
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end
+
+
+--领取攻沙元宝奖励
+function OnGetSbkYbAwards(sysarg)
+	local sVar = System.getStaticVar()
+
+	if sVar.HaveGetSbkAwardFlag == nil then
+		sVar.HaveGetSbkAwardFlag = 0
+	end
+
+	if Actor.getGuildPos(sysarg) ~= 3 then		--你不是行会掌门，无法领取奖励
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.m00173,ttFlyTip )
+		return
+	end
+	
+	local nGuildId = Actor.getIntProperty( sysarg, PROP_ACTOR_GUILD_ID )
+	local nDefGuildId = System.getDefendSbkGuildId()
+
+	if System.getFirstAwardGuildId() ~= nGuildId then		--获取首个回沙后的占领的行会id
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.m00176,ttFlyTip )
+		return
+	end
+	
+	--[[
+	if nDefGuildId <= 0 then
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.m00176,ttFlyTip )
+		return
+	end
+	
+	local nDays = System.getDaysSinceOpenServer()	
+	if nDays > 10 and System.getSbkGuildId() ~= nGuildId then		--获取首个回沙后的占领的行会id
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.m00176,ttFlyTip )
+		return
+	end
+	--]]
+
+	local nWeek = System.getDayOfWeek()
+	if nWeek ~= 5 then					--不是周五，无法领取奖励
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.m00174,ttFlyTip )
+		return
+	end
+
+	local nHour,nMin,nSec = System.getTime(0,0,0)
+	if nHour == 22 then					--只有22点才能领取奖励
+		if sVar.HaveGetSbkAwardFlag == 1 then
+			Actor.sendTipmsg( sysarg, Lang.GuildLang.m00179,ttFlyTip )
+			return
+		end
+
+		Actor.changeMoney(sysarg,3,GuildSiegeConfig.nAwardYb,188,Lang.GuildLang.m00177)
+		local str = string.format( Lang.GuildLang.m00178,Actor.getName(sysarg))
+		System.broadcastTipmsg(str,2+128)
+
+		sVar.HaveGetSbkAwardFlag = 1
+	else
+		Actor.sendTipmsg( sysarg, Lang.GuildLang.m00175,ttFlyTip )
+	end
+end
+
+--奖励说明
+function OnGetSbkYbExplain(sysarg)
+	local str = Lang.GuildLang.m00172
+	str = str.."\\<#BL"..Lang.Activity.a00101.."/@main>"
+	return str
+end

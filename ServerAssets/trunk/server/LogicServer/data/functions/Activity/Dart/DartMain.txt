@@ -1,0 +1,103 @@
+﻿--lua script
+--申请护送美女的对话
+
+--#include "data\language\LangCode.txt" once --语言包 
+--#include "data\config\activityconfig\Dart\DartConfig.txt"  once  --基本设置
+--#include "ApplyDartCommon.txt"
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+
+--对话npc
+function ApplyDart_Main(sysarg)
+	local str = ""
+
+	if Actor.checkActorLevel(sysarg,EscortDartConfig.LevelLimit) == true then
+		str = str .. "\\".."<#BL"..Lang.Activity.t00070.."/@ActorApplyDart>"
+	end
+
+	local sVar = Actor.getStaticVar(sysarg)
+	if sVar.ActorDartStatus == nil then	--正在押送镖车
+		sVar.ActorDartStatus = 0
+	end
+
+	if sVar.ActorDartStatus == 1 then
+		str = str .. "\\".."<#BL"..Lang.Activity.t00071.."/@GiveUpApplyDart>"
+	end
+
+	return str
+end
+
+--护送美女
+function ActorApplyDart(sysarg)
+	local dVar = Actor.getDyanmicVar(sysarg)
+	local sVar = Actor.getStaticVar(sysarg)
+	if sVar.ActorDartStatus == nil then	--正在押送镖车
+		sVar.ActorDartStatus = 0
+	end
+	
+	if (sVar.ActorDartAdvStatus == 1) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.da0040, ttFlyTip)
+		return
+	end
+	
+	if sVar.ActorDartStatus == 1 then
+		Actor.sendTipmsg( sysarg, Lang.Activity.t00072,ttFlyTip)
+		return
+	end
+
+	--local nLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	if Actor.checkActorLevel(sysarg,EscortDartConfig.LevelLimit) == false then
+		Actor.sendTipmsg( sysarg, string.format(Lang.Activity.t00073,EscortDartConfig.LevelLimit),ttFlyTip)
+		return
+	end
+
+	if sVar.ActorApplyTimes == nil then
+		sVar.ActorApplyTimes = 0 
+	end
+	
+	local nTimes = EscortDartConfig.OpenTimes		--能护送的次数
+	if Actor.isVip(sysarg) == true then
+        local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+		nTimes = NewVipConfig.VipInclude[VipLevel].VipOpenTimes
+		--nTimes = EscortDartConfig.VipOpenTimes
+	end
+
+	if sVar.ActorApplyTimes >= nTimes then		--护送的次数
+		if Actor.hasQuest(sysarg, EscortDartConfig.DartQuestId) and not Actor.canFinishQuest(sysarg, EscortDartConfig.DartQuestId) then
+		else
+			if Actor.isVip(sysarg) == false then
+				local pack = DataPack.allocPacket(sysarg, 145, 9)
+				DataPack.writeString(pack, Lang.Activity.da00421)
+				DataPack.flush(pack)
+			else
+				OpenGuideUi(sysarg)
+				Actor.sendTipmsg( sysarg, Lang.Activity.t00074,ttFlyTip)
+			end
+			return
+		end
+	end
+	
+	StartApplyActorDart(sysarg, 0)
+	
+	Actor.setWorkDayMask(sysarg, 0, 15, true)
+
+	Actor.closeNPCDialog(sysarg)
+end
+
+--放弃护送
+function GiveUpApplyDart(sysarg)
+	local str = Lang.Activity.g00029
+	str = str .. "\\".."<#BL"..Lang.Activity.g00006.."/@OnGiveUpDart>"
+	str = str .. "\\".."<#BL"..Lang.Activity.g00007.."/@OnCancleGiveUp>"
+	return str
+end
+
+function OnGiveUpDart(sysarg)
+	ResetActorDartInfo(sysarg,false)
+	Actor.closeNPCDialog(sysarg)
+end
+
+function OnCancleGiveUp(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+table.insert(MainFnTable, ApplyDart_Main)

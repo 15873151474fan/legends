@@ -1,0 +1,146 @@
+﻿--lua script
+-- 宝物通用脚本处理逻辑
+--#include "data\config\gem\GemConfig.txt" once
+--#include "data\config\gem\GemGlobalConfig.txt" once
+
+-- 检测金钱需求
+--[[
+	PROP_ACTOR_BIND_COIN, //绑定金钱
+	PROP_ACTOR_COIN, //非绑定金钱
+	PROP_ACTOR_BIND_YUANBAO, //绑定元宝
+	PROP_ACTOR_YUANBAO, //非绑定元宝
+--]]
+
+-- 检测银两需求
+local function CheckMoneyReq(sysarg, reqMoneyType, reqMoneyCount)
+	-- 定义金钱类型和对应的属性映射表
+	local propMapTbl = {
+		{ id=PROP_ACTOR_BIND_COIN, 				tipmsg=Lang.Gem.t00016	},				-- 绑定银两		
+		{ id=PROP_ACTOR_COIN, 		tipmsg=Lang.Gem.t00017	},				-- 非绑定银两		
+		{ id=PROP_ACTOR_BIND_YUANBAO, 		tipmsg=Lang.Gem.t00018	},				-- 绑定元宝	
+		{ id=PROP_ACTOR_YUANBAO, 	tipmsg=Lang.Gem.t00019	},				-- 非绑定元宝		
+	}	
+	
+	local propCfg = propMapTbl[reqMoneyType+1]
+	if (propCfg == nil) then
+		return false
+	end
+	
+	local curCount = Actor.getIntProperty(sysarg, propCfg.id)
+	local result = false
+	if (curCount < reqMoneyCount) then		
+		if (propCfg.id == PROP_ACTOR_BIND_COIN) then
+				local nonBindCount = Actor.getIntProperty(sysarg, PROP_ACTOR_COIN)
+				if (curCount + nonBindCount >= reqMoneyCount) then
+					result = true
+				end 
+		end
+	else
+		result = true
+	end
+	
+	if (not result) then
+		Actor.sendTipmsg(sysarg, propCfg.tipmsg, ttTipmsgWindow)		
+	end
+	return result
+end
+
+
+local function ConsumeMoney(sysarg, reqMoneyType, reqMoneyCount)
+	--consumeCoin
+end
+
+local function SendReqItemTipmsg(sysarg, reqItemId, reqItemCnt)
+	local itemName = Item.getItemName(reqItemId) or ""
+	local info = string.format(Lang.Gem.t00013, reqItemCnt, itemName)
+	Actor.sendTipmsg(sysarg, info, ttTipmsgWindow)
+end
+
+-- 检测物品需求，满足需求返回true；否则返回false
+local function CheckItemReq(sysarg, reqItemId, reqItemCnt)	
+	if (Actor.getItemCount(sysarg, reqItemId) < reqItemCnt) then
+		--print(string.format("not enough item in bag, need item[%d] count[%d]", reqItemId, reqItemCnt))
+		SendReqItemTipmsg(sysarg, reqItemId, reqItemCnt)
+		return false
+	end
+	
+	return true
+end
+
+-- 获取指定宝物的配置数据
+local function GetGemConfigById(gemId)	
+	local cfg = GemConfig[gemId+1]
+	if (not cfg) then
+		print("can't find gem config by id=" .. gemId)
+	end
+	return cfg
+end
+
+-- 获取宝物灵性全局配置
+local function GetGemSCConfig()
+	local cfg = GemGlobalConfig.gemSpriteCharConfig;
+	if (not cfg) then
+		print("can't find gemSCConfig")
+	end
+	return cfg;
+end
+
+-- 获取宝物档次配置
+local function GetGemGradeConfig(gemCfg, gemGrade)
+	local cfg = gemCfg.gemGradeConfig[gemGrade]
+	if (not cfg) then
+		print(string.format("can't find gem grade[%d] config", gemGrade));
+	end
+	return cfg;
+end
+
+-- 获取指定档次、指定品质的名称
+local function getQualityDesc(gemGrade, gemQuality)
+	local gemQualityUpCfg = GemGlobalConfig.gemUpQualityConfig.gemQualityConfig[gemGrade]
+	if (not gemQualityUpCfg) then
+		return ""
+	end
+	
+	local gemQualityCfg = gemQualityUpCfg[gemQuality]
+	if (not gemQualityCfg) then
+		return ""
+	end
+	
+	return gemQualityCfg.name or ""
+end
+
+local function GemUpSS(sysarg, gemItemPtr, upVal, reqItemId)	
+	if (upVal <= 0) then return end
+	if (not CheckItemReq(sysarg, reqItemId, 1)) then		
+		return
+	end
+	
+	local gemId = GemItem.getGemItemId(gemItemPtr)
+	local gemLevel = GemItem.getGemItemLevel(gemItemPtr)
+	local upLevelConfig = GemGlobalConfig.gemUpLevelExpConfig[gemLevel+1]
+	if (not upLevelConfig) then
+		print(string.format("can't find gemLevel[%d] config", gemLevel))
+		return
+	end
+	local ssUpLmt = upLevelConfig.ssUpLmt
+	local curSpriteStren = GemItem.getGemItemSpriteStren(gemItemPtr)
+	if (curSpriteStren >= ssUpLmt) then
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00004, ttDialog)
+		return
+	end
+	
+	local resultSS = curSpriteStren + upVal
+	if (resultSS > ssUpLmt) then
+		resultSS = ssUpLmt
+	end
+	
+	if (Actor.removeItem(sysarg, reqItemId, 1, -1, -1, -1, "add gem sprite stren", 70) ~= 1) then	
+		print("remove upss item failed")
+		return
+	end
+	
+	local updateVal = resultSS - curSpriteStren	
+	GemItem.changeGemItemSpriteStren(gemItemPtr, updateVal, 662, "use ss item")
+	local str = string.format(Lang.Gem.t00021, updateVal)
+	Actor.sendTipmsg(sysart, str, ttTipmsgWindow)
+end

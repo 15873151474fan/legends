@@ -1,0 +1,35 @@
+
+
+
+HookMapConfig = {
+	HotPlayerCount = 30,				--达到30人显示火爆
+	MinLevel = 40,						--最小进入等级
+
+	SceneNames = {						--挂机地图场景
+		Lang.SceneName.s00066,
+		Lang.SceneName.s00067,
+		Lang.SceneName.s00068, 
+		Lang.SceneName.s00069, 
+		Lang.SceneName.s00070,
+	},
+	ShowSceneName = {
+		Lang.SceneName.snpc0066,
+		Lang.SceneName.snpc0067,
+		Lang.SceneName.snpc0068,
+		Lang.SceneName.snpc0069,
+		Lang.SceneName.snpc0070,
+	},
+	PosArea = {76,86,135,143},			 --进入区域范围随机，x1,x2，y1,y2
+
+	ExitAreaPos = {2, 210,218},			-- 退出到npc的坐标
+
+	BuyTimes = {
+		{1, 30},      --{购买小时，售价},
+		{3, 85},
+		{5, 135},
+		{8, 210},
+	},
+
+	--每个单位1小时，作用次数为2次，用钱购买时间就相当于购买作用次数，interval是单位时间，不用变。
+	buff = {buffType = 87, groupId = 1, value = 2, times = 2, interval = 3600, buffName = Lang.Activity.a00129, timeOverlay = true},
+}

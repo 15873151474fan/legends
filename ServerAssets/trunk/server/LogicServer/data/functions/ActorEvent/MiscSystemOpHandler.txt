@@ -1,0 +1,169 @@
+﻿--#include "data\config\vip\vipLevel.txt" once
+--#include "data\config\activityconfig\AnniversaryHorse\AnniversaryTurntableCfg.txt" once
+--#include "data\config\activityconfig\AnniversaryHorse\FireworksFeastCfg.txt" once
+--#include "data\config\activityconfig\AnniversaryHorse\CelebrationConfig.txt" once
+--#include "data\functions\Activity\NationalDayHorse\BuyingSpree.txt" once
+--#include "data\config\activityconfig\ChristmasHorse\ChristmasGiftConfig.txt" once --马年圣诞礼物活动配置
+--#include "data\config\activityconfig\SpringFestivalSheep\EveBossConfig.txt" once --羊年春节除夕夺宝奖励
+
+MiscSystemOpFuncList = {}
+
+EventCallDispatcher.MiscSystemOpHandler = function (sysarg, args)
+	if args[1] == nil then return end   --
+	local func = MiscSystemOpFuncList[args[1]]
+	if func ~= nil then
+		func(sysarg, args)
+	end
+end
+
+
+MiscSystemOpFuncList[1] = function (sysarg,args)
+	local nDay = args[2]
+	
+	if nDay < 0 then return end
+
+	local nSignIn = Actor.getIntProperty(sysarg, PROP_ACTOR_SIGNIN)
+
+	--已经签的就不刁了
+	local nYear, nMonth, nToday = System.getDate(0,0,0)
+
+	local nCheckDay = nDay
+	if nDay <= 0 then nCheckDay = nToday end
+	
+	if System.getIntBit(nSignIn, nCheckDay - 1) ~= 0 then
+		return
+	end
+	
+	local nTempDay = nDay 
+	
+	local hasTimes = CalcHasSignInFixTimes(sysarg)
+	if nDay > 0 then	--0为签到 大于0为补签
+		if hasTimes <= 0 then
+			return
+		end
+	
+		local nSinceOpenDay = System.getDaysSinceOpenServer()
+		local nOpenDay = nToday - nSinceOpenDay + 1	--开服号数
+		
+		if nOpenDay > 0 then
+			if nDay < nOpenDay then	--不在补签范围内
+				return
+			end
+		end
+		
+		if nDay >= nToday then
+			return
+		end
+		
+		local svar = Actor.getStaticVar(sysarg)
+		local fixTimes = tonumber(svar.fixSignInTimes)
+		svar.fixSignInTimes = fixTimes + 1
+	else
+		nDay = nToday
+	end
+	
+	Actor.setSignIn(sysarg, nDay)
+	
+	--[[根据vip等级加活跃度,签到才加，补签不加
+	if nTempDay == 0 then
+		if Actor.isVip(sysarg) then 
+			local vipLevel = Actor.getIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL)
+			if vipLevel > 0 and vipLevel <= table.getn(VIPLevelConfig) then
+				local config = VIPLevelConfig[vipLevel]
+				if config then
+					if config.activityAdd and config.activityAdd > 0 then
+						local activity = Actor.getIntProperty(sysarg, PROP_ACTOR_ACTIVITY)
+						activity = activity + config.activityAdd
+						Actor.setUIntProperty(sysarg, PROP_ACTOR_ACTIVITY, activity)
+					end
+				end
+			end
+		end
+	end]]
+	
+	local npack = DataPack.allocPacket(sysarg, 26, 49)
+	if npack then
+	    --print("MiscSystemOpFuncList:"..CalcHasSignInFixTimes(sysarg))
+		DataPack.writeByte(npack, CalcHasSignInFixTimes(sysarg))
+		DataPack.flush(npack)
+	end
+	
+	
+end
+
+--全民折上折活动
+MiscSystemOpFuncList[2] = function (sysarg,args)
+	OnOpenDouDiscountMall(sysarg)
+end
+
+--中秋活动
+MiscSystemOpFuncList[3] = function (sysarg,args)
+	OnGetAutumnConsumeAward(sysarg, args)
+end
+
+--国庆活动
+MiscSystemOpFuncList[4] = function (sysarg,args)
+	OnGetTurntableRankAward(sysarg, args)
+end
+
+--周年活动领取奖励
+MiscSystemOpFuncList[5] = function (sysarg,args)
+	
+	local nAwardType = args[2]
+	local nAwardIdx = args[3]
+	--[[
+	if Item.getBagEmptyGridCount(sysarg) < nNeedBagCount then
+		Actor.sendTipmsg(sysarg, string.format(Lang.Activity.mgq0104, nNeedBagCount), ttFlyTip) 
+		return
+	end
+	--]]
+	local awards = {}
+	local logId = 0
+	local logTips = ""
+	if nAwardType == 1 then
+		awards = AnniversaryTurntableCfg.accAwards
+		logId = 197
+		logTips = Lang.LogTips.mzn203
+	elseif nAwardType == 2 then
+		awards = FireworksFeastCfg.accAwards
+		logId = 197
+		logTips = Lang.LogTips.mzn207
+	elseif nAwardType == 3 then
+		awards = FireworksFeastCfg.accAwards
+		logId = 197
+		logTips = Lang.LogTips.mzn209
+	elseif nAwardType == 4 then
+		awards = CelebrationCfg.accAwards
+		logId = 197
+		logTips = Lang.LogTips.mzn214
+	elseif nAwardType == 5 then --马年圣诞礼物活动
+		awards = ChristmasGiftCfg.accAwards
+		logId = 979
+		logTips = Lang.LogTips.mzn214
+	elseif nAwardType == 6 then --羊年春节除夕夺宝奖励
+		awards = EveBossConfig.accAwards
+		logId = 983
+		logTips = Lang.LogTips.yyd0003
+	end
+	
+
+	if nAwardIdx > 0 and nAwardIdx <= table.getn(awards or {}) then
+		local awardListConfig = awards[nAwardIdx].awardList
+		for k, v in ipairs(awardListConfig) do 
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, logId, logTips)
+		end
+	end
+
+end
+
+--购物狂欢奖励
+MiscSystemOpFuncList[6] = function (sysarg,args)
+	GiveBuyingSpreeAward(sysarg, args)
+end
+
+--消费排名活动
+MiscSystemOpFuncList[7] = function (sysarg,args)
+	OnGetConsumeRankAward(sysarg, args) 
+end
+
+EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeMiscSystem, EventCallDispatcher.MiscSystemOpHandler)

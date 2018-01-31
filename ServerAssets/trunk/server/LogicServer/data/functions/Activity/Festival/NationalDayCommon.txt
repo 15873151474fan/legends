@@ -1,0 +1,466 @@
+--#include  "data\config\activityconfig\Festival\NationalDayActive.txt" once
+
+--到时不提交清除瑞兽
+function ClearSpiritBeast(sysarg)
+	local hBeast = Actor.getSubordinateHandle(sysarg)
+	if (not hBeast) or (hBeast <= 0) then
+		return
+	end
+	
+	Actor.setSubordinateHandle(sysarg, 0)
+	Fuben.clearMonster(hBeast) --清除灵兽
+	Actor.sendTipmsg(sysarg, Lang.Activity.gq0029, ttFlyTip)
+
+end
+
+--通知领取福袋
+function GiveLuckyBag(sysarg) 
+	--print("GiveLuckyBag ...")
+	-- if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.actTime) or 
+	-- 	(not NationalDayActiveConfig.luckyBag) or (not NationalDayActiveConfig.luckyBag.luckyBagInfo) then
+	-- 	return 
+	-- end
+	
+	-- if System.isInDateRange(unpack(NationalDayActiveConfig.actTime)) ~= true then
+	-- 	return
+	-- end
+	
+	-- local actorVar = Actor.getStaticVar(sysarg)
+	-- if not actorVar then
+	-- 	return
+	-- end
+	
+	-- actorVar.getLBFlag = 1   --标记可领取
+	-- --print("GiveLuckyBag -> actorVar.getLBFlag ",actorVar.getLBFlag)
+	-- actorVar.accLuckyBagTime = 0
+	-- local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	-- System.sendOfflineMsg(actorId, string.format(Lang.Activity.gq0013, (NationalDayActiveConfig.luckyBag.accOnlineTime) / 3600), 0) 
+
+end
+
+--领取国庆红包
+function GiveNationalDayRedPacket()
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.actTime) or 
+		(not NationalDayActiveConfig.luckyBag) or (not NationalDayActiveConfig.luckyBag.luckyBagInfo) then
+		return 
+	end
+	
+	local rankingPtr = Ranking.getRanking( Lang.Rank.extractYuanbo )
+	
+	if System.isInDateRange(unpack(NationalDayActiveConfig.actTime)) ~= true then
+		if rankingPtr then
+			Ranking.clearRanking(rankingPtr)  
+		end
+		return 
+	end
+
+	if rankingPtr then
+		local rankCount = Ranking.getRankItemCount(rankingPtr)
+		--print("rankCount ", rankCount)
+		for i = 1, rankCount do 
+			local rankItemPtr = Ranking.getItemFromIndex( rankingPtr, i-1)
+			if rankItemPtr then
+				local actorId = Ranking.getId(rankItemPtr)
+				local extractMoney = Ranking.getPoint(rankItemPtr)
+				local redPacketId = CanGetRedPacket(extractMoney)  
+				if redPacketId > 0 then
+					for k, redPacketInfo in ipairs( NationalDayActiveConfig.redPacket or {}) do
+						if redPacketInfo.id == redPacketId then
+							System.addItemMsgById(actorId, 0, redPacketInfo.id, redPacketInfo.count, redPacketInfo.bind, Lang.Activity.gq0020, "", 952, Lang.LogTips.l00201, true, 31)
+							break 
+						end
+					end
+				end
+			end
+		end
+		--Ranking.save(rankingPtr, Lang.Rank.extractYuanbo)  
+		Ranking.clearRanking(rankingPtr)  
+	end
+end
+
+--判断是否可获取国庆红包，是则返回红包id 
+function CanGetRedPacket(extractMoney)   
+	local result = 0
+	if not NationalDayActiveConfig.redPacket.packetIndexs then
+		return result
+	end
+	local indexsTable = NationalDayActiveConfig.redPacket.packetIndexs
+	local index = 0
+	for i = 1, table.getn(indexsTable or {}) do 
+		if extractMoney >= indexsTable[i].beginValue and (indexsTable[i].endVaue == -1 or extractMoney <= indexsTable[i].endVaue) then
+			index = i
+			break
+		end
+	end
+
+	if index > 0 then
+		if index > table.getn(indexsTable) then
+			index = table.getn(indexsTable)
+		end
+		
+		local redPacketInfo = NationalDayActiveConfig.redPacket[index]
+		if redPacketInfo then
+			result = redPacketInfo.id
+		end
+	end
+	
+	return result
+end
+
+--判断是否可抽奖
+function canDrawLottery(sysarg)
+	-- local result = false
+	-- local multiple = -1
+	-- if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.ConsumeActivityCfg) or 
+	-- 	(not NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime) then
+	-- 	return result, multiple
+	-- end
+	
+	-- 	local consumeConfig = NationalDayActiveConfig.ConsumeActivityCfg
+	-- 	local consumRankPtr = Ranking.getRanking(Lang.Rank.nationalDayConsumRank)
+		
+	-- 	if not consumRankPtr then
+	-- 		consumRankPtr = Ranking.add(Lang.Rank.nationalDayConsumRank, 2000)
+	-- 		if consumRankPtr then
+	-- 			local ret = Ranking.load(consumRankPtr, Lang.Rank.nationalDayConsumRank .. ".txt")
+				
+	-- 			if not ret then
+	-- 				for i = 1, consumeConfig.actDays do
+	-- 					Ranking.addColumn(consumRankPtr, "value" .. tostring(i))
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	end	
+		
+	-- 	if consumRankPtr then
+	-- 		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	-- 		local rankItemPtr = Ranking.getItemPtrFromId(consumRankPtr,actorId)
+	-- 		if not rankItemPtr then
+	-- 			local ndRankItemPtr = Ranking.addItem(consumRankPtr, actorId, 0)
+	-- 			if ndRankItemPtr then
+	-- 				for i = 1, consumeConfig.actDays do
+	-- 					Ranking.setSub(ndRankItemPtr, i-1, 0)  
+	-- 				end  
+	-- 			end
+	-- 		end
+	-- 	else
+	-- 		return false, multiple
+	-- 	end
+		
+
+	-- local ydCousumeRankPtr = Ranking.getRanking(Lang.Rank.yesterdayConsumeYuBaoRank)
+	-- --print("ydCousumeRankPtr ", ydCousumeRankPtr)
+	-- --[[
+	-- if not ydCousumeRankPtr then
+	-- 	return result, multiple
+	-- end
+	-- --]]
+	-- if ydCousumeRankPtr then
+	-- 	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	-- 	local ydRankItemPtr = Ranking.getItemPtrFromId(ydCousumeRankPtr, actorId)
+	-- 	--print("ydRankItemPtr ", ydRankItemPtr)
+	-- 	--[[
+	-- 	if not ydRankItemPtr then
+	-- 		return result, multiple
+	-- 	end
+	-- 	--]]
+	-- 	if ydRankItemPtr then
+	-- 		local consumeYb = Ranking.getPoint(ydRankItemPtr)
+	-- 		if consumeYb >= NationalDayActiveConfig.ConsumeActivityCfg.minConsume then
+	-- 			local consumeTab = NationalDayActiveConfig.ConsumeActivityCfg.ConsumeMultiple
+	-- 			for k, consumeInfo in ipairs(consumeTab or {}) do
+	-- 				if ( consumeYb >= consumeInfo.conStart and (consumeInfo.conEnd == -1 or  consumeYb <= consumeInfo.conEnd)) then
+	-- 					multiple = consumeInfo.multiple
+	-- 					break
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	end
+	
+	-- end
+
+	-- if multiple > -1 then
+	-- 	result = true
+	-- end
+	
+	-- local actorVar = Actor.getStaticVar(sysarg)
+	-- if not actorVar then
+	-- 	return result, multiple
+	-- end
+	
+	-- if result then
+
+	-- 	local currTime = System.getCurrMiniTime() 
+	-- 	local lastTime = 0
+	-- 	if actorVar.lastCanDrawTime then
+	-- 		lastTime = actorVar.lastCanDrawTime
+	-- 	end
+	-- 	if lastTime ~= 0 then
+	-- 		if System.isSameDay(currTime, lastTime) ~= true and currTime > lastTime then    
+	-- 			actorVar.drawLotteryFlag = 0
+	-- 			local todayStartTime = System.getToday()
+	-- 			--print("todayStartTime ",todayStartTime)
+	-- 			--print("todayStartTime - lastTime ", todayStartTime-lastTime)
+	-- 			if todayStartTime - lastTime  > 24 * 3600 then
+	-- 				actorVar.accDrawCount = 0
+	-- 			else
+	-- 				actorVar.accDrawCount = actorVar.accDrawCount + 1  
+	-- 			end
+	-- 		end
+	-- 	end 
+	-- 	--print("actorVar.accDrawCount ",actorVar.accDrawCount)
+	-- 	actorVar.lastCanDrawTime = currTime
+	-- else
+	-- 	if not actorVar.accDrawCount then
+	-- 		actorVar.accDrawCount = 0
+	-- 	end
+	-- end
+	
+	-- return result, multiple
+	
+end
+
+--获取抽奖的基数，倍数 
+function getDrawLotteryInfo(sysarg)  
+	local result = false
+	local drawBaseNum = 0
+	local drawMultiple = 0
+	
+	local ret, drawMult = canDrawLottery(sysarg) 
+	if ret then						
+		local ndConsumeRankPtr = Ranking.getRanking(Lang.Rank.nationalDayConsumRank)
+		if not ndConsumeRankPtr then
+			return result, drawBaseNum, drawMultiple
+		end
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local ndRankItemPtr = Ranking.getItemPtrFromId(ndConsumeRankPtr, actorId)
+		if not ndRankItemPtr then
+			return result, drawBaseNum, drawMultiple
+		end
+	
+		local actorVar = Actor.getStaticVar(sysarg)
+		if not actorVar then
+			return result, drawBaseNum, drawMultiple
+		end 
+	
+		if not actorVar.accDrawCount then
+			drawBaseNum = 1
+		else
+			drawBaseNum = actorVar.accDrawCount + 1
+		end
+		
+		result = true
+	end 
+	
+	return result, drawBaseNum, drawMult
+	
+end
+
+--打开抽奖窗口
+function OpenConsumeActivity(sysarg) 
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.ConsumeActivityCfg) or (not NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime) then
+		return 
+	end
+	
+	if System.isInDateRange(unpack(NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime)) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gq0027, ttFlyTip)
+		return 
+	end
+		
+	local result, drawBaseNum, drawMult = getDrawLotteryInfo(sysarg)  
+
+	local currCanDraw = true
+	if not result then
+		currCanDraw = false
+	end
+	
+	local consumeConfig = NationalDayActiveConfig.ConsumeActivityCfg 
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 26)
+
+	if (pack ~= nil) then
+		local currDay = System.getActivityStartDay(unpack(NationalDayActiveConfig.ConsumeActivityCfg.consumeActStartTime))-1 
+		if currDay < 1 or currDay > 10 then
+			currDay = 0 
+		end
+		
+		
+		DataPack.writeByte(pack, currDay) 
+		DataPack.writeByte(pack, drawBaseNum)
+		DataPack.writeByte(pack, drawMult)
+	
+		DataPack.writeByte(pack, consumeConfig.actDays)
+		local consumRankPtr = Ranking.getRanking(Lang.Rank.nationalDayConsumRank)
+		
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local ndRankItemPtr = Ranking.getItemPtrFromId(consumRankPtr, actorId)
+		
+		if not ndRankItemPtr then
+			return 
+		end
+		
+		for i = 1, consumeConfig.actDays do
+			local itemIdStr = Ranking.getSub(ndRankItemPtr, i-1) 
+			--print("itemIdStr ",itemIdStr)
+			local itemId = tonumber(itemIdStr)
+			DataPack.writeInt64(pack, itemId)
+			if i ~= currDay then
+				DataPack.writeByte(pack, 1)
+			elseif itemId > 0 then
+				DataPack.writeByte(pack, 1)
+			elseif currCanDraw ~= true then
+				DataPack.writeByte(pack, 1)
+			else
+				DataPack.writeByte(pack, 0)
+			end
+		end
+			
+		DataPack.flush(pack)  			
+	end
+end
+
+
+
+--领取奖励
+function GetConsumeActAward(sysarg, packet, msgid ) 
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.ConsumeActivityCfg) 
+		or (not NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime) then
+		return 
+	end
+	
+	if System.isInDateRange(unpack(NationalDayActiveConfig.ConsumeActivityCfg.consumeActivityTime)) ~= true then
+		return 
+	end
+	
+	local ConsumeCfg = NationalDayActiveConfig.ConsumeActivityCfg
+	
+	local idxDay = DataPack.readByte(packet)
+	
+	if idxDay < 1 or idxDay > 10 then
+		return
+	end
+	
+	local currDay = System.getActivityStartDay(unpack(NationalDayActiveConfig.ConsumeActivityCfg.consumeActStartTime))-1 
+	if currDay < 1 or currDay > 10 then
+		return
+	end
+	
+	if idxDay ~= currDay then
+		return 
+	end
+	
+	local actorVar = Actor.getStaticVar(sysarg) 
+	if not actorVar then
+		return 
+	end
+	
+	if actorVar.drawLotteryFlag and actorVar.drawLotteryFlag > 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.gq0028, ttFlyTip)
+		return 
+	end
+	
+	local result, drawBaseNum, drawMult = getDrawLotteryInfo(sysarg)
+	if not result then
+		return 
+	end
+	
+	local awardTabs = NationalDayActiveConfig.ConsumeActivityCfg.LotteryAward
+	if not awardTabs then
+		return
+	end
+
+	local awardTab = GetRandomInfo(awardTabs, 1, awardTabs.totalRate)
+	if not awardTab then
+		return
+	end
+	
+	local itemId = 0
+	local itemInfo = {}
+	for k, awardInfo in ipairs(awardTab or {}) do
+		if awardInfo.id > 0 then
+			itemId = awardInfo.id
+			local bagEmptyGrids = Item.getBagEmptyGridCount(sysarg)
+			itemInfo = awardInfo
+			if bagEmptyGrids < 1 then
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.gq0009, 1), ttFlyTip)
+				return 
+			end
+			break
+		end
+	end
+
+	local consumRankPtr = Ranking.getRanking(Lang.Rank.nationalDayConsumRank)
+	if consumRankPtr then
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local ndRankItemPtr = Ranking.getItemPtrFromId(consumRankPtr, actorId)
+		if ndRankItemPtr then
+			Ranking.setSub(ndRankItemPtr, idxDay - 1, tostring(itemId))
+		end
+		
+		--print("save ->nationalDayConsumRank.txt ",consumRankPtr)
+		Ranking.save(consumRankPtr, Lang.Rank.nationalDayConsumRank .. ".txt", true)	
+	end
+	
+	actorVar.drawLotteryFlag = 1 
+	Actor.giveAward(sysarg, itemInfo.type, itemInfo.id, (drawBaseNum+drawMult) * itemInfo.count, itemInfo.quality, itemInfo.strong, itemInfo.bind, 0, 952, Lang.LogTips.l00204)
+	
+	local pack = DataPack.allocPacket(sysarg, 145, 27)
+	if (pack ~= nil) then
+		DataPack.writeInt64(pack, itemId)
+		DataPack.flush(pack)
+	end
+	
+end
+
+
+--根据概率获取值
+function GetRandomInfo(infoTable, minVal, maxVal)
+	local randVal = math.random(minVal, maxVal)
+	local result = nil
+	local tmpValue = 0
+	for i = 1, table.getn(infoTable or {}) do
+		tmpValue = tmpValue + infoTable[i].rate
+		if tmpValue >= randVal then
+			result = infoTable[i].value
+			break
+		end
+	end
+	return result
+end
+
+
+--创建临时数据
+function CreateNationalDayData()
+	if (not NationalDayActiveConfig) or (not NationalDayActiveConfig.ConsumeActivityCfg) then
+		return
+	end
+	
+	local consumeConfig = NationalDayActiveConfig.ConsumeActivityCfg
+	local consumRankPtr = Ranking.getRanking(Lang.Rank.nationalDayConsumRank)
+	if not consumRankPtr then
+		consumRankPtr = Ranking.add(Lang.Rank.nationalDayConsumRank, 2000)
+		if consumRankPtr then
+			local ret = Ranking.load(consumRankPtr, Lang.Rank.nationalDayConsumRank .. ".txt")
+			if ret then
+				Ranking.clearRanking(consumRankPtr)
+				return 
+			end
+			for i = 1, consumeConfig.actDays do
+				Ranking.addColumn(consumRankPtr, "value" .. tostring(i))
+			end
+		end
+	end	
+end
+
+--清除临时数据
+function DealNationalDayData()
+	local ndConsumeRankPtr = Ranking.getRanking(Lang.Rank.nationalDayConsumRank)
+	if ndConsumeRankPtr then
+		Ranking.clearRanking(ndConsumeRankPtr)
+	end
+end
+
+
+
+
+

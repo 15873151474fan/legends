@@ -1,0 +1,726 @@
+﻿--[[NormalFuncForQuest.txt]]
+
+--#include "data\config\quest\MiscQuest.txt" once	--任务相关
+--#include "data\config\GlobalConfig.txt" once
+
+--[[
+    函数名称：continueQuestTalk
+    函数描述：继续与NPC进行任务对话，如果没有任务状态则关闭对话窗口 
+    参数 sysarg 的描述：
+]]
+
+QuestCheckFunc = {}
+QuestAcceptFunc = {}
+QuestFinishFunc = {}
+QuestGiveUpFunc = {}
+QuestNPCTalk = {} -- 任务完成后继续聊天
+
+local function continueQuestTalk(sysarg)
+	--如果交任务后还有可继续的任务状态，则返回主界面
+	local newState = Actor.getQuestStateType( sysarg, thisNPC )
+	if newState == 1 or newState == 2 or QuestNPCTalk[CompMs[1].id] then
+		return main(sysarg)
+	else
+		Actor.closeNPCDialog( sysarg )
+	end
+end
+
+
+
+--显示一个任务的内容，ms是任务的配置表，state 0： 可接 1： 可完成 	2： 进行中
+function ShowQuestDetail(sysarg, ms,state, boMulti)
+	local content = nil
+	local btnstr = ""
+	if state == 0 then
+		content = ms.PromMsTalks[table.getn(ms.PromMsTalks)]
+		btnstr = "<#BN"..Lang.Event.e00003.."/@commonAcceptMissions," .. ms.id .. ">"
+	elseif state == 1 then
+		local doubleRwd = ""
+		local doubleState, multiAward, mustUseYB = getQuestDoubleExpGold(sysarg, ms.id)
+		if doubleState > 0 then
+			local tipsFormat = Lang.ScriptTips.zf058
+			if mustUseYB then
+				tipsFormat = Lang.ScriptTips.zf059
+			end
+			local multiStr = string.format(Lang.Event.e00005B, multiAward)
+			local tipStr = string.format(tipsFormat, doubleState,multiAward)
+			doubleRwd = string.format("<#BN%s/@getDoubleReward,%d,%d><#BT%s/@Cancel>", multiStr, ms.id, doubleState, tipStr)
+		end
+		content = ms.CompMsTalks[table.getn(ms.CompMsTalks)]
+		if ms.AnswerTip ~= nil then
+			content = content .. "\\<#BQ"..ms.AnswerTip[1].."/@onclickdisappear>"
+			content = content .. "\\<#BQ"..ms.AnswerTip[2].."/@CompleteMession,"..ms.id..">" .. doubleRwd
+		else
+			btnstr = "<#BN"..Lang.Event.e00003A.."/@CompleteMession," .. ms.id .. ">" .. doubleRwd
+		end
+	else
+		content = ms.CompMsTip[table.getn(ms.CompMsTip)]
+		if ms.type > 0 then
+			btnstr = string.format("<#BN%s/@requestGiveupQuest,%d>", Lang.Event.e00031, ms.id)
+		end
+		if boMulti  then
+			btnstr = string.format("<#BN%s/@main>%s", Lang.Event.e00010, btnstr)
+		else
+			btnstr = string.format("<#BN%s/@exit>%s", Lang.Event.e00032, btnstr)
+		end
+		
+	end
+	local str = Lang.Event.e00029.."<(c0xFF00FF00)"..ms.name..">".."\\<(idecoLine#0)D->\\"..content.."<@QuestAwardDesc,"..ms.id..">\\"..btnstr
+	return str
+end
+
+function requestGiveupQuest( sysarg, questId )
+	questId = tonumber(questId)
+	if Actor.giveupQuest(sysarg, questId) then
+		local questName = System.getQuestTitle( questId )
+		Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.x00200, questName),ttFlyTip )
+		return main(sysarg)
+	end
+end
+
+--------------------------------------------------------------------------------
+function ForwardPromMsMission(sysarg)
+	local idx = Actor.getRTIntValue( sysarg, MISSION_RTV_IDX_MISSIONIDX )
+	local step = Actor.getRTIntValue( sysarg, MISSION_RTV_IDX_MISSIONSTEP ) + 1
+	local ms = PromMs[idx]
+	local count = table.getn(ms.PromMsTalks)
+	if step > count then
+		return ShowQuestDetail(sysarg, ms,0)
+	else
+		Actor.setRTIntValue( sysarg, MISSION_RTV_IDX_MISSIONSTEP, step )     
+		return ShowQuestDetail(sysarg,ms,0)
+	end
+end
+
+function ForwardCompMsMission(sysarg)
+	local idx = Actor.getRTIntValue( sysarg, MISSION_RTV_IDX_MISSIONIDX )
+	local step = Actor.getRTIntValue( sysarg, MISSION_RTV_IDX_MISSIONSTEP ) + 1
+	local ms = CompMs[idx]
+	local count = table.getn(ms.CompMsTalks)
+	if step > count then
+		return ShowQuestDetail(sysarg,ms,1)
+	else 
+		Actor.setRTIntValue( sysarg, MISSION_RTV_IDX_MISSIONSTEP, step )
+		return ShowQuestDetail(sysarg,ms,1)
+	end
+end
+
+function getQuestDoubleExpGold( sysarg, nQid, boAgain )
+	local questGold = 0
+	local questRate = 0
+	local questMulti = 0
+	local mustUseYB = false
+	local finTimes = Actor.getQuestTimes(sysarg, nQid, boAgain)
+	if boAgain then
+		questGold = Actor.getQuestAcceptAgain(sysarg, nQid)
+		finTimes = finTimes + 1
+		questRate = GlobalConfig.fQuestAcceptAgainRate
+	else
+		questGold, questMulti, mustUseYB = Actor.getQuestDoubleInfo(sysarg, nQid, 0, mustUseYB)
+		finTimes = finTimes - 1
+		if finTimes < 0 then
+			finTimes = 0
+		end
+		questRate = GlobalConfig.fQuestDoubleAwardRate
+	end
+	if questGold > 0 then
+		return math.floor(questGold * ( 1 + finTimes * questRate)), questMulti,mustUseYB
+	end
+	return 0, questMulti,mustUseYB
+end
+
+function getDoubleReward( sysarg, mission )
+	local nQid = tonumber(mission)
+	if Actor.getDoubleQuestAward(sysarg, nQid) then
+		return continueQuestTalk( sysarg )
+	end
+end
+
+function useYbAccpetQst( sysarg, questId )
+	questId = tonumber(questId)
+	if Actor.hasQuest(sysarg, questId) then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.zf107, ttFlyTip)		
+		return
+	end
+	return commonAcceptMissions( sysarg, questId, true)
+end
+
+function Cancel( sysarg )
+end
+
+function commonAcceptMissions(sysarg, mission, boAction)
+
+	-- local idx = Actor.getRTIntValue( sysarg, MISSION_RTV_IDX_MISSIONIDX )
+	local mid = tonumber(mission)
+	local ms = nil
+	for i,v in pairs(PromMs or {}) do
+		if v.id == mid then
+			ms = v
+			break
+		end
+	end	
+
+	if ms == nil then
+		return "ms is nil" .. mid
+	end
+
+	local ck = true,id  
+	if ms.PromCheck then
+		ck,id = QuestCheckFunc[ms.PromCheck](sysarg,mission, unpack(ms.PromCheckArg or {}))
+		if not ck then
+			Actor.sendTipmsg(sysarg,id,ttDialog)
+		end
+	end
+  
+	if ck then
+		if Actor.getQuestCount(sysarg) >= 30 then
+			Actor.sendTipmsg(sysarg,Lang.ScriptTips.x00044,ttTipmsgWindow)
+		else
+			local acceptResult = false
+			local questAgainGold = getQuestDoubleExpGold(sysarg, mid, true)
+			if questAgainGold > 0 then
+				local myGold = Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO)
+				if myGold < questAgainGold then
+					local msgStr = string.format(Lang.ScriptTips.zf048, questAgainGold)
+					Actor.sendTipmsg(sysarg, msgStr, ttDialog)
+					return
+				end
+				if boAction then
+					if Actor.changeMoney(sysarg, mtYuanbao, -questAgainGold, 154, Lang.LogTips.yb002) then
+						acceptResult = Actor.addQuest( sysarg, mission, true )
+					end
+				else
+					local NPChandle = Actor.getHandle(thisNPC)
+					local noticeStr = string.format(Lang.ScriptTips.zf106, questAgainGold)
+					local ensureStr = string.format("%s/useYbAccpetQst,%d", Lang.ScriptTips.mt00021, mid)
+					Actor.messageBox(sysarg, NPChandle,0, noticeStr, ensureStr, Lang.ScriptTips.mt00022.."/Cancel", nil)
+					return
+				end
+			else
+				acceptResult = Actor.addQuest( sysarg, mission)
+			end
+			if acceptResult then
+				if ms.PromCallBack then
+					QuestAcceptFunc[ms.PromCallBack](sysarg,mission, unpack(ms.PromCallBackArg or {}))
+				end
+				return continueQuestTalk( sysarg )
+			end
+		end
+	end
+	Actor.closeNPCDialog( sysarg )
+end
+
+
+
+function CompleteMession(sysarg, mission, ...)
+	-- local idx = Actor.getRTIntValue( sysarg, MISSION_RTV_IDX_MISSIONIDX )
+	local mid = tonumber(mission)
+	local ms = nil
+	for i,v in pairs(CompMs) do
+		if v.id == mid then			
+			ms = v
+			break
+		end
+	end
+	-- if ms == nil then return end
+	
+	local award = -1
+	if arg.n > 0 then 
+		award = arg[1]
+	end
+ 
+	local ck,rt
+	if ms.CompCheck then
+		ck,rt = ms.CompCheck(sysarg,mission)
+		if not ck then
+			return rt
+		end
+	end
+
+	if Actor.finishQuest( sysarg, mission, award ) then
+		rt = onFinishQuest(sysarg, mid, ms)
+		if not rt or type(rt) ~= "string" then
+			return continueQuestTalk( sysarg )
+		end
+	end
+	
+	Actor.closeNPCDialog( sysarg )
+end
+
+function onFinishQuest(sysarg, qid, ms)
+	qid = tonumber(qid)
+	if not ms then
+		for i,v in pairs(CompMs) do
+			if v.id == qid then			
+				ms = v
+				break
+			end
+		end
+	end
+	local rt = nil
+	if ms and ms.CompCallBack then	
+		if QuestFinishFunc[ms.CompCallBack] then
+			rt = QuestFinishFunc[ms.CompCallBack](sysarg, qid, unpack(ms.CompCallbackArg or {}))
+		end
+	end
+	return rt
+end
+
+--------------------------------------------------------------------------------
+-- 过程任务暂时为空 
+--------------------------------------------------------------------------------
+
+function getCompMissionIndex(missionid)
+  local i
+  for i = 1, table.getn(CompMs) do
+    if CompMs[i].id == missionid then
+      return i
+    end
+  end
+  return 0
+end
+
+--------------------------------------------------------------------------------
+
+function ShowQuestTalk(sysarg,mission,state, boOnly)
+	local MyMission = tonumber(mission)
+	local Mystate = tonumber(state)
+	local mslist = nil
+	if Mystate == 0 then
+		mslist = PromMs
+	elseif Mystate == 1 or Mystate == 2 then		
+		mslist = CompMs
+	end 
+	for i,v in pairs(mslist or {}) do
+		if v.id == MyMission then
+			return ShowQuestDetail(sysarg,v,Mystate, not boOnly)
+		end
+	end
+end
+
+--这里执行放弃任务时候的操作
+function GiveUpQuest(sysarg,questid)
+	local qid = tonumber(questid)
+	local idx = getCompMissionIndex(qid)
+	--有这个任务
+	if idx > 0 then	
+		local ms = CompMs[idx]
+		--执行放弃任务的处理
+		if ms.GiveUpCallBack and QuestGiveUpFunc[ms.GiveUpCallBack] then
+    		QuestGiveUpFunc[ms.GiveUpCallBack]( sysarg, qid, unpack(ms.GiveUpCallBackArg or {}) )
+    	end
+	end
+end
+---------------------------------------------------------------------------------------
+-- 过程任务（对话任务）
+function talkWithNPC(sysarg, qid, tid)
+	local qid = tonumber(qid)
+	local tid = tonumber(tid)
+	local q
+	
+	for idx, quest in ipairs(PassMs or {}) do
+		if quest.id == qid then
+			q = quest
+			break
+		end
+	end
+	if not q then
+		return ""
+	end
+	local index = 1
+
+	--[[for i = 1,#q.target do
+		if q.target[i].id == tid then
+			index = i
+		end
+	end ]]
+
+	Actor.setQuestValue(sysarg,qid,tid,1)
+	if q.PassMsTip[index] then
+		return string.format("%s<#BL%s/@CloseNpcDialog>", q.PassMsTip[index], Lang.ScriptTips.x00079)
+	else
+		Actor.closeNPCDialog(sysarg)
+	end
+	return 
+end
+
+function CloseNpcDialog(sysarg)
+	Actor.closeNPCDialog(sysarg)
+end
+
+function GetCfgFromTab( qid, qSubTab )
+	for k, v in ipairs(qSubTab or {}) do
+		if v.id == qid then
+			return v
+		end
+	end
+	return nil
+end
+
+function OnQuestTalk( sysarg, qid, targetId )
+	local strTalk = ""
+	if Actor.hasQuest(sysarg, qid) and not Actor.canFinishQuest(sysarg, qid ) then
+		local randId = Actor.getQuestRandId(sysarg, qid)
+		if randId >= 0 then
+			local q = GetCfgFromTab(qid, PassMs)
+			if q then
+				local qCfg = q.target[randId + 1]
+				if qCfg and qCfg.id == targetId then
+					local questType = System.getQuestTypeName(qid)
+					local questTitle = System.getQuestTitle(qid)
+					if questType and questTitle then
+						questTitle = string.format("（%s）%s", questType, questTitle)
+					else
+						questTitle = Lang.Event.e00028
+					end
+					strTalk = string.format("<\n%s/@talkWithNPC,%d,%d>", questTitle, qid, targetId)
+				end
+			end
+		end
+	end
+	return strTalk
+end
+
+----------------------------------------------------------------------------------------
+function enterFubenForQuestFunc(sysarg,fbid,Sceneid)
+	local fbid = tonumber(fbid)
+	local Hfuben = Fuben.createFuBen(fbid)
+	Actor.enterFuBen(sysarg,Hfuben,-1,-1,-1)	
+end
+
+function commonQuestNpcMain(sysarg,func)
+	local qc = 0
+	local state = 0
+	local qid = 0	
+	local mission,qc,qid,state = Actor.formatQuestState( sysarg,qc,qid,state )        --通过引擎格式化任务状态
+	--print("commonQuestNpcMain:mission"..mission.." qc:"..qc.." qid:"..qid.." state:"..state) 
+	if qc == 1 and func == nil then	--只有一个任务，则直接显示这个任务的内容	
+		return ShowQuestTalk( sysarg, qid, state, true),true
+	end
+    	
+	local str = ""
+	local dialog_count = table.getn(NpcDialogue)
+	if (dialog_count > 0) then
+		local rand = System.getRandomNumber(dialog_count)	
+		str = NpcDialogue[rand +1].say
+	end	
+	if mission then     --如果有任务状态描述		
+		str = str..mission
+	end
+	
+	for i = 1, table.getn(MainFnTable) do
+		str = str .. MainFnTable[i](sysarg)
+	end
+	return str,false
+end
+
+-------------------------------- 以下是任务配置中公共接口，通过字符串匹配
+
+--接任务检查相关函数
+QuestCheckFunc["OnAddItem"] = function( sysarg, qid, itemId, itemNum )
+	if Actor.canAddItem(sysarg, itemId, itemNum) then
+		return true,0
+	else
+		return false, Lang.ScriptTips.n00008                                  -- 在判断限制条件后的需要显示的字符串
+	end
+end
+
+QuestCheckFunc["CheckInTeam"] = function( sysarg, qid, teamerCount )
+	local teamId = Actor.getTeamId(sysarg)
+	if teamId > 0 then
+		local teamTab =  LuaHelp.getTeamMemberList(sysarg)
+		if teamTab and #teamTab >= (teamerCount or 2) then
+			return true, 0
+		end
+		if TeamFun.getTeamCaptain(teamId) ~= sysarg then
+			return false, Lang.ScriptTips.c000070
+		end
+	end
+	return false, Lang.ScriptTips.c000069
+end
+
+QuestCheckFunc["ClrQstTypeCnt"] = function( sysarg, qid, typeId )
+	if typeId then
+		Actor.clearQuestTypeCount( sysarg, typeId)
+	end
+	return true, 0
+end
+
+--以下是接受任务的回调
+QuestAcceptFunc["OnPromCampCircle"] = function( sysarg, qid, acceptList )
+	if acceptList and type(acceptList) == "table" then
+		local questId = acceptList[math.random(1,#acceptList)]
+		if questId then
+			Actor.addQuest(sysarg, questId)
+		end
+	end
+end
+
+--护送
+QuestAcceptFunc["OnPromEscort"] = function( sysarg, qid, monsterId )	
+	local x,y = Actor.getEntityPosition(sysarg, 0,0)
+	local monsterPtr = Actor.createMonster(sysarg, monsterId, x, y, 60*1000)
+	if monsterPtr then
+		local dVar = Actor.getDyanmicVar(sysarg)
+		Actor.followActor(monsterPtr, sysarg, 1, 30, true) --跟随某个玩家
+		Actor.setEntityTelByOwnderAttr(monsterPtr, true)   --设置实体是否跟着归属者传送
+		Actor.setEntityLazyFollow(monsterPtr, true)        --设置实体是否惰性跟随
+		Actor.setDenyAttackedByActor(monsterPtr, true)     --设置实体是否不可被玩家攻击		
+		Actor.refreshActorObserveList(sysarg)     --刷新观察者，防止客户端延迟 
+		dVar.escortMonsterHandle = Actor.getHandle(monsterPtr)
+	end
+end
+
+QuestAcceptFunc["OnPromAddItem"] = function( sysarg, qid, itemId, quaility, strong, itemNum, bind )
+	Actor.addItem(sysarg, itemId, quaility, strong, itemNum, bind)
+end
+
+QuestAcceptFunc["OnPromTelport"] = function( sysarg, qid, sceneName, xPos, yPos)
+	System.telportSceneByName(sysarg,sceneName, xPos, yPos)             --将玩家传送到交任务的NPC前
+end
+
+QuestAcceptFunc["OnPromEnterFuben"] = function( sysarg, qid, fubenId )
+	local Hfuben = Fuben.createFuBen( fubenId )                 --1:表示副本ID
+	Actor.enterFuBen(sysarg, Hfuben,-1,-1,-1)	             --从NPC那将玩家传进副本
+	--print("OnPromEnterFuben:"..qid)
+	if tonumber(qid) == 22 then--特殊任务进入主线播放电影
+       Actor.PlayMovie(sysarg, 4)
+	end
+end
+
+QuestAcceptFunc["OnPromStrong"] = function( sysarg, qid, strongLv, targetQid, targetId )
+	--判断是否有物品的强化值达到了
+	if Item.isStrongLevel(sysarg, strongLv) then	--判断是否有物品的强化值达到了目标了
+		Actor.setQuestValue(sysarg, targetQid, targetId,1)	--设置任务的目标值，30004和1都是target里面配置的值
+	end
+end
+
+QuestAcceptFunc["OnPromItemHoleCount"] = function( sysarg, qid, holeCount, targetQid, targetId )
+	if Item.isHoleItemCount(sysarg, holeCount) then	--判断是否有物品的镶嵌
+		Actor.setQuestValue(sysarg, targetQid, targetId, 1)	--设置任务的目标值，30004和1都是target里面配置的值
+	end
+end
+
+QuestAcceptFunc["OnPromItemForge"] = function( sysarg, qid, targetQid, targetId )
+	if Item.hasForgeItem(sysarg) then	--判断是否有物品精锻
+		Actor.setQuestValue(sysarg,targetQid, targetId, 1)	--设置任务的目标值，30004和1都是target里面配置的值
+	end
+end
+
+QuestAcceptFunc["OnPromSuitEquip"] = function( sysarg, qid, suitAId, suitACount, suitBId, suitBCount )
+	if Item.isGetAllSuitEquip(sysarg, suitAId, suitACount) then
+		Actor.setQuestValue(sysarg, qid, suitAId, suitACount)
+	end
+	if suitBId and suitBCount then
+		if Item.isGetAllSuitEquip(sysarg, suitBId, suitBCount) then
+			Actor.setQuestValue(sysarg, qid, suitBId, suitBCount)
+		end
+	end
+end
+
+QuestAcceptFunc["OnPromHasEquiment"] = function( sysarg, qid, maleItems, femaleItems, targetId )
+	local job = Actor.getIntProperty(sysarg,PROP_ACTOR_VOCATION)
+	local sex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+    local Itemid = femaleItems[job]
+	if sex == 0 then
+		Itemid = maleItems[job]
+	end
+	if Itemid then
+		if Actor.hasEquiment(sysarg,Itemid) then
+			Actor.setQuestValue(sysarg, qid, targetId, 1)
+		end
+	end
+end
+
+QuestAcceptFunc["OnPromBagHoleCount"] = function( sysarg, qid, count, tagetQid, targetId )
+	if Item.isHoleCount(sysarg, count) then	--判断是否有物品的打孔
+		Actor.setQuestValue(sysarg, tagetQid, targetId,1)	--设置任务的目标值，30004和1都是target里面配置的值
+	end
+end
+
+QuestAcceptFunc["OnPromCurEquipedGem"] = function( sysarg, qid, targetId )
+	if GemItem.getCurrEquipedGem(sysarg) ~= nil then
+		Actor.setQuestValue(sysarg, qid, targetId, 1)
+	end
+end
+
+QuestAcceptFunc["OnPromBattlePet"] = function( sysarg, qid, targetId )
+	if Pet.getBattlePetId(sysarg) >= 0 then
+		Actor.setQuestValue(sysarg, qid, targetId, 1)
+	end
+end
+
+QuestAcceptFunc["OnPromHasAchieve"] = function( sysarg, qid, achieveId, targetId )
+	if Actor.isAchieveFinished(sysarg, achieveId) then
+		Actor.setQuestValue(sysarg, qid, targetId, 1)
+	end
+end
+
+QuestAcceptFunc["OnPromPlayVideo"] = function( sysarg, qid, playerId, thisNPC )
+	StartPlayVideo(sysarg, playerId)
+	--点击npc,让用户看完动画后可以看到对话框
+	Actor.npcTalk(sysarg,thisNPC)
+	return false
+end
+
+QuestAcceptFunc["OnPromCreateMonster"] = function( sysarg, qid, mondId, xPos, yPos, liveTime )
+	Actor.createMonster(sysarg, mondId, xPos, yPos, liveTime)   --ID，坐标，存活时间     
+end
+
+QuestAcceptFunc["OnPromFly"] = function( sysarg, qid, vId, pathId, flyType )
+	if vId and pathId then
+		Actor.onBoard(sysarg, vId, pathId, flyType)
+	end
+end
+
+QuestAcceptFunc["OnPromRide"] = function( sysarg, qid, rideId, layerId, rideSecs )
+	local rideSecs = rideSecs or 60
+	if rideId and layerId then
+		Actor.addBuff(sysarg, 92, 0, rideId, 1, rideSecs, Lang.ScriptTips.c000080,false, nil,layerId)
+	end
+end
+
+QuestAcceptFunc["OnPromWorldTalk"] = function( sysarg, qid, index )
+	local tabLen = #QuestWorldTalk
+	if not index and index > tabLen then
+		index = math.random(1, tabLen)
+	end
+	local talkStr = QuestWorldTalk[index]
+	Actor.sendChat( sysarg, ciChannelWorld, talkStr, false)
+end
+
+QuestAcceptFunc["OnPromPlayMovie"] = function( sysarg, qid, movieId)
+	if movieId then
+		Actor.triggerPictureGuide(sysarg, movieId)
+	end
+end
+
+
+--完成时回调相关函数
+QuestFinishFunc["OnCompPlayMovie"] = function( sysarg, qid, movieId )
+	if movieId then
+		Actor.triggerPictureGuide(sysarg, movieId)
+	end
+end
+
+QuestFinishFunc["OnKillPlayer"] = function( sysarg, qid )
+	local campid = Actor.getCampId(sysarg) 
+	qid = tonumber(qid)
+
+	local award = SpyCampAwardConfig
+	local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	local renown = award.renown
+	local zycont = award.zycont
+	local exp = award.exp[level]
+	if  nil then  --判断是否在发布刺探阵营期间 
+		----print("in the spy time!!")
+		renown = renown + math.floor(renown*0.3)
+		zycont = zycont + math.floor(zycont*0.3)
+		exp = exp + math.floor(exp*0.3)
+	end                    
+	Actor.addExp(sysarg,exp,200,0)     --经验奖励 
+
+	Actor.giveAward(sysarg,qatRenown,0,renown,0, 0, 1, 0,602,"spycamp")
+	Actor.changeZYCount(sysarg,zycont,"spycamp")                                   --阵营贡献值奖励                   
+
+	for i = 1, #CampSpyQuest do
+		local data = CampSpyQuest[i]
+		Actor.setQuestValue(sysarg,data.qid,data.id,data.count)
+	end
+end
+
+QuestFinishFunc["OnCompCampCircle"] = function( sysarg, qid, acceptList, circleType, questId )
+	Actor.triggerQuestEvent(sysarg, 38, circleType, 1)
+	if Actor.hasQuest(sysarg, questId) then
+		if acceptList and type(acceptList) == "table" and not Actor.canFinishQuest(sysarg, questId) then
+			local questId = acceptList[math.random(1,#acceptList)]
+			if questId then
+				Actor.addQuest(sysarg, questId)
+			end
+		end
+	end
+end
+
+QuestFinishFunc["OnCompEscort"] = function( sysarg, qid, monsterId )
+	local dVar = Actor.getDyanmicVar(sysarg)
+	if dVar.escortMonsterHandle then
+		Fuben.clearMonster(dVar.escortMonsterHandle)
+		dVar.escortMonsterHandle = nil
+	end
+end
+
+QuestFinishFunc["OnFinishCircle"] = function( sysarg, qid, monsterId )
+	Actor.triggerQuestEvent(sysarg, 127, 31142, 1)
+end
+
+QuestFinishFunc["OnFinRemItem"] = function( sysarg, qid, itemId, itemNum )
+	if Actor.isFinishQuest(sysarg, qid) then
+    	Actor.removeItem(sysarg, itemId, itemNum)
+    end
+end
+
+QuestFinishFunc["OnFinLeanrSkill"] = function( sysarg, qid, skills )
+	if Actor.isFinishQuest(sysarg, qid) then
+		local jobId = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local skillId = skills[jobId]
+		if skillId then
+			Actor.learnSkill(sysarg, skillId, 1)
+		end
+	end
+end
+
+QuestFinishFunc["OnFinCamp"] = function( sysarg, qid )
+	local campid = Actor.getCampId(sysarg)
+	local award = SpyCampAwardConfig
+	local level = Actor.getIntProperty(sysarg,PROP_CREATURE_LEVEL)
+	local renown = award.renown
+	local zycont = award.zycont
+	local exp = award.exp[level]
+	if  nil then  --判断是否在发布刺探阵营期间 
+		----print("in the spy time!!")
+		renown = renown + math.floor(renown*0.3)
+		zycont = zycont + math.floor(zycont*0.3)
+		exp = exp + math.floor(exp*0.3)
+	end                    
+	Actor.addExp(sysarg,exp,200,0)     --经验奖励 
+
+	Actor.giveAward(sysarg,qatRenown,0,renown,0, 0, 1, 0,602,"spycamp")
+	Actor.changeZYCount(sysarg,zycont,"spycamp")                                   --阵营贡献值奖励                   
+
+	for i = 1, #CampSpyQuest do
+		local data = CampSpyQuest[i]
+		Actor.setQuestValue(sysarg,data.qid,data.id,data.count)
+	end
+end
+
+QuestFinishFunc["OnPlayerEffect"] = function( sysarg, qid, effectIdx )
+	local cfgSize = #QstFinEffect
+	if not effectIdx or effectIdx == 0 or effectIdx > cfgSize then
+		effectIdx = math.random(1, cfgSize)
+	end
+	local curTab = QstFinEffect[effectIdx]
+	if curTab then
+		for k, effect in ipairs(curTab) do
+			Actor.addSceneEffect(sysarg,effect.effectId,effect.effectType, effect.durTime, effect.nDelayTime,effect.x,effect.y) --添加特效 
+		end
+	end
+end
+
+QuestFinishFunc["OnFinLoadRes"] = function( sysarg, qid, resId )
+	if not resId then
+		return false
+	end
+	local netPack = DataPack.allocPacket(sysarg, 6, 12)  --申请一个数据包
+	if netPack then
+		 DataPack.writeInt(netPack, resId)
+		 DataPack.flush(netPack)
+	end  
+end
+
+---------放弃任务回调
+QuestGiveUpFunc["OnGvupRemItem"] = function( sysarg, qid, itemId )
+	local qitemcount = Actor.getItemCount(sysarg, itemId) 
+	if qitemcount >= 1 then 
+		Actor.removeItem(sysarg, itemId,qitemcount)
+	end
+end

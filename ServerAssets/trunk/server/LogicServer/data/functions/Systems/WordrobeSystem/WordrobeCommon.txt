@@ -1,0 +1,197 @@
+----#include "data\functions\Activity\Common\Awards.txt" once	--奖励通用
+
+--操作衣柜
+function OnOpeWordrobe(sysarg, args)
+	local nType = args[2]
+	local nIndex = args[3]
+	
+	if System.isCommonServer() == true then return end
+
+	--摆摊不可操作衣柜
+	if Actor.hasState(sysarg, esStateStall) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.af0012, ttFlyTip)
+		return false
+	end
+
+	if nType == 1 then
+		ActiveFashion(sysarg, nIndex)
+	elseif nType == 2 then
+		ExtendFashion(sysarg, nIndex)
+	elseif nType == 3 then
+		WearFashion(sysarg, nIndex)
+	elseif nType == 4 then
+		TakeOffFashion(sysarg, nIndex)
+	end
+end
+
+--激活时装
+function ActiveFashion(sysarg, nIndex)
+	local config = WordrobeConfig
+	local fashionConfig = config.fashionItems
+
+	if (not config) or (not fashionConfig) then
+		return
+	end
+
+	local nSex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	local sexConfig = fashionConfig[nSex+1]
+
+	if (nIndex <= 0) or (nIndex > config.maxFashionCount) or (nIndex > table.getn(sexConfig or {})) then
+		return
+	end
+
+	local nExpireTime = Actor.getFashionExpireTime(sysarg, nIndex)
+
+	if nExpireTime > 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yg0001, ttFlyTip)
+		return
+	end
+	local nFind = 0
+
+	for j=1,table.getn(sexConfig[nIndex].ids or {}) do
+		if Actor.getItemCount(sysarg, sexConfig[nIndex].ids[j], -1, -1, -1, -1) >= 1 then
+			if Actor.removeItem(sysarg, sexConfig[nIndex].ids[j], 1, -1, -1, -1, Lang.Activity.yg0002, 978, -1, false) == 1 then
+				local itemExpireTime = Item.getItemPropertyById(sexConfig[nIndex].ids[j], Item.ipItemExpiredTime)
+				if itemExpireTime == 0 then
+					itemExpireTime = 1
+				else
+					itemExpireTime = itemExpireTime + System.getCurrMiniTime()
+				end
+				Actor.setFashionExpireTime(sysarg, nIndex, itemExpireTime)
+				local itemName = Item.getAwardDesc(0, sexConfig[nIndex].ids[j])
+				Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yg0003, itemName), ttFlyTip)
+				nFind = 1
+				break
+			end
+		end
+	end
+end
+
+--延长时装
+function ExtendFashion(sysarg, nIndex)
+	local config = WordrobeConfig
+	local fashionConfig = config.fashionItems
+
+	if (not config) or (not fashionConfig) then
+		return
+	end
+
+	local nSex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	local sexConfig = fashionConfig[nSex+1]
+
+	if (nIndex <= 0) or (nIndex > config.maxFashionCount) or (nIndex > table.getn(sexConfig or {})) then
+		return
+	end
+
+	local nExpireTime = Actor.getFashionExpireTime(sysarg, nIndex)
+
+	if nExpireTime == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yg0004, ttFlyTip)
+		return
+	elseif nExpireTime == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yg0005, ttFlyTip)
+		return
+	end
+
+	for j=1,table.getn(sexConfig[nIndex].ids or {}) do
+		if Actor.getItemCount(sysarg, sexConfig[nIndex].ids[j], -1, -1, -1, -1) >= 1 then
+			if Actor.removeItem(sysarg, sexConfig[nIndex].ids[j], 1, -1, -1, -1, Lang.Activity.yg0002, 978, -1, false) == 1 then
+				local itemExpireTime = Item.getItemPropertyById(sexConfig[nIndex].ids[j], Item.ipItemExpiredTime)
+				if itemExpireTime == 0 then
+					itemExpireTime = 1
+				else
+					itemExpireTime = itemExpireTime + nExpireTime
+				end
+				Actor.setFashionExpireTime(sysarg, nIndex, itemExpireTime)
+				Actor.sendTipmsg(sysarg, Lang.Activity.yg0006, ttFlyTip)
+				break
+			end
+		end
+	end
+end
+
+--穿戴时装
+function WearFashion(sysarg, nIndex)
+	local config = WordrobeConfig
+	local fashionConfig = config.fashionItems
+
+	if (not config) or (not fashionConfig) then
+		return
+	end
+
+	local nSex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	local sexConfig = fashionConfig[nSex+1]
+
+	if (nIndex <= 0) or (nIndex > config.maxFashionCount) or (nIndex > table.getn(sexConfig or {})) then
+		return
+	end
+
+	local nExpireTime = Actor.getFashionExpireTime(sysarg, nIndex)
+
+	if nExpireTime == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.yg0007, ttFlyTip)
+		return
+	end
+
+	Actor.wearFashion(sysarg, nIndex)
+	Actor.sendTipmsg(sysarg, Lang.Activity.yg0008, ttFlyTip)
+end
+
+--脱下时装
+function TakeOffFashion(sysarg, nIndex)
+	Actor.wearFashion(sysarg, 0)
+end
+
+--设置外观
+function SetWordrobeShape(sysarg, args)
+	local nIndex = args[2]
+
+	local config = WordrobeConfig
+	local fashionConfig = config.fashionItems
+
+	if (not config) or (not fashionConfig) then
+		return
+	end
+
+	local nSex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	local sexConfig = fashionConfig[nSex+1]
+
+	local dval = System.getDyanmicVar()
+
+	if (nIndex < 0) or (nIndex > config.maxFashionCount) or (nIndex > table.getn(sexConfig or {})) then
+		return
+	elseif (nIndex == 0) then
+		if (not dval.WordrobeFlag) then
+			Actor.sendTipmsg(sysarg, Lang.Activity.yg0009, ttFlyTip)
+			dval.WordrobeFlag = 1
+		end
+		return
+	end
+
+	--local itemShape = Item.getItemPropertyById(sexConfig[nIndex].ids[1], Item.ipItemShape)
+	--Actor.setWordrobeShape(sysarg, itemShape)
+	Actor.setWordrobeShape(sysarg, sexConfig[nIndex].ids[1])
+end
+
+--时装过期
+function WordrobeExpire(sysarg, args)
+	local nIndex = args[2]
+
+	local config = WordrobeConfig
+	local fashionConfig = config.fashionItems
+
+	if (not config) or (not fashionConfig) then
+		return
+	end
+
+	local nSex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	local sexConfig = fashionConfig[nSex+1]
+
+	if (nIndex <= 0) or (nIndex > config.maxFashionCount) or (nIndex > table.getn(sexConfig or {})) then
+		return
+	end
+
+	local itemName = Item.getAwardDesc(0, sexConfig[nIndex].ids[1])
+	Actor.sendTipmsg(sysarg, string.format(Lang.Activity.yg0010, itemName), ttFlyTip)
+end
+

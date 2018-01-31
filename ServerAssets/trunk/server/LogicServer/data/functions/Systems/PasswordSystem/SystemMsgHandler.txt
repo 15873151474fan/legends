@@ -1,0 +1,262 @@
+﻿--二级密码子系统消息处理实现 
+
+--#include "RankPointer.txt" once
+--#include "Common.txt" once
+
+
+PasswordImpl = 
+{
+	AddPwd = function(sysarg, packet)
+		local rankIndex = PwdRankItemIndex
+		local pRanking = Ranking.getRanking(PasswordRankPt.RankName)
+		if not pRanking then return end
+		
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local sPassword = DataPack.readString(packet) or ""
+		local nAnswerCount = DataPack.readByte(packet)
+		local tAnswers = {}
+		for i = 1, nAnswerCount do
+			local nQuestionId = DataPack.readByte(packet)
+			local sAnswer = DataPack.readString(packet) or ""
+			local tAnswer = {id = nQuestionId, answer = sAnswer}
+			table.insert(tAnswers, tAnswer)
+		end
+		
+		local bResult = 0
+		local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if not pRankItem then
+			pRankItem = Ranking.addItem(pRanking, nActorId, 0)
+		end
+		
+		if pRankItem then
+			Ranking.setSub(pRankItem, rankIndex.password, sPassword)
+			for k, v in ipairs(tAnswers) do
+				local sAnswer = v.id.."_"..v.answer
+				Ranking.setSub(pRankItem, k, sAnswer)
+			end
+			
+			local username = Actor.getName(sysarg)
+			Ranking.setSub(pRankItem, rankIndex.name, username)
+			
+			--Actor.addState(sysarg, esStateLock)
+			Actor.setSocialMask(sysarg, smPwdLock, true)
+			
+			bResult = 1
+			
+			System.sendCommonLog(920, nActorId, username,0,0,0,
+				"","AddPwd",Ranking.getSub(pRankItem, rankIndex.answer1),
+				"","",Ranking.getSub(pRankItem, rankIndex.answer2),
+				Ranking.getSub(pRankItem, rankIndex.answer3),Ranking.getSub(pRankItem, rankIndex.password))
+		end
+		
+		local pack = DataPack.allocPacket(sysarg, 146, 9)
+		if not pack then return end
+		DataPack.writeByte(pack, bResult)
+		DataPack.flush(pack)
+	end,
+	
+	ChgPwd = function(sysarg, packet)
+		local rankIndex = PwdRankItemIndex
+		local pRanking = Ranking.getRanking(PasswordRankPt.RankName)
+		if not pRanking then return end
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		
+		local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if not pRankItem then return end
+		
+		local bResult = 1
+		local sPassword = DataPack.readString(packet) or ""
+		Ranking.setSub(pRankItem, rankIndex.password, sPassword)
+		--Actor.addState(sysarg, esStateLock)
+		Actor.setSocialMask(sysarg, smPwdLock, true)
+		
+		local username = Actor.getName(sysarg)
+		System.sendCommonLog(920, nActorId, username,0,0,0,
+				"","ChgPwd",Ranking.getSub(pRankItem, rankIndex.answer1),
+				"","",Ranking.getSub(pRankItem, rankIndex.answer2),
+				Ranking.getSub(pRankItem, rankIndex.answer3),Ranking.getSub(pRankItem, rankIndex.password))
+		
+		local pack = DataPack.allocPacket(sysarg, 146, 10)
+		if not pack then return end
+		DataPack.writeByte(pack, bResult)
+		DataPack.flush(pack)
+	end,
+	
+	DelPwd = function(sysarg, packet)
+		local rankIndex = PwdRankItemIndex
+		local pRanking = Ranking.getRanking(PasswordRankPt.RankName)
+		if not pRanking then return end
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		
+		local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if not pRankItem then return end
+		
+		local sPassword = DataPack.readString(packet) or ""
+		local sChkPassword = Ranking.getSub(pRankItem, rankIndex.password)
+		local bResult = 0
+		if sPassword == sChkPassword then
+			--Actor.removeState(sysarg, esStateLock)
+			Actor.setSocialMask(sysarg, smPwdLock, false)
+			Ranking.removeId(pRanking, nActorId)
+			Actor.sendTipmsg(sysarg, Lang.Activity.af0005, ttScreenCenter)
+			bResult = 1
+			
+			local username = Actor.getName(sysarg)
+			System.sendCommonLog(920, nActorId, username,0,0,0,
+				"","DelPwd",Ranking.getSub(pRankItem, rankIndex.answer1),
+				"","",Ranking.getSub(pRankItem, rankIndex.answer2),
+				Ranking.getSub(pRankItem, rankIndex.answer3),Ranking.getSub(pRankItem, rankIndex.password))
+		else
+			Actor.sendTipmsg(sysarg, Lang.Activity.af0006, ttScreenCenter)
+		end
+		
+		local pack = DataPack.allocPacket(sysarg, 146, 7)
+		if not pack then return end
+		DataPack.writeByte(pack, bResult)
+		DataPack.flush(pack)
+	end,
+	
+	ChkAnswer = function(sysarg, packet)
+		local rankIndex = PwdRankItemIndex
+		local pRanking = Ranking.getRanking(PasswordRankPt.RankName)
+		if not pRanking then return end
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		
+		local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if not pRankItem then return end
+		
+		local nQuestionId = DataPack.readByte(packet)
+		local sAnswer = DataPack.readString(packet) or ""
+		--if nQuestionId < rankIndex.answer1 or nQuestionId > rankIndex.answer3 then return end
+		local sChkAnswer = nQuestionId.."_"..sAnswer
+		local bResult = 0
+		for i = rankIndex.answer1, rankIndex.answer3 do
+			local answer = Ranking.getSub(pRankItem, i)
+			if sChkAnswer == answer then
+				bResult = 1
+				break
+			end
+		end
+		
+		if bResult ~= 1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.af0007, ttScreenCenter)
+		end
+		
+		local pack = DataPack.allocPacket(sysarg, 146, 4)
+		if not pack then return end
+		DataPack.writeByte(pack, bResult)
+		DataPack.flush(pack)
+		
+		if bResult == 1 then
+			local pack = DataPack.allocPacket(sysarg, 146, 5)
+			if not pack then return end
+			DataPack.flush(pack)
+		end
+		
+	end,
+	
+	OpenPwd = function(sysarg, packet)
+		local rankIndex = PwdRankItemIndex
+		local pRanking = Ranking.getRanking(PasswordRankPt.RankName)
+		if not pRanking then 
+			Actor.setSocialMask(sysarg, smPwdLock, false)
+			return 
+		end
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if not pRankItem then 
+			Actor.setSocialMask(sysarg, smPwdLock, false)
+			return 
+		end
+		
+		local sPassword = DataPack.readString(packet) or ""
+		local sChkPassword = Ranking.getSub(pRankItem, rankIndex.password)
+		local bResult = 0
+		if sPassword == sChkPassword then
+			--Actor.removeState(sysarg, esStateLock)
+			Actor.setSocialMask(sysarg, smPwdLock, false)
+			bResult = 1
+			
+			local username = Actor.getName(sysarg)
+			System.sendCommonLog(920, nActorId, username,0,0,0,
+				"","OpenPwd",Ranking.getSub(pRankItem, rankIndex.answer1),
+				"","",Ranking.getSub(pRankItem, rankIndex.answer2),
+				Ranking.getSub(pRankItem, rankIndex.answer3),Ranking.getSub(pRankItem, rankIndex.password))
+		else
+			Actor.sendTipmsg(sysarg, Lang.Activity.af0008, ttScreenCenter)
+		end
+		
+		local pack = DataPack.allocPacket(sysarg, 146, 8)
+		if not pack then return end
+		DataPack.writeByte(pack, bResult)
+		DataPack.flush(pack)
+	end,
+	
+	FindPwd = function(sysarg, packet)
+		SendCheckAnswer(sysarg)
+	end,
+	
+	Login = function(sysarg)
+		if OnCsActorLoginLmt() == true then return end
+		
+		local mask = Actor.getSocialMask(sysarg, smPwdLock)
+
+		local pRanking = Ranking.getRanking(PasswordRankPt.RankName)
+		if not pRanking then return end
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		
+		local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+		if pRankItem then 
+			--Actor.addState(sysarg, esStateLock)
+		end
+	end,
+	
+	main = function ( sysarg, sysitemid, msgid, packet ) 
+		--print("PasswordImpl.main:"..msgid)
+		if (msgid == 1) then 
+			PasswordImpl.AddPwd(sysarg, packet)
+		elseif (msgid == 3) then
+			PasswordImpl.ChkAnswer(sysarg, packet)
+		elseif (msgid == 4) then
+			PasswordImpl.ChgPwd(sysarg, packet)
+		elseif (msgid == 5) then
+			PasswordImpl.DelPwd(sysarg, packet)
+		elseif (msgid == 6) then
+			PasswordImpl.OpenPwd(sysarg, packet)
+		elseif (msgid == 7) then
+			PasswordImpl.FindPwd(sysarg, packet)
+		end
+		
+	end,
+}   
+
+
+SystemHandlerDispatcher.registerSystemHander(146, PasswordImpl.main)
+
+
+function GmDelPwd(sysarg, name)
+	local rankIndex = PwdRankItemIndex
+	local pRanking = Ranking.getRanking(PasswordRankPt.RankName)
+	if not pRanking then return end
+	
+	local pActor = Actor.getActorByName(name)
+	
+	if not pActor then
+		Actor.sendTipmsg(sysarg, "del error, the actor not online", ttTipmsgWindow)
+		return
+	end
+	
+	local nActorId = Actor.getIntProperty(pActor, PROP_ENTITY_ID)
+	
+	--Actor.removeState(pActor, esStateLock)
+	Actor.setSocialMask(pActor, smPwdLock, false)
+	
+	local pRankItem = Ranking.getItemPtrFromId(pRanking, nActorId)
+	if not pRankItem then return end
+	
+	Ranking.removeId(pRanking, nActorId)
+	
+	Actor.sendTipmsg(sysarg, "del success", ttTipmsgWindow)
+end
+
+--EventCallDispatcher.registerEventCall(BaseTypes.ActorEventId.aeUserLogin, PasswordImpl.Login)

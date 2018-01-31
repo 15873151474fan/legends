@@ -1,0 +1,318 @@
+
+--#include "data\config\activityconfig\Festival\Fireworks.txt" once
+--#include "data\functions\GlobalMisc.txt" once
+
+hsaFireWorks = 5
+
+function CheckNearNpc(sysarg)
+	local nHandle = Fuben.getSceneHandleById(FireworkConfig.NpcSceneId, 0)
+	local NpcPtr = Fuben.getNpcPtrByName(nHandle, FireworkConfig.NpcName)
+	if NpcPtr then
+		local myPosX, myPosY = Actor.getEntityPosition(sysarg, 0, 0)
+		local npcPosX, npcPosY = Actor.getEntityPosition(NpcPtr, 0, 0)
+		local mySceneId = Actor.getSceneId(sysarg)
+		local NpcSceneId = Actor.getSceneId(NpcPtr)
+		if NpcSceneId ~= mySceneId then
+			return false
+		end
+		if math.abs(myPosX - npcPosX) > FireworkConfig.NpcRadius or math.abs(myPosY - npcPosY) > FireworkConfig.NpcRadius then
+			return false
+		end
+		return true
+	end
+	return false
+end
+
+function OnFlyFirework(sysarg, npcPtr, itemId )
+	if not Actor.checkActorLevel(sysarg, FireworkConfig.Minlevel, 0) then
+		return
+	end
+	if CheckNearNpc(sysarg) then
+		local sysVar = System.getStaticVar()
+		local cuePoint = sysVar.BlessTreeValue or 0
+		sysVar.BlessTreeValue = FireworkConfig.BlessPoint + cuePoint
+		OnAddBlessPoint(sysarg, sysVar.BlessTreeValue)
+	end
+end
+
+
+function StartBlessDoubleExp()
+	local gVar = System.getDyanmicVar()
+	gVar.BlessTreeDoubleExpFlag = true
+end
+
+function EndBlessDoubleExp()
+	local gVar = System.getDyanmicVar()
+	gVar.BlessTreeDoubleExpFlag = nil
+end
+
+function GetBlessExpRate()
+	local rate = 1
+	local gVar = System.getDyanmicVar()
+	if gVar.BlessTreeDoubleExpFlag then
+		rate = FireworkConfig.ExpRate
+	end
+	return rate
+end
+
+function GetCurBlessPoint()
+	local sysVar = System.getStaticVar()
+	return sysVar.BlessTreeValue or 0
+end
+
+function GetCurTreeLevel()
+	local sysVar = System.getStaticVar()
+	local titleIdx = sysVar.BlessTreeTitleIdx or 1
+	return FireworkConfig.TreeLevels[titleIdx]
+end
+
+--添加祈福值
+function OnAddBlessPoint(sysarg, newPoint)
+	local myGiveExpCnt = getTodayFlag(sysarg, FireworkGiveExp) or 0
+	if myGiveExpCnt < FireworkConfig.GiveExpCount then
+		local expVal = Actor.getActivityExp(sysarg, FireworkConfig.BaseExpTabId, FireworkConfig.BaseExpRate, 0)
+		if expVal > 0 then
+			Actor.addExp(sysarg, expVal * GetBlessExpRate(), 841, 0)
+		end
+		setTodayFlag(sysarg, FireworkGiveExp, myGiveExpCnt + 1)
+	end
+
+	AddWishValue(sysarg, 1)
+	local upgradeTab = FireworkConfig.BlessEvent[newPoint]
+	if upgradeTab then
+		if upgradeTab.modelId and upgradeTab.level then --如果有modelId表示要升级，更新模型
+			local sysVar = System.getStaticVar()
+			sysVar.BlessTreeTitleIdx = upgradeTab.level
+			sysVar.BlessTreeDeadline = System.getCurrMiniTime() + FireworkConfig.AddExpTIme
+			local nHandle = Fuben.getSceneHandleById(FireworkConfig.NpcSceneId, 0)
+			local NpcPtr = Fuben.getNpcPtrByName(nHandle, FireworkConfig.NpcName)
+			if NpcPtr then
+				Actor.changeEntityModel(NpcPtr, FireworkConfig.NpcRadius, upgradeTab.modelId)
+			end
+			System.setActivtyExpRate(FireworkConfig.BuffBaseRate * upgradeTab.level, FireworkConfig.AddExpTIme)
+			local noticeStr = string.format(Lang.ScriptTips.blesstree17, upgradeTab.level)
+			System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+		end
+		local trigRates = upgradeTab.specTrigRate
+		if trigRates then
+			local curRate = 0
+			local rand = math.random(1,100)
+			local rateLen = #trigRates
+			for i = 1, rateLen, 2 do
+				curRate = curRate + trigRates[i + 1]
+				if curRate >= rand then
+					triggerOneEvent(sysarg, trigRates[i])
+					break
+				end
+			end
+		end
+	end
+end
+
+function onExeEvent(npcObj, eventIdx, myName)
+	local event = TrigEvents[eventIdx]
+	if event then
+		if event.type == 0 then
+			local hScene = Actor.getSceneHandle(npcObj)
+			Fuben.createMonsters(hScene, event.id,event.x1,event.x2,event.y,event.count,event.liveTime)
+			local monsterName = System.getMonsterNameById(event.id)
+			noticeStr = string.format(event.noticeStr, myName, monsterName)
+		elseif event.type == 1 then
+			System.playScrEffectCode(event.id, event.liveTime)	--全服
+			local pos = FireworkConfig.EffectArea
+			local scenePtr = Fuben.getScenePtrByName(pos[1])
+			if scenePtr then
+				local playerList = LuaHelp.getNearEntityListFromRange(scenePtr,pos[2],pos[3],pos[4],pos[5],0)
+				if playerList then
+					local plyCount = #playerList
+					local oneBYb = math.floor(event.count/plyCount)
+					for k, ptr in ipairs(playerList) do
+						Actor.changeMoney(ptr, mtBindYuanbao, oneBYb, 840, Lang.LogTips.yb039)
+					end
+				end
+			end
+			noticeStr = string.format(event.noticeStr, myName)
+		end
+		if noticeStr then		
+			System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+		end
+	end
+end
+
+function triggerOneEvent(sysarg, eventIdx )
+	local event = TrigEvents[eventIdx]
+	if event then
+		local noticeStr = nil
+		local myName = Actor.getName(sysarg)
+		local nHandle = Fuben.getSceneHandleById(FireworkConfig.NpcSceneId, 0)
+		local NpcPtr = Fuben.getNpcPtrByName(nHandle, FireworkConfig.NpcName)
+		if not NpcPtr then
+			return
+		end
+		if event.type == 0 then
+			local monsterName = System.getMonsterNameById(event.id)
+			noticeStr = string.format(event.firstStr, myName, monsterName)
+		elseif event.type == 1 then
+			noticeStr = string.format(event.firstStr, myName)
+		end
+		Actor.regScriptCallback(NpcPtr, NpcPtr, FireworkConfig.LaterSecs*1000, 0, 1, "onExeEvent", eventIdx, myName)
+		System.broadcastTipmsg(noticeStr,ttScreenCenter + ttChatWindow)
+	end
+end
+
+function CheckBlessTreeGrid(sysarg, tab )
+	local count = 0
+	for k, v in ipairs( tab or {} ) do
+		if v.type == 0 then
+			count = count + Item.getAddItemNeedGridCount( sysarg, v.id, v.count)
+		end
+	end
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count),ttFlyTip )
+		return false
+	end
+	return true
+end
+
+function ExchangeWords( sysarg, exchangeIdx, useYb )
+	if not Actor.checkActorLevel(sysarg, FireworkConfig.Minlevel, 0) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.blesstree85, FireworkConfig.Minlevel), ttFlyTip)
+		return false
+	end
+	local wordCfg = FireworkConfig.ExchangeWord[exchangeIdx]
+	if not wordCfg then
+		return false
+	end
+	local itemCount = 0
+	for k, itemId in ipairs(wordCfg.words) do
+		if Actor.getItemCount(sysarg, itemId) <= 0 then
+			if not useYb then
+				noticeStr = string.format(Lang.ScriptTips.blesstree89, wordCfg.noItemNotice, Item.getItemName(itemId))
+				Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+				return false
+			elseif wordCfg.count == 1 then
+				noticeStr = string.format(Lang.ScriptTips.blesstree91, wordCfg.noItemNotice)
+				Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+				return false
+			end
+		else
+			itemCount = itemCount + 1
+			if useYb then
+				break
+			end
+		end
+	end
+	if itemCount == 0 then
+		local noticeStr =  string.format(Lang.ScriptTips.blesstree90, wordCfg.noItemNotice)
+		Actor.sendTipmsg(sysarg, noticeStr, ttFlyTip)
+		return false
+	end
+	if not CheckBlessTreeGrid(sysarg,wordCfg.awards)  then
+		return
+	end
+	if useYb and wordCfg.needYb > 0 then
+		local myYb = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+		if myYb < wordCfg.needYb then
+			Actor.sendTipmsg( sysarg, string.format(Lang.ScriptTips.blesstree92, wordCfg.noItemNotice, wordCfg.needYb),ttFlyTip )
+			return false
+		end
+		for k, itemId in ipairs(wordCfg.words) do
+			if Actor.removeItem(sysarg, itemId, 1, -1, -1, -1, Lang.LogTips.yb036, 841) > 0 then
+				break
+			end
+		end
+		if not Actor.changeMoney(sysarg, mtYuanbao, -wordCfg.needYb, 841, Lang.LogTips.yb035) then
+			return false
+		end
+	else
+		for k, itemId in ipairs(wordCfg.words) do
+			if Actor.removeItem(sysarg, itemId, 1, -1, -1, -1, Lang.LogTips.yb036, 841) <= 0 then
+				return
+			end
+		end
+	end
+	for k, v in ipairs( wordCfg.awards ) do
+		Actor.giveAward(sysarg, v.type,v.id,v.count,0,0,0,0,841,Lang.LogTips.yb07)
+	end
+	return true
+end
+
+function AddWishValue(sysarg, points)
+	local ranking = Ranking.getRanking( Lang.Rank.wishValue )
+	if ranking then
+		local myId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.updateItem(ranking, myId, points)
+		if not pItem then
+			pItem = Ranking.addItem(ranking, myId, points)
+			Ranking.setSub(pItem, 0, Actor.getName(sysarg))
+			Ranking.setSub(pItem, 1, "0")
+		end
+		local newPoint = Ranking.getPoint(pItem)
+		local myTrigTab = FireworkConfig.ExtraAward[10]
+		if myTrigTab then
+			local curRate = 0
+			local rand = math.random(1,100)
+			local rateLen = #myTrigTab
+			for i = 1, rateLen, 2 do
+				curRate = curRate + myTrigTab[i+1] or 0
+				if curRate >= rand then
+					local awardTab = BlessSelfAward[myTrigTab[i]]
+					if awardTab then
+						Actor.giveAward(sysarg, awardTab.type,awardTab.id,awardTab.count,0,0,0,0,841,Lang.LogTips.yb07)
+					end
+					break
+				end
+			end
+		end
+		--Ranking.save(ranking, Lang.Rank.wishValue)
+	end
+end
+
+function calcTodayWishVal(sysarg)
+	local sysVar = System.getStaticVar()
+	local curLevel = sysVar.BlessTreeTitleIdx or 0
+	sysVar.BlessTreeValue = 0
+	sysVar.BlessTreeTitleIdx = nil
+	sysVar.BlessTreeDeadline = nil
+
+	System.setActivtyExpRate(0, 0)
+
+	local todayRanking = Ranking.getRanking( Lang.Rank.wishValue )
+	local yesTodayRanking = Ranking.getRanking( Lang.Rank.yestodayWishValue )
+	if not todayRanking and not yesTodayRanking then
+		return
+	end
+	Ranking.clearRanking(yesTodayRanking)
+	for i = 1, FireworkConfig.MaxRankCount do
+		local pItem = Ranking.getItemFromIndex(todayRanking, i-1)
+		if pItem then
+			local yesItem = Ranking.addItem(yesTodayRanking, Ranking.getId(pItem), Ranking.getPoint(pItem))
+			Ranking.setSub(yesItem, 0, Ranking.getSub(pItem, 0))
+			Ranking.setSub(yesItem, 1, "0")
+		end
+	end
+	Ranking.clearRanking(todayRanking)
+	--Ranking.save(todayRanking, Lang.Rank.wishValue)
+	--Ranking.save(yesTodayRanking, Lang.Rank.yestodayWishValue)
+
+	if curLevel > 0 then
+		local nHandle = Fuben.getSceneHandleById(FireworkConfig.NpcSceneId, 0)
+		local NpcPtr = Fuben.getNpcPtrByName(nHandle, FireworkConfig.NpcName)
+		if NpcPtr then
+			Actor.changeEntityModel(NpcPtr, FireworkConfig.NpcRadius, FireworkConfig.InitModelId)
+		end
+	end
+end
+
+function GetKillMonsterExpRate()
+	return string.format(Lang.ScriptTips.blesstree16, System.getActivtyExpRate()) .. "%"
+end
+
+function OpenHolidayAct()
+	--System.setHolidayOnOff(1,0)
+end
+
+function CloseHolidayAct()
+	System.setHolidayOnOff(0,0)
+end

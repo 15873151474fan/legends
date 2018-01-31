@@ -1,0 +1,26 @@
+--#include "data\config\pk\PkConfig.txt" once --pk配置
+
+--获取阵营间关系
+function GetCampRelationParam(sysarg, nTargetCampId, tbParam)
+	local camp = Actor.getCamp(sysarg)
+	local targetCamp = Camp.getCampById(nTargetCampId)
+	if camp == targetCamp then
+		return tbParam.sameZY
+	elseif Camp.getAllyCamp(camp) == targetCamp then
+		return tbParam.neutralZY
+	else
+		return tbParam.enemyZY
+	end
+end
+
+--获取PK杀戮值参数
+function GetOtherParam(tbParam, pkValue)
+	if not tbParam then return 0 end
+	for i = 1, table.getn(tbParam) do
+		local param = tbParam[i]
+		if pkValue >= param.start and pkValue <= param.theEnd then
+			return param.value
+		end
+	end
+	return 0
+end

@@ -1,0 +1,38 @@
+﻿--[[	
+MiscsImplement.changeIcon = function (sysarg)
+	local id = 35
+--]]
+
+local changeIconYb = 100
+
+MiscsImplement.changeIcon = function (sysarg,msgid, packet)
+	local oldicon = Actor.getIntProperty( sysarg, PROP_ENTITY_ICON )
+	local id = DataPack.readWord(packet)	--头像id
+	local flag = 1
+		--判断是否vip
+	if Actor.isVip(sysarg) then
+		flag = 0
+	--[[elseif Actor.getIntProperty(sysarg,PROP_ACTOR_YUANBAO) >= changeIconYb then
+		flag = 0
+		Actor.changeMoney(sysarg,mtYuanbao,-changeIconYb,144,Lang.LogTips.l00050)
+		--收费头像
+		local var = Actor.getStaticVar(sysarg)
+		var.iconId = id]]
+	end
+	
+	if flag == 0 then
+		Actor.changeIcon(sysarg,id)
+	end
+	local npack = DataPack.allocPacket(sysarg,LogicCmd.miscSys.sysId,LogicCmd.miscSys.sub.sChangeIcon)  --申请一个数据包
+	if npack == nil then
+		print("allocPacket is nil!")
+		return
+	end
+	DataPack.writeByte(npack,flag)
+	DataPack.flush(npack)
+
+end
+
+MiscsImplement.registerMsgHandler(27, MiscsImplement.changeIcon)
+
+testchangeIcon = MiscsImplement.changeIcon

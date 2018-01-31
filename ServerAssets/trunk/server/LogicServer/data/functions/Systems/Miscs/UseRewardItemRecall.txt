@@ -1,0 +1,72 @@
+--lua script
+local FENGCEREWARDINDEX = 30
+
+--#include "data\language\LangCode.txt" once
+--#include "data\config\item\FengCeReward.txt" once
+--#include "data\functions\NormalItem\UseFengCeDengLuLiHe.txt" once
+
+local GetRewardSystemImplement =
+{
+  --领取奖励，MSGID：1
+  getRewardItem = function (sysarg)
+
+	  local arraynum = Actor.getRTIntValue(sysarg,FENGCEREWARDINDEX+1)
+	  local resultnum = Actor.getRTIntValue(sysarg,FENGCEREWARDINDEX+2)
+	  if(arraynum == 0) then
+
+	    return
+	  end
+	  if(resultnum == 0) then
+
+	    return
+	  end
+	  local c = FengCeReward[arraynum]
+	  local x = c[resultnum]
+    local itemcount = Item.getAddItemNeedGridCount(sysarg,x.itemid,x.count)
+
+	  if not Actor.canAddItem(sysarg,x.itemid,x.count) then
+	    if itemcount ~= nil then
+	    	local str = string.format(Lang.ScriptTips.f00016,itemcount)
+		  	Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+		  end
+	    local npack = DataPack.allocPacket(sysarg,140,2)  --申请一个数据包
+		  DataPack.writeByte(npack,0)
+		  DataPack.flush(npack)
+		  return
+	  else
+	    if Actor.canAddItem(sysarg,x.itemid,x.count) then
+	      Actor.addItem(sysarg,x.itemid,x.quality,x.strong,x.count,x.bind,0,"getReward",21)
+	 	  else
+	 	    local str = string.format(Lang.ScriptTips.f00016,x.count)
+	 	 	  Actor.sendTipmsg(sysarg, str, ttTipmsgWindow)
+	 	  end
+	  end
+	  local npack = DataPack.allocPacket(sysarg,140,2)  --申请一个数据包
+	  DataPack.writeByte(npack,1)
+	  DataPack.flush(npack)
+	  Actor.setRTIntValue(sysarg,FENGCEREWARDINDEX+1,0)
+	  Actor.setRTIntValue(sysarg,FENGCEREWARDINDEX+2,0)
+	  if(Actor.getItemCount(sysarg,1615) > 0) then
+	    getFengCeReward(sysarg)
+	  end
+	end,
+	deleteRewardItem = function (sysarg)
+    local result =0
+
+    if(Item.getBagEmptyGridCount(sysarg) >= 1) then
+      if (Actor.getItemCount(sysarg,1615) >= 1) then
+      	Actor.removeItem(sysarg,1615,1,-1,-1,-1,"getReward",5)      --删除一个领奖物品
+      	result =1
+      else
+      	Actor.sendTipmsg( sysarg,Lang.ScriptTips.x00030,ttDialog )
+      end
+    else
+
+      Actor.sendTipmsg( sysarg,Lang.ScriptTips.n00006,ttDialog )
+
+    end
+    local npack = DataPack.allocPacket(sysarg,140,3)  --申请一个数据包
+    DataPack.writeByte(npack,result)
+    DataPack.flush(npack)
+  end,
+}

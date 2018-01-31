@@ -1,0 +1,68 @@
+﻿--东疆村
+{
+	scenceid = 1,
+	scencename = Lang.SceneName.s00001,
+	mapfilename = "1Dongjiangcun",
+	minlevel = 1,
+	forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	forbiddenskill = {100},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0,
+	--在世界地图上的坐标x
+	music = "dongjiangcun.mp3",
+	musicInterval = 5,
+	worldmapPosx = 743,
+	worldmapPosy = 354,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 180,
+	sceneHeight = 196,
+	posx = 174,
+	posy = 188,
+
+	area = 
+	{
+		{ name = Lang.SceneName.s00001, range = {66,135,127,78,174,128,116,187,65,135}, center = { 120,134},
+			attri = {
+					{ type = 39, value = {} },
+					{ type = 19, value = {} },
+					{ type = 46, value = {120,132,123,136,120,140,117,136} },
+					{ type = 102, value = {2,197,210,193,210,193,208,195,212,191,21,201,204,193,187,206,191,210,195,212,203,202,199,198,203,210,199,212} },
+				    { type = 83, value = {} },
+                },
+		},
+		{ name = Lang.SceneName.s00001, range = {0,1,2,190,177,192,177,3}, center = { 120,134},
+			attri = {
+					{ type = 18, value = {} },
+					{ type = 1, value = {} },
+					{ type = 19, value = {} },
+					{ type = 87, value = {} },
+					{ type = 39, value = {} },
+				},
+		},
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh = 
+	{
+--#include "refresh1.txt"
+	},
+	magicPassPoints = {1,2,56,32}, --可以魔法穿透的障碍点的列表，比如小的石头，是可以魔法穿透的，这里是x1,y1,x2,y2,...这种格式
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc = 
+	{
+		{ name = Lang.EntityName.n00005, posx = 123, posy = 131, script = "data/NPC/1Dongjiangcun/cunzhang_1.txt", modelid = 202,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00006, posx = 108, posy = 112, script = "data/NPC/1Dongjiangcun/rongtufu_2.txt", modelid = 348,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00007, posx = 80, posy = 94, script = "data/NPC/1Dongjiangcun/xiaolinger_3.txt", modelid = 126,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00008, posx = 87, posy = 63, script = "data/NPC/1Dongjiangcun/huangshensuan_4.txt", modelid = 379,icon = 12,funcId = 0, classId = 4 },
+		{ name = Lang.EntityName.n00372, posx = 132, posy = 137, script = "data/NPC/0Tongyong/chuansongshi_8.txt", modelid = 96,icon = 12,funcId = 0, classId = 0 },
+		{ name = Lang.EntityName.n00108, posx = 98, posy = 130, script = "data/NPC/1Dongjiangcun/gongzhuhuwei_5.txt", modelid = 234,icon = 12,funcId = 11, classId = 4 },
+	},
+
+	teleport = 
+	{
+		--传送点设置
+		{ posx = 101, posy = 34, toSceneid = 2, toPosx = 55, toPosy =  332, modelid = 50000, name = Lang.SceneName.s00002, dist = 1, mapHide = false },  --东疆村→万安城
+
+	},
+},

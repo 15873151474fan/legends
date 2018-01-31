@@ -1,0 +1,126 @@
+--半月弯刀1级
+{
+
+	actions=
+	{
+		{act=0,effect=3,},
+	},
+	
+	desc=Lang.Skill.s81L1Desc,--技能的描述
+	
+	iconID=81,--图标的ID
+			
+	--作用范围表
+	actRange=
+	{
+		{
+
+			xStart=0,--相对于中心点x左边的相对坐标
+			xEnd=0,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=-1,--相对于中心点y下边的相对坐标
+		rangeType=2,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 1,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=300, rate=10000,value=0},
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		
+		{
+
+			xStart=-1,--相对于中心点x左边的相对坐标
+			xEnd=-1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=-1,--相对于中心点y下边的相对坐标
+		rangeType=2,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 1,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=300, rate=2000,value=0},
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		
+		
+		{
+
+			xStart=1,--相对于中心点x左边的相对坐标
+			xEnd=1,--相对于中心点x右边的相对坐标
+			yStart=-1,--相对于中心点y上边的相对坐标
+			yEnd=0,--相对于中心点y下边的相对坐标
+		rangeType=2,				
+		rangeCenter=1,			
+
+		acts=
+			{
+				{
+
+					conds=
+					{
+
+						{cond = 1,value =1},
+					},
+					results=
+					{
+						{mj=0,timeParam=1,type=3,delay=300, rate=2000,value=0},
+					},
+
+					specialEffects=
+					{
+					},
+				},
+			},
+		},
+		
+		
+	},
+
+	trainConds=
+	{
+		{cond=1,value=30,consume=false},--表示等级要1级
+		{cond=6,value=1,consume=false},--表示等级要1级		
+		{cond=3,value=834,consume=true },--表示书本
+	},
+	
+	spellConds=
+	{
+		{cond=8,value=8,consume=true},--消耗蓝10
+		{cond=13,value=1,consume=false},
+	},
+	--吟唱时间,单位是毫秒
+	singTime=0,	
+	cooldownTime=0,
+
+},

@@ -1,0 +1,301 @@
+--结婚配置
+
+MarriedConfig = 
+{
+	chinaSceendId = 104,			--中式婚礼的场景
+	chinaRange = {63,152,1,1},		--进入中式婚礼的坐标
+	chinaMFrange = {150,63,1,1},
+
+	westSceendId = 105,			--西式婚礼的场景
+	westRange = {72,142,1,1},		--进入西式婚礼的坐标
+	westMFrange = {149,58,1,1},
+
+	templeSceenId = 106,			--天宫婚礼的场景
+	templeRange = {63,149,1,1},		--进入天宫婚礼的坐标
+	tempMFrange = {149,62,1,1},
+
+	miSceneId = 107,			--蜜月外
+	miRange = {48,57,3,4},			--进入蜜月的场景坐标
+
+	miyueFubenId = 33,			--蜜月的副本id
+	miYueSceneId = 108,			--蜜月副本场景id
+	miyueX = 47,				--睡觉x
+	miyueY  =49,				--睡觉y
+	enterX = 39,				--进入蜜月的坐标x
+	enterY = 40,				--进入蜜月的坐标y
+
+	nUseCoin = 10000,			--发红包需要的手续费
+
+	hunCheNeedCoin = 300000,		--普通婚车需要的金币
+	hunCheNeedYb = 99,			--特殊婚车需要的元宝
+
+	hunCheModelid = 1,			--普通婚车的模型id
+	specialModelid = 2,			--特殊婚车的模型id
+	
+	aviteItemId = 972,			--请柬的id
+	aviteNeedYb = 3,			--购买请柬需要的元宝
+
+	callNeedYb = 300000,			--召集全服玩家需要的金币
+	CallActorCdTime = 20,			--召集的cd 单位秒
+
+	callNeedLevel = 40,			--结婚全服召集的等级
+
+	itemId = {1326,1327,1328,1329,1330,1331,1332,1333,1334,1335,1336,1337,1338,1339,1340,1341,1342,1343},
+	
+	kissDress = {892,893,1326,1327,1328,1329,1330,1331,1332,1333,1334,1335,1336,1337,1338,1339,1340,1341,1342,1343},	--拥吻限制时装
+
+	--比翼双飞
+	path = 
+	{
+		{Modelid = 2,vehicleId = 3,pathId = 3,posX = 70,posY = 145,},						--中式婚礼
+		{Modelid = 2,vehicleId = 4,pathId = 4,posX = 70,posY = 145,},						--西式婚礼
+		{Modelid = 2,vehicleId = 5,pathId = 5,posX = 70,posY = 145,},						--天宫婚礼
+	},
+
+	LoopTime = 15000,			--蜜月副本每十秒给经验
+	Awards=
+	{
+		--经验 
+		{ type = 20, id = 3, count = 20, strong = 0, quality = 0, bind = 0 },	
+	},
+
+	broadLoveFlowers = 18,		--播放情意绵绵需要的元宝
+	loveDipeffect = {effectId = 6,liveTime = 60,effectX = 48,effectY = 50,},  --情意绵绵的特效 洞房内的功能
+
+	FlyFlowersInDongFang = {needYb = 18,liveTime = 60,effectId = 1,},
+
+	exitSceenId = 2,				--退出的场景id
+	exitRange = {195,226,3,3},		--退出的坐标
+
+	weddingNeedCoin = 500000,		--求婚需要的金币
+
+	requestWeddingNeedCoin = 1000,		--征婚需要的金币
+	requestWeddingCd = 20,					--征婚的cd时间 单位秒
+
+	divorceNeedCoin = 1000000,			--离婚需要金币
+
+	marryLevel = 20,			--结婚等级
+	
+	--爱的代价配置
+	loveEffect = 
+	{
+		needYb = 3,			--需要元宝
+		effectConfig = 
+		{
+--#include "marry\loveFlowers1.txt"
+--#include "marry\loveFlowers2.txt"
+--#include "marry\loveFlowers3.txt"
+		},
+	},
+	
+	--结婚礼包
+	weddingGiftBag = 
+	{
+		{
+			itemId = 881,		--普通礼包
+			needYb = 58,		--需要元宝
+		},
+
+		{
+			itemId = 882,		--
+			needYb = 2013,		--需要元宝
+		},
+
+		{
+			itemId = 883,		--
+			needYb = 2013,		--需要元宝
+		},
+
+		{
+			itemId = 884,		--
+			needYb = 18888,		--需要元宝
+		},
+	},
+
+	--花篮配置
+	FlowersBag = 
+	{
+		{ 
+			itemId = 8760,		--花篮id
+			num = 1,		--购买的数量
+			needYb = 8,		--需要的元宝
+			liveTime = 3600,	--存在时间
+			FlowersMonster1 =	--花篮
+			{
+				{nMonsterID = 466, posX1 = 104, posX2 = 104,  posY = 42, nCount = 1, nLiveTime = 3600,name = Lang.Activity.w00030,},	
+			},
+		},
+
+		{ 
+			itemId = 8760,		
+			num = 10,		
+			needYb = 48,	
+			liveTime = 3600,	-- 存在时间
+			FlowersMonster1 =	
+			{
+				{nMonsterID = 466, posX1 = 104, posX2 = 104,  posY = 42, nCount = 1, nLiveTime = 3600,name = Lang.Activity.w00030,},	
+			},
+		},
+
+		{ 
+			itemId = 877,		
+			num = 1,		
+			needYb = 18,	
+			liveTime = 3600,	-- 存在时间
+			FlowersMonster1 =	
+			{
+				{nMonsterID = 467, posX1 = 104, posX2 = 104,  posY = 42, nCount = 1, nLiveTime = 3600,name = Lang.Activity.w00030,},
+			},
+		},
+
+		{ 
+			itemId = 877,		
+			num = 10,		
+			needYb = 68,	
+			liveTime = 3600,	-- 存在时间
+			FlowersMonster1 =	
+			{
+				{nMonsterID = 467, posX1 = 104, posX2 = 104,  posY = 42, nCount = 1, nLiveTime = 3600,name = Lang.Activity.w00030,},	
+			},
+		},
+
+		{ 
+			itemId = 877,		--ID暂时无用
+			num = 1,		
+			needYb = 188,	
+			liveTime = 3600,	-- 存在时间
+			FlowersMonster =			--中式的
+			{
+--#include "marry\Flowers1.txt"
+--#include "marry\Flowers2.txt"
+--#include "marry\Flowers3.txt"
+			},
+
+		},
+
+		{ 
+			itemId = 877,		--ID暂时无用
+			num = 1,		
+			needYb = 288,	
+			liveTime = 3600,	-- 存在时间
+			FlowersMonster =	
+			{
+--#include "marry\guildFlowers1.txt"
+--#include "marry\guildFlowers2.txt"
+--#include "marry\guildFlowers3.txt"
+			},
+		},
+	},
+	
+	buyBankNeedYb = 132,		--购买乐队需要的元宝
+	--乐队
+	BankConfig = 
+	{
+--#include "marry\Band1.txt"				--中式婚礼
+--#include "marry\Band2.txt"				--西式
+--#include "marry\Band3.txt"				--天宫
+	},
+
+	inviteToMarryCoin = 100000,		--发送邀请参加婚礼需要的金币
+	
+	--购买礼服配置
+	DressConfig = 
+	{
+		--购买中式礼服（男）
+		{
+			itemId = 888,			--礼服id	
+			needYb = 798,			--需要元宝
+		},
+
+		--购买中式礼服（女）
+		{
+			itemId = 889,			--礼服id	
+			needYb = 798,			--需要元宝
+		},
+
+		--购买西式礼服（男）
+		{
+			itemId = 890,			--礼服id	
+			needYb = 798,			--需要元宝
+		},
+
+		--购买西式礼服（女）
+		{
+			itemId = 891,			--礼服id	
+			needYb = 798,			--需要元宝
+		},
+
+		--购买天宫礼服（男）
+		{
+			itemId = 892,			--礼服id	
+			needYb = 13920,			--需要元宝
+		},
+
+		--购买天宫礼服（女）
+		{
+			itemId = 893,			--礼服id	
+			needYb = 13920,			--需要元宝
+		},
+	},
+
+	HandFlowersId = 358,				--手捧花id
+	ButHandFlowersNeedYb = 13140,			--购买手捧花需要的元宝
+
+	ringId = 880,					--结婚戒指id
+	ringNeedYb = 520,				--结婚戒指需要的元宝
+
+	saluteNeedYb = 100000,				--购买礼炮需要金币
+	BuySaluteCdTime = 20,			--购买礼炮的cd时间 单位秒
+
+	--播放烟花
+	saluteList = 
+	{	
+--#include "marry\salute1.txt"				--中式婚礼
+--#include "marry\salute2.txt"				--西式
+--#include "marry\salute3.txt"				--天宫
+	},
+
+	fireWorksNeedYb = 100,				--购买烟花需要元宝
+
+	RoseFlowersNeedYb = 100000,			--播玫瑰花需要元宝
+	BuyRoseFlowerCdTime = 20,		--播放玫瑰花的cd时间 单位秒
+
+	roseEffect = {id = 1,	time = 60},		--玫瑰花特效id 和持续时间 单位秒
+	
+	--红包发放
+	RedBagConfig = 
+	{	
+		--功能1：消耗10W金币发放
+		{
+			needCoin = 88888,		--需要金币
+			effectId = 5,			--播放的特效
+			effectTime = 10,		--特效持续施加
+		},
+
+		{
+			needCoin = 888888,		--需要金币
+			effectId = 5,			--播放的特效
+			effectTime = 10,		--特效持续施加
+		},
+
+		{
+			needCoin = 88,			--需要元宝
+			effectId = 5,			--播放的特效
+			effectTime = 10,		--特效持续施加
+		},
+
+		{
+			needCoin = 888,		--需要元宝
+			effectId = 5,			--播放的特效
+			effectTime = 20,		--特效持续施加
+		},
+
+	},
+
+	candyItemId = 878,				--喜糖id
+	buyCandyNeedCoin = 3,				--购买喜糖需要金币
+	
+	windItemId = 879,					--喜酒id
+	buyWindNeedYb = 18,				--购买喜酒需要元宝
+
+}

@@ -1,0 +1,464 @@
+--lua script
+--NPC占领配置
+--#include "data\language\LangCode.txt" once   --语言包
+
+NpcOccupationConfig = 
+{
+	limitLevel = 35,	--限制等级
+	limitCircle = 0,	--限制转数
+
+	openWeekDay = 4,	--星期第几天开启 0 为星期天
+	closeWeekDay = 3,	--星期第几天结束 0 为星期天
+
+	city =
+	{
+		--远征银杏山庄
+		{
+			id = 1,
+
+			enterScene = {sid = 226, range = {70,100,3,3}},	--sid层场景ID  range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}
+			returnArea = {sid = 8, x = 152, y = 182},	--返回区域
+
+			occupyNeedCrystal = 4,			--占领需4个水晶
+			guardTime = 7200,			--占领保护时间(秒) 
+
+			--水晶怪
+			crystalMonsters =
+			{
+				{nMonsterID = 1448, posX = 42, posY = 90, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1448},	--红
+				{nMonsterID = 1449, posX = 63, posY = 63, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1449},	--紫
+				{nMonsterID = 1450, posX = 88, posY = 48, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1450},	--蓝
+				{nMonsterID = 1451, posX = 88, posY = 102, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1451},	--绿
+				{nMonsterID = 1452, posX = 83, posY = 150, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1452},	--黄
+			},
+
+			crystalGuardNeedGuildCoin = 4000000,
+			--水晶守卫
+			crystalGuardMonsters =
+			{
+				{
+					{nMonsterID = 1453, posX = 40, posY = 91, nCount = 1, nLiveTime = 1800,},	--红
+					{nMonsterID = 1453, posX = 44, posY = 91, nCount = 1, nLiveTime = 1800,},	--红
+				},
+				{
+					{nMonsterID = 1453, posX = 61, posY = 64, nCount = 1, nLiveTime = 1800,},	--紫
+					{nMonsterID = 1453, posX = 65, posY = 64, nCount = 1, nLiveTime = 1800,},	--紫
+				},
+				{
+					{nMonsterID = 1453, posX = 86, posY = 49, nCount = 1, nLiveTime = 1800,},	--蓝
+					{nMonsterID = 1453, posX = 90, posY = 49, nCount = 1, nLiveTime = 1800,},	--蓝
+				},
+				{
+					{nMonsterID = 1453, posX = 86, posY = 102, nCount = 1, nLiveTime = 1800,},	--绿
+					{nMonsterID = 1453, posX = 90, posY = 103, nCount = 1, nLiveTime = 1800,},	--绿
+				},
+				{
+					{nMonsterID = 1453, posX = 81, posY = 151, nCount = 1, nLiveTime = 1800,},	--黄
+					{nMonsterID = 1453, posX = 85, posY = 151, nCount = 1, nLiveTime = 1800,},	--黄
+				},
+			},
+
+			--BOSS
+			bossMonsters =
+			{
+				--0-24小时
+				{
+					{nMonsterID = 1457, posX = 67, posY = 107, nCount = 1, nLiveTime = 1800,},
+				},
+				--24-48小时
+				{
+					{nMonsterID = 1457, posX = 67, posY = 107, nCount = 1, nLiveTime = 1800,},
+				},
+				--48-72小时
+				{
+					{nMonsterID = 1458, posX = 67, posY = 107, nCount = 1, nLiveTime = 1800,},
+				},
+				--72-96小时
+				{
+					{nMonsterID = 1458, posX = 67, posY = 107, nCount = 1, nLiveTime = 1800,},
+				},
+				--96-120小时
+				{
+					{nMonsterID = 1459, posX = 67, posY = 107, nCount = 1, nLiveTime = 1800,},
+				},
+				--120-144小时
+				{
+					{nMonsterID = 1459, posX = 67, posY = 107, nCount = 1, nLiveTime = 1800,},
+				},
+			},
+
+			randomRate = 5000,		--1点表示万分之一
+			--随机刷新怪物
+			randomMonster =
+			{
+				--24小时
+				{
+					{nMonsterID = 1454, posX1 = 54, posX2 = 66, posY = 68, nCount = 1, nLiveTime = 1800,},
+				},
+				--48小时
+				{
+					{nMonsterID = 1454, posX1 = 54, posX2 = 66, posY = 68, nCount = 1, nLiveTime = 1800,},
+				},
+				--72小时
+				{
+					{nMonsterID = 1454, posX1 = 54, posX2 = 66, posY = 68, nCount = 1, nLiveTime = 1800,},
+				},
+				--96小时
+				{
+					{nMonsterID = 1454, posX1 = 54, posX2 = 66, posY = 68, nCount = 1, nLiveTime = 1800,},
+				},
+				--120小时
+				{
+					{nMonsterID = 1454, posX1 = 54, posX2 = 66, posY = 68, nCount = 1, nLiveTime = 1800,},
+				},
+			},
+
+			--行会资金奖励
+			guildAwards =
+			{
+				6000000,	--24小时
+				7000000,	--48小时
+				8000000,	--72小时
+				9000000,	--96小时
+				10000000,   --120小时
+                11000000,   --144小时
+			},
+		},
+		--远征王城
+		{
+			id = 2,
+
+			enterScene = {sid = 227, range = {32,87,3,3}},	--sid层场景ID  range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}
+			returnArea = {sid = 8, x = 152, y = 182},	--返回区域
+
+			occupyNeedCrystal = 4,			--占领需4个水晶
+			guardTime = 7200,			--占领保护时间(秒)
+
+			--水晶怪
+			crystalMonsters =
+			{
+				{nMonsterID = 1448, posX = 48, posY = 92, nCount = 1, nLiveTime = 0,sName = Lang.EntityName.m1448},	--红
+				{nMonsterID = 1449, posX = 75, posY = 117, nCount = 1, nLiveTime = 0,sName = Lang.EntityName.m1449},	--紫
+				{nMonsterID = 1450, posX = 117, posY = 79, nCount = 1, nLiveTime = 0,sName = Lang.EntityName.m1450},	--蓝
+				{nMonsterID = 1451, posX = 81, posY = 44, nCount = 1, nLiveTime = 0,sName = Lang.EntityName.m1451},	--绿
+				{nMonsterID = 1452, posX = 70, posY = 67, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1452},	--黄
+			},
+
+			crystalGuardNeedGuildCoin = 4000000,
+			--水晶守卫
+			crystalGuardMonsters =
+			{
+				{
+					{nMonsterID = 1453, posX = 50, posY = 93, nCount = 1, nLiveTime = 1800,},	--红
+					{nMonsterID = 1453, posX = 46, posY = 93, nCount = 1, nLiveTime = 1800,},	--红
+				},
+				{
+					{nMonsterID = 1453, posX = 72, posY = 117, nCount = 1, nLiveTime = 1800,},	--紫
+					{nMonsterID = 1453, posX = 77, posY = 117, nCount = 1, nLiveTime = 1800,},	--紫
+				},
+				{
+					{nMonsterID = 1453, posX = 117, posY = 77, nCount = 1, nLiveTime = 1800,},	--蓝
+					{nMonsterID = 1453, posX = 117, posY = 82, nCount = 1, nLiveTime = 1800,},	--蓝
+				},
+				{
+					{nMonsterID = 1453, posX = 79, posY = 45, nCount = 1, nLiveTime = 1800,},	--绿
+					{nMonsterID = 1453, posX = 83, posY = 45, nCount = 1, nLiveTime = 1800,},	--绿
+				},
+				{
+					{nMonsterID = 1453, posX = 68, posY = 68, nCount = 1, nLiveTime = 1800,},	--黄
+					{nMonsterID = 1453, posX = 73, posY = 68, nCount = 1, nLiveTime = 1800,},	--黄
+				},
+			},
+
+			--BOSS
+			bossMonsters =
+			{
+				--0-24小时
+				{
+					{nMonsterID = 1460, posX = 97, posY = 66, nCount = 1, nLiveTime = 1800,},
+				},
+				--24-48小时
+				{
+					{nMonsterID = 1460, posX = 97, posY = 66, nCount = 1, nLiveTime = 1800,},
+				},
+				--48-72小时
+				{
+					{nMonsterID = 1461, posX = 97, posY = 66, nCount = 1, nLiveTime = 1800,},
+				},
+				--72-96小时
+				{
+					{nMonsterID = 1461, posX = 97, posY = 66, nCount = 1, nLiveTime = 1800,},
+				},
+				--96-120小时
+				{
+					{nMonsterID = 1462, posX = 97, posY = 66, nCount = 1, nLiveTime = 1800,},
+				},
+				--120-144小时
+				{
+					{nMonsterID = 1462, posX = 97, posY = 66, nCount = 1, nLiveTime = 1800,},
+				},
+			},
+
+			randomRate = 5000,		--1点表示万分之一
+			--随机刷新怪物
+			randomMonster =
+			{
+				--24小时
+				{
+					{nMonsterID = 1454, posX1 = 90, posX2 = 96, posY = 119, nCount = 1, nLiveTime = 1800,},
+				},
+				--48小时
+				{
+					{nMonsterID = 1454, posX1 = 90, posX2 = 96, posY = 119, nCount = 1, nLiveTime = 1800,},
+				},
+				--72小时
+				{
+					{nMonsterID = 1454, posX1 = 90, posX2 = 96, posY = 119, nCount = 1, nLiveTime = 1800,},
+				},
+				--96小时
+				{
+					{nMonsterID = 1454, posX1 = 90, posX2 = 96, posY = 119, nCount = 1, nLiveTime = 1800,},
+				},
+				--120小时
+				{
+					{nMonsterID = 1454, posX1 = 90, posX2 = 96, posY = 119, nCount = 1, nLiveTime = 1800,},
+				},
+			},
+
+			--行会资金奖励
+			guildAwards =
+			{
+				6000000,	--24小时
+				7000000,	--48小时
+				8000000,	--72小时
+				9000000,	--96小时
+				10000000,   --120小时
+				11000000,   --144小时
+			},
+		},
+		--远征土城
+		{
+			id = 3,
+
+			enterScene = {sid = 228, range = {32,87,3,3}},	--sid层场景ID  range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}
+			returnArea = {sid = 8, x = 152, y = 182},	--返回区域
+
+			occupyNeedCrystal = 4,			--占领需4个水晶
+			guardTime = 7200,			--占领保护时间(秒)
+
+			--水晶怪
+			crystalMonsters =
+			{
+				{nMonsterID = 1448, posX = 36, posY = 105, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1448},	--红
+				{nMonsterID = 1449, posX = 83, posY = 39, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1449},	--紫
+				{nMonsterID = 1450, posX = 80, posY = 140, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1450},	--蓝
+				{nMonsterID = 1451, posX = 105, posY = 77, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1451},	--绿
+				{nMonsterID = 1452, posX = 127, posY = 95, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1452},	--黄
+			},
+
+			crystalGuardNeedGuildCoin = 4000000,
+			--水晶守卫
+			crystalGuardMonsters =
+			{
+				{
+					{nMonsterID = 1453, posX = 34, posY = 106, nCount = 1, nLiveTime = 1800,},	--红
+					{nMonsterID = 1453, posX = 38, posY = 106, nCount = 1, nLiveTime = 1800,},	--红
+				},
+				{
+					{nMonsterID = 1453, posX = 85, posY = 41, nCount = 1, nLiveTime = 1800,},	--紫
+					{nMonsterID = 1453, posX = 81, posY = 41, nCount = 1, nLiveTime = 1800,},	--紫
+				},
+				{
+					{nMonsterID = 1453, posX = 78, posY = 141, nCount = 1, nLiveTime = 1800,},	--蓝
+					{nMonsterID = 1453, posX = 82, posY = 141, nCount = 1, nLiveTime = 1800,},	--蓝
+				},
+				{
+					{nMonsterID = 1453, posX = 103, posY = 77, nCount = 1, nLiveTime = 1800,},	--绿
+					{nMonsterID = 1453, posX = 107, posY = 80, nCount = 1, nLiveTime = 1800,},	--绿
+				},
+				{
+					{nMonsterID = 1453, posX = 125, posY = 96, nCount = 1, nLiveTime = 1800,},	--黄
+					{nMonsterID = 1453, posX = 129, posY = 96, nCount = 1, nLiveTime = 1800,},	--黄
+				},
+			},
+
+			--BOSS
+			bossMonsters =
+			{
+				--0-24小时
+				{
+					{nMonsterID = 1466, posX = 84, posY = 65, nCount = 1, nLiveTime = 1800,},
+				},
+				--24-48小时
+				{
+					{nMonsterID = 1466, posX = 84, posY = 65, nCount = 1, nLiveTime = 1800,},
+				},
+				--48-72小时
+				{
+					{nMonsterID = 1467, posX = 84, posY = 65, nCount = 1, nLiveTime = 1800,},
+				},
+				--72-96小时
+				{
+					{nMonsterID = 1467, posX = 84, posY = 65, nCount = 1, nLiveTime = 1800,},
+				},
+				--96-120小时
+				{
+					{nMonsterID = 1468, posX = 84, posY = 65, nCount = 1, nLiveTime = 1800,},
+				},
+				--120-144小时
+				{
+					{nMonsterID = 1468, posX = 84, posY = 65, nCount = 1, nLiveTime = 1800,},
+				},
+			},
+
+			randomRate = 5000,		--1点表示万分之一
+			--随机刷新怪物
+			randomMonster =
+			{
+				--24小时
+				{
+					{nMonsterID = 1454, posX1 = 70, posX2 = 76, posY = 92, nCount = 1, nLiveTime = 1800,},
+				},
+				--48小时
+				{
+					{nMonsterID = 1454, posX1 = 70, posX2 = 76, posY = 92, nCount = 1, nLiveTime = 1800,},
+				},
+				--72小时
+				{
+					{nMonsterID = 1454, posX1 = 70, posX2 = 76, posY = 92, nCount = 1, nLiveTime = 1800,},
+				},
+				--96小时
+				{
+					{nMonsterID = 1454, posX1 = 70, posX2 = 76, posY = 92, nCount = 1, nLiveTime = 1800,},
+				},
+				--120小时
+				{
+					{nMonsterID = 1454, posX1 = 70, posX2 = 76, posY = 92, nCount = 1, nLiveTime = 1800,},
+				},
+			},
+
+			--行会资金奖励
+			guildAwards =
+			{
+				6000000,	--24小时
+				7000000,	--48小时
+				8000000,	--72小时
+				9000000,	--96小时
+				10000000,   --120小时
+                11000000,   --144小时
+			},
+		},
+		--远征伏魔谷
+		{
+			id = 4,
+
+			enterScene = {sid = 229, range = {81,81,77,77}},	--sid层场景ID  range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h}
+			returnArea = {sid = 8, x = 152, y = 182},	--返回区域
+
+			occupyNeedCrystal = 4,			--占领需4个水晶
+			guardTime = 7200,			--占领保护时间(秒)
+
+			--水晶怪
+			crystalMonsters =
+			{
+				{nMonsterID = 1448, posX = 64, posY = 102, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1448},	--红
+				{nMonsterID = 1449, posX = 95, posY = 131, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1449},	--紫
+				{nMonsterID = 1450, posX = 120, posY = 95, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1450},	--蓝
+				{nMonsterID = 1451, posX = 90, posY = 66, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1451},	--绿
+				{nMonsterID = 1452, posX = 87, posY = 92, nCount = 1, nLiveTime = 0, sName = Lang.EntityName.m1452},	--黄
+			},
+
+			crystalGuardNeedGuildCoin = 4000000,
+			--水晶守卫
+			crystalGuardMonsters =
+			{
+				{
+					{nMonsterID = 1453, posX = 62, posY = 105, nCount = 1, nLiveTime = 1800,},	--红
+					{nMonsterID = 1453, posX = 66, posY = 110, nCount = 1, nLiveTime = 1800,},	--红
+				},
+				{
+					{nMonsterID = 1453, posX = 93, posY = 132, nCount = 1, nLiveTime = 1800,},	--紫
+					{nMonsterID = 1453, posX = 97, posY = 132, nCount = 1, nLiveTime = 1800,},	--紫
+				},
+				{
+					{nMonsterID = 1453, posX = 118, posY = 96, nCount = 1, nLiveTime = 1800,},	--蓝
+					{nMonsterID = 1453, posX = 122, posY = 96, nCount = 1, nLiveTime = 1800,},	--蓝
+				},
+				{
+					{nMonsterID = 1453, posX = 88, posY = 67, nCount = 1, nLiveTime = 1800,},	--绿
+					{nMonsterID = 1453, posX = 92, posY = 67, nCount = 1, nLiveTime = 1800,},	--绿
+				},
+				{
+					{nMonsterID = 1453, posX = 85, posY = 93, nCount = 1, nLiveTime = 1800,},	--黄
+					{nMonsterID = 1453, posX = 89, posY = 93, nCount = 1, nLiveTime = 1800,},	--黄
+				},
+			},
+
+			--BOSS
+			bossMonsters =
+			{
+				--0-24小时
+				{
+					{nMonsterID = 1463, posX = 39, posY = 149, nCount = 1, nLiveTime = 1800,},
+				},
+				--24-48小时
+				{
+					{nMonsterID = 1463, posX = 39, posY = 149, nCount = 1, nLiveTime = 1800,},
+				},
+				--48-72小时
+				{
+					{nMonsterID = 1463, posX = 39, posY = 149, nCount = 1, nLiveTime = 1800,},
+				},
+				--72-96小时
+				{
+					{nMonsterID = 1463, posX = 39, posY = 149, nCount = 1, nLiveTime = 1800,},
+				},
+				--96-120小时
+				{
+					{nMonsterID = 1463, posX = 39, posY = 149, nCount = 1, nLiveTime = 1800,},
+				},
+				--120-144小时
+				{
+					{nMonsterID = 1465, posX = 39, posY = 149, nCount = 1, nLiveTime = 1800,},
+				},
+			},
+
+			randomRate = 5000,		--1点表示万分之一
+			--随机刷新怪物
+			randomMonster =
+			{
+				--24小时
+				{
+					{nMonsterID = 1454, posX1 = 99, posX2 = 105, posY = 118, nCount = 1, nLiveTime = 1800,},
+				},
+				--48小时
+				{
+					{nMonsterID = 1454, posX1 = 99, posX2 = 105, posY = 118, nCount = 1, nLiveTime = 1800,},
+				},
+				--72小时
+				{
+					{nMonsterID = 1454, posX1 = 99, posX2 = 105, posY = 118, nCount = 1, nLiveTime = 1800,},
+				},
+				--96小时
+				{
+					{nMonsterID = 1454, posX1 = 99, posX2 = 105, posY = 118, nCount = 1, nLiveTime = 1800,},
+				},
+				--120小时
+				{
+					{nMonsterID = 1454, posX1 = 99, posX2 = 105, posY = 118, nCount = 1, nLiveTime = 1800,},
+				},
+			},
+
+			--行会资金奖励
+			guildAwards =
+			{
+				6000000,	--24小时
+				7000000,	--48小时
+				8000000,	--72小时
+				9000000,	--96小时
+				10000000,   --120小时
+                11000000,   --144小时
+			},
+		},
+	},
+}

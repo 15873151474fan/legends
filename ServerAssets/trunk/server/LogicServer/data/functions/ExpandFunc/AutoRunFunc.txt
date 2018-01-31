@@ -1,0 +1,166 @@
+﻿
+--#include "data\config\misc\scriptTimerConfig\NoticeConfig.txt" once --自动发公告配置表
+--#include "data\config\misc\scriptTimerConfig\CreateMonsterConfig.txt" once --自动刷怪配置表
+--#include "data\functions\Activity\OpenServerActivity\OpenServerActivityPointer.txt" once
+
+
+--[[
+	//系统提示的类型
+	enum tagTipmsgType
+	{
+		ttInvalidTmType = -1, // 无效的Tipmsg类型
+		ttTipmsgWindow =1, //只在右侧提示栏显示
+		ttScreenCenter=2, //屏幕中央，用于xxx把xxx强化到6级之类的全服公告
+		ttDialog =4,      //弹出框
+		ttBroadcast =8,  //公告栏，用于GM发通知
+		ttMessage = 16,	//短消息，在屏幕中央悬挂，点击后查看内容，
+		ttWarmTip  =32,   //温馨提示
+		ttGmTip = 64,	// Gm提示信息
+		ttChatWindow =128, //左侧聊天栏里，用于一些系统公告在聊天栏显示
+		//ttMaxTmType,		// 最大Tipmsg类型
+	};
+--]]
+
+--[[
+	自动执行公告函数
+	tipsType:         公告类型 (1世界公告，2场景公告，3阵营公告)
+	nLocation:        显示的位置
+	nTargetParam:     发送目标参数(例如：阵营公告时填入阵营ID，场景公告时填入场景ID)
+	nLevel:           发送的最低等级，默认是0
+	nIndex:           第几个消息
+	...：             附加的参数,比如多少分钟后开启等
+--]]
+
+--相关排行榜的定时保存函数
+function OntimerSave()
+  for i = 1, #OpenServerActivityRankConfig do --开服活动定时保存 
+      local config = OpenServerActivityRankConfig[i]
+      local Rank = Ranking.getRanking( config.RankName )
+      if Rank then
+         Ranking.save(Rank, config.RankFile)
+      end
+  end 
+end
+ 
+function NoticeAutoRun(tipsType,nLocation,nTargetParam,nLevel,nIndex,...)
+	local msg = nil
+	local tipsType  = tonumber(tipsType)
+	 
+	if(nLocation ==nil) then
+		nLocation = 1
+	else
+		nLocation =  tonumber(nLocation)
+	end
+	local nTargetParam = tonumber(nTargetParam)
+	
+	local nIndex = tonumber(nIndex)
+
+	if(nLevel ==nil ) then
+		nLevel =0
+	else
+		nLevel =  tonumber(nLevel)
+	end
+	if ( nIndex > 0) then
+		msg =  unpack (NoticeMsg[nIndex])
+	end
+	if(msg  ==nil) then
+		print(" NoticeAutoRun invalid nIndex="..nIndex)
+		return
+	end
+	local argsCount = table.getn(arg)
+	
+	if(argsCount ==1 ) then
+		local arg1 = unpack(arg)
+		msg = string.format(msg,arg1 )
+	elseif(argsCount ==2 ) then
+		local arg1,arg2 = unpack(arg)
+		msg = string.format(msg,arg1,arg2 )
+	elseif(argsCount ==3 ) then
+		local arg1,arg2,args3 = unpack(arg)
+		msg = string.format(msg,arg1,arg2,args3 )
+	end
+	
+	
+	if tipsType == 1 then
+		System.broadcastTipmsgLimitLev(msg,nLocation,nLevel)
+	elseif tipsType == 2 then
+		if (nTargetParam >= 1 and nTargetParam <= 3) then
+			System.broadcastCampTipmsgLimitLev(nTargetParam, msg, nLocation,nLevel)
+		end
+	elseif tipsType == 3 then
+		if (nTargetParam > -1) then
+			local hScene = Fuben.getSceneHandleById(nTargetParam, 0)
+			Fuben.sendMsgToScene(hScene, msg, nLocation)
+		end
+	end
+end
+
+
+--[[
+--自动刷怪函数 
+--index为表 CreateMonster中的项号
+--bRand:	是否进行随机刷怪 会在组中随机选择一个进行刷怪
+--]]
+function CreateMonsters(index)
+	local index = tonumber(index)
+	local config = CreateMonster[index]
+	if not config then return end
+	
+	if index == 8 then --双十一活动,默认开启跟后台开启，需判断是否开启
+		if System.getDoubleElevenActFlag(6) ~= 1 then
+			return
+		end
+	end
+	
+	--群刷怪
+	if config.monsters and table.getn(config.monsters) > 0 then 
+		for k, v in ipairs(config.monsters) do
+			local hScene = Fuben.getSceneHandleById(v.sid, 0)
+			Fuben.createMonstersInRange(hScene, v.mid, v.x1, v.y1, v.x2, v.y2, v.count, v.liveTime)
+		end
+	end
+	
+	--随机刷怪
+	if config.randMonsters and table.getn(config.randMonsters) > 0 then 
+		for k, v in ipairs(config.randMonsters) do
+			if table.getn(v) > 0 then
+				local randIdx = math.random(table.getn(v))
+				local c = v[randIdx]
+				if c then
+					local hScene = Fuben.getSceneHandleById(c.sid)
+					Fuben.createMonstersInRange(hScene, c.mid, c.x1, c.y1, c.x2, c.y2, c.count, c.liveTime)
+				end
+				
+			end
+			
+		end
+	end
+	
+	--公告
+	if config.notice and config.notice ~= "" then
+		local noticeType = config.noticeType or ttScreenCenter
+		local noticeLevel = config.noticeLevel or 0
+		System.broadcastTipmsgLimitLev(config.notice, noticeType,noticeLevel)
+	end
+	
+end
+
+--设置竞拍 
+--[[
+	* Param INT_PTR nPrice:	起拍价
+	* Param INT_PTR nTime:	拍卖时限(秒)
+	* Param INT_PTR nItemId:拍卖物品ID
+	* Param INT_PTR nCount:	拍卖数量
+--]]
+function SetAuction(nPrice, nTime, nItemId, nCount, nQuality, nStrong, nBind)
+	local nCount = nCount or 1
+	local nQuality = nQuality or 0
+	local nStrong = nStrong or 0
+	local nBind = nBind or 0
+	System.setAuction(nPrice, nTime, nItemId, nCount, nQuality, nStrong, nBind)
+end
+
+--定时保存文件
+function SaveFiles()
+	System.saveFiles()
+end

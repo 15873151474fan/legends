@@ -1,0 +1,24 @@
+--按照概率和掉落的配置,id表示物品的id
+--type表示通用奖励的类型
+--count表示物品的数量,
+--strong 强化等级,如果是小于0的表示0-n随机
+-- quality 品质如果是小于0的表示0-n随机 ,比如-3表示0到3之间随机
+-- strongMin 表示最小的强化等级, 如果配置了，那么随出了一个物品的强化低于这个值将设置为这个值，这个不配置就是0
+-- qualityMin:表示最小的品质等级
+--propability概率，概率的数字越大的话掉的物品的概率越高
+--bind绑定的标记
+--group是分组的id，类似怪物的爆率的配置
+
+--端午节粽子 
+drops=
+{
+  { id=1646 ,count=1,strong =0,quality =0,propability=1, bind=1,group=1},
+  { id=1009 ,count=1,strong =0,quality =0,propability=1, bind=1,group=1},
+  { id=1558 ,count=2,strong =0,quality =0,propability=1, bind=1,group=1},
+  { id=1559 ,count=5,strong =0,quality =0,propability=1,bind=1, group=1},
+  { id=1647 ,count=1,strong =0,quality =0,propability=1, bind=1,group=1},
+  { id=1655 ,count=5,strong =0,quality =0,propability=1,bind=1,group=1},
+  { id=787 ,count=1,strong =0,quality =0,propability=1, bind=1,group=1},
+  { id=767 ,count=1,strong =0,quality =0,propability=1, bind=1,group=1},
+  { id=777 ,count=1,strong =0,quality =0,propability=1,bind=1, group=1},
+}

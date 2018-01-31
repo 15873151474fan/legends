@@ -1,0 +1,262 @@
+﻿--[[File:ExpMarsNPC.txt]]
+-- 经验战神闯关使者
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+--#include "MarsCommon.txt" once
+
+function ExpMarsNPC_Main(sysarg)		
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	local strDlg = "";
+	local yushu = (curGrade % 10);
+	if 0 == yushu then
+		-- print("curGrade = " ..curGrade);
+		-- print("(curGrade % 10) = " ..(curGrade % 10));
+		strDlg = Lang.Activity.lfg0029;
+		--抽取特殊奖励
+		strDlg = string.format("%s\\<#BL%s/@GetSpecialAward>", strDlg, Lang.Activity.lfg0030);
+	else
+		strDlg = Lang.Activity.lfg0016;
+	end
+	strDlg = strDlg .. GetGameGirdNum(sysarg, 1);	
+	
+	if not Actor.isKillAllMonster(sysarg, 0) then
+		-- 秒杀副本怪物	
+		--[[for k, v in pairs(MarsCfg.ExpMars.Seckill)do
+			strDlg = string.format("%s\\<#BL%s/@SeckillAllMonsters,%d>", strDlg, string.format(v.tips,unpack(v.count)), k);
+		end	--]]
+		for k, v in pairs(MarsCfg.ExpMars.Seckill)do
+			strDlg = string.format("%s\\<#BL%s/@SeckillAllMonsters,%d>", strDlg, string.format(v.tips,unpack(CalcGameGridAndYuanBao(sysarg))), k);
+		end
+		-- 退出副本的函数
+		--strDlg = string.format("%s%s", strDlg, GetExitFubenOption(sysarg));
+		strDlg = string.format("%s\\<#BL%s/@OnExitExpMarsMenu>", strDlg, Lang.Activity.lfg0012);
+	else 
+		-- 战神令/元宝领取奖励并前进
+		-- 礼券领取奖励并前进
+		-- 荣誉领取奖励并前进
+		if 1 <= curGrade and curGrade < #(MarsCfg.ExpMars.Awards) then
+			for k, v in pairs(MarsCfg.ExpMars.GotoNextGrade)do
+				strDlg = string.format("%s\\<#BL%s/@PayAndGotoNextGrade,%d>", strDlg, string.format(v.tips,unpack(CalcGotoNextGrade(sysarg, k))), k);
+			end
+			-- 快速跳
+			local integer = curGrade - yushu;
+			local targetGrade = integer +10;
+			if targetGrade <= #(MarsCfg.ExpMars.Awards) then
+				strDlg = string.format("%s\\<#BL%s/@RapidGotoNextTensMenu,%d>", strDlg, string.format(Lang.Activity.lfg0044, targetGrade), targetGrade);
+			end
+		end
+		-- 领取奖励并离开
+		strDlg = string.format("%s\\<#BL%s/@GetAwardAndExit>", strDlg, Lang.Activity.lfg0028);
+	end	
+
+	strDlg = string.format("%s\\<#BL%s/@exit>", strDlg, Lang.Activity.lfg0004);
+	return strDlg;
+end
+
+-- 快速跳整10层菜单选项
+function RapidGotoNextTensMenu(sysarg, targetGrade)
+	targetGrade = tonumber(targetGrade);
+	if 0 ~= targetGrade % 10 then return end;	
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	local N = targetGrade / 10;
+	local M = MarsCfg.ExpMars.M;
+	-- 弹出对话框“快速前往第N*10层需消耗X元宝,共可获得xxx经验”
+	-- X=（（当前层+1）*20+N*200）*（N*10-当前层-1）/2*系数M
+	-- Y=（（当前层+1）*20+N*200）*（N*10-当前层-1）/2*系数M/10   (取整)
+	--X=（Y-拥有烈火令数量） *10
+	local Y= ((curGrade+1)*10+N*100+20)*(N*10-curGrade)/2*M/10;
+	Y = Y - Y % 1; -- 取整 
+	local value = 0;
+	for i = curGrade, targetGrade - 1 do	
+		local v = MarsCfg.ExpMars.Awards[i];
+		value = value + Actor.getActivityExp(sysarg, v.id, v.count, v.quality);
+	end
+	
+	local h = Actor.getHandle(thisNPC);
+	Actor.messageBox(sysarg, h, 0, string.format(Lang.Activity.lfg0045, targetGrade, Y, value), string.format("%s/RapidGotoNextTens,%d,%d", Lang.Activity.w00010, targetGrade, Y), string.format("%s/OnCancleButton", Lang.Activity.t00166) );
+end
+
+-- 快速跳整10层菜单选项
+function RapidGotoNextTens(sysarg, targetGrade, Y)
+	targetGrade = tonumber(targetGrade);
+	local N = targetGrade / 10;
+	Y = tonumber(Y);
+	
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.GameGird = actorVar.GameGird or 0; 
+	if (Y <= actorVar.GameGird) then
+		actorVar.GameGird = actorVar.GameGird - Y;
+	else
+		local X = (Y-actorVar.GameGird) *10;
+					
+		Actor.closeNPCDialog(sysarg);
+		local h = Actor.getHandle(thisNPC);				
+		Actor.messageBox(sysarg, h, 0,string.format(Lang.Activity.lfg0046, X), string.format("%s/PayYuanbaoAndGotoNextTens,%d,%d", Lang.GuildLang.z00040, X, targetGrade), string.format("%s/OnCancleButton", Lang.Activity.t00166) );		
+		return;				
+	end
+	RealRapidGotoNextTens(sysarg, targetGrade);
+end
+
+function PayYuanbaoAndGotoNextTens(sysarg, X,targetGrade)
+	X = tonumber(X);
+	targetGrade = tonumber(targetGrade);
+	if not SubMoney(sysarg, mtYuanbao, X, Lang.Activity.a00193) then return false end;
+	local actorVar = Actor.getStaticVar(sysarg);
+	actorVar.GameGird = 0;
+	RealRapidGotoNextTens(sysarg, targetGrade);
+end
+function RealRapidGotoNextTens(sysarg, targetGrade)
+	if Actor.getFubenId(sysarg) <= 0 then return end;
+	targetGrade = tonumber(targetGrade);
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	if not curGrade then return end;
+	for i = curGrade, targetGrade - 1 do	
+		local v = MarsCfg.ExpMars.Awards[i];
+		Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, v.param);
+	end
+	EnterOneGrade(sysarg, targetGrade)
+end
+-- 用于测试
+function GotoTensGrade(sysarg, nType, targetGrade)
+	return PayAndGotoNextGrade(sysarg, nType, targetGrade);
+end
+
+-- 计算秒杀怪物需耗战神令或元宝
+function CalcGameGridAndYuanBao(sysarg)
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	return {ComputeQE(curGrade, unpack(MarsCfg.ExpMars.Seckill[1].ratio[1]))
+		  , ComputeQE(curGrade, unpack(MarsCfg.ExpMars.Seckill[1].ratio[2])) 
+		  }; -- 计算公式
+end
+
+-- 计算前往下一级需要的
+function CalcGotoNextGrade(sysarg, nType)
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	if 1 == nType then
+		return {ComputeQE(curGrade, unpack(MarsCfg.ExpMars.GotoNextGrade[nType].ratio[1]))
+			  , ComputeQE(curGrade, unpack(MarsCfg.ExpMars.GotoNextGrade[nType].ratio[2]))}; -- 计算公式
+	elseif 2 == nType or 3 == nType then
+		return {ComputeQE(curGrade, unpack(MarsCfg.ExpMars.GotoNextGrade[nType].ratio))}; -- 计算公式
+	end
+	return {0};
+end
+
+-- 支付并前往下一关
+function PayAndGotoNextGrade(sysarg, nType, targetGrade)-- targetGrade
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	if curGrade >= #(MarsCfg.ExpMars.Awards) then
+		Actor.sendTipmsg( sysarg, Lang.Activity.lfg0042, ttFlyTip );
+		return;
+	end
+	nType = tonumber(nType);
+	MarsCfg.ExpMars.GotoNextGrade[nType].count = CalcGotoNextGrade(sysarg, nType);
+	-- 支付
+	if not Defray(sysarg, 2, nType, targetGrade) then 
+		return;
+	end;	
+	RealGotoNextGrade(sysarg);
+end
+
+-- 
+function RealGotoNextGrade(sysarg, targetGrade)
+	if Actor.getFubenId(sysarg) <= 0 then return end;
+	-- 发放经验奖励
+	GetAward(sysarg);	
+	local var = Actor.getStaticVar(sysarg);
+	-- 	
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	-- print("RealGotoNextGrade 当前处于第几层" .. curGrade);
+	--GetAward(sysarg);
+	var.HasGotSpecialAward = nil;
+	if targetGrade then end;
+	local target = targetGrade or curGrade + 1;
+	return EnterOneGrade(sysarg, target);
+end
+-- 秒杀所有怪物
+function SeckillAllMonsters(sysarg, nType)
+	if Actor.isKillAllMonster(sysarg, 0) then 
+		Actor.sendTipmsg( sysarg, Lang.Activity.lfg0048, ttFlyTip );
+		Actor.closeNPCDialog(sysarg);
+		return;
+	end; 
+	nType = tonumber(nType);
+	MarsCfg.ExpMars.Seckill[nType].count = CalcGameGridAndYuanBao(sysarg);
+	
+	-- 支付
+	if not Defray(sysarg, 1, nType) then return  end;	
+	return RealSeckillAllMonsters(sysarg);
+end
+
+
+function RealSeckillAllMonsters(sysarg)
+	if Actor.getFubenId(sysarg) <= 0 then return end;
+	-- 清怪
+	Fuben.clearMonster( Actor.getSceneHandle(sysarg) , 0);
+	UpdateExpActivityBoard(sysarg);
+	Actor.sendTipmsg( sysarg, Lang.Activity.lfg0032, ttFlyTip );
+	--return ExpMarsNPC_Main(sysarg);	
+end
+
+-- 领取奖励
+function GetAward(sysarg)	
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	--Actor.addExp(sysarg, MarsCfg.ExpMars.Exp[curGrade], 205, 0, 2);
+	--[[
+	local weightTbl = {};
+	for _, v in pairs(MarsCfg.ExpMars.Awards) do table.insert(weightTbl, v.weight or 0) end;
+	local v = MarsCfg.ExpMars.Awards[GetRandIndex(weightTbl)];	
+	--]]
+	local v = MarsCfg.ExpMars.Awards[curGrade];
+	if not v then print("In Fun GetAward: v got nil") return end;	
+	-- print("v.count = " ..v.count);	
+	-- print(string.format("领取第%d层奖励 id = %d", curGrade, v.id));
+	Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, v.param);
+	-- 第100层奖
+	-- print(string.format("一共%d层，现在领取%d层奖励, 奖励id = %d", #(MarsCfg.ExpMars.Awards), curGrade, v.id));
+	
+end
+
+-- 领取奖励并离开
+function GetAwardAndExit(sysarg)
+	GetAward(sysarg);
+	ExitFubenAndAutoPathToNpc(sysarg);
+end
+
+function GetSpecialAward(sysarg)
+	local pFuben = Actor.getFubenPrt(sysarg);
+	local curGrade= Fuben.getFubenProgressListVal(pFuben, 1); -- 当前处于第几层
+	local var = Actor.getStaticVar(sysarg);
+	--var.HasGotSpecialAward;
+	if var.HasGotSpecialAward  then 
+		Actor.sendTipmsg( sysarg, Lang.Activity.lfg0031, ttFlyTip );		
+	else
+		--local v = MarsCfg.ExpMars.SpecialAward[math.random(1, #(MarsCfg.ExpMars.SpecialAward))]; -- 随机抽一个\
+		if  #(MarsCfg.ExpMars.Awards) ~= curGrade then
+			local weightTbl = {};
+			for _, v in pairs(MarsCfg.ExpMars.SpecialAward) do table.insert(weightTbl, v.weight or 0) end;
+			local v = MarsCfg.ExpMars.SpecialAward[GetRandIndex(weightTbl)];
+			if not v then print("In Fun GetSpecialAward: v got nil") return end;
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, v.param);
+		end
+		-- print("#(MarsCfg.ExpMars.Awards) = "..#(MarsCfg.ExpMars.Awards), "curGrade = "..curGrade  )
+		if #(MarsCfg.ExpMars.Awards) == curGrade then
+			weightTbl = {};
+			for _, v in pairs(MarsCfg.ExpMars.HundredAward) do table.insert(weightTbl, v.weight or 0) end;
+			local v = MarsCfg.ExpMars.HundredAward[GetRandIndex(weightTbl)];
+			if not v then print("In Fun GetSpecialAward: v got nil") return end;
+			local v = MarsCfg.ExpMars.HundredAward[1];
+			-- print("领取最后层特别奖励 id = " .. v.id);			
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, v.param);
+		end
+		var.HasGotSpecialAward = true;
+	end
+end
+
+table.insert(MainFnTable, ExpMarsNPC_Main);

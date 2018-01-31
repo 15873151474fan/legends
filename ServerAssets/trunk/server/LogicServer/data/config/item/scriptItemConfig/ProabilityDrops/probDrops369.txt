@@ -1,0 +1,35 @@
+﻿drops=
+{
+	{ id = 1194, count = 1, propability = 1, bind = 0, group = 1,}, --斩魂
+	{ id = 1195, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱战甲(男)
+	{ id = 1196, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱战甲(女)
+	{ id = 1197, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱头盔
+	{ id = 1198, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱项链
+	{ id = 1199, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱护腕
+	{ id = 1200, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱腰带
+	{ id = 1201, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱战靴
+	{ id = 1202, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱宝石
+	{ id = 1203, count = 1, propability = 1, bind = 0, group = 1,}, --炼狱戒指
+	
+	{ id = 1205, count = 1, propability = 1, bind = 0, group = 1,}, --轮回
+	{ id = 1206, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌魔袍(男)
+	{ id = 1207, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌魔袍(女)
+	{ id = 1208, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌头盔
+	{ id = 1209, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌项链
+	{ id = 1210, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌手镯
+	{ id = 1211, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌腰带
+	{ id = 1212, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌法履
+	{ id = 1213, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌宝石
+	{ id = 1214, count = 1, propability = 1, bind = 0, group = 1,}, --辉煌戒指
+	
+	{ id = 1216, count = 1, propability = 1, bind = 0, group = 1,}, --帝龙
+	{ id = 1217, count = 1, propability = 1, bind = 0, group = 1,}, --碧海道衣(男)
+	{ id = 1218, count = 1, propability = 1, bind = 0, group = 1,}, --碧海道衣(女)
+	{ id = 1219, count = 1, propability = 1, bind = 0, group = 1,}, --碧海头盔
+	{ id = 1220, count = 1, propability = 1, bind = 0, group = 1,}, --碧海项链
+	{ id = 1221, count = 1, propability = 1, bind = 0, group = 1,}, --碧海手镯
+	{ id = 1222, count = 1, propability = 1, bind = 0, group = 1,}, --碧海腰带
+	{ id = 1223, count = 1, propability = 1, bind = 0, group = 1,}, --碧海道鞋
+	{ id = 1224, count = 1, propability = 1, bind = 0, group = 1,}, --碧海宝石
+	{ id = 1225, count = 1, propability = 1, bind = 0, group = 1,}, --碧海戒指
+}

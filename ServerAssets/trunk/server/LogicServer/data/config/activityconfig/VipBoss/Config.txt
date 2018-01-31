@@ -1,0 +1,87 @@
+
+--VipBoss配置
+VipBossConfig = 
+{
+	limitLevel = 35,	--限制等级
+	limitCircle = 2,	--限制转数
+	actTime = 1800,		--活动时间
+	
+	vipLevel = 1,	--VIP等级 0非vip 1白银VIP 2黄金VIP 3至尊VIP
+	
+	enterScene = {sid = 201, range = {32,87,3,3}},	--sid层场景ID  range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h} 
+	
+	returnArea = {sid = 8, x = 152, y = 182},	--返回区域
+	
+	boss = {mid = 1115, x1 = 77, y1 = 39, x2 = 82, y2 = 40, count = 1, liveTime = 1800},	--BOSS配置
+	
+	showRank = 30,	--NPC显示排行数量
+	
+	hpRate = 0.6,	--可领取奖励 BOSS血量%
+	
+	rankAward =		--排行榜奖励
+	{
+		{
+			rankInterval = {1,1},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 1175, count = 1, quality = 0, strong = 0, bind = 1},		--战神结晶
+				{type = 0, id = 1402, count = 3, quality = 0, strong = 0, bind = 1},		--五级灵珠
+				{type = 22, id = 0, count = 500, quality = 0, strong = 0, bind = 1},		--转生灵魄
+			},
+		},
+		{
+			rankInterval = {2,2},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 1402, count = 2, quality = 0, strong = 0, bind = 1},		--五级灵珠
+				{type = 22, id = 0, count = 400, quality = 0, strong = 0, bind = 1},		--转生灵魄
+			},
+		},
+		{
+			rankInterval = {3,3},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 1402, count = 1, quality = 0, strong = 0, bind = 1},		--五级灵珠
+				{type = 22, id = 0, count = 300, quality = 0, strong = 0, bind = 1},		--转生灵魄
+			},
+		},
+		{
+			rankInterval = {4,10},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 283, count = 2, quality = 0, strong = 0, bind = 1},		--四级灵珠
+				{type = 22, id = 0, count = 200, quality = 0, strong = 0, bind = 1},		--转生灵魄
+			},
+		},
+		{
+			rankInterval = {11,20},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 283, count = 1, quality = 0, strong = 0, bind = 1},		--四级灵珠
+				{type = 22, id = 0, count = 150, quality = 0, strong = 0, bind = 1},		--转生灵魄			
+			},
+		},
+		{
+			rankInterval = {21,50},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 22, id = 0, count = 100, quality = 0, strong = 0, bind = 1},		--转生灵魄
+			},
+		},
+		{
+			rankInterval = {51,10000},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 22, id = 0, count = 100, quality = 0, strong = 0, bind = 1},		--转生灵魄
+			},
+		},
+	},
+	
+}

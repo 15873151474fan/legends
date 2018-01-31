@@ -1,0 +1,196 @@
+
+--程序大神配置
+ProgrammerActivityConfig = 
+{
+	limitLevel = 50,	--限制等级
+	limitCircle = 0,	--限制转数
+	actTime = 1800,		--活动时间
+	isUseActTime = 0,	--是否使用actTime配置项 1 是 0 否
+	
+	enterScene = {sid = 218, range = {139,143,100,80}},	--sid层场景ID  range:传送随机点{中间坐标x,中间坐标y,宽半径w,高半径h} 
+	
+	returnArea = {sid = 8, x = 152, y = 182},	--返回区域
+	
+	showRank = 50,	--NPC显示排行数量
+		
+	--购买道具
+	nItem = {id = 2616, nBind = 0, ncount = 1, needYb = 3,},
+
+	--上交严重的bug
+	SeriousBugHandUp =
+	{
+		--严重的bug
+		SeriousBug = 
+		{
+			{id = 1242, count = 1, liveTime = 60, scenceId = 8, x1 = 183, y1 = 102, x2 = 297, y2 = 365},
+			--{id = 19, count = 28, liveTime = 1800, scenceId = 8, x1 = 76, y1 = 255, x2 = 183, y2 = 365},
+		},
+		
+		--提交下属的时间秒为单位
+		submitTime = 180,
+
+		--上交获得积分
+		score = 30,
+
+		--奖励
+		seriousBugAward = 
+		{
+			--isRarity = true 表示珍贵物品需要广播, false表示不用
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+				}, 
+				rate = 5000 
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 6, id = 0, count = 10000, strong = 0, quality = 0, bind = 1, isRarity = false},
+				},
+				rate = 500
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 21, id = 0, count = 1000, strong = 0, quality = 0, bind = 1, isRarity = false},
+				},
+				rate = 1000
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 21, id = 0, count = 5000, strong = 0, quality = 0, bind = 1, isRarity = false},
+				},
+				rate = 1000
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 21, id = 0, count = 10000, strong = 0, quality = 0, bind = 1, isRarity = false},
+				},
+				rate = 500
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 7, id = 0, count = 10, strong = 0, quality = 0, bind = 1, isRarity = false},
+				},
+				rate = 1000
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 7, id = 0, count = 50, strong = 0, quality = 0, bind = 1, isRarity = false},
+				},
+				rate = 400
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 7, id = 0, count = 100, strong = 0, quality = 0, bind = 1, isRarity = false},
+				},
+				rate = 99
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 22, id = 0, count = 100, strong = 0, quality = 0, bind = 1, isRarity = false},
+				},
+				rate = 500
+			},
+			{
+				value = {
+					{type = 20, id = 2, count = 300, strong = 0, quality = 0, bind = 1, isRarity = false},
+					{type = 15, id = 0, count = 10, strong = 0, quality = 0, bind = 1, isRarity = true},
+				},
+				rate = 1
+			},
+			totalRate = 10000,  --总概率数
+		},
+	
+	},
+
+	--上交修复的代码
+	codeHandUp =
+	{
+		--消耗
+		consumes =
+		{
+			{type = 0, id = 2589, count = 1},
+		},
+
+		--上交获得积分
+		score = 1,
+
+		--上交单个修复的代码奖励
+		codeAwards =
+		{
+			{type = 20, id = 2, count = 40, quality = 0},
+			{type = 7, id = 0, count = 1, quality = 0},
+		},
+	},
+	
+	rankAward =	--排行榜奖励
+	{
+		{
+			rankInterval = {1,1},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2602, count = 100, quality = 0, strong = 0, bind = 1},		--神力结晶(小)
+				{type = 0, id = 2558, count = 50, quality = 0, strong = 0, bind = 1},		--天赋丹
+				{type = 0, id = 2603, count = 5, quality = 0, strong = 0, bind = 1},		--焰光铁
+			},
+		},
+		{
+			rankInterval = {2,2},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2602, count = 80, quality = 0, strong = 0, bind = 1},		--神力结晶(小)
+				{type = 0, id = 2558, count = 40, quality = 0, strong = 0, bind = 1},		--天赋丹
+				{type = 0, id = 2603, count = 4, quality = 0, strong = 0, bind = 1},		--焰光铁
+			},
+		},
+		{
+			rankInterval = {3,3},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2602, count = 60, quality = 0, strong = 0, bind = 1},		--神力结晶(小)
+				{type = 0, id = 2558, count = 30, quality = 0, strong = 0, bind = 1},		--天赋丹
+				{type = 0, id = 2603, count = 3, quality = 0, strong = 0, bind = 1},		--焰光铁
+			},
+		},
+		{
+			rankInterval = {4,10},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2602, count = 40, quality = 0, strong = 0, bind = 1},		--神力结晶(小)
+				{type = 0, id = 2558, count = 20, quality = 0, strong = 0, bind = 1},		--天赋丹
+				{type = 0, id = 2603, count = 1, quality = 0, strong = 0, bind = 1},		--焰光铁
+			},
+		},
+		{
+			rankInterval = {11,20},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2602, count = 30, quality = 0, strong = 0, bind = 1},		--神力结晶(小)
+				{type = 0, id = 2558, count = 10, quality = 0, strong = 0, bind = 1},		--天赋丹			
+			},
+		},
+		{
+			rankInterval = {21,50},		--排名区间
+			--奖励
+			awards=
+			{
+				{type = 0, id = 2602, count = 20, quality = 0, strong = 0, bind = 1},		--神力结晶(小)
+				{type = 0, id = 2558, count = 5, quality = 0, strong = 0, bind = 1},		--天赋丹
+			},
+		},
+		
+	},
+	
+}

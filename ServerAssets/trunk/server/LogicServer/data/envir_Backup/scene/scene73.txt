@@ -1,0 +1,57 @@
+﻿--五指山
+{
+	scenceid = 73,
+	scencename = Lang.SceneName.s00073,
+	mapfilename = "73WuZhiShan",
+	minlevel = 30,
+	--forbiddenitem = {1,2},	--限制物品，这是一个数字列表，代表有这些物品的玩家不能进入
+	--forbiddenpet = {5,3},	--限制的坐骑（宠物），不能带这些坐骑（宠物）入内，这也是个数字列表
+	--forbiddenskill = {100,20},	--限制的技能列表，有这些技能的玩家不能进入
+	nopk = 0,	--0表示可以pk，1表示不可以，默认是0
+	progress = 0, 
+	music = "fengmogu.mp3",
+	musicInterval=60,
+	--在世界地图上的坐标x
+	worldmapPosx = 0,
+	worldmapPosy = 0,
+	--场景的长宽,是指格子数的长宽
+	sceneWidth = 280,
+	sceneHeight = 280,
+	sceneType=3,
+	seckillId = 14,	--秒杀活动Id 对应与表 SecKill (data\config\activity\seckill.txt) 里的ID 默认为0 不能秒
+	area =
+	{
+		{ name = Lang.SceneName.s00073, range = { 10,10,20,20,60,50}, center = { 64,121},attri = {{type=19,value = {}},{type=1,value = {}},{type=39,value = {}},{type=46,value = {196,210,212,232}},{type=87,value = {}},}},	--默认配置场景，
+	},
+
+--refresh项用来配置这个场景的刷怪点，每个场景可以有多个刷怪点，可以用include包含多个刷怪点
+	refresh =
+	{
+--#include "refresh73.txt"
+	},
+
+--这里配置这个场景出现的NPC，如果有多个NPC，这配置多行，每一项（行）表示一个NPC
+	npc =
+	{
+		--funcId NPC的功能的ID,1 帮派 2 仓库 3 传送 4 装备  5 武器 6 修理 7 药店  8 副本  9 杂货，默认是0可以不配置
+		{name = Lang.EntityName.n00231, posx = 66 , posy = 139,script = "data/script/WuZhiShan/ShanShen.txt",modelid = 74,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00232, posx = 97 , posy = 166,script = "data/script/WuZhiShan/TuDiGong.txt",modelid = 83,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00233, posx = 145 , posy = 168,script = "data/script/WuZhiShan/NiuMoWang.txt",modelid = 76,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00234, posx = 135 , posy = 140,script = "data/script/WuZhiShan/TieShanGongZhu.txt",modelid = 110,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00235, posx = 210 , posy = 84,script = "data/script/WuZhiShan/SunXiaoKong.txt",modelid = 38,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00236, posx = 222 , posy = 69,script = "data/script/WuZhiShan/BaiJingJing.txt",modelid = 56,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00197, posx = 179 , posy = 118,script = "data/script/WuZhiShan/TangXuanZang.txt",modelid = 48,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00223, posx = 197, posy = 144,script = "data/script/WuZhiShan/ShuGuNiang.txt",modelid = 84,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00243, posx = 75, posy = 92,script = "data/script/WuZhiShan/GuiJianChou.txt",modelid = 36,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00244, posx = 218, posy = 115,script = "data/script/WuZhiShan/PuTiLaoZu.txt",modelid = 50,icon = 1,funcId = 0,classId=4},
+		{name = Lang.EntityName.n00245, posx = 33, posy = 114,script = "data/script/WuZhiShan/XiYangWuShi.txt",modelid = 132,icon = 1,funcId = 0,classId=4},
+	},
+
+  teleport =
+  {
+    --传送点配置
+     { posx = 32, posy = 110,toSceneid = 72,toPosx = 239, toPosy = 92,modelid = 50000,name = Lang.SceneName.s00072 },  --五指山→高老庄
+     { posx = 251, posy = 53,toSceneid = 8,toPosx = 102, toPosy = 202,modelid = 50000,name = Lang.SceneName.s00008 },  --五指山→土城 
+  },
+
+},

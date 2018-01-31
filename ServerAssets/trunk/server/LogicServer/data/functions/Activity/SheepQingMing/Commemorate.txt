@@ -1,0 +1,392 @@
+--lua script
+--#include "data\config\activityconfig\SheepQingMing\CommemorateConfig.txt" once 
+--#include "data\functions\Systems\AnniversarySystem\RechargeRankCommon.txt" once
+--羊年清明祭念先贤活动
+
+--请求购买
+function ReqCommemorateBuy(sysarg, index)
+	index = tonumber(index)
+	if System.isInDateRange(unpack(CommemorateConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0010, ttFlyTip)--不在活动时间范围内
+		return
+	end
+	--判断等级
+	if Actor.checkActorLevel(sysarg, CommemorateConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0011, ttFlyTip)--等级不足
+		return
+	end
+
+	local tab = CommemorateConfig.BuyactiList[index]
+	if not tab then return end
+	local consumetype = tab.costAwards.type
+	local count = tab.costAwards.count
+	local needCount = tab.needCount
+	--判断空格
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	if nBagCount < needCount then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0012, ttFlyTip)
+		return
+	end
+
+	--扣材料
+	if consumetype == 15 then --元宝
+        if Actor.changeMoney(sysarg, mtYuanbao, -count, 986, Lang.LogTips.smq001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0010, ttFlyTip)
+			return
+		end
+	elseif consumetype == 6 then --金币
+	   	if Actor.changeMoney(sysarg, mtCoin, -count, 986, Lang.LogTips.smq001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0011, ttFlyTip)
+			return
+		end
+	elseif consumetype == 7 then --绑定元宝（礼券）
+		if Actor.changeMoney(sysarg, mtBindYuanbao, -count, 986, Lang.LogTips.smq001) ~= true then
+			Actor.sendTipmsg(sysarg, Lang.Activity.shs0012, ttFlyTip)
+			return
+		end
+    end
+
+	--发放物品
+	for k,v in ipairs(tab.awards) do
+		local newItem = Item.createItem(v.id, v.count, 0, 0, v.bind, 0)
+		if not newItem then
+			return false
+		end
+		Item.addItem(sysarg, newItem, Lang.LogTips.smq002, 986, v.count)
+	end
+end
+
+--请求提交
+function ReqCommemorateGive(sysarg)
+	if System.isInDateRange(unpack(CommemorateConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0010, ttFlyTip)--不在活动时间范围内
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, CommemorateConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0011, ttFlyTip)--等级不足
+		return
+	end
+	
+	--判断材料
+	local consumeItemId = CommemorateConfig.consumeItemId
+	local nCount = Actor.getItemCount(sysarg, consumeItemId, -1, -1) or 0  	--花环
+	if nCount == 0 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0009, ttFlyTip)
+		return 
+	end
+
+	--扣材料
+	if Actor.removeItem(sysarg, consumeItemId, nCount, -1,-1,-1, Lang.LogTips.smq003, 986) ~= nCount then
+		return
+	end
+
+	--保存数据
+	SaveCommemorateData(nCount)
+
+	--奖励经验
+	local type =  CommemorateConfig.expNum.type
+	local id = CommemorateConfig.expNum.id
+	local count = CommemorateConfig.expNum.count * nCount
+	Actor.giveAward(sysarg, type, id, count , 0,0,0,0,986,Lang.LogTips.smq004)
+end
+
+
+--使用道具
+function UseCommemorateKey(sysarg, keyId)
+	if System.isInDateRange(unpack(CommemorateConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0010, ttFlyTip)--不在活动时间范围内
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, CommemorateConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0011, ttFlyTip)--等级不足
+		return
+	end
+
+	if keyId == CommemorateConfig.keyId[2] or keyId == CommemorateConfig.keyId[3] then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0013, ttFlyTip) --不能双击宝箱
+		return
+	end
+	
+	--判断钥匙
+	if keyId ~= CommemorateConfig.keyId[1] then 
+		if Actor.getItemCount(sysarg, keyId) < 1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.sqm0014, ttFlyTip)		
+			return
+		end
+	end
+
+	local index = 0
+	--判断宝箱
+	if keyId == CommemorateConfig.keyId[4] then --钥匙1
+		if Actor.getItemCount(sysarg, CommemorateConfig.keyId[2]) < 1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.sqm0015, ttFlyTip)		
+			return
+		end
+		index = 2
+	elseif  keyId == CommemorateConfig.keyId[5] then --钥匙2
+		if Actor.getItemCount(sysarg, CommemorateConfig.keyId[3]) < 1 then
+			Actor.sendTipmsg(sysarg, Lang.Activity.sqm0015, ttFlyTip)		
+			return
+		end
+		index = 3
+	else
+		index = 1
+	end
+
+	if index == 0 then return end
+
+	--判断空格
+	local needCount = CommemorateConfig.actiList[index].needBagCount
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+
+	if nBagCount < needCount  then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0012, ttFlyTip)
+		return
+	end
+	
+	--扣除
+	if keyId ~= CommemorateConfig.keyId[1] then
+		if Actor.removeItem(sysarg, keyId, 1, -1,-1,-1, Lang.LogTips.smq005, 986) ~= 1 then --钥匙
+			return
+		end
+	end
+	if Actor.removeItem(sysarg, CommemorateConfig.keyId[index], 1, -1,-1,-1, Lang.LogTips.smq005, 986) ~= 1 then --宝箱
+		return
+	end
+	
+	local tab = CommemorateConfig.actiList[index]
+	--判断概率
+	local randVal = System.getRandomNumber(10000)+1
+	local awardid = nil
+	local tmpValue = 0
+	for k,v in ipairs(tab.awards) do
+		tmpValue = tmpValue + v.rate
+		if tmpValue >= randVal  then
+			awardid = k
+			break
+		end
+	end
+
+	if not tab then return end
+	local id = tab.awards[awardid].id
+	local count = tab.awards[awardid].count
+	local bind = tab.awards[awardid].bind
+	local broadcast = tab.awards[awardid].broadcast
+	local type = tab.awards[awardid].type
+	
+	
+	--发放物品
+	local newItem = Item.createItem(id, count, 0, 0, bind, 0)
+	if not newItem then
+		return false
+	end
+	local num = Item.addItem(sysarg, newItem, Lang.LogTips.smq006, 986, count)
+
+	if broadcast == 1 then
+		local actorName = Actor.getName(sysarg)
+		local itemName = Item.getAwardDesc(type, id)
+		if keyId == CommemorateConfig.keyId[1] then
+			local BaoName = Item.getAwardDesc(0, keyId)	--宝箱
+			local noticeId = Lang.Activity.sqm0020
+			System.broadcastTipmsg(string.format(noticeId, actorName, BaoName, itemName), 128+2)
+			return
+		end
+		if keyId == CommemorateConfig.keyId[index+2] then
+			local keyName = Item.getAwardDesc(0, CommemorateConfig.keyId[index+2])	--钥匙
+			local BaoName = Item.getAwardDesc(0, CommemorateConfig.keyId[index])	--宝箱
+			local noticeId = Lang.Activity.sqm0019
+			System.broadcastTipmsg(string.format(noticeId, actorName, keyName, BaoName, itemName), 128+2)
+		end
+	end
+end
+
+--领取清明礼包
+function GetCommemorateAward(sysarg)
+	if System.isInDateRange(unpack(CommemorateConfig.actTime)) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0010, ttFlyTip)--不在活动时间范围内
+		return
+	end
+
+	--判断等级
+	if Actor.checkActorLevel(sysarg, CommemorateConfig.level) == false then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0011, ttFlyTip)--等级不足
+		return
+	end
+
+	--判断空格
+	local nBagCount= Item.getBagEmptyGridCount(sysarg) --获得背包有多少个格子
+	if nBagCount < 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0012, ttFlyTip)
+		return
+	end
+
+	local ret = ReadCommemorateFreeData(sysarg) or 0
+	if ret == 1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.sqm0018, ttFlyTip)--已经领取
+		return
+	end
+
+	--保存数据
+	SaveCommemorateFreeData(sysarg)
+
+	--发放礼包
+	local id = CommemorateConfig.libaoId
+	local newItem = Item.createItem(id, 1, 0, 0, 1, 0)
+	if not newItem then
+		return false
+	end
+	local num = Item.addItem(sysarg, newItem, Lang.LogTips.smq007, 986, count)
+end
+
+--读取个人每天领取数
+function ReadCommemorateFreeData(sysarg)
+	local ranking = Ranking.getRanking(Lang.Rank.CommemorateFreeFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, 1)) or 0 --为1表示已领
+		end
+	end
+	return 0
+end
+
+--保存个人每天领取数
+function SaveCommemorateFreeData(sysarg)
+	local ranking = Ranking.getRanking(Lang.Rank.CommemorateFreeFile)
+	if ranking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local itemPtr = Ranking.getItemPtrFromId(ranking, nActorId)
+		if itemPtr then
+			Ranking.setSub(itemPtr, 1, 1)
+		else
+			itemPtr = Ranking.addItem(ranking, nActorId, 0)
+			Ranking.setSub(itemPtr, 1, 1)
+		end
+	end
+end
+
+--读取全服拜祭值
+function ReadCommemorateData(index)
+	local ranking = Ranking.getRanking(Lang.Rank.CommemorateFile)
+	if ranking then
+		local itemPtr = Ranking.getItemPtrByIndex(ranking, 0)
+		if itemPtr then
+			return tonumber(Ranking.getSub(itemPtr, index)) or 0 --1当前数量
+		end
+	end
+	return 0
+end
+
+
+--保存全服拜祭值
+function SaveCommemorateData(num)
+	local nownum = ReadCommemorateData(1)
+	local nowgrade = CommemorateGetGrade(nownum) --原本等级
+	local ranking = Ranking.getRanking(Lang.Rank.CommemorateFile)
+	if ranking then
+		local total = 0
+		local item = Ranking.getItemPtrByIndex(ranking, 0)
+		if item then
+			local result = tonumber(Ranking.getSub(item, 1)) or 0
+			total = result + num
+			Ranking.setSub(item, 1, total)--1数据
+		else
+			item = Ranking.addItem(ranking, 0, 0)
+			Ranking.setSub(item, 1, num)
+			total = num
+		end
+		local maxgrade = CommemorateGetGrade(total) --最新等级
+		if maxgrade > nowgrade then
+			local grade = CommemorateConfig.maxNum
+			if maxgrade <= #grade then
+				CommemorateBoss(maxgrade)
+			else
+				CommemorateBoss(#grade)
+			end
+		end
+	end
+end
+
+--通过鲜花值求刷宝箱等级
+function CommemorateGetGrade(val)
+	local ret = 0
+	local needVal = CommemorateConfig.needVal
+	if val < needVal then return ret end
+
+	ret = math.modf(val/needVal) or 0
+
+	return ret
+end
+
+
+--刷BOSS宝箱
+function CommemorateBoss(index)
+	local hScene = Fuben.getSceneHandleById(8, 0)
+	if not hScene then return end
+	local pos = CommemorateConfig.bossPos
+	local times = CommemorateConfig.times
+	local tem = CommemorateConfig.maxNum[index]
+	if not tem then return  end
+	local bossTem = CommemorateConfig.bossId
+	if not bossTem then return end
+	for k,v in pairs(bossTem) do
+		Fuben.createMonstersInRange(hScene, v, pos.x1, pos.y1, pos.x2, pos.y2, tem[k+1], times)
+	end
+	System.broadcastTipmsg(Lang.Activity.sqm0016, 128+2)
+end
+
+--登录处理显示灵台与否
+function CommemorateShowNPC()
+	local sysVar = System.getDyanmicVar()
+	local nHandle = Fuben.getSceneHandleById(8,0) --场景ID 土城id  8
+	local npcPtr = Fuben.getNpcPtrByName(nHandle, Lang.EntityName.n00333) --  NPC名字
+	if System.isInDateRange(unpack(CommemorateConfig.actTime)) == true then
+		if sysVar.SnowCommemorateNpc then --活动内，显示
+			if npcPtr then
+				Actor.setEntityVisibleFlag(npcPtr, true)
+				sysVar.SnowCommemorateNpc = nil
+			end
+		end
+	else
+		if not sysVar.SnowCommemorateNpc then
+			if npcPtr then
+				Actor.setEntityVisibleFlag(npcPtr, false) --活动外，仅屏一次
+				sysVar.SnowCommemorateNpc = true
+			end
+		end
+	end
+end
+
+--清除全服数据
+function ClearCommemorateData()
+	local ranking = Ranking.getRanking(Lang.Rank.CommemorateFile)
+	if ranking then
+		Ranking.clearRanking(ranking)
+	end
+
+	local rankings = Ranking.getRanking(Lang.Rank.CommemorateFreeFile)
+	if rankings then
+		Ranking.clearRanking(rankings)
+	end
+	
+	--充值排行
+	CloseRechargeCommon(19)	
+end
+
+--每天免费领取数据清零
+function ClearCommemorateFreeData()
+	if System.isInDateRange(unpack(CommemorateConfig.actTime)) == true then
+		local ranking = Ranking.getRanking(Lang.Rank.CommemorateFreeFile)
+		if ranking then
+			Ranking.clearRanking(ranking)
+		end
+	end
+end
+
+
+

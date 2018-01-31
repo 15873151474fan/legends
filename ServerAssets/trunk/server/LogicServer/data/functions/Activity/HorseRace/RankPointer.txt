@@ -1,0 +1,14 @@
+﻿-- 排行榜指针变量 
+
+HorseRaceRankPt =
+{
+	RankName = "HorseRace",
+	RankFile = "HorseRace.txt",
+	RankColumn = 	--排行榜列标题表
+	{
+		{"c1", 0}, 	--{标题, 是否客户端显示}	--名字
+		{"c2", 0}, 	--{标题, 是否客户端显示}	--领奖
+	},	
+	ClinetShowCount = 3,
+	ClientShow = 0,
+}

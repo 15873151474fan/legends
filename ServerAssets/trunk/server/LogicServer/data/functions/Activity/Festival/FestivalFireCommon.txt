@@ -1,0 +1,382 @@
+
+--#include "data\config\GlobalConfig.txt" once
+--#include "data\config\activityconfig\Festival\FestivalWishes.txt" once
+--#include "data\functions\Systems\FlowerSystem\RoseRanking.txt" once
+
+gfiFirecracker = 1		--赠送鞭炮
+gfiGetFireAward = 3		--幸运大抽奖领奖
+gfiGetFireTopAward = 4  --领第鞭炮第一名礼包
+
+function AddFirePoint(sysarg, pointVal, sex)
+	local fireRanking = Ranking.getRanking( Lang.Rank.sFireRankName )
+	if fireRanking then
+		local nActorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local pItem = Ranking.getItemPtrFromId( fireRanking, nActorId )
+		if pItem then
+			Ranking.updateItem(fireRanking, nActorId, pointVal)
+		else
+			 pItem = Ranking.addItem(fireRanking, nActorId, pointVal)
+			 if pItem then
+				Ranking.setSub(pItem, 0, Actor.getName(sysarg))
+			end
+		end
+	end
+	OnAddRoseValue(sysarg, sex, pointVal)
+
+	--增加魅力值
+	local oldVal = Actor.getIntProperty(sysarg, PROP_ACTOR_CHARM)
+	local newVal = oldVal + pointVal
+	Actor.setUIntProperty(sysarg, PROP_ACTOR_CHARM, newVal)
+end
+
+function OnAddRoseValue(sysarg, sex, roseNum)
+	local pid = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local job = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+	local myLevel = Actor.getIntProperty(sysarg, PROP_CREATURE_LEVEL)
+	local info = RoseRankConfig.RankData[2 - sex]
+	if not info then
+		return false
+	end
+	local ranking = Ranking.getRanking(info.rankFile)
+	if ranking then
+		local t = {}
+		for _idx, titleId in ipairs(info.titles) do
+			local topRankIt = Ranking.getItemFromIndex(ranking, _idx - 1)
+			if topRankIt then
+				table.insert(t, Ranking.getId(topRankIt))
+			end
+		end
+		local item = Ranking.updateItem(ranking, pid, roseNum)
+		if not item then
+			item = Ranking.addItem(ranking, pid, roseNum)
+			Ranking.setSub( item, 0, Actor.getName(sysarg))
+			Ranking.setSub( item, 1, Job_cn[job])
+		end
+		if item then
+			Ranking.setSub(item, 2, myLevel)
+		end
+		local tt = {}
+		for _idx, titleId in ipairs(info.titles) do					
+			local topRankIt = Ranking.getItemFromIndex(ranking, _idx - 1)
+			if topRankIt then
+				table.insert(tt, Ranking.getId(topRankIt))
+			end
+		end
+		for _index, rId in ipairs(tt) do
+			local oldId = t[_index]
+			if oldId and rId ~= oldId then
+				local oldTopPtr =  System.getEntityPtrByActorID(oldId)
+				if oldTopPtr then
+					Actor.setTopTitle(oldTopPtr, info.titles[_index], false)
+				end						
+			end
+			local newTopPtr = System.getEntityPtrByActorID(rId)
+			if newTopPtr then
+				Actor.setTopTitle(newTopPtr, info.titles[_index], true)
+			end
+		end
+		--Ranking.save(ranking, info.rankFile)
+	end
+end
+
+function OnGiveFestivalFire(sysarg, nType, nCount, ybInstand, sName, sLeaveMsg)
+	if nType == gfiFirecracker then
+		return GiveTargetFestivalFire(sysarg, nType, nCount, ybInstand, sName, sLeaveMsg)
+	elseif nType == gfiGetFireAward then
+		return GetNormalLuckAward(sysarg)
+	elseif nType == gfiGetFireTopAward then
+		return GetTopLuckAward(sysarg)
+	else
+		return false
+	end
+end
+
+--检查背包格子数是否够
+function checkLuckBagGrids( sysarg, itemCfg )
+	if not itemCfg then
+		return false
+	end
+	local count = 0
+	for k, v in ipairs(itemCfg) do
+		count = count + Item.getAddItemNeedGridCount( sysarg, v.id, v.count, 0, 0, v.bind)
+	end
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < count then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, count), ttFlyTip )
+		return false
+	end
+	return true
+end
+
+function GetNormalLuckAward(sysarg)
+	if checkLuckBagGrids(sysarg, FestivalWishes.LuckAward) then
+		for k, v in ipairs(FestivalWishes.LuckAward) do
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 853, Lang.LogTips.l00133)
+		end
+		return true
+	end
+	return false
+end
+
+function GetTopLuckAward(sysarg)
+	if checkLuckBagGrids(sysarg, FestivalWishes.BigLuckAward) then
+		for k, v in ipairs(FestivalWishes.BigLuckAward) do
+			Actor.giveAward(sysarg, v.type, v.id, v.count, v.quality, v.strong, v.bind, 0, 853, Lang.LogTips.l00134)
+		end
+		return true
+	end
+	return false
+end
+
+
+function GiveTargetFestivalFire(sysarg, nType, nCount, ybInstand, sName, sLeaveMsg)
+	local cfgInfo =  FestivalWishes.Fires[nCount]
+	if not cfgInfo then
+		return
+	end
+	if Actor.getItemCount(sysarg, cfgInfo.itemId) <= 0 then
+		if ybInstand > 0 then
+			if Actor.getMoneyCount(sysarg, mtYuanbao) < cfgInfo.YbVal then
+				Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.btr124, cfgInfo.YbVal), ttFlyTip)
+				return
+			end
+		else
+			Actor.sendTipmsg(sysarg, Lang.ScriptTips.btr123, ttFlyTip)
+			return
+		end
+	end
+	local actorPtr = Actor.getActorPtrByName(sName)
+	if not actorPtr then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.btr125, ttFlyTip)
+		return
+	end
+	if Actor.removeItem(sysarg, cfgInfo.itemId, 1, -1, -1, -1, Lang.LogTips.l00132, 853) <= 0 then
+		if ybInstand > 0 then
+			if not Actor.changeMoney(sysarg, mtYuanbao, -cfgInfo.YbVal, 853, Lang.LogTips.l00132) then
+				return
+			end
+		else
+			return
+		end
+	end
+
+	Actor.playScrEffect(actorPtr, cfgInfo.EffId, cfgInfo.EffSec, cfgInfo.boToAll)
+	if cfgInfo.noticeStr then
+		System.broadcastTipmsg(string.format(cfgInfo.noticeStr, sName, Actor.getName(sysarg)), ttScreenCenter + ttChatWindow)
+	end
+	local nMySex = Actor.getIntProperty(sysarg,PROP_ACTOR_SEX)
+	nMySex = nMySex % 2
+	local nTargetSex = Actor.getIntProperty(actorPtr,PROP_ACTOR_SEX)
+	nTargetSex =  nTargetSex % 2 
+	AddFirePoint(sysarg, cfgInfo.points, nMySex)
+	AddFirePoint(actorPtr, cfgInfo.points, nTargetSex)
+
+	local myName = Actor.getName(sysarg)
+	local nMyId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local titleStr = string.format(Lang.ScriptTips.btr126, myName)
+	System.sendCommonMsgByName(33,sName,titleStr,nMyId,myName,sLeaveMsg,nType, nCount)
+	Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.btr132, sName, Item.getItemName(cfgInfo.itemId)), ttFlyTip)
+end
+
+
+--新春抽奖
+function BackToNewYear(sysarg)
+	local dlgStr = ""
+	dlgStr = string.format("%s<#BL%s/@NewYearBlessDialog>", dlgStr, Lang.Activity.a00101)
+	return dlgStr
+end
+
+function NoticeFstFireAward()
+	local sysVar = System.getStaticVar()
+	local oldTopName = sysVar.FesFireTitleName
+	if oldTopName then
+		local oldTopActPtr = Actor.getActorPtrByName(oldTopName)
+		if oldTopActPtr then
+			Actor.setTopTitle(oldTopActPtr, FestivalWishes.TitleId, false)
+		end
+	end
+	local name = nil
+	local yestodayFireRanking = Ranking.getRanking(Lang.Rank.yestodayFireRank)
+	if yestodayFireRanking then
+		local pItem = Ranking.getItemFromIndex(yestodayFireRanking, 0)
+		if pItem then
+			name = Ranking.getSub(pItem, 0)
+			local actorPtr = Actor.getActorPtrByName(name)
+			if actorPtr then
+				Actor.setTopTitle(actorPtr, FestivalWishes.TitleId, true)
+			end
+		end
+		local rankLen = Ranking.getRankItemCount(yestodayFireRanking)
+		if rankLen >= FestivalWishes.MinCount then
+			System.broadcastTipmsg(Lang.ScriptTips.btr119, ttScreenCenter + ttChatWindow)
+		end
+	end
+	sysVar.FesFireTitleName = name
+
+	sysVar.FesFireAwardCnt = 0
+	sysVar.FesFireAwardList = {}
+end
+
+--普通的奖励
+function FestivalFireAward()
+	local yestodayFireRanking = Ranking.getRanking(Lang.Rank.yestodayFireRank)
+	if yestodayFireRanking then
+		local rankLen = Ranking.getRankItemCount(yestodayFireRanking)
+		if rankLen >= FestivalWishes.MinCount then
+			local realSize = FestivalWishes.RankTop
+			if rankLen < realSize then
+				realSize = rankLen
+			end
+			local t = {}
+			realSize = realSize - 1
+			for i = 0, realSize do
+				local pItem = Ranking.getItemFromIndex(yestodayFireRanking, i)
+				if pItem and Ranking.getPoint(pItem) >= FestivalWishes.MinPoint and Ranking.getSub(pItem, 1) ~= "1" then
+					local nId = Ranking.getId(pItem)
+					local pActorPtr = System.getEntityPtrByActorID(nId)
+					if pActorPtr then
+						table.insert(t, pItem)
+					end
+				end
+			end
+			local tabLen = #t
+			if tabLen > 0 then
+				local pRealItem = t[math.random(1, tabLen)]
+				if pRealItem then
+					local name = Ranking.getSub(pRealItem, 0)
+					Ranking.setSub(pRealItem, 1, "1")
+					
+					local sysVar = System.getStaticVar()
+					if not sysVar.FesFireAwardCnt then
+						sysVar.FesFireAwardCnt = 0
+					end
+					if not sysVar.FesFireAwardList then
+						sysVar.FesFireAwardList = {}
+					end
+					sysVar.FesFireAwardCnt = sysVar.FesFireAwardCnt + 1
+					sysVar.FesFireAwardList[sysVar.FesFireAwardCnt] = name
+					
+					local sMsgStr = nil
+					if sysVar.FesFireAwardCnt < FestivalWishes.MinCount then
+						sMsgStr = Lang.ScriptTips.btr120
+						System.sendCommonMsgByName(34, name, Lang.ScriptTips.btr131, 0, "", "", gfiGetFireAward)
+					elseif sysVar.FesFireAwardCnt == FestivalWishes.MinCount then
+						sMsgStr = Lang.ScriptTips.btr121
+						System.sendCommonMsgByName(35, name, Lang.ScriptTips.btr122, 0, "", "", gfiGetFireTopAward)
+					end
+					if sMsgStr then
+						local sNoticeStr = string.format(sMsgStr, name)
+						System.broadcastTipmsg(sNoticeStr, ttScreenCenter + ttChatWindow)
+					end
+				end
+			end
+		end
+	end
+end
+
+function ResetFestivalFireRank()
+	local yestodayFireRanking = Ranking.getRanking(Lang.Rank.yestodayFireRank)
+	local fireRanking = Ranking.getRanking( Lang.Rank.sFireRankName )
+	if not fireRanking or not yestodayFireRanking then
+		return
+	end
+	Ranking.clearRanking(yestodayFireRanking)
+	
+	for i = 1, FestivalWishes.RankTop do
+		local pItem = Ranking.getItemFromIndex(fireRanking, i - 1)
+		if pItem then
+			local nId = Ranking.getId(pItem)
+			local nVal = Ranking.getPoint(pItem)
+			local newItem = Ranking.addItem(yestodayFireRanking, nId, nVal)
+			if newItem then
+				Ranking.setSub(newItem, 0, Ranking.getSub(pItem, 0))
+			end
+		end
+	end
+	Ranking.clearRanking(fireRanking)
+end
+
+--结算提取元宝反馈
+function CalcWithDrawAward()
+	calcFestivalWithDrawAward()
+end
+
+function NewYearBlessDialog(sysarg)
+	local dlgStr = Lang.ScriptTips.btr129
+	dlgStr = string.format("%s<#BL%s/@NewYearBless><#BL%s/@ShowTodayTopNYBless><#BL%s/@ShowYestodayTopNYBless><#BL%s/@ShowYestodayAwardList><#BL%s/@ShowFireDetail>",dlgStr,Lang.ScriptTips.btr109,Lang.ScriptTips.btr128,Lang.ScriptTips.btr110,Lang.ScriptTips.btr111,Lang.ScriptTips.btr112)
+	return dlgStr .. Lang.ScriptTips.back001
+end
+
+function NewYearBless(sysarg)	
+	if not Actor.checkActorLevel(sysarg, FestivalWishes.MinLevel, 0) then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.btr114, FestivalWishes.MinLevel), ttFlyTip)
+		return
+	end
+	local count = getTodayFlag(sysarg, FestivalFire) or 0
+	if count >= FestivalWishes.DayTimes then
+		Actor.sendTipmsg(sysarg, Lang.ScriptTips.btr115, ttFlyTip)
+		return
+	end
+	local needGrid = 0
+	for k, oneCfg in ipairs(FestivalWishes.wishAward) do
+		needGrid = needGrid + Item.getAddItemNeedGridCount( sysarg, oneCfg.id, oneCfg.count, oneCfg.quality, oneCfg.strong, oneCfg.bind)
+	end
+	local bagIdxs = Item.getBagEmptyGridCount( sysarg )
+	if bagIdxs < needGrid then
+		Actor.sendTipmsg( sysarg,string.format(Lang.ScriptTips.tf00008, needGrid),ttFlyTip )
+		return false
+	end
+	setTodayFlag(sysarg, FestivalFire, count + 1)
+	for k, oneCfg in ipairs(FestivalWishes.wishAward) do
+		Actor.giveAward(sysarg, oneCfg.type, oneCfg.id,oneCfg.count,oneCfg.quality,oneCfg.strong,oneCfg.bind, 0,853, Lang.LogTips.l00130)
+	end
+end
+
+function ShowTodayTopNYBless(sysarg)
+	local dlgStr = Lang.ScriptTips.btr130
+	local fireRanking = Ranking.getRanking( Lang.Rank.sFireRankName )
+	if fireRanking then
+		local size = FestivalWishes.RankTop
+		for i = 0, size do
+			local pItem = Ranking.getItemFromIndex(fireRanking, i )
+			if pItem then
+				local point = Ranking.getPoint(pItem)
+				local name = Ranking.getSub(pItem, 0)
+				dlgStr = string.format("%s\\%d: %s %d", dlgStr, i + 1, name, point)
+			end
+		end
+	end
+	return dlgStr .. BackToNewYear()
+end
+
+function ShowYestodayTopNYBless(sysarg)
+	local dlgStr = Lang.ScriptTips.btr117
+	local fireRanking = Ranking.getRanking( Lang.Rank.yestodayFireRank )
+	if fireRanking then
+		local size = FestivalWishes.RankTop
+		for i = 0, size do
+			local pItem = Ranking.getItemFromIndex(fireRanking, i )
+			if pItem then
+				local point = Ranking.getPoint(pItem)
+				local name = Ranking.getSub(pItem, 0)
+				dlgStr = string.format("%s\\%d: %s %d", dlgStr, i + 1, name, point)
+			end
+		end
+	end
+	return dlgStr .. BackToNewYear()
+end
+
+function ShowYestodayAwardList(sysarg)
+	local dlgStr = Lang.ScriptTips.btr118
+	local sysVar = System.getStaticVar()
+	if sysVar.FesFireAwardCnt and sysVar.FesFireAwardList then
+		for i = 1, sysVar.FesFireAwardCnt do
+			dlgStr = string.format("%s\\%s", dlgStr, sysVar.FesFireAwardList[i] or "")
+		end
+	end
+	return dlgStr .. BackToNewYear()
+end
+
+function ShowFireDetail(sysarg)
+	return Lang.ScriptTips.btr113 .. BackToNewYear()
+end

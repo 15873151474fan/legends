@@ -1,0 +1,10 @@
+﻿
+--#include "data\functions\Systems\CircleSystem\Circle_main.txt" once	--转生升级
+
+function CircleHandle(sysarg, systemid, msgid, packet)
+   if msgid == 1 then
+      AskCircle(sysarg, packet)
+   end 
+end 
+
+SystemHandlerDispatcher.registerSystemHander(BaseTypes.SystemId.CircleSystemId, CircleHandle)

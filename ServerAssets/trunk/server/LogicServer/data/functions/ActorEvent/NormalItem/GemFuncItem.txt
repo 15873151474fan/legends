@@ -1,0 +1,94 @@
+--宝物功能道具，使用后为玩家添加一个宝物
+
+local function sendGetGemTip(sysarg, gemId, gemGrade)
+	if (gemGrade < 4) then	return end
+	
+	local campName 	= Camp.getCampName(Actor.getCamp(sysarg))
+	local actorName = Actor.getName(sysarg)
+	local gemName		= GemConfig[gemId+1].gemGradeConfig[gemGrade].name
+	local str = string.format(Lang.Gem.t00026, campName, actorName, gemGrade, gemName)
+	System.broadcastTipmsg(str, ttScreenCenter +ttChatWindow)
+end
+
+--[[
+--宝物道具物品使用处理函数
+--sysarg:实体的指针
+--itemidx: 物品的ID
+--itemPtr: 物品的指针
+--ItemTable: 配置的参数列表 { item_id=1972, gemId=1, gemGrade=1,}
+--]]
+function GemFuncItemUseHandler(sysarg, itemIdx, itemPtr, conf)
+	if (conf == nil) then return end
+	local gemId 		= conf.gemId
+	local gemGrade 	= conf.gemGrade
+	local isLimit  = conf.isLimit or false
+	if (gemId < 0) then 
+		--print(string.format("GemFuncItemUseHandler error, invalid gemId", gemId))
+		return 
+	end
+	if (gemGrade < 1) then
+		--print(string.format("GemFuncItemUseHandler error, invalid gemGrade", gemGrade))
+		return
+	end
+		
+	if (Actor.getAvailGemSlot(sysarg) < 0) then
+		Actor.sendTipmsg(sysarg, Lang.Gem.t00012, ttTipmsgWindow)
+		--print("no available gem slot")
+		return
+	end
+	
+	local leftTime = Actor.getItemLeftTime(sysarg, itemPtr)
+	
+	if (Actor.removeItemByPtr(sysarg, itemPtr, 1, true, "vip charge", 71) ~= 1) then
+		return
+	end
+	
+	--判断是否为限时宝物
+	local gemPtr = nil
+	if isLimit == true then
+		if leftTime > 0 then
+			gemPtr = Actor.addGemItem(sysarg, gemId, gemGrade)
+			if gemPtr then
+				GemItem.setGemLeftTime(gemPtr, leftTime)
+			end
+		end
+	else
+		gemPtr = Actor.addGemItem(sysarg, gemId, gemGrade)
+	end
+	if gemPtr then
+		if conf.gemLevel then
+			GemItem.setGemItemLevel(gemPtr, conf.gemLevel, 650, "setGemItemLevel")
+		end
+		if conf.gemQuality then 
+			GemItem.setGemItemQuality(gemPtr, conf.gemQuality, 650, "setGemItemQuality")
+		end
+		if conf.gemSprite or table.getn(conf.gemSprite) ~= 0 then
+			local attack = GemItem.getGemItemSpriteChar(gemPtr, enGemSpriteCharAttack)
+			local defence = GemItem.getGemItemSpriteChar(gemPtr, enGemSpriteCharDefence)
+			local agility = GemItem.getGemItemSpriteChar(gemPtr, enGemSpriteCharAgility)
+			local hp = GemItem.getGemItemSpriteChar(gemPtr, enGemSpriteCharHP)
+			GemItem.addGemItemSpriteChar(gemPtr, enGemSpriteCharAttack, (conf.gemSprite.Attack - attack), 650, "addGemItemSpriteChar")
+			GemItem.addGemItemSpriteChar(gemPtr, enGemSpriteCharDefence, (conf.gemSprite.Defence - defence), 650, "addGemItemSpriteChar")
+			GemItem.addGemItemSpriteChar(gemPtr, enGemSpriteCharAgility, (conf.gemSprite.Agility - agility), 650, "addGemItemSpriteChar")
+			GemItem.addGemItemSpriteChar(gemPtr, enGemSpriteCharHP, (conf.gemSprite.HP - hp), 650, "addGemItemSpriteChar")
+		end
+		if conf.gemSmith then
+			for i=1, conf.gemSmith do
+				GemItem.smithGemItem(gemPtr)
+			end
+		end
+	end
+	
+	sendGetGemTip(sysarg, gemId, gemGrade)
+end
+
+
+-- @brief: 注册宝物道具物品使用Handler
+function GemFuncItemInit(sysarg)
+	for i = 1, table.getn(GemFuncItem) do
+		local conf = GemFuncItem[i]
+		GlobalItemFn[conf.item_id] = { func = GemFuncItemUseHandler, params = conf, }
+	end
+end
+
+table.insert(InitFnTable, GemFuncItemInit)

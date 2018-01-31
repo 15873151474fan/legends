@@ -1,0 +1,152 @@
+﻿--#include "data\config\NewVip\NewVipConfig.txt" once --新Vip配置
+--#include "NewVipRankPointer.txt" once
+--#include "data\language\LangCode.txt" once --语言包
+
+--给Vip增加经验
+function AddNewVipExp(sysarg, nYuanBao)
+  --print("nYuanBao"..nYuanBao)
+  local VipExp = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_EXP)
+  local VipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+  --print("VipExp"..VipExp)
+  --print("VipLevel"..VipLevel)
+  local Award = nYuanBao
+  --Vip增加经验
+  local currExp = Award + VipExp
+  if VipLevel >=  #NewVipConfig.VipInclude then
+     return
+  end
+  --print("currExp"..currExp)
+  if currExp < NewVipConfig.VipInclude[VipLevel + 1].Exp then
+     Actor.setUIntProperty(sysarg, PROP_ACTOR_VIP_EXP, currExp)
+  else
+     --循环检测是否有经验超出级数
+     for i = 1, #NewVipConfig.VipInclude do
+         currExp = currExp - NewVipConfig.VipInclude[VipLevel+1].Exp
+         Actor.setUIntProperty(sysarg, PROP_ACTOR_VIP_LEVEL, VipLevel + 1)
+         Actor.setUIntProperty(sysarg, PROP_ACTOR_VIP_EXP, currExp)
+         Actor.triggerAchieveEvent( sysarg,96,VipLevel + 1,0,0,0)
+         --Actor.addVIPTimeByType(sysarg, VipLevel+1, 10)
+         --发动客户端VIp礼包状态 
+         VipLiBaoStaus(sysarg, VipLevel+1, 1)
+         VipAwardStatus(sysarg)
+         if VipLevel == 0 then
+            UpdataServerVipNumber(sysarg)
+         end
+         local NewVipLevel = Actor.getIntProperty( sysarg, PROP_ACTOR_VIP_LEVEL)
+         if (NewVipLevel > VipLevel) and (VipLevel ~= 0) then--升级播报 
+            --全服播报
+            System.broadcastTipmsg(string.format(Lang.NewVip.tip013, Actor.getName(sysarg), VipLevel, NewVipLevel), ttScreenCenter + ttChatWindow)
+         end 
+         if VipLevel >= (#NewVipConfig.VipInclude-1) then
+            break
+         end
+         --print("currExp"..currExp)
+         if currExp < NewVipConfig.VipInclude[VipLevel + 2].Exp then
+            break
+         end
+         VipLevel = VipLevel + 1
+     end
+  end
+  Actor.collectOperate(sysarg,0)
+end
+
+--更新全服Vip人数
+function UpdataServerVipNumber(sysarg) 
+  --全服播报 
+  System.broadcastTipmsg(string.format(Lang.NewVip.tip003, Actor.getName(sysarg)), ttScreenCenter + ttChatWindow)
+  
+  --获取排行榜指针
+  local pRank = Ranking.getRanking(NewVipRankPt.RankName)
+  if not pRank then return end 
+  local ServerId = 0123456789
+  local pItem = Ranking.getItemPtrFromId(pRank, ServerId)
+  if pItem == nil then
+	 pItem = Ranking.addItem(pRank,ServerId,0)
+  end
+  if pItem then
+     --更新全服成为Vip人数 
+     Ranking.updateItem(pRank, ServerId, 1)   
+  end
+end
+
+--更新vip面板奖励领取状态
+function VipAwardStatus(sysarg)
+    --print("VipAwardStatuslogin")
+    --获取排行榜指针 
+	local pRank = Ranking.getRanking(NewVipRankPt.RankName)
+	if not pRank then return end
+    local ServerId = 0123456789
+    local pItems = Ranking.getItemPtrFromId(pRank, ServerId)
+    if pItems == nil then
+	   pItems = Ranking.addItem(pRank,ServerId,0)
+    end
+    local netPack = DataPack.allocPacket(sysarg, 154, 1)
+    if pItems then
+       local Score = Ranking.getPoint(pItems)
+       --全服Vip充值人数 
+       DataPack.writeInt(netPack, Score)
+    end
+	local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local str = ""
+	--获取排行榜项指针 
+	for i = 1, 10 do
+	  	local pItem = Ranking.getItemPtrFromId(pRank, userId)
+	 	if pItem == nil then
+			pItem = Ranking.addItem(pRank,userId,0)
+		    if pItem then
+    	       for i = 1, 10 do
+	  	           Ranking.setSub(pItem, i-1, "0")
+               end
+	        end
+		end
+	  	if pItem then  
+	  	   --print(tonumber(Ranking.getSub(pItem, i-1)))
+           DataPack.writeByte(netPack, tonumber(Ranking.getSub(pItem, i-1)))                                 
+	  	   str = str .. Ranking.getSub(pItem, i-1) 
+        else
+           DataPack.writeByte(netPack, 0)
+           str = str .. "0"
+        end 
+        if i < 10 then
+           str = str .. ","
+        end                               
+	end
+    --print("VipAwardStatus"..str)
+    --[[local Svar = Actor.getStaticVar( sysarg )
+    if Svar.VipBossTimes == nil then
+       Svar.VipBossTimes  = 0
+    end 
+    if Svar.PowerExpStaus == nil then
+       Svar.PowerExpStaus  = 0
+    end
+    local VipBossTimes = Svar.VipBossTimes
+    local PowerExpStaus = Svar.PowerExpStaus
+  	DataPack.writeInt(netPack, VipBossTimes)
+  	DataPack.writeInt(netPack, PowerExpStaus)]]
+	DataPack.flush(netPack)
+end 
+
+--更新Vip礼包的领取状态
+function VipLiBaoStaus(sysarg, VipLevel, ndx)
+  local pRank = Ranking.getRanking(NewVipRankPt.RankName)  
+  if not pRank then return end
+  local userId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+  local pItem = Ranking.getItemPtrFromId(pRank, userId)
+  if pItem == nil then
+ 	 pItem = Ranking.addItem(pRank,userId,0)
+ 	 if pItem then
+    	for i = 1, 10 do
+	  	   Ranking.setSub(pItem, i-1, "0")
+        end
+	 end
+  end
+  if pItem then
+     local Staus = Ranking.getSub(pItem, VipLevel-1) 
+     --print("VipLiBaoStaus:"..Staus)
+     if (Staus == "0") and (ndx == 1) then 
+        Ranking.setSub(pItem, VipLevel-1, tostring(1))
+     elseif (Staus == "1") and (ndx == 2) then  
+        Ranking.setSub(pItem, VipLevel-1, tostring(2)) 
+     end 
+  end
+end

@@ -1,0 +1,3214 @@
+--lua script
+
+--#include "data\config\activityconfig\CrossMatches\CrossMatchesConfig.txt" once
+--#include "EnterCrossMatchesCommon.txt" once
+--#include "CrossTeamOp.txt" once
+--#include "CrossMatchesAward.txt" once
+
+--创建跨服战队
+function OnCreatCrossTeam(sysarg, args)
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	local ret = true
+	if CheckMatchesActivityTime(1) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0075, ttFlyTip)
+		ret = false
+	end
+	
+	return ret
+	
+end
+
+--发送开始海选比赛
+function OnSpSendStartMatches(sysarg, args)
+	if System.isStartCommonServer() == false then		--是否链接公共服 
+		return 
+	end
+	Actor.messageBox(sysarg, 0, 0, string.format(Lang.Activity.kf0069,5), Lang.Activity.kf0056.."/EnterCrossTuChengFunc", Lang.Activity.kf0057.."/CancelEnterFunc", nil, 5000, 0, nil, 0, 1)
+end 
+
+function EnterCrossTuChengFunc(sysarg)
+	Actor.sendStartMatches(sysarg)
+end
+
+function CancelEnterFunc(sysarg)
+	return 
+end
+
+--海选报名
+function OnCrossMatchesSg(sysarg, args)
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	if System.isStartCommonServer() == false then
+		return 
+	end
+	--[[
+	local weekDay = System.getDayOfWeek()
+	local weekNum = System.getCurrWeekNum()
+	if (weekNum ~= 2 and weekNum ~= 3) or (weekNum == 3 and weekDay < 1 or weekDay > 5) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0065, ttFlyTip)
+		return 
+	end
+	--]]
+
+	if CheckMatchesActivityTime(1) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0065, ttFlyTip)
+		return 
+	end
+	
+	
+	if Actor.checkActorLevel(sysarg, CrossMatchesConfig.minLevel) ~= true then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0074, ttFlyTip) 
+		return 
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	local memberRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember) 
+	if not memberRankingPtr then
+		return
+	end
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId)
+	if not memberItemPtr then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0078, ttFlyTip) 
+		return
+	end
+	
+	local position = tonumber(Ranking.getSub(memberItemPtr, 6))
+	if position ~= 0 then  --队长才能报名
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0063, ttFlyTip)   
+		return 
+	end
+	
+	
+	local groupNum = tonumber(Ranking.getSub(memberItemPtr, 7))
+	
+	if groupNum ~= -1 then
+		Actor.sendTipmsg(sysarg, Lang.Activity.kf0064, ttFlyTip)
+		return 
+	end
+	
+	Actor.sendCrossMatchesSg(sysarg)
+	
+end
+
+ --匹配海选赛队伍
+ function CheckSelectMatchesOnTime() 
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	if System.isCommonServer() == false then		--没连接到公共服
+		return 
+	end 
+	
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	--[[
+	local weekNum = System.getCurrWeekNum()
+	local weekDay = System.getDayOfWeek()
+	if (weekNum ~= 2 and weekNum ~= 3) or ( weekNum == 3 and (weekDay < 1 or weekDay > 5)) then  
+		return 
+	end
+	--]]
+	if CheckMatchesActivityTime(1) ~= true then
+		return
+	end
+	
+	--print("CheckSelectMatchesOnTime ....")
+	
+	if sysVar.MatchesTeamCount == nil then
+		sysVar.MatchesTeamCount = 0
+	end
+		
+	--print("sysVar.MatchesTeamCount ",sysVar.MatchesTeamCount)
+	if sysVar.MatchesTeamCount and sysVar.MatchesTeamCount > 0 then  --上一轮比赛还没结束 ,MatchesTeamCount参加比赛的队伍数目,比赛结束清0 	
+		if sysVar.SelecltMatchCount == nil then  --匹配次数，每分钟一次，超过5次，即5分钟就把sysVar.MatchesTeamCount置0, 超过10次，即10分钟就进行排队队伍进行清理
+			sysVar.SelecltMatchCount = 1
+		else
+			sysVar.SelecltMatchCount = sysVar.SelecltMatchCount + 1
+		end
+		
+		if sysVar.SelecltMatchCount == 1 then
+			CheckSelectFbEnd()
+		end
+		
+		if sysVar.SelecltMatchCount > 5 then
+			ClearMatchTeamNotIn()  --对已经匹配成功未进副本的队伍，与成员状态进行清理
+			sysVar.MatchesTeamCount = 0  --匹配成功的队伍数，
+		end
+		return 
+	end
+	
+	if sysVar.SelecltMatchCount and sysVar.SelecltMatchCount >= 10 then
+		ClearMatchTeamInWait() --排队队伍匹配不成功，清除掉
+	end
+	
+	local matchCount = 0   --
+	if sysVar.MatchCount == nil then   --MatchCount 匹配队伍的数目 
+		matchCount = CrossMatchesConfig.selectMatchCount    
+	else
+		matchCount = sysVar.MatchCount
+	end
+	
+	if CheckStartSelectMatches(sysarg, matchCount) == false then
+		sysVar.MatchCount = CrossMatchesConfig.secondMatchCount  
+	else
+		sysVar.MatchCount = CrossMatchesConfig.selectMatchCount 
+		sysVar.SelecltMatchCount = 0 --成功就把匹配次数置0
+	end
+	
+ end
+ 
+ --超过匹配时间，对已经匹配成功未进副本的队伍，与成员状态进行清理
+ function ClearMatchTeamNotIn()
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	if sysVar.MatchesTeamCount == nil then
+		return 
+	end
+	
+	local teamList = {}
+	local teamRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankingPtr then
+		return 
+	end
+	
+	local count = sysVar.MatchesTeamCount
+	local rankCount = Ranking.getRankItemCount(teamRankingPtr)
+	if count > rankCount then
+		return
+	end
+	
+	for i = 1, count do 
+		local teamItemPtr = Ranking.getItemPtrByIndex(teamRankingPtr, i-1)
+		if teamItemPtr then
+			local groupNum = tonumber(Ranking.getSub(teamItemPtr, 4))
+			local teamId = Ranking.getId(teamItemPtr)
+			if groupNum > 0 then
+				table.insert(teamList, teamId)
+			end
+		end
+	end
+	
+	for k, teamId in ipairs(teamList or {}) do 
+		ClearStateByTeam(teamId)
+	end
+	
+	sysVar.MatchesTeamCount = 0  --匹配成功的队伍数，
+ end
+ 
+ 
+ --重置成员的状态
+ function ClearStateByTeam(teamId)
+	local teamRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankingPtr then
+		return 
+	end
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+	if not teamItemPtr then
+		return 
+	end
+	
+	local memberRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember)
+	if not memberRankingPtr then
+		return 
+	end
+	
+	local tempCount = 0
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	local severIndex = tonumber(Ranking.getSub(teamItemPtr, 5))
+	local rankCount = Ranking.getRankItemCount(memberRankingPtr)
+	for i = 1, rankCount do
+		local memberItemPtr = Ranking.getItemPtrByIndex(memberRankingPtr, i-1)
+		if memberItemPtr then
+			local tempTeamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+			if tempTeamId == teamId then
+				Ranking.setSub(memberItemPtr, 7, -1)
+				Ranking.setSub(memberItemPtr, 8, 0)
+				Ranking.setSub(memberItemPtr, 9, 0)
+				tempCount = tempCount + 1
+				if tempCount >= curCount then
+					break
+				end
+			end
+		end
+	end
+	Ranking.removeId(teamRankingPtr, teamId)
+	System.sendReSetMatchTeamState(teamId, severIndex)
+ end
+ 
+
+ --超过匹配时间，对进行排队未匹配成功的队伍，与成员进行清理
+ function ClearMatchTeamInWait()
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	if sysVar.MatchesTeamCount == nil then
+		return 
+	end
+	
+	local teamList = {}
+	local teamRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankingPtr then
+		return 
+	end
+	
+	local rankCount = Ranking.getRankItemCount(teamRankingPtr)
+	for i = 1, rankCount do 
+		local teamItemPtr = Ranking.getItemPtrByIndex(teamRankingPtr, i-1)
+		if teamItemPtr then
+			local groupNum = tonumber(Ranking.getSub(teamItemPtr, 4))
+			local teamId = Ranking.getId(teamItemPtr)
+			if groupNum == 0 then
+				table.insert(teamList, teamId)
+			end
+		end
+	end
+	
+	for k, teamId in ipairs(teamList or {}) do 
+		ClearStateByTeam(teamId)
+	end
+ end
+ 
+ --定时清除排队队伍
+ function OnClearTeamMatchInWait()
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	ClearMatchTeamInWait()
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	sysVar.MatchesTeamCount = 0
+	sysVar.SelecltMatchCount = 0
+ end
+
+ 
+--开始匹配海选赛
+function CheckStartSelectMatches(sysarg, matchCount) 
+	if CheckCrossMatchesOpen() ~= true then
+		return false
+	end
+	--print("begin Start check SelectMatches")
+	if System.isCommonServer() == false then		--没连接到公共服
+		return false
+	end
+	
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return false  
+	end
+	
+	print(" sysVar.MatchesTeamCount ", sysVar.MatchesTeamCount)
+	if sysVar.MatchesTeamCount and sysVar.MatchesTeamCount > 0 then  --上一轮比赛还没结束 
+		return false
+	end
+	
+	local teamRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam) 
+	if not teamRankingPtr then
+		return false
+	end
+	
+	local itemCount = Ranking.getRankItemCount(teamRankingPtr) 
+	--print("itemCount ", itemCount)
+	--print("matchCount ", matchCount)
+	
+	if itemCount >= matchCount then
+		local numTable = GenerateMatchNum(1, matchCount)
+		--print("numTable ",table.getn(numTable))
+		for i = 1, table.getn(numTable) do
+			local groupNum = 0
+			local teamPos = 0
+ 			if i % 2 == 0 then
+				groupNum = i / 2
+				teamPos = 2
+			elseif i % 2 > 0 then
+				groupNum = math.floor(i / 2) + 1
+				teamPos = 1
+			end
+
+			local rankItemPtr = Ranking.getItemPtrByIndex(teamRankingPtr, numTable[i]-1)
+			--print("rankItemPtr ", rankItemPtr)
+			if rankItemPtr then
+				local teamId = Ranking.getId(rankItemPtr)
+				Ranking.setSub(rankItemPtr, 4, groupNum) 
+				SetMemberGroupNum(teamId, groupNum, teamPos) 
+				local serverIndex = tonumber(Ranking.getSub(rankItemPtr, 5)) 
+				System.sendBeginSelectMatches(teamId, groupNum, serverIndex) 
+			end
+		end
+
+		sysVar.MatchesTeamCount = matchCount    --CrossMatchesConfig.selectMatchCount  
+		local selMatchesCount = matchCount / 2  --CrossMatchesConfig.selectMatchCount  / 2
+		local tempCount = 0
+		sysVar.CrossMatchFbList = {}
+		sysVar.SelectGroupCount = 0  
+		for index = 1, selMatchesCount do 
+			local fbPtr = Fuben.createFuBenReturnPtr(CrossMatchesConfig.smfubenId)
+			if fbPtr then
+				local fHandle = Fuben.getFubenHandle(fbPtr)
+				--local fHandle = Fuben.createFuBen(CrossMatchesConfig.smfubenId)
+				if fHandle > 0 then
+					local hScene = Fuben.getSceneHandleById(CrossMatchesConfig.smSceneId, fHandle)
+					local monstorsConfig = CrossMatchesConfig.selectMatchesMonstors
+					Fuben.createMonster(hScene, monstorsConfig[1].id, monstorsConfig[1].posX, monstorsConfig[1].posY, monstorsConfig[1].liveTime)
+					sysVar.CrossMatchFbList[index] = fHandle
+					
+					tempCount = tempCount + 1
+				end	
+			end
+		end
+
+		sysVar.SelectGroupCount = tempCount --匹配到的组数
+		sysVar.MatchesTeamCount = tempCount *2  --匹配到的队伍数
+		return true
+	else
+		return false
+	end
+
+end
+
+
+--开始一分钟检测副本是否可以结束
+ function CheckSelectFbEnd()
+	--print("CheckSelectFbEnd ")
+	
+	local teamRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam) 
+	--print("teamRankingPtr ",teamRankingPtr)
+	if not teamRankingPtr then
+		return
+	end
+	
+	local totalCount = Ranking.getRankItemCount(teamRankingPtr)
+	--print("totalCount ",totalCount)
+	for i = 1, totalCount, 2 do
+		local groupNum1 = -1
+		local groupNum2 = -1
+		local fbHandle1 = 0
+		local fbHandle2 = 0
+		local teamId1 = 0
+		local teamId2 = 0
+		local teamItemPtr1 = Ranking.getItemPtrByIndex(teamRankingPtr, i-1)
+		if teamItemPtr1 then
+			groupNum1 = tonumber(Ranking.getSub(teamItemPtr1, 4))
+			if groupNum1 <= 0 then
+				break
+			end
+		end 
+		teamId1 = Ranking.getId(teamItemPtr1)
+		--print("teamId1 ",teamId1)
+		fbHandle1 = tonumber(Ranking.getSub(teamItemPtr1, 6))
+		--print("fbHandle1 ",fbHandle1)
+		local teamItemPtr2 = Ranking.getItemPtrByIndex(teamRankingPtr, i)
+		if teamItemPtr2 then
+			teamId2 = Ranking.getId(teamItemPtr2)
+			groupNum2 = tonumber(Ranking.getSub(teamItemPtr2, 4))
+			fbHandle2 = tonumber(Ranking.getSub(teamItemPtr2, 6))
+		end
+		
+		--print("teamId2 ",teamId2)
+		--print("fbHandle2 ",fbHandle2)
+		
+		if groupNum1 == groupNum2 then
+			if fbHandle1 == 0 and fbHandle2 == 0 then
+				EndSelectMacthes(teamId1, teamId2, 3)  --两队都没进副本
+			else
+				if fbHandle1 ~= 0 and fbHandle2 == 0 then  
+					CheckSelectFbEndByTeam(teamId1, teamId2, 1)  --有一队可能正在副本
+				elseif fbHandle2 ~= 0 and fbHandle1 == 0 then
+					CheckSelectFbEndByTeam(teamId2, teamId1, 2)
+				end
+			end
+		end
+	end
+ end
+ 
+ --结束海选比赛
+ function EndSelectMacthes(tempTeamId1, tempTeamId2, retType)
+	if retType == 1 or retType == 2 then
+		UpdateSelectMatchesRank(tempTeamId1, tempTeamId2, retType)
+		GiveSelectMatchesPoint(tempTeamId1, tempTeamId2, retType)
+	elseif retType == 3 then
+		UpdateSelectMatchesRank(tempTeamId1, tempTeamId2, retType)    
+	end
+	
+	System.sendSelectMatchesRet(tempTeamId1)
+	System.sendSelectMatchesRet(tempTeamId2)
+	
+	SelectMatchesClearHandle(tempTeamId1) --海选赛结束清除操作
+	SelectMatchesClearHandle(tempTeamId2) --海选赛结束清除操作 
+ end
+ 
+ --检测海选比赛是否结束
+ function CheckSelectFbEndByTeam(winTeamId, losTeamId)
+	local teamRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam) 
+	if not teamRankingPtr then
+		return
+	end
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, winTeamId)
+	if not teamItemPtr then
+		return
+	end
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	local memberRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember) 
+	if not memberRankingPtr then
+		return
+	end
+	local isInFuben = false
+	local tempCount = 0
+	local totalCount = Ranking.getRankItemCount(memberRankingPtr)
+	for i = 1, totalCount do 
+		local memberItemPtr = Ranking.getItemPtrByIndex(memberRankingPtr, i-1)
+		if memberItemPtr then
+			if tonumber(Ranking.getSub(memberItemPtr, 0)) == winTeamId then
+				if tonumber(Ranking.getSub(memberItemPtr, 9)) == 1 then
+					local actorId = Ranking.getId(memberItemPtr)
+					local actorPtr = System.getEntityPtrByActorID(actorId)
+					--print("actorPtr ",actorPtr)
+					local sceneId = Actor.getSceneId(actorPtr)
+					--print("sceneId ",sceneId)
+					if sceneId == CrossMatchesConfig.smSceneId then
+						local fubenPtr = Actor.getFubenPrt(actorPtr)
+						--print("fubenPtr ",fubenPtr)
+						SelectMatchesEnd(fubenPtr)
+						isInFuben = true
+						break
+					end
+				end
+				tempCount = tempCount + 1
+			end
+			if tempCount >= curCount then
+				break
+			end
+		end
+	end
+	if isInFuben == false then
+		EndSelectMacthes(checkTeamId, teamId, 1)
+	end
+end
+ 
+ 
+--设置队员的组id
+function SetMemberGroupNum(teamId, groupNum, teamPos)
+	local teamRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam) 
+	if not teamRankingPtr then
+		return
+	end
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+	if not teamItemPtr then
+		return
+	end
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	local memberRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesMember) 
+	if not memberRankingPtr then
+		return false
+	end
+	local rankCount = Ranking.getRankItemCount(memberRankingPtr)
+	local tempCount = 0
+	for i = 1, rankCount do 
+		local memberItemPtr = Ranking.getItemPtrByIndex(memberRankingPtr, i-1)
+		if memberItemPtr then
+			if tonumber(Ranking.getSub(memberItemPtr, 0)) == teamId then
+				Ranking.setSub(memberItemPtr, 7, groupNum)
+				Ranking.setSub(memberItemPtr, 8, teamPos)  --设置队伍位置
+				Ranking.setSub(memberItemPtr, 9, 0)  --设置0
+				Ranking.setSub(memberItemPtr, 10, 0)  --设置0
+				tempCount = tempCount + 1
+				if tempCount >= curCount then
+					break
+				end
+			end
+		end
+	end
+end
+
+--获取随机组队序号
+function GenerateMatchNum(minCount, maxCount) 
+	local numTable = {}
+	local len = 0
+	local flag = true
+	local numCount = maxCount - minCount + 1
+	while len < numCount do
+		local num = math.random(minCount,maxCount)
+		local count = 0
+		for i=1, table.getn(numTable) do
+			if numTable[i] == num then
+				flag = false
+				break
+			end
+			count = count + 1
+		end
+		if count == table.getn(numTable) then
+			flag = true
+		end
+		if flag then
+			table.insert(numTable, num)
+			len = len + 1
+		end
+	end
+	return numTable 
+end
+
+--玩家死亡
+function OnKillInCrossMatches(sysarg,killerPtr)	
+	local curSceneId = Actor.getSceneId(sysarg)
+	if curSceneId == CrossMatchesConfig.smSceneId then
+		KillInSelectMatches(sysarg, killerPtr)
+	elseif curSceneId == CrossMatchesConfig.cmSceneId then
+		KillInCrossMatches(sysarg, killerPtr)
+	end
+
+end 
+
+--海选赛被杀
+function KillInSelectMatches(sysarg, killerPtr)
+	local fbPtr = Actor.getFubenPrt(sysarg)
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	if not fbVar then
+		return
+	end	
+	
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )  
+	if not memberRankingPtr then
+		return
+	end
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId) 
+	if not memberItemPtr then
+		return
+	end
+	
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	local winTeamId = 0
+	if fbVar.joinMatchesNum[teamId] == nil then
+		return 
+	end
+	
+	fbVar.joinMatchesNum[teamId] = fbVar.joinMatchesNum[teamId] - 1 
+	if fbVar.joinMatchesNum[teamId] <= 0 then
+		local fbPtr = Actor.getFubenPrt(sysarg)
+		SelectMatchesEnd(fbPtr)
+	else
+		UpdateSelectMatchFormInfo(sysarg)
+		Actor.enterFuBen(sysarg,0,CrossMatchesConfig.enterComSeneId,CrossMatchesConfig.enterComPosx,CrossMatchesConfig.enterComPosY)
+		Actor.reqTransmitToRawServer(sysarg)  	 
+	end 
+end 
+
+--一场海选赛结束	
+function SelectMatchesEnd(fbPtr) 
+	--print("SelectMatchesEnd ")
+	if System.isCommonServer() == false then		--没连接到公共服 
+		return 
+	end
+
+	local fbVar = Fuben.getDyanmicVar(fbPtr)
+	if fbVar == nil then 
+		return 
+	end
+	 
+	if fbVar.joinMatchesTeamIds == nil or fbVar.joinMatchesNum == nil then
+		return  
+	end
+
+	if fbVar.joinMatchesTeamIds[1] == nil then
+		return 
+	end
+	local tempTeamId1 = fbVar.joinMatchesTeamIds[1]
+	if fbVar.joinMatchesNum[tempTeamId1] == nil then
+		return 
+	end
+	local tempJoinNum1 = fbVar.joinMatchesNum[tempTeamId1]
+	
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )
+	if not teamRankingPtr then
+		return 
+	end
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, tempTeamId1)
+	if not teamItemPtr then
+		return 
+	end
+	
+	local tempTeamId2 = 0
+	local tempJoinNum2 = 0
+	if fbVar.joinMatchesTeamIds[2] == nil then
+		local groupNum = tonumber(Ranking.getSub(teamItemPtr, 4)) 
+		local count = Ranking.getRankItemCount(teamRankingPtr) 
+		for i = 1, count do 
+			local ItemPtr = Ranking.getItemPtrByIndex(teamRankingPtr, i-1)
+			if ItemPtr then
+				local tempid = Ranking.getId(ItemPtr)
+				local tempGroupNum = tonumber(Ranking.getSub(ItemPtr, 4))
+				if tempGroupNum == groupNum and tempid ~= tempTeamId1 then
+					tempTeamId2 = tempid
+					break
+				end
+			end
+		end
+	else
+		tempTeamId2 = fbVar.joinMatchesTeamIds[2]
+		tempJoinNum2 = fbVar.joinMatchesNum[tempTeamId2]
+	end
+	
+	--print("tempJoinNum1 ",tempJoinNum1)
+	--print("tempJoinNum2 ",tempJoinNum2)
+	if tempJoinNum1 > tempJoinNum2 then
+		UpdateSelectMatchesRank(tempTeamId1, tempTeamId2, 1)
+		GiveSelectMatchesPoint(tempTeamId1, tempTeamId2, 1)
+	elseif tempJoinNum1 < tempJoinNum2 then
+		UpdateSelectMatchesRank(tempTeamId2, tempTeamId1, 2)
+		GiveSelectMatchesPoint(tempTeamId2, tempTeamId1, 2)
+	else
+		UpdateSelectMatchesRank(tempTeamId1, tempTeamId2, 3)    
+	end
+	
+	System.sendSelectMatchesRet(tempTeamId1)
+	System.sendSelectMatchesRet(tempTeamId2)
+	
+	SelectMatchesClearHandle(tempTeamId1) --海选赛结束清除操作
+	SelectMatchesClearHandle(tempTeamId2) --海选赛结束清除操作 
+	
+	fbVar.joinMatchesTeamIds = nil --清空参赛队伍id列表
+	fbVar.joinMatchesNum = nil --清空参赛队伍人数
+	
+	local actorList = LuaHelp.getFbActorList(fbPtr)		--获取某场景玩家对象列表
+	if actorList ~= nil then
+		for k, actorPtr in ipairs(actorList) do
+			if actorPtr then
+				Actor.setUIntProperty(actorPtr,PROP_ACTOR_PK_MOD,0) 
+				Actor.enterFuBen(actorPtr,0,CrossMatchesConfig.enterComSeneId,CrossMatchesConfig.enterComPosx,CrossMatchesConfig.enterComPosY)
+				Actor.reqTransmitToRawServer(actorPtr)	 
+			end
+		end
+	end
+
+end
+
+--海选赛结束清除处理
+function SelectMatchesClearHandle(teamId) 
+	
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	sysVar.MatchesTeamCount = sysVar.MatchesTeamCount - 1  --海选赛匹配成功的队伍数目   
+	if sysVar.MatchesTeamCount <= 0 then
+		sysVar.MatchCount = nil	--海选赛使用的匹配参数
+		sysVar.CrossMatchFbList = {} --存储海选赛副本句柄列表
+	end
+
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )
+	if not teamRankingPtr then
+		return
+	end
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )
+	if not memberRankingPtr then
+		return
+	end
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+	if not teamItemPtr then
+		return
+	end
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	
+	Ranking.removeId(teamRankingPtr, teamId)
+	
+	local totalCount = Ranking.getRankItemCount(memberRankingPtr)
+	local tempCount = 0
+	for i = 1, totalCount do 
+		local memberItemPtr = Ranking.getItemPtrByIndex(memberRankingPtr, i-1)
+		if memberItemPtr then
+			local tempTeamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+			local actorId = Ranking.getId(memberItemPtr)
+			if tempTeamId == teamId then 
+				Ranking.setSub(memberItemPtr, 7, -1)
+				Ranking.setSub(memberItemPtr, 8, 0) --设置teamPos
+				Ranking.setSub(memberItemPtr, 9, 0) --设置参赛状态 
+				Ranking.setSub(memberItemPtr, 10, 0) --设置参赛状态 
+				tempCount = tempCount + 1
+				if tempCount >= curCount then
+					break
+				end
+			end
+		end
+	end
+end
+
+ 
+--更新海选赛的排行榜 
+function UpdateSelectMatchesRank(winTeamId, loseTeamId, retType) 	
+	local teamRankPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	if not teamRankPtr then
+		return 
+	end
+	
+	local selectMatchesRankPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName) 
+	if not selectMatchesRankPtr then
+		selectMatchesRankPtr = Ranking.add(Lang.Rank.SelectMatchesRankName, 2000)
+		if selectMatchesRankPtr then
+			local ret = Ranking.load(selectMatchesRankPtr, Lang.Rank.SelectMatchesRankFile)
+			if not ret then
+				Ranking.addColumn(selectMatchesRankPtr, "teamname")
+				Ranking.addColumn(selectMatchesRankPtr, "captain")
+				Ranking.addColumn(selectMatchesRankPtr, "cur_count")
+				Ranking.addColumn(selectMatchesRankPtr, "total_count")
+				Ranking.addColumn(selectMatchesRankPtr, "group_num")
+				Ranking.addColumn(selectMatchesRankPtr, "server_index")
+				Ranking.addColumn(selectMatchesRankPtr, "win_count")
+				Ranking.addColumn(selectMatchesRankPtr, "lose_count")
+				Ranking.addColumn(selectMatchesRankPtr, "drow_count")  --平局
+				Ranking.addColumn(selectMatchesRankPtr, "this_week_join")
+				Ranking.addColumn(selectMatchesRankPtr, "bet_count")
+				Ranking.addColumn(selectMatchesRankPtr, "group_type") --分组类型0观众，1龙榜赛，2虎榜赛
+				Ranking.addColumn(selectMatchesRankPtr, "matches_type") --分组类型0观众，1龙榜赛，2虎榜赛
+			end
+		end	
+	end 
+	
+	local srcWinTeamPtr = Ranking.getItemPtrFromId(teamRankPtr, winTeamId)
+	local srcLoseTeamPtr = Ranking.getItemPtrFromId(teamRankPtr, loseTeamId)
+	if srcWinTeamPtr == nil or srcLoseTeamPtr == nil then
+		return 
+	end
+
+	if retType == 1 or retType == 2 then
+		UpdateSelectMatchesItem(selectMatchesRankPtr, srcWinTeamPtr, winTeamId, 1)
+		UpdateSelectMatchesItem(selectMatchesRankPtr, srcLoseTeamPtr, loseTeamId, 2)
+	elseif retType == 3 then
+		UpdateSelectMatchesItem(selectMatchesRankPtr, srcWinTeamPtr, winTeamId, retType)
+		UpdateSelectMatchesItem(selectMatchesRankPtr, srcLoseTeamPtr, loseTeamId, retType) 
+	end
+
+end
+
+--更新排行榜子项
+function UpdateSelectMatchesItem(selectMatchesRankPtr, teamItemPtr, teamId, retType)
+	local selectTeamItemPtr = Ranking.getItemPtrFromId(selectMatchesRankPtr, teamId)
+	if not selectTeamItemPtr then
+		local selectTeamItemPtr = Ranking.addItem(selectMatchesRankPtr, teamId, Ranking.getPoint(teamItemPtr))
+		if selectTeamItemPtr then
+			for i = 0, 12 do
+				if i <= 5 then
+					Ranking.setSub(selectTeamItemPtr, i, Ranking.getSub(teamItemPtr, i))
+				else
+					Ranking.setSub(selectTeamItemPtr, i, 0)
+				end
+			end
+			if retType == 1 then
+				Ranking.setSub(selectTeamItemPtr, 6, 1)
+			elseif retType == 2 then
+				Ranking.setSub(selectTeamItemPtr, 7, 1)
+			elseif retType == 3 then
+				Ranking.setSub(selectTeamItemPtr, 8, 1)
+			end
+		end 
+	else  
+		local count = 0
+		if retType == 1 then
+			count = tonumber(Ranking.getSub(selectTeamItemPtr, 6))
+			Ranking.setSub(selectTeamItemPtr, 6, count + 1)  
+		elseif retType == 2 then
+			count = tonumber(Ranking.getSub(selectTeamItemPtr, 7))
+			Ranking.setSub(selectTeamItemPtr, 7, count + 1)  
+		elseif retType == 3 then
+			count = tonumber(Ranking.getSub(selectTeamItemPtr, 8))
+			Ranking.setSub(selectTeamItemPtr, 8, count + 1)  
+		end
+	end
+end
+
+--给海选积分奖励
+function GiveSelectMatchesPoint(tempTeamId1, tempTeamId2, retType)
+	local addPoint = 0
+	local addTeamPoint = 0
+	local teamPoint1 = GetTeamPoint(tempTeamId1) --获取胜利队伍匹配积分 
+	local teamPoint2 = GetTeamPoint(tempTeamId2) --获取失败队伍匹配积分 
+	--print("teamPoint1 ",teamPoint1)
+	--print("teamPoint2 ",teamPoint2)
+	
+	if retType ~= 1 and  retType ~= 2 then
+		return 
+	end
+	
+	local diff = 0
+	if teamPoint2 > 0 then
+		diff = (teamPoint1 - teamPoint2) / teamPoint2 
+	end
+	--print("diff ",diff)
+	local retPointConfig = CrossMatchesConfig.selectRetPoint
+	if diff >= 0 then 
+		for k, v in ipairs(retPointConfig[1]) do
+			if diff >= v.beginVal and (diff < v.endVal or v.endVal == -1) then 
+				addPoint = v.point
+				break
+			end
+		end
+	else
+		diff = -diff
+		for k, v in ipairs(retPointConfig[2]) do
+			if diff >= v.beginVal and (diff < v.endVal or v.endVal == -1) then 
+				addPoint = v.point
+				break
+			end
+		end
+	end
+	--print("addPoint ",addPoint)
+	UpdateMemberPoint(tempTeamId1, addPoint, 1)
+	UpdateMemberPoint(tempTeamId2, addPoint, 2)
+
+	local selectMatchesRankPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName)
+	if not selectMatchesRankPtr then
+		return 
+	end
+	
+	local selectItemPtr1 = Ranking.getItemPtrFromId(selectMatchesRankPtr, tempTeamId1)
+	local selectItemPtr2 = Ranking.getItemPtrFromId(selectMatchesRankPtr, tempTeamId2)
+	if selectItemPtr1 == nil or selectItemPtr2 == nil then
+		return 
+	end
+	
+	local avePoint1 = GetAveragePoint(tempTeamId1) --更新队伍积分
+	--print("avePoint1 ",avePoint1)
+	Ranking.setItem(selectMatchesRankPtr, tempTeamId1, avePoint1)
+	
+	local avePoint2 = GetAveragePoint(tempTeamId2)  --更新队伍积分
+	--print("avePoint2 ",avePoint2)
+	Ranking.setItem(selectMatchesRankPtr, tempTeamId2, avePoint2)
+end
+
+--更新队员的积分
+function UpdateMemberPoint(teamId, addPoint, retType)
+	if teamId <= 0 then
+		return
+	end
+	
+	if retType ~= 1 and retType ~= 2 then
+		return 
+	end
+	
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )
+	if not teamRankingPtr then
+		return
+	end 
+
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )
+	if not memberRankingPtr then
+		return
+	end
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+	if not teamItemPtr then
+		return 
+	end
+
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	local rankCount = Ranking.getRankItemCount(memberRankingPtr)
+	local count = 0
+	for i = 1, rankCount do 
+		local memberItemPtr = Ranking.getItemFromIndex( memberRankingPtr, i-1)
+		if memberItemPtr then
+			if tonumber(Ranking.getSub(memberItemPtr, 0)) == teamId then
+				local actorId = Ranking.getId(memberItemPtr)
+				local point = Ranking.getPoint(memberItemPtr)
+				if retType == 1 then
+					point = point + addPoint
+				elseif retType == 2 then
+					point = ((point - addPoint) >= 0) and (point - addPoint) or 0
+				end
+				Ranking.setItem(memberRankingPtr, actorId, point)
+				count = count + 1
+			end
+			if count >= curCount then 
+				break 
+			end
+		end
+	end
+end
+
+
+--获取平均队员积分
+function GetAveragePoint(teamId) 
+	local result = 0
+	local pointTab = {} 
+	
+	if teamId <= 0 then
+		return result,pointTab
+	end
+	
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )
+	if not teamRankingPtr then
+		return result,pointTab
+	end 
+
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )
+	if not memberRankingPtr then
+		return result,pointTab
+	end
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+	if not teamItemPtr then
+		return result,pointTab
+	end
+	
+	
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	local rankCount = Ranking.getRankItemCount(memberRankingPtr)
+	local count = 0
+	local totalPoint = 0
+	for i = 1, rankCount do 
+		local tempItemPtr = Ranking.getItemFromIndex( memberRankingPtr, i-1)
+		if tempItemPtr then
+			if tonumber(Ranking.getSub(tempItemPtr, 0)) == teamId then
+				table.insert(pointTab, Ranking.getPoint(tempItemPtr))
+				totalPoint = totalPoint + Ranking.getPoint(tempItemPtr)
+				count = count + 1
+			end
+			if count >= curCount then  
+				break 
+			end
+		end
+	end
+	
+	if count ~= 0 then
+		result = math.ceil(totalPoint / count) 
+	else
+		result = 0
+	end
+	
+	return result,pointTab
+end
+
+--获取队伍匹配积分 
+function GetTeamPoint(teamId)
+	local result = 0
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )
+	if not memberRankingPtr then
+		return result
+	end
+	
+	local avePoint, pointTab = GetAveragePoint(teamId) 
+	
+	local totalCount = table.getn(pointTab)
+	if totalCount <= 0 then
+		return result
+	end
+	
+	local lowCount = 0
+	for k, v in ipairs(pointTab) do
+		if v < avePoint then
+			lowCount = lowCount + 1
+		end
+	end
+	
+	local variance = 0 --方差
+	for k, v in ipairs(pointTab) do  
+		local powVal = math.pow((v - avePoint),2)
+		variance = variance + powVal
+	end
+	variance = variance / totalCount
+	
+	for k, v in ipairs(pointTab) do 
+		result = result + v
+	end
+	
+	result = (result + variance * lowCount) / totalCount
+	return result
+end
+
+
+ 
+--海选赛结束进行分组操作 
+function OnCrossMatchesGroupOp()
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	if System.isCommonServer() == false then		--公共服
+		return 
+	end
+	
+	--[[
+	local weekNum = System.getCurrWeekNum() 
+	if weekNum ~= 3 then
+		return
+	end
+	
+	local weekDay = System.getDayOfWeek() 
+	if weekDay ~= 5 then  
+		return 
+	end
+	--]]
+	
+	if CheckMatchesActivityTime(3) ~= true then
+		return 
+	end
+	
+	OnClearTeamMatchInWait() --先清除等待排队，再分组
+	
+	--print("OnCrossMatchesGroupOp ....")
+	
+	System.sendSelectMatchesEnd() --通知海选赛结束，发海选奖励
+	
+	Grouping(1, 16)
+	--Grouping(2, 16) 
+	
+	System.sendGroupingRet(1, 16)
+	--System.sendGroupingRet(2, 16)
+	
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return 
+	end
+	sysVar.matchesTimes = 0 --重置淘汰赛局数
+	
+end 
+
+
+--分组
+function Grouping(groupType, matchesType)  --groupType分组类型，1龙榜，2虎榜     matchesType比赛类型16,8,4,2 matchesTypeList= {16,8,4,2}
+	local rankName = ""
+	local fileName = ""
+	local beginIndex = 0
+	local endIndex = 0
+	if groupType == 1 then
+		rankName = Lang.Rank.DragonMatchesReportName
+		fileName = Lang.Rank.DragonMatchesReportFile
+		beginIndex = 1
+		endIndex = 16
+	elseif groupType == 2 then
+		rankName = Lang.Rank.TigerMatchesReportName
+		fileName = Lang.Rank.TigerMatchesReportFile 
+		beginIndex = 17
+		endIndex = 32
+	end
+	
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+	if not selectMatchesRankingPtr then
+		return
+	end
+	
+	local groupRankingPtr = Ranking.getRanking(rankName)
+	if not groupRankingPtr then
+		groupRankingPtr = Ranking.add(rankName, 2000)
+		if groupRankingPtr then
+			--序号（比赛类型+组号），比赛类型，组号，战队id，战队id，第1局结果（1胜，0负），第2局结果，第3局结果,serverindex1, serverindex2,team1JoinNum,team2JoinNum,param
+			local ret = Ranking.load(selectMatchesRankPtr, fileName)     
+			if not ret then
+				Ranking.addColumn(selectMatchesRankPtr, "groupNum")
+				Ranking.addColumn(selectMatchesRankPtr, "teamId1") 
+				Ranking.addColumn(selectMatchesRankPtr, "teamId2")
+				Ranking.addColumn(selectMatchesRankPtr, "result1")
+				Ranking.addColumn(selectMatchesRankPtr, "result2")
+				Ranking.addColumn(selectMatchesRankPtr, "result3")
+				Ranking.addColumn(selectMatchesRankPtr, "serverIndex1")
+				Ranking.addColumn(selectMatchesRankPtr, "serverIndex2")
+				Ranking.addColumn(selectMatchesRankPtr, "team1JoinNum")
+				Ranking.addColumn(selectMatchesRankPtr, "team2JoinNum")
+				Ranking.addColumn(selectMatchesRankPtr, "param")  --（默认为0， 1是战队1获胜，2是战队2获胜）
+				Ranking.addColumn(selectMatchesRankPtr, "matchesTime")  --比赛时间
+				Ranking.addColumn(selectMatchesRankPtr, "name1")  --获胜队员1
+				Ranking.addColumn(selectMatchesRankPtr, "name2")  --获胜队员2
+				Ranking.addColumn(selectMatchesRankPtr, "name3")  --获胜队员3
+				Ranking.addColumn(selectMatchesRankPtr, "force1")  --获胜队员1
+				Ranking.addColumn(selectMatchesRankPtr, "force2")  --获胜队员2
+				Ranking.addColumn(selectMatchesRankPtr, "force3")  --获胜队员3
+			end
+		end
+	end
+	
+	local numTab = {} 
+	if groupType == 1 then
+		numTab = CrossMatchesConfig.dragonMatchesNumTab
+	elseif groupType == 2 then
+		numTab = CrossMatchesConfig.tigerMatchesNumTab
+	end
+	if table.getn(numTab) <= 0 then
+		return 
+	end
+	
+	for i = 1, table.getn(numTab) do 
+		if i % 2 > 0 then
+			local groupNum = math.floor(i / 2) + 1
+			local groupItemPtr = Ranking.addItem(groupRankingPtr, matchesType+groupNum, matchesType)
+			if groupItemPtr then
+				Ranking.setSub(groupItemPtr, 0, groupNum)
+				local itemPtr1 = Ranking.getItemPtrByIndex(selectMatchesRankingPtr, numTab[i] - 1)
+				local itemPtr2 = Ranking.getItemPtrByIndex(selectMatchesRankingPtr, numTab[i+1] - 1)
+				
+				Ranking.setSub(groupItemPtr, 1, 0)
+				Ranking.setSub(groupItemPtr, 2, 0)
+				Ranking.setSub(groupItemPtr, 6, 0)
+				Ranking.setSub(groupItemPtr, 7, 0)
+				
+				if itemPtr1 then
+					local teamId1 = Ranking.getId(itemPtr1)
+					local serverIndex1 = tonumber(Ranking.getSub(itemPtr1, 5))
+					Ranking.setSub(groupItemPtr, 1, teamId1)
+					Ranking.setSub(groupItemPtr, 6, serverIndex1)
+					UpdateGroupInfo(teamId1, groupNum, groupType, matchesType, 1) 
+				end	
+				if itemPtr2 then
+					local teamId2 = Ranking.getId(itemPtr2)
+					local serverIndex2 = tonumber(Ranking.getSub(itemPtr2, 5))
+					Ranking.setSub(groupItemPtr, 2, teamId2)
+					Ranking.setSub(groupItemPtr, 7, serverIndex2)
+					UpdateGroupInfo(teamId2, groupNum, groupType, matchesType, 2)
+				end
+					
+				Ranking.setSub(groupItemPtr, 3, 0)
+				Ranking.setSub(groupItemPtr, 4, 0)
+				Ranking.setSub(groupItemPtr, 5, 0) 
+				Ranking.setSub(groupItemPtr, 8, 0)
+				Ranking.setSub(groupItemPtr, 9, 0)
+				Ranking.setSub(groupItemPtr, 10, 0)
+				local matchesTime = GetMatchesTime(matchesType)
+				Ranking.setSub(groupItemPtr, 11, matchesTime)
+				Ranking.setSub(groupItemPtr, 12, "-")
+				Ranking.setSub(groupItemPtr, 13, "-")
+				Ranking.setSub(groupItemPtr, 14, "-")
+				Ranking.setSub(groupItemPtr, 15, "-")
+				Ranking.setSub(groupItemPtr, 16, "-")
+				Ranking.setSub(groupItemPtr, 17, "-")
+			end
+		end
+	end
+end
+
+--更新分组的相关信息，海选榜，成员榜
+function UpdateGroupInfo(teamId, groupNum, groupType, matchesType, teamPos)   --teamPos队伍位置，1为位置1，2为位置2
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember ) 
+	if not memberRankingPtr then
+		return
+	end
+	
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+	if not selectMatchesRankingPtr then
+		return
+	end
+	
+	local teamItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if teamItemPtr then
+		Ranking.setSub(teamItemPtr, 4, groupNum)
+		Ranking.setSub(teamItemPtr, 11, groupType)
+		Ranking.setSub(teamItemPtr, 12, matchesType) 
+		local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+		local tempCount = 0
+		local rankCount = Ranking.getRankItemCount(memberRankingPtr)
+		for i = 1, rankCount do 
+			local memberItemPtr = Ranking.getItemPtrByIndex(memberRankingPtr, i-1)
+			if memberItemPtr then
+				local tempTeamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+				if tempTeamId == teamId then
+					Ranking.setSub(memberItemPtr, 7, groupNum)
+					Ranking.setSub(memberItemPtr, 8, teamPos)  --设置队伍在擂台的位置
+					Ranking.setSub(memberItemPtr, 9, 0)  --设置参赛状态
+					tempCount = tempCount + 1
+					if tempCount >= curCount then
+						break
+					end
+				end
+			end 
+		end
+	end 
+end
+
+--获取比赛时间
+function GetMatchesTime(matchesType)
+	--print("matchesType ", matchesType)
+	local matchesTime = 0
+	local year, month, day = System.getDate(0,0,0)
+	
+	if matchesType == 16 then
+		day = day + 0
+	elseif matchesType == 8 then
+		day = day + 1
+	elseif matchesType == 4 then
+		day = day + 1
+	elseif matchesType == 2 then
+		day = day + 1
+	else
+		return matchesTime
+	end
+	matchesTime = System.encodeNumTime(year,month,day,1,0,0)
+	--print("matchesTime ",matchesTime)
+	return matchesTime
+end
+
+--更新队伍参数
+function UpdateTeamParm()
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+	if not selectMatchesRankingPtr then
+		return
+	end
+	local totalCount = Ranking.getRankItemCount(selectMatchesRankingPtr)
+	local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if not selectMatchesItemPtr then
+		return 
+	end
+end
+
+------------------------------------------------------------------------------------
+
+--广播淘汰赛tips
+function OnCrossMatchesBroadTips()
+	--[[
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return 
+	end
+	--]]
+	
+	--print("OnCrossMatchesBroadTips >>>>>>>>> ")
+	
+	--local matchesTypeIndex = 1
+	--local weekNum = System.getCurrWeekNum()
+	--local weekDay = System.getDayOfWeek()
+	--print("weekNum ",weekNum)
+	--print("weekDay ",weekDay)
+	
+	--[[
+	if (weekNum ~= 3 and weekNum ~= 4) or (weekNum == 3 and (weekDay ~= 0 and weekDay ~= 6)) or
+	(weekNum == 4 and (weekDay ~= 0 and weekDay ~= 6)) then  
+		return 
+	end
+	--]]
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	if CheckMatchesActivityTime(2) ~= true then
+		return 
+	end
+	
+	local matchesTypeIndex = GetCrossMatchTypeIndex()
+	if matchesTypeIndex <= 0 then
+		return 
+	elseif matchesTypeIndex == 1 or matchesTypeIndex == 2 or matchesTypeIndex == 3 then --16进8 ,--8进4,--4进2 
+		System.broadcastTipmsg(string.format(Lang.GuildLang.k00006, CrossMatchesConfig.matchesTypeTab[matchesTypeIndex], CrossMatchesConfig.matchesTypeTab[matchesTypeIndex+1]),2+128)
+	elseif matchesTypeIndex == 4 then --2进1
+		System.broadcastTipmsg(Lang.GuildLang.k00007, 2+128)
+	end
+	--[[
+	if weekNum == 3 and weekDay == 6 then  --16进8
+		System.broadcastTipmsg(string.format(Lang.GuildLang.k00006, CrossMatchesConfig.matchesTypeTab[1], CrossMatchesConfig.matchesTypeTab[2]),2+128)
+		matchesTypeIndex = 1
+	elseif weekNum == 3 and weekDay == 0 then --8进4 
+		System.broadcastTipmsg(string.format(Lang.GuildLang.k00006, CrossMatchesConfig.matchesTypeTab[2], CrossMatchesConfig.matchesTypeTab[3]),2+128)
+		matchesTypeIndex = 2
+	elseif weekNum == 4 and weekDay == 6 then --4进2
+		System.broadcastTipmsg(string.format(Lang.GuildLang.k00006, CrossMatchesConfig.matchesTypeTab[3], CrossMatchesConfig.matchesTypeTab[4]),2+128)
+		matchesTypeIndex = 3
+	elseif weekNum == 4 and weekDay == 0 then --2进1
+		System.broadcastTipmsg(Lang.GuildLang.k00007, 2+128)
+		matchesTypeIndex = 4
+	end
+	--]]
+	
+	local sysVar = System.getStaticVar()
+	if sysVar then
+		sysVar.matchesTimes = 0   --重置比赛局数
+	end
+	
+	SendCrossMatchesTips(1, matchesTypeIndex, 1)
+	--SendCrossMatchesTips(2, matchesTypeIndex, 1)
+end
+
+--向参加龙虎榜赛的队员发消息
+function SendCrossMatchesTips(groupType, index, msgType)  --msgType,1为开始5分钟前发，2为开始发 
+	if index > table.getn(CrossMatchesConfig.matchesTypeTab) then
+		return
+	end
+	local matchesType = CrossMatchesConfig.matchesTypeTab[index]
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	
+	--print("reportRankingPtr ....")
+	if not reportRankingPtr then 
+		return 
+	end
+	
+	local rankCount = Ranking.getRankItemCount(reportRankingPtr)
+	--print("rankCount ",rankCount)
+	for i = 1, rankCount do 
+		local reportItemPtr = Ranking.getItemPtrByIndex(reportRankingPtr, i-1)
+		--print("reportItemPtr ",reportItemPtr)
+		if reportItemPtr then
+			local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+			SendCrossMatchesTipsTo(teamId1, matchesType, msgType)
+			local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+			SendCrossMatchesTipsTo(teamId2, matchesType, msgType)
+		end
+	end
+	
+end
+
+--给客户端发送tip
+function SendCrossMatchesTipsTo(teamId, matchesType, msgType)
+	local teamRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesTeam )  
+	if not teamRankingPtr then
+		return
+	end
+	local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+	if not teamItemPtr then
+		return 
+	end
+	local curCount = tonumber(Ranking.getSub(teamItemPtr, 2))
+	
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )  
+	if not memberRankingPtr then
+		return
+	end
+	
+	local tempCount = 0
+	local count = Ranking.getRankItemCount(memberRankingPtr) 
+	for i = 1, count do 
+		local memberItemPtr = Ranking.getItemFromIndex(memberRankingPtr, i-1)
+		if memberItemPtr then
+			local tempTeamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+			if tempTeamId == teamId then
+				local name = Ranking.getSub(memberItemPtr, 1)
+				local actorId = Ranking.getId(memberItemPtr)
+				local actorPtr = System.getEntityPtrByActorID(actorId) --Actor.getActorByName(name)
+				if msgType == 1 then
+					Actor.messageBox(actorPtr, 0, 0, string.format(Lang.Activity.kf0036, matchesType, (matchesType/2)), Lang.Activity.kf0037.."/KnowFunc", nil, nil, 0, 0)
+				elseif msgType == 2 then
+					Actor.messageBox(actorPtr, 0, 0, string.format(Lang.Activity.kf0038, matchesType, (matchesType/2)), Lang.Activity.kf0039.."/JoinFunc", nil, nil, 0, 0)
+				end
+				tempCount = tempCount + 1
+				if tempCount >= curCount then
+					break
+				end
+			end 
+		end
+	end 
+end
+
+function KnowFunc(sysarg)
+	return 
+end
+
+function JoinFunc(sysarg, msgType)
+	if System.isStartCommonServer() == false then		--没连接到公共服
+		return
+	end
+	Actor.enterFuBen(sysarg,0,CrossMatchesConfig.enterSeneId,CrossMatchesConfig.enterPosx,CrossMatchesConfig.enterPosY) 
+	Actor.reqTransmitToCommonServer(sysarg)  
+end
+
+--淘汰赛每场开始处理
+function OnCrossMatchesStart() 
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	--[[
+	local matchesTypeIndex = 1 
+	local weekNum = System.getCurrWeekNum()
+	local weekDay = System.getDayOfWeek()
+	--print("weekNum ",weekNum)
+	--print("weekDay ",weekDay)
+	
+	if (weekNum ~= 3 and weekNum ~= 4) or (weekNum == 3 and (weekDay ~= 0 and weekDay ~= 6)) or
+	(weekNum == 4 and (weekDay ~= 0 and weekDay ~= 6)) then  
+		return 
+	end
+	--]]
+	
+	--print("OnCrossMatchesStart ....")
+	
+	if CheckMatchesActivityTime(2) ~= true then
+		return 
+	end
+	
+	local matchesTypeIndex = GetCrossMatchTypeIndex()
+	if matchesTypeIndex <= 0 then
+		return 
+	elseif matchesTypeIndex == 1 or matchesTypeIndex == 2 or matchesTypeIndex == 3 then --16进8 ,--8进4,--4进2 
+		System.broadcastTipmsg(string.format(Lang.GuildLang.k00008, CrossMatchesConfig.matchesTypeTab[matchesTypeIndex], CrossMatchesConfig.matchesTypeTab[matchesTypeIndex+1]),2+128)
+	elseif matchesTypeIndex == 4 then
+		System.broadcastTipmsg(Lang.GuildLang.k00009, 2+128)
+	end
+	
+	--[[
+	if weekNum == 3 and weekDay == 6 then  --16进8
+		System.broadcastTipmsg(string.format(Lang.GuildLang.k00008, CrossMatchesConfig.matchesTypeTab[1], CrossMatchesConfig.matchesTypeTab[2]),2+128)
+		matchesTypeIndex = 1
+	elseif weekNum == 3 and weekDay == 0 then --8进4 
+		System.broadcastTipmsg(string.format(Lang.GuildLang.k00008, CrossMatchesConfig.matchesTypeTab[2], CrossMatchesConfig.matchesTypeTab[3]),2+128)
+		matchesTypeIndex = 2
+	elseif weekNum == 4 and weekDay == 6 then --4进2
+		System.broadcastTipmsg(string.format(Lang.GuildLang.k00008, CrossMatchesConfig.matchesTypeTab[3], CrossMatchesConfig.matchesTypeTab[4]),2+128)
+		matchesTypeIndex = 3
+	elseif weekNum == 4 and weekDay == 0 then --2进1
+		System.broadcastTipmsg(Lang.GuildLang.k00009, 2+128)
+		matchesTypeIndex = 4
+	else
+		return 
+	end
+	--]]
+	
+	--SendCrossMatchesTips(1, matchesTypeIndex, 2) 
+	--SendCrossMatchesTips(2, matchesTypeIndex, 2)
+	
+	
+	if not sysVar.matchesTimes then
+		sysVar.matchesTimes = 1   --比赛局数
+	elseif sysVar.matchesTimes < 3 then
+		sysVar.matchesTimes = sysVar.matchesTimes + 1
+	else 
+		sysVar.matchesTimes = 0
+		return 
+	end	
+	
+	--local dVar = System.getDyanmicVar()
+	--dVar.currMatchTime = System.getCurrMiniTime()
+	
+	if System.isCommonServer() == true then		--是否在公共服 
+		StartCrossMatches(1, matchesTypeIndex)  --龙榜赛开始, matchesTypeIndex比赛类型索引
+		--StartCrossMatches(2, matchesTypeIndex)	--虎榜赛开始
+	
+		--提示20秒进入公共擂台
+		StartEnterCrossMatch(1, matchesTypeIndex)
+		--StartEnterCrossMatch(2, matchesTypeIndex)
+		
+		local cmHandle = Fuben.getSceneHandleById(CrossMatchesConfig.cmSceneId, 0)
+		Fuben.setSceneTime(cmHandle, CrossMatchesConfig.activityTime) 
+		
+		local nHandle = Fuben.getSceneHandleById(CrossMatchesConfig.enterComSeneId, 0)
+		local NpcPtr = Fuben.getNpcPtrByName(nHandle,Lang.EntityName.n00301)
+		local svar = System.getDyanmicVar()
+		svar.EnterMatchesFlag = 0
+		Actor.regScriptCallback(NpcPtr, NpcPtr, 30*1000, 30*1000, 1, "CrossMatchFirstMiniHandle")
+	end
+	
+end
+
+
+
+
+
+
+
+--开始淘汰赛
+function StartCrossMatches(groupType, index)
+	if System.isCommonServer() == false then		--是否在公共服 
+		return 
+	end
+	
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	local enterPosConfig = CrossMatchesConfig.enterCrossMatches 
+	if groupType <= 0 or groupType > table.getn(enterPosConfig) then
+		return 
+	end
+	if index <= 0 or index > table.getn(enterPosConfig[groupType]) then 
+		return 
+	end
+	local matchesType = CrossMatchesConfig.matchesTypeTab[index]
+	local enterPosTab = enterPosConfig[groupType]
+	for k, v in ipairs(enterPosTab[index]) do 
+		local monstorsConfig = v.monster
+		local hScene = Fuben.getSceneHandleById(monstorsConfig.cmSceneId, 0) 
+		Fuben.createMonster(hScene, monstorsConfig.id, monstorsConfig.posX, monstorsConfig.posY, monstorsConfig.liveTime)
+	end
+	
+	InitCrossMatchState(groupType, matchesType)
+end
+
+--初始化比赛状态0为默认值，1为1队获胜，2为2队获胜，3为该场比赛已结束
+function InitCrossMatchState(groupType, matchesType)
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	if not reportRankingPtr then
+		return 
+	end
+	
+	local totalCount = Ranking.getRankItemCount(reportRankingPtr)
+	local tempCount = 0
+	for i = 1, totalCount do 
+		local reportItemPtr = Ranking.getItemPtrByIndex(reportRankingPtr, i-1)
+		if reportItemPtr then
+			if (Ranking.getPoint(reportItemPtr) == matchesType) then
+				local state = tonumber(Ranking.getSub(reportItemPtr, 10))
+				if state ~= 1 and state ~= 2 then
+					Ranking.setSub(reportItemPtr, 10, 0)
+					Ranking.setSub(reportItemPtr, 8, 0) --清空队伍参赛人数
+					Ranking.setSub(reportItemPtr, 9, 0) --清空队伍参赛人数
+					local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+					local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+					ResetStateByTeam(teamId1)
+					ResetStateByTeam(teamId2)
+				end
+			end
+		end
+	end
+end
+
+--重置淘汰赛玩家的状态
+function ResetStateByTeam(teamId)
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+	if not selectMatchesRankingPtr then
+		return
+	end
+	local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if not selectMatchesItemPtr then
+		return 
+	end
+	local curCount = tonumber(Ranking.getSub(selectMatchesItemPtr, 2))
+
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )  
+	if not memberRankingPtr then
+		return
+	end
+	local tempCount = 0
+	local totalCount = Ranking.getRankItemCount( memberRankingPtr )
+	for i = 1, totalCount do 
+		local memberItemPtr = Ranking.getItemPtrByIndex(memberRankingPtr, i-1)
+		if memberItemPtr then
+			if tonumber(Ranking.getSub(memberItemPtr, 0)) == teamId then
+				Ranking.setSub(memberItemPtr, 9, 0)
+				Ranking.setSub(memberItemPtr, 10, 0) 
+				tempCount = tempCount + 1
+				if tempCount >= curCount then
+					break
+				end
+			end
+		end
+	end
+	
+end
+
+--淘汰赛玩家被杀
+function KillInCrossMatches(sysarg, killerPtr)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )  
+	if not memberRankingPtr then
+		return
+	end
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId)
+	if not memberItemPtr then
+		return
+	end
+
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0 ))
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+	if not selectMatchesRankingPtr then
+		return
+	end
+	local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if not selectMatchesItemPtr then
+		return 
+	end
+	
+	local groupType = tonumber(Ranking.getSub(selectMatchesItemPtr, 11)) 
+	local matchesType = tonumber(Ranking.getSub(selectMatchesItemPtr, 12))  
+	local groupNum = tonumber(Ranking.getSub(selectMatchesItemPtr, 4))  
+	
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	if not reportRankingPtr then
+		return 
+	end
+	
+	local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType+groupNum)
+	if reportItemPtr then
+		local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+		local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+		local curTeam1JoinNum = tonumber(Ranking.getSub(reportItemPtr, 8))
+		local curTeam2JoinNum = tonumber(Ranking.getSub(reportItemPtr, 9))
+		local curJoinNum = 0
+		if teamId == teamId1 then
+			curJoinNum = curTeam1JoinNum-1
+			if curJoinNum <= 0 then
+				Ranking.setSub(reportItemPtr, 8, 0)
+			else
+				Ranking.setSub(reportItemPtr, 8, curJoinNum)
+			end
+			
+		elseif teamId == teamId2 then
+			curJoinNum = curTeam2JoinNum-1
+			if curJoinNum <= 0 then
+				Ranking.setSub(reportItemPtr, 9, 0)
+			else
+				Ranking.setSub(reportItemPtr, 9, curJoinNum)
+			end
+		end
+		
+		if curJoinNum > 0 then
+			local exitConfig = CrossMatchesConfig.exitCrossMatches
+			Actor.relive(sysarg)
+			Actor.enterFuBen(sysarg, 0, CrossMatchesConfig.cmSceneId, exitConfig.posX, exitConfig.posY) 
+			UpdateCorssMatchFormInfo(reportItemPtr, 0)
+		else
+			local sysVar = System.getStaticVar()
+			if not sysVar or not sysVar.matchesTimes then
+				return
+			end
+			
+			local index = 0
+			for k, v in ipairs(CrossMatchesConfig.matchesTypeTab or {}) do  
+				if v == matchesType then
+					index = k
+					break
+				end
+			end
+			CheckMatchesEnd(reportItemPtr, groupType, index, sysVar.matchesTimes, false)
+		end
+	end
+end
+
+--淘汰赛每场比赛时间到 结束处理
+function OnCrossMatchesEnd()
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	--local matchesTypeIndex = 1 
+	--local weekNum = System.getCurrWeekNum()
+	--local weekDay = System.getDayOfWeek()
+	--print("weekNum ", weekNum)
+	--print("weekDay ", weekDay)
+	--[[
+	if (weekNum ~= 3 and weekNum ~= 4) or (weekNum == 3 and (weekDay ~= 0 and weekDay ~= 6)) or
+	(weekNum == 4 and (weekDay ~= 0 and weekDay ~= 6)) then  
+		return 
+	end
+	--]]
+	
+	if CheckMatchesActivityTime(2) ~= true then
+		return 
+	end
+	
+	
+	
+	--print("OnCrossMatchesEnd ....")
+	
+	local matchesTimes = 1
+	if sysVar.matchesTimes then
+		matchesTimes = sysVar.matchesTimes 
+	end
+	
+	local matchesTypeIndex = GetCrossMatchTypeIndex()
+	
+	--[[
+	if weekNum == 3 and weekDay == 6 then  --16进8
+		matchesTypeIndex = 1
+	elseif weekNum == 3 and weekDay == 0 then --8进4 
+		matchesTypeIndex = 2
+	elseif weekNum == 4 and weekDay == 6 then --4进2 
+		matchesTypeIndex = 3
+	elseif weekNum == 4 and weekDay == 0 then --2进1
+		matchesTypeIndex = 4
+	end
+	--]]
+	
+	if matchesTypeIndex <= 0 or matchesTypeIndex > 4 then
+		return 
+	end
+	
+	if System.isCommonServer() == true then		--是否在公共服 
+		EndCrossMatches(1, matchesTypeIndex, matchesTimes, false)  --龙榜赛结束, matchesTypeIndex比赛类型索引
+		--EndCrossMatches(2, matchesTypeIndex, matchesTimes, false)  --虎榜赛结束
+	end
+	
+	--print("sysVar.matchesTimes ",sysVar.matchesTimes)
+	
+	if sysVar.matchesTimes then
+		if sysVar.matchesTimes < 3 then
+			if matchesTypeIndex >= 1 and matchesTypeIndex <= 3 then
+				System.broadcastTipmsg(string.format(Lang.GuildLang.k00010, CrossMatchesConfig.matchesTypeTab[matchesTypeIndex], CrossMatchesConfig.matchesTypeTab[matchesTypeIndex+1]),2+128)
+			elseif matchesTypeIndex == 4 then
+				System.broadcastTipmsg(Lang.GuildLang.k00011,2+128)
+			end
+		elseif sysVar.matchesTimes == 3 then
+			if matchesTypeIndex >= 1 and matchesTypeIndex <= 3 then
+				System.broadcastTipmsg(string.format(Lang.GuildLang.k00012, CrossMatchesConfig.matchesTypeTab[matchesTypeIndex]),2+128)
+			elseif  matchesTypeIndex == 4 then
+				System.broadcastTipmsg(Lang.GuildLang.k00013,2+128)
+			end
+		end
+	end
+	
+	
+	if sysVar.matchesTimes and sysVar.matchesTimes >= 3 then
+		sysVar.matchesTimes = 0 
+		
+		if System.isCommonServer() == true then		--是否在公共服 
+			if CheckMatchesActivityTime(4) == true then 
+				System.sendCrossMatchesEnd()  --发送比赛结束消息
+			end
+			--[[
+			if weekNum == 4 and weekDay == 0 then  
+				System.sendCrossMatchesEnd()  --发送比赛结束消息
+			end
+			--]]
+		end 
+	end
+end
+
+--比赛开始一分钟检测比赛是否可结束
+function OnCheckMatchEndFirstMin()
+	--print("OnCheckMatchEndFirstMin ")
+	if CheckCrossMatchesOpen() ~= true then
+		return 
+	end
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	--local matchesTypeIndex = 1 
+	--local weekNum = System.getCurrWeekNum()
+	--local weekDay = System.getDayOfWeek()
+	--print("weekNum ", weekNum)
+	--print("weekDay ", weekDay)
+	--[[
+	if (weekNum ~= 3 and weekNum ~= 4) or (weekNum == 3 and (weekDay ~= 0 and weekDay ~= 6)) or
+	(weekNum == 4 and (weekDay ~= 0 and weekDay ~= 6)) then  
+		return 
+	end
+	--]]
+	
+	if CheckMatchesActivityTime(2) ~= true then
+		return 
+	end
+	
+	--print("OnCrossMatchesEnd ....")
+	
+	local matchesTimes = 1
+	if sysVar.matchesTimes then
+		matchesTimes = sysVar.matchesTimes 
+	end
+	
+	local matchesTypeIndex = GetCrossMatchTypeIndex()
+	
+	if matchesTypeIndex <= 0 or matchesTypeIndex > 4 then
+		return 
+	end
+	
+	--[[
+	if weekNum == 3 and weekDay == 6 then  --16进8
+		matchesTypeIndex = 1
+	elseif weekNum == 3 and weekDay == 0 then --8进4 
+		matchesTypeIndex = 2
+	elseif weekNum == 4 and weekDay == 6 then --4进2 
+		matchesTypeIndex = 3
+	elseif weekNum == 4 and weekDay == 0 then --2进1
+		matchesTypeIndex = 4
+	end
+	--]]
+	
+	if System.isCommonServer() == true then		--是否在公共服 
+		EndCrossMatches(1, matchesTypeIndex, matchesTimes, true)  --龙榜赛结束, matchesTypeIndex比赛类型索引
+		--EndCrossMatches(2, matchesTypeIndex, matchesTimes, true)  --虎榜赛结束
+	end
+end
+
+--比赛时间到,结束比赛
+function EndCrossMatches(groupType, index, matchesTimes, minCheck)
+	if matchesTimes <= 0 then
+		return
+	end
+	
+	local enterPosConfig = CrossMatchesConfig.enterCrossMatches 
+	if groupType <= 0 or groupType > table.getn(enterPosConfig) then 
+		return 
+	end
+	if index <= 0 or index > table.getn(enterPosConfig[groupType]) then 
+		return 
+	end
+	
+	local matchesType = CrossMatchesConfig.matchesTypeTab[index]
+	
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	
+	if not reportRankingPtr then
+		return 
+	end
+	
+	local rankCount = Ranking.getRankItemCount(reportRankingPtr)
+	for i = 1, rankCount do 
+		local reportItemPtr = Ranking.getItemPtrByIndex(reportRankingPtr, i-1)
+		if reportItemPtr and Ranking.getPoint(reportItemPtr) == matchesType then
+			CheckMatchesEnd(reportItemPtr, groupType, index, matchesTimes, minCheck)
+		end
+	end
+end
+
+--判断该轮比赛是否结束
+function CheckMatchesEnd(reportItemPtr, groupType, index, matchesTimes, minCheck)
+	if index <= 0 or matchesTimes <= 0 then
+		return
+	end
+	
+	local enterPosConfig = CrossMatchesConfig.enterCrossMatches 
+	if index <= 0 or index > table.getn(enterPosConfig[groupType]) then 
+		return 
+	end
+	local matchesType = CrossMatchesConfig.matchesTypeTab[index]
+	local curMatchType = GetCrossMatchType()
+	if matchesType ~= curMatchType then
+		return 
+	end
+	
+	local groupNum = tonumber(Ranking.getSub(reportItemPtr, 0))
+	local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+	local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+	local curTeam1JoinNum = tonumber(Ranking.getSub(reportItemPtr, 8))
+	local curTeam2JoinNum = tonumber(Ranking.getSub(reportItemPtr, 9))
+	local state = tonumber(Ranking.getSub(reportItemPtr, 10))
+	--print("CheckMatchesEnd ....")
+	if state ~= 0 then  --1为1队获胜，2为2队获胜，3为已经结束该局比赛
+		return 
+	end
+	
+	local minCheckFlag = false
+	local resultIndex = matchesTimes + 2 --2是战报榜序号的偏移值
+	if teamId1 == 0 or teamId2 == 0 then
+		if teamId1 == 0 and teamId2 == 0 then
+			return
+		else
+			if teamId1 ~= 0 and teamId2 == 0 then
+				Ranking.setSub(reportItemPtr, resultIndex, 1) 	
+			elseif teamId2 ~= 0 and teamId1 == 0 then
+				Ranking.setSub(reportItemPtr, resultIndex, -1) 	
+			end
+			
+			if minCheck == true then
+				minCheckFlag = true
+			end
+		end
+	else
+		if minCheck == true then
+			--print("curTeam1JoinNum ", curTeam1JoinNum)
+			--print("curTeam2JoinNum ", curTeam2JoinNum) 
+			if curTeam1JoinNum == 0 and curTeam2JoinNum == 0 then
+				local selectMatchesRankPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+				if selectMatchesRankPtr then
+					local team1ItemPtr = Ranking.getItemPtrFromId(selectMatchesRankPtr, teamId1)
+					local team2ItemPtr = Ranking.getItemPtrFromId(selectMatchesRankPtr, teamId2)
+					if team1ItemPtr and team2ItemPtr then
+						if Ranking.getPoint(team1ItemPtr) >= Ranking.getPoint(team2ItemPtr) then
+							Ranking.setSub(reportItemPtr, resultIndex, 1) 
+						else
+							Ranking.setSub(reportItemPtr, resultIndex, -1)
+						end
+					end
+				end
+				minCheckFlag = true
+			elseif curTeam1JoinNum ~= 0 and curTeam2JoinNum == 0 then
+				Ranking.setSub(reportItemPtr, resultIndex, 1)
+				minCheckFlag = true
+			elseif curTeam2JoinNum ~= 0 and curTeam1JoinNum == 0 then
+				Ranking.setSub(reportItemPtr, resultIndex, -1)
+				minCheckFlag = true
+			end
+		else
+			if curTeam1JoinNum > curTeam2JoinNum then
+				Ranking.setSub(reportItemPtr, resultIndex, 1) 
+			elseif curTeam1JoinNum < curTeam2JoinNum then
+				Ranking.setSub(reportItemPtr, resultIndex, -1)
+			else
+				local selectMatchesRankPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+				if selectMatchesRankPtr then
+					local team1ItemPtr = Ranking.getItemPtrFromId(selectMatchesRankPtr, teamId1)
+					local team2ItemPtr = Ranking.getItemPtrFromId(selectMatchesRankPtr, teamId2)
+					if team1ItemPtr and team2ItemPtr then
+						if Ranking.getPoint(team1ItemPtr) >= Ranking.getPoint(team2ItemPtr) then
+							Ranking.setSub(reportItemPtr, resultIndex, 1) 
+						else
+							Ranking.setSub(reportItemPtr, resultIndex, -1)
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	if minCheck == true then
+		if minCheckFlag == false then
+			return
+		end
+	end
+	
+	Ranking.setSub(reportItemPtr, 10, 3) --结束该局比赛的标记
+		
+	local upgradeFlag = 0
+	if matchesTimes >= 2 then
+		for i = 1, matchesTimes do
+			local tempValue1 = tonumber(Ranking.getSub(reportItemPtr, i+2))
+			for j = i+1, matchesTimes do
+				local tempValue2 = tonumber(Ranking.getSub(reportItemPtr, j+2))
+				if tempValue1 == tempValue2 then
+					upgradeFlag = tempValue1
+				end
+			end
+		end
+	end
+	if upgradeFlag ~= 0 then
+		if upgradeFlag == 1 then  --战队1获胜
+			if index >= table.getn(CrossMatchesConfig.matchesTypeTab) then
+				Ranking.setSub(reportItemPtr, 10, 1) 
+				SetWinMemberNames(reportItemPtr, teamId1)
+				SendCrossMatchesRet(groupType, index, groupNum)
+			else
+				Ranking.setSub(reportItemPtr, 10, 1)
+				SetWinMemberNames(reportItemPtr, teamId1)
+				SendCrossMatchesRet(groupType, index, groupNum)
+				Upgrade(groupType, index, teamId1, groupNum)
+			end
+		elseif upgradeFlag == -1 then  --战队2获胜 
+			if index >= table.getn(CrossMatchesConfig.matchesTypeTab) then
+				Ranking.setSub(reportItemPtr, 10, 2)
+				SetWinMemberNames(reportItemPtr, teamId2)
+				SendCrossMatchesRet(groupType, index, groupNum)
+			else
+				Ranking.setSub(reportItemPtr, 10, 2)
+				SetWinMemberNames(reportItemPtr, teamId2)
+				SendCrossMatchesRet(groupType, index, groupNum)
+				Upgrade(groupType, index, teamId2, groupNum)
+			end
+		end
+	end		
+	
+	Ranking.setSub(reportItemPtr, 8, 0) --清空队伍参赛人数
+	Ranking.setSub(reportItemPtr, 9, 0) --清空队伍参赛人数
+	
+	exitMatchesScene(teamId1, reportItemPtr, 1) 
+	exitMatchesScene(teamId2, reportItemPtr, 2) 
+	
+	UpdateCorssMatchFormInfo(reportItemPtr, 0) --更新面板
+	
+	local winTeamId = 0
+	local loseTeamId = 0
+	if upgradeFlag ~= 0 then
+		if upgradeFlag == 1 then
+			winTeamId = teamId1
+			loseTeamId = teamId2
+		elseif upgradeFlag == -1 then
+			winTeamId = teamId2
+			loseTeamId = teamId1
+		end
+	else
+		local curFlag = tonumber(Ranking.getSub(reportItemPtr, resultIndex))
+		if curFlag == 1 then
+			winTeamId = teamId1
+			loseTeamId = teamId2
+		elseif curFlag == -1 then
+			winTeamId = teamId2
+			loseTeamId = teamId1
+		end
+	end
+		
+	local selectRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+	if selectRankingPtr then
+		local winTeamName = "-"
+		local loseTeamName = "-"
+		local winSelectItemPtr = Ranking.getItemPtrFromId(selectRankingPtr, winTeamId)
+		if winSelectItemPtr then
+			winTeamName = Ranking.getSub(winSelectItemPtr, 0)
+		end
+		local loseSelectItemPtr = Ranking.getItemPtrFromId(selectRankingPtr, loseTeamId)
+		if loseSelectItemPtr then
+			loseTeamName = Ranking.getSub(loseSelectItemPtr, 0)
+		end
+		
+		if index > table.getn(CrossMatchesConfig.matchesTypeTab) then
+			return
+		end
+		local matchesType = CrossMatchesConfig.matchesTypeTab[index]
+		local rankName = "-"
+		if groupType == 1 then
+			rankName = Lang.Activity.kf0079
+		elseif groupType == 2 then
+			rankName = Lang.Activity.kf0080
+		end
+		if upgradeFlag ~= 0 then
+			if matchesType == 2 then
+				System.broadcastTipmsg(string.format(Lang.Activity.kf0094, winTeamName, rankName, loseTeamName),2+128)
+			else 
+				System.broadcastTipmsg(string.format(Lang.Activity.kf0082, winTeamName, rankName, matchesType, groupNum, loseTeamName),2+128)
+			end
+		else
+			if matchesType == 2 then
+				System.broadcastTipmsg(string.format(Lang.Activity.kf0093, winTeamName, loseTeamName, rankName, matchesTimes),2+128)
+			else
+				System.broadcastTipmsg(string.format(Lang.Activity.kf0081, winTeamName, loseTeamName, rankName, matchesType, groupNum, matchesTimes),2+128)
+			end
+		end	
+	end 
+	
+end
+
+--判断所有比赛是否结束
+function CheckAllMatchesIsEnd(index)
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	local endFlag = false
+	if index <= 0 or index > table.getn(enterPosConfig[groupType]) then 
+		return 
+	end
+	
+	local matchesType = CrossMatchesConfig.matchesTypeTab[index]
+	
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	
+	--if CheckMatchesIsEnd(1, matchesType) == true and CheckMatchesIsEnd(2, matchesType) == true then
+	if CheckMatchesIsEnd(1, matchesType) == true then
+		sysVar.matchesTimes = 0 
+		if matchesType == 2 then
+			System.sendCrossMatchesEnd()  --发送比赛结束消息
+		end
+	end
+end
+
+--检测龙版虎榜是否结束比赛
+function CheckMatchesIsEnd(groupType, matchesType)
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	
+	if not reportRankingPtr then
+		return false
+	end
+	
+	local totalCount = Ranking.getRankItemCount(reportRankingPtr)
+	for i=1, totalCount do 
+		local reportItemPtr = Ranking.getItemPtrByIndex(reportRankingPtr, i-1)
+		if reportItemPtr then
+			if Ranking.getPoint(reportItemPtr) == matchesType then
+				local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+				local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+				local flag = tonumber(Ranking.getSub(reportItemPtr, 10))
+				if teamId1 ~= 0 or teamId2 ~= 0 then
+					if flag ~= 1 and flag ~= 2 then
+						return false
+					end
+				end
+			end
+		end
+	end
+	return true
+	
+end
+
+
+
+
+--晋级,重新分组
+function Upgrade(groupType, index, teamId, groupNum)
+	--print("Upgrade ...")
+	if index >= table.getn(CrossMatchesConfig.matchesTypeTab) then 
+		return 
+	end
+	
+	local enterPosConfig = CrossMatchesConfig.enterCrossMatches 
+	if groupType <= 0 or groupType > table.getn(enterPosConfig) then 
+		return 
+	end
+	if index <= 0 or index+1 > table.getn(enterPosConfig[groupType]) then 
+		return 
+	end
+	
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	if not reportRankingPtr then
+		return
+	end	
+	
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )
+	if not selectMatchesRankingPtr then
+		return
+	end
+	
+	local matchesType = CrossMatchesConfig.matchesTypeTab[index + 1]
+	local teamFlag = 1
+	if groupNum % 2 == 0 then
+		groupNum = groupNum / 2
+		teamFlag = 2
+	elseif groupNum % 2 > 0 then
+		groupNum = math.floor(groupNum / 2) + 1
+		teamFlag = 1
+	end
+	
+	local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType+groupNum)
+	if not reportItemPtr then
+		local reportItemPtr = Ranking.addItem(reportRankingPtr, matchesType+groupNum, matchesType)
+		if reportItemPtr then
+			Ranking.setSub(reportItemPtr, 0, groupNum)  
+			for i = 1, 14 do 
+				Ranking.setSub(reportItemPtr, i, 0)
+			end
+			Ranking.setSub(reportItemPtr, teamFlag, teamId)  
+			local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+			if selectMatchesItemPtr then
+				UpdateGroupInfo(teamId, groupNum, groupType, matchesType, teamFlag)
+
+				local serverIndex = tonumber(Ranking.getSub(selectMatchesItemPtr, 5))
+				Ranking.setSub(reportItemPtr, teamFlag + 5, serverIndex)
+			end
+			local matchesTime = GetMatchesTime(matchesType)
+			Ranking.setSub(reportItemPtr, 11, matchesTime)
+		end
+	else
+		Ranking.setSub(reportItemPtr, teamFlag, teamId)
+		local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+		if selectMatchesItemPtr then
+			UpdateGroupInfo(teamId, groupNum, groupType, matchesType, teamFlag)
+			
+			local serverIndex = tonumber(Ranking.getSub(selectMatchesItemPtr, 5))
+			Ranking.setSub(reportItemPtr, teamFlag + 5, serverIndex)  
+		end
+	end
+	
+	System.sendCrossMatchesUpgrade(groupType, matchesType, groupNum)
+end
+
+--退出擂台场景 
+function exitMatchesScene(teamId, reportItemPtr, teamIndex)
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+	if not selectMatchesRankingPtr then
+		return
+	end
+	local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if not selectMatchesItemPtr then
+		return 
+	end
+	
+	local curCount = tonumber(Ranking.getSub(selectMatchesItemPtr, 2))
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )   
+	if not memberRankingPtr then
+		return
+	end
+	local exitConfig = CrossMatchesConfig.exitCrossMatches
+	local tempCount = 0
+	local count = Ranking.getRankItemCount(memberRankingPtr)
+	for i = 1, count do 
+		local memberItemPtr = Ranking.getItemFromIndex(memberRankingPtr, i-1)
+		if memberItemPtr then
+			if teamId == tonumber(Ranking.getSub(memberItemPtr, 0)) then
+				local actorId = Ranking.getId(memberItemPtr)
+				local actorPtr = System.getEntityPtrByActorID(actorId)
+				Actor.enterFuBen(actorPtr, 0, CrossMatchesConfig.cmSceneId, exitConfig.posX, exitConfig.posY) 
+				Ranking.setSub(memberItemPtr, 9, 1) --设置参赛状态为已参赛，
+				Ranking.setSub(memberItemPtr, 10, 0) --设置0
+				
+				if reportItemPtr then
+					local matchesRet = tonumber(Ranking.getSub(reportItemPtr, 10))
+					if matchesRet ~= 0 and matchesRet == teamIndex then
+						Actor.sendTipmsg(actorPtr, Lang.Activity.kf0073, ttFlyTip)
+					end
+				end 				
+				tempCount = tempCount + 1
+				if tempCount >= curCount then
+					break
+				end
+			end
+		end 
+	end
+end
+
+--设置获胜队伍队员
+function SetWinMemberNames(reportItemPtr, teamId)
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+	if not selectMatchesRankingPtr then
+		return
+	end
+	local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if not selectMatchesItemPtr then
+		return 
+	end
+	
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )   
+	if not memberRankingPtr then
+		return
+	end
+	local curCount = tonumber(Ranking.getSub(selectMatchesItemPtr, 2))
+	local totalCount = Ranking.getRankItemCount(memberRankingPtr)
+	local tempCount = 0
+	for i = 1, totalCount do 
+		local memberItemPtr = Ranking.getItemFromIndex(memberRankingPtr, i-1)
+		if memberItemPtr then
+			if tonumber(Ranking.getSub(memberItemPtr, 0)) == teamId then
+				local memberName = Ranking.getSub(memberItemPtr, 1)
+				tempCount = tempCount + 1
+				Ranking.setSub(reportItemPtr, 11 + tempCount, memberName)	
+				local force = tonumber(Ranking.getSub(memberItemPtr, 5))
+				Ranking.setSub(reportItemPtr, 14 + tempCount, force)	
+			end
+			if tempCount >= curCount then
+				break
+			end
+		end
+	end
+end
+
+--结束每轮淘汰赛，发送结果 
+function SendCrossMatchesRet(groupType, index, groupNum)
+	if index > table.getn(CrossMatchesConfig.matchesTypeTab) then
+		return
+	end
+
+	local matchesType = CrossMatchesConfig.matchesTypeTab[index]
+	System.sendCrossMatchesRet(groupType, matchesType, groupNum)
+
+end
+
+
+--发送海选排行榜
+function OnSendSelectMathesRank(sysarg, args) 
+	--print("OnSendSelectMathesRank ")
+	local pageNum = args[2]
+	local pageIndex = args[3]
+	
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local memberRankingPtr = Ranking.getRanking( Lang.Rank.CrossMatchesMember )    
+	--print("memberRankingPtr ",memberRankingPtr)
+	if not memberRankingPtr then
+		return
+	end
+	
+	local joinFlag = false
+	local memberItemPtr = Ranking.getItemPtrFromId(memberRankingPtr, actorId)
+	if memberItemPtr then
+		joinFlag = true
+	end
+	
+	local teamId = tonumber(Ranking.getSub(memberItemPtr, 0))
+	
+	local teamRankingPtr = Ranking.getRanking(Lang.Rank.CrossMatchesTeam)
+	--print("-->teamRankingPtr ",teamRankingPtr)
+	if teamRankingPtr then
+		local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+		--print("-->>teamItemPtr ",teamItemPtr)
+		if teamItemPtr then
+			local isSignUp = tonumber(Ranking.getSub(teamItemPtr, 4))
+			--print("isSignUp ", isSignUp)
+			if isSignUp ~= 1 then
+				local sgPack = DataPack.allocPacket(sysarg, 46, 17) 
+				if sgPack ~= nil then
+					DataPack.writeChar(sgPack, isSignUp)
+					DataPack.flush(sgPack)
+				end
+			end
+		end
+	end
+	
+	
+	--print("pageNum", pageNum)
+	--print("pageIndex", pageIndex)
+	if pageNum <= 0 or pageIndex <= 0 then
+		return 
+	end
+
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName)
+	--print("selectMatchesRankingPtr ",selectMatchesRankingPtr)
+	if not selectMatchesRankingPtr then
+		return
+	end
+	
+	local totalCount = Ranking.getRankItemCount(selectMatchesRankingPtr) 
+	local totalPage =  0
+	if totalCount % pageNum > 0 then
+		totalPage = math.floor(totalCount / pageNum) + 1
+	else
+		totalPage = math.floor(totalCount / pageNum) 
+	end
+	
+	--print("pageIndex ", pageIndex)
+	--print("totalPage ",totalPage)
+	if pageIndex > totalPage then
+		return 
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 46, 18) 
+	if pack == nil then
+		return 
+	end
+	--print("joinFlag", joinFlag)
+	if joinFlag then
+		local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+		if selectMatchesItemPtr then
+			DataPack.writeInt(pack, teamId)  
+			DataPack.writeString(pack, Ranking.getSub(selectMatchesItemPtr, 0))
+			DataPack.writeInt(pack, Ranking.getPoint(selectMatchesItemPtr))  
+			DataPack.writeInt(pack, Ranking.getIndexFromPtr(selectMatchesItemPtr) + 1)
+			local winCount =  tonumber(Ranking.getSub(selectMatchesItemPtr,6)) or 0
+			local failCount = tonumber(Ranking.getSub(selectMatchesItemPtr,7)) or 0
+			local drawCount = tonumber(Ranking.getSub(selectMatchesItemPtr,8)) or 0
+			DataPack.writeInt(pack, winCount)
+			DataPack.writeInt(pack, failCount)
+			--DataPack.writeInt(pack, tonumber(Ranking.getSub(selectMatchesItemPtr,9)))
+			local weekCount = 0
+			local teamParamRankingPtr = Ranking.getRanking(Lang.Rank.CrossTeamParamName)
+			--print("teamParamRankingPtr",teamParamRankingPtr)
+			if teamParamRankingPtr then
+				local teamParamItemPtr = Ranking.getItemPtrFromId(teamParamRankingPtr, teamId)
+				--print("teamParamItemPtr", teamParamItemPtr)
+				if teamParamItemPtr then
+					weekCount = tonumber(Ranking.getSub(teamParamItemPtr, 6))
+				end
+			end
+			--print("weekCount", weekCount)
+			DataPack.writeInt(pack, weekCount)
+			DataPack.writeInt(pack, winCount+failCount+drawCount)
+		else
+			local teamName = "-"
+			local teamRankingPtr = Ranking.getRanking(Lang.Rank. CrossMatchesTeam)
+			if teamRankingPtr then
+				local teamItemPtr = Ranking.getItemPtrFromId(teamRankingPtr, teamId)
+				if teamItemPtr then
+					teamName = Ranking.getSub(teamItemPtr, 0)
+				end
+			end
+			DataPack.writeInt(pack, 0) 
+			DataPack.writeString(pack, teamName)
+			DataPack.writeInt(pack, 0)  
+			DataPack.writeInt(pack, 0)
+			DataPack.writeInt(pack, 0)
+			DataPack.writeInt(pack, 0)
+			DataPack.writeInt(pack, 0)
+			DataPack.writeInt(pack, 0)
+		end
+	else
+		DataPack.writeInt(pack, 0)  
+		DataPack.writeString(pack, "-")
+		DataPack.writeInt(pack, 0)  
+		DataPack.writeInt(pack, 0)
+		DataPack.writeInt(pack, 0)
+		DataPack.writeInt(pack, 0)
+		DataPack.writeInt(pack, 0)
+		DataPack.writeInt(pack, 0)
+	end
+	
+	DataPack.writeInt(pack, pageIndex)
+	DataPack.writeInt(pack, totalPage)
+	
+	local beginIndex = pageNum	* (pageIndex - 1) 
+	local endIndex = pageNum * pageIndex
+	if totalCount < endIndex then
+		endIndex = totalCount - 1
+	else
+		endIndex = endIndex - 1
+	end 
+	
+	--print("beginIndex", beginIndex)
+	--print("endIndex", endIndex)
+	DataPack.writeInt(pack, endIndex - beginIndex + 1)
+	for i = beginIndex, endIndex do 
+		local selectMatchesItemPtr = Ranking.getItemPtrByIndex(selectMatchesRankingPtr, i)
+		if selectMatchesItemPtr then
+			DataPack.writeInt(pack, Ranking.getIndexFromPtr(selectMatchesItemPtr) + 1)
+			DataPack.writeString(pack, Ranking.getSub(selectMatchesItemPtr, 0))
+			DataPack.writeString(pack, Ranking.getSub(selectMatchesItemPtr, 1))
+			DataPack.writeByte(pack, tonumber(Ranking.getSub(selectMatchesItemPtr, 2)))
+			DataPack.writeByte(pack, tonumber(Ranking.getSub(selectMatchesItemPtr, 3)))
+			DataPack.writeInt(pack, tonumber(Ranking.getPoint(selectMatchesItemPtr)))
+		end
+	end
+	 
+	DataPack.flush(pack)
+	
+end 
+
+--发送下注信息
+function OnSendBetInfo(sysarg, args)
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	local betRankingPtr = Ranking.getRanking( Lang.Rank.BetInfoName )   
+	if not betRankingPtr then
+		return
+	end
+	
+	local betItemPtr = Ranking.getItemPtrFromId(betRankingPtr, actorId)
+	if not betItemPtr then
+		return 
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 46, 19) 
+	if pack == nil then
+		return 
+	end
+	
+	local betTimes = Ranking.getPoint(betItemPtr)
+	DataPack.writeByte(pack, betTimes)
+	
+	local index = 0 
+	for i = 1, betTimes do		
+		DataPack.writeString(pack, tonumber(Ranking.getSub(betItemPtr, index + 1)))
+		DataPack.writeInt(pack, tonumber(Ranking.getSub(betItemPtr, index + 2)))
+		DataPack.writeByte(pack, tonumber(Ranking.getSub(betItemPtr, index + 3)))
+		DataPack.writeByte(pack, tonumber(Ranking.getSub(betItemPtr, index + 4)))
+		index = index + 5
+	end
+	DataPack.flush(pack)  	
+end
+
+--请求下注 
+function OnReqBet(sysarg, args)
+	local teamId = args[2] --战队id
+	local wagerType = args[3]  --赌注类型
+	local wager = args[4] --赌注金额
+	local targetType = args[5] --赌注目标
+	
+	local sysVar = System.getStaticVar() 
+	if not sysVar then
+		return 
+	end
+	
+	--[[
+	local weekDay = System.getDayOfWeek()
+	local weekNum = System.getCurrWeekNum()
+	if weekNum ~= 3 or weekDay < 1 or weekDay > 5 then
+		return 
+	end
+	--]]
+	if CheckMatchesActivityTime(5) ~= true then
+		return 
+	end
+	
+		local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+		local betRankingPtr = Ranking.getRanking( Lang.Rank.BetInfoName ) 
+		if not betRankingPtr then
+			local ret = Ranking.load(betRankingPtr, Lang.Rank.BetInfoFile)
+			if not ret then
+				betRankingPtr = Ranking.add(Lang.Rank.BetInfoName, 2000)
+				if betRankingPtr then
+					for i = 1, 5 do
+						Ranking.addColumn(betRankingPtr, "teamId")
+						Ranking.addColumn(betRankingPtr, "teamName")
+						Ranking.addColumn(betRankingPtr, "wagerType")
+						Ranking.addColumn(betRankingPtr, "wager")
+						Ranking.addColumn(betRankingPtr, "targetType")
+					end
+					Ranking.addColumn(betRankingPtr, "serverIndex")
+				else
+					return 
+				end
+				
+			end 
+		end	
+		
+		local betItemPtr = Ranking.getItemPtrFromId(betRankingPtr, actorId)
+		if not betItemPtr then
+			betItemPtr = Ranking.addItem(betRankingPtr, actorId, 0)
+			local tempIndex = 0
+			for i = 1, 5 do
+				Ranking.setSub(betItemPtr, tempIndex, 0)
+				Ranking.setSub(betItemPtr, tempIndex+1, 0)
+				Ranking.setSub(betItemPtr, tempIndex+2, 0)
+				Ranking.setSub(betItemPtr, tempIndex+3, 0)
+				Ranking.setSub(betItemPtr, tempIndex+4, 0)
+				tempIndex = tempIndex + 5
+			end
+			Ranking.setSub(betItemPtr, tempIndex, System.getServerId())
+		end
+		
+		local curBetTimes = Ranking.getPoint(betItemPtr)
+		if curBetTimes >= CrossMatchesConfig.maxBetTimes then --
+			return 
+		end
+		
+		local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+		if not selectMatchesRankingPtr then
+			return
+		end
+		local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+		if not selectMatchesItemPtr then
+			return
+		end
+		
+		betItemPtr = Ranking.setItem(betRankingPtr, actorId, curBetTimes+1)
+		local index = curBetTimes * 5 
+		Ranking.setSub(betItemPtr, index, teamId)
+		Ranking.setSub(betItemPtr, index + 1, tonumber(Ranking.getSub(selectMatchesItemPtr,0)))
+		Ranking.setSub(betItemPtr, index + 2, wagerType)
+		Ranking.setSub(betItemPtr, index + 3, wager)
+		Ranking.setSub(betItemPtr, index + 4, targetType)
+		
+	local pack = DataPack.allocPacket(sysarg, 46, 20) 
+	if pack == nil then
+		return 
+	end 
+	DataPack.writeChar(pack, 0)
+	DataPack.flush(pack) 
+end
+
+--获取跨服联赛战报
+function OnGetMatchesReport(sysarg, args)
+	--print("OnGetMatchesReport ...")
+	local groupType = args[2]
+	--print("groupType ",groupType)
+	local matchesIndex = args[3]
+	--print("matchesIndex ",matchesIndex)
+	local groupNum = args[4]
+	--print("groupNum ",groupNum)
+	
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	
+	--print("reportRankingPtr ",reportRankingPtr)
+	if not reportRankingPtr then
+		return 
+	end
+	
+	if matchesIndex > table.getn(CrossMatchesConfig.matchesTypeTab) then
+		return 
+	end
+	
+	--print("matchesIndex ",matchesIndex)
+	local matchesType = CrossMatchesConfig.matchesTypeTab[matchesIndex]
+	--print("matchesType ",matchesType)
+	local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType + groupNum)
+	--print("reportItemPtr ",reportItemPtr)
+	if not reportItemPtr then
+		return
+	end
+	
+	local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+	local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+	local matchesTime = tonumber(Ranking.getSub(reportItemPtr, 11)) --
+	--print("matchesTime ",matchesTime )
+	
+	local matchesResult = {}
+	for i = 3, 5 do 
+		local stateVal = tonumber(Ranking.getSub(reportItemPtr, i))
+		if stateVal == 1 or stateVal == -1 then
+			table.insert(matchesResult, stateVal)
+		end
+	end 
+
+	local winTimes = 0
+	local loseTimes = 0
+	for i = 1, table.getn(matchesResult) do
+		if matchesResult[i] == 1 then
+			winTimes = winTimes + 1
+		elseif matchesResult[i] == -1 then
+			loseTimes = loseTimes + 1
+		end
+	end
+	
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )   
+	if not selectMatchesRankingPtr then
+		return
+	end
+	local team1Name = "-"
+	local team2Name = "-"
+	local selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId1)
+	if selectMatchesItemPtr then
+		team1Name = Ranking.getSub(selectMatchesItemPtr, 0)
+	end
+
+	selectMatchesItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId2)
+	if selectMatchesItemPtr then
+		team2Name = Ranking.getSub(selectMatchesItemPtr, 0)
+	end
+	
+	local pack = DataPack.allocPacket(sysarg, 46, 21) 
+	if pack == nil then
+		return 
+	end
+	--print("team1Name ",team1Name)
+	--print("team2Name ",team2Name)
+	--print("winTimes ",winTimes)
+	--print("loseTimes ",loseTimes)
+	DataPack.writeByte(pack, matchesIndex)
+	--local matchesTime = System.getCurrMiniTime()  --测试用
+	DataPack.writeUInt(pack, matchesTime)  
+	DataPack.writeString(pack, team1Name)
+	DataPack.writeByte(pack, winTimes)
+	DataPack.writeString(pack, team2Name)
+	DataPack.writeByte(pack, loseTimes)
+	DataPack.writeByte(pack, table.getn(matchesResult))
+	for i = 1, table.getn(matchesResult) do
+		if matchesResult[i] == 1 then
+			DataPack.writeString(pack, team1Name)
+		elseif matchesResult[i] == -1 then
+			DataPack.writeString(pack, team2Name)
+		end
+	end
+	DataPack.flush(pack) 
+end 
+
+--判断下注结果
+function CheckBetResult()
+	
+	local dmWinTeamId = GetWinTeamId(1, 2, 1)
+	local trWinTeamId = GetWinTeamId(2, 2, 1)
+	
+	local betRankingPtr = Ranking.getRanking( Lang.Rank.BetInfoName ) 
+	if not betRankingPtr then
+		return 
+	end
+	
+	local betAwardActorTab = {}  --保存所有获奖玩家id
+	
+	local rankCount = Ranking.getRankItemCount(betRankingPtr)
+	for i = 1, rankCount do
+		local betItemPtr = Ranking.getItemPtrByIndex(betRankingPtr, i-1)
+		local index = 0
+		if betItemPtr then
+			local awardTab = {0, 0}
+			for i = 1, 5 do  
+				local teamId = tonumber(Ranking.getSub(betItemPtr, index))
+				local wagerType = tonumber(Ranking.getSub(betItemPtr, index+2))
+				local wager = tonumber(Ranking.getSub(betItemPtr, index+3))
+				local tagetType = tonumber(Ranking.getSub(betItemPtr, index+4))
+				
+				if tagetType == 1 and teamId == dmWinTeamId then
+					if wagerType == 1 then 
+						awardTab[1] = awardTab[1] + wager
+					elseif wagerType == 2 then
+						awardTab[2] = awardTab[2] + wager
+					end
+					
+				elseif tagetType == 2 and teamId == trWinTeamId then
+					if wagerType == 1 then 
+						awardTab[1] = awardTab[1] + wager
+					elseif wagerType == 2 then
+						awardTab[2] = awardTab[2] + wager
+					end
+				end
+			end
+			
+			local canGetAward = false
+			local actorId = Ranking.getId(betItemPtr)
+			local actorPtr = System.getEntityPtrByActorID(actorId)  
+			if not actorPtr then
+				local mult = CrossMatchesConfig.betAwardRate.ret / CrossMatchesConfig.betAwardRate.bet
+				for index, award in ipairs(awardTab) do 
+					if award > 0 and index == 1 then 
+						Actor.giveAward(actorPtr, 34, 0, award*mult,0,0,0,0,955,"cross matches bet award")
+						canGetAward = true
+					elseif award > 0 and index == 2 then
+						Actor.giveAward(actorPtr, 6, 0, award*mult,0,0,0,0,955,"cross matches bet award")
+						canGetAward = true
+					end
+				end
+			end 
+			
+			if canGetAward == true then
+				table.insert(betAwardActorTab, actorId)
+			end	
+		end
+	end
+	
+	local actorNum = table.getn(betAwardActorTab)
+	if  actorNum > 0 then
+		local luckyActorId = math.random(1, actorNum)
+		local actorPtr = System.getEntityPtrByActorID(luckyActorId)
+		Actor.giveAward(actorPtr, 15, 0, 1000,0,0,0,0,955,"cross matches lucky award")
+	end
+	
+end
+
+--获取获胜队伍
+function GetWinTeamId(groupType, matchesType, groupNum)
+	local teamId = 0
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	
+	if not reportRankingPtr then
+		return 
+	end
+	
+	local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType + 1)
+	if not reportItemPtr then
+		return
+	end
+	
+	local winIndex = tonumber(Ranking.getSub(reportItemPtr, 10))
+	if winIndex == 1 then
+		teamId = tonumber(Ranking.getSub(reportItemPtr, 1))
+	elseif winIndex == 2 then
+		teamId = tonumber(Ranking.getSub(reportItemPtr, 2))
+	end
+	return teamId 
+end
+
+
+--获取龙虎榜信息
+function OnGetCrossMatchesGroup(sysarg, args)
+	--print("OnGetCrossMatchesGroup ")
+	local groupType = args[2]
+	--print("groupType ",groupType)
+	
+
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	
+	local matchesTypeIndex = GetCrossMatchTypeIndex()
+	
+	--[[
+	local weekDay = System.getDayOfWeek()
+	local weekNum = System.getCurrWeekNum()
+	local currTime = System.getCurrMiniTime()
+	
+	local matchesTypeIndex = 1
+	
+	if weekNum == 3 and weekDay == 6 then  --16进8
+		matchesTypeIndex = 1
+	elseif weekNum == 3 and weekDay == 0 then --8进4 
+		matchesTypeIndex = 2
+	elseif weekNum == 4 and (weekDay >= 1 and weekDay <= 5) then
+		matchesTypeIndex = 2
+	elseif weekNum == 4 and weekDay == 6 then --4进2
+		matchesTypeIndex = 3
+	elseif weekNum == 4 and weekDay == 0 then --2进1
+		matchesTypeIndex = 4
+	elseif weekNum >= 5 then
+		matchesTypeIndex = 4
+	end
+	
+	if weekNum < 3 then
+		local dVar = System.getDyanmicVar()
+		if dVar.currMatchTime == nil then
+			dVar.currMatchTime = 0
+		end
+		
+		if System.isSameMonth(currTime, dVar.currMatchTime) == true then
+			return 
+		else 
+			matchesTypeIndex = 4
+		end
+	end
+	--]]
+
+	--print("matchesTypeIndex >>> ",matchesTypeIndex)
+	if matchesTypeIndex <= 0 then
+		return 
+	end
+	
+	local numTab = {}
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+		numTab = CrossMatchesConfig.dragonMatchesNumTab
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+		numTab = CrossMatchesConfig.tigerMatchesNumTab
+	end
+	
+	--print("reportRankingPtr ",reportRankingPtr)
+	if not reportRankingPtr then
+		return 
+	end
+	
+	local rankCount = Ranking.getRankItemCount(reportRankingPtr)
+	if rankCount <= 0 then
+		return 
+	end
+	
+	local matchesType = CrossMatchesConfig.matchesTypeTab[matchesTypeIndex]
+	
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )  
+	--print("selectMatchesRankingPtr ",selectMatchesRankingPtr)
+	if not selectMatchesRankingPtr then
+		return 
+	end	
+	
+	local pack = DataPack.allocPacket(sysarg, 46, 22)
+	
+	if (pack ~= nil) then
+		
+		DataPack.writeByte(pack, groupType)
+		DataPack.writeByte(pack, 8)  --8组
+		
+		for i = 1, 16 do 
+			if i % 2 > 0 then
+					local groupNum = math.floor(i / 2) + 1
+					--print("groupNum",groupNum)
+					DataPack.writeByte(pack, groupNum)
+					local selectItemPtr = Ranking.getItemPtrByIndex(selectMatchesRankingPtr, numTab[i]-1)
+					--print("selectItemPtr ", selectItemPtr)
+					if selectItemPtr then
+						local serverIndexStr = Ranking.getSub(selectItemPtr, 5)
+						local nameStr = Ranking.getSub(selectItemPtr, 0)
+						nameStr = "["..serverIndexStr.."]"..nameStr
+						DataPack.writeString(pack, nameStr)
+					else
+						DataPack.writeString(pack, "-")
+					end
+					selectItemPtr = Ranking.getItemPtrByIndex(selectMatchesRankingPtr, numTab[i+1]-1)
+					if selectItemPtr then
+						local serverIndexStr = Ranking.getSub(selectItemPtr, 5)
+						local nameStr = Ranking.getSub(selectItemPtr, 0)
+						nameStr = "["..serverIndexStr.."]"..nameStr
+						DataPack.writeString(pack, nameStr)
+					else
+						DataPack.writeString(pack, "-")
+					end
+			end
+		end
+		
+		--print("matchesTypeIndex ",matchesTypeIndex)
+		DataPack.writeByte(pack, matchesTypeIndex)
+		for index = 1, matchesTypeIndex do 
+			local tempMatchesType = CrossMatchesConfig.matchesTypeTab[index]
+			--print("tempMatchesType ",tempMatchesType)
+			local groupCount = tempMatchesType / 2
+			--print("groupCount ",groupCount)
+			DataPack.writeChar(pack, groupCount)
+			for i = 1, groupCount do 
+				local pkResult = GetTeamPkRet(groupType, tempMatchesType, i)
+				--print("pkResult ",pkResult)
+				DataPack.writeChar(pack, pkResult)
+			end
+		end
+		
+		--print("matchesType ",matchesType)
+		if matchesType == 2 then
+			local winTeamId = 0
+			local teamState = 0
+			local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType+1)
+			if reportItemPtr then
+				teamState = tonumber(Ranking.getSub(reportItemPtr, 10))
+				--print("teamState ",teamState)
+				if teamState == 1 then
+					winTeamId = tonumber(Ranking.getSub(reportItemPtr, 1))
+				elseif teamState == 2 then
+					winTeamId = tonumber(Ranking.getSub(reportItemPtr, 2))
+				end
+			end
+		
+			local teamName = "-"
+			local memberCount = 0
+			local selectItemPtr = Ranking.getItemPtrFromId(selectMatchesRankingPtr, winTeamId)
+			--print("selectItemPtr ",selectItemPtr)
+			if selectItemPtr then
+				teamName = Ranking.getSub(selectItemPtr, 0)
+				memberCount = tonumber(Ranking.getSub(selectItemPtr, 2))
+			end 
+			DataPack.writeString(pack, teamName)
+			DataPack.writeByte(pack, memberCount)
+			
+			for i=1, memberCount do
+				DataPack.writeString(pack, Ranking.getSub(reportItemPtr, 11+i))
+				--print(Ranking.getSub(reportItemPtr, 11+i))
+			end	
+			
+		end
+
+		DataPack.flush(pack)  
+	end
+	
+end 
+
+--获取队伍比赛的结果
+function GetTeamPkRet(groupType, matchesType, groupNum)
+	local result = 0
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	if reportRankingPtr then
+		local rankCount = Ranking.getRankItemCount(reportRankingPtr)
+		for i = 1, rankCount do
+			local reportItemPtr = Ranking.getItemPtrByIndex(reportRankingPtr, i-1)
+			if reportItemPtr then
+				if Ranking.getPoint(reportItemPtr) == matchesType then
+					local tempGroupNum = tonumber(Ranking.getSub(reportItemPtr, 0))
+					if tempGroupNum == groupNum then
+						result = tonumber(Ranking.getSub(reportItemPtr, 10))
+						break
+					end
+				end
+			end
+		end
+	end
+	return result
+end
+
+--清除跨服所有排行榜
+function OnClearCrossMatchRank()
+	--local weekNum = System.getCurrWeekNum()
+	--if weekNum == 2 then
+		--print("OnClearCrossMatchRank")
+		System.clearCrossMatches()  --清除数据
+		
+		if System.isCommonServer() == true then		
+			local sysVar = System.getStaticVar()
+			if not sysVar then
+				return
+			end
+			
+			sysVar.MatchesTeamCount = 0  --重置海选赛匹配成功的队伍数目   
+			sysVar.MatchCount = nil	--重置海选赛使用的匹配参数
+			sysVar.CrossMatchFbList = {} --重置存储海选赛副本句柄列表
+			sysVar.SelecltMatchCount = 0  --重置海选匹配计数
+			sysVar.matchesTimes = 0 --重置淘汰赛局数
+			
+			--local dVar = System.getDyanmicVar()
+			--dVar.currMatchTime = System.getCurrMiniTime()
+		
+		end
+	
+	--end
+	
+	
+end
+
+--获取队伍奖励列表
+function OnGetMatchesAwardList(sysarg, args)
+	--print("OnGetMatchesAwardList ")
+	local pack = DataPack.allocPacket(sysarg, 46, 24)
+	if (pack ~= nil) then
+		local typeCount = 6 --10
+		local groupType = 0
+		local matchesIndex = 0
+		local teampCount = 0
+		
+		DataPack.writeChar(pack, typeCount)
+		
+		for i = 1, typeCount do 
+			if i <= 3 then
+				groupType = 1
+			else
+				groupType = 2
+			end
+			
+			if i == 1 or i == 4 then
+				matchesIndex = 4
+				teampCount = 1
+			end 
+			
+			local matchesType = 0
+			--print("matchesIndex ",matchesIndex)
+			matchesType = CrossMatchesConfig.matchesTypeTab[matchesIndex]
+			--print("matchesType ",matchesType)
+			--print(" -----------")
+			local teamNameList = {}
+			local teamIdList = {}
+			local groupCount = matchesType / 2
+			for i = 1, groupCount do 
+				local ret = GetTeamPkRet(groupType, matchesType, i)  --没结果返回0
+				local teamName = nil
+				local teamId = 0
+				if ret == 1 then
+					teamName, teamId = GetCrossTeamName(groupType, matchesType, i, 2, teampCount)
+				elseif ret == 2 then
+					teamName, teamId = GetCrossTeamName(groupType, matchesType, i, 1, teampCount)
+				end
+				--print("teamName ",teamName)
+				if teamName ~= nil then--and teamId > 0 then
+					table.insert(teamNameList, teamName)
+					table.insert(teamIdList, teamId)
+				end
+			end
+			
+			local teamCount = table.getn(teamNameList)
+			--print("teamCount ",teamCount)
+			DataPack.writeChar(pack, teamCount)
+			if teamCount > 0 then
+				for i = 1, table.getn(teamNameList) do 
+					--print("teamNameList[i] ",teamNameList[i])
+					DataPack.writeString(pack, teamNameList[i])
+					--print("teamNameList[i] ",teamIdList[i])
+					GetMatchMemberList(pack, groupType, matchesType, teamIdList[i])
+				end			
+			end
+			
+			if matchesIndex == 4 and teampCount == 2 then
+				matchesIndex = matchesIndex - 1
+			elseif matchesIndex ~= 4 then
+				matchesIndex = matchesIndex - 1
+			end
+			
+			teampCount = teampCount + 1
+		end
+		
+		DataPack.flush(pack)  
+	
+	end
+end
+
+--获取跨服奖励队伍名称			
+function GetCrossTeamName(groupType, matchesType, groupNum, index, teampCount)
+	--print("GetCrossTeamName")
+	local result = nil
+	local teamId = 0
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+		numTab = CrossMatchesConfig.dragonMatchesNumTab
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+		numTab = CrossMatchesConfig.tigerMatchesNumTab
+	end
+
+	if not reportRankingPtr then
+		return result, teamId
+	end
+	
+	local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType+groupNum)
+	if not reportItemPtr then
+		return result, teamId
+	end
+	
+	if matchesType == 2 then
+		if teampCount == 1 then
+			if index == 1 then
+				index = 2
+			elseif index == 2 then
+				index = 1 
+			end
+			teamId = tonumber(Ranking.getSub(reportItemPtr, index))
+		else
+			teamId = tonumber(Ranking.getSub(reportItemPtr, index))
+		end
+	else
+		teamId = tonumber(Ranking.getSub(reportItemPtr, index))
+	end
+	
+	if teamId == 0 then
+		return result, teamId
+	end
+	
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )  
+	if not selectMatchesRankingPtr then
+		return result, teamId
+	end	
+	
+	local selectItemPtr =  Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if not selectItemPtr then
+		return result, teamId
+	end
+	
+	result = Ranking.getSub(selectItemPtr, 0)
+	return result, teamId
+	
+end
+
+--获取成员列表
+function GetMatchMemberList(pack, groupType, matchesType, teamId)
+	local curCount = 0
+	local selectMatchesRankingPtr = Ranking.getRanking( Lang.Rank.SelectMatchesRankName )  
+	if not selectMatchesRankingPtr then
+		DataPack.writeChar(pack, curCount)
+		return 
+	end	
+	
+	local selectItemPtr =  Ranking.getItemPtrFromId(selectMatchesRankingPtr, teamId)
+	if not selectItemPtr then
+		DataPack.writeChar(pack, curCount)
+		return 
+	end	
+	
+	local tempGroupType = tonumber(Ranking.getSub(selectItemPtr, 11))
+	--print("tempGroupType ",tempGroupType)
+	local tempMatchtesType = tonumber(Ranking.getSub(selectItemPtr, 12))
+	--print("tempMatchtesType ",tempMatchtesType)
+	--print("matchesType ",matchesType)
+	if tempMatchtesType > matchesType then
+		DataPack.writeChar(pack, curCount)
+		return
+	end
+
+	local reportRankingPtr = nil
+	if groupType == 1 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.DragonMatchesReportName )  
+	elseif groupType == 2 then
+		reportRankingPtr = Ranking.getRanking( Lang.Rank.TigerMatchesReportName )  
+	end
+	
+	if reportRankingPtr then
+		local curCount = tonumber(Ranking.getSub(selectItemPtr, 2))
+		--print("curCount ",curCount)
+		DataPack.writeChar(pack, curCount)
+		if curCount <= 0 then
+			return 
+		end
+		local groupCount = matchesType
+		matchesType = matchesType * 2
+		for i = 1, groupCount do 
+			local reportItemPtr = Ranking.getItemPtrFromId(reportRankingPtr, matchesType+i)
+			if reportItemPtr then
+				local teamId1 = tonumber(Ranking.getSub(reportItemPtr, 1))
+				local teamId2 = tonumber(Ranking.getSub(reportItemPtr, 2))
+				if teamId == teamId1 or teamId == teamId2 then
+					for j = 1, curCount do 
+						DataPack.writeString(pack, Ranking.getSub(reportItemPtr, 11+j))
+						DataPack.writeUInt(pack, Ranking.getSub(reportItemPtr, 14+j))
+					end
+					break
+				end		
+			end
+		end
+	else
+		DataPack.writeChar(pack, curCount)
+	end
+	
+end
+
+function OnCmSetTimes(arg)
+	local times = tonumber(arg)
+	local sysVar = System.getStaticVar()
+	if not sysVar then
+		return
+	end
+	sysVar.matchesTimes = times --设置淘汰赛局数
+end
+
+

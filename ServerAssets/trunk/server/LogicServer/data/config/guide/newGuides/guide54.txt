@@ -1,0 +1,50 @@
+﻿--勇战BOSS（指引玩家进入魔神殿）
+{
+  maxLevel = 55,
+  guidePlace = 1,
+  triggerList =
+	{
+		{ type = 1, valueList = {89,}},      --这个任务在做
+	},
+
+
+  --引导的步骤
+  steps =
+	{
+    --第1步 指向BOSS按钮
+    {
+      condList =
+      {
+				{ type = 7, helpId = 0, dataList = {89,} },  --任务进行中
+                { type = 2, helpId = 164, dataList = {0,} },  --BOSS窗口不可见
+				{ type = 15, helpId = 0, dataList = {3,} },  --在万安皇宫 
+      },
+
+      action = { type = 1, helpId = 154, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc75 },  --指向BOSS按钮
+    },
+
+    --第2步点击挑战
+    {
+      condList =
+      {
+                { type = 7, helpId = 0, dataList = {89,} },  --任务进行中
+                { type = 1, helpId = 164, dataList = {0,} },  --BOSS窗口可见
+                { type = 38, helpId = 174, dataList = {0,} },  --挑战按钮可点击 
+      },
+
+      action = { type = 1, helpId = 174, data = 0, pointerValue = 1, desc = Lang.GuideLang.desc76 }, --指向挑战按钮
+    },
+    
+
+    --第3步 结束指引
+    {
+      condList =
+      {
+				{ type = 2,  helpId = 40, dataList = {0,} },	  --npc对话框不可见
+      },
+
+      --无内容
+      action = { type = 0, helpId = 20, data = 0, desc = Lang.GuideLang.desc5 },
+    },
+	},
+},

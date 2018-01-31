@@ -1,0 +1,89 @@
+﻿
+
+--#include "data\functions\Activity\Answer\AnswerCommon.txt" once
+--#include "data\functions\FuBenNpcFunc\FubenCommonFunc.txt" once
+--#include "data\functions\Activity\Meet\RandNpcShopCommon.txt" once
+--#include "data\config\activityconfig\Arena\warriorArena.txt" once
+--#include "data\config\activityconfig\Arena\ArenaRank.txt" once
+--#include "data\config\friend\MarriedConfig.txt" once
+--#include "data\functions\Activity\CrossBattlefield\CrossBattleField_Common.txt" once
+--#include "data\functions\Activity\Mars\MarsCommon.txt" once 
+
+--离开活动场景，玩家点击按钮，离开活动场景
+--开始吟唱，然后注册一个吟唱回调函数
+
+--离开活动场景的回调,需要定时回调
+function LeaveActivitySceneCall(sysarg)
+	--[[if IsInPkChallengeScene(sysarg) then
+		ExitPKScene(sysarg)
+	elseif IsInCampBattle(sysarg) then
+		doExitCampBattle(sysarg)
+	elseif IsInHuntScene(sysarg) then
+		ExitHuntingScene(sysarg)
+	elseif IsInHoopMap(sysarg) then
+		ExitFromHoopMap(sysarg)
+	elseif IsInVipHoopMap(sysarg) then
+		ExitFromVipHoopMap(sysarg)
+	elseif IsInVipBossMap(sysarg) then
+		ExitVipBossMap(sysarg)
+	elseif IsInFuQiMap(sysarg) then
+		ExitFuQiFuben(sysarg)
+	elseif IsInProgrammerMap(sysarg) then
+		ExitProgrammerMap(sysarg)
+	elseif IsInAsuraMap(sysarg) then
+		ExitAsuraMap(sysarg)
+	elseif IsInDaZhaiMenMap(sysarg) then
+		ExitDaZhaiMenMap(sysarg)
+	else]]
+		if Actor.getFubenId(sysarg) > 0 then
+			onExitFubenFunc(sysarg)
+		else
+			local Pos = LuaHelp.getReloadMapPos(sysarg)
+			Actor.enterScene(sysarg,Pos[1],Pos[2],Pos[3])
+		end
+		Actor.closeActivityWind(sysarg)
+
+		--UnRegisteTimers(sysarg)	 -- 删掉装备烈火宫的定时器
+	--end
+end
+
+--离开活动场景 
+MiscsImplement.LeaveActivityScene = function (sysarg,msgid, packet)
+	if System.isCommonServer() == true then			--如果是公共服 回到本来服
+		OnCrossReturnRawServerOp(sysarg)
+	else
+	    LeaveActivitySceneCall(sysarg)
+	    --onExitFubenFunc(sysarg)
+		--Actor.startSingWnd(sysarg,14,3000,Lang.ScriptTips.sc00000,false,true,false)  
+	end
+end
+
+MiscsImplement.AnswerSelectOpt = function ( sysarg, msgid, packet )
+	local optType = DataPack.readByte(packet)
+	local ansType = DataPack.readByte( packet)
+	local optResult = DataPack.readByte(packet)
+	OnAnswerSelected( sysarg, optType, ansType, optResult)
+end
+
+function MiscsImplement.GetPassFubenAward( sysarg, msgid, packet )
+	local fubenId = DataPack.readByte( packet )
+	if fubenId > 250 then
+		GetRandPetGood( sysarg, fubenId)
+	else
+		GetPassAward( sysarg, fubenId )
+	end
+end
+
+function MiscsImplement.GetAnswerAwardList( sysarg, msgid, packet)
+	SendAnswerAwardList(sysarg)
+end
+
+function MiscsImplement.SentCenterCity( sysarg, msgid, packet )
+	SendToCenterCity(sysarg)
+end
+
+MiscsImplement.registerMsgHandler(59,MiscsImplement.LeaveActivityScene)
+MiscsImplement.registerMsgHandler(61,MiscsImplement.AnswerSelectOpt)
+MiscsImplement.registerMsgHandler(62,MiscsImplement.GetPassFubenAward)
+MiscsImplement.registerMsgHandler(63,MiscsImplement.GetAnswerAwardList)
+MiscsImplement.registerMsgHandler(68,MiscsImplement.SentCenterCity)

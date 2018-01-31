@@ -1,0 +1,169 @@
+
+--#include "data\config\activityconfig\KillEvil\KillEvilConfig.txt" once
+
+
+function GetKillEvilCfgByLv( level )
+	for k, tab in ipairs(KillEvilConfig.Reward) do
+		if level >= tab.equipMinLv and level <= tab.equipMaxLv then
+			return tab
+		end
+	end
+end
+
+function GetKillEvilPoint()
+	local sVar = System.getStaticVar()
+	return sVar.KillEvilPoint or 0
+end
+
+function GetKillEvilMonster()
+	local sVar = System.getStaticVar()
+	return sVar.KillEvilMonster
+end
+
+function SetKillEvilMonster( monsterPtr )
+	local sVar = System.getStaticVar()
+	sVar.KillEvilMonster = monsterPtr and true or nil
+end
+
+function GetMyTodayPoint(sysarg)
+	-- local actorVar = Actor.getStaticVar(sysarg)
+	-- local y = 0
+	-- local m = 0
+	-- local d = 0
+	-- y,m,d = System.getDate( y, m, d )
+	-- local curDate = y * 10000 + m *100 + d
+	-- if actorVar.keDate and actorVar.keDate == curDate then
+	-- 	return curDate, actorVar.kePoint
+	-- end
+	-- return curDate, 0
+end
+
+function SetMyTodayPoint( sysarg, kePoint )
+	-- local curDt, todayPoint = GetMyTodayPoint(sysarg)
+	-- local actorVar = Actor.getStaticVar(sysarg)
+	-- actorVar.keDate = curDt
+	-- actorVar.kePoint = todayPoint + kePoint
+	
+	-- Actor.triggerAchieveEvent(sysarg,44,12,actorVar.kePoint)
+	-- UpdateTopicEvilRank(sysarg,kePoint)
+end
+
+function SetKillEvilPoint( sysarg, kePoint )
+	local sVar = System.getStaticVar()
+	local curPoint = GetKillEvilPoint()
+	local newPoint = curPoint + kePoint
+	if newPoint > KillEvilConfig.DivPoint then
+		local newIndex = math.floor(newPoint / KillEvilConfig.DivPoint)
+		local oldIndex = math.floor(curPoint / KillEvilConfig.DivPoint)
+		if  newIndex > oldIndex then
+			if not onCreateKillEvilMonster(oldIndex, newIndex, newPoint) then
+				System.broadcastTipmsg(string.format(Lang.Activity.a00079, newPoint),ttScreenCenter+ttChatWindow)
+			end
+		end
+	else
+		local div = KillEvilConfig.DivPoint / 10
+		if math.floor(newPoint / div) > math.floor(curPoint / div) then
+			System.broadcastTipmsg(string.format(Lang.Activity.a00079, newPoint),ttScreenCenter+ttChatWindow)
+		end
+	end
+	if newPoint >= KillEvilConfig.MaxPoint then
+		newPoint = newPoint - KillEvilConfig.MaxPoint
+	end
+	sVar.KillEvilPoint = newPoint
+	SetMyTodayPoint(sysarg, kePoint)
+end
+
+function onCreateKillEvilMonster(oldIndex, newIndex, newPoint)
+	for k, tab in ipairs(KillEvilConfig.boss) do
+		if oldIndex == tab.min and newIndex == tab.max then
+			local hScene = Fuben.getSceneHandleById(tab.sceneId, 0)
+			if hScene > 0 then
+				Fuben.clearMonster(hScene, tab.id)
+				local monsPtr = Fuben.createMonster(hScene, tab.id, tab.x, tab.y, tab.time)
+				if monsPtr then
+					local sceneName = Fuben.getSceneNameById(tab.sceneId)
+					local monName = System.getMonsterNameById(tab.id)
+					local msgStr = string.format(Lang.Activity.a00078, newPoint, sceneName, tab.x, tab.y, monName)
+					System.broadcastTipmsg(msgStr,ttScreenCenter+ttChatWindow)
+					SetKillEvilMonster(monsPtr)
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+function doEnterKillEvilScene( sysarg )
+	if  Actor.checkActorLevel(sysarg, KillEvilConfig.EnterSceneMinLv, 0) ~= true then
+		Actor.sendTipmsg(sysarg, string.format(Lang.ScriptTips.mt00025, KillEvilConfig.EnterSceneMinLv), ttScreenCenter)
+		return
+	end
+	local x = math.random(KillEvilConfig.EnterScenePos[1], KillEvilConfig.EnterScenePos[2])
+	local y = math.random(KillEvilConfig.EnterScenePos[3], KillEvilConfig.EnterScenePos[4])
+	System.telportSceneByName(sysarg, KillEvilConfig.SceneName, x, y)
+end
+
+function ExitScene(sysarg)
+	local x = math.random(KillEvilConfig.ScenePos[1], KillEvilConfig.ScenePos[2])
+	local y = math.random(KillEvilConfig.ScenePos[3], KillEvilConfig.ScenePos[4])
+	System.telportSceneByName(sysarg, KillEvilConfig.ExitSceneName, x, y)
+end
+
+--第七天主题活动时的个人积分的处理
+function UpdateTopicEvilRank(sysarg,nPoint)
+	local nDays = System.getDaysSinceOpenServer()
+	
+	if nDays == 7 then
+		if System.getActivityFinishDays(7) == 0 then
+			local ranking = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+
+			if ranking then
+				local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+				local pItem = Ranking.getItemPtrFromId(ranking,nActorId)
+				local strName = Actor.getName(sysarg)
+
+				if pItem then
+					Ranking.updateItem(ranking,nActorId,nPoint)
+					Ranking.setSub(pItem,0,strName)
+				else
+					pItem = Ranking.addItem(ranking,nActorId,nPoint)
+
+					if pItem then
+						Ranking.setSub(pItem,0,strName)
+					end
+				end
+
+				Ranking.save(OpenServerConfig.activitys[7].fileName)
+			end
+		end
+	end
+end
+
+--播报当前领先的玩家
+function BroadTopicEvilActor(nType)
+	local ranking = Ranking.getRanking(OpenServerConfig.activitys[7].rankName)
+
+	if ranking then
+		local str = ""
+		for i=0,2 do
+			local pItem = Ranking.getItemFromIndex(ranking,i)
+
+			if pItem then
+				local str1 = string.format(Lang.Activity.t00017,Ranking.getSub(pItem,0),Ranking.getPoint(pItem))
+
+				str = str..str1
+			end
+		end
+		
+		if str ~= "" then
+			if nType == 1 then
+				str = Lang.Activity.t00016..str
+			else
+				str = Lang.Activity.t00018..str
+			end
+
+			System.broadcastTipmsg(str,2+128)
+		end
+	end
+end

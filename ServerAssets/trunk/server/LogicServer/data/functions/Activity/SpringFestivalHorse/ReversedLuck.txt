@@ -1,0 +1,406 @@
+--lua script
+--#include "data\language\LangCode.txt" once   --语言包
+--#include "..\CombineActivity\MysiticShopOp.txt" once
+--#include "data\config\activityconfig\Festival\SpringFestivalHorseActive.txt" once
+--#include "data\functions\Activity\SpringFestivalHorse\RankPointer.txt" once
+--#include "data\functions\Activity\NationalDayHorse\Zillionaire.txt" once
+
+--保存获取倒福时间
+function SetReversedLuckTimeByLogin(sysarg)
+	if System.isInDateRange(unpack(ZillionaireConfig.actTime)) == true 
+		or (System.getDoubleElevenActFlag(4) == 1) then	--烈火大亨
+		local nCurrTime = System.getCurrMiniTime()
+
+		local tmpTable = LoadZillionaire(sysarg)
+
+		tmpTable[3] = nCurrTime	--上一次开始时间
+
+		SaveZillionaire(sysarg, tmpTable)
+	end
+
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.actTime) or (not config.reversedLuck) then
+		return 
+	end
+	
+	if (System.isInDateRange(unpack(config.actTime)) ~= true) and (System.isInDateRange(unpack(config.reversedLuck.actTime)) ~= true) and (System.getDoubleElevenActFlag(5) ~= 1) then
+		return
+	end
+
+	if (System.isInDateRange(unpack(config.actTime)) == true) then
+		SendSpringFestivalHorseStatus(sysarg, 1)	--春节活动开启状态
+	end
+	
+	local reversedLuckAwards = config.reversedLuck.reversedLuckAwards
+	if not reversedLuckAwards then return end
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = 0
+	local reversedLuckValue = 0
+	--加载倒福数据
+	getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue = LoadReversedLuck(sysarg)
+
+	local currTime = System.getCurrMiniTime()
+	local lastTime = reversedLuckLoginTime
+
+	if (System.isSameDay(currTime, lastTime) ~= true) and (currTime > lastTime) then   
+		getReversedLuckTimes = 1	--奖励次数
+		accReversedLuckTime = 0	--累积时间
+	end
+
+	reversedLuckLoginTime = currTime
+
+	if getReversedLuckTimes > table.getn(reversedLuckAwards) then
+		return
+	end
+
+	local beginTime = 0
+	if reversedLuckAwards[getReversedLuckTimes].accTime >= accReversedLuckTime then
+		beginTime = reversedLuckAwards[getReversedLuckTimes].accTime - accReversedLuckTime
+	end
+
+	--保存倒福数据
+	SaveReversedLuck(sysarg, getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue)
+
+	Actor.regScriptCallback(sysarg, nil, beginTime * 1000, 0, 1, "GiveReversedLuck")
+end
+
+--通知获得倒福
+function GiveReversedLuck(sysarg)
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.actTime) or (not config.reversedLuck) then
+		return
+	end
+
+	if (System.isInDateRange(unpack(config.actTime)) ~= true) and (System.isInDateRange(unpack(config.reversedLuck.actTime)) ~= true) and (System.getDoubleElevenActFlag(5) ~= 1) then
+		return
+	end
+
+	local reversedLuckAwards = config.reversedLuck.reversedLuckAwards
+	if not reversedLuckAwards then return end
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = 0
+	local reversedLuckValue = 0
+	--加载倒福数据
+	getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue = LoadReversedLuck(sysarg)
+
+	local getTimes = getReversedLuckTimes
+	local accTime = reversedLuckAwards[getTimes].accTime
+	
+	local addValue = reversedLuckAwards[getTimes].reversedLuckValue
+	local actorId = Actor.getIntProperty(sysarg, PROP_ENTITY_ID)
+	System.sendOfflineMsg(actorId, string.format(Lang.Activity.cj0007, (accTime) / 3600, addValue), 0)
+	--给倒福值
+	reversedLuckValue = reversedLuckValue + addValue
+
+	getTimes = getTimes + 1
+	getReversedLuckTimes = getTimes   --奖励次数+1
+
+	--保存倒福数据
+	SaveReversedLuck(sysarg, getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue)
+
+	if getTimes > table.getn(reversedLuckAwards) then
+		return
+	end
+
+	local beginTime = 0
+	if reversedLuckAwards[getTimes].accTime >= accTime then
+		beginTime = reversedLuckAwards[getTimes].accTime - accTime
+	end
+
+	Actor.regScriptCallback(sysarg, nil, beginTime * 1000, 0, 1, "GiveReversedLuck")
+end
+
+--设置获取倒福时间
+function SetReversedLuckTimeByLogout(sysarg)
+	if System.isInDateRange(unpack(ZillionaireConfig.actTime)) == true 
+		or (System.getDoubleElevenActFlag(4) == 1) then	--烈火大亨
+		local nCurrTime = System.getCurrMiniTime()
+
+		local tmpTable = LoadZillionaire(sysarg)
+		
+		if tmpTable[3] == 0 then
+			tmpTable[3] = nCurrTime
+		end
+
+		local nLastTimes = tmpTable[2]
+		local accTime = tmpTable[4] + nCurrTime - tmpTable[3]
+
+		for i=1,1000 do
+			if accTime <= 15 * 24 * 3600 then
+				break
+			end
+			accTime = accTime - 15 * 24 * 3600
+		end
+		
+		for i=1,25 do
+			if accTime < ZillionaireConfig.accTime then
+				break
+			end
+			accTime = accTime - ZillionaireConfig.accTime
+			nLastTimes = nLastTimes + ZillionaireConfig.addTimes
+		end
+
+		tmpTable[2] = nLastTimes
+		tmpTable[4] = accTime	--累计时间
+
+		SaveZillionaire(sysarg, tmpTable)
+	end
+
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.actTime) or (not config.reversedLuck) then
+		return 
+	end
+	
+	if (System.isInDateRange(unpack(config.actTime)) ~= true) and (System.isInDateRange(unpack(config.reversedLuck.actTime)) ~= true) and (System.getDoubleElevenActFlag(5) ~= 1) then
+		return
+	end
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = 0
+	local reversedLuckValue = 0
+	--加载倒福数据
+	getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue = LoadReversedLuck(sysarg)
+
+	local currTime = System.getCurrMiniTime()
+	if currTime - reversedLuckLoginTime > 0 then
+		accReversedLuckTime = accReversedLuckTime + currTime - reversedLuckLoginTime
+	end
+
+	--保存倒福数据
+	SaveReversedLuck(sysarg, getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue)
+end
+
+--加载倒福数据
+function LoadReversedLuck(sysarg)
+	if not SpringFestivalHorseRankPt then return end
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = 0
+	local reversedLuckValue = 0
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ReversedLuckFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.ReversedLuckFile, 1000, 1, 10)
+		if not ranking then
+			return getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.ReversedLuckFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+		if pItem then
+			Ranking.setSub(pItem,0,"1")
+			Ranking.setSub(pItem,1,"0")
+			Ranking.setSub(pItem,2,"0")
+			Ranking.setSub(pItem,3,"0")
+		end
+	else
+		getReversedLuckTimes = tonumber(Ranking.getSub(pItem,0))
+		accReversedLuckTime = tonumber(Ranking.getSub(pItem,1))
+		reversedLuckLoginTime = tonumber(Ranking.getSub(pItem,2))
+		reversedLuckValue = tonumber(Ranking.getSub(pItem,3))
+	end
+
+	return getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue
+end
+
+--保存倒福数据
+function SaveReversedLuck(sysarg, getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue)
+	if not SpringFestivalHorseRankPt then return end
+
+	local nActorId = Actor.getIntProperty(sysarg,PROP_ENTITY_ID)
+	local ranking = Ranking.getRanking(SpringFestivalHorseRankPt.ReversedLuckFile)
+	if not ranking then
+		ranking = Ranking.add(SpringFestivalHorseRankPt.ReversedLuckFile, 1000, 1, 10)
+		if not ranking then
+			return
+		end
+
+		if not Ranking.load(ranking, SpringFestivalHorseRankPt.ReversedLuckFile) then
+			for i=0,15 do
+				Ranking.addColumn(ranking, string.format("value%d", i))
+			end
+		end
+	end
+	local pItem = Ranking.getItemPtrFromId(ranking, nActorId)
+
+	--玩家加入排行榜
+	if not pItem then
+		pItem = Ranking.addItem(ranking,nActorId,0)
+	end
+
+	if pItem then
+		Ranking.setSub(pItem,0,tostring(getReversedLuckTimes))
+		Ranking.setSub(pItem,1,tostring(accReversedLuckTime))
+		Ranking.setSub(pItem,2,tostring(reversedLuckLoginTime))
+		Ranking.setSub(pItem,3,tostring(reversedLuckValue))
+	end
+end
+
+--重置春节倒福每天领取时间
+function ResetReversedLuckTime(sysarg)
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.actTime) or (not config.reversedLuck) then
+		return 
+	end
+	
+	if (System.isInDateRange(unpack(config.actTime)) ~= true) and (System.isInDateRange(unpack(config.reversedLuck.actTime)) ~= true) and (System.getDoubleElevenActFlag(5) == 1) then
+		return
+	end
+
+	local reversedLuckAwards = config.reversedLuck.reversedLuckAwards
+	if not reversedLuckAwards then return end
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = 0
+	local reversedLuckValue = 0
+	--加载倒福数据
+	getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue = LoadReversedLuck(sysarg)
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = System.getCurrMiniTime()
+
+	local beginTime = 0
+	if reversedLuckAwards[getReversedLuckTimes].accTime >= accReversedLuckTime then
+		beginTime = reversedLuckAwards[getReversedLuckTimes].accTime - accReversedLuckTime
+	end
+
+	--保存倒福数据
+	SaveReversedLuck(sysarg, getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue)
+
+	Actor.regScriptCallback(sysarg, nil, beginTime * 1000, 0, 1, "GiveReversedLuck")
+end
+
+--下发守岁祈福信息
+function OnGetReversedLuckInfo(sysarg,args)
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.actTime) or (not config.reversedLuck) then
+		return 
+	end
+	
+	if (System.isInDateRange(unpack(config.actTime)) ~= true) and (System.isInDateRange(unpack(config.reversedLuck.actTime)) ~= true) and (System.getDoubleElevenActFlag(5) ~= 1) then
+		return
+	end
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = 0
+	local reversedLuckValue = 0
+	--加载倒福数据
+	getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue = LoadReversedLuck(sysarg)
+
+	SendReversedLuckInfo(sysarg, reversedLuckValue)
+end
+
+--下发守岁祈福信息到客户端
+function SendReversedLuckInfo(sysarg, reversedLuckValue)
+	local pack = DataPack.allocPacket(sysarg, 52, 21)
+	if (pack ~= nil) then
+		DataPack.writeInt(pack, reversedLuckValue)
+		DataPack.flush(pack)
+	end
+end
+
+--兑换倒福道具
+function OnGetReversedLuckItem(sysarg,args)
+	local nExchangeId = args[2]
+
+	local config = SpringFestivalHorseActiveConfig
+	if (not config) or (not config.reversedLuck) or (not config.reversedLuck.exchangeTime) then
+		return 
+	end
+	
+	if (System.isInDateRange(unpack(config.reversedLuck.exchangeTime)) ~= true) and (System.isInDateRange(unpack(config.reversedLuck.actTime)) ~= true) and (System.getDoubleElevenActFlag(5) ~= 1) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0008, ttFlyTip)
+		return
+	end
+
+	if (Actor.checkActorLevel(sysarg, config.reversedLuck.limitLevel, config.reversedLuck.limitCircle) ~= true) then
+		Actor.sendTipmsg(sysarg, Lang.Activity.mgq0006, ttFlyTip)
+		return
+	end
+
+	local exchangeAwards = config.reversedLuck.exchangeAwards
+	if not exchangeAwards then return end
+
+	if (nExchangeId <= 0) or (nExchangeId > table.getn(exchangeAwards)) then
+		return
+	end
+
+	local getReversedLuckTimes = 1
+	local accReversedLuckTime = 0
+	local reversedLuckLoginTime = 0
+	local reversedLuckValue = 0
+	--加载倒福数据
+	getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue = LoadReversedLuck(sysarg)
+
+	--local consumeReversedLuck = 0
+	--local consumeGold = 0
+	local canExchange = 1
+
+	local exchangeAward = exchangeAwards[nExchangeId]
+	if not exchangeAward then return end
+
+	local nGold = Actor.getIntProperty(sysarg, PROP_ACTOR_YUANBAO)
+	--先检查元宝或倒福是否足够
+	for k, consume in ipairs(exchangeAward.consumes or {}) do
+		if consume.type == 15 then
+			if nGold < consume.count then
+				canExchange = 0
+			end
+		elseif consume.type== 38 then
+			if reversedLuckValue < consume.count then
+				canExchange = 0
+			end
+		end
+	end
+
+	if canExchange == 1 then
+		local awards = exchangeAward.awards	
+		if not awards then return end
+		
+		local myJob = Actor.getIntProperty(sysarg, PROP_ACTOR_VOCATION)
+		local mySex = Actor.getIntProperty(sysarg, PROP_ACTOR_SEX)
+
+		if Awards.CheckBagGridCount(sysarg, awards) then		--背包够不够
+			--消耗
+			for k, consume in ipairs(exchangeAward.consumes or {}) do
+				if consume.type == 15 then
+					Actor.changeMoney(sysarg,3,-consume.count,192,Lang.Activity.cj0010)
+				elseif consume.type== 38 then
+					reversedLuckValue = reversedLuckValue - consume.count
+				end
+			end
+
+			--给奖励
+			for i=1,table.getn(awards) do
+				if (not awards[i].job or awards[i].job == -1 or awards[i].job == myJob) and (not awards[i].sex or awards[i].sex == -1 or awards[i].sex == mySex) then
+					Actor.giveAward(sysarg,awards[i].type,awards[i].id,awards[i].count,awards[i].quality,awards[i].strong,awards[i].bind,0,192,Lang.Activity.cj0001, -1, awards[i].expireTime)
+				end
+			end
+
+			SendReversedLuckInfo(sysarg, reversedLuckValue)
+			--保存倒福数据
+			SaveReversedLuck(sysarg, getReversedLuckTimes, accReversedLuckTime, reversedLuckLoginTime, reversedLuckValue)
+		end
+	else
+		Actor.sendTipmsg(sysarg, Lang.Activity.cj0009, ttFlyTip)
+	end
+end
