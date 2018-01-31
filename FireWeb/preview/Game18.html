@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>《刀剑如梦》</title>
+<style type="text/css">
+<!--
+body, td, th {
+	font-family: ;
+	font-size: 12px;
+	color: #FFFFFF;
+}
+* {
+	margin:0px;
+	padding:0px;
+}
+body {
+	background-color: #000000;
+}
+html, body {
+	height:100%;
+}
+.links {
+	margin:260px auto;
+	width: 50%;
+	text-align:center;
+}
+.links li{margin:10px;}
+.links A {
+	font-size:24px;
+	color:#CCC
+}
+-->
+</style>
+<script type="text/javascript" src="js/common.js"></script>
+<script language="javascript" type="text/javascript">
+function onload()
+{
+		self.moveTo(0,0);
+		self.resizeTo(screen.availWidth,screen.availHeight);
+		connectSrv(18);
+}
+function connectSrv(id, user, pwd)
+{
+	var nocache = getParams()["nocache"];
+	var html = '<iframe name="game" scrolling="no" frameborder="0" width="100%" height="100%" '
+				+ 'align="left" marginwidth="0" marginheight="0" src="jxgame.php?'
+				+ 'srvaddr=172.168.0.141&'
+				+ 'srvport=11000&'
+				+ 'srvid='+ id +'&'
+				+ 'spid=wyi&'
+				+ 'ressite=http://xh.521g.com/miros/wwy/dragon/data/&'
+				+ 'rankurl=http://61.144.23.107:801/rankingserver.php&'
+				+ 'rechargeURL=http://pay.91wan.com/?game_id=36&'
+				+ 'officialSiteURL=http://www.91wan.com/djrm/&'
+				+ 'officialForumURL=http://bbs.91wan.com/forum-425-1.html&'
+				+ 'gameName=刀剑如梦&'
+				+ 'frameRate=60&'
+				+ 'user=' + (user != 'undefined' && user != undefined ? user : '') + '&'
+				+ 'spverify=' + (pwd != 'undefined' && pwd != undefined ? pwd : 'e10adc3949ba59abbe56e057f20f883e') + '&'
+				+ (nocache != undefined ? 'nocache=' + nocache + '&' : '') 
+				+ 't=' + Math.random() + '"></iframe>';
+	var container = document.getElementById("container");
+	container.innerHTML = html;
+}
+function autoNav()
+{
+	var params = getParams();
+	var srvID = params["srv"];
+	if(!srvID)
+	{
+		srvID = 3;
+	}
+	if ( srvID )
+	{
+		//alert(srvID);
+		connectSrv(srvID, params["user"], params["pwd"]);
+	}
+}
+function onBeforeUnload()
+{
+	return "《刀剑如梦》游戏页面";
+}
+//window.onbeforeunload = onBeforeUnload;
+</script>
+</head>
+<body onload="onload()">
+<div style="width:100%; height:100%;" id="container">
+  <div class="links">
+  <ul>
+  </ul></div>
+</div>
+<script type="text/javascript">autoNav();</script>
+</body>
+</html>

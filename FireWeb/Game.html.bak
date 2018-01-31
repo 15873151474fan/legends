@@ -1,0 +1,458 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>《烈火重生联运》</title>
+<style type="text/css">
+<!--
+body, td, th {
+	font-family: ;
+	font-size: 12px;
+	color: #FFFFFF;
+}
+* {
+	margin:0px;
+	padding:0px;
+}
+body {
+	background-color: #000000;
+}
+html, body {
+	height:100%;
+}
+.links {
+	margin:260px auto;
+	width: 50%;
+	text-align:center;
+}
+.links li{margin:10px;}
+.links A {
+	font-size:24px;
+	color:#CCC
+}
+-->
+</style>
+<script type="text/javascript" src="js/common.js"></script>
+<script language="javascript" type="text/javascript">
+function onload()
+{
+		self.moveTo(0,0);
+		self.resizeTo(screen.availWidth,screen.availHeight);
+}
+
+
+
+function connectSrv(id, user, pwd)
+{
+	var nocache = getParams()["nocache"];
+	var client = getParams()["client"];
+	
+	var serverIps=[
+	"192.168.0.146",  //1
+	"192.168.0.166",//2
+	"192.168.0.142", //3
+	"192.168.0.73", //4
+	"192.168.0.125", //5
+	"192.168.0.237", //6
+	"192.168.0.92", //7
+	"192.168.0.221", //8
+	"0.0.0.0", //9
+	"192.168.0.149", //10
+	"0.0.0.0", //11
+	"0.0.0.0", //12
+	"0.0.0.0", //13
+	"192.168.0.92", //14
+	"192.168.0.95", //15
+	"0.0.0.0", //16
+	"0.0.0.0", //17
+	"0.0.0.0", //18
+	"192.168.0.149", //19
+	"192.168.0.122", //20
+	"192.168.0.173", //21
+	"192.168.0.94",  //22
+	"192.168.0.122", //23
+    "192.168.0.143",//24
+	"192.168.0.91",	 //25
+	"192.168.0.14",	//26
+	"192.168.0.121", //27
+	"192.168.0.188", //28
+	"192.168.0.182", //29
+	"192.168.0.89",  //30
+	"192.168.0.128",  //31
+	"192.168.0.22",  //32
+	"192.168.0.89",  //33
+	"192.168.0.124",  //34
+	"192.168.0.22", //35
+	"192.168.0.167", //36
+	"192.168.0.237", //37
+	"192.168.0.10", //38
+	"192.168.0.151", //39
+	"192.168.0.165", //40
+	"192.168.0.168",//41
+	"172.168.0.137",//42
+	"192.168.0.55",//43
+	"192.168.0.135",//44
+	"192.168.0.177",//45
+	"198.168.0.112",//46
+	"192.168.0.166",//47
+	"192.168.0.80",//48
+	"192.168.0.158",//49
+	"192.168.0.194",//50
+	"192.168.0.70",//51
+	"192.168.0.44",//52
+	"192.168.0.133",//53
+	"0.0.0.0", //54
+	"192.168.0.136",//55
+	"192.168.0.90", //56
+	"172.168.0.150", //57
+	"192.168.0.224",//58
+	"0.0.0.0", //59
+	"192.168.0.60", //60
+	"0.0.0.0", //61
+	"0.0.0.0", //62
+	"0.0.0.0", //63
+	"192.168.0.57", //64
+	"192.168.0.224", //65
+	"172.168.0.150", //66
+	"192.168.0.152", //67
+	"0.0.0.0", //68
+	"0.0.0.0", //69
+	"192.168.213.135", //70
+
+	];
+	var serverPorts=
+	[
+		13000, 
+		13000, 
+		13050, 
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13060, 
+		13050,
+		13050, //10
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13060, 	//19
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+	];
+	
+	var serverMaxPorts=
+	[
+		13000,
+		13000, 
+		13050, 
+		13050, 
+		13050, 
+		13050, 
+		13050, 
+		13060,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050, 
+		13050, 
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+		13050,
+	
+	];
+	var index =id-1;
+	var ip= serverIps[index]; //服务器的ip
+	var port = serverPorts[index];  //服务器的最小端口
+	var portMax = serverMaxPorts[index];  //服务器的最小端口
+	
+	var html = '<iframe name="game" scrolling="no" frameborder="0" width="100%" height="100%" '
+				+ 'align="left" marginwidth="0" marginheight="0" src="jxgame.php?'
+				+ 'srvaddr='+ ip+ '&'
+				+ 'srvport='+port+'&'
+				+ 'srvportmax='+portMax+'&'
+				+ (client != undefined ? 'client=' + client + '&':'') 
+				+ 'srvid='+ id +'&'
+				+ 'spid=wyi&'
+				+ 'map=3&'
+				//+ 'lang=zh-tw&'
+				+ 'loadingImgID=0&'
+				//+ 'ressite=http://xh.521g.com/miros/wwy/dragon/data/&'
+				+ 'ressite=http://192.168.0.146/data/&'
+				//+ 'ressite=http://192.168.0.235/data/&'
+				+ 'rankurl=http://192.168.0.146:80/DragonTx/rankingserver.php&'
+				+ 'rechargeURL=http://www.baidu.com&'
+				+ 'mediaCardURL=http://www.9377.com/lhzsxsk.html&'
+				+ 'officialSiteURL=http://www.baidu.com&'
+				+ 'officialForumURL=http://www.baidu.com&'
+				+ 'gameName=暗黑传奇&'
+				+ 'clienURL=http://file.vspk.com/%E7%83%88%E7%81%AB%E6%88%98%E7%A5%9E.exe' + '&'
+				+ 'frameRate=30&'
+				+ 'platformLotteryURL=http://www.9377.com/lhzs/lottery/&' 
+				+ 'mobile=http://www.37wan.com' + '&'
+				+ 'debugClientLang=true' + '&'
+				+ 'platformTitle=1' + '&'
+				+ 'repus=true' + '&'
+				+ 'worldCup =http://bbs.360safe.com/forum.php?mod=viewthread&tid=4263829&extra=page%3D1&'
+				+ 'famousActivePHP=http://api.lhzs.521g.com/game/mrt_zhanli/37w' + '&'
+				+ 'macip=http%3A%2F%2Fa.clickdata.37wan.com%2Fcontroller%2Fistat.controller.php%3Fitem%3Dnxtj77yerb%26platform%3D37wan%26game_id%3D135%26ext_1%3D%28%3Amacaddress%29%26user_ip%3D%28%3Auser_ip%29%26from%3D%28%3Afrom%29' + '&'
+				+ 'user=' + (user != 'undefined' && user != undefined ? user : '') + '&'
+				+ 'spverify=' + (pwd != 'undefined' && pwd != undefined ? pwd : 'e10adc3949ba59abbe56e057f20f883e') + '&'
+				+ (nocache != undefined ? 'nocache=' + nocache + '&' : '') 				
+				+ 't=' + Math.random() + '"></iframe>';
+				 
+	//alert(html );
+	var container = document.getElementById("container");
+	container.innerHTML = html;
+}
+function autoNav()
+{
+	var params = getParams();
+	var srvID = params["srv"];
+	if(!srvID)
+	{
+		srvID = 1;
+	}
+	if ( srvID )
+	{
+		//alert(srvID);
+		connectSrv(srvID, params["user"], params["pwd"]);
+	}
+}
+function onBeforeUnload()
+{
+	return "《烈火重生》游戏页面";
+}
+//window.onbeforeunload = onBeforeUnload;
+</script>
+</head>
+<body onload="onload()">
+<div style="width:100%; height:100%;" id="container">
+  <div class="links">
+  <ul>
+  <li><a href="javascript:connectSrv(1);" title="Server1">Server 12</a></li>
+  <li><a href="javascript:connectSrv(2);" title="Server2">Server 2</a></li>
+  <li><a href="javascript:connectSrv(3);" title="Server3">Server 3</a></li>
+  </ul></div>
+</div>
+<script type="text/javascript">autoNav();</script>
+</body>
+</html>

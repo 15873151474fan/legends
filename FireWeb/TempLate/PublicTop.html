@@ -1,0 +1,54 @@
+﻿<body id="loadding">
+    <div class="header">
+        <div class="top_content clearfix">
+            <ul class="usered">
+
+ <li class="lines"></li>
+                <li><a href="/ActivityCenter/Spread.php">推广</a> </li>
+                <li class="lines"></li>
+				
+				
+				
+				<?php if(@$_SESSION['accountName']){ ?>
+				<li><a id="reg_sub" onClick="SignOut();">退出</a> </li>
+                <li class="lines"></li>
+
+				
+				<li><a class="red"><?php echo $_SESSION['accountName'];?></a> </li>
+                <li><a>账号:</a> </li>			
+				<?php
+				}else{
+				?>
+                <li><a href="/UserCenter/Register.php">注册</a> </li>
+                <li class="lines"></li>
+                
+                <li><a href="/UserCenter/Login.php">登陆</a> </li>
+                <li class="lines"></li>
+				<?php
+				}
+				?>				
+            </ul>
+            <div class="lz">
+                <a href="/"><?php echo $WebTitle;?></a> <span>
+            </div>
+        </div>
+    </div>
+    <div class="top">
+        <div class="top_logo">
+            <div class="top_logo_con clearfix">
+            </div>
+        </div>
+        <div class="nav">
+            <ul class="clearfix">
+                <li><a href="/"><FONT color=#006400>网站首页</FONT></a></li>
+                <li><a href="/UserCenter"><FONT color=#006400>会员中心</FONT></a></li>
+                <li><a href="/ActivityCenter/Spread.php"><FONT color=#8A2BE2>我要推广</FONT></a></li>
+				<li><a href="<?=$yxdlq?>"><FONT color=#8A2BE2>登陆器下载</FONT></a></li>
+<li><a target="_blank" href="http://www.52pk.pw"><FONT color=#ff0000>我要充值</FONT></a></li>
+
+                <!--<li><a href="#">免责申明</a></li>-->
+                <li class="orange"><a href="/UserCenter/Login.php">立即登录</a><em></em></li>
+                <li class="orange"><a href="/UserCenter/Register.php">账号注册</a><em></em></li>
+            </ul>
+        </div>
+    </div>

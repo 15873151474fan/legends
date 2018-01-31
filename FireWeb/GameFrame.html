@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"> 
+    <!-- 
+    Smart developers always View Source. 
+    
+    This application was built using Adobe Flex, an open source framework
+    for building rich Internet applications that get delivered via the
+    Flash Player or to desktops via Adobe AIR. 
+    
+    Learn more about Flex at http://flex.org 
+    // -->
+    <head>
+        <title></title>
+        <meta name="google" value="notranslate" />         
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <!-- Include CSS to eliminate any default margins/padding and set the height of the html element and 
+             the body element to 100%, because Firefox, or any Gecko based browser, interprets percentage as 
+             the percentage of the height of its parent container, which has to be set explicitly.  Fix for
+             Firefox 3.6 focus border issues.  Initially, don't display flashContent div so it won't show 
+             if JavaScript disabled.
+        -->
+        <style type="text/css" media="screen"> 
+            html, body  { height:100%; }
+            body { margin:0; padding:0; overflow:auto; text-align:center; 
+                   background-color: #000000; }   
+            object:focus { outline:none; }
+            #flashContent { display:none; }
+        </style>
+        
+        <!-- Enable Browser History by replacing useBrowserHistory tokens with two hyphens -->
+        <!-- BEGIN Browser History required section -->
+        <link rel="stylesheet" type="text/css" href="history/history.css" />
+        <script type="text/javascript" src="history/history.js"></script>
+        <!-- END Browser History required section -->  
+            
+        <script type="text/javascript" src="swfobject.js"></script>
+        <script type="text/javascript" src="rightClick.js"></script>
+        <script type="text/javascript">
+            // For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. 
+            var swfVersionStr = "11.1.0";
+            // To use express install, set to playerProductInstall.swf, otherwise the empty string. 
+            var xiSwfUrlStr = "playerProductInstall.swf";
+            
+            var serverIps=[
+			"192.168.100.27",  //1  192.168.0.191
+			"192.168.0.209",  //2
+			"192.168.0.235",  //3
+			"192.168.0.181",  //4
+			"192.168.0.166", //5
+			"192.168.0.237",  //6
+			"61.144.23.107",  //7
+			"192.168.0.79",  //8
+			"192.168.0.13",  //9
+			"192.168.0.221",  //10
+			"192.168.0.91",  //11
+			"192.168.0.72",  //12
+			"192.168.0.90",  //13
+			"192.168.0.92",  //14
+			"192.168.0.95",  //15
+			"192.168.0.97",  //16
+			"192.168.0.22", //17
+			"192.168.0.141", //18
+			"192.168.0.149", //19
+			"192.168.0.122", //20
+			"192.168.0.173", //21
+			"192.168.0.94",  //22
+			"192.168.0.122", //23
+		    "192.168.0.143",//24
+			"192.168.0.91",	 //25
+			"192.168.0.14",	//26
+			"192.168.0.121", //27
+			"192.168.0.188", //28   192.168.0.188
+			"192.168.0.182", //29
+			"192.168.0.89",  //30
+			"192.168.0.128",  //31
+			"192.168.0.22",  //32
+			"192.168.0.89",  //33
+			"192.168.0.124",  //34
+			"192.168.0.22", //35
+			"192.168.0.167", //36
+			"192.168.0.237", //37
+			"192.168.0.10", //38
+			"192.168.0.151", //39
+			"192.168.0.165", //40  自己的私服
+			"192.168.0.168",  //41  繁体服务器
+			"",
+			"",
+			"",
+			"",
+			"",
+			"192.168.0.166",
+			"",
+			"192.168.0.158", //49   全海波的  13050
+			"192.168.0.194",  //50;
+			"192.168.0.194",// 51  
+			"192.168.0.194",// 52 
+			"192.168.0.133",// 53  刘恺私服 
+			"192.168.0.194",// 54
+			"192.168.0.194",// 55
+			"192.168.0.194",// 56
+			"192.168.0.194",// 57
+			"192.168.0.194",// 58
+			"192.168.0.194",// 59
+			"192.168.0.194",// 60
+			"192.168.0.194",// 61
+			"192.168.0.194",// 62
+			"192.168.0.194",// 63
+			"192.168.0.194",// 64
+			"192.168.0.224",// 65
+			"192.168.10.250",// 66
+			];
+			
+            var id = 1;
+			var ip = serverIps[id-66];
+			var port = 13000;  //服务器的最小端口
+	
+			var flashvars = {};
+			flashvars.srvaddr = ip;
+			flashvars.srvid = id;
+			flashvars.srvport = port;
+			flashvars.srvportmax = "13000";
+			flashvars.ressite = "http://192.168.10.250/data/";
+			flashvars.lang = "zh-cn";
+			flashvars.debugClientLang = false;
+			flashvars.debugingRelease = true;
+			
+            var params = {};
+            params.quality = "high";
+            params.bgcolor = "#000000";
+            params.allowscriptaccess = "sameDomain";
+            params.allowfullscreen = "true";
+            var attributes = {};
+            attributes.id = "GameFrame";
+            attributes.name = "GameFrame";
+            attributes.align = "middle";
+
+            swfobject.embedSWF(
+                "GameFrame.swf", "flashContent", 
+                "100%", "100%", 
+                swfVersionStr, xiSwfUrlStr, 
+                flashvars, params, attributes);
+            //swfobject.write("flashContent");
+            // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
+            swfobject.createCSS("#flashContent", "display:block;text-align:left;");
+            
+
+          //本意是屏蔽360手势,但没用
+          document.oncontextmenu=function(){return false};
+	      document.ondragstart=function(){return false};
+	      document.onselectstart=function(){return false};
+	      document.onbeforecopy=function(){return false};
+	      document.onselect=function(){document.selection.empty()};
+	      document.oncopy=function(){document.selection.empty()};
+            
+        </script>
+    </head>
+    <body id="swfBody">
+        <!-- SWFObject's dynamic embed method replaces this alternative HTML content with Flash content when enough 
+             JavaScript and Flash plug-in support is available. The div is initially hidden so that it doesn't show
+             when JavaScript is disabled.
+        -->
+        <div id="flashContent">
+            <p>
+                To view this page ensure that Adobe Flash Player version 
+                11.1.0 or greater is installed. 
+            </p>
+            <script type="text/javascript"> 
+                var pageHost = ((document.location.protocol == "https:") ? "https://" : "http://"); 
+                document.write("<a href='http://www.adobe.com/go/getflashplayer'><img src='" 
+                                + pageHost + "www.adobe.com/images/shared/download_buttons/get_flash_player.gif' alt='Get Adobe Flash player' /></a>" ); 
+            </script> 
+        </div>
+        
+        <noscript>
+            <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%" id="GameFrame">
+                <param name="movie" value="GameFrame.swf" />
+                <param name="quality" value="high" />
+                <param name="bgcolor" value="#000000" />
+                <param name="allowScriptAccess" value="sameDomain" />
+                <param name="allowFullScreen" value="true" />
+                <!--[if !IE]>-->
+                <object type="application/x-shockwave-flash" data="GameFrame.swf" width="100%" height="100%">
+                    <param name="quality" value="high" />
+                    <param name="bgcolor" value="#000000" />
+                    <param name="allowScriptAccess" value="sameDomain" />
+                    <param name="allowFullScreen" value="true" />
+                <!--<![endif]-->
+                <!--[if gte IE 6]>-->
+                    <p> 
+                        Either scripts and active content are not permitted to run or Adobe Flash Player version
+                        11.1.0 or greater is not installed.
+                    </p>
+                <!--<![endif]-->
+                    <a href="http://www.adobe.com/go/getflashplayer">
+                        <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash Player" />
+                    </a>
+                <!--[if !IE]>-->
+                </object>
+                <!--<![endif]-->
+            </object>
+        </noscript>     
+   </body>
+</html>

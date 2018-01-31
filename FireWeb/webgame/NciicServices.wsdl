@@ -1,0 +1,794 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="https://api.nciic.org.cn/NciicServices" xmlns:tns="https://api.nciic.org.cn/NciicServices" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope" xmlns:ns1="http://domain.webservices.serv.nciic.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc11="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc12="http://www.w3.org/2003/05/soap-encoding" xmlns:soap11="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="https://api.nciic.org.cn/NciicServices">
+<xsd:element name="nciicDiscern">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicDiscernResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckGetPhone">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="id" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckGetPhoneResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="ns1:FileObjectSetPhone"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckChina">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckChinaResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicGetCondition">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicGetConditionResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicExactSearch">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicExactSearchResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCourt">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCourtResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicFmxxEntry">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicFmxxEntryResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheck">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCombineSearch">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCombineSearchResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckMobile">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckMobileResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckFile">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="fileObject" nillable="true" type="ns1:FileObject"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckFileResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckHotel">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckHotelResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicKyxxEntry">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicKyxxEntryResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicBirthplaceCompare">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicBirthplaceCompareResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicGetFile">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="id" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicGetFileResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="ns1:FileObject"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicAddrExactSearch">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicAddrExactSearchResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckSetPhone">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="fileObject" nillable="true" type="ns1:FileObjectSetPhone"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckSetPhoneResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="ns1:FileObjectSetPhone"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCompare">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCompareResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicDateCollection">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicDateCollectionResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckScan">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="inLicense" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inConditions" nillable="true" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="inKey" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="nciicCheckScanResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="out" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:schema>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://domain.webservices.serv.nciic.com">
+<xsd:complexType name="FileObjectSetPhone">
+<xsd:sequence>
+<xsd:element minOccurs="0" name="file" nillable="true" type="xsd:base64Binary"/>
+<xsd:element minOccurs="0" name="info" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="license" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="type" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+<xsd:complexType name="FileObject">
+<xsd:sequence>
+<xsd:element minOccurs="0" name="err" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="file" nillable="true" type="xsd:base64Binary"/>
+<xsd:element minOccurs="0" name="license" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="returnType" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="type" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="nciicCheckSetPhoneRequest">
+    <wsdl:part name="parameters" element="tns:nciicCheckSetPhone">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckScanResponse">
+    <wsdl:part name="parameters" element="tns:nciicCheckScanResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCombineSearchRequest">
+    <wsdl:part name="parameters" element="tns:nciicCombineSearch">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicExactSearchRequest">
+    <wsdl:part name="parameters" element="tns:nciicExactSearch">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckFileResponse">
+    <wsdl:part name="parameters" element="tns:nciicCheckFileResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicBirthplaceCompareRequest">
+    <wsdl:part name="parameters" element="tns:nciicBirthplaceCompare">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCombineSearchResponse">
+    <wsdl:part name="parameters" element="tns:nciicCombineSearchResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckScanRequest">
+    <wsdl:part name="parameters" element="tns:nciicCheckScan">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicGetConditionRequest">
+    <wsdl:part name="parameters" element="tns:nciicGetCondition">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicFmxxEntryResponse">
+    <wsdl:part name="parameters" element="tns:nciicFmxxEntryResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckMobileRequest">
+    <wsdl:part name="parameters" element="tns:nciicCheckMobile">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicDiscernRequest">
+    <wsdl:part name="parameters" element="tns:nciicDiscern">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCompareResponse">
+    <wsdl:part name="parameters" element="tns:nciicCompareResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckHotelResponse">
+    <wsdl:part name="parameters" element="tns:nciicCheckHotelResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicBirthplaceCompareResponse">
+    <wsdl:part name="parameters" element="tns:nciicBirthplaceCompareResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicDiscernResponse">
+    <wsdl:part name="parameters" element="tns:nciicDiscernResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicGetConditionResponse">
+    <wsdl:part name="parameters" element="tns:nciicGetConditionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckResponse">
+    <wsdl:part name="parameters" element="tns:nciicCheckResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicKyxxEntryRequest">
+    <wsdl:part name="parameters" element="tns:nciicKyxxEntry">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicDateCollectionResponse">
+    <wsdl:part name="parameters" element="tns:nciicDateCollectionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckGetPhoneRequest">
+    <wsdl:part name="parameters" element="tns:nciicCheckGetPhone">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicFmxxEntryRequest">
+    <wsdl:part name="parameters" element="tns:nciicFmxxEntry">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicKyxxEntryResponse">
+    <wsdl:part name="parameters" element="tns:nciicKyxxEntryResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckGetPhoneResponse">
+    <wsdl:part name="parameters" element="tns:nciicCheckGetPhoneResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicGetFileRequest">
+    <wsdl:part name="parameters" element="tns:nciicGetFile">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckChinaRequest">
+    <wsdl:part name="parameters" element="tns:nciicCheckChina">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckFileRequest">
+    <wsdl:part name="parameters" element="tns:nciicCheckFile">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckMobileResponse">
+    <wsdl:part name="parameters" element="tns:nciicCheckMobileResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCourtRequest">
+    <wsdl:part name="parameters" element="tns:nciicCourt">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicGetFileResponse">
+    <wsdl:part name="parameters" element="tns:nciicGetFileResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicExactSearchResponse">
+    <wsdl:part name="parameters" element="tns:nciicExactSearchResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicAddrExactSearchRequest">
+    <wsdl:part name="parameters" element="tns:nciicAddrExactSearch">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckHotelRequest">
+    <wsdl:part name="parameters" element="tns:nciicCheckHotel">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicDateCollectionRequest">
+    <wsdl:part name="parameters" element="tns:nciicDateCollection">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckSetPhoneResponse">
+    <wsdl:part name="parameters" element="tns:nciicCheckSetPhoneResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckRequest">
+    <wsdl:part name="parameters" element="tns:nciicCheck">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicAddrExactSearchResponse">
+    <wsdl:part name="parameters" element="tns:nciicAddrExactSearchResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCourtResponse">
+    <wsdl:part name="parameters" element="tns:nciicCourtResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCheckChinaResponse">
+    <wsdl:part name="parameters" element="tns:nciicCheckChinaResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="nciicCompareRequest">
+    <wsdl:part name="parameters" element="tns:nciicCompare">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="NciicServicesPortType">
+    <wsdl:operation name="nciicDiscern">
+      <wsdl:input name="nciicDiscernRequest" message="tns:nciicDiscernRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicDiscernResponse" message="tns:nciicDiscernResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckGetPhone">
+      <wsdl:input name="nciicCheckGetPhoneRequest" message="tns:nciicCheckGetPhoneRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCheckGetPhoneResponse" message="tns:nciicCheckGetPhoneResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckChina">
+      <wsdl:input name="nciicCheckChinaRequest" message="tns:nciicCheckChinaRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCheckChinaResponse" message="tns:nciicCheckChinaResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicGetCondition">
+      <wsdl:input name="nciicGetConditionRequest" message="tns:nciicGetConditionRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicGetConditionResponse" message="tns:nciicGetConditionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicExactSearch">
+      <wsdl:input name="nciicExactSearchRequest" message="tns:nciicExactSearchRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicExactSearchResponse" message="tns:nciicExactSearchResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCourt">
+      <wsdl:input name="nciicCourtRequest" message="tns:nciicCourtRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCourtResponse" message="tns:nciicCourtResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicFmxxEntry">
+      <wsdl:input name="nciicFmxxEntryRequest" message="tns:nciicFmxxEntryRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicFmxxEntryResponse" message="tns:nciicFmxxEntryResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheck">
+      <wsdl:input name="nciicCheckRequest" message="tns:nciicCheckRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCheckResponse" message="tns:nciicCheckResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCombineSearch">
+      <wsdl:input name="nciicCombineSearchRequest" message="tns:nciicCombineSearchRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCombineSearchResponse" message="tns:nciicCombineSearchResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckMobile">
+      <wsdl:input name="nciicCheckMobileRequest" message="tns:nciicCheckMobileRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCheckMobileResponse" message="tns:nciicCheckMobileResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckFile">
+      <wsdl:input name="nciicCheckFileRequest" message="tns:nciicCheckFileRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCheckFileResponse" message="tns:nciicCheckFileResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckHotel">
+      <wsdl:input name="nciicCheckHotelRequest" message="tns:nciicCheckHotelRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCheckHotelResponse" message="tns:nciicCheckHotelResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicKyxxEntry">
+      <wsdl:input name="nciicKyxxEntryRequest" message="tns:nciicKyxxEntryRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicKyxxEntryResponse" message="tns:nciicKyxxEntryResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicBirthplaceCompare">
+      <wsdl:input name="nciicBirthplaceCompareRequest" message="tns:nciicBirthplaceCompareRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicBirthplaceCompareResponse" message="tns:nciicBirthplaceCompareResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicGetFile">
+      <wsdl:input name="nciicGetFileRequest" message="tns:nciicGetFileRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicGetFileResponse" message="tns:nciicGetFileResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicAddrExactSearch">
+      <wsdl:input name="nciicAddrExactSearchRequest" message="tns:nciicAddrExactSearchRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicAddrExactSearchResponse" message="tns:nciicAddrExactSearchResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckSetPhone">
+      <wsdl:input name="nciicCheckSetPhoneRequest" message="tns:nciicCheckSetPhoneRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCheckSetPhoneResponse" message="tns:nciicCheckSetPhoneResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCompare">
+      <wsdl:input name="nciicCompareRequest" message="tns:nciicCompareRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCompareResponse" message="tns:nciicCompareResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicDateCollection">
+      <wsdl:input name="nciicDateCollectionRequest" message="tns:nciicDateCollectionRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicDateCollectionResponse" message="tns:nciicDateCollectionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckScan">
+      <wsdl:input name="nciicCheckScanRequest" message="tns:nciicCheckScanRequest">
+    </wsdl:input>
+      <wsdl:output name="nciicCheckScanResponse" message="tns:nciicCheckScanResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="NciicServicesHttpBinding" type="tns:NciicServicesPortType">
+    <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="nciicDiscern">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicDiscernRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicDiscernResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckGetPhone">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCheckGetPhoneRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCheckGetPhoneResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckChina">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCheckChinaRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCheckChinaResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicGetCondition">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicGetConditionRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicGetConditionResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicExactSearch">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicExactSearchRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicExactSearchResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCourt">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCourtRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCourtResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicFmxxEntry">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicFmxxEntryRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicFmxxEntryResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheck">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCheckRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCheckResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCombineSearch">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCombineSearchRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCombineSearchResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckMobile">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCheckMobileRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCheckMobileResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckFile">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCheckFileRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCheckFileResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckHotel">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCheckHotelRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCheckHotelResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicKyxxEntry">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicKyxxEntryRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicKyxxEntryResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicBirthplaceCompare">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicBirthplaceCompareRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicBirthplaceCompareResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicGetFile">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicGetFileRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicGetFileResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicAddrExactSearch">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicAddrExactSearchRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicAddrExactSearchResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckSetPhone">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCheckSetPhoneRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCheckSetPhoneResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCompare">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCompareRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCompareResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicDateCollection">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicDateCollectionRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicDateCollectionResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="nciicCheckScan">
+      <wsdlsoap:operation soapAction=""/>
+      <wsdl:input name="nciicCheckScanRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="nciicCheckScanResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="NciicServices">
+    <wsdl:port name="NciicServicesHttpPort" binding="tns:NciicServicesHttpBinding">
+      <wsdlsoap:address location="https://ws.nciic.org.cn/nciic_ws/services/NciicServices"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
