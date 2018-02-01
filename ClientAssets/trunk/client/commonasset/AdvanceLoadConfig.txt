@@ -1,0 +1,300 @@
+﻿-------------触发条件类型
+--0等级
+--1任务
+--2随同游戏配置一同加载
+--3开始游戏
+--4性别
+--5职业
+--.........
+
+-------------加载条件类型
+--0人物模型
+--1怪物模型
+--2特效
+--3其他jpg
+--4其他png
+--5技能特效
+--6logo
+--...........
+
+AdvanceLoadConfig = {
+	{
+		--最大转生以及等级来减少消耗
+		maxCircle = 1,
+		maxLevel = 50,
+		--加载条件
+		triggerList = {
+			{
+				type = 2,
+				valueList = 
+				{
+					
+				},--具体条件值(等级(转生、等级)任务(任务ID,(可接?正在做?0,1)))
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 6,
+				loadName = 
+				{
+					0,1,2,--加载游戏logo
+				},--加载对象的序列号ID
+			},
+			{
+				loadType = 2,
+				loadName = 
+				{
+					50077,--开始游戏按钮特效
+				},--加载对象的序列号ID
+			},
+		},
+		isNeedLoad = true,--以后如果有所改动-不需要提前加载这指定数据的时候改下此值即可
+	},
+	{
+		maxCircle = 1,
+		maxLevel = 50,
+		triggerList = {
+			{
+				type = 3,
+				valueList = 
+				{
+					
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 2,
+				loadName = 
+				{
+					50100,32,33,34,35,50113,
+				},
+			},
+			{
+				loadType = 3,
+				loadName = 
+				{
+					37,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+	{
+		--坐骑系统开放加载图片
+		maxCircle = 0,
+		maxLevel = 35,
+		triggerList = {
+			{
+				type = 0,
+				valueList = 
+				{
+				0,33,
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 4,
+				loadName = 
+				{
+					01001,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+	{
+		--翅膀系统开放加载图片
+		maxCircle = 0,
+		maxLevel = 45,
+		triggerList = {
+			{
+				type = 0,
+				valueList = 
+				{
+				0,43,
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 4,
+				loadName = 
+				{
+					01002,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+	{
+		--魂玉系统开放加载图片
+		maxCircle = 0,
+		maxLevel = 55,
+		triggerList = {
+			{
+				type = 0,
+				valueList = 
+				{
+				0,53,
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 4,
+				loadName = 
+				{
+					01004,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+	{
+		--异宝系统开放加载图片
+		maxCircle = 0,
+		maxLevel = 60,
+		triggerList = {
+			{
+				type = 0,
+				valueList = 
+				{
+				0,87,
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 4,
+				loadName = 
+				{
+					01006,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+	{
+		--武灵系统开放加载
+		maxCircle = 0,
+		maxLevel = 60,
+		triggerList = {
+			{
+				type = 0,
+				valueList = 
+				{
+				0,28,	
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 2,
+				loadName = 
+				{
+					50115,50116,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+	{
+		--战士武灵技能特效开放加载
+		maxCircle = 0,
+		maxLevel = 60,
+		triggerList = {
+			{
+				type = 0,
+				valueList = 
+				{
+				0,28,	
+				},
+				type = 5,
+				valueList = 
+				{
+				 1,	
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 5,
+				loadName = 
+				{
+					00406,00407,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+	{
+		--法师武灵技能特效开放加载
+		maxCircle = 0,
+		maxLevel = 60,
+		triggerList = {
+			{
+				type = 0,
+				valueList = 
+				{
+				0,28,	
+				},
+				type = 5,
+				valueList = 
+				{
+				 2,	
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 5,
+				loadName = 
+				{
+					00408,00409,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+	{
+		--道士武灵技能特效开放加载
+		maxCircle = 0,
+		maxLevel = 60,
+		triggerList = {
+			{
+				type = 0,
+				valueList = 
+				{
+				0,28,	
+				},
+				type = 5,
+				valueList = 
+				{
+				 3,	
+				},
+			},
+		},
+		loadData = 
+		{
+			{
+				loadType = 5,
+				loadName = 
+				{
+					00410,00411,
+				},
+			},
+		},
+		isNeedLoad = true,
+	},
+}

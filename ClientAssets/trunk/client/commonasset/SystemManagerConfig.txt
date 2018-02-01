@@ -1,0 +1,434 @@
+﻿--系统开启、关闭配置表
+SystemManagerConfig={
+
+
+	--窗口类表
+	winManagerList = {
+		win19 = {--成就窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 1,
+				},
+			},
+		},
+		win12 = {--排行榜窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 60,
+					isSpaning = 0,
+				},
+			},
+		},
+		win181 = {--异宝窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 66,
+				},
+				{
+					level = 66,
+				},
+				{
+					actorCircle = 1,
+					level = 60,
+				},
+			},
+		},
+		win166 = {--BOSS窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					--BOSS特殊点-窗口图标同走此处
+					level = 55,
+				},
+				{
+					level = 55,--可击杀boss
+				},
+				{
+					level = 55,--个人boss
+				},
+				{
+					level = 55,--地图boss
+				},
+				{
+				    actorCircle = 999,
+					level = 99999,--狩猎boss	屏蔽
+				},
+				{
+                    actorCircle = 999,
+					level = 999999,--boss秘境	屏蔽
+				},
+				{
+					level = 55,--地宫boss
+				},
+				{
+					level = 55,--世界boss
+				},
+				{
+                    actorCircle = 999,
+					level = 99999,--狩猎点数	屏蔽
+				},
+			},
+			isShow = true,--是否在右上显示
+		},
+		win165 = {--翅膀窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 64,
+				},
+			},
+		},
+		win164 = {--坐骑窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 40,
+				},
+			},
+		},
+		win178 = {--灵炉窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 1,
+				},
+				{
+					level = 1,
+				},
+				{
+					level = 1,
+				},
+				{
+					level = 65,
+				},
+				{
+					level = 65,
+				},
+			},
+		},
+		win35 = {--福利大厅窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 1,
+				},
+			},
+		},
+		win43 = {--扫荡窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 60,
+				},
+			},
+		},
+		win52 = {--竞技场窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 45,
+				},
+			},
+		},
+                win182 = {--官职窗口
+			open = 
+			{
+				--窗口涉及页签
+				{
+					level = 50,
+				},
+			},
+		},
+		win179 = {--武灵窗口
+		open = 
+			{
+				--窗口涉及页签
+				{
+					level = 60,
+				},
+			},
+		},
+		win188 = {--投资窗口
+		open = 
+			{
+				--窗口涉及页签
+				{
+					level = 45,
+				},
+			},
+		},
+		win75 = {--勇闯三关
+		open = 
+			{
+				--窗口涉及页签
+				{
+					actorCircle = 1,
+					level = 60,
+				},
+			},
+		},
+		win31 = {--远古宝藏
+		open = 
+			{
+				--窗口涉及页签
+				{
+					level = 30,
+				},
+			},
+		},
+	},
+	
+	
+	--图标类表
+	iconManagerList = {
+		icon121 = {--上古武灵图标
+			open = 
+			{
+				isOpenThisSystem = true,--窗口用到,开不开该系统
+				isSpaning = 2,--0不在跨服才显示1跨服才显示2无视跨服
+				openDay = -1,--没有开服天数限制，可忽略
+				combineDay = -1,--没有合服天数限制，可忽略
+				actorCircle = 0,--转生等级
+				level = 60,--等级
+			},
+			close = --没有关闭也可忽略
+			{
+				
+			},
+			isShow = true,--是否在右上显示
+			row = 0,--所在行
+			col = 2,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon114 = {--福利大厅图标
+			open = 
+			{
+				level = 1,
+			},
+			isShow = true,
+			row = 1,--所在行
+			col = 0,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon14 = {--首充图标
+			open = 
+			{
+				level = 1,
+			},
+			isShow = true,
+			row = 1,--所在行
+			col = 3,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon15 = {--远古宝藏图标
+			open = 
+			{
+				level = 30,
+			},
+			isShow = true,
+			row = 0,--所在行
+			col = 1,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon116 = {--特惠图标
+			open = 
+			{
+				level = 50,
+			},
+			isShow = false,
+			isPlayEffect = true,--开关特效
+		},
+		icon26 = {--七天登录图标
+			open = 
+			{
+				level = 55,
+			},
+			isShow = false,
+			row = 0,--所在行
+			col = 6,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon27 = {--微端下载图标
+			open = 
+			{
+				level = 10,
+			},
+			isShow = true,
+			row = 1,--所在行
+			col = 2,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon16 = {--在线奖励图标
+			open = 
+			{
+				level = 1,
+			},
+			isShow = false,
+			isPlayEffect = true,--开关特效
+		},
+		icon25 = {--私人助理图标
+			open = 
+			{
+				level = 50,
+			},
+			isShow = false,
+			row = 0,--所在行
+			col = 0,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon24 = {--竞技场图标
+			open = 
+			{
+				level = 68,
+			},
+			isShow = true,
+			row = 1,--所在行
+			col = 6,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon47 = {--勇闯三关图标
+			open = 
+			{
+				actorCircle = 1,
+				level = 60,
+			},
+			isShow = true,
+			row = 0,--所在行
+			col = 4,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon19 = {--列王幻境图标
+			open = 
+			{
+				level = 65,
+			},
+			isShow = true,
+			row = 0,--所在行
+			col = 3,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon120 = {--攻城战图标
+			open = 
+			{
+				level = 53,
+			},
+			isShow = true,
+			row = 1,--所在行
+			col = 5,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon61 = --杀敌榜图标
+		{
+			isShow = true,
+			row = 1,--所在行
+			col = 4,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon51 = --开服竞技图标
+		{
+			isShow = true,
+			row = 1,--所在行
+			col = 4,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon115 = --祈福泉水图标
+		{
+		    open = 
+			{
+				level = 55,
+			},
+			isShow = true,
+			row = 0,--所在行
+			col = 7,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon119 = --游戏收藏图标
+		{
+			isShow = true,
+			row = 0,--所在行
+			col = 5,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon118 = --每日充值图标
+		{
+		    open = 
+			{
+				level = 40,
+			},
+			isShow = true,
+			row = 1,--所在行
+			col = 1,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon122 = --神秘黑市图标
+		{
+			isShow = false,
+			row = 1,--所在行
+			col = 5,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon123 = --开服典礼图标
+		{
+			isShow = true,
+			row = 1,--所在行
+			col = 4,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon124 = --58问答图标
+		{
+			isShow = true,
+			row = 0,--所在行
+			col = 0,--所在列
+			isPlayEffect = false,--开关特效
+		},
+		icon125 = --58有礼图标
+		{
+			isShow = true,
+			row = 0,--所在行
+			col = 8,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon126 = --QQ群
+		{
+			isShow = true,
+			row = 0,--所在行
+			col = 1,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon127 = --封测活动图标
+		{
+		    open = 
+			{
+				level = 45,
+			},
+			isShow = false,
+			row = 0,--所在行
+			col = 9,--所在列
+			isPlayEffect = true,--开关特效
+		},
+		icon128 = --投资理财图标
+		{
+		    open = 
+			{
+				level = 45,
+			},
+			isShow = true,
+			row = 0,--所在行
+			col = 10,--所在列
+			isPlayEffect = true,--开关特效
+		},
+	},
+}

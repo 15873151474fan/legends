@@ -1,0 +1,2 @@
+logo  mapswitch
+根据来logoImgExt进行读取
